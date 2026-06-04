@@ -18,12 +18,12 @@
       --accent-2: #a78bfa;
       --good: #4ade80;
       --warn: #fbbf24;
-      --shadow: 0 18px 40px rgba(8, 15, 28, 0.45);
+      --shadow: 0 6px 18px rgba(8, 15, 28, 0.28);
       --radius: 18px;
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: auto; }
     body {
       margin: 0;
       font-family: Inter, "Segoe UI", Arial, sans-serif;
@@ -47,8 +47,9 @@
       overflow: auto;
       padding: 14px;
       border-right: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(7, 14, 27, 0.98), rgba(8, 14, 24, 0.96));
-      backdrop-filter: blur(8px);
+      background: #080e18;
+      contain: paint;
+      scrollbar-gutter: stable;
     }
 
     .brand {
@@ -178,6 +179,32 @@
       border-color: rgba(56, 189, 248, 0.42);
       color: #eff6ff;
     }
+    .pager {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) 40px;
+      gap: 8px;
+      align-items: center;
+      margin: 10px 0 14px;
+    }
+    .pager span {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+    .pager button {
+      width: 40px;
+      height: 36px;
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: 8px;
+      background: rgba(56, 189, 248, 0.10);
+      color: #eff6ff;
+      font: 700 22px/1 Inter, sans-serif;
+      cursor: pointer;
+    }
+    .pager button:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
 
     .content {
       padding: 18px 20px 42px;
@@ -227,12 +254,11 @@
       background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(8, 14, 24, 0.96));
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      box-shadow: 0 2px 8px rgba(8, 15, 28, 0.22);
       padding: 18px;
       margin-bottom: 16px;
       scroll-margin-top: 12px;
-      content-visibility: auto;
-      contain-intrinsic-size: 260px 420px;
+      contain: layout paint style;
     }
 
     .article-card h2 {
@@ -316,7 +342,7 @@
       border: 1px solid rgba(148, 163, 184, 0.16);
       border-radius: 18px;
       background: linear-gradient(180deg, rgba(15, 23, 42, 0.82), rgba(8, 14, 24, 0.96));
-      box-shadow: var(--shadow);
+      box-shadow: none;
       padding: 14px;
       scroll-margin-top: 12px;
     }
@@ -341,6 +367,56 @@
     .hljs-number,.hljs-literal{color:#fdba74}
     .hljs-comment,.hljs-quote{color:#94a3b8;font-style:italic}
     .hljs-built_in,.hljs-symbol,.hljs-variable.language_{color:#f9a8d4}
+
+    @media (max-width: 900px) {
+      body {
+        background: #07111f;
+      }
+      .shell {
+        display: block;
+      }
+      .sidebar {
+        position: static;
+        height: auto;
+        overflow: visible;
+        contain: none;
+        scrollbar-gutter: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .nav-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .category-group {
+        min-width: 0;
+      }
+      .category-group .page-link {
+        display: none;
+      }
+      .content {
+        padding: 14px 10px 32px;
+      }
+      .topbar {
+        align-items: start;
+        flex-direction: column;
+      }
+      .chip-row {
+        display: none;
+      }
+      .category-page {
+        padding: 8px 0;
+        border: 0;
+        background: transparent;
+      }
+      .article-card {
+        padding: 14px;
+        border-radius: 12px;
+        box-shadow: none;
+      }
+      .article-card pre {
+        -webkit-overflow-scrolling: touch;
+      }
+    }
 
   </style>
 </head>
@@ -39332,6 +39408,21 @@ Explanation:
         let activeCategory = null;
         let activePage = 1;
         const renderCache = new Map();
+        const groups = new Map();
+        const categoryCounts = new Map(Object.keys(CATEGORY_KEYWORDS).map((name) => [name, 0]));
+        const pageSize = 15;
+
+        sections.forEach((section) => {
+          const raw = section.join('\n');
+          const title = section[0].replace(/^##\s+/, '').trim();
+          const category = classifySection(raw, categoryCounts, sections.length);
+          categoryCounts.set(category, (categoryCounts.get(category) || 0) + 1);
+          if (!groups.has(category)) groups.set(category, []);
+          groups.get(category).push({ title, section });
+        });
+
+        const sortedCategories = [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
+        activeCategory = sortedCategories[0]?.[0] || null;
 
         function buildCategoryPage(name, items) {
           const intro = name === 'Dynamic Programming' ? 'State transitions, recurrence, and optimization patterns.' :
@@ -39348,7 +39439,12 @@ Explanation:
             const body = section.slice(1).join('\n');
             const cached = renderCache.get(body);
             const rendered = cached || marked.parse(body);
-            if (!cached) renderCache.set(body, rendered);
+            if (!cached) {
+              renderCache.set(body, rendered);
+              if (renderCache.size > 75) {
+                renderCache.delete(renderCache.keys().next().value);
+              }
+            }
             return `<article class="article-card" id="${slugify(title)}"><h2>${escapeHtml(title)}</h2>${rendered}</article>`;
           }).join('');
 
@@ -39356,28 +39452,9 @@ Explanation:
         }
 
         function render() {
-          const filtered = sections;
-
-          const groups = new Map();
-          const categoryCounts = new Map(Object.keys(CATEGORY_KEYWORDS).map((name) => [name, 0]));
-          filtered.forEach((section) => {
-            const raw = section.join('\n');
-            const titleLine = section[0];
-            const title = titleLine.replace(/^##\s+/, '').trim();
-            const category = classifySection(raw, categoryCounts, sections.length);
-            categoryCounts.set(category, (categoryCounts.get(category) || 0) + 1);
-            if (!groups.has(category)) groups.set(category, []);
-            groups.get(category).push({ title, raw, section });
-          });
-
-          const sortedCategories = [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
           if (!activeCategory || !groups.has(activeCategory)) {
             activeCategory = sortedCategories[0]?.[0] || null;
           }
-
-          toc.innerHTML = sortedCategories.map(([name, items]) => `
-            <a class="nav-link ${name === activeCategory ? 'is-active' : ''}" href="#${slugify(name)}" data-category="${escapeHtml(name)}">${escapeHtml(name)} <span class="nav-badge">${items.length}</span></a>
-          `).join('');
 
           if (!sortedCategories.length) {
             content.innerHTML = '<article class="article-card"><h2>No matches</h2><p>No questions available for this view.</p></article>';
@@ -39385,13 +39462,17 @@ Explanation:
           }
 
           const items = groups.get(activeCategory) || sortedCategories[0][1];
-          const pageSize = 50;
           const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
           if (activePage > totalPages) activePage = totalPages;
           const start = (activePage - 1) * pageSize;
           const pageItems = items.slice(start, start + pageSize);
           const pageLabel = totalPages > 1 ? ` · Page ${activePage}/${totalPages}` : '';
-          const pageHtml = `<section class="category-page" id="${slugify(activeCategory)}-page-${activePage}"><h2>${escapeHtml(activeCategory)}${escapeHtml(pageLabel)}</h2><p>Showing ${pageItems.length} questions on this page.</p>${buildCategoryPage(activeCategory, pageItems)}</section>`;
+          const pager = `<nav class="pager" aria-label="Question pages">
+            <button type="button" data-page="${activePage - 1}" title="Previous page" ${activePage === 1 ? 'disabled' : ''}>‹</button>
+            <span>Page ${activePage} of ${totalPages}</span>
+            <button type="button" data-page="${activePage + 1}" title="Next page" ${activePage === totalPages ? 'disabled' : ''}>›</button>
+          </nav>`;
+          const pageHtml = `<section class="category-page" id="${slugify(activeCategory)}-page-${activePage}"><h2>${escapeHtml(activeCategory)}${escapeHtml(pageLabel)}</h2><p>Showing ${pageItems.length} questions on this page.</p>${pager}${buildCategoryPage(activeCategory, pageItems)}${pager}</section>`;
 
           requestAnimationFrame(() => {
             content.innerHTML = pageHtml;
@@ -39424,6 +39505,15 @@ Explanation:
           activeCategory = link.dataset.category;
           activePage = Number(link.dataset.page) || 1;
           render();
+          requestAnimationFrame(() => content.scrollIntoView({ block: 'start' }));
+        });
+
+        content.addEventListener('click', (event) => {
+          const button = event.target.closest('button[data-page]');
+          if (!button || button.disabled) return;
+          activePage = Number(button.dataset.page);
+          render();
+          requestAnimationFrame(() => content.scrollIntoView({ block: 'start' }));
         });
 
         render();
