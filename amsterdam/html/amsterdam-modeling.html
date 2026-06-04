@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Amsterdam Modeling and Model Engineering Deep Dive</title><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" rel="stylesheet"/><style>:root{color-scheme:dark;--bg:#0b1020;--panel:#111827;--panel2:#0f172a;--text:#e6edf3;--muted:#9aa8bb;--border:#263348;--accent:#fb7185;--code:#080d19;--soft:color-mix(in srgb,var(--accent) 14%,transparent)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 0%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.64}.page{width:min(1240px,calc(100vw - 28px));margin:0 auto;padding:12px 0 54px}.topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 14px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(135deg,rgba(17,24,39,.97),rgba(15,23,42,.92));position:sticky;top:0;z-index:20;box-shadow:0 12px 36px rgba(0,0,0,.3);backdrop-filter:blur(12px)}h1{margin:0;font-size:clamp(.98rem,1.6vw,1.22rem);line-height:1.2}.meta{color:var(--muted);font-size:.8rem}.badge{border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));background:var(--soft);color:var(--accent);border-radius:999px;padding:5px 9px;font-size:.78rem;white-space:nowrap}.top-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.top-tab{border:1px solid var(--border);background:rgba(17,24,39,.78);color:var(--muted);padding:8px 11px;border-radius:999px;font:inherit;font-size:.88rem;cursor:pointer}.top-tab:hover{color:var(--text);border-color:var(--accent)}.top-tab.active{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:760}.panel{display:none}.panel.active{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px}.side{position:sticky;top:86px;align-self:start;max-height:calc(100vh - 104px);overflow:auto;border:1px solid var(--border);border-radius:14px;background:rgba(17,24,39,.78);padding:10px}.side-title{font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800;margin:4px 6px 8px}.side a{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:start;color:var(--muted);text-decoration:none;padding:8px 6px;border-radius:9px;font-size:.88rem;line-height:1.25}.side a:hover{background:rgba(148,163,184,.1);color:var(--text)}.side span{color:var(--accent);font-weight:800}.content{min-width:0;border:1px solid var(--border);border-radius:16px;background:rgba(17,24,39,.84);box-shadow:0 14px 42px rgba(0,0,0,.24);padding:22px}.doc-section{padding:0 0 26px;margin:0 0 26px;border-bottom:1px solid var(--border)}.doc-section:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}.article h1,.article h2,.article h3,.article h4{line-height:1.25;margin:1.25em 0 .6em}.article h1:first-child,.article h2:first-child,.article h3:first-child{margin-top:0}.article h1{font-size:1.7rem}.article h2{font-size:1.35rem;border-bottom:1px solid var(--border);padding-bottom:.3rem}.article h3{font-size:1.13rem;color:#dbeafe}.article h4{font-size:1.02rem;color:#e9d5ff}.article p{margin:.72rem 0}.article ul,.article ol{padding-left:1.35rem}.article li{margin:.32rem 0}.article code{background:rgba(125,211,252,.12);color:#d8f3ff;padding:.12rem .34rem;border-radius:5px;font-family:"Cascadia Code",Consolas,monospace;font-size:.92em}pre{margin:1rem 0;border:1px solid #263348;border-radius:12px;background:var(--code);overflow:auto}pre code{display:block;background:transparent!important;color:#e6edf3;padding:18px;white-space:pre;line-height:1.55;font-size:.92rem}.table-scroll{overflow-x:auto;margin:1rem 0}.article table{width:100%;min-width:520px;border-collapse:collapse}.article th,.article td{border:1px solid var(--border);padding:9px 10px;vertical-align:top}.article th{background:rgba(148,163,184,.13);color:#dbeafe;text-align:left}.article tr:nth-child(even) td{background:rgba(15,23,42,.45)}blockquote{margin:1rem 0;padding:.5rem 1rem;border-left:4px solid var(--accent);background:var(--soft);color:#d5e7f5}img{max-width:100%;border-radius:10px;border:1px solid var(--border)}@media(max-width:900px){.page{width:min(100vw - 18px,1240px)}.topbar{position:static;grid-template-columns:1fr}.panel.active{grid-template-columns:1fr}.side{position:static;max-height:none}.content{padding:16px}}
+.side-toggle{width:34px;height:34px;display:grid;place-items:center;margin:0 0 10px;border:1px solid var(--border,var(--line,#263348));border-radius:10px;background:rgba(17,24,39,.78);color:var(--text,var(--ink,#e6edf3));cursor:pointer;font:900 15px/1 "Segoe UI",Arial,sans-serif}.side-toggle:hover{border-color:var(--accent,#78a6ff);background:var(--soft,rgba(120,166,255,.12))}body.toc-collapsed .panel.active{grid-template-columns:46px minmax(0,1fr)}body.toc-collapsed .side{width:46px;min-width:46px;padding:8px 6px;overflow:hidden}body.toc-collapsed .side>*:not(.side-toggle){display:none}body.toc-collapsed .side-toggle{margin:0 auto}.panel.active{transition:grid-template-columns .18s ease}.side{transition:width .18s ease,padding .18s ease}
+
+/* Layout cleanup: inner section navigation is a horizontal tab row, not a second left panel. */
+.panel.active{display:block!important;}
+.side{position:sticky!important;top:62px!important;z-index:10!important;height:auto!important;min-height:0!important;max-height:72px!important;overflow-x:auto!important;overflow-y:hidden!important;display:flex!important;gap:6px!important;align-items:center!important;margin:0 0 12px!important;padding:8px!important;width:auto!important;min-width:0!important;}
+.side-title{flex:0 0 auto!important;margin:0 8px 0 2px!important;white-space:nowrap!important;}
+.side a{display:inline-flex!important;grid-template-columns:none!important;gap:7px!important;align-items:center!important;white-space:nowrap!important;min-width:max-content!important;border-radius:999px!important;padding:7px 10px!important;}
+.side-toggle{display:none!important;}
+body.toc-collapsed .panel.active{display:block!important;}
+body.toc-collapsed .side{width:auto!important;min-width:0!important;padding:8px!important;overflow-x:auto!important;overflow-y:hidden!important;}
+body.toc-collapsed .side>*:not(.side-toggle){display:inherit!important;}
+
+</style></head><body class="toc-collapsed"><div class="page"><header class="topbar"><div><h1>Amsterdam Modeling and Model Engineering Deep Dive</h1><div class="meta">amsterdam-modeling.md ? 6 top sections ? Modeling deep dive</div></div></header><nav aria-label="Top sections" class="top-tabs"><button class="top-tab active" data-panel="panel-0" type="button">Opening</button>
+<button class="top-tab" data-panel="panel-1" type="button">Positioning</button>
+<button class="top-tab" data-panel="panel-2" type="button">Retrieval Modeling</button>
+<button class="top-tab" data-panel="panel-3" type="button">LLM + Creative</button>
+<button class="top-tab" data-panel="panel-4" type="button">Training Lifecycle</button>
+<button class="top-tab" data-panel="panel-5" type="button">Interview Prep</button></nav><section class="panel active" id="panel-0"><main class="content"><section class="doc-section article" id="opening"><p>Amsterdam Modeling 与模型工程深度准备</p>
+<p>This document reframes the Amsterdam experience from a modeling and product-engineering angle. The goal is not to claim ownership of every foundation model. The stronger and more credible story is that you owned the engineering layer that makes model iteration production-safe: data contracts, training/evaluation pipelines, embedding and ranking quality loops, model/index compatibility, feedback signals, rollout gates, and serving constraints.</p>
+<p>这份文档从 modeling 和 product engineering 的角度重新组织 Amsterdam 经历。重点不是声称自己拥有所有 foundation model，而是强调你负责把模型迭代变成可生产化的工程系统：数据契约、训练与评估流水线、embedding/ranking 质量闭环、模型与索引兼容性、反馈信号、发布门禁以及服务端约束。</p></section></main></section>
+<section class="panel" id="panel-1"><main class="content"><section class="doc-section article" id="positioning"><h2 id="positioning">Positioning</h2></section>
+<section class="doc-section article" id="定位"><h2 id="定位">定位</h2>
+<p>The interview framing should be:</p>
+<p>面试中的核心定位可以这样说：</p>
+<blockquote><p>I was not primarily doing novel model research. My work sat at the boundary of applied modeling, product engineering, and AI platform infrastructure. I helped make model iteration work in production: dataset/versioning contracts, embedding and ranking pipelines, offline and online evaluation, model/index compatibility, feedback loops from product usage, and safe rollout for user-facing AI workflows.</p></blockquote>
+<blockquote><p>我主要不是做全新模型研究，而是在 applied modeling、product engineering 和 AI platform infrastructure 的交界处工作。我做的是让模型迭代可以稳定进入生产：数据集和版本契约、embedding/ranking pipeline、离线和在线评估、模型与索引兼容性、来自产品使用行为的反馈闭环，以及面向用户 AI workflow 的安全发布。</p></blockquote>
+<p>This is a strong product-engineering story because model quality is not only an offline ML metric. In Amsterdam-style creative products, model quality affects search relevance, creative workflow latency, privacy, explainability, cost, rollout safety, and whether partner product teams can ship new AI features quickly.</p>
+<p>这是一个很强的 product engineering 叙事，因为模型质量不只是离线 ML 指标。在 Amsterdam 这种创意产品中，模型质量会影响搜索相关性、创意 workflow 延迟、隐私、可解释性、成本、发布安全，以及产品团队能否快速上线新的 AI 功能。</p></section>
+<section class="doc-section article" id="how-this-connects-to-the-two-amsterdam-projects"><h2 id="how-this-connects-to-the-two-amsterdam-projects">How This Connects To The Two Amsterdam Projects</h2></section>
+<section class="doc-section article" id="它如何连接两个-amsterdam-项目"><h2 id="它如何连接两个-amsterdam-项目">它如何连接两个 Amsterdam 项目</h2>
+<p>Project 2, Multimodal Search and Discovery, is the stronger modeling project. It naturally involves multimodal embeddings, cross-modal alignment, dense and lexical retrieval, multi-stage ranking, hard-negative mining, feature logging, offline evaluation, A/B testing, and model/index rollout.</p>
+<p>Project 2，也就是 Multimodal Search and Discovery，是更强的 modeling 项目。它天然涉及多模态 embedding、跨模态对齐、dense 和 lexical retrieval、多阶段 ranking、hard-negative mining、feature logging、离线评估、A/B testing，以及模型与索引发布。</p>
+<p>Project 1, Hybrid AI Execution Platform, is the stronger model-lifecycle and model-serving project. It involves model/prompt/index versioning, LLM-as-Judge evaluation, RAG evaluation, canary rollout, token-aware serving constraints, model routing, edge/cloud model tradeoffs, and safe rollout for GenAI and LLM-powered workflows.</p>
+<p>Project 1，也就是 Hybrid AI Execution Platform，是更强的 model lifecycle 与 model serving 项目。它涉及模型、prompt、索引版本管理，LLM-as-Judge 评估，RAG 评估，canary 发布，token-aware serving 约束，模型路由，端云模型取舍，以及 GenAI/LLM workflow 的安全发布。</p>
+<p>The combined story is:</p>
+<p>组合起来的故事是：</p>
+<blockquote><p>I worked on both the retrieval/ranking model loop and the production model-execution loop. Earlier, I helped build the multimodal search platform where embeddings, rankers, indexes, and feedback drove product discovery quality. Later, I generalized the model lifecycle into a shared AI execution layer with versioning, evaluation, routing, and rollout safety across multimodal and LLM-powered workflows.</p></blockquote>
+<blockquote><p>我同时做过 retrieval/ranking 的模型闭环，也做过生产化模型执行闭环。前期我参与构建多模态搜索平台，embedding、ranker、index 和反馈信号共同决定产品 discovery 质量。后期我把模型生命周期能力抽象到共享 AI 执行层中，支持跨多模态和 LLM workflow 的版本管理、评估、路由和发布安全。</p></blockquote></section>
+<section class="doc-section article" id="resume-bullets-modeling-heavy-version"><h2 id="resume-bullets-modeling-heavy-version">Resume Bullets: Modeling-Heavy Version</h2></section>
+<section class="doc-section article" id="简历子弹-偏-modeling-版本"><h2 id="简历子弹-偏-modeling-版本">简历子弹：偏 Modeling 版本</h2>
+<h3 id="project-1-ai-platform-hybrid-execution">Project 1: AI Platform / Hybrid Execution</h3>
+<h3 id="项目-1-ai-platform-hybrid-execution">项目 1：AI Platform / Hybrid Execution</h3>
+<ul><li>Built model lifecycle infrastructure for multimodal and LLM-powered Amsterdam AI workflows, partnering with product and applied science teams on model/prompt/index versioning, offline replay, LLM-as-Judge evaluation, canary promotion, and rollback gates. Connected model quality signals with workflow traces, latency, GPU cost, and product-level acceptance metrics to safely launch user-facing AI changes.</li></ul>
+<ul><li>为 Amsterdam 多模态与 LLM-powered AI workflow 构建模型生命周期基础设施，与产品和 applied science 团队协作支持模型、prompt、索引版本管理，离线 replay，LLM-as-Judge 评估，canary promotion 和 rollback gate。将模型质量信号与 workflow trace、延迟、GPU 成本和产品级接受指标连接起来，使面向用户的 AI 变更可以安全发布。</li></ul>
+<ul><li>Designed evaluation and rollout contracts for generative editing, semantic retrieval, media understanding, assistant-style workflows, and RAG-style experiences. Added deterministic checks, semantic evaluation, model/index compatibility validation, traffic shadowing, and live monitoring to reduce regression risk across model, prompt, routing, and retrieval changes.</li></ul>
+<ul><li>为生成式编辑、语义检索、媒体理解、assistant-style workflow 和 RAG-style 体验设计评估与发布契约。加入确定性检查、语义评估、模型/索引兼容性验证、shadow traffic 和在线监控，降低模型、prompt、routing 和 retrieval 变更带来的回归风险。</li></ul>
+<h3 id="project-2-multimodal-search-and-discovery">Project 2: Multimodal Search and Discovery</h3>
+<h3 id="项目-2-multimodal-search-and-discovery">项目 2：Multimodal Search and Discovery</h3>
+<ul><li>Developed the model iteration loop for multimodal retrieval and ranking, including embedding dataset generation, hard-negative mining, feature logging, offline recall/NDCG evaluation, and A/B testing. Integrated encoder/ranker versioning with Milvus and Elasticsearch index publishing so new models and indexes could be evaluated and rolled out without breaking retrieval quality or filter correctness.</li></ul>
+<ul><li>构建多模态 retrieval 和 ranking 的模型迭代闭环，包括 embedding 数据集生成、hard-negative mining、feature logging、离线 recall/NDCG 评估和 A/B testing。将 encoder/ranker 版本管理与 Milvus、Elasticsearch 索引发布结合起来，使新模型和新索引可以被评估和发布，同时不破坏 retrieval 质量和 filter 正确性。</li></ul>
+<ul><li>Partnered on aligned multimodal embedding and ranking systems for creative asset discovery across image, video, audio, 3D, and document modalities. Used shared embedding spaces, vector-lexical candidate generation, cross-modal retrieval, feature-based reranking, and product feedback signals such as clicks, saves, downloads, edits, and downstream engagement to improve discovery quality.</li></ul>
+<ul><li>参与面向 image、video、audio、3D 和 document 模态的 creative asset discovery 建模系统，支持对齐的多模态 embedding 与 ranking。系统结合共享 embedding space、vector-lexical candidate generation、cross-modal retrieval、feature-based reranking，以及 clicks、saves、downloads、edits 和下游 engagement 等产品反馈信号来提升 discovery 质量。</li></ul></section>
+<section class="doc-section article" id="modeling-system-overview"><h2 id="modeling-system-overview">Modeling System Overview</h2></section>
+<section class="doc-section article" id="modeling-系统全景"><h2 id="modeling-系统全景">Modeling 系统全景</h2>
+<p>The modeling lifecycle can be described as seven loops:</p>
+<p>模型生命周期可以拆成七个闭环：</p>
+<ol><li>Data loop: collect, normalize, label, deduplicate, filter, and version product data.</li></ol>
+<ol><li>数据闭环：采集、规范化、标注、去重、过滤和版本化产品数据。</li></ol>
+<ol><li>Training loop: train or fine-tune embedding models, rankers, classifiers, adapters, and evaluation models.</li></ol>
+<ol><li>训练闭环：训练或 fine-tune embedding model、ranker、classifier、adapter 和 evaluation model。</li></ol>
+<ol><li>Evaluation loop: measure offline quality, robustness, safety, fairness, freshness, and product-specific utility.</li></ol>
+<ol><li>评估闭环：衡量离线质量、鲁棒性、安全性、公平性、freshness 和产品特定价值。</li></ol>
+<ol><li>Index loop: build vector, lexical, metadata, and feature indexes tied to model versions.</li></ol>
+<ol><li>索引闭环：构建与模型版本绑定的 vector、lexical、metadata 和 feature index。</li></ol>
+<ol><li>Serving loop: deploy models with latency, throughput, memory, token, and cost constraints.</li></ol>
+<ol><li>Serving 闭环：在 latency、throughput、memory、token 和 cost 约束下部署模型。</li></ol>
+<ol><li>Feedback loop: log product interactions and use them for evaluation, training, and debugging.</li></ol>
+<ol><li>反馈闭环：记录产品交互信号，并用于评估、训练和调试。</li></ol>
+<ol><li>Rollout loop: safely promote, canary, compare, monitor, and roll back model-related changes.</li></ol>
+<ol><li>发布闭环：安全 promotion、canary、对比、监控和 rollback 模型相关变更。</li></ol>
+<p>In interviews, you can say that your core strength is connecting these loops into one production system.</p>
+<p>面试中可以说，你的核心能力是把这些闭环连接成一个可生产运行的系统。</p></section></main></section>
+<section class="panel" id="panel-2"><main class="content"><section class="doc-section article" id="project-2-deep-dive-multimodal-embeddings"><h2 id="project-2-deep-dive-multimodal-embeddings">Project 2 Deep Dive: Multimodal Embeddings</h2></section>
+<section class="doc-section article" id="project-2-深入-多模态-embedding"><h2 id="project-2-深入-多模态-embedding">Project 2 深入：多模态 Embedding</h2>
+<h3 id="why-embeddings-matter">Why Embeddings Matter</h3>
+<h3 id="为什么-embedding-重要">为什么 Embedding 重要</h3>
+<p>Creative search is often intent-based rather than keyword-based. A user may search for "cinematic winter street scene," upload an example image, ask for "similar but warmer," or browse related assets from an existing design. This requires models that map text, image, video frames, audio, 3D previews, and document thumbnails into comparable representations.</p>
+<p>创意搜索通常是 intent-based，而不是 keyword-based。用户可能搜索 “cinematic winter street scene”，上传参考图，要求 “similar but warmer”，或者从已有设计中浏览相关 asset。这需要模型把 text、image、video frame、audio、3D preview 和 document thumbnail 映射到可比较的 representation。</p>
+<p>A natural architecture is a dual-encoder or multi-encoder system inspired by CLIP-style contrastive learning. Text and media encoders produce vectors in a shared space. Similar text-media pairs are pulled together, while unrelated pairs are pushed apart.</p>
+<p>一个自然的架构是 dual-encoder 或 multi-encoder 系统，类似 CLIP-style contrastive learning。文本和媒体 encoder 产出同一空间中的向量。相关的 text-media pair 被拉近，不相关的 pair 被推远。</p>
+<h3 id="model-design">Model Design</h3>
+<h3 id="模型设计">模型设计</h3>
+<p>Representative encoder design:</p>
+<p>代表性的 encoder 设计：</p>
+<ul><li>Text encoder: query text, asset captions, generated metadata, OCR text, transcript snippets, product taxonomy.</li></ul>
+<ul><li>文本 encoder：query text、asset caption、生成 metadata、OCR text、transcript snippet、产品 taxonomy。</li></ul>
+<ul><li>Image encoder: still images, thumbnails, frame crops, masks, visual style features.</li></ul>
+<ul><li>图像 encoder：静态图、thumbnail、frame crop、mask、视觉风格 feature。</li></ul>
+<ul><li>Video encoder: sampled keyframes, scene-level aggregation, temporal metadata, transcript alignment.</li></ul>
+<ul><li>视频 encoder：采样 keyframe、scene-level aggregation、temporal metadata、transcript alignment。</li></ul>
+<ul><li>Document encoder: text chunks, page thumbnails, layout regions, table or heading structure.</li></ul>
+<ul><li>文档 encoder：text chunk、page thumbnail、layout region、table 或 heading structure。</li></ul>
+<ul><li>3D encoder: rendered views, mesh metadata, material tags, preview thumbnails.</li></ul>
+<ul><li>3D encoder：rendered view、mesh metadata、material tag、preview thumbnail。</li></ul>
+<p>The practical production design is often not a single giant model. It is a family of encoders with compatibility contracts. Some encoders may share the same embedding dimension and distance metric. Some may require projection heads or calibration. Some may be used only for candidate generation, while cross-encoders or rankers refine the top candidates.</p>
+<p>实际生产设计通常不是单一巨型模型，而是一组有兼容性契约的 encoder。有些 encoder 共享 embedding dimension 和 distance metric，有些需要 projection head 或 calibration。有些只用于 candidate generation，而 cross-encoder 或 ranker 用于 refine top candidates。</p>
+<h3 id="contrastive-objective">Contrastive Objective</h3>
+<h3 id="对比学习目标">对比学习目标</h3>
+<p>For a batch of paired text and media examples, the model learns to assign higher similarity to matching pairs than to non-matching pairs. CLIP used a contrastive objective over image-text pairs. ALIGN showed that noisy large-scale image-text pairs can also work when scale and filtering are strong. SigLIP later showed that a sigmoid loss can be an effective alternative to softmax contrastive loss for language-image pretraining.</p>
+<p>对于一批 paired text/media example，模型学习让匹配 pair 的相似度高于不匹配 pair。CLIP 使用 image-text pair 上的 contrastive objective。ALIGN 表明在规模和过滤足够强时，noisy large-scale image-text pair 也可以有效。SigLIP 进一步表明 sigmoid loss 可以作为 language-image pretraining 中 softmax contrastive loss 的有效替代。</p>
+<p>Interview explanation:</p>
+<p>面试表达：</p>
+<blockquote><p>For multimodal search, I would usually start with a dual-encoder architecture because it supports fast retrieval over large catalogs. The model learns a shared space for queries and assets. The tradeoff is that dual encoders are fast but less expressive than cross-encoders, so I use them for recall and then rerank a smaller candidate set.</p></blockquote>
+<blockquote><p>对于多模态搜索，我通常会从 dual-encoder 架构开始，因为它支持大规模 catalog 上的快速 retrieval。模型学习 query 和 asset 的共享空间。tradeoff 是 dual encoder 很快，但表达力不如 cross-encoder，所以我用它做 recall，再对较小 candidate set 做 rerank。</p></blockquote>
+<h3 id="positive-pairs">Positive Pairs</h3>
+<h3 id="正样本构造">正样本构造</h3>
+<p>Positive pairs can come from:</p>
+<p>正样本可以来自：</p>
+<ul><li>Human labels: curated text descriptions, tags, editorial metadata.</li></ul>
+<ul><li>人工标签：curated text description、tag、editorial metadata。</li></ul>
+<ul><li>Product metadata: asset titles, captions, creator tags, folder/project context.</li></ul>
+<ul><li>产品 metadata：asset title、caption、creator tag、folder/project context。</li></ul>
+<ul><li>Behavioral signals: clicked asset for query, saved asset, downloaded asset, edited asset, inserted asset into design.</li></ul>
+<ul><li>行为信号：query 下点击的 asset、保存、下载、编辑、插入设计。</li></ul>
+<ul><li>Weak labels: generated captions, OCR text, transcripts, automatic tags.</li></ul>
+<ul><li>弱标签：生成 caption、OCR text、transcript、自动 tag。</li></ul>
+<ul><li>Cross-modal pairs: image-to-caption, video-to-transcript, document-page-to-text, design-to-related-assets.</li></ul>
+<ul><li>跨模态 pair：image-to-caption、video-to-transcript、document-page-to-text、design-to-related-assets。</li></ul>
+<p>The danger is noisy positives. A click does not always mean the result was relevant. A tag may describe only one aspect of an image. A generated caption may miss style or composition. In production, the data pipeline needs weighting, filtering, deduplication, and auditability.</p>
+<p>风险是 noisy positive。点击不一定代表结果相关，tag 可能只描述图片的一个方面，生成 caption 可能遗漏风格或构图。生产中，数据 pipeline 需要 weighting、filtering、deduplication 和 auditability。</p>
+<h3 id="negative-pairs-and-hard-negative-mining">Negative Pairs And Hard Negative Mining</h3>
+<h3 id="负样本与-hard-negative-mining">负样本与 Hard Negative Mining</h3>
+<p>Negatives matter as much as positives. In-batch negatives are cheap, but many are too easy. For creative search, hard negatives are assets that look close but violate intent: same color but wrong object, same object but wrong style, same semantic category but wrong license, same transcript but wrong shot, visually similar but unsafe or policy-invalid.</p>
+<p>负样本和正样本同样重要。in-batch negative 成本低，但很多太简单。对于创意搜索，hard negative 是那些看起来接近但违反 intent 的 asset：颜色相同但物体不对，物体相同但风格不对，语义类别相同但 license 不对，transcript 相同但镜头不对，视觉相似但 unsafe 或 policy-invalid。</p>
+<p>Hard negatives can be mined from:</p>
+<p>hard negative 可以从这些地方挖掘：</p>
+<ul><li>Current retrieval mistakes: high-ranked but skipped or downvoted assets.</li></ul>
+<ul><li>当前 retrieval mistake：排名高但被跳过或 downvote 的 asset。</li></ul>
+<ul><li>Query-result logs: impressions without clicks, or clicks followed by quick abandonment.</li></ul>
+<ul><li>query-result log：曝光但未点击，或点击后快速放弃。</li></ul>
+<ul><li>A/B test regressions: queries where new model hurts relevance or diversity.</li></ul>
+<ul><li>A/B test regression：新模型伤害 relevance 或 diversity 的 query。</li></ul>
+<ul><li>Near neighbors in vector space that fail metadata or human relevance checks.</li></ul>
+<ul><li>vector space 中相近但未通过 metadata 或人工相关性检查的 neighbor。</li></ul>
+<ul><li>Cross-modal confusions: image similar to query text but wrong style, layout, or domain.</li></ul>
+<ul><li>跨模态混淆：图像与 query text 相似但风格、layout 或 domain 不对。</li></ul>
+<p>Interview explanation:</p>
+<p>面试表达：</p>
+<blockquote><p>I would not treat hard-negative mining as a one-time offline step. I would connect it to product logs and evaluation failures. If the system keeps returning black photos for "black wedding invitation template," those false positives become hard negatives so the next model learns the difference between color similarity and product intent.</p></blockquote>
+<blockquote><p>我不会把 hard-negative mining 看成一次性离线步骤，而是把它接到产品日志和评估失败上。如果系统总是对 “black wedding invitation template” 返回黑色照片，这些 false positive 就应该进入 hard negative，让下一版模型学会区分颜色相似和产品 intent。</p></blockquote></section>
+<section class="doc-section article" id="project-2-deep-dive-retrieval-ranking-and-model-iteration"><h2 id="project-2-deep-dive-retrieval-ranking-and-model-iteration">Project 2 Deep Dive: Retrieval, Ranking, And Model Iteration</h2></section>
+<section class="doc-section article" id="project-2-深入-retrieval-ranking-与模型迭代"><h2 id="project-2-深入-retrieval-ranking-与模型迭代">Project 2 深入：Retrieval、Ranking 与模型迭代</h2>
+<h3 id="why-retrieval-and-ranking-are-separate">Why Retrieval And Ranking Are Separate</h3>
+<h3 id="为什么-retrieval-和-ranking-要分开">为什么 Retrieval 和 Ranking 要分开</h3>
+<p>Retrieval optimizes recall under a tight latency budget. Ranking optimizes precision, ordering, diversity, business rules, and product utility. A dual encoder can retrieve thousands of candidates quickly. A ranker can spend more compute on a smaller candidate set.</p>
+<p>Retrieval 在严格 latency budget 下优化 recall。Ranking 优化 precision、排序、diversity、业务规则和产品价值。dual encoder 可以快速召回几千个 candidate。ranker 可以在更小的 candidate set 上使用更复杂的计算。</p>
+<p>For Amsterdam-style discovery, candidate sources can include:</p>
+<p>对于 Amsterdam-style discovery，candidate source 可以包括：</p>
+<ul><li>Vector retrieval from Milvus or another vector DB.</li></ul>
+<ul><li>来自 Milvus 或其他 vector DB 的向量 retrieval。</li></ul>
+<ul><li>Lexical retrieval from Elasticsearch.</li></ul>
+<ul><li>来自 Elasticsearch 的 lexical retrieval。</li></ul>
+<ul><li>Metadata filters: license, asset type, orientation, enterprise access, moderation.</li></ul>
+<ul><li>metadata filter：license、asset type、orientation、enterprise access、moderation。</li></ul>
+<ul><li>Graph or co-engagement neighbors.</li></ul>
+<ul><li>graph 或 co-engagement neighbor。</li></ul>
+<ul><li>Style clusters and visual similarity groups.</li></ul>
+<ul><li>style cluster 和 visual similarity group。</li></ul>
+<ul><li>Freshness, personalization, and product context candidates.</li></ul>
+<ul><li>freshness、personalization 和 product context candidate。</li></ul>
+<h3 id="ranker-design">Ranker Design</h3>
+<h3 id="ranker-设计">Ranker 设计</h3>
+<p>A practical ranker can combine:</p>
+<p>实际 ranker 可以融合：</p>
+<ul><li>Dense similarity score.</li></ul>
+<ul><li>dense similarity score。</li></ul>
+<ul><li>Lexical score.</li></ul>
+<ul><li>lexical score。</li></ul>
+<ul><li>Metadata match score.</li></ul>
+<ul><li>metadata match score。</li></ul>
+<ul><li>Quality and aesthetic features.</li></ul>
+<ul><li>quality 和 aesthetic feature。</li></ul>
+<ul><li>License and policy validity.</li></ul>
+<ul><li>license 与 policy validity。</li></ul>
+<ul><li>Freshness and popularity.</li></ul>
+<ul><li>freshness 与 popularity。</li></ul>
+<ul><li>Diversity and near-duplicate penalties.</li></ul>
+<ul><li>diversity 与 near-duplicate penalty。</li></ul>
+<ul><li>User/session/product context.</li></ul>
+<ul><li>user/session/product context。</li></ul>
+<p>Model choices:</p>
+<p>模型选择：</p>
+<ul><li>Gradient-boosted tree ranker such as LambdaMART-style ranking for strong feature-based ranking.</li></ul>
+<ul><li>类似 LambdaMART 的 GBDT ranker，适合强 feature-based ranking。</li></ul>
+<ul><li>Neural cross-encoder for smaller rerank depth when text and media can be jointly encoded.</li></ul>
+<ul><li>neural cross-encoder，适合较小 rerank depth 上联合编码 text 和 media。</li></ul>
+<ul><li>Two-tower embedding model for large-scale recall.</li></ul>
+<ul><li>two-tower embedding model，适合大规模 recall。</li></ul>
+<ul><li>Hybrid ensemble where retrieval scores, learned ranker score, and business constraints are fused.</li></ul>
+<ul><li>hybrid ensemble，将 retrieval score、learned ranker score 和业务约束融合。</li></ul>
+<p>Interview explanation:</p>
+<p>面试表达：</p>
+<blockquote><p>I would not expect vector similarity alone to be the final ranking score. Vector similarity gives semantic recall. The final ordering needs feature joins, policy filters, quality signals, diversity constraints, and product-specific objectives. That is why the architecture separates candidate generation from ranking.</p></blockquote>
+<blockquote><p>我不会把 vector similarity 当作最终 ranking score。vector similarity 提供 semantic recall。最终排序需要 feature join、policy filter、quality signal、diversity constraint 和产品特定目标。所以架构上要分离 candidate generation 和 ranking。</p></blockquote>
+<h3 id="offline-metrics">Offline Metrics</h3>
+<h3 id="离线指标">离线指标</h3>
+<p>For retrieval:</p>
+<p>retrieval 指标：</p>
+<ul><li>Recall@K: whether relevant assets appear in top K.</li></ul>
+<ul><li>Recall@K：相关 asset 是否出现在 top K。</li></ul>
+<ul><li>MRR: whether the first relevant result appears early.</li></ul>
+<ul><li>MRR：第一个相关结果是否足够靠前。</li></ul>
+<ul><li>mAP: quality across multiple relevant items.</li></ul>
+<ul><li>mAP：多个相关 item 的整体质量。</li></ul>
+<ul><li>Coverage: whether tail assets and modalities are discoverable.</li></ul>
+<ul><li>Coverage：长尾 asset 和不同模态是否可以被发现。</li></ul>
+<p>For ranking:</p>
+<p>ranking 指标：</p>
+<ul><li>NDCG@K: ranking quality with graded relevance.</li></ul>
+<ul><li>NDCG@K：带 graded relevance 的排序质量。</li></ul>
+<ul><li>Pairwise preference accuracy.</li></ul>
+<ul><li>pairwise preference accuracy。</li></ul>
+<ul><li>Diversity and near-duplicate rate.</li></ul>
+<ul><li>diversity 与 near-duplicate rate。</li></ul>
+<ul><li>Filter correctness: license, access, moderation, orientation, file type.</li></ul>
+<ul><li>filter correctness：license、access、moderation、orientation、file type。</li></ul>
+<p>For product:</p>
+<p>产品指标：</p>
+<ul><li>CTR, save rate, download rate, insert/edit rate.</li></ul>
+<ul><li>CTR、save rate、download rate、insert/edit rate。</li></ul>
+<ul><li>Zero-result rate.</li></ul>
+<ul><li>zero-result rate。</li></ul>
+<ul><li>Query reformulation rate.</li></ul>
+<ul><li>query reformulation rate。</li></ul>
+<ul><li>Time to first useful result.</li></ul>
+<ul><li>time to first useful result。</li></ul>
+<ul><li>Downstream creative workflow success.</li></ul>
+<ul><li>下游 creative workflow success。</li></ul>
+<h3 id="online-evaluation-and-a-b-testing">Online Evaluation And A/B Testing</h3>
+<h3 id="在线评估与-a-b-testing">在线评估与 A/B Testing</h3>
+<p>Offline metrics are necessary but not sufficient. A model can improve NDCG but hurt diversity, increase latency, or overfit to popular assets. A/B tests must monitor both quality and system metrics.</p>
+<p>离线指标必要但不充分。模型可能提升 NDCG，却伤害 diversity、增加 latency，或者过拟合热门 asset。A/B test 必须同时监控质量指标和系统指标。</p>
+<p>Online monitoring should include:</p>
+<p>online monitoring 应包括：</p>
+<ul><li>CTR, save/download/edit rate.</li></ul>
+<ul><li>CTR、save/download/edit rate。</li></ul>
+<ul><li>Search success and zero-result rate.</li></ul>
+<ul><li>search success 与 zero-result rate。</li></ul>
+<ul><li>p50/p95/p99 latency.</li></ul>
+<ul><li>p50/p95/p99 latency。</li></ul>
+<ul><li>Candidate source counts.</li></ul>
+<ul><li>candidate source count。</li></ul>
+<ul><li>Feature null rate.</li></ul>
+<ul><li>feature null rate。</li></ul>
+<ul><li>Index version and model version.</li></ul>
+<ul><li>index version 与 model version。</li></ul>
+<ul><li>Query class breakdown: visual style, exact object, document, video, enterprise/private content.</li></ul>
+<ul><li>query class breakdown：visual style、exact object、document、video、enterprise/private content。</li></ul>
+<p>Interview explanation:</p>
+<p>面试表达：</p>
+<blockquote><p>The key is to avoid optimizing one metric in isolation. For search, I would ship a new embedding model only if recall improves, hard filters remain correct, latency stays within budget, and product metrics do not regress. I would also slice metrics by query type and modality, because average metrics hide failures in video, documents, or long-tail creative styles.</p></blockquote>
+<blockquote><p>关键是不要孤立优化单一指标。对于 search，我只有在 recall 提升、hard filter 保持正确、latency 在预算内、产品指标不回归时才会发布新的 embedding model。我还会按 query type 和 modality 切分指标，因为平均值会掩盖 video、document 或 long-tail creative style 上的失败。</p></blockquote></section>
+<section class="doc-section article" id="model-and-index-compatibility"><h2 id="model-and-index-compatibility">Model And Index Compatibility</h2></section>
+<section class="doc-section article" id="模型与索引兼容性"><h2 id="模型与索引兼容性">模型与索引兼容性</h2>
+<p>This is one of the most important modeling-system points for your Amsterdam search story.</p>
+<p>这是 Amsterdam search 故事中最重要的 modeling-system 点之一。</p>
+<p>An embedding model and its vector index are coupled. If the query encoder changes but the asset index still uses the old asset encoder, retrieval quality may collapse. Even if dimensions match, the space may drift.</p>
+<p>embedding model 和 vector index 是耦合的。如果 query encoder 变了，但 asset index 仍使用旧 asset encoder，retrieval 质量可能崩溃。即使维度一致，空间也可能发生 drift。</p>
+<p>Compatibility checks:</p>
+<p>兼容性检查：</p>
+<ul><li>Embedding dimension matches.</li></ul>
+<ul><li>embedding dimension 匹配。</li></ul>
+<ul><li>Distance metric matches: cosine, dot product, L2.</li></ul>
+<ul><li>distance metric 匹配：cosine、dot product、L2。</li></ul>
+<ul><li>Query encoder and asset encoder were trained or calibrated together.</li></ul>
+<ul><li>query encoder 与 asset encoder 一起训练或校准。</li></ul>
+<ul><li>Metadata filters and access control are unchanged.</li></ul>
+<ul><li>metadata filter 和 access control 未被破坏。</li></ul>
+<ul><li>Offline recall and NDCG pass thresholds.</li></ul>
+<ul><li>offline recall 和 NDCG 通过阈值。</li></ul>
+<ul><li>Shadow traffic candidate overlap is acceptable.</li></ul>
+<ul><li>shadow traffic candidate overlap 可接受。</li></ul>
+<ul><li>New index can be rolled back atomically.</li></ul>
+<ul><li>新 index 可以 atomic rollback。</li></ul>
+<p>Interview explanation:</p>
+<p>面试表达：</p>
+<blockquote><p>I treat model rollout and index rollout as one unit. A new encoder version usually requires a new vector index built from that encoder. The rollout object should record query encoder version, asset encoder version, index version, distance metric, dimension, ranker version, and compatibility checks. Otherwise you can silently serve incompatible vectors.</p></blockquote>
+<blockquote><p>我会把 model rollout 和 index rollout 当成一个整体。新的 encoder version 通常需要用该 encoder 重新构建 vector index。rollout object 应记录 query encoder version、asset encoder version、index version、distance metric、dimension、ranker version 和 compatibility check，否则可能悄悄上线不兼容的向量。</p></blockquote></section></main></section>
+<section class="panel" id="panel-3"><main class="content"><section class="doc-section article" id="project-1-deep-dive-llm-rag-and-genai-evaluation"><h2 id="project-1-deep-dive-llm-rag-and-genai-evaluation">Project 1 Deep Dive: LLM, RAG, And GenAI Evaluation</h2></section>
+<section class="doc-section article" id="project-1-深入-llm-rag-与-genai-evaluation"><h2 id="project-1-深入-llm-rag-与-genai-evaluation">Project 1 深入：LLM、RAG 与 GenAI Evaluation</h2>
+<h3 id="prompting-rag-fine-tuning-and-model-training">Prompting, RAG, Fine-Tuning, And Model Training</h3>
+<h3 id="prompting-rag-fine-tuning-与模型训练">Prompting、RAG、Fine-Tuning 与模型训练</h3>
+<p>For product-facing LLM workflows, the modeling decision is often not "train a bigger model." It is choosing the right adaptation mechanism:</p>
+<p>对于面向产品的 LLM workflow，modeling 决策通常不是“训练更大的模型”，而是选择合适的适配机制：</p>
+<ul><li>Prompting: fastest iteration, but fragile and harder to guarantee.</li></ul>
+<ul><li>Prompting：迭代最快，但更脆弱，难以保证一致性。</li></ul>
+<ul><li>RAG: best when the answer depends on product assets, documents, user context, or enterprise knowledge.</li></ul>
+<ul><li>RAG：当答案依赖 product asset、document、user context 或 enterprise knowledge 时最合适。</li></ul>
+<ul><li>Fine-tuning: useful when the behavior, format, style, or tool-use pattern should be learned.</li></ul>
+<ul><li>Fine-tuning：当 behavior、format、style 或 tool-use pattern 需要被学习时有用。</li></ul>
+<ul><li>LoRA/QLoRA adapters: efficient when you need task-specific adaptation without full model training.</li></ul>
+<ul><li>LoRA/QLoRA adapter：需要 task-specific adaptation 但不想完整训练模型时很高效。</li></ul>
+<ul><li>Distillation: useful when a smaller or edge-friendly model must approximate a larger teacher.</li></ul>
+<ul><li>Distillation：当较小或 edge-friendly model 需要逼近大 teacher model 时有用。</li></ul>
+<ul><li>Full training: only justified when data, compute, and product need are large enough.</li></ul>
+<ul><li>Full training：只有在数据、算力和产品需求都足够大时才合理。</li></ul>
+<p>Interview explanation:</p>
+<p>面试表达：</p>
+<blockquote><p>For many Amsterdam product workflows, I would first ask whether the issue is knowledge, behavior, latency, cost, or style. If it is knowledge freshness, RAG is usually better than fine-tuning. If it is consistent output format or product-specific style, fine-tuning or adapters may help. If it is latency or edge deployment, distillation or quantization may be the right direction.</p></blockquote>
+<blockquote><p>对很多 Amsterdam 产品 workflow，我会先判断问题是 knowledge、behavior、latency、cost 还是 style。如果是 knowledge freshness，RAG 通常比 fine-tuning 更合适。如果是稳定输出格式或产品特定风格，fine-tuning 或 adapter 可能有帮助。如果是 latency 或 edge deployment，distillation 或 quantization 可能更合适。</p></blockquote>
+<h3 id="rag-evaluation">RAG Evaluation</h3>
+<h3 id="rag-评估">RAG 评估</h3>
+<p>RAG quality has multiple failure modes:</p>
+<p>RAG 质量有多个失败模式：</p>
+<ul><li>Retrieval failure: the right chunks or assets were not retrieved.</li></ul>
+<ul><li>retrieval failure：没有取回正确的 chunk 或 asset。</li></ul>
+<ul><li>Reranking failure: the right item was retrieved but not selected.</li></ul>
+<ul><li>reranking failure：正确 item 被召回了，但没有被选中。</li></ul>
+<ul><li>Prompt construction failure: relevant context was included poorly or truncated.</li></ul>
+<ul><li>prompt construction failure：相关 context 被错误组织或被截断。</li></ul>
+<ul><li>Generation failure: model ignored context or hallucinated.</li></ul>
+<ul><li>generation failure：模型忽略 context 或 hallucination。</li></ul>
+<ul><li>Citation failure: answer cannot be traced to sources.</li></ul>
+<ul><li>citation failure：答案无法追溯到 source。</li></ul>
+<ul><li>Policy failure: answer violates privacy, license, safety, or product policy.</li></ul>
+<ul><li>policy failure：答案违反 privacy、license、safety 或 product policy。</li></ul>
+<p>Evaluation should measure:</p>
+<p>评估应衡量：</p>
+<ul><li>Retrieval recall of gold chunks/assets.</li></ul>
+<ul><li>gold chunk/asset 的 retrieval recall。</li></ul>
+<ul><li>Faithfulness or groundedness.</li></ul>
+<ul><li>faithfulness 或 groundedness。</li></ul>
+<ul><li>Answer correctness.</li></ul>
+<ul><li>answer correctness。</li></ul>
+<ul><li>Citation precision.</li></ul>
+<ul><li>citation precision。</li></ul>
+<ul><li>Refusal correctness.</li></ul>
+<ul><li>refusal correctness。</li></ul>
+<ul><li>Latency and token cost.</li></ul>
+<ul><li>latency 与 token cost。</li></ul>
+<ul><li>User acceptance or task completion.</li></ul>
+<ul><li>user acceptance 或 task completion。</li></ul>
+<h3 id="llm-as-judge">LLM-as-Judge</h3>
+<h3 id="llm-as-judge">LLM-as-Judge</h3>
+<p>LLM-as-Judge can help evaluate subjective outputs such as explanations, summaries, creative suggestions, or assistant answers. But it should be treated as one gate, not the only truth.</p>
+<p>LLM-as-Judge 可以帮助评估解释、摘要、创意建议或 assistant answer 等主观输出。但它应该只是一个 gate，而不是唯一真相来源。</p>
+<p>Guardrails:</p>
+<p>护栏：</p>
+<ul><li>Fixed rubric and prompt version.</li></ul>
+<ul><li>固定 rubric 和 prompt version。</li></ul>
+<ul><li>Calibration examples.</li></ul>
+<ul><li>calibration example。</li></ul>
+<ul><li>Human-reviewed eval subset.</li></ul>
+<ul><li>human-reviewed eval subset。</li></ul>
+<ul><li>Judge model version tracking.</li></ul>
+<ul><li>judge model version tracking。</li></ul>
+<ul><li>Bias and drift monitoring.</li></ul>
+<ul><li>bias 和 drift monitoring。</li></ul>
+<ul><li>Deterministic checks for policy, schema, citation, and safety.</li></ul>
+<ul><li>对 policy、schema、citation 和 safety 做 deterministic check。</li></ul>
+<p>Interview explanation:</p>
+<p>面试表达：</p>
+<blockquote><p>I use LLM-as-Judge for semantic quality signals, but not as the only release gate. I pair it with deterministic checks, offline replay, human-labeled samples, canary metrics, and product telemetry. The judge itself has a model version, prompt version, calibration set, and drift risk.</p></blockquote>
+<blockquote><p>我会用 LLM-as-Judge 提供语义质量信号，但不会把它当作唯一 release gate。我会配合 deterministic check、offline replay、human-labeled sample、canary metrics 和 product telemetry。judge 本身也有 model version、prompt version、calibration set 和 drift risk。</p></blockquote></section>
+<section class="doc-section article" id="generative-editing-and-creative-model-interfaces"><h2 id="generative-editing-and-creative-model-interfaces">Generative Editing And Creative Model Interfaces</h2></section>
+<section class="doc-section article" id="生成式编辑与创意模型接口"><h2 id="生成式编辑与创意模型接口">生成式编辑与创意模型接口</h2>
+<p>Be careful with ownership language. Do not say you trained Firefly or owned the core generative model unless that is true. A credible platform/modeling story is:</p>
+<p>要小心 ownership 表达。除非真实，否则不要说自己训练了 Firefly 或拥有核心生成模型。更可信的平台/建模故事是：</p>
+<blockquote><p>I designed the model-facing contracts and evaluation/rollout loop around generative editing workflows. The platform had to pass masks, prompts, reference assets, style constraints, privacy class, and output requirements to model-serving backends, then evaluate quality, safety, latency, and fallback behavior.</p></blockquote>
+<blockquote><p>我设计了生成式编辑 workflow 周围的 model-facing contract 以及 evaluation/rollout loop。平台需要把 mask、prompt、reference asset、style constraint、privacy class 和 output requirement 传给 model-serving backend，然后评估 quality、safety、latency 和 fallback behavior。</p></blockquote>
+<p>For creative models, the input contract often includes:</p>
+<p>对于 creative model，输入契约通常包括：</p>
+<ul><li>Prompt text and rewritten prompt.</li></ul>
+<ul><li>prompt text 和 rewritten prompt。</li></ul>
+<ul><li>Mask, region, crop, bounding box, or edit layer.</li></ul>
+<ul><li>mask、region、crop、bounding box 或 edit layer。</li></ul>
+<ul><li>Reference image or style reference.</li></ul>
+<ul><li>reference image 或 style reference。</li></ul>
+<ul><li>Product constraints: resolution, aspect ratio, layer semantics, transparency, file type.</li></ul>
+<ul><li>产品约束：resolution、aspect ratio、layer semantics、transparency、file type。</li></ul>
+<ul><li>Policy constraints: safety, copyright, license, enterprise privacy.</li></ul>
+<ul><li>policy 约束：safety、copyright、license、enterprise privacy。</li></ul>
+<ul><li>Output requirements: variants, confidence, provenance, content credentials, audit metadata.</li></ul>
+<ul><li>输出要求：variant、confidence、provenance、content credentials、audit metadata。</li></ul>
+<p>Evaluation can include:</p>
+<p>评估可以包括：</p>
+<ul><li>Prompt adherence.</li></ul>
+<ul><li>prompt adherence。</li></ul>
+<ul><li>Mask boundary quality.</li></ul>
+<ul><li>mask boundary quality。</li></ul>
+<ul><li>Visual coherence.</li></ul>
+<ul><li>visual coherence。</li></ul>
+<ul><li>Artifact rate.</li></ul>
+<ul><li>artifact rate。</li></ul>
+<ul><li>Safety and policy compliance.</li></ul>
+<ul><li>safety 和 policy compliance。</li></ul>
+<ul><li>User acceptance rate.</li></ul>
+<ul><li>user acceptance rate。</li></ul>
+<ul><li>Time to usable result.</li></ul>
+<ul><li>time to usable result。</li></ul>
+<ul><li>Cost per accepted generation.</li></ul>
+<ul><li>cost per accepted generation。</li></ul></section></main></section>
+<section class="panel" id="panel-4"><main class="content"><section class="doc-section article" id="training-data-engineering"><h2 id="training-data-engineering">Training Data Engineering</h2></section>
+<section class="doc-section article" id="训练数据工程"><h2 id="训练数据工程">训练数据工程</h2>
+<p>Training data engineering is a product systems problem. It is not only dumping logs into a trainer.</p>
+<p>训练数据工程是 product systems 问题，不只是把 log 丢给 trainer。</p>
+<p>Important design choices:</p>
+<p>重要设计选择：</p>
+<ul><li>Data provenance: where the asset, label, click, caption, or annotation came from.</li></ul>
+<ul><li>data provenance：asset、label、click、caption 或 annotation 的来源。</li></ul>
+<ul><li>Consent and license: whether data can be used for training, evaluation, or only serving.</li></ul>
+<ul><li>consent 和 license：数据是否可以用于 training、evaluation，还是只能用于 serving。</li></ul>
+<ul><li>Privacy class: user content, enterprise content, public catalog, licensed content.</li></ul>
+<ul><li>privacy class：user content、enterprise content、public catalog、licensed content。</li></ul>
+<ul><li>Deduplication: prevent near duplicates from leaking across train/test splits.</li></ul>
+<ul><li>deduplication：防止 near duplicate 泄漏到 train/test split 之间。</li></ul>
+<ul><li>Label quality: human label, weak label, generated label, behavioral signal.</li></ul>
+<ul><li>label quality：human label、weak label、generated label、behavioral signal。</li></ul>
+<ul><li>Temporal split: evaluate on future-like data to avoid leakage.</li></ul>
+<ul><li>temporal split：用接近未来的数据评估，避免 leakage。</li></ul>
+<ul><li>Slice coverage: image, video, document, audio, 3D, enterprise, long-tail style, locale.</li></ul>
+<ul><li>slice coverage：image、video、document、audio、3D、enterprise、long-tail style、locale。</li></ul>
+<p>Interview explanation:</p>
+<p>面试表达：</p>
+<blockquote><p>For Amsterdam-style modeling, data governance matters as much as model architecture. I would track provenance, license, privacy class, consent, and dataset version from the beginning. Otherwise the system may produce a good offline metric but become impossible to ship safely.</p></blockquote>
+<blockquote><p>对 Amsterdam-style modeling 来说，data governance 和模型架构同样重要。我会从一开始追踪 provenance、license、privacy class、consent 和 dataset version。否则系统可能离线指标很好，但无法安全上线。</p></blockquote></section>
+<section class="doc-section article" id="distributed-training-and-model-engineering"><h2 id="distributed-training-and-model-engineering">Distributed Training And Model Engineering</h2></section>
+<section class="doc-section article" id="分布式训练与模型工程"><h2 id="分布式训练与模型工程">分布式训练与模型工程</h2>
+<p>You do not need to overclaim that you owned full foundation model training. You can still show deep knowledge of how training systems work.</p>
+<p>你不需要夸大自己拥有完整 foundation model training。你仍然可以展示对训练系统的深入理解。</p>
+<p>Core concepts:</p>
+<p>核心概念：</p>
+<ul><li>Data parallelism: replicate model across GPUs, split batches.</li></ul>
+<ul><li>data parallelism：复制模型到多个 GPU，切分 batch。</li></ul>
+<ul><li>Fully sharded data parallelism: shard parameters, gradients, and optimizer states to reduce memory.</li></ul>
+<ul><li>FSDP：切分 parameter、gradient 和 optimizer state 来降低 memory。</li></ul>
+<ul><li>ZeRO-style optimization: partition optimizer states, gradients, and parameters.</li></ul>
+<ul><li>ZeRO-style optimization：切分 optimizer state、gradient 和 parameter。</li></ul>
+<ul><li>Tensor parallelism: split large matrix operations across GPUs.</li></ul>
+<ul><li>tensor parallelism：把大矩阵运算切到多个 GPU。</li></ul>
+<ul><li>Pipeline parallelism: split layers across stages.</li></ul>
+<ul><li>pipeline parallelism：按 layer 切成多个 stage。</li></ul>
+<ul><li>Activation checkpointing: recompute activations to save memory.</li></ul>
+<ul><li>activation checkpointing：通过重新计算 activation 节省 memory。</li></ul>
+<ul><li>Mixed precision: FP16/BF16/FP8 tradeoffs for memory and throughput.</li></ul>
+<ul><li>mixed precision：FP16/BF16/FP8 在 memory 与 throughput 上的 tradeoff。</li></ul>
+<ul><li>Gradient accumulation: simulate large batch sizes when memory is limited.</li></ul>
+<ul><li>gradient accumulation：memory 不够时模拟大 batch。</li></ul>
+<p>For your Amsterdam story, connect this to platform decisions:</p>
+<p>对于 Amsterdam 故事，要把它连接到平台决策：</p>
+<ul><li>Training and batch embedding jobs should not starve online inference.</li></ul>
+<ul><li>training 和 batch embedding job 不应该挤占 online inference。</li></ul>
+<ul><li>Model training, batch inference, and interactive serving have different queueing tolerance.</li></ul>
+<ul><li>model training、batch inference 和 interactive serving 对 queueing 的容忍度不同。</li></ul>
+<ul><li>Model checkpoints must be traceable to dataset version, code version, and evaluation version.</li></ul>
+<ul><li>model checkpoint 必须能追溯到 dataset version、code version 和 evaluation version。</li></ul>
+<ul><li>New embedding checkpoints often require rebuilding indexes.</li></ul>
+<ul><li>新 embedding checkpoint 通常需要重建 index。</li></ul>
+<ul><li>Fine-tuned LLM adapters require evaluation and serving compatibility checks.</li></ul>
+<ul><li>fine-tuned LLM adapter 需要 evaluation 和 serving compatibility check。</li></ul>
+<p>Interview explanation:</p>
+<p>面试表达：</p>
+<blockquote><p>I understand distributed training, but in my Amsterdam platform work the bigger ownership was around the production lifecycle: how a trained checkpoint becomes an evaluated, versioned, compatible, observable, and rollback-safe model in a user-facing workflow.</p></blockquote>
+<blockquote><p>我理解 distributed training，但在 Amsterdam 平台工作中，我更大的 ownership 是生产生命周期：一个训练好的 checkpoint 如何变成经过评估、版本化、兼容、可观测、可 rollback 的用户-facing workflow 模型。</p></blockquote></section>
+<section class="doc-section article" id="fine-tuning-lora-qlora-distillation-and-quantization"><h2 id="fine-tuning-lora-qlora-distillation-and-quantization">Fine-Tuning, LoRA, QLoRA, Distillation, And Quantization</h2></section>
+<section class="doc-section article" id="fine-tuning-lora-qlora-distillation-与-quantization"><h2 id="fine-tuning-lora-qlora-distillation-与-quantization">Fine-Tuning、LoRA、QLoRA、Distillation 与 Quantization</h2>
+<p>These are useful to discuss when interviewers ask how to adapt models to Amsterdam product needs.</p>
+<p>当面试官问如何把模型适配 Amsterdam 产品需求时，这些概念很有用。</p>
+<p>Fine-tuning:</p>
+<p>Fine-tuning：</p>
+<ul><li>Changes model weights for a task, domain, style, or behavior.</li></ul>
+<ul><li>为任务、domain、style 或 behavior 修改模型权重。</li></ul>
+<ul><li>Strong when behavior must be learned.</li></ul>
+<ul><li>当 behavior 必须被学习时很强。</li></ul>
+<ul><li>Risk: cost, overfitting, safety regression, data governance.</li></ul>
+<ul><li>风险：成本、overfitting、safety regression、data governance。</li></ul>
+<p>LoRA:</p>
+<p>LoRA：</p>
+<ul><li>Learns low-rank adapter matrices instead of updating all weights.</li></ul>
+<ul><li>学习低秩 adapter matrix，而不是更新所有权重。</li></ul>
+<ul><li>Efficient for task/domain adaptation.</li></ul>
+<ul><li>对 task/domain adaptation 很高效。</li></ul>
+<ul><li>Easier to version and swap than full fine-tuned checkpoints.</li></ul>
+<ul><li>比完整 fine-tuned checkpoint 更容易版本化和切换。</li></ul>
+<p>QLoRA:</p>
+<p>QLoRA：</p>
+<ul><li>Fine-tunes adapters on top of quantized base models.</li></ul>
+<ul><li>在 quantized base model 上 fine-tune adapter。</li></ul>
+<ul><li>Useful when GPU memory is limited.</li></ul>
+<ul><li>当 GPU memory 受限时有用。</li></ul>
+<p>Distillation:</p>
+<p>Distillation：</p>
+<ul><li>Train a smaller student model to mimic a larger teacher.</li></ul>
+<ul><li>训练较小 student model 来模仿较大 teacher model。</li></ul>
+<ul><li>Useful for edge, low-latency, or lower-cost serving.</li></ul>
+<ul><li>适合 edge、低 latency 或低成本 serving。</li></ul>
+<p>Quantization:</p>
+<p>Quantization：</p>
+<ul><li>Reduce precision to lower memory and increase throughput.</li></ul>
+<ul><li>降低 precision 来减少 memory 并提升 throughput。</li></ul>
+<ul><li>Risk: quality regression, especially on long-tail or safety-sensitive cases.</li></ul>
+<ul><li>风险：quality regression，尤其在 long-tail 或 safety-sensitive case 上。</li></ul>
+<p>Interview explanation:</p>
+<p>面试表达：</p>
+<blockquote><p>I would choose the adaptation method based on the product bottleneck. If the issue is missing knowledge, use RAG. If the issue is behavior or style, consider fine-tuning or LoRA. If the issue is latency or cost, consider distillation or quantization, but evaluate quality carefully on product slices.</p></blockquote>
+<blockquote><p>我会根据产品瓶颈选择 adaptation 方法。如果问题是知识缺失，用 RAG；如果问题是行为或风格，用 fine-tuning 或 LoRA；如果问题是 latency 或 cost，用 distillation 或 quantization，但要在产品 slice 上认真评估质量。</p></blockquote></section>
+<section class="doc-section article" id="feedback-loops-and-product-signals"><h2 id="feedback-loops-and-product-signals">Feedback Loops And Product Signals</h2></section>
+<section class="doc-section article" id="反馈闭环与产品信号"><h2 id="反馈闭环与产品信号">反馈闭环与产品信号</h2>
+<p>Good modeling systems turn product usage into better evaluation and training signals. But feedback loops can also create bias.</p>
+<p>好的 modeling system 会把产品使用转化成更好的 evaluation 和 training signal。但 feedback loop 也可能制造 bias。</p>
+<p>Useful signals:</p>
+<p>有用信号：</p>
+<ul><li>Search clicks, saves, downloads, inserts.</li></ul>
+<ul><li>搜索点击、保存、下载、插入。</li></ul>
+<ul><li>Query reformulations.</li></ul>
+<ul><li>query reformulation。</li></ul>
+<ul><li>Dwell time and quick abandonment.</li></ul>
+<ul><li>dwell time 和 quick abandonment。</li></ul>
+<ul><li>Generative edit accept/reject.</li></ul>
+<ul><li>生成式编辑 accept/reject。</li></ul>
+<ul><li>Assistant answer thumbs up/down.</li></ul>
+<ul><li>assistant answer thumbs up/down。</li></ul>
+<ul><li>Manual corrections or prompt rewrites.</li></ul>
+<ul><li>人工 correction 或 prompt rewrite。</li></ul>
+<ul><li>Failed workflow reasons.</li></ul>
+<ul><li>failed workflow reason。</li></ul>
+<p>Risks:</p>
+<p>风险：</p>
+<ul><li>Position bias: top results get more clicks.</li></ul>
+<ul><li>position bias：排名靠前的结果获得更多点击。</li></ul>
+<ul><li>Popularity bias: popular assets become more popular.</li></ul>
+<ul><li>popularity bias：热门 asset 更热门。</li></ul>
+<ul><li>Presentation bias: UI changes affect clicks.</li></ul>
+<ul><li>presentation bias：UI 改动影响点击。</li></ul>
+<ul><li>Privacy risk: user content may not be usable for training.</li></ul>
+<ul><li>privacy risk：用户内容可能不能用于 training。</li></ul>
+<ul><li>Feedback contamination: model-generated captions become training labels without review.</li></ul>
+<ul><li>feedback contamination：模型生成 caption 未经审核进入 training label。</li></ul>
+<p>Interview explanation:</p>
+<p>面试表达：</p>
+<blockquote><p>I would not blindly train on clicks. I would log impressions, positions, query class, filters, result source, and downstream actions so we can debias and interpret engagement. I would separate product telemetry used for evaluation from data allowed for training, because privacy and consent matter.</p></blockquote>
+<blockquote><p>我不会盲目用 click 训练。我会记录 impression、position、query class、filter、result source 和 downstream action，方便 debias 和解释 engagement。我会区分用于 evaluation 的 product telemetry 与允许用于 training 的数据，因为 privacy 和 consent 很重要。</p></blockquote></section>
+<section class="doc-section article" id="model-lifecycle-architecture"><h2 id="model-lifecycle-architecture">Model Lifecycle Architecture</h2></section>
+<section class="doc-section article" id="模型生命周期架构"><h2 id="模型生命周期架构">模型生命周期架构</h2>
+<p>An interview-friendly model lifecycle architecture:</p>
+<p>面试中可以这样描述模型生命周期架构：</p>
+<ol><li>Data ingestion collects assets, metadata, labels, logs, and product signals.</li></ol>
+<ol><li>data ingestion 收集 asset、metadata、label、log 和 product signal。</li></ol>
+<ol><li>Dataset builder creates versioned train/eval/test splits with provenance and policy metadata.</li></ol>
+<ol><li>dataset builder 创建带 provenance 和 policy metadata 的 versioned train/eval/test split。</li></ol>
+<ol><li>Training pipeline trains encoders, rankers, adapters, or classifiers.</li></ol>
+<ol><li>training pipeline 训练 encoder、ranker、adapter 或 classifier。</li></ol>
+<ol><li>Evaluation service runs offline metrics, slice analysis, robustness checks, and LLM-as-Judge when applicable.</li></ol>
+<ol><li>evaluation service 运行 offline metrics、slice analysis、robustness check，以及适用时的 LLM-as-Judge。</li></ol>
+<ol><li>Model registry records checkpoint, dataset version, code version, eval report, and serving constraints.</li></ol>
+<ol><li>model registry 记录 checkpoint、dataset version、code version、eval report 和 serving constraint。</li></ol>
+<ol><li>Index builder creates vector/lexical/feature indexes tied to model versions.</li></ol>
+<ol><li>index builder 创建与模型版本绑定的 vector/lexical/feature index。</li></ol>
+<ol><li>Rollout controller deploys shadow, canary, and production versions.</li></ol>
+<ol><li>rollout controller 部署 shadow、canary 和 production version。</li></ol>
+<ol><li>Monitoring connects model quality, product metrics, latency, cost, and failure traces.</li></ol>
+<ol><li>monitoring 连接 model quality、product metrics、latency、cost 和 failure trace。</li></ol>
+<ol><li>Feedback pipeline mines failures, hard negatives, and new eval cases.</li></ol>
+<ol><li>feedback pipeline 挖掘 failure、hard negative 和新的 eval case。</li></ol>
+<p>The important point is traceability. A model result should be traceable to model version, dataset version, index version, prompt version, feature version, and rollout cohort.</p>
+<p>重点是 traceability。一个模型结果应该可以追溯到 model version、dataset version、index version、prompt version、feature version 和 rollout cohort。</p></section></main></section>
+<section class="panel" id="panel-5"><main class="content"><section class="doc-section article" id="interview-deep-dives"><h2 id="interview-deep-dives">Interview Deep Dives</h2></section>
+<section class="doc-section article" id="面试深挖题"><h2 id="面试深挖题">面试深挖题</h2>
+<h3 id="q-did-you-train-the-models-yourself">Q: Did you train the models yourself?</h3>
+<h3 id="q-这些模型是你自己训练的吗">Q：这些模型是你自己训练的吗？</h3>
+<p>Best answer:</p>
+<p>最佳回答：</p>
+<blockquote><p>I partnered with applied science and model teams on the training and evaluation loop. My strongest ownership was the model engineering system around it: dataset contracts, feature logs, offline evaluation, model/index versioning, rollout gates, and production feedback. For retrieval and ranking, I worked closer to the embedding/ranker iteration loop. For GenAI/LLM, I focused more on evaluation, prompt/model versioning, RAG quality, and safe rollout.</p></blockquote>
+<blockquote><p>我与 applied science 和 model team 合作完成 training/evaluation loop。我最强的 ownership 是模型工程系统：dataset contract、feature log、offline evaluation、model/index versioning、rollout gate 和 production feedback。对于 retrieval/ranking，我更接近 embedding/ranker 迭代闭环；对于 GenAI/LLM，我更聚焦 evaluation、prompt/model versioning、RAG quality 和 safe rollout。</p></blockquote>
+<h3 id="q-how-would-you-improve-multimodal-search-quality">Q: How would you improve multimodal search quality?</h3>
+<h3 id="q-你会如何提升多模态搜索质量">Q：你会如何提升多模态搜索质量？</h3>
+<p>Answer structure:</p>
+<p>回答结构：</p>
+<ol><li>Diagnose query classes and failure modes.</li></ol>
+<ol><li>诊断 query class 和 failure mode。</li></ol>
+<ol><li>Improve data: positives, hard negatives, labels, metadata, weak labels.</li></ol>
+<ol><li>改善数据：positive、hard negative、label、metadata、weak label。</li></ol>
+<ol><li>Improve retrieval: encoder, ANN parameters, query understanding, modality-specific recall.</li></ol>
+<ol><li>改善 retrieval：encoder、ANN 参数、query understanding、modality-specific recall。</li></ol>
+<ol><li>Improve ranking: features, ranker, diversity, policy filters, rerank depth.</li></ol>
+<ol><li>改善 ranking：feature、ranker、diversity、policy filter、rerank depth。</li></ol>
+<ol><li>Evaluate offline and online with slice metrics.</li></ol>
+<ol><li>用 slice metrics 做 offline 和 online 评估。</li></ol>
+<ol><li>Roll out with model/index compatibility and rollback.</li></ol>
+<ol><li>通过 model/index compatibility 和 rollback 安全发布。</li></ol>
+<p>Concise answer:</p>
+<p>简洁回答：</p>
+<blockquote><p>I would start by slicing failures: text-to-image, image-to-image, video, document, exact filters, style queries, and long-tail queries. Then I would mine hard negatives from production misses, improve the embedding dataset, validate recall@K and NDCG offline, and run an A/B test with latency and filter correctness gates. I would not roll out a new encoder without a compatible vector index and rollback path.</p></blockquote>
+<blockquote><p>我会先按 failure slice 分析：text-to-image、image-to-image、video、document、exact filter、style query 和 long-tail query。然后从生产 miss 中挖 hard negative，改进 embedding dataset，离线验证 recall@K 和 NDCG，再用 latency 与 filter correctness gate 做 A/B test。我不会在没有兼容 vector index 和 rollback path 的情况下发布新 encoder。</p></blockquote>
+<h3 id="q-how-do-you-choose-rag-vs-fine-tuning">Q: How do you choose RAG vs fine-tuning?</h3>
+<h3 id="q-如何选择-rag-和-fine-tuning">Q：如何选择 RAG 和 fine-tuning？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>If the problem is knowledge freshness or grounding on user/product data, I choose RAG. If the problem is model behavior, style, output format, or tool-use pattern, I consider fine-tuning or adapters. If latency/cost is the bottleneck, I consider distillation or quantization. For Amsterdam workflows, many document or asset assistant tasks are RAG-first because content changes and provenance matters.</p></blockquote>
+<blockquote><p>如果问题是 knowledge freshness 或需要基于用户/产品数据 grounding，我选择 RAG。如果问题是模型 behavior、style、output format 或 tool-use pattern，我考虑 fine-tuning 或 adapter。如果瓶颈是 latency/cost，我考虑 distillation 或 quantization。对于 Amsterdam workflow，很多 document 或 asset assistant task 应该 RAG-first，因为内容会变化，而且 provenance 很重要。</p></blockquote>
+<h3 id="q-how-do-you-evaluate-llm-assistants">Q: How do you evaluate LLM assistants?</h3>
+<h3 id="q-如何评估-llm-assistant">Q：如何评估 LLM assistant？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>I split evaluation into retrieval quality, answer quality, grounding, safety, latency, and product success. Retrieval uses recall over gold chunks/assets. Answer quality can use human labels and LLM-as-Judge with a fixed rubric. Grounding checks whether claims are supported by retrieved context. Product success can be acceptance rate, task completion, or reduced user reformulation. I would track all of this by model, prompt, index, and rollout version.</p></blockquote>
+<blockquote><p>我会把评估拆成 retrieval quality、answer quality、grounding、safety、latency 和 product success。retrieval 用 gold chunk/asset 的 recall。answer quality 可以用 human label 和固定 rubric 的 LLM-as-Judge。grounding 检查 claim 是否由 retrieved context 支撑。product success 可以是 acceptance rate、task completion 或减少用户 reformulation。所有指标都按 model、prompt、index 和 rollout version 追踪。</p></blockquote>
+<h3 id="q-what-is-training-serving-skew-in-your-projects">Q: What is training-serving skew in your projects?</h3>
+<h3 id="q-你的项目里-training-serving-skew-是什么">Q：你的项目里 training-serving skew 是什么？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>In search, skew happens when training uses clean captions or labels but serving sees messy user queries, missing metadata, stale features, or a different encoder/index version. In LLM workflows, skew happens when offline eval prompts differ from real product prompts or when retrieved context distribution changes. I reduce skew by logging serving features, replaying production traffic offline, versioning schemas, and validating model/index compatibility before rollout.</p></blockquote>
+<blockquote><p>在 search 中，training 使用干净 caption 或 label，而 serving 面对混乱 user query、缺失 metadata、stale feature 或不同 encoder/index version 时就会出现 skew。在 LLM workflow 中，offline eval prompt 与真实产品 prompt 不同，或 retrieved context 分布变化时也会出现 skew。我通过记录 serving feature、离线 replay 生产 traffic、版本化 schema、发布前验证 model/index compatibility 来降低 skew。</p></blockquote>
+<h3 id="q-what-model-metrics-would-you-defend-in-a-hiring-manager-interview">Q: What model metrics would you defend in a hiring-manager interview?</h3>
+<h3 id="q-hiring-manager-面试中你会强调哪些模型指标">Q：Hiring manager 面试中你会强调哪些模型指标？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>I would defend a balanced scorecard. For multimodal search: recall@K, NDCG@K, zero-result rate, diversity, filter correctness, and product engagement. For LLM/RAG: retrieval recall, groundedness, answer correctness, citation quality, refusal correctness, safety, latency, and cost. For rollout: regression rate, canary deltas, rollback readiness, and slice-level performance.</p></blockquote>
+<blockquote><p>我会强调 balanced scorecard。多模态搜索看 recall@K、NDCG@K、zero-result rate、diversity、filter correctness 和 product engagement。LLM/RAG 看 retrieval recall、groundedness、answer correctness、citation quality、refusal correctness、safety、latency 和 cost。发布看 regression rate、canary delta、rollback readiness 和 slice-level performance。</p></blockquote></section>
+<section class="doc-section article" id="product-engineering-framing"><h2 id="product-engineering-framing">Product-Engineering Framing</h2></section>
+<section class="doc-section article" id="product-engineering-表达方式"><h2 id="product-engineering-表达方式">Product Engineering 表达方式</h2>
+<p>Avoid sounding like "I only built infra." Start from product/model problems:</p>
+<p>避免听起来像“我只是做 infra”。要从产品/模型问题开始：</p>
+<ul><li>Product problem: creative users search by intent, style, reference image, or incomplete memory.</li></ul>
+<ul><li>产品问题：创意用户按 intent、style、reference image 或 incomplete memory 搜索。</li></ul>
+<ul><li>Modeling problem: embeddings must align modalities and rankers must balance relevance, diversity, and rules.</li></ul>
+<ul><li>modeling 问题：embedding 必须对齐多模态，ranker 必须平衡 relevance、diversity 和 rule。</li></ul>
+<ul><li>Engineering problem: model/index versions, latency, feedback, and rollout must be safe at scale.</li></ul>
+<ul><li>engineering 问题：model/index version、latency、feedback 和 rollout 必须在规模化下安全。</li></ul>
+<ul><li>Product impact: better discovery quality, safer AI launches, less media transfer, faster feature onboarding.</li></ul>
+<ul><li>产品影响：更好的 discovery quality、更安全的 AI launch、更少的 media transfer、更快的 feature onboarding。</li></ul>
+<p>Example full pitch:</p>
+<p>完整 pitch 示例：</p>
+<blockquote><p>My Amsterdam work combined modeling and product engineering. In search, I worked on the model iteration loop for multimodal embeddings and rankers, where the key was aligning text, image, video, document, and metadata signals into a retrieval/ranking system that improved discovery quality. Later, in AI Platform, I generalized the model lifecycle: model/prompt/index versioning, offline and online evaluation, LLM-as-Judge, RAG quality checks, and safe rollout. So my focus was not just serving models, but making model changes measurable, reliable, and shippable for product teams.</p></blockquote>
+<blockquote><p>我的 Amsterdam 工作结合了 modeling 和 product engineering。在 search 项目中，我参与多模态 embedding 与 ranker 的模型迭代闭环，关键是把 text、image、video、document 和 metadata 信号对齐到 retrieval/ranking 系统中，提升 discovery quality。后来在 AI Platform 中，我把模型生命周期能力泛化：model/prompt/index versioning、offline/online evaluation、LLM-as-Judge、RAG quality check 和 safe rollout。因此我的重点不只是 serving model，而是让模型变更变得可衡量、可靠，并能被产品团队安全发布。</p></blockquote></section>
+<section class="doc-section article" id="common-traps-and-better-answers"><h2 id="common-traps-and-better-answers">Common Traps And Better Answers</h2></section>
+<section class="doc-section article" id="常见陷阱与更好回答"><h2 id="常见陷阱与更好回答">常见陷阱与更好回答</h2>
+<h3 id="trap-i-trained-the-amsterdam-model">Trap: "I trained the Amsterdam model."</h3>
+<h3 id="陷阱-我训练了-amsterdam-模型">陷阱：“我训练了 Amsterdam 模型。”</h3>
+<p>Better:</p>
+<p>更好：</p>
+<blockquote><p>I partnered on model iteration and owned key engineering pieces around training data, evaluation, versioning, compatibility, and rollout.</p></blockquote>
+<blockquote><p>我参与模型迭代，并拥有训练数据、评估、版本管理、兼容性和发布相关的关键工程部分。</p></blockquote>
+<h3 id="trap-vector-search-solved-discovery">Trap: "Vector search solved discovery."</h3>
+<h3 id="陷阱-vector-search-解决了-discovery">陷阱：“Vector search 解决了 discovery。”</h3>
+<p>Better:</p>
+<p>更好：</p>
+<blockquote><p>Vector search solved semantic recall. Product discovery also needed lexical constraints, metadata filters, ranking, diversity, feedback, and evaluation.</p></blockquote>
+<blockquote><p>Vector search 解决的是 semantic recall。产品 discovery 还需要 lexical constraint、metadata filter、ranking、diversity、feedback 和 evaluation。</p></blockquote>
+<h3 id="trap-llm-as-judge-tells-us-if-the-model-is-good">Trap: "LLM-as-Judge tells us if the model is good."</h3>
+<h3 id="陷阱-llm-as-judge-告诉我们模型是否好">陷阱：“LLM-as-Judge 告诉我们模型是否好。”</h3>
+<p>Better:</p>
+<p>更好：</p>
+<blockquote><p>LLM-as-Judge is one semantic signal. I combine it with deterministic checks, human-labeled evals, offline replay, canary metrics, and product telemetry.</p></blockquote>
+<blockquote><p>LLM-as-Judge 是一个 semantic signal。我会结合 deterministic check、human-labeled eval、offline replay、canary metrics 和 product telemetry。</p></blockquote>
+<h3 id="trap-we-just-fine-tune-for-product-behavior">Trap: "We just fine-tune for product behavior."</h3>
+<h3 id="陷阱-我们直接-fine-tune-来获得产品行为">陷阱：“我们直接 fine-tune 来获得产品行为。”</h3>
+<p>Better:</p>
+<p>更好：</p>
+<blockquote><p>I first diagnose whether the problem is knowledge, behavior, latency, cost, or style. RAG, prompting, adapters, distillation, and fine-tuning solve different problems.</p></blockquote>
+<blockquote><p>我会先诊断问题是 knowledge、behavior、latency、cost 还是 style。RAG、prompting、adapter、distillation 和 fine-tuning 解决的是不同问题。</p></blockquote></section>
+<section class="doc-section article" id="sources-and-references"><h2 id="sources-and-references">Sources And References</h2></section>
+<section class="doc-section article" id="参考资料"><h2 id="参考资料">参考资料</h2>
+<p>These sources are useful for deeper interview preparation. They are not claims about Amsterdam internal implementations; they are public references that explain the modeling ideas used in modern multimodal, retrieval, ranking, LLM, and model-lifecycle systems.</p>
+<p>这些资料用于更深入的面试准备。它们不是对 Amsterdam 内部实现的声明，而是解释现代多模态、检索、排序、LLM 和模型生命周期系统中常见 modeling 思路的公开资料。</p>
+<ul><li>CLIP: Learning Transferable Visual Models From Natural Language Supervision, Radford et al. <a href="https://arxiv.org/abs/2103.00020">arXiv</a></li></ul>
+<ul><li>CLIP：从自然语言监督中学习可迁移视觉模型，Radford 等。<a href="https://arxiv.org/abs/2103.00020">arXiv</a></li></ul>
+<ul><li>ALIGN: Scaling Up Visual and Vision-Language Representation Learning With Noisy Text Supervision, Jia et al. <a href="https://arxiv.org/abs/2102.05918">arXiv</a></li></ul>
+<ul><li>ALIGN：使用 noisy text supervision 扩展视觉与视觉语言表示学习，Jia 等。<a href="https://arxiv.org/abs/2102.05918">arXiv</a></li></ul>
+<ul><li>SigLIP: Sigmoid Loss for Language Image Pre-Training, Zhai et al. <a href="https://arxiv.org/abs/2303.15343">arXiv</a></li></ul>
+<ul><li>SigLIP：用于 language-image pretraining 的 sigmoid loss，Zhai 等。<a href="https://arxiv.org/abs/2303.15343">arXiv</a></li></ul>
+<ul><li>DINOv2: Learning Robust Visual Features without Supervision, Oquab et al. <a href="https://arxiv.org/abs/2304.07193">arXiv</a></li></ul>
+<ul><li>DINOv2：无监督学习鲁棒视觉特征，Oquab 等。<a href="https://arxiv.org/abs/2304.07193">arXiv</a></li></ul>
+<ul><li>Dense Passage Retrieval, Karpukhin et al. <a href="https://arxiv.org/abs/2004.04906">arXiv</a></li></ul>
+<ul><li>Dense Passage Retrieval，Karpukhin 等。<a href="https://arxiv.org/abs/2004.04906">arXiv</a></li></ul>
+<ul><li>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks, Lewis et al. <a href="https://arxiv.org/abs/2005.11401">arXiv</a></li></ul>
+<ul><li>RAG：用于知识密集型 NLP 任务的检索增强生成，Lewis 等。<a href="https://arxiv.org/abs/2005.11401">arXiv</a></li></ul>
+<ul><li>Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena, Zheng et al. <a href="https://arxiv.org/abs/2306.05685">arXiv</a></li></ul>
+<ul><li>用 MT-Bench 与 Chatbot Arena 评估 LLM-as-a-Judge，Zheng 等。<a href="https://arxiv.org/abs/2306.05685">arXiv</a></li></ul>
+<ul><li>LoRA: Low-Rank Adaptation of Large Language Models, Hu et al. <a href="https://arxiv.org/abs/2106.09685">arXiv</a></li></ul>
+<ul><li>LoRA：大语言模型的低秩适配，Hu 等。<a href="https://arxiv.org/abs/2106.09685">arXiv</a></li></ul>
+<ul><li>QLoRA: Efficient Finetuning of Quantized LLMs, Dettmers et al. <a href="https://arxiv.org/abs/2305.14314">arXiv</a></li></ul>
+<ul><li>QLoRA：量化 LLM 的高效微调，Dettmers 等。<a href="https://arxiv.org/abs/2305.14314">arXiv</a></li></ul>
+<ul><li>DeepSpeed ZeRO, Rajbhandari et al. <a href="https://arxiv.org/abs/1910.02054">arXiv</a></li></ul>
+<ul><li>DeepSpeed ZeRO，Rajbhandari 等。<a href="https://arxiv.org/abs/1910.02054">arXiv</a></li></ul>
+<ul><li>PyTorch FSDP documentation. <a href="https://pytorch.org/docs/stable/fsdp.html">PyTorch Docs</a></li></ul>
+<ul><li>PyTorch FSDP 官方文档。<a href="https://pytorch.org/docs/stable/fsdp.html">PyTorch Docs</a></li></ul>
+<ul><li>Hidden Technical Debt in Machine Learning Systems, Sculley et al. <a href="https://research.google/pubs/hidden-technical-debt-in-machine-learning-systems/">Google Research</a></li></ul>
+<ul><li>机器学习系统中的隐性技术债，Sculley 等。<a href="https://research.google/pubs/hidden-technical-debt-in-machine-learning-systems/">Google Research</a></li></ul>
+<ul><li>Model Cards for Model Reporting, Mitchell et al. <a href="https://arxiv.org/abs/1810.03993">arXiv</a></li></ul>
+<ul><li>Model Cards for Model Reporting，Mitchell 等。<a href="https://arxiv.org/abs/1810.03993">arXiv</a></li></ul>
+<ul><li>Datasheets for Datasets, Gebru et al. <a href="https://arxiv.org/abs/1803.09010">arXiv</a></li></ul>
+<ul><li>Datasheets for Datasets，Gebru 等。<a href="https://arxiv.org/abs/1803.09010">arXiv</a></li></ul>
+<ul><li>Amsterdam Firefly training-data and commercial-use positioning. <a href="https://www.amsterdam.com/products/firefly/faq.html">Amsterdam Firefly FAQ</a></li></ul>
+<ul><li>Amsterdam Firefly 关于训练数据和商业使用的官方说明。<a href="https://www.amsterdam.com/products/firefly/faq.html">Amsterdam Firefly FAQ</a></li></ul>
+<ul><li>Amsterdam Content Authenticity Initiative and Content Credentials. <a href="https://contentauthenticity.org/">Amsterdam CAI</a></li></ul>
+<ul><li>Amsterdam Content Authenticity Initiative 与 Content Credentials。<a href="https://contentauthenticity.org/">Amsterdam CAI</a></li></ul></section></main></section></div><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script><script>const tabs=[...document.querySelectorAll('.top-tab')],panels=[...document.querySelectorAll('.panel')];function show(id){tabs.forEach(t=>t.classList.toggle('active',t.dataset.panel===id));panels.forEach(p=>p.classList.toggle('active',p.id===id));window.scrollTo({top:0,behavior:'smooth'});if(history.replaceState)history.replaceState(null,'','#'+id)}tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.panel)));const init=location.hash.slice(1);if(init&&document.getElementById(init))show(init);if(window.hljs)window.hljs.highlightAll();</script>
+
+</body></html>

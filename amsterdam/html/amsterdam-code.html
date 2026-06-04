@@ -1,0 +1,3465 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Amsterdam Code and Implementation Logic</title><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" rel="stylesheet"/><style>:root{color-scheme:dark;--bg:#0b1020;--panel:#111827;--panel2:#0f172a;--text:#e6edf3;--muted:#9aa8bb;--border:#263348;--accent:#a78bfa;--code:#080d19;--soft:color-mix(in srgb,var(--accent) 14%,transparent)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 0%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.64}.page{width:min(1240px,calc(100vw - 28px));margin:0 auto;padding:12px 0 54px}.topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 14px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(135deg,rgba(17,24,39,.97),rgba(15,23,42,.92));position:sticky;top:0;z-index:20;box-shadow:0 12px 36px rgba(0,0,0,.3);backdrop-filter:blur(12px)}h1{margin:0;font-size:clamp(.98rem,1.6vw,1.22rem);line-height:1.2}.meta{color:var(--muted);font-size:.8rem}.badge{border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));background:var(--soft);color:var(--accent);border-radius:999px;padding:5px 9px;font-size:.78rem;white-space:nowrap}.top-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.top-tab{border:1px solid var(--border);background:rgba(17,24,39,.78);color:var(--muted);padding:8px 11px;border-radius:999px;font:inherit;font-size:.88rem;cursor:pointer}.top-tab:hover{color:var(--text);border-color:var(--accent)}.top-tab.active{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:760}.panel{display:none}.panel.active{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px}.side{position:sticky;top:86px;align-self:start;max-height:calc(100vh - 104px);overflow:auto;border:1px solid var(--border);border-radius:14px;background:rgba(17,24,39,.78);padding:10px}.side-title{font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800;margin:4px 6px 8px}.side a{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:start;color:var(--muted);text-decoration:none;padding:8px 6px;border-radius:9px;font-size:.88rem;line-height:1.25}.side a:hover{background:rgba(148,163,184,.1);color:var(--text)}.side span{color:var(--accent);font-weight:800}.content{min-width:0;border:1px solid var(--border);border-radius:16px;background:rgba(17,24,39,.84);box-shadow:0 14px 42px rgba(0,0,0,.24);padding:22px}.doc-section{padding:0 0 26px;margin:0 0 26px;border-bottom:1px solid var(--border)}.doc-section:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}.article h1,.article h2,.article h3,.article h4{line-height:1.25;margin:1.25em 0 .6em}.article h1:first-child,.article h2:first-child,.article h3:first-child{margin-top:0}.article h1{font-size:1.7rem}.article h2{font-size:1.35rem;border-bottom:1px solid var(--border);padding-bottom:.3rem}.article h3{font-size:1.13rem;color:#dbeafe}.article h4{font-size:1.02rem;color:#e9d5ff}.article p{margin:.72rem 0}.article ul,.article ol{padding-left:1.35rem}.article li{margin:.32rem 0}.article code{background:rgba(125,211,252,.12);color:#d8f3ff;padding:.12rem .34rem;border-radius:5px;font-family:"Cascadia Code",Consolas,monospace;font-size:.92em}pre{margin:1rem 0;border:1px solid #263348;border-radius:12px;background:var(--code);overflow:auto}pre code{display:block;background:transparent!important;color:#e6edf3;padding:18px;white-space:pre;line-height:1.55;font-size:.92rem}.table-scroll{overflow-x:auto;margin:1rem 0}.article table{width:100%;min-width:520px;border-collapse:collapse}.article th,.article td{border:1px solid var(--border);padding:9px 10px;vertical-align:top}.article th{background:rgba(148,163,184,.13);color:#dbeafe;text-align:left}.article tr:nth-child(even) td{background:rgba(15,23,42,.45)}blockquote{margin:1rem 0;padding:.5rem 1rem;border-left:4px solid var(--accent);background:var(--soft);color:#d5e7f5}img{max-width:100%;border-radius:10px;border:1px solid var(--border)}@media(max-width:900px){.page{width:min(100vw - 18px,1240px)}.topbar{position:static;grid-template-columns:1fr}.panel.active{grid-template-columns:1fr}.side{position:static;max-height:none}.content{padding:16px}}
+.side-toggle{width:34px;height:34px;display:grid;place-items:center;margin:0 0 10px;border:1px solid var(--border,var(--line,#263348));border-radius:10px;background:rgba(17,24,39,.78);color:var(--text,var(--ink,#e6edf3));cursor:pointer;font:900 15px/1 "Segoe UI",Arial,sans-serif}.side-toggle:hover{border-color:var(--accent,#78a6ff);background:var(--soft,rgba(120,166,255,.12))}body.toc-collapsed .panel.active{grid-template-columns:46px minmax(0,1fr)}body.toc-collapsed .side{width:46px;min-width:46px;padding:8px 6px;overflow:hidden}body.toc-collapsed .side>*:not(.side-toggle){display:none}body.toc-collapsed .side-toggle{margin:0 auto}.panel.active{transition:grid-template-columns .18s ease}.side{transition:width .18s ease,padding .18s ease}
+
+/* Layout cleanup: inner section navigation is a horizontal tab row, not a second left panel. */
+.panel.active{display:block!important;}
+.side{position:sticky!important;top:62px!important;z-index:10!important;height:auto!important;min-height:0!important;max-height:72px!important;overflow-x:auto!important;overflow-y:hidden!important;display:flex!important;gap:6px!important;align-items:center!important;margin:0 0 12px!important;padding:8px!important;width:auto!important;min-width:0!important;}
+.side-title{flex:0 0 auto!important;margin:0 8px 0 2px!important;white-space:nowrap!important;}
+.side a{display:inline-flex!important;grid-template-columns:none!important;gap:7px!important;align-items:center!important;white-space:nowrap!important;min-width:max-content!important;border-radius:999px!important;padding:7px 10px!important;}
+.side-toggle{display:none!important;}
+body.toc-collapsed .panel.active{display:block!important;}
+body.toc-collapsed .side{width:auto!important;min-width:0!important;padding:8px!important;overflow-x:auto!important;overflow-y:hidden!important;}
+body.toc-collapsed .side>*:not(.side-toggle){display:inherit!important;}
+
+</style></head><body class="toc-collapsed"><div class="page"><header class="topbar"><div><h1>Amsterdam Code and Implementation Logic</h1><div class="meta">amsterdam-code.md ? 5 top sections ? Implementation logic</div></div></header><nav aria-label="Top sections" class="top-tabs"><button class="top-tab active" data-panel="panel-0" type="button">Opening</button>
+<button class="top-tab" data-panel="panel-1" type="button">Foundations</button>
+<button class="top-tab" data-panel="panel-2" type="button">Project 1 Code</button>
+<button class="top-tab" data-panel="panel-3" type="button">Project 2 Code</button>
+<button class="top-tab" data-panel="panel-4" type="button">Build Blueprints</button></nav><section class="panel active" id="panel-0"><main class="content"><section class="doc-section article" id="opening"><p>Amsterdam Code和实现逻辑</p>
+<p>This appendix goes deeper than the resume bullets. It focuses on how the systems could actually be implemented, what service boundaries exist, what data flows through them, and what kinds of details a senior engineer or hiring manager may probe. 本附录比简历要点更深入。它重点关注系统如何实际实施、存在哪些服务边界、哪些数据流经它们以及高级工程师或招聘经理可能会调查哪些类型的细节。</p></section></main></section>
+<section class="panel" id="panel-1"><main class="content"><section class="doc-section article" id="logic-introduction"><h2 id="logic-introduction">Logic Introduction</h2>
+<p>逻辑介绍</p>
+<p>This file is the implementation companion to the two project narrative files. The narrative files explain what the systems do, why they exist, what problems they solve, and how to talk about them in interviews. This file explains how to build them in practice. 该文件是两个项目叙述文件的实现配套文档。叙述性文件解释了系统的作用、它们存在的原因、它们解决的问题以及如何在面试中谈论它们。该文件解释了如何在实践中构建它们。</p>
+<p>The main idea is to separate each platform into control-plane logic and data-plane logic: 主要思想是将每个平台分为 control plane 逻辑和 data plane 逻辑：</p>
+<ul><li>The control plane decides intent, policy, routing, scheduling, versioning, rollout, and observability.</li></ul>
+<p>control plane 决定 intent、策略、路由、scheduling、版本控制、rollout 和可观测性。</p>
+<ul><li>The data plane executes model inference, retrieval, indexing, preprocessing, and result assembly.</li></ul>
+<p>data plane 执行模型推理、retrieval、index、预处理和结果组装。</p>
+<p>That split shows up in both projects. In Project 1, the control plane decides where each AI workflow should run and how it should recover from failure. In Project 2, the control plane decides how assets are ingested, embedded, indexed, retrieved, ranked, and debugged. The data plane then does the heavy lifting for GPU inference, search retrieval, and stream/batch processing. 这种分裂在两个项目中都有体现。在项目 1 中，control plane 决定每个 AI workflow 应在何处运行以及如何从故障中恢复。在项目 2 中，control plane 决定 asset 如何被 ingestion、embedding、index、retrieval、ranking 和 debug。然后，data plane 承担 GPU 推理、搜索 retrieval 和流/batch 的繁重工作。</p></section>
+<section class="doc-section article" id="how-to-read-the-logic"><h2 id="how-to-read-the-logic">How To Read The Logic</h2>
+<p>如何阅读逻辑</p>
+<p>If you are preparing for an interview, read this file in the following order: 如果您正在准备面试，请按以下顺序阅读此文件：</p>
+<ol><li>Start with the target capabilities and repository layout.</li></ol>
+<p>从目标功能和repository 布局开始。</p>
+<ol><li>Read the service-by-service sections to understand responsibilities.</li></ol>
+<p>阅读各个服务部分以了解职责。</p>
+<ol><li>Read the end-to-end request examples to see how data flows through the system.</li></ol>
+<p>阅读端到端请求示例，了解数据如何流经系统。</p>
+<ol><li>Read the production hardening sections to understand failure handling and scale.</li></ol>
+<p>阅读生产强化部分以了解故障处理和规模。</p>
+<ol><li>Use the interview drill sections to practice small-part and big-picture questions.</li></ol>
+<p>使用面试练习部分来练习局部细节和全局架构问题。</p>
+<p>The point is not to memorize a single "correct" architecture. The point is to understand why each component exists, what bottleneck it manages, and what tradeoff it introduces. 重点不是记住一个“正确”的架构。关键是要了解每个组件存在的原因、它管理的瓶颈以及它引入的权衡。</p></section>
+<section class="doc-section article" id="core-reasoning-model"><h2 id="core-reasoning-model">Core Reasoning Model</h2>
+<p>核心推理模型</p>
+<p>Across both projects, the same reasoning model applies: 在这两个项目中，适用相同的推理模型：</p>
+<ul><li>Separate policy from execution.</li></ul>
+<p>将policy与执行分开。</p>
+<ul><li>Separate orchestration from inference.</li></ul>
+<p>将orchestration与推理分开。</p>
+<ul><li>Separate retrieval from ranking.</li></ul>
+<p>将 retrieval 与 ranking 分开。</p>
+<ul><li>Separate online serving from offline or nearline processing.</li></ul>
+<p>将 online 服务与 offline 或 nearline 处理分开。</p>
+<ul><li>Separate interactive workloads from batch workloads.</li></ul>
+<p>将交互式 workload 与 batch workload 分开。</p>
+<ul><li>Keep state durable when a workflow can outlive a single request.</li></ul>
+<p>当 workflow 生命周期超过单个请求时，要保持状态持久化。</p>
+<ul><li>Keep components explainable so failures are debuggable.</li></ul>
+<p>保持组件可解释，让故障可以被 debug。</p>
+<p>If a design choice does not improve latency, reliability, cost, or developer usability, it is probably unnecessary complexity. 如果设计选择不能改善 latency、可靠性、成本或开发人员可用性，那么它可能会带来不必要的复杂性。</p></section></main></section>
+<section class="panel" id="panel-2"><main class="content"><section class="doc-section article" id="project-1-implementation-hybrid-ai-execution-platform"><h2 id="project-1-implementation-hybrid-ai-execution-platform">Project 1 Implementation: Hybrid AI Execution Platform</h2>
+<p>项目1实施：混合AI执行平台</p>
+<h3 id="implementation-view">Implementation View</h3>
+<p>实施视图</p>
+<p>The AI Platform project can be explained as five implementation layers: AI Platform项目可以解释为五个实施层：</p>
+<ol><li>Intent and policy layer: product teams register what they want to run.</li></ol>
+<p>intent 和策略层：产品团队注册他们想要运行的内容。</p>
+<ol><li>Planning layer: the platform decides edge, CPU, GPU, batch, or hybrid execution.</li></ol>
+<p>规划层：平台决定 edge、CPU、GPU、batch 或混合执行。</p>
+<ol><li>Workflow layer: the platform executes DAG steps and persists state.</li></ol>
+<p>工作流层：平台执行 DAG 步骤并保存状态。</p>
+<ol><li>Serving layer: Ray Serve, Triton, vLLM, and batch workers run the actual compute.</li></ol>
+<p>serving 层：Ray Serve、Triton、vLLM 和 batch worker运行实际计算。</p>
+<ol><li>Resource and rollout layer: the platform controls GPU placement, autoscaling, canaries, and evaluation.</li></ol>
+<p>资源和rollout 层：平台控制 GPU 放置、自动扩缩容、canary 和 evaluation。</p>
+<pre><code class="language-mermaid">flowchart TD
+    A["Partner Product Service"] --&gt; B["Intent Gateway"]
+    B --&gt; C["Intent Registry"]
+    B --&gt; D["Policy Engine"]
+    B --&gt; E["Context Collector"]
+    C --&gt; F["Execution Planner"]
+    D --&gt; F
+    E --&gt; F
+    F --&gt; G["Workflow Service"]
+    G --&gt; H["Workflow State Store"]
+    G --&gt; I["Kafka / Task Queue"]
+    I --&gt; J["Ray Serve Orchestration"]
+    I --&gt; K["Triton Inference Workers"]
+    I --&gt; L["vLLM Generation Workers"]
+    I --&gt; M["Batch / Index Workers"]
+    G --&gt; N["Object Storage"]
+    O["Resource Controller"] --&gt; J
+    O --&gt; K
+    O --&gt; L
+    P["Metrics / Traces / Logs"] --&gt; O
+    P --&gt; Q["Rollout Controller"]
+    R["Evaluation Service"] --&gt; Q</code></pre>
+<h3 id="service-boundary-intent-gateway">Service Boundary: Intent Gateway</h3>
+<p>服务边界：intentgateway</p>
+<p>The Intent Gateway is the external platform API used by partner feature services. Product teams should not need to know which model server, queue, GPU pool, or storage path is used. Intent Gateway 是合作伙伴要素服务使用的外部平台 API。产品团队不需要知道使用的是哪种型号的服务器、队列、GPU 池或存储路径。</p>
+<p>Responsibilities: 职责：</p>
+<ul><li>Authenticate caller and tenant.</li></ul>
+<p>验证呼叫者和 tenant 的身份。</p>
+<ul><li>Validate intent name and version.</li></ul>
+<p>验证 intent 名称和版本。</p>
+<ul><li>Validate input schema.</li></ul>
+<p>验证输入 schema。</p>
+<ul><li>Attach product, tenant, and privacy metadata.</li></ul>
+<p>附加产品、tenant 和隐私元数据。</p>
+<ul><li>Enforce quota and policy before expensive work starts.</li></ul>
+<p>在昂贵的工作开始之前执行 quota 和policy。</p>
+<ul><li>Create a request ID and workflow ID.</li></ul>
+<p>创建请求 ID 和工作流 ID。</p>
+<ul><li>Return synchronous result or accepted async workflow handle.</li></ul>
+<p>返回同步结果或接受的异步 workflow 句柄。</p>
+<p>Example API: API 示例：</p>
+<pre><code class="language-http">POST /v1/intents/{intent_name}:execute
+Content-Type: application/json
+
+{
+  "intent_version": "v3",
+  "request_id": "req_01H...",
+  "tenant": {
+    "org_id": "org_123",
+    "product": "creative_tool",
+    "feature": "semantic_retrieval"
+  },
+  "inputs": {
+    "text": "find similar cinematic clips",
+    "media_ref": "client://timeline/clip_42",
+    "media_type": "video"
+  },
+  "context": {
+    "device_type": "desktop_high_end",
+    "available_vram_mb": 8192,
+    "network_uplink_mbps": 12.5,
+    "network_rtt_ms": 45,
+    "battery_level": null,
+    "is_charging": true,
+    "locale": "en-US"
+  },
+  "constraints": {
+    "latency_class": "interactive",
+    "privacy_class": "user_content_sensitive",
+    "max_cloud_upload_mb": 100,
+    "allow_gpu": true
+  }
+}</code></pre>
+<p>Example response for async workflow: 异步 workflow 的示例响应：</p>
+<pre><code class="language-json">{
+  "request_id": "req_01H...",
+  "workflow_id": "wf_01H...",
+  "status": "accepted",
+  "execution_plan": {
+    "mode": "hybrid",
+    "edge_contract": "video.keyframe_preprocess.v2",
+    "cloud_route": "retrieval_embedding_triton",
+    "checkpointing": true
+  },
+  "upload": {
+    "type": "presigned_object_storage",
+    "required": false
+  },
+  "poll_url": "/v1/workflows/wf_01H..."
+}</code></pre>
+<h3 id="intent-registry-implementation">Intent Registry Implementation</h3>
+<p>intent 登记实施</p>
+<p>The registry should support versioned intent definitions. The important implementation point is that product configuration and platform routing policy are separated. registry 应该支持版本化 intent 定义。重要的实现点是产品配置和平台路由策略分离。</p>
+<p>Suggested tables: 建议表格：</p>
+<pre><code class="language-sql">CREATE TABLE intent_definition (
+    intent_name VARCHAR(128),
+    intent_version VARCHAR(32),
+    owner_team VARCHAR(128),
+    input_schema_json TEXT,
+    output_schema_json TEXT,
+    modality_json TEXT,
+    default_latency_class VARCHAR(32),
+    default_privacy_class VARCHAR(32),
+    status VARCHAR(32),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    PRIMARY KEY (intent_name, intent_version)
+);
+
+CREATE TABLE intent_execution_policy (
+    intent_name VARCHAR(128),
+    intent_version VARCHAR(32),
+    allowed_targets_json TEXT,
+    fallback_policy_json TEXT,
+    quota_policy_json TEXT,
+    model_dependencies_json TEXT,
+    index_dependencies_json TEXT,
+    eval_gate_json TEXT,
+    PRIMARY KEY (intent_name, intent_version)
+);
+
+CREATE TABLE intent_rollout (
+    intent_name VARCHAR(128),
+    active_version VARCHAR(32),
+    canary_version VARCHAR(32),
+    canary_percentage FLOAT,
+    rollback_version VARCHAR(32),
+    updated_at TIMESTAMP,
+    PRIMARY KEY (intent_name)
+);</code></pre>
+<p>Example registry object: registry 对象示例：</p>
+<pre><code class="language-json">{
+  "intent_name": "creative.media_understanding",
+  "intent_version": "v4",
+  "owner_team": "ai-platform",
+  "input_schema": {
+    "required": ["media_ref", "media_type"],
+    "properties": {
+      "media_ref": {"type": "string"},
+      "media_type": {"enum": ["image", "video", "document"]},
+      "task": {"enum": ["tag", "caption", "embed", "summarize"]}
+    }
+  },
+  "execution_policy": {
+    "allowed_targets": ["edge_preprocess", "cloud_cpu", "triton_gpu", "vllm_gpu"],
+    "fallbacks": [
+      {"on": "gpu_saturated", "action": "queue_or_smaller_model"},
+      {"on": "network_unstable", "action": "edge_preprocess_only"},
+      {"on": "eval_regression", "action": "rollback_model"}
+    ],
+    "models": {
+      "embedding": "embedding-v3",
+      "ranker": "ranker-v5",
+      "llm": "assistant-llm-prod"
+    }
+  }
+}</code></pre>
+<h3 id="execution-planner-details">Execution Planner Details</h3>
+<p>执行计划详细信息</p>
+<p>The planner does not simply pick a model. It creates a structured execution plan with steps, placement, retry policy, and resource class. 规划者并不是简单地选择一个模型。它创建一个包含步骤、放置、重试策略和资源类的结构化执行计划。</p>
+<pre><code class="language-python">@dataclass
+class PlanStep:
+    step_id: str
+    name: str
+    engine: str
+    resource_class: str
+    inputs: list[str]
+    outputs: list[str]
+    timeout_ms: int
+    retry_policy: dict
+    checkpoint: bool
+
+@dataclass
+class PlannedWorkflow:
+    workflow_id: str
+    mode: str
+    steps: list[PlanStep]
+    estimated_upload_mb: float
+    estimated_gpu_ms: float
+    fallback_plan_id: str | None</code></pre>
+<p>Example generated plan for video semantic retrieval: 视频语义 retrieval 生成计划示例：</p>
+<pre><code class="language-json">{
+  "workflow_id": "wf_123",
+  "mode": "hybrid",
+  "estimated_upload_mb": 45,
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "edge_extract_keyframes",
+      "engine": "edge_runtime_contract",
+      "resource_class": "client",
+      "outputs": ["keyframe_refs", "scene_metadata"],
+      "checkpoint": true
+    },
+    {
+      "step_id": "s2",
+      "name": "embed_keyframes",
+      "engine": "triton",
+      "resource_class": "gpu_interactive",
+      "inputs": ["keyframe_refs"],
+      "outputs": ["frame_embeddings"],
+      "checkpoint": true
+    },
+    {
+      "step_id": "s3",
+      "name": "retrieve_candidates",
+      "engine": "cloud_cpu",
+      "resource_class": "cpu_interactive",
+      "inputs": ["frame_embeddings", "scene_metadata"],
+      "outputs": ["candidate_ids"],
+      "checkpoint": true
+    },
+    {
+      "step_id": "s4",
+      "name": "rerank_candidates",
+      "engine": "triton",
+      "resource_class": "gpu_interactive",
+      "inputs": ["candidate_ids"],
+      "outputs": ["ranked_results"],
+      "checkpoint": false
+    }
+  ]
+}</code></pre>
+<h3 id="workflow-state-machine">Workflow State Machine</h3>
+<p>工作流状态机</p>
+<p>Long-running workflows need an explicit state machine. This is useful to discuss when interviewers ask how retries, duplicate events, and partial failures are handled. 长时间运行的工作流需要一个显式的状态机。当面试官询问如何处理重试、重复事件和部分失败时，这对于讨论很有用。</p>
+<pre><code class="language-mermaid">stateDiagram-v2
+    [*] --&gt; CREATED
+    CREATED --&gt; PLANNED
+    PLANNED --&gt; WAITING_FOR_EDGE
+    WAITING_FOR_EDGE --&gt; RUNNING
+    PLANNED --&gt; RUNNING
+    RUNNING --&gt; CHECKPOINTED
+    CHECKPOINTED --&gt; RUNNING
+    RUNNING --&gt; WAITING_RETRY
+    WAITING_RETRY --&gt; RUNNING
+    RUNNING --&gt; WAITING_CAPACITY
+    WAITING_CAPACITY --&gt; RUNNING
+    RUNNING --&gt; SUCCEEDED
+    RUNNING --&gt; FAILED
+    RUNNING --&gt; CANCELLED
+    SUCCEEDED --&gt; [*]
+    FAILED --&gt; [*]
+    CANCELLED --&gt; [*]</code></pre>
+<p>State table: 状态表：</p>
+<pre><code class="language-sql">CREATE TABLE workflow_state (
+    workflow_id VARCHAR(128) PRIMARY KEY,
+    request_id VARCHAR(128),
+    intent_name VARCHAR(128),
+    intent_version VARCHAR(32),
+    status VARCHAR(32),
+    current_step VARCHAR(128),
+    plan_json TEXT,
+    context_json TEXT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    expires_at TIMESTAMP
+);
+
+CREATE TABLE workflow_step_state (
+    workflow_id VARCHAR(128),
+    step_id VARCHAR(128),
+    status VARCHAR(32),
+    attempt_count INT,
+    input_refs_json TEXT,
+    output_refs_json TEXT,
+    error_code VARCHAR(128),
+    error_message TEXT,
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP,
+    PRIMARY KEY (workflow_id, step_id)
+);</code></pre>
+<p>Idempotency pattern: idempotencyschema：</p>
+<pre><code class="language-python">def idempotency_key(workflow_id: str, step_id: str, input_digest: str) -&gt; str:
+    return f"{workflow_id}:{step_id}:{input_digest}"
+
+async def execute_once(step, state_store, artifact_store):
+    key = idempotency_key(step.workflow_id, step.step_id, step.input_digest)
+
+    existing = await state_store.get_step_result(key)
+    if existing:
+        return existing
+
+    result = await run_step(step)
+    artifact_ref = await artifact_store.put_if_absent(key, result)
+    await state_store.record_step_result(key, artifact_ref)
+    return artifact_ref</code></pre>
+<h3 id="kafka-topics-and-event-contracts">Kafka Topics and Event Contracts</h3>
+<p>Kafka 主题和事件合约</p>
+<p>The task queue should be explicit. A good implementation avoids generic "do_work" topics. 任务队列应该是明确的。一个好的实现可以避免通用的“do_work”主题。</p>
+<p>Suggested topic layout: 建议的主题布局：</p>
+<div class="table-scroll"><table><thead><tr><th>Topic</th><th>Purpose</th></tr></thead><tbody><tr><td>ai.workflow.created</td><td>New workflow accepted</td></tr><tr><td>ai.workflow.step.ready</td><td>Step ready to execute</td></tr><tr><td>ai.workflow.step.completed</td><td>Step completed and checkpointed</td></tr><tr><td>ai.workflow.step.failed</td><td>Step failed after retry budget</td></tr><tr><td>ai.workflow.capacity.waiting</td><td>Step waiting for GPU/CPU capacity</td></tr><tr><td>ai.model.rollout.event</td><td>Model/index rollout state changes</td></tr><tr><td>ai.eval.completed</td><td>Evaluation result for candidate version</td></tr><tr><td>ai.telemetry.token</td><td>LLM token telemetry stream</td></tr><tr><td>ai.telemetry.gpu</td><td>GPU placement/utilization stream</td></tr></tbody></table></div>
+<p>Example event: 事件示例：</p>
+<pre><code class="language-json">{
+  "event_type": "ai.workflow.step.ready",
+  "event_id": "evt_123",
+  "workflow_id": "wf_123",
+  "step_id": "s2",
+  "intent": "creative.media_understanding",
+  "resource_class": "gpu_interactive",
+  "engine": "triton",
+  "input_refs": [
+    "s3://ai-workflows/wf_123/edge/keyframes/"
+  ],
+  "deadline_ms": 500,
+  "attempt": 1,
+  "trace_id": "trace_abc"
+}</code></pre>
+<p>Consumer pattern: 消费 schema：</p>
+<pre><code class="language-python">async def consume_ready_steps(consumer, state_store, executor):
+    async for event in consumer:
+        if await state_store.is_step_completed(event.workflow_id, event.step_id):
+            continue
+
+        lease = await state_store.acquire_step_lease(
+            event.workflow_id,
+            event.step_id,
+            ttl_s=120,
+        )
+        if not lease.acquired:
+            continue
+
+        try:
+            result = await executor.execute(event)
+            await state_store.complete_step(event.workflow_id, event.step_id, result)
+            await publish_step_completed(event, result)
+        except RetryableCapacityError:
+            await state_store.release_lease(event.workflow_id, event.step_id)
+            await publish_capacity_waiting(event)
+        except Exception as exc:
+            await state_store.record_failure(event.workflow_id, event.step_id, exc)
+            await maybe_retry_or_fail(event, exc)</code></pre>
+<h3 id="object-storage-layout">Object Storage Layout</h3>
+<p>object storage 布局</p>
+<p>Object storage needs predictable paths for recovery and lifecycle policies. object storage 需要可预测的恢复路径和生命周期策略。</p>
+<pre><code class="language-text">s3://ai-platform-workflows/
+  workflow_id=wf_123/
+    request.json
+    plan.json
+    edge/
+      keyframes/
+        frame_0001.jpg
+        frame_0002.jpg
+      masks/
+      metadata.json
+    triton/
+      embeddings.parquet
+      ranker_scores.parquet
+    vllm/
+      generations.jsonl
+    final/
+      response.json
+    audit/
+      policy_decision.json
+      eval_decision.json</code></pre>
+<p>Lifecycle policies: 生命周期 policy：</p>
+<ul><li>Interactive temporary artifacts: expire quickly.</li></ul>
+<p>交互式临时 artifact：很快就会过期。</p>
+<ul><li>Audit metadata: keep longer.</li></ul>
+<p>moderation元数据：保留更长时间。</p>
+<ul><li>Evaluation artifacts: keep for reproducibility.</li></ul>
+<p>evaluationartifact：保留以确保可重复性。</p>
+<ul><li>User raw content: minimize retention and follow product privacy policy.</li></ul>
+<p>用户原始内容：最大限度地减少保留并遵循产品隐私 policy。</p>
+<h3 id="edge-runtime-contract-implementation">Edge Runtime Contract Implementation</h3>
+<p>edge 运行时合约实施</p>
+<p>The edge contract should be versioned and testable. The platform should validate output before sending it to GPU inference. edge 合约应该是版本化且可测试的。平台应在将输出发送到 GPU 推理之前验证输出。</p>
+<p>Example output schema: 输出架构示例：</p>
+<pre><code class="language-json">{
+  "contract_version": "video.keyframe_preprocess.v2",
+  "workflow_id": "wf_123",
+  "content_hash": "sha256:abc",
+  "artifacts": {
+    "keyframes": [
+      {
+        "uri": "s3://ai-platform-workflows/wf_123/edge/keyframes/frame_0001.jpg",
+        "timestamp_ms": 1200,
+        "width": 1280,
+        "height": 720,
+        "scene_id": 1
+      }
+    ],
+    "audio_proxy": {
+      "uri": "s3://ai-platform-workflows/wf_123/edge/audio.aac",
+      "duration_ms": 180000
+    },
+    "metadata": {
+      "source_duration_ms": 240000,
+      "source_resolution": "4k",
+      "estimated_reduction_ratio": 0.12
+    }
+  }
+}</code></pre>
+<p>Validation sketch: 验证草图：</p>
+<pre><code class="language-python">def validate_edge_output(output, contract):
+    if output["contract_version"] != contract.version:
+        raise ContractVersionError()
+
+    for frame in output["artifacts"].get("keyframes", []):
+        if frame["width"] &gt; contract.max_width or frame["height"] &gt; contract.max_height:
+            raise ContractViolation("frame resolution too large")
+        if not frame["uri"].startswith(contract.allowed_storage_prefix):
+            raise ContractViolation("invalid artifact location")
+
+    return True</code></pre>
+<h3 id="layered-inference-implementation">Layered Inference Implementation</h3>
+<p>分层推理实现</p>
+<h4 id="ray-serve-as-the-dag-layer">Ray Serve as the DAG Layer</h4>
+<p>Ray Serve 作为 DAG 层</p>
+<p>Ray Serve can own request composition and fan-out while delegating model execution. Ray Serve 可以在委托模型执行时拥有请求组合和fan-out。</p>
+<pre><code class="language-python">@serve.deployment(route_prefix="/intent")
+class IntentApplication:
+    def __init__(self, planner, workflow_store, triton_client, vllm_client):
+        self.planner = planner
+        self.workflow_store = workflow_store
+        self.triton_client = triton_client
+        self.vllm_client = vllm_client
+
+    async def run_embedding_and_rank(self, request):
+        plan = self.planner.plan(request)
+        workflow = await self.workflow_store.create(plan)
+
+        embeddings = await self.triton_client.infer(
+            model="embedding-v3",
+            inputs=plan.inputs_for("embed"),
+            timeout_ms=plan.timeout_for("embed"),
+        )
+
+        candidates = await retrieve_candidates(embeddings)
+
+        scores = await self.triton_client.infer(
+            model="ranker-v5",
+            inputs={"query": request.query, "candidates": candidates},
+            timeout_ms=plan.timeout_for("rank"),
+        )
+
+        return format_results(candidates, scores)</code></pre>
+<h4 id="triton-client-pattern">Triton Client Pattern</h4>
+<p>Triton client pattern</p>
+<pre><code class="language-python">class TritonInferenceClient:
+    def __init__(self, grpc_client, model_registry):
+        self.grpc_client = grpc_client
+        self.model_registry = model_registry
+
+    async def infer(self, model: str, inputs: dict, timeout_ms: int):
+        model_info = self.model_registry.resolve(model)
+        tensors = encode_inputs(inputs, model_info.input_schema)
+        response = await self.grpc_client.infer(
+            model_name=model_info.serving_name,
+            inputs=tensors,
+            timeout=timeout_ms / 1000,
+        )
+        return decode_outputs(response, model_info.output_schema)</code></pre>
+<h4 id="vllm-client-pattern">vLLM Client Pattern</h4>
+<p>vLLM client pattern</p>
+<pre><code class="language-python">class GenerationClient:
+    def __init__(self, http_client, routing_policy):
+        self.http_client = http_client
+        self.routing_policy = routing_policy
+
+    async def generate(self, request):
+        pool = self.routing_policy.select_pool(
+            estimated_input_tokens=request.estimated_input_tokens,
+            max_output_tokens=request.max_output_tokens,
+            latency_class=request.latency_class,
+            quality_tier=request.quality_tier,
+        )
+        return await self.http_client.post(
+            f"{pool.base_url}/v1/chat/completions",
+            json=request.to_openai_compatible_payload(),
+            timeout=pool.timeout_s,
+        )</code></pre>
+<h3 id="resource-controller-implementation">Resource Controller Implementation</h3>
+<p>资源控制器实现</p>
+<p>The resource controller has two loops: 资源控制器有两个循环：</p>
+<ul><li>Short loop: observe queue/latency/token/GPU metrics and adjust replicas.</li></ul>
+<p>短循环：观察队列/latency/token/GPU metrics 并调整副本。</p>
+<ul><li>Long loop: optimize placement, warm models, and bin-pack workloads.</li></ul>
+<p>长循环：优化放置、热模型和装箱 workload。</p>
+<pre><code class="language-python">class ResourceController:
+    def __init__(self, metrics, scheduler, scaler, policy):
+        self.metrics = metrics
+        self.scheduler = scheduler
+        self.scaler = scaler
+        self.policy = policy
+
+    async def reconcile(self):
+        pools = await self.metrics.get_pool_snapshots()
+        for pool in pools:
+            desired = self._desired_replicas(pool)
+            await self.scaler.scale(pool.name, desired)
+
+        placements = await self.scheduler.current_placements()
+        recommendations = self._binpack(placements, pools)
+        await self.scheduler.apply(recommendations)
+
+    def _desired_replicas(self, pool):
+        if pool.kind == "vllm":
+            pressure = max(
+                pool.waiting_tokens / self.policy.target_waiting_tokens,
+                pool.ttft_p95_ms / self.policy.target_ttft_ms,
+                pool.kv_cache_utilization / self.policy.target_kv_cache_util,
+            )
+        elif pool.kind == "triton":
+            pressure = max(
+                pool.queue_ms_p95 / self.policy.target_queue_ms,
+                pool.request_latency_p95_ms / self.policy.target_latency_ms,
+            )
+        else:
+            pressure = pool.queue_depth / self.policy.target_queue_depth
+
+        return clamp(
+            round(pool.current_replicas * pressure),
+            pool.min_replicas,
+            pool.max_replicas,
+        )</code></pre>
+<h3 id="rollout-implementation">Rollout Implementation</h3>
+<p>rollout 实施</p>
+<p>A production rollout should be versioned by intent, model, prompt, and index. 生产部署应按 intent、模型、prompt 和 index 进行版本控制。</p>
+<pre><code class="language-sql">CREATE TABLE model_release (
+    model_id VARCHAR(128),
+    version VARCHAR(64),
+    artifact_uri TEXT,
+    serving_engine VARCHAR(32),
+    status VARCHAR(32),
+    eval_summary_json TEXT,
+    created_at TIMESTAMP,
+    PRIMARY KEY (model_id, version)
+);
+
+CREATE TABLE rollout_decision (
+    rollout_id VARCHAR(128) PRIMARY KEY,
+    model_id VARCHAR(128),
+    version VARCHAR(64),
+    intent_name VARCHAR(128),
+    stage VARCHAR(32),
+    canary_percent FLOAT,
+    decision VARCHAR(32),
+    reason TEXT,
+    metrics_json TEXT,
+    created_at TIMESTAMP
+);</code></pre>
+<p>Rollout stages: rollout 阶段：</p>
+<ol><li>Build artifact.</li></ol>
+<p>构建神器。</p>
+<ol><li>Register model.</li></ol>
+<p>注册型号。</p>
+<ol><li>Run offline deterministic eval.</li></ol>
+<p>运行 offline 确定性 evaluation。</p>
+<ol><li>Run LLM-as-Judge eval when applicable.</li></ol>
+<p>适用时运行法学硕士作为judgeevaluation。</p>
+<ol><li>Shadow traffic or replay logs.</li></ol>
+<p>影子traffic或replaylogs。</p>
+<ol><li>Canary 1%.</li></ol>
+<p>canary 1%。</p>
+<ol><li>Canary 10%.</li></ol>
+<p>加那利 10%。</p>
+<ol><li>Full rollout.</li></ol>
+<p>全面 rollout。</p>
+<ol><li>Auto rollback on SLO or quality regression.</li></ol>
+<p>SLO 或quality regression自动 rollback。</p>
+<p>Canary decision logic: canary 决策逻辑：</p>
+<pre><code class="language-python">def should_promote(metrics):
+    hard_fail = (
+        metrics.error_rate &gt; 0.005
+        or metrics.p95_latency_ms &gt; metrics.baseline_p95_ms * 1.15
+        or metrics.safety_fail_rate &gt; metrics.max_safety_fail_rate
+    )
+    if hard_fail:
+        return "rollback"
+
+    quality_ok = (
+        metrics.judge_helpfulness_delta &gt;= -0.02
+        and metrics.grounding_score &gt;= metrics.min_grounding_score
+        and metrics.business_metric_delta &gt;= metrics.min_business_delta
+    )
+    return "promote" if quality_ok else "hold"</code></pre>
+<h3 id="testing-strategy">Testing Strategy</h3>
+<p>测试策略</p>
+<p>Unit tests: 单元测试：</p>
+<ul><li>Intent schema validation.</li></ul>
+<p>intentschema 验证。</p>
+<ul><li>Policy resolution.</li></ul>
+<p>policy决议。</p>
+<ul><li>Planner decision matrix.</li></ul>
+<p>规划者决策矩阵。</p>
+<ul><li>Edge contract validation.</li></ul>
+<p>edge 合约验证。</p>
+<ul><li>Idempotency keys.</li></ul>
+<p>idempotent键。</p>
+<ul><li>Retry classification.</li></ul>
+<p>重试分类。</p>
+<ul><li>Resource scoring.</li></ul>
+<p>资源评分。</p>
+<p>Integration tests: 集成测试：</p>
+<ul><li>Intent request to workflow creation.</li></ul>
+<p>对工作流创建的 intent 请求。</p>
+<ul><li>Workflow resume after simulated failure.</li></ul>
+<p>模拟故障后 workflow 恢复。</p>
+<ul><li>Triton model invocation with test tensors.</li></ul>
+<p>使用测试张量调用 Triton 模型。</p>
+<ul><li>vLLM routing with token budgets.</li></ul>
+<p>具有代币预算的 vLLM 路由。</p>
+<ul><li>Object-storage presigned upload flow.</li></ul>
+<p>object storagepresigned上传流程。</p>
+<ul><li>Kafka duplicate event replay.</li></ul>
+<p>Kafka 重复事件replay。</p>
+<p>Load tests: 负载测试：</p>
+<ul><li>Interactive p95 latency under load.</li></ul>
+<p>负载下的交互式 p95 latency。</p>
+<ul><li>Batch backfill behavior.</li></ul>
+<p>批量回填行为。</p>
+<ul><li>Mixed LLM and embedding traffic.</li></ul>
+<p>混合法学硕士和 embeddingtraffic。</p>
+<ul><li>GPU saturation and backpressure.</li></ul>
+<p>GPU 饱和度和backpressure。</p>
+<ul><li>Autoscaler stability.</li></ul>
+<p>自动定标器稳定性。</p>
+<p>Failure-injection tests: 失效注入测试：</p>
+<ul><li>Kill workflow worker mid-step.</li></ul>
+<p>中途杀死 workflow 工作者。</p>
+<ul><li>Delay object storage event.</li></ul>
+<p>latencyobject storage 事件。</p>
+<ul><li>Inject Triton timeout.</li></ul>
+<p>注入 Triton 超时。</p>
+<ul><li>Inject vLLM KV-cache pressure.</li></ul>
+<p>注入 vLLM KV-cache压力。</p>
+<ul><li>Drop Kafka consumer group.</li></ul>
+<p>删除 Kafka 消费者组。</p>
+<ul><li>Roll back model during canary.</li></ul>
+<p>canary 期间 rollback 模型。</p>
+<p>Example planner test: 计划测试示例：</p>
+<pre><code class="language-python">def test_large_video_on_slow_network_uses_edge_preprocess():
+    workload = WorkloadProfile(
+        intent="creative.media_understanding",
+        modality="video",
+        payload_size_mb=5000,
+        estimated_tokens=0,
+        latency_class=LatencyClass.BACKGROUND,
+        privacy_class=PrivacyClass.USER_CONTENT_SENSITIVE,
+        model_family="embedding",
+        model_memory_gb=2,
+        requires_gpu=True,
+    )
+    device = DeviceContext(
+        device_type="desktop_high_end",
+        cpu_cores=12,
+        available_ram_mb=32768,
+        available_vram_mb=8192,
+        has_npu=True,
+        network_uplink_mbps=5,
+        network_downlink_mbps=50,
+        network_rtt_ms=80,
+        battery_level=None,
+        is_charging=True,
+        thermal_state="nominal",
+    )
+    capacity = CapacitySnapshot(
+        cpu_queue_depth=10,
+        gpu_queue_depth=20,
+        gpu_memory_pressure=0.6,
+        token_backlog=0,
+        triton_queue_ms=10,
+        vllm_kv_cache_utilization=0.3,
+        estimated_gpu_cost_per_request=0.01,
+    )
+
+    plan = ExecutionPlanner().plan(workload, device, capacity)
+
+    assert plan.target == "hybrid"
+    assert plan.use_edge_preprocess is True
+    assert plan.checkpoint_required is True</code></pre>
+<h3 id="production-runbook-examples">Production Runbook Examples</h3>
+<p>生产操作手册示例</p>
+<h4 id="incident-vllm-ttft-spike">Incident: vLLM TTFT Spike</h4>
+<p>事件：vLLM TTFT 尖峰</p>
+<p>Symptoms: 症状：</p>
+<ul><li>TTFT p95 increases.</li></ul>
+<p>TTFT p95 增加。</p>
+<ul><li>Waiting tokens grow.</li></ul>
+<p>等待代币增长。</p>
+<ul><li>KV-cache utilization high.</li></ul>
+<p>KV-缓存利用率高。</p>
+<ul><li>GPU utilization may be high or moderate.</li></ul>
+<p>GPU 利用率可能较高或中等。</p>
+<p>Actions: 行动：</p>
+<ol><li>Check waiting tokens by pool.</li></ol>
+<p>按池检查等待 token。</p>
+<ol><li>Check KV-cache utilization and max sequence length distribution.</li></ol>
+<p>检查 KV cache 利用率和最大序列长度分布。</p>
+<ol><li>Route long-context requests to batch or large-memory pool.</li></ol>
+<p>将长上下文请求路由到 batch 或大内存池。</p>
+<ol><li>Reduce max output tokens for degraded mode if needed.</li></ol>
+<p>如果需要，减少降级 schema 的最大输出 token。</p>
+<ol><li>Scale generation replicas if model load time permits.</li></ol>
+<p>如果模型加载时间允许，可扩展生成副本。</p>
+<ol><li>Disable non-critical eval jobs.</li></ol>
+<p>禁用非关键 evaluation 作业。</p>
+<ol><li>Verify TTFT recovers.</li></ol>
+<p>验证 TTFT 恢复。</p>
+<h4 id="incident-triton-queue-duration-spike">Incident: Triton Queue Duration Spike</h4>
+<p>事件：Triton 队列持续时间激增</p>
+<p>Symptoms: 症状：</p>
+<ul><li>Queue duration increases.</li></ul>
+<p>队列持续时间增加。</p>
+<ul><li>GPU utilization may be low or high.</li></ul>
+<p>GPU 利用率可能较低或较高。</p>
+<ul><li>p95 inference latency regresses.</li></ul>
+<p>p95 推理 latency 下降。</p>
+<p>Actions: 行动：</p>
+<ol><li>Check batch size distribution.</li></ol>
+<p>检查批量大小分布。</p>
+<ol><li>Check model instance count.</li></ol>
+<p>检查模型实例计数。</p>
+<ol><li>Check whether dynamic batching queue delay is too high.</li></ol>
+<p>检查动态 batch 队列时延是否过高。</p>
+<ol><li>Scale replicas for interactive pool.</li></ol>
+<p>缩放交互式池的副本。</p>
+<ol><li>Move batch embedding traffic to batch pool.</li></ol>
+<p>将批量 embeddingtraffic移至批量池。</p>
+<ol><li>Roll back recent model config changes if correlated.</li></ol>
+<p>如果相关，则 rollback 最近的模型配置更改。</p>
+<h4 id="incident-workflow-resume-failures">Incident: Workflow Resume Failures</h4>
+<p>事件：workflow 恢复失败</p>
+<p>Symptoms: 症状：</p>
+<ul><li>Workflows stuck in WAITING_RETRY.</li></ul>
+<p>workflow 陷入 WAITING_RETRY。</p>
+<ul><li>Duplicate step failures.</li></ul>
+<p>重复步骤失败。</p>
+<ul><li>Missing artifact references.</li></ul>
+<p>缺少 artifact 参考。</p>
+<p>Actions: 行动：</p>
+<ol><li>Inspect workflow state and step state.</li></ol>
+<p>检查 workflow 状态和步骤状态。</p>
+<ol><li>Verify object storage artifact exists.</li></ol>
+<p>验证 object storageartifact 是否存在。</p>
+<ol><li>Replay step.completed event if state is behind artifact.</li></ol>
+<p>如果状态落后于 artifact，则重放 step.completed 事件。</p>
+<ol><li>Requeue step with same idempotency key.</li></ol>
+<p>使用相同的idempotent键重新排队步骤。</p>
+<ol><li>If edge artifact invalid, request client re-preprocess.</li></ol>
+<p>如果 edgeartifact 无效，则请求客户端重新预处理。</p></section></main></section>
+<section class="panel" id="panel-3"><main class="content"><section class="doc-section article" id="project-2-implementation-multimodal-search-and-discovery"><h2 id="project-2-implementation-multimodal-search-and-discovery">Project 2 Implementation: Multimodal Search and Discovery</h2>
+<p>项目2实施：多模态搜索与discovery</p>
+<h3 id="implementation-view">Implementation View</h3>
+<p>实施视图</p>
+<p>The search platform has six implementation layers: 搜索平台有六个实现层：</p>
+<ol><li>Asset ingestion and metadata extraction.</li></ol>
+<p>asset ingestion和元数据提取。</p>
+<ol><li>Embedding generation and index publishing.</li></ol>
+<p>embedding 生成和 index 发布。</p>
+<ol><li>Query understanding and encoding.</li></ol>
+<p>query 理解和编码。</p>
+<ol><li>Hybrid candidate generation.</li></ol>
+<p>混合 candidate 生成。</p>
+<ol><li>Feature joining and ranking.</li></ol>
+<p>功能加入和 ranking。</p>
+<ol><li>Experimentation, evaluation, and monitoring.</li></ol>
+<p>experiment、evaluation 和监测。</p>
+<pre><code class="language-mermaid">flowchart TD
+    A["Asset Change Event"] --&gt; B["Kafka"]
+    B --&gt; C["Flink Normalization"]
+    C --&gt; D["Metadata Extractors"]
+    C --&gt; E["Modality Preprocessors"]
+    E --&gt; F["Embedding Jobs"]
+    D --&gt; G["Lexical Documents"]
+    F --&gt; H["Vector Index Builder"]
+    G --&gt; I["Elasticsearch Publisher"]
+    H --&gt; J["Milvus Publisher"]
+    J --&gt; K["Index Version Registry"]
+    I --&gt; K
+
+    L["User Query"] --&gt; M["Query API"]
+    M --&gt; N["Query Understanding"]
+    N --&gt; O["Text/Image Encoder"]
+    O --&gt; P["Vector Candidate Service"]
+    N --&gt; Q["Lexical Candidate Service"]
+    P --&gt; R["Candidate Merger"]
+    Q --&gt; R
+    R --&gt; S["Feature Service"]
+    S --&gt; T["Ranker"]
+    T --&gt; U["Results"]
+    U --&gt; V["Search Events"]
+    V --&gt; W["Training / Evaluation"]</code></pre>
+<h3 id="asset-ingestion-event">Asset Ingestion Event</h3>
+<p>asset ingestion事件</p>
+<p>Example Kafka event: Kafka事件示例：</p>
+<pre><code class="language-json">{
+  "event_type": "asset.upserted",
+  "event_id": "evt_asset_123",
+  "asset_id": "asset_456",
+  "owner_id": "owner_789",
+  "product_source": "creative_asset_catalog",
+  "asset_type": "video",
+  "asset_uri": "s3://asset-bucket/asset_456/source.mov",
+  "metadata_uri": "s3://asset-bucket/asset_456/metadata.json",
+  "updated_at": "2026-04-28T00:00:00Z",
+  "change_type": "content_update"
+}</code></pre>
+<h3 id="flink-normalization-job">Flink Normalization Job</h3>
+<p>Flink 规范化作业</p>
+<p>Flink handles streaming normalization and routing. The key is to create modality-specific work while preserving asset identity and version. Flink 处理流标准化和路由。关键是创建特定于 schema 的工作，同时保留 asset 身份和版本。</p>
+<pre><code class="language-python">class AssetNormalizer:
+    def normalize(self, event):
+        asset = load_asset_metadata(event.metadata_uri)
+        normalized = {
+            "asset_id": event.asset_id,
+            "asset_version": hash_content(event.asset_uri, asset.updated_at),
+            "asset_type": asset.asset_type,
+            "title": normalize_text(asset.title),
+            "tags": normalize_tags(asset.tags),
+            "license_type": asset.license_type,
+            "visibility": asset.visibility,
+            "modality_tasks": self._tasks_for(asset),
+        }
+        return normalized
+
+    def _tasks_for(self, asset):
+        if asset.asset_type == "image":
+            return ["image_embedding", "aesthetic_score", "color_palette"]
+        if asset.asset_type == "video":
+            return ["keyframe_extract", "video_embedding", "audio_transcript"]
+        if asset.asset_type == "document":
+            return ["text_extract", "document_embedding", "layout_features"]
+        if asset.asset_type == "3d":
+            return ["render_preview", "image_embedding", "shape_metadata"]
+        return ["metadata_only"]</code></pre>
+<h3 id="embedding-generation-pipeline">Embedding Generation Pipeline</h3>
+<p>embedding 生成管道</p>
+<p>Offline embedding jobs should be deterministic by asset version and model version. offlineembedding 作业应由 asset 版本和模型版本确定。</p>
+<pre><code class="language-python">def embedding_key(asset_id: str, asset_version: str, model_version: str, modality: str) -&gt; str:
+    return f"{asset_id}:{asset_version}:{model_version}:{modality}"
+
+async def generate_embedding(asset, model, store):
+    key = embedding_key(asset.id, asset.version, model.version, asset.modality)
+    existing = await store.get(key)
+    if existing:
+        return existing
+
+    tensor = preprocess_for_model(asset, model)
+    vector = model.encode(tensor)
+    normalized = l2_normalize(vector)
+
+    ref = await store.write_vector(key, normalized)
+    await store.write_metadata(key, {
+        "asset_id": asset.id,
+        "model_version": model.version,
+        "modality": asset.modality,
+        "dimension": len(normalized),
+    })
+    return ref</code></pre>
+<h3 id="vector-index-design">Vector Index Design</h3>
+<p>向量 index 设计</p>
+<p>At very large scale, the system cannot rely on flat search. It needs approximate nearest neighbor indexing and sharding. 在非常大的规模下，系统不能依赖平面搜索。它需要近似最近邻 index 和分片。</p>
+<p>Representative Milvus collection: Milvus 代表系列：</p>
+<pre><code class="language-python">collection_schema = {
+    "collection_name": "creative_asset_embedding_v3",
+    "fields": [
+        {"name": "asset_id", "type": "VARCHAR", "is_primary": True},
+        {"name": "tenant_id", "type": "VARCHAR"},
+        {"name": "asset_type", "type": "VARCHAR"},
+        {"name": "license_type", "type": "VARCHAR"},
+        {"name": "embedding_version", "type": "VARCHAR"},
+        {"name": "vector", "type": "FLOAT_VECTOR", "dim": 768}
+    ],
+    "index": {
+        "field": "vector",
+        "index_type": "IVF_PQ",
+        "metric_type": "IP",
+        "params": {
+            "nlist": 16384,
+            "m": 64,
+            "nbits": 8
+        }
+    }
+}</code></pre>
+<p>Search parameters: 搜索参数：</p>
+<pre><code class="language-json">{
+  "metric_type": "IP",
+  "params": {
+    "nprobe": 32
+  },
+  "limit": 500,
+  "expr": "tenant_id == 'public' &amp;&amp; asset_type in ['image','template'] &amp;&amp; license_type == 'standard'"
+}</code></pre>
+<p>Implementation tradeoff: 实施权衡：</p>
+<ul><li>Larger <code>nprobe</code> improves recall but increases latency.</li></ul>
+<p>较大的“nprobe”可以提高recall率，但会增加 latency。</p>
+<ul><li>IVF-PQ reduces memory but can reduce exact precision.</li></ul>
+<p>IVF-PQ 会减少内存，但会降低precision度。</p>
+<ul><li>HNSW can be strong for recall but may be memory-heavy at very large scale.</li></ul>
+<p>HNSW 的recall能力很强，但在大规模情况下可能会占用大量内存。</p>
+<ul><li>Sharding by tenant/product/source improves isolation and operational control.</li></ul>
+<p>按 tenant/产品/源进行分片可改善隔离和操作控制。</p>
+<h3 id="elasticsearch-mapping">Elasticsearch Mapping</h3>
+<p>Elasticsearch 映射</p>
+<p>Lexical search stores exact and structured information. 词汇搜索存储precision且结构化的信息。</p>
+<pre><code class="language-json">{
+  "mappings": {
+    "properties": {
+      "asset_id": {"type": "keyword"},
+      "title": {"type": "text", "analyzer": "english"},
+      "description": {"type": "text", "analyzer": "english"},
+      "tags": {"type": "keyword"},
+      "asset_type": {"type": "keyword"},
+      "license_type": {"type": "keyword"},
+      "orientation": {"type": "keyword"},
+      "product_source": {"type": "keyword"},
+      "style_labels": {"type": "keyword"},
+      "created_at": {"type": "date"},
+      "popularity_score": {"type": "float"},
+      "freshness_score": {"type": "float"}
+    }
+  }
+}</code></pre>
+<p>Example lexical query: 词法 query 示例：</p>
+<pre><code class="language-json">{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "multi_match": {
+            "query": "minimal blue poster background",
+            "fields": ["title^3", "description", "tags^2", "style_labels"]
+          }
+        }
+      ],
+      "filter": [
+        {"terms": {"asset_type": ["image", "template"]}},
+        {"term": {"license_type": "standard"}},
+        {"term": {"orientation": "portrait"}}
+      ]
+    }
+  },
+  "size": 300
+}</code></pre>
+<h3 id="query-understanding">Query Understanding</h3>
+<p>query 理解</p>
+<p>Query understanding prepares the request before retrieval. query 理解在 retrieval 之前准备请求。</p>
+<p>Responsibilities: 职责：</p>
+<ul><li>Detect modality: text, image, mixed.</li></ul>
+<p>检测模态：文本、图像、混合。</p>
+<ul><li>Normalize text.</li></ul>
+<p>规范化文本。</p>
+<ul><li>Extract structured filters.</li></ul>
+<p>提取结构化过滤器。</p>
+<ul><li>Rewrite ambiguous queries when useful.</li></ul>
+<p>当有用时重写不明确的 query。</p>
+<ul><li>Decide retrieval fan-out.</li></ul>
+<p>决定 retrieval fan-out。</p>
+<ul><li>Apply product-specific constraints.</li></ul>
+<p>应用特定于产品的约束。</p>
+<p>Example: 例子：</p>
+<pre><code class="language-python">class QueryUnderstandingService:
+    def parse(self, request):
+        filters = extract_filters(request.text, request.filters)
+        query_text = remove_filter_terms(request.text, filters)
+        retrieval_mode = self._mode(request)
+
+        return ParsedQuery(
+            text=query_text,
+            image_ref=request.image_ref,
+            filters=filters,
+            mode=retrieval_mode,
+            locale=request.locale,
+            product=request.product,
+        )
+
+    def _mode(self, request):
+        if request.text and request.image_ref:
+            return "text_image"
+        if request.image_ref:
+            return "image"
+        return "text"</code></pre>
+<h3 id="mixed-text-image-retrieval">Mixed Text+Image Retrieval</h3>
+<p>混合文本+图像 retrieval</p>
+<p>For mixed prompts, the system can combine embeddings before retrieval or retrieve separately and merge. 对于混合 prompt，系统可以在 retrieval 之前组合 embedding，也可以单独 retrieval 并合并。</p>
+<p>Weighted fusion: 加权融合：</p>
+<pre><code class="language-python">def combine_query_vectors(text_vec, image_vec, alpha: float):
+    if text_vec is None:
+        return image_vec
+    if image_vec is None:
+        return text_vec
+    combined = alpha * text_vec + (1 - alpha) * image_vec
+    return l2_normalize(combined)</code></pre>
+<p>Late fusion: 后期融合：</p>
+<pre><code class="language-python">async def mixed_retrieve(query):
+    text_candidates = await vector_search(query.text_embedding, top_k=400)
+    image_candidates = await vector_search(query.image_embedding, top_k=400)
+    lexical_candidates = await lexical_search(query.text, top_k=300)
+    return reciprocal_rank_fusion([
+        text_candidates,
+        image_candidates,
+        lexical_candidates,
+    ])</code></pre>
+<p>Reciprocal rank fusion: 倒数秩融合：</p>
+<pre><code class="language-python">def reciprocal_rank_fusion(candidate_lists, k=60):
+    scores = defaultdict(float)
+    for candidates in candidate_lists:
+        for rank, candidate in enumerate(candidates, start=1):
+            scores[candidate.asset_id] += 1.0 / (k + rank)
+    return sorted(scores.items(), key=lambda x: x[1], reverse=True)</code></pre>
+<h3 id="feature-service-implementation">Feature Service Implementation</h3>
+<p>feature service实施</p>
+<p>The ranker needs low-latency features keyed by asset and context. ranking 器需要以 asset 和上下文为关键的低 latency 功能。</p>
+<p>Feature groups: 功能组：</p>
+<ul><li>Static asset features: quality, type, license, dimensions.</li></ul>
+<p>静态 assetfeature：质量、类型、license、尺寸。</p>
+<ul><li>Embedding features: vector score, style similarity, color similarity.</li></ul>
+<p>embeddingfeature：向量得分、风格相似度、颜色相似度。</p>
+<ul><li>Engagement features: popularity, saves, downloads, co-clicks.</li></ul>
+<p>参与度 feature：流行度、保存量、下载量、共同点击量。</p>
+<ul><li>Freshness features: recency, trending score.</li></ul>
+<p>freshnessfeature：新近度、趋势分数。</p>
+<ul><li>Context features: product, locale, session, query mode.</li></ul>
+<p>上下文 feature：产品、区域设置、session、query schema。</p>
+<ul><li>Policy features: moderation, tenant visibility, license compliance.</li></ul>
+<p>policy feature：moderation、tenant 可见性、license合规性。</p>
+<p>Feature request: 功能要求：</p>
+<pre><code class="language-json">{
+  "request_id": "req_123",
+  "query": {
+    "mode": "text_image",
+    "locale": "en-US",
+    "product": "creative_tool"
+  },
+  "candidates": [
+    {
+      "asset_id": "asset_1",
+      "vector_score": 0.82,
+      "lexical_score": 4.7
+    }
+  ]
+}</code></pre>
+<p>Feature response: 功能响应：</p>
+<pre><code class="language-json">{
+  "features": [
+    {
+      "asset_id": "asset_1",
+      "vector_score": 0.82,
+      "lexical_score": 4.7,
+      "aesthetic_score": 0.91,
+      "freshness_score": 0.65,
+      "popularity_score": 0.77,
+      "duplicate_cluster_size": 4,
+      "license_allowed": true,
+      "moderation_allowed": true
+    }
+  ]
+}</code></pre>
+<h3 id="ranker-serving">Ranker Serving</h3>
+<p>ranking 者发球</p>
+<p>Ranker can be implemented as: Ranker 可以这样实现：</p>
+<ul><li>Gradient boosted trees for speed and interpretability.</li></ul>
+<p>梯度提升树可提高速度和可解释性。</p>
+<ul><li>Neural cross-encoder for higher quality on top candidates.</li></ul>
+<p>神经交叉编码器可提高最佳 candidate 者的质量。</p>
+<ul><li>Two-stage ranker: light model for top 1000, heavier model for top 200.</li></ul>
+<p>两阶段 ranking：轻型模型用于前 1000 名，重型模型用于前 200 名。</p>
+<p>Two-stage ranking sketch: 两阶段 ranking 示例：</p>
+<pre><code class="language-python">async def rank(parsed_query, candidates):
+    features = await feature_service.fetch(parsed_query, candidates)
+
+    light_scores = light_ranker.predict(features)
+    top_200 = select_top_k(candidates, light_scores, k=200)
+
+    if parsed_query.latency_budget_ms &gt; 350:
+        heavy_features = await build_cross_features(parsed_query, top_200)
+        heavy_scores = await triton_ranker.predict(heavy_features)
+        return sort_by_score(top_200, heavy_scores)
+
+    return sort_by_score(candidates, light_scores)</code></pre>
+<h3 id="discovery-feed-implementation">Discovery Feed Implementation</h3>
+<p>discovery feed实施</p>
+<p>Discovery is not just search without a query. Candidate sources include: discovery不仅仅是没有 query 的搜索。candidate 来源包括：</p>
+<ul><li>Visual nearest neighbors.</li></ul>
+<p>视觉最近邻。</p>
+<ul><li>Semantic nearest neighbors.</li></ul>
+<p>语义最近邻。</p>
+<ul><li>Co-click/co-save graph.</li></ul>
+<p>共同单击/共同保存图表。</p>
+<ul><li>Style clusters.</li></ul>
+<p>风格簇。</p>
+<ul><li>Trending assets.</li></ul>
+<p>趋势 asset。</p>
+<ul><li>Long-tail candidates.</li></ul>
+<p>长尾 candidate。</p>
+<ul><li>Session-complementary assets.</li></ul>
+<p>session 补充 asset。</p>
+<p>Graph candidate sketch: 图 candidate 草图：</p>
+<pre><code class="language-python">def graph_candidates(seed_asset_id, graph_store, max_candidates=500):
+    neighbors = graph_store.co_engagement_neighbors(seed_asset_id)
+    scored = []
+    for edge in neighbors:
+        score = (
+            0.5 * edge.co_save_weight
+            + 0.3 * edge.co_click_weight
+            + 0.2 * edge.session_transition_weight
+        )
+        scored.append((edge.neighbor_asset_id, score))
+    return sorted(scored, key=lambda x: x[1], reverse=True)[:max_candidates]</code></pre>
+<p>Diversity-aware reranking: diversity-aware重新 ranking：</p>
+<pre><code class="language-python">def mmr_rerank(candidates, relevance, similarity, lambda_relevance=0.75, k=40):
+    selected = []
+    remaining = set(candidates)
+
+    while remaining and len(selected) &lt; k:
+        best = None
+        best_score = float("-inf")
+        for candidate in remaining:
+            diversity_penalty = 0
+            if selected:
+                diversity_penalty = max(similarity(candidate, s) for s in selected)
+            score = (
+                lambda_relevance * relevance(candidate)
+                - (1 - lambda_relevance) * diversity_penalty
+            )
+            if score &gt; best_score:
+                best = candidate
+                best_score = score
+        selected.append(best)
+        remaining.remove(best)
+
+    return selected</code></pre>
+<h3 id="index-publishing-and-rollback">Index Publishing and Rollback</h3>
+<p>index 发布与 rollback</p>
+<p>Index publishing needs atomicity. Serving should never read half-published vector and lexical indexes. index 发布需要原子性。服务永远不应该读取半发布的向量和lexical index。</p>
+<pre><code class="language-sql">CREATE TABLE index_version (
+    index_family VARCHAR(128),
+    version VARCHAR(64),
+    vector_collection VARCHAR(128),
+    lexical_alias VARCHAR(128),
+    embedding_model_version VARCHAR(64),
+    status VARCHAR(32),
+    created_at TIMESTAMP,
+    promoted_at TIMESTAMP,
+    PRIMARY KEY (index_family, version)
+);
+
+CREATE TABLE active_index_pointer (
+    index_family VARCHAR(128) PRIMARY KEY,
+    active_version VARCHAR(64),
+    previous_version VARCHAR(64),
+    updated_at TIMESTAMP
+);</code></pre>
+<p>Publish flow: 发布流程：</p>
+<ol><li>Build vector collection.</li></ol>
+<p>构建向量集合。</p>
+<ol><li>Build lexical index.</li></ol>
+<p>建立lexical index。</p>
+<ol><li>Run offline validation.</li></ol>
+<p>运行 offline 验证。</p>
+<ol><li>Run consistency checks.</li></ol>
+<p>运行一致性检查。</p>
+<ol><li>Warm caches.</li></ol>
+<p>热缓存。</p>
+<ol><li>Shift read pointer or alias atomically.</li></ol>
+<p>自动移位读取指针或alias。</p>
+<ol><li>Monitor online metrics.</li></ol>
+<p>监控 online metrics。</p>
+<ol><li>Roll back pointer if regression occurs.</li></ol>
+<p>如果发生回归则 rollback 指针。</p>
+<p>Validation checks: 验证检查：</p>
+<ul><li>Document count matches expected range.</li></ul>
+<p>文档计数符合预期范围。</p>
+<ul><li>Embedding dimension matches model.</li></ul>
+<p>embedding 尺寸与模型匹配。</p>
+<ul><li>Sample queries meet recall threshold.</li></ul>
+<p>示例 query 满足recall 阈值。</p>
+<ul><li>License and moderation filters pass.</li></ul>
+<p>license 和moderation过滤器通过。</p>
+<ul><li>Latency under load is acceptable.</li></ul>
+<p>负载下的 latency 是可以接受的。</p>
+<ul><li>No major zero-result regression.</li></ul>
+<p>没有重大的零结果回归。</p>
+<h3 id="a-b-testing-implementation">A/B Testing Implementation</h3>
+<p>A/B 测试实施</p>
+<p>Experiment assignment should be stable by user/session and logged with every search event. experiment 分配应按用户/session保持稳定，并随每个搜索事件一起记录。</p>
+<pre><code class="language-python">def assign_experiment(user_id, experiment_id, traffic_split):
+    bucket = stable_hash(f"{experiment_id}:{user_id}") % 10000
+    cumulative = 0
+    for variant, percent in traffic_split.items():
+        cumulative += int(percent * 100)
+        if bucket &lt; cumulative:
+            return variant
+    return "control"</code></pre>
+<p>Search event logging: 搜索事件记录：</p>
+<pre><code class="language-json">{
+  "request_id": "req_123",
+  "user_id": "user_456",
+  "session_id": "session_789",
+  "experiment": {
+    "id": "ranker_v5_test",
+    "variant": "treatment"
+  },
+  "query": {
+    "text": "minimal blue poster",
+    "mode": "text"
+  },
+  "retrieval": {
+    "vector_count": 500,
+    "lexical_count": 300,
+    "merged_count": 720
+  },
+  "results": ["asset_1", "asset_2"],
+  "latency_ms": 312,
+  "created_at": "2026-04-28T00:00:00Z"
+}</code></pre>
+<h3 id="search-monitoring-and-debugging">Search Monitoring and Debugging</h3>
+<p>搜索监控和调试</p>
+<p>Search needs a debug endpoint because quality regressions are hard to diagnose from latency metrics alone. 搜索需要调试端点，因为仅从 latency metrics 很难诊断quality regression。</p>
+<p>Example debug endpoint: 调试端点示例：</p>
+<pre><code class="language-http">GET /internal/v1/debug/search/{request_id}</code></pre>
+<p>Debug response: 调试响应：</p>
+<pre><code class="language-json">{
+  "request_id": "req_123",
+  "parsed_query": {
+    "text": "minimal blue poster",
+    "filters": {"orientation": "portrait"},
+    "mode": "text"
+  },
+  "candidate_sources": {
+    "vector": {"count": 500, "latency_ms": 45},
+    "lexical": {"count": 300, "latency_ms": 30},
+    "graph": {"count": 0, "latency_ms": 0}
+  },
+  "ranking": {
+    "ranker_version": "ranker-v5",
+    "top_features": [
+      "vector_score",
+      "lexical_score",
+      "aesthetic_score",
+      "freshness_score"
+    ]
+  },
+  "filters_applied": [
+    "license",
+    "moderation",
+    "orientation"
+  ],
+  "latency_breakdown_ms": {
+    "query_parse": 8,
+    "encoding": 34,
+    "vector": 45,
+    "lexical": 30,
+    "feature_join": 55,
+    "ranking": 40,
+    "total": 312
+  }
+}</code></pre>
+<h3 id="search-production-runbooks">Search Production Runbooks</h3>
+<p>搜索生产操作手册</p>
+<h4 id="incident-zero-result-rate-spike">Incident: Zero-Result Rate Spike</h4>
+<p>事件：零结果率激增</p>
+<p>Likely causes: 可能的原因：</p>
+<ul><li>Bad query parsing.</li></ul>
+<p>错误的 query 解析。</p>
+<ul><li>Overly strict filters.</li></ul>
+<p>过滤过于严格。</p>
+<ul><li>Lexical index issue.</li></ul>
+<p>lexical index 问题。</p>
+<ul><li>Vector index pointer mismatch.</li></ul>
+<p>向量 index 指针不匹配。</p>
+<ul><li>Metadata policy regression.</li></ul>
+<p>metadata policy regression。</p>
+<p>Actions: 行动：</p>
+<ol><li>Segment zero-result rate by product, locale, and query mode.</li></ol>
+<p>按产品、区域设置和 query schema 细分零结果率。</p>
+<ol><li>Check active index versions.</li></ol>
+<p>检查活动 index 版本。</p>
+<ol><li>Check filter counts and policy rejects.</li></ol>
+<p>检查过滤器计数和策略拒绝。</p>
+<ol><li>Replay sample queries against previous index version.</li></ol>
+<p>针对先前的 index 版本重放示例 query。</p>
+<ol><li>Roll back parser, filter policy, or index pointer.</li></ol>
+<p>rollback parser、过滤策略或 index 指针。</p>
+<h4 id="incident-relevance-regression">Incident: Relevance Regression</h4>
+<p>事件：相关性回归</p>
+<p>Likely causes: 可能的原因：</p>
+<ul><li>Ranker rollout.</li></ul>
+<p>ranking 器 rollout。</p>
+<ul><li>Embedding drift.</li></ul>
+<p>embedding 漂移。</p>
+<ul><li>Feature service stale or missing features.</li></ul>
+<p>feature service陈旧或缺失功能。</p>
+<ul><li>Candidate source latency causing partial retrieval.</li></ul>
+<p>candidate 源 latency 导致部分 retrieval。</p>
+<p>Actions: 行动：</p>
+<ol><li>Compare treatment vs control metrics.</li></ol>
+<p>比较治疗 metrics 与对照 metrics。</p>
+<ol><li>Inspect debug traces for candidate source counts.</li></ol>
+<p>检查调试 trace 以了解 candidate 源计数。</p>
+<ol><li>Check feature null rates.</li></ol>
+<p>检查feature null rate。</p>
+<ol><li>Run offline eval on recent query logs.</li></ol>
+<p>对最近的 query logs运行 offline evaluation。</p>
+<ol><li>Roll back model or feature if regression confirmed.</li></ol>
+<p>如果回归得到确认，则 rollback 模型或 feature。</p>
+<h4 id="incident-index-freshness-lag">Incident: Index Freshness Lag</h4>
+<p>事件：index freshness滞后</p>
+<p>Likely causes: 可能的原因：</p>
+<ul><li>Kafka backlog.</li></ul>
+<p>Kafka积压。</p>
+<ul><li>Flink job failure.</li></ul>
+<p>Flink 作业失败。</p>
+<ul><li>Embedding job saturation.</li></ul>
+<p>embedding 工作饱和度。</p>
+<ul><li>Index publish blocked by validation.</li></ul>
+<p>index 发布被验证阻止。</p>
+<p>Actions: 行动：</p>
+<ol><li>Check Kafka lag by asset type.</li></ol>
+<p>按 asset 类型检查 Kafka 滞后。</p>
+<ol><li>Check Flink checkpoint health.</li></ol>
+<p>检查 Flink checkpoint 健康状况。</p>
+<ol><li>Check embedding job GPU queue.</li></ol>
+<p>检查 embedding 作业 GPU 队列。</p>
+<ol><li>Check index validation failures.</li></ol>
+<p>检查 index 验证失败。</p>
+<ol><li>Temporarily prioritize freshness-critical asset types.</li></ol>
+<p>暂时优先考虑freshness关键的 asset 类型。</p>
+<h3 id="how-to-explain-implementation-without-overclaiming">How To Explain Implementation Without Overclaiming</h3>
+<p>如何在不夸大其词的情况下解释实施</p>
+<p>Use this phrasing when interviewers probe scope: 当面试官探究范围时使用以下措辞：</p>
+<p>"I did not personally build every service end to end. My role was tech-lead IC ownership over key platform components and design boundaries: the intent/workflow abstraction, routing and orchestration logic, inference-serving integration, resource-control policies, and production rollout patterns. For the search platform, I worked across retrieval, ranking, indexing, and hybrid edge-cloud execution with partner teams owning some product-specific integration." “我并没有亲自构建端到端的每项服务。我的角色是对关键平台组件和设计边界的技术主导 IC 所有权：intent/工作流抽象、路由和orchestration逻辑、推理服务集成、资源控制策略和生产部署 schema。对于搜索平台，我与拥有一些特定产品集成的合作伙伴团队一起工作，涉及 retrieval、ranking、index 和混合 edge 云执行。”</p></section></main></section>
+<section class="panel" id="panel-4"><main class="content"><section class="doc-section article" id="project-1-end-to-end-build-blueprint"><h2 id="project-1-end-to-end-build-blueprint">Project 1 End-to-End Build Blueprint</h2>
+<p>项目 1 端到端构建蓝图</p>
+<p>This section is written as if you were building the hybrid AI execution platform from scratch. It gives you the full implementation path from local prototype to production-scale distributed system. 本节的编写方式就好像您从头开始构建混合 AI 执行平台一样。它为您提供了从本地原型到生产规模分布式系统的完整实施路径。</p>
+<h3 id="target-capabilities">Target Capabilities</h3>
+<p>目标能力</p>
+<p>By the end, the system should support: 到最后，系统应该支持：</p>
+<ul><li>Partner teams registering versioned AI intents.</li></ul>
+<p>合作伙伴团队注册版本化的 AI intent。</p>
+<ul><li>An intent gateway accepting requests and returning sync or async workflow handles.</li></ul>
+<p>intentgateway 接受请求并返回同步或异步工作流句柄。</p>
+<ul><li>A context-aware planner choosing edge, CPU, GPU, batch, or hybrid execution.</li></ul>
+<p>上下文感知规划器选择 edge、CPU、GPU、batch 或混合执行。</p>
+<ul><li>A workflow engine executing DAG steps with checkpoints and idempotency.</li></ul>
+<p>执行具有 checkpoint 和idempotency的 DAG 步骤的工作流引擎。</p>
+<ul><li>Routing to Ray Serve for orchestration, Triton for non-LLM inference, and vLLM for generation.</li></ul>
+<p>路由至 Ray Serve 进行orchestration，路由至 Triton 进行非 LLM 推理，路由至 vLLM 进行生成。</p>
+<ul><li>Presigned object-storage flows for large media payloads.</li></ul>
+<p>适用于大型媒体负载的presignedobject storage 流。</p>
+<ul><li>GPU/CPU resource control with latency classes, warm pools, MIG-aware placement, bin-packing, and autoscaling.</li></ul>
+<p>GPU/CPU 资源控制，具有 latency 类别、热池、MIG 感知放置、装箱和自动扩缩容。</p>
+<ul><li>LLM-as-Judge and deterministic evaluation gates for rollout safety.</li></ul>
+<p>法学硕士作为judge和确定性 evaluation 门，确保 rollout 安全。</p>
+<ul><li>Observability, debugging, and production runbooks.</li></ul>
+<p>可观测性、调试和生产运行手册。</p>
+<h3 id="suggested-repository-layout">Suggested Repository Layout</h3>
+<p>建议的repository 布局</p>
+<pre><code class="language-text">hybrid-ai-platform/
+  services/
+    intent-gateway/
+      app/
+        main.py
+        auth.py
+        request_validation.py
+        quota.py
+        routes.py
+      tests/
+    intent-registry/
+      app/
+        registry_api.py
+        schema_store.py
+        rollout_store.py
+        policy_store.py
+      migrations/
+      tests/
+    execution-planner/
+      app/
+        planner.py
+        cost_model.py
+        capacity_client.py
+        privacy_policy.py
+        plan_builder.py
+      tests/
+    workflow-service/
+      app/
+        workflow_api.py
+        state_machine.py
+        step_runner.py
+        checkpoint_store.py
+        retry_policy.py
+        kafka_consumer.py
+      tests/
+    ray-serve-app/
+      app/
+        deployments.py
+        intent_router.py
+        dag_executor.py
+        retrieval_client.py
+        triton_client.py
+        vllm_client.py
+      configs/
+    resource-controller/
+      app/
+        metrics_reader.py
+        placement.py
+        autoscaler.py
+        binpack.py
+        warm_pool.py
+      tests/
+    eval-service/
+      app/
+        offline_eval.py
+        llm_judge.py
+        rollout_gate.py
+        canary_analyzer.py
+      prompts/
+      eval_sets/
+  contracts/
+    intents/
+    edge/
+    events/
+    schemas/
+  infra/
+    k8s/
+    kuberay/
+    keda/
+    triton/
+    vllm/
+    prometheus/
+    grafana/
+  libs/
+    common/
+      tracing.py
+      logging.py
+      idempotency.py
+      errors.py
+      models.py
+  docs/
+    runbooks/
+    architecture/</code></pre>
+<h3 id="build-order">Build Order</h3>
+<p>建造顺序</p>
+<p>Build the system in this order: 按以下顺序构建系统：</p>
+<ol><li>Define intent schema and request contract.</li></ol>
+<p>定义 intentschema 和请求契约。</p>
+<ol><li>Implement intent registry with in-memory or Postgres storage.</li></ol>
+<p>使用内存或 Postgres 存储实现 intentregistry。</p>
+<ol><li>Implement execution planner with simple rule-based decisions.</li></ol>
+<p>通过简单的基于规则的决策来实施执行计划器。</p>
+<ol><li>Implement workflow state machine and checkpoint tables.</li></ol>
+<p>实施工作流状态机和 checkpoint 表。</p>
+<ol><li>Add Kafka or a local queue for async workflow steps.</li></ol>
+<p>为异步 workflow 步骤添加 Kafka 或本地队列。</p>
+<ol><li>Add object-storage abstraction and presigned upload/download flows.</li></ol>
+<p>添加 object storage 抽象和presigned的上传/下载流程。</p>
+<ol><li>Add Ray Serve orchestration layer.</li></ol>
+<p>添加 Ray Serve orchestration层。</p>
+<ol><li>Add Triton client and a mock embedding/ranker model.</li></ol>
+<p>添加 Triton 客户端和模拟 embedding/ranking 模型。</p>
+<ol><li>Add vLLM-compatible generation client.</li></ol>
+<p>添加与 vLLM 兼容的生成客户端。</p>
+<ol><li>Add resource metrics collection and autoscaling policy simulation.</li></ol>
+<p>添加资源 metrics 收集和自动扩缩容策略模拟。</p>
+<ol><li>Add rollout/evaluation service.</li></ol>
+<p>添加 rollout/evaluation 服务。</p>
+<ol><li>Add observability, traces, dashboards, and runbooks.</li></ol>
+<p>添加可观测性、trace、dashboard 和运行手册。</p>
+<ol><li>Replace mocks with production-grade model-serving endpoints.</li></ol>
+<p>用生产级模型服务端点替换模拟。</p>
+<ol><li>Add load tests, failure-injection tests, and canary rollout.</li></ol>
+<p>添加负载测试、故障注入测试和 canary 部署。</p>
+<p>This order matters because it builds the control plane before optimizing GPU serving. A common mistake is starting with model servers and then discovering that routing, state, retries, and rollout safety are missing. 这个顺序很重要，因为它在优化 GPU 服务之前构建 control plane。一个常见的错误是从模型服务器开始，然后discovery路由、状态、重试和 rollout 安全性缺失。</p>
+<h3 id="local-prototype-architecture">Local Prototype Architecture</h3>
+<p>局部原型架构</p>
+<p>For local development, use a simplified version: 对于本地开发，请使用简化版本：</p>
+<ul><li>FastAPI for intent gateway and registry.</li></ul>
+<p>用于 intentgateway 和 registry 的 FastAPI。</p>
+<ul><li>SQLite or Postgres for registry and workflow state.</li></ul>
+<p>SQLite 或 Postgres 用于 registry 和 workflow 状态。</p>
+<ul><li>Redis for short-lived locks and idempotency.</li></ul>
+<p>Redis 用于短期锁和idempotency。</p>
+<ul><li>Local filesystem or MinIO for object storage.</li></ul>
+<p>用于 object storage 的本地文件系统或 MinIO。</p>
+<ul><li>Redpanda or Kafka for events.</li></ul>
+<p>Redpanda 或 Kafka 用于事件。</p>
+<ul><li>Ray Serve locally for orchestration.</li></ul>
+<p>Ray 在本地进行服务orchestration。</p>
+<ul><li>Mock Triton and mock vLLM endpoints at first.</li></ul>
+<p>首先模拟 Triton 和模拟 vLLM 端点。</p>
+<ul><li>Prometheus/Grafana optional until integration tests pass.</li></ul>
+<p>Prometheus/Grafana 可选，直到集成测试通过。</p>
+<p>Local docker-compose sketch: 本地 docker-compose 草图：</p>
+<pre><code class="language-yaml">services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports: ["5432:5432"]
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports: ["9000:9000", "9001:9001"]
+
+  redpanda:
+    image: redpandadata/redpanda:latest
+    command: redpanda start --overprovisioned --smp 1 --memory 1G --reserve-memory 0M --node-id 0 --check=false
+    ports: ["9092:9092"]
+
+  intent-gateway:
+    build: ./services/intent-gateway
+    environment:
+      REGISTRY_URL: http://intent-registry:8081
+      PLANNER_URL: http://execution-planner:8082
+      WORKFLOW_URL: http://workflow-service:8083
+    ports: ["8080:8080"]</code></pre>
+<h3 id="service-1-intent-registry">Service 1: Intent Registry</h3>
+<p>服务1：意向登记</p>
+<p>Implementation goal: 实施目标：</p>
+<ul><li>Store a stable contract for each intent.</li></ul>
+<p>为每个 intent 存储稳定的合约。</p>
+<ul><li>Separate product-facing schema from infrastructure policy.</li></ul>
+<p>将面向产品的架构与基础设施策略分开。</p>
+<ul><li>Support versioning and rollout.</li></ul>
+<p>支持版本控制和 rollout。</p>
+<p>Core endpoints: 核心端点：</p>
+<pre><code class="language-http">POST /v1/intents
+GET /v1/intents/{intent_name}
+GET /v1/intents/{intent_name}/versions/{version}
+POST /v1/intents/{intent_name}/versions/{version}:validate
+POST /v1/intents/{intent_name}:promote
+GET /v1/intents/{intent_name}/active</code></pre>
+<p>Minimum registry fields: 最小 registry 字段：</p>
+<pre><code class="language-json">{
+  "intent_name": "creative.media_understanding",
+  "version": "v1",
+  "owner_team": "ai-platform",
+  "input_schema": {},
+  "output_schema": {},
+  "latency_class": "interactive",
+  "privacy_class": "user_content_sensitive",
+  "allowed_targets": ["edge", "cloud_cpu", "triton", "vllm"],
+  "model_dependencies": ["embedding-v3", "ranker-v5"],
+  "fallback_policy": {},
+  "eval_gates": {}
+}</code></pre>
+<p>Implementation details: 实施细节：</p>
+<ul><li>Validate intent definitions before storing.</li></ul>
+<p>在存储之前验证 intent 定义。</p>
+<ul><li>Require owner team and on-call metadata.</li></ul>
+<p>需要owner团队和待命元数据。</p>
+<ul><li>Store active and previous versions for rollback.</li></ul>
+<p>存储活动版本和以前的版本以供 rollback。</p>
+<ul><li>Reject requests to inactive or deprecated versions unless explicitly allowed.</li></ul>
+<p>除非明确允许，否则拒绝对非活动或已弃用版本的请求。</p>
+<ul><li>Cache active intent metadata in memory with short TTL.</li></ul>
+<p>使用短 TTL 将活动 intent 元数据缓存在内存中。</p>
+<ul><li>Emit registry change events so planners can refresh cache.</li></ul>
+<p>发出 registry 更改事件，以便规划者可以刷新缓存。</p>
+<h3 id="service-2-intent-gateway">Service 2: Intent Gateway</h3>
+<p>服务2：intentgateway</p>
+<p>Implementation goal: 实施目标：</p>
+<ul><li>Provide one stable entry point for partner teams.</li></ul>
+<p>为合作伙伴团队提供一个稳定的切入点。</p>
+<ul><li>Keep the gateway thin: validate, authorize, admit, trace, and call planner/workflow.</li></ul>
+<p>保持 gateway 精简：验证、授权、承认、trace 和呼叫计划程序/workflow。</p>
+<p>Core endpoint: 核心端点：</p>
+<pre><code class="language-http">POST /v1/intents/{intent_name}:execute</code></pre>
+<p>Execution modes: 执行 schema：</p>
+<ul><li><code>sync</code>: request finishes within interactive budget.</li></ul>
+<p><code>sync</code>：请求在交互式预算内完成。</p>
+<ul><li><code>async</code>: request returns workflow ID and progresses through events.</li></ul>
+<p><code>async</code>：请求返回工作流 ID 并通过事件进行处理。</p>
+<ul><li><code>hybrid</code>: request returns edge preprocessing instructions before cloud continuation.</li></ul>
+<p><code>hybrid</code>：请求在云继续之前返回 edge 预处理指令。</p>
+<p>Gateway flow: gateway 流程：</p>
+<pre><code class="language-text">receive request
+  -&gt; authenticate caller
+  -&gt; load active intent definition
+  -&gt; validate schema
+  -&gt; check quota
+  -&gt; attach trace/request/workflow IDs
+  -&gt; call execution planner
+  -&gt; if sync plan: invoke workflow runner inline
+  -&gt; if async/hybrid plan: create workflow and return handle</code></pre>
+<p>Important details: 重要细节：</p>
+<ul><li>Every request must have a request ID.</li></ul>
+<p>每个请求都必须有一个请求 ID。</p>
+<ul><li>Make request ID idempotent for retries from partner services.</li></ul>
+<p>使请求 ID 具有idempotency，以便从合作伙伴服务重试。</p>
+<ul><li>Separate user-facing errors from internal retryable errors.</li></ul>
+<p>将面向用户的错误与内部可重试错误分开。</p>
+<ul><li>Set deadlines before calling downstream services.</li></ul>
+<p>在调用下游服务之前设置最后期限。</p>
+<ul><li>Never route large binary payloads through gateway when object storage upload is available.</li></ul>
+<p>当 object storage 上传可用时，切勿通过 gateway 路由大型二进制有效负载。</p>
+<h3 id="service-3-execution-planner">Service 3: Execution Planner</h3>
+<p>服务3：执行计划员</p>
+<p>Implementation goal: 实施目标：</p>
+<ul><li>Convert intent and context into an executable plan.</li></ul>
+<p>将 intent 和上下文转化为可执行计划。</p>
+<ul><li>Encode tradeoffs across latency, cost, privacy, hardware, network, and capacity.</li></ul>
+<p>对 latency、成本、隐私、硬件、网络和容量进行权衡。</p>
+<p>Planner inputs: 规划者输入：</p>
+<ul><li>Intent metadata.</li></ul>
+<p>intent 元数据。</p>
+<ul><li>Request payload metadata.</li></ul>
+<p>请求负载元数据。</p>
+<ul><li>Device/session context.</li></ul>
+<p>设备/session上下文。</p>
+<ul><li>Privacy and compliance policy.</li></ul>
+<p>隐私和合规policy。</p>
+<ul><li>Model profile.</li></ul>
+<p>模型简介。</p>
+<ul><li>Index compatibility.</li></ul>
+<p>index 兼容性。</p>
+<ul><li>Live capacity snapshot.</li></ul>
+<p>实时容量快照。</p>
+<ul><li>Tenant quota and priority.</li></ul>
+<p>tenantquota 和优先级。</p>
+<p>Planner outputs: 规划器输出：</p>
+<ul><li>Execution mode.</li></ul>
+<p>执行 schema。</p>
+<ul><li>DAG steps.</li></ul>
+<p>DAG 步骤。</p>
+<ul><li>Resource class for each step.</li></ul>
+<p>每个步骤的资源类。</p>
+<ul><li>Edge preprocessing contract if needed.</li></ul>
+<p>如果需要，edge 预处理合同。</p>
+<ul><li>Model and index versions.</li></ul>
+<p>型号和 index 版本。</p>
+<ul><li>Retry and fallback behavior.</li></ul>
+<p>重试和 fallback 行为。</p>
+<ul><li>Artifact locations.</li></ul>
+<p>文物地点。</p>
+<p>Decision dimensions: 决策维度：</p>
+<pre><code class="language-text">payload-to-compute ratio:
+  large payload + small preprocessing -&gt; edge preprocess
+  small payload + heavy compute -&gt; cloud GPU
+
+latency class:
+  interactive -&gt; warm pool, bounded queue, smaller model if needed
+  background -&gt; cheaper capacity, higher queue tolerance
+  batch -&gt; opportunistic GPU/CPU capacity
+
+privacy class:
+  public -&gt; normal cloud routing
+  sensitive -&gt; edge preprocess or restricted cloud
+  enterprise restricted -&gt; policy-specific region and audit
+
+model profile:
+  embedding/ranker/CV -&gt; Triton
+  autoregressive generation -&gt; vLLM
+  orchestration/joins -&gt; Ray Serve or CPU service</code></pre>
+<p>Planner strategy: 规划策略：</p>
+<ul><li>Start rule-based; add learned/predictive cost model only after collecting data.</li></ul>
+<p>开始基于规则；仅在收集数据后添加学习/预测成本模型。</p>
+<ul><li>Keep decisions explainable.</li></ul>
+<p>保持决策可解释。</p>
+<ul><li>Log every decision with reason codes.</li></ul>
+<p>用原因代码记录每个决定。</p>
+<ul><li>Treat plans as adaptive; capacity and network can change mid-workflow.</li></ul>
+<p>将计划视为适应性的；容量和网络可以改变中间 workflow。</p>
+<p>Example reason codes: 原因代码示例：</p>
+<pre><code class="language-json">{
+  "execution_mode": "hybrid",
+  "reason_codes": [
+    "payload_size_large",
+    "edge_preprocess_available",
+    "privacy_sensitive",
+    "triton_pool_healthy"
+  ]
+}</code></pre>
+<h3 id="service-4-workflow-service">Service 4: Workflow Service</h3>
+<p>服务四：workflow 服务</p>
+<p>Implementation goal: 实施目标：</p>
+<ul><li>Execute long-running AI workflows reliably.</li></ul>
+<p>可靠地执行长时间运行的 AI workflow。</p>
+<ul><li>Make progress durable.</li></ul>
+<p>让进步持久。</p>
+<ul><li>Avoid duplicate side effects.</li></ul>
+<p>避免重复的副作用。</p>
+<p>Core concepts: 核心理念：</p>
+<ul><li>Workflow: one user/product request.</li></ul>
+<p>workflow：一个用户/产品请求。</p>
+<ul><li>Step: one unit of work in the DAG.</li></ul>
+<p>步骤：DAG 中的一个工作单元。</p>
+<ul><li>Artifact: durable input/output reference.</li></ul>
+<p>artifact：持久的输入/输出参考。</p>
+<ul><li>Lease: temporary worker ownership of a step.</li></ul>
+<p>租赁：工人临时拥有一个台阶。</p>
+<ul><li>Checkpoint: durable completion record.</li></ul>
+<p>checkpoint：持久的完成记录。</p>
+<p>Workflow API: workflowAPI：</p>
+<pre><code class="language-http">POST /v1/workflows
+GET /v1/workflows/{workflow_id}
+POST /v1/workflows/{workflow_id}:cancel
+POST /internal/v1/workflows/{workflow_id}/steps/{step_id}:complete
+POST /internal/v1/workflows/{workflow_id}/steps/{step_id}:fail</code></pre>
+<p>Core tables: 核心表：</p>
+<pre><code class="language-sql">CREATE TABLE workflow (
+  workflow_id TEXT PRIMARY KEY,
+  request_id TEXT NOT NULL,
+  intent_name TEXT NOT NULL,
+  intent_version TEXT NOT NULL,
+  status TEXT NOT NULL,
+  plan_json JSONB NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE workflow_step (
+  workflow_id TEXT NOT NULL,
+  step_id TEXT NOT NULL,
+  status TEXT NOT NULL,
+  attempt_count INT NOT NULL,
+  input_refs JSONB,
+  output_refs JSONB,
+  error_code TEXT,
+  updated_at TIMESTAMP NOT NULL,
+  PRIMARY KEY (workflow_id, step_id)
+);</code></pre>
+<p>Execution rules: 执行规则：</p>
+<ul><li>A step can run only when all dependencies are complete.</li></ul>
+<p>仅当所有依赖项都完成时才能运行步骤。</p>
+<ul><li>A worker must acquire a lease before running a step.</li></ul>
+<p>工人在运行台阶之前必须获得租约。</p>
+<ul><li>Completion writes output refs and emits a step-completed event.</li></ul>
+<p>完成写入输出引用并发出步骤完成事件。</p>
+<ul><li>Retryable failure increments attempt count and requeues.</li></ul>
+<p>可重试的失败会增加尝试计数并重新排队。</p>
+<ul><li>Non-retryable failure triggers fallback or marks workflow failed.</li></ul>
+<p>不可重试的失败会触发 fallback 或标记工作流失败。</p>
+<ul><li>All writes use idempotency keys based on workflow, step, and input digest.</li></ul>
+<p>所有写入都使用基于 workflow、步骤和输入摘要的idempotency密钥。</p>
+<h3 id="service-5-edge-preprocessing-contract">Service 5: Edge Preprocessing Contract</h3>
+<p>服务5：edge 预处理合同</p>
+<p>Implementation goal: 实施目标：</p>
+<ul><li>Define what client/edge code produces so cloud services can consume it safely.</li></ul>
+<p>定义客户端/edge 代码生成的内容，以便云服务可以安全地使用它。</p>
+<p>Contract examples: 合同示例：</p>
+<ul><li><code>image.crop_mask.v1</code>: selected crop, mask, bounding box, content hash.</li></ul>
+<p><code>image.crop_mask.v1</code>：选定的裁剪、蒙版、边界框、内容哈希。</p>
+<ul><li><code>video.keyframe_preprocess.v2</code>: keyframes, scene boundaries, audio proxy.</li></ul>
+<p><code>video.keyframe_preprocess.v2</code>：关键帧、场景边界、音频代理。</p>
+<ul><li><code>document.layout_extract.v1</code>: text blocks, tables, page thumbnails, OCR hints.</li></ul>
+<p><code>document.layout_extract.v1</code>：文本块、表格、页面缩略图、OCR prompt。</p>
+<ul><li><code>retrieval.local_prune.v1</code>: local candidate IDs or local embedding.</li></ul>
+<p><code>retrieval.local_prune.v1</code>：本地 candidate ID 或本地 embedding。</p>
+<p>Contract requirements: 合同要求：</p>
+<ul><li>Versioned schema.</li></ul>
+<p>版本化架构。</p>
+<ul><li>Max artifact size.</li></ul>
+<p>最大 artifact 尺寸。</p>
+<ul><li>Content hash.</li></ul>
+<p>内容哈希。</p>
+<ul><li>Modality metadata.</li></ul>
+<p>模态元数据。</p>
+<ul><li>Privacy classification.</li></ul>
+<p>隐私分类。</p>
+<ul><li>Compatible cloud model versions.</li></ul>
+<p>兼容的云模型版本。</p>
+<ul><li>Validation rules.</li></ul>
+<p>验证规则。</p>
+<p>Validation flow: 验证流程：</p>
+<pre><code class="language-text">receive edge artifact manifest
+  -&gt; validate schema version
+  -&gt; validate artifact URIs
+  -&gt; validate size/resolution/duration limits
+  -&gt; validate content hash if provided
+  -&gt; validate model compatibility
+  -&gt; accept into workflow or request client reprocess</code></pre>
+<h3 id="service-6-ray-serve-orchestration">Service 6: Ray Serve Orchestration</h3>
+<p>服务6：Ray Serveorchestration</p>
+<p>Implementation goal: 实施目标：</p>
+<ul><li>Run application-level AI serving graphs.</li></ul>
+<p>运行应用程序级 AI 服务图。</p>
+<ul><li>Compose calls into retrieval, Triton, vLLM, feature services, and policy services.</li></ul>
+<p>将调用组合到 retrieval、Triton、vLLM、要素服务和策略服务中。</p>
+<p>Use Ray Serve for: 使用 Ray Serve 用于：</p>
+<ul><li>Intent router deployment.</li></ul>
+<p>intent 路由器部署。</p>
+<ul><li>DAG executor.</li></ul>
+<p>DAG 执行者。</p>
+<ul><li>Feature join composition.</li></ul>
+<p>feature 连接组合。</p>
+<ul><li>Parallel fan-out to retrieval/model services.</li></ul>
+<p>并行fan-out到 retrieval/模型服务。</p>
+<ul><li>Result aggregation.</li></ul>
+<p>结果聚合。</p>
+<p>Avoid using Ray Serve for: 避免将 Ray Serve 用于：</p>
+<ul><li>High-throughput raw tensor inference that Triton can handle better.</li></ul>
+<p>Triton 可以更好地处理高通量原始张量推理。</p>
+<ul><li>Autoregressive generation that vLLM can handle better.</li></ul>
+<p>vLLM 可以更好地处理自回归生成。</p>
+<ul><li>Durable workflow state as the only source of truth.</li></ul>
+<p>持久的 workflow 状态是唯一的事实来源。</p>
+<p>Operational details: 操作细节：</p>
+<ul><li>Keep Ray Serve deployments stateless where possible.</li></ul>
+<p>尽可能保持 Ray Serve 部署无状态。</p>
+<ul><li>Put workflow state in database/object storage, not actor memory.</li></ul>
+<p>将工作流状态放入数据库/object storage 中，而不是参与者内存中。</p>
+<ul><li>Use deployment-level autoscaling for CPU-bound orchestration.</li></ul>
+<p>使用部署级自动扩缩容进行 CPU 密集型orchestration。</p>
+<ul><li>Set downstream deadlines and cancellation behavior.</li></ul>
+<p>设置下游截止日期和取消行为。</p>
+<h3 id="service-7-triton-inference-pools">Service 7: Triton Inference Pools</h3>
+<p>服务7：Triton 推理池</p>
+<p>Implementation goal: 实施目标：</p>
+<ul><li>Serve embedding, ranking, CV, quality, and moderation models efficiently.</li></ul>
+<p>高效地提供 embedding、ranking、CV、质量和moderation模型。</p>
+<p>Deployment considerations: 部署注意事项：</p>
+<ul><li>Separate interactive and batch pools.</li></ul>
+<p>独立的交互池和 batch 池。</p>
+<ul><li>Tune dynamic batching by latency class.</li></ul>
+<p>按 latency 类别调整动态 batch。</p>
+<ul><li>Use model repository versioning.</li></ul>
+<p>使用模型 repository 版本控制。</p>
+<ul><li>Export per-model metrics.</li></ul>
+<p>导出每个模型的 metrics。</p>
+<ul><li>Configure instance groups based on model memory and GPU type.</li></ul>
+<p>根据模型内存和 GPU 类型配置实例组。</p>
+<p>Model families: 模范家庭：</p>
+<ul><li><code>text_embedding</code></li></ul>
+<p><code>文本 embedding</code></p>
+<ul><li><code>image_embedding</code></li></ul>
+<p><code>图像 embedding</code></p>
+<ul><li><code>video_frame_embedding</code></li></ul>
+<p><code>视频帧 embedding</code></p>
+<ul><li><code>ranker</code></li></ul>
+<p><code>ranking 者</code></p>
+<ul><li><code>quality_classifier</code></li></ul>
+<p><code>质量分类器</code></p>
+<ul><li><code>safety_classifier</code></li></ul>
+<p><code>安全分类器</code></p>
+<p>Tuning checklist: 调整清单：</p>
+<ul><li>p95 request latency.</li></ul>
+<p>p95 请求 latency。</p>
+<ul><li>Triton queue duration.</li></ul>
+<p>Triton 队列持续时间。</p>
+<ul><li>Batch size distribution.</li></ul>
+<p>批量大小分布。</p>
+<ul><li>GPU utilization.</li></ul>
+<p>GPU 利用率。</p>
+<ul><li>GPU memory utilization.</li></ul>
+<p>GPU 内存利用率。</p>
+<ul><li>Model error rate.</li></ul>
+<p>模型错误率。</p>
+<ul><li>Timeout rate.</li></ul>
+<p>超时率。</p>
+<h3 id="service-8-vllm-generation-pools">Service 8: vLLM Generation Pools</h3>
+<p>服务8：vLLM 生成池</p>
+<p>Implementation goal: 实施目标：</p>
+<ul><li>Serve autoregressive LLM workloads with token-aware routing and scaling.</li></ul>
+<p>通过 token 感知路由和扩展来服务自回归 LLM workload。</p>
+<p>Pools: 泳池：</p>
+<ul><li><code>interactive-small</code>: low latency, smaller model, short outputs.</li></ul>
+<p>“interactive-small”：低 latency、较小的模型、较短的输出。</p>
+<ul><li><code>interactive-quality</code>: stronger model, bounded queue.</li></ul>
+<p><code>interactive-quality</code>：更强的模型，有界队列。</p>
+<ul><li><code>batch-eval</code>: LLM-as-Judge and offline evaluation.</li></ul>
+<p><code>batch-eval</code>：法学硕士作为judge和 offline evaluation。</p>
+<ul><li><code>long-context</code>: larger memory pool for long prompts.</li></ul>
+<p><code>long-context</code>：用于长 prompt 的更大内存池。</p>
+<p>Admission controls: 准入控制：</p>
+<ul><li>Max input tokens.</li></ul>
+<p>最大输入 token。</p>
+<ul><li>Max output tokens.</li></ul>
+<p>最大输出 token。</p>
+<ul><li>Tenant quota.</li></ul>
+<p>tenantquota。</p>
+<ul><li>Priority class.</li></ul>
+<p>优先级。</p>
+<ul><li>Current waiting tokens.</li></ul>
+<p>当前等待 token。</p>
+<ul><li>KV-cache utilization.</li></ul>
+<p>KV-缓存利用率。</p>
+<p>Metrics: metrics：</p>
+<ul><li>TTFT.</li></ul>
+<p>薄膜晶体管。</p>
+<ul><li>TPOT.</li></ul>
+<p>TPOT。</p>
+<ul><li>Tokens/sec.</li></ul>
+<p>token/秒。</p>
+<ul><li>Waiting tokens.</li></ul>
+<p>等待 token。</p>
+<ul><li>Running sequences.</li></ul>
+<p>运行序列。</p>
+<ul><li>KV-cache utilization.</li></ul>
+<p>KV-缓存利用率。</p>
+<ul><li>Preemptions.</li></ul>
+<p>先发制人。</p>
+<h3 id="service-9-resource-controller">Service 9: Resource Controller</h3>
+<p>服务9：资源控制器</p>
+<p>Implementation goal: 实施目标：</p>
+<ul><li>Keep p95 latency healthy while improving CPU/GPU utilization.</li></ul>
+<p>保持 p95 latency 健康，同时提高 CPU/GPU 利用率。</p>
+<p>Control loops: 控制循环：</p>
+<ul><li>Fast loop every 15-30 seconds: read queue/latency/token metrics and adjust replicas.</li></ul>
+<p>每 15-30 秒快速循环：读取队列/latency/tokenmetrics 并调整副本。</p>
+<ul><li>Medium loop every few minutes: rebalance batch vs interactive capacity.</li></ul>
+<p>每隔几分钟中等循环：重新平衡批量与交互容量。</p>
+<ul><li>Slow loop hourly/daily: analyze placement efficiency and warm-pool strategy.</li></ul>
+<p>每小时/每天慢循环：分析放置效率和热池策略。</p>
+<p>Placement policy: 安置policy：</p>
+<ul><li>Interactive workloads prefer warm pools.</li></ul>
+<p>交互式 workload 更喜欢温池。</p>
+<ul><li>Small embedding/ranking models can use MIG slices.</li></ul>
+<p>小型 embedding/ranking 模型可以使用 MIG 切片。</p>
+<ul><li>Large LLMs or diffusion-style models need full GPU or large slices.</li></ul>
+<p>大型法学硕士或扩散式模型需要完整的 GPU 或大切片。</p>
+<ul><li>Batch/eval workloads can fill spare capacity but must yield to interactive pressure.</li></ul>
+<p>batch/evaluationworkload 可以填充闲置容量，但必须屈服于交互压力。</p>
+<ul><li>Co-locate only compatible models with similar memory and latency profiles.</li></ul>
+<p>仅将具有相似内存和 latency 配置文件的兼容型号放在一起。</p>
+<p>Failure protections: 故障保护：</p>
+<ul><li>Cooldowns to avoid oscillation.</li></ul>
+<p>冷却以避免振荡。</p>
+<ul><li>Max scale-up/down per interval.</li></ul>
+<p>每个间隔的最大放大/缩小。</p>
+<ul><li>Backpressure before overload.</li></ul>
+<p>过载前的backpressure。</p>
+<ul><li>Degraded mode for non-critical workloads.</li></ul>
+<p>非关键 workload 的降级 schema。</p>
+<ul><li>Canary policies for new placement rules.</li></ul>
+<p>新放置规则的 canary 策略。</p>
+<h3 id="service-10-rollout-and-evaluation">Service 10: Rollout and Evaluation</h3>
+<p>服务10：rollout 和 evaluation</p>
+<p>Implementation goal: 实施目标：</p>
+<ul><li>Prevent quality, safety, latency, or cost regressions when changing models, prompts, indexes, or routing.</li></ul>
+<p>在更改模型、prompt、index 或路由时防止质量、安全性、latency 或成本回归。</p>
+<p>Rollout entities: rollout 实体：</p>
+<ul><li>Model version.</li></ul>
+<p>型号版本。</p>
+<ul><li>Prompt/template version.</li></ul>
+<p>prompt/模板版本。</p>
+<ul><li>Index version.</li></ul>
+<p>index 版本。</p>
+<ul><li>Intent version.</li></ul>
+<p>意向版。</p>
+<ul><li>Routing policy version.</li></ul>
+<p>路由策略版本。</p>
+<p>Evaluation stages: evaluation 阶段：</p>
+<ol><li>Unit compatibility checks.</li></ol>
+<p>单元兼容性检查。</p>
+<ol><li>Offline deterministic metrics.</li></ol>
+<p>offline 确定性 metrics。</p>
+<ol><li>LLM-as-Judge semantic evaluation.</li></ol>
+<p>法学硕士作为judge语义 evaluation。</p>
+<ol><li>Shadow replay against production-like logs.</li></ol>
+<p>针对类似生产logs的影子重放。</p>
+<ol><li>Canary rollout.</li></ol>
+<p>canaryrollout。</p>
+<ol><li>Automated rollback or promotion.</li></ol>
+<p>自动 rollback 或升级。</p>
+<p>LLM-as-Judge guardrails: 法学硕士作为judge的护栏：</p>
+<ul><li>Use fixed rubric.</li></ul>
+<p>使用固定的量规。</p>
+<ul><li>Use representative eval sets.</li></ul>
+<p>使用代表性的 evaluation 集。</p>
+<ul><li>Use judge calibration examples.</li></ul>
+<p>使用判断校准示例。</p>
+<ul><li>Do not use judge score as the only gate.</li></ul>
+<p>不要将评判分数作为唯一的门槛。</p>
+<ul><li>Track judge drift if judge model changes.</li></ul>
+<p>如果判断模型发生变化，则 trace 判断漂移。</p>
+<h3 id="service-11-envoy-ingress-redis-idempotency-and-circuit-breaking">Service 11: Envoy Ingress, Redis Idempotency, and Circuit Breaking</h3>
+<p>服务11：Envoy Ingress、Redis idempotency和熔断</p>
+<p>This section backs up the platform claims around production routing, resilience, retries, and failure isolation. The important logic is that gateway routing, idempotency, and circuit breaking are infrastructure concerns, not product-feature code. 本节支持有关生产路由、弹性、重试和故障隔离的平台声明。重要的逻辑是 gateway 路由、idempotency和熔断是基础设施问题，而不是产品功能代码。</p>
+<p>Envoy role: 特使角色：</p>
+<ul><li>Terminate mTLS or service-mesh traffic before the intent gateway.</li></ul>
+<p>在意向 gateway 之前终止 mTLS 或service meshtraffic。</p>
+<ul><li>Enforce request-size limits so raw Photoshop/Premiere media does not accidentally flow through the gateway.</li></ul>
+<p>强制执行请求大小限制，以便原始 Photoshop/Premiere 媒体不会意外流经 gateway。</p>
+<ul><li>Attach or propagate <code>x-request-id</code>, tenant, product surface, and experiment headers.</li></ul>
+<p>附加或传播“x-request-id”、tenant、产品表面和experiment标头。</p>
+<ul><li>Apply coarse rate limits by tenant, product, intent family, and latency class.</li></ul>
+<p>按 tenant、产品、intent 系列和 latency 类别应用粗略速率限制。</p>
+<ul><li>Route requests to stable, canary, or shadow backend clusters during rollout.</li></ul>
+<p>在 rollout 期间将请求路由到稳定、canary 或影子后端集群。</p>
+<p>Representative Envoy route sketch: 代表特使路线示 intent：</p>
+<pre><code class="language-yaml">static_resources:
+  listeners:
+    - name: ai_platform_ingress
+      address:
+        socket_address: { address: 0.0.0.0, port_value: 8080 }
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ai_platform
+                route_config:
+                  virtual_hosts:
+                    - name: ai_platform
+                      domains: ["*"]
+                      routes:
+                        - match: { prefix: "/v1/intents/execute" }
+                          route:
+                            cluster: intent_gateway_stable
+                            timeout: 2s
+                            retry_policy:
+                              retry_on: "connect-failure,refused-stream,reset"
+                              num_retries: 2
+                              per_try_timeout: 700ms
+                        - match:
+                            prefix: "/v1/intents/execute"
+                            headers:
+                              - name: "x-rollout-cohort"
+                                exact_match: "canary"
+                          route:
+                            cluster: intent_gateway_canary
+                            timeout: 2s</code></pre>
+<p>Idempotency contract: idempotency合约：</p>
+<ul><li>The client or product service sends an <code>idempotency_key</code>.</li></ul>
+<p>客户端或产品服务发送“idempotency_key”。</p>
+<ul><li>The gateway maps <code>(tenant_id, intent_id, idempotency_key)</code> to one durable workflow record.</li></ul>
+<p>gateway 将“(tenant_id、intent_id、idempotency_key)”映射到一个持久工作流记录。</p>
+<ul><li>Redis is used for short-lived locks and fast duplicate suppression.</li></ul>
+<p>Redis 用于短期锁和快速重复抑制。</p>
+<ul><li>Postgres or another durable store remains the source of truth for workflow state.</li></ul>
+<p>Postgres 或其他持久存储仍然是工作流状态的真实来源。</p>
+<ul><li>Replays return the existing workflow handle rather than starting another GPU job.</li></ul>
+<p>replay返回现有 workflow 句柄，而不是启动另一个 GPU 作业。</p>
+<pre><code class="language-python">class IdempotencyGuard:
+    def __init__(self, redis_client, workflow_store, ttl_seconds=900):
+        self.redis = redis_client
+        self.workflow_store = workflow_store
+        self.ttl = ttl_seconds
+
+    async def acquire_or_get(self, tenant_id: str, intent_id: str, key: str):
+        redis_key = f"idemp:{tenant_id}:{intent_id}:{key}"
+        existing = await self.redis.get(redis_key)
+        if existing:
+            return {"status": "duplicate", "workflow_id": existing.decode("utf-8")}
+
+        workflow = await self.workflow_store.find_by_idempotency_key(
+            tenant_id=tenant_id,
+            intent_id=intent_id,
+            idempotency_key=key,
+        )
+        if workflow:
+            await self.redis.set(redis_key, workflow.workflow_id, ex=self.ttl)
+            return {"status": "duplicate", "workflow_id": workflow.workflow_id}
+
+        lock_key = f"lock:{redis_key}"
+        acquired = await self.redis.set(lock_key, "1", nx=True, ex=30)
+        if not acquired:
+            return {"status": "in_flight"}
+        return {"status": "new", "lock_key": lock_key}</code></pre>
+<p>Circuit breaker logic: circuit breaker逻辑：</p>
+<pre><code class="language-python">class CircuitBreaker:
+    def __init__(self, failure_threshold: int, open_seconds: int):
+        self.failure_threshold = failure_threshold
+        self.open_seconds = open_seconds
+        self.failures = 0
+        self.open_until_ms = 0
+
+    def allow(self, now_ms: int) -&gt; bool:
+        return now_ms &gt;= self.open_until_ms
+
+    def record_success(self):
+        self.failures = 0
+
+    def record_failure(self, now_ms: int):
+        self.failures += 1
+        if self.failures &gt;= self.failure_threshold:
+            self.open_until_ms = now_ms + self.open_seconds * 1000
+
+
+async def call_with_breaker(name, breaker, now_ms, call, fallback):
+    if not breaker.allow(now_ms):
+        return await fallback(reason=f"{name}_circuit_open")
+    try:
+        result = await call()
+        breaker.record_success()
+        return result
+    except TimeoutError:
+        breaker.record_failure(now_ms)
+        return await fallback(reason=f"{name}_timeout")</code></pre>
+<h3 id="service-12-keda-kuberay-mig-placement-and-bin-packing-logic">Service 12: KEDA, KubeRay, MIG Placement, and Bin-Packing Logic</h3>
+<p>服务 12：KEDA、KubeRay、MIG 放置和装箱逻辑</p>
+<p>The resource controller is the workload-aware layer above Kubernetes. Kubernetes can schedule Pods, but the platform policy decides what kind of Pod should exist, which pool it should target, and whether the workload deserves full GPU, MIG slice, warm capacity, batch queue, or fallback. 资源控制器是 Kubernetes 之上的 workload 感知层。 Kubernetes 可以scheduling Pod，但平台策略决定应该存在哪种类型的 Pod、它应该定位哪个池，以及 workload 是否值得完整的 GPU、MIG 切片、热容量、batch 队列或 fallback。</p>
+<pre><code class="language-python">@dataclass
+class ModelProfile:
+    model_id: str
+    runtime: str
+    gpu_memory_gb: float
+    typical_input_tokens: int
+    typical_output_tokens: int
+    batchable: bool
+    mig_compatible: bool
+    min_gpu_class: str
+    cold_start_seconds: int
+    latency_class: str
+
+
+@dataclass
+class NodeCapacity:
+    node_id: str
+    gpu_class: str
+    free_full_gpus: int
+    free_mig_slices: dict[str, int]
+    reserved_for_interactive: bool
+    current_queue_ms: int
+
+
+def choose_gpu_placement(profile: ModelProfile, nodes: list[NodeCapacity]):
+    if profile.runtime == "vllm" and profile.gpu_memory_gb &gt; 40:
+        return best_full_gpu_node(profile, nodes)
+
+    if profile.mig_compatible and profile.latency_class != "interactive":
+        for node in sorted(nodes, key=lambda n: n.current_queue_ms):
+            if node.gpu_class in ("a100", "h100") and node.free_mig_slices.get("1g.10gb", 0) &gt; 0:
+                return {"node": node.node_id, "resource": "nvidia.com/mig-1g.10gb"}
+
+    if profile.latency_class == "interactive":
+        return least_loaded_warm_pool(profile, nodes)
+
+    return cheapest_available_pool(profile, nodes)
+
+
+def binpack_score(profile: ModelProfile, node: NodeCapacity) -&gt; float:
+    fragmentation_penalty = 0.0
+    if profile.mig_compatible and node.free_full_gpus &gt; 0:
+        fragmentation_penalty += 0.2
+    if profile.runtime == "vllm" and node.free_full_gpus == 0:
+        fragmentation_penalty += 10.0
+
+    latency_penalty = max(0, node.current_queue_ms - latency_budget_ms(profile.latency_class)) / 1000
+    locality_bonus = 0.1 if node.reserved_for_interactive and profile.latency_class == "interactive" else 0
+    return fragmentation_penalty + latency_penalty - locality_bonus</code></pre>
+<p>KEDA scaling uses external metrics such as queue depth, p95 queue age, token backlog, and in-flight request count: KEDA 扩展使用外部 metrics，例如队列深度、p95 队列年龄、token 积压和正在进行的请求计数：</p>
+<pre><code class="language-yaml">apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: triton-ranker-scaledobject
+spec:
+  scaleTargetRef:
+    name: triton-ranker
+  minReplicaCount: 2
+  maxReplicaCount: 40
+  triggers:
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.monitoring:9090
+        metricName: ranker_queue_depth
+        query: sum(ai_inference_queue_depth{runtime="triton",model_family="ranker"})
+        threshold: "200"</code></pre>
+<p>KubeRay scaling controls Ray worker capacity for DAG orchestration and fan-out: KubeRay 扩展控制用于 DAG orchestration 和fan-out的 Ray 工作线程容量：</p>
+<pre><code class="language-yaml">apiVersion: ray.io/v1
+kind: RayService
+metadata:
+  name: ai-orchestration
+spec:
+  serveConfigV2: |
+    applications:
+      - name: ai_dag
+        import_path: app.deployments:entrypoint
+        deployments:
+          - name: IntentDagRouter
+            num_replicas: 4
+            ray_actor_options:
+              num_cpus: 2
+  rayClusterConfig:
+    workerGroupSpecs:
+      - groupName: cpu-orchestration
+        minReplicas: 4
+        maxReplicas: 80
+        template:
+          spec:
+            containers:
+              - name: ray-worker
+                image: ai-platform/ray-worker:latest
+                resources:
+                  requests: { cpu: "4", memory: "16Gi" }
+                  limits: { cpu: "4", memory: "16Gi" }</code></pre>
+<h3 id="service-13-vllm-kv-cache-pagedattention-and-token-telemetry">Service 13: vLLM KV-Cache, PagedAttention, and Token Telemetry</h3>
+<p>服务 13：vLLM KV cache、PagedAttention 和 token 遥测</p>
+<p>The code-level point is that LLM serving is scheduled by token and memory pressure, not just request count. vLLM improves serving efficiency with continuous batching and PagedAttention-style KV-cache management, but the platform still needs admission control and autoscaling around it. 代码级别的一点是，LLM 服务是根据 token 和内存压力来scheduling的，而不仅仅是请求计数。 vLLM 通过连续 batch 和 PagedAttention 式的 KV cache 管理提高了服务效率，但该平台仍然需要准入控制和自动扩展。</p>
+<pre><code class="language-text">ai_vllm_waiting_requests{model_id,tenant,latency_class}
+ai_vllm_running_requests{model_id,tenant,latency_class}
+ai_vllm_prompt_tokens_total{model_id}
+ai_vllm_output_tokens_total{model_id}
+ai_vllm_ttft_ms_bucket{model_id,latency_class}
+ai_vllm_tpot_ms_bucket{model_id,latency_class}
+ai_vllm_kv_cache_utilization{model_id,gpu_pool}
+ai_vllm_preemptions_total{model_id,gpu_pool}</code></pre>
+<pre><code class="language-python">def admit_llm_request(req, pool):
+    estimated_tokens = req.prompt_tokens + req.max_output_tokens
+    if estimated_tokens &gt; pool.max_sequence_tokens:
+        return Reject("context_too_large")
+
+    projected_kv = pool.kv_cache_utilization + estimate_kv_fraction(req, pool)
+    if projected_kv &gt; 0.92 and req.latency_class != "interactive":
+        return Defer("kv_cache_pressure")
+
+    if pool.waiting_tokens &gt; pool.policy.max_waiting_tokens and req.priority &lt; 5:
+        return Defer("token_backlog")
+
+    return Admit()</code></pre>
+<p>PagedAttention explanation for interviews: PagedAttention 面试说明：</p>
+<ul><li>Traditional serving can waste KV-cache memory because each sequence has different length.</li></ul>
+<p>传统服务会浪费 KV cache 内存，因为每个序列都有不同的长度。</p>
+<ul><li>PagedAttention stores KV cache in page-like blocks, so memory allocation can be more flexible.</li></ul>
+<p>PagedAttention 将KV缓存存储在类似页面的块中，因此内存分配可以更加灵活。</p>
+<ul><li>Continuous batching lets the server add new requests as old requests finish, improving GPU occupancy.</li></ul>
+<p>连续 batch 允许服务器在旧请求完成时添加新请求，从而提高 GPU 占用率。</p>
+<ul><li>The tradeoff is operational complexity: token backlog, KV-cache utilization, preemption, TTFT, and TPOT become first-class metrics.</li></ul>
+<p>权衡是操作复杂性：token 积压、KV cache 利用率、抢占、TTFT 和 TPOT 成为一流 metrics。</p>
+<h3 id="service-14-observability-schema-and-debug-trace">Service 14: Observability Schema and Debug Trace</h3>
+<p>服务 14：可观测性架构和调试 trace</p>
+<p>Every request should produce enough data to answer: why was this route chosen, where did latency go, which model/index/prompt version ran, and what fallback occurred? 每个请求都应该产生足够的数据来回答：为什么选择这条路线，latency 去哪里，运行哪个模型/index/prompt 版本，以及发生了什么 fallback？</p>
+<pre><code class="language-json">{
+  "trace_id": "tr_123",
+  "tenant_id": "photoshop",
+  "intent_id": "media.understanding.v1",
+  "workflow_id": "wf_456",
+  "route": {
+    "execution_mode": "edge_cloud_hybrid",
+    "runtime_path": ["edge_preprocess", "ray_dag", "triton_embedding", "retrieval", "vllm_summary"],
+    "fallback_used": false
+  },
+  "versions": {
+    "intent_version": "2026-04-01",
+    "model_versions": ["embed_v17", "ranker_v9", "llm_assistant_v4"],
+    "index_version": "assets_2026_04_29"
+  },
+  "latency_ms": {
+    "edge_preprocess": 180,
+    "upload": 220,
+    "queue": 45,
+    "ray_dag": 35,
+    "triton": 40,
+    "retrieval": 55,
+    "vllm_ttft": 310,
+    "total": 980
+  }
+}</code></pre>
+<pre><code class="language-text">ai_intent_requests_total{intent_id,tenant,latency_class,status}
+ai_workflow_step_duration_ms_bucket{step_name,runtime,status}
+ai_workflow_resume_total{intent_id,reason}
+ai_gpu_utilization{gpu_pool,model_family,gpu_class}
+ai_gpu_memory_utilization{gpu_pool,model_family,gpu_class}
+ai_queue_depth{runtime,model_family,latency_class}
+ai_raw_media_bytes_saved_total{intent_id,product_surface}
+ai_rollout_gate_failures_total{gate,model_version,prompt_version}</code></pre>
+<p>Grafana dashboard panels: Grafana dashboard：</p>
+<ul><li>Request volume and error rate by intent.</li></ul>
+<p>按 intent 划分的请求量和错误率。</p>
+<ul><li>p50/p95/p99 latency broken down by gateway, queue, inference, retrieval, and upload.</li></ul>
+<p>p50/p95/p99 latency 按 gateway、队列、推理、retrieval 和上传细分。</p>
+<ul><li>GPU utilization, memory utilization, MIG occupancy, and fragmentation.</li></ul>
+<p>GPU 利用率、内存利用率、MIG 占用和碎片。</p>
+<ul><li>vLLM TTFT, TPOT, waiting tokens, running tokens, and KV-cache utilization.</li></ul>
+<p>vLLM TTFT、TPOT、等待 token、运行 token 和 KV cache 利用率。</p>
+<ul><li>Workflow checkpoint/resume count and failed-step distribution.</li></ul>
+<p>workflowcheckpoint/恢复计数和失败步骤分布。</p>
+<ul><li>Raw-media bytes avoided through edge-first preprocessing.</li></ul>
+<p>通过 edge 优先预处理避免了raw media字节。</p>
+<ul><li>Canary quality gates and LLM-as-Judge failure trend.</li></ul>
+<p>canary 质量门和法学硕士作为judge的失败趋势。</p>
+<h3 id="service-15-agentic-and-rag-workflow-logic">Service 15: Agentic and RAG Workflow Logic</h3>
+<p>服务 15：代理和 RAG 工作流逻辑</p>
+<p>Use "agent" carefully in interviews. The platform can support multi-step LLM workflows or assistant-style tool calls, but the stronger claim is orchestration and guardrailed execution rather than owning every product agent. 在面试中谨慎使用“agent”。该平台可以支持多步骤 LLM workflow 或助理式工具调用，但更强有力的主张是orchestration 和guardrailed execution，而不是拥有每个产品代理。</p>
+<pre><code class="language-python">assistant_dag = [
+    Step("classify_intent", runtime="vllm", timeout_ms=800),
+    Step("rewrite_query", runtime="vllm", timeout_ms=1000),
+    Step("retrieve_context", runtime="retrieval", timeout_ms=250),
+    Step("rerank_context", runtime="triton", timeout_ms=120),
+    Step("build_grounded_prompt", runtime="cpu", timeout_ms=50),
+    Step("generate_answer", runtime="vllm", timeout_ms=3000),
+    Step("grounding_check", runtime="eval", timeout_ms=500),
+]</code></pre>
+<pre><code class="language-python">ALLOWED_TOOLS_BY_INTENT = {
+    "document.assistant.answer.v1": ["retrieve_chunks", "summarize", "cite_sources"],
+    "creative.asset.assistant.v1": ["retrieve_assets", "rerank_assets", "explain_style_match"],
+}
+
+def validate_tool_call(intent_id, tool_name, args):
+    allowed = ALLOWED_TOOLS_BY_INTENT.get(intent_id, [])
+    if tool_name not in allowed:
+        raise PolicyError(f"tool {tool_name} not allowed for {intent_id}")
+    validate_schema(tool_name, args)
+    enforce_data_policy(intent_id, args)</code></pre>
+<p>For RAG, the implementation concerns are chunking and indexing content with stable version IDs, retrieval with permission filters, reranking a smaller candidate set, prompt construction with citations/provenance, grounding evaluation, and traceability from the answer back to retrieved chunks, model version, and index version. 对于 RAG，实现问题包括使用稳定版本 ID 对内容进行分块和 index、使用权限过滤器进行 retrieval、对较小的 candidate 集进行重新 ranking、使用引用/出处进行 prompt 构建、基础 evaluation 以及从答案到 retrieval 到的块、模型版本和 index 版本的可追溯性。</p>
+<h3 id="end-to-end-request-example-video-media-understanding">End-to-End Request Example: Video Media Understanding</h3>
+<p>端到端请求示例：视频媒体理解</p>
+<p>Flow: 流动：</p>
+<ol><li>Partner service sends intent <code>creative.media_understanding</code>.</li></ol>
+<p>合作伙伴服务发送 intent“creative.media_understanding”。</p>
+<ol><li>Gateway validates input and creates workflow ID.</li></ol>
+<p>gateway 验证输入并创建工作流 ID。</p>
+<ol><li>Planner sees large video payload, user-content-sensitive privacy, and available edge preprocessing.</li></ol>
+<p>Planner 可以看到大量视频有效负载、用户内容敏感的隐私以及可用的 edge 预处理。</p>
+<ol><li>Planner returns hybrid plan with <code>video.keyframe_preprocess.v2</code>.</li></ol>
+<p>Planner 返回带有“video.keyframe_preprocess.v2”的混合计划。</p>
+<ol><li>Client extracts keyframes, audio proxy, and scene metadata.</li></ol>
+<p>客户端提取关键帧、音频代理和场景元数据。</p>
+<ol><li>Client uploads compact artifacts using presigned URLs.</li></ol>
+<p>客户端使用预先签名的 URL 上传紧凑的 artifact。</p>
+<ol><li>Workflow service receives artifact-ready event.</li></ol>
+<p>工作流服务接收 artifact 就绪事件。</p>
+<ol><li>Ray Serve DAG orchestrates embedding and retrieval.</li></ol>
+<p>Ray Serve DAG 协调 embedding 和 retrieval。</p>
+<ol><li>Triton embeds keyframes.</li></ol>
+<p>Triton embedding 关键帧。</p>
+<ol><li>Optional vLLM step summarizes or explains media.</li></ol>
+<p>可选的 vLLM 步骤总结或解释媒体。</p>
+<ol><li>Workflow service checkpoints each step.</li></ol>
+<p>工作流服务 checkpoint 的每一步。</p>
+<ol><li>Results are returned to product service.</li></ol>
+<p>结果返回至产品服务部门。</p>
+<ol><li>Metrics include raw input size, uploaded size, latency, queue time, GPU time, and quality signals.</li></ol>
+<p>metrics 包括原始输入大小、上传大小、latency、队列时间、GPU 时间和质量信号。</p>
+<h3 id="end-to-end-request-example-llm-assistant-with-retrieval">End-to-End Request Example: LLM Assistant With Retrieval</h3>
+<p>端到端请求示例：带 retrieval 功能的 LLM 助理</p>
+<p>Flow: 流动：</p>
+<ol><li>Product sends LLM-powered assistant intent.</li></ol>
+<p>产品发送由 LLM 支持的助理 intent。</p>
+<ol><li>Gateway validates request and tenant quota.</li></ol>
+<p>gateway 验证请求和 tenantquota。</p>
+<ol><li>Planner classifies it as interactive LLM plus retrieval.</li></ol>
+<p>Planner 将其归类为交互式法学硕士加 retrieval。</p>
+<ol><li>Ray Serve calls query rewrite or embedding model.</li></ol>
+<p>Ray Serve 调用 query 重写或 embedding 模型。</p>
+<ol><li>Retrieval service returns candidate context.</li></ol>
+<p>retrieval 服务返回 candidate 上下文。</p>
+<ol><li>Ray Serve builds grounded prompt.</li></ol>
+<p>Ray Serve 建立了接地 prompt。</p>
+<ol><li>vLLM generates answer.</li></ol>
+<p>vLLM 生成答案。</p>
+<ol><li>Policy/safety checks run before response.</li></ol>
+<p>策略/安全检查在响应之前运行。</p>
+<ol><li>Logs record prompt version, model version, retrieval context, token metrics, and latency.</li></ol>
+<p>logs记录 prompt 版本、模型版本、retrieval 上下文、tokenmetrics 和 latency。</p>
+<ol><li>Canary/eval service can replay the request for rollout validation.</li></ol>
+<p>Canary/eval 服务可以重放验证请求。</p>
+<h3 id="production-hardening-checklist">Production Hardening Checklist</h3>
+<p>生产强化清单</p>
+<p>Reliability: 可靠性：</p>
+<ul><li>Idempotent request handling.</li></ul>
+<p>idempotent 请求处理。</p>
+<ul><li>Durable workflow state.</li></ul>
+<p>持久的 workflow 状态。</p>
+<ul><li>Step-level leases.</li></ul>
+<p>阶梯式租赁。</p>
+<ul><li>Retry budget by error class.</li></ul>
+<p>按错误类别重试预算。</p>
+<ul><li>Dead-letter queue.</li></ul>
+<p>dead-letter队列。</p>
+<ul><li>Backfill and replay tools.</li></ul>
+<p>回填和重放工具。</p>
+<p>Performance: 表现：</p>
+<ul><li>Deadline propagation.</li></ul>
+<p>截止日期传播。</p>
+<ul><li>Bounded fan-out.</li></ul>
+<p>有界fan-out。</p>
+<ul><li>Queue-aware admission control.</li></ul>
+<p>队列感知准入控制。</p>
+<ul><li>Warm model pools.</li></ul>
+<p>温暖的模型池。</p>
+<ul><li>Separate interactive and batch capacity.</li></ul>
+<p>独立的交互和 batch 能力。</p>
+<ul><li>Payload-size limits.</li></ul>
+<p>有效负载大小限制。</p>
+<p>Security and privacy: 安全和隐私：</p>
+<ul><li>AuthN/AuthZ for partner services.</li></ul>
+<p>合作伙伴服务的 AuthN/AuthZ。</p>
+<ul><li>Tenant and owner metadata.</li></ul>
+<p>tenant 和owner元数据。</p>
+<ul><li>Presigned upload expiration.</li></ul>
+<p>预先指定的上传到期时间。</p>
+<ul><li>Artifact retention policies.</li></ul>
+<p>artifact 保留策略。</p>
+<ul><li>Audit records for sensitive workflows.</li></ul>
+<p>敏感 workflow 的moderation记录。</p>
+<ul><li>Privacy class enforcement in planner.</li></ul>
+<p>规划器中的隐私类实施。</p>
+<p>Operations: 运营：</p>
+<ul><li>Dashboards by intent and model.</li></ul>
+<p>按 intent 和模型划分的 dashboard。</p>
+<ul><li>Trace IDs across gateway, workflow, Ray, Triton, vLLM, and storage.</li></ul>
+<p>跨 gateway、workflow、Ray、Triton、vLLM 和存储的 trace ID。</p>
+<ul><li>Runbooks for queue spikes, GPU OOM, model errors, and workflow stalls.</li></ul>
+<p>针对队列峰值、GPU OOM、模型错误和 workflow 停顿的运行手册。</p>
+<ul><li>Canary and rollback tooling.</li></ul>
+<p>canary 和 rollback 工具。</p>
+<h3 id="interview-drill-small-part-questions">Interview Drill: Small-Part Questions</h3>
+<p>面试练习：小问题</p>
+<p>If asked "How do you avoid duplicate workflow execution?": 如果被问到“如何避免重复的 workflow 执行？”：</p>
+<ul><li>Use request-level idempotency keys at the gateway.</li></ul>
+<p>在 gateway 处使用请求级idempotency密钥。</p>
+<ul><li>Use step-level idempotency keys based on workflow ID, step ID, and input digest.</li></ul>
+<p>根据工作流 ID、步骤 ID 和输入摘要使用步骤级idempotent键。</p>
+<ul><li>Use leases so only one worker owns a step.</li></ul>
+<p>使用租赁，这样只有一名工人拥有一个台阶。</p>
+<ul><li>Store output refs durably before publishing completion.</li></ul>
+<p>在发布完成之前持久存储输出引用。</p>
+<ul><li>Make downstream writes idempotent.</li></ul>
+<p>使下游写入idempotent。</p>
+<p>If asked "How do you choose Triton vs vLLM?": 如果被问到“您如何选择 Triton 与 vLLM？”：</p>
+<ul><li>Triton for stateless tensor inference such as embeddings, rankers, CV, classifiers.</li></ul>
+<p>Triton 用于无状态张量推理，例如 embedding、ranking 器、CV、分类器。</p>
+<ul><li>vLLM for autoregressive token generation.</li></ul>
+<p>vLLM 用于自回归 token 生成。</p>
+<ul><li>Ray Serve composes both but should not replace either specialized runtime.</li></ul>
+<p>Ray Serve 组成了两者，但不应取代任何一个专用运行时。</p>
+<p>If asked "How do you scale LLM serving?": 如果被问到“您如何扩展 LLM 服务？”：</p>
+<ul><li>Scale on waiting tokens, TTFT, TPOT, KV-cache utilization, and backlog.</li></ul>
+<p>扩展等待 token、TTFT、TPOT、KV cache 利用率和积压。</p>
+<ul><li>Separate short interactive, long-context, and batch/eval pools.</li></ul>
+<p>单独的短交互池、长上下文池和 batch/evaluation 池。</p>
+<ul><li>Apply max-token and admission controls.</li></ul>
+<p>应用最大 token 和准入控制。</p>
+<ul><li>Keep warm pools because model load time is expensive.</li></ul>
+<p>保持池温暖，因为模型加载时间很昂贵。</p>
+<p>If asked "How do you protect privacy?": 如果被问到“你如何保护隐私？”：</p>
+<ul><li>Treat privacy class as a planner input.</li></ul>
+<p>将隐私类别视为规划者的输入。</p>
+<ul><li>Use edge preprocessing when raw media does not need to leave device.</li></ul>
+<p>当原始介质不需要离开设备时，请使用 edge 预处理。</p>
+<ul><li>Use restricted-region routing for sensitive enterprise workflows.</li></ul>
+<p>对敏感企业 workflow 使用限制区域路由。</p>
+<ul><li>Minimize artifact retention.</li></ul>
+<p>最大限度地减少 artifact 保留。</p>
+<ul><li>Avoid logging raw content.</li></ul>
+<p>避免记录原始内容。</p>
+<p>If asked "What is the biggest bottleneck?": 如果问“最大的瓶颈是什么？”：</p>
+<ul><li>It depends on workload: network for large media, GPU memory for LLMs, GPU utilization and batching for embeddings, CPU fan-out for orchestration, feature joins for ranking, and storage/event lag for async workflows.</li></ul>
+<p>它取决于 workload：用于大型媒体的网络、用于 LLM 的 GPU 内存、用于 embedding 的 GPU 利用率和 batch、用于orchestration的 CPU fan-out、用于 ranking 的feature joins以及用于异步 workflow 的存储/事件 latency。</p></section>
+<section class="doc-section article" id="project-2-end-to-end-build-blueprint"><h2 id="project-2-end-to-end-build-blueprint">Project 2 End-to-End Build Blueprint</h2>
+<p>项目 2 端到端构建蓝图</p>
+<p>This section is written as if you were building the multimodal search and discovery platform from scratch. It connects asset ingestion, embedding generation, vector/lexical indexing, online retrieval, ranking, experimentation, and operations. 本节的编写方式就像您从头开始构建多模态搜索和discovery 平台一样。它连接 asset ingestion、embedding 生成、向量/lexical index、online retrieval、ranking、experiment 和操作。</p>
+<h3 id="target-capabilities">Target Capabilities</h3>
+<p>目标能力</p>
+<p>By the end, the system should support: 到最后，系统应该支持：</p>
+<ul><li>Asset ingestion across image, video, audio, 3D, and document modalities.</li></ul>
+<p>跨图像、视频、音频、3D 和文档 schema 的 asset ingestion。</p>
+<ul><li>Metadata normalization and policy fields.</li></ul>
+<p>元数据标准化和策略字段。</p>
+<ul><li>Offline and nearline embedding generation.</li></ul>
+<p>offline 和 nearlineembedding 生成。</p>
+<ul><li>Vector indexing for semantic retrieval.</li></ul>
+<p>用于语义 retrieval 的向量 index。</p>
+<ul><li>Lexical indexing for exact terms and structured filters.</li></ul>
+<p>precision术语和结构化过滤器的lexical index。</p>
+<ul><li>Text, image, and mixed-query search.</li></ul>
+<p>文本、图像和混合 query 搜索。</p>
+<ul><li>Similarity search and related-asset discovery.</li></ul>
+<p>similarity搜索和相关 assetdiscovery。</p>
+<ul><li>Multi-stage retrieval and ranking.</li></ul>
+<p>多阶段 retrieval 和 ranking。</p>
+<ul><li>Feature serving for ranking.</li></ul>
+<p>用于 ranking 的功能。</p>
+<ul><li>A/B testing and search event logging.</li></ul>
+<p>A/B 测试和搜索事件logs记录。</p>
+<ul><li>Index versioning, rollback, and freshness monitoring.</li></ul>
+<p>index 版本控制、rollback 和freshness监控。</p>
+<ul><li>Debug endpoints for relevance and latency analysis.</li></ul>
+<p>调试端点以进行相关性和 latency 分析。</p>
+<h3 id="suggested-repository-layout">Suggested Repository Layout</h3>
+<p>建议的repository 布局</p>
+<pre><code class="language-text">multimodal-search-platform/
+  services/
+    query-api/
+      app/
+        main.py
+        query_parser.py
+        retrieval_orchestrator.py
+        response_builder.py
+      tests/
+    query-understanding/
+      app/
+        parser.py
+        filter_extractor.py
+        rewrite.py
+        locale.py
+      tests/
+    vector-candidate-service/
+      app/
+        milvus_client.py
+        vector_query_builder.py
+        sharding.py
+        recall_debug.py
+      tests/
+    lexical-candidate-service/
+      app/
+        elastic_client.py
+        query_builder.py
+        analyzer_debug.py
+      tests/
+    candidate-merger/
+      app/
+        fusion.py
+        dedupe.py
+        policy_filter.py
+      tests/
+    feature-service/
+      app/
+        feature_fetcher.py
+        cache.py
+        feature_defaults.py
+      tests/
+    ranking-service/
+      app/
+        ranker.py
+        triton_ranker_client.py
+        diversity.py
+        explanation.py
+      tests/
+    asset-ingestion/
+      app/
+        kafka_consumer.py
+        normalizer.py
+        modality_router.py
+      tests/
+    embedding-pipeline/
+      app/
+        image_embed.py
+        text_embed.py
+        video_embed.py
+        document_embed.py
+        batch_runner.py
+      tests/
+    index-publisher/
+      app/
+        vector_publish.py
+        lexical_publish.py
+        validation.py
+        pointer_swap.py
+      tests/
+    experiment-service/
+      app/
+        assignment.py
+        metrics.py
+        analysis.py
+  contracts/
+    assets/
+    search/
+    events/
+    features/
+  infra/
+    kafka/
+    flink/
+    milvus/
+    elasticsearch/
+    k8s/
+    prometheus/
+    grafana/
+  notebooks/
+    offline_eval/
+    relevance_debug/</code></pre>
+<h3 id="build-order">Build Order</h3>
+<p>建造顺序</p>
+<p>Build the system in this order: 按以下顺序构建系统：</p>
+<ol><li>Define asset schema and search request/response contract.</li></ol>
+<p>定义 assetschema 和搜索请求/响应合约。</p>
+<ol><li>Build a small asset ingestion pipeline using static test assets.</li></ol>
+<p>使用静态测试 asset 构建小型 asset ingestion管道。</p>
+<ol><li>Generate embeddings offline and load them into Milvus.</li></ol>
+<p>offline 生成 embedding 并将其加载到 Milvus 中。</p>
+<ol><li>Load metadata/text into Elasticsearch.</li></ol>
+<p>将元数据/文本加载到 Elasticsearch 中。</p>
+<ol><li>Implement query API with text-only search.</li></ol>
+<p>通过纯文本搜索实现 query API。</p>
+<ol><li>Add vector search and candidate merging.</li></ol>
+<p>添加向量搜索和 candidate 合并。</p>
+<ol><li>Add metadata filters and policy enforcement.</li></ol>
+<p>添加元数据过滤器和策略执行。</p>
+<ol><li>Add feature service and simple ranker.</li></ol>
+<p>添加 feature service和简单​​的 ranking 器。</p>
+<ol><li>Add image-query support.</li></ol>
+<p>添加图像 query 支持。</p>
+<ol><li>Add mixed text+image retrieval.</li></ol>
+<p>添加文本+图像混合 retrieval。</p>
+<ol><li>Add discovery candidate sources.</li></ol>
+<p>添加discoverycandidate 源。</p>
+<ol><li>Add search logging and offline evaluation.</li></ol>
+<p>添加搜索记录和 offline evaluation。</p>
+<ol><li>Add index versioning and publish/rollback.</li></ol>
+<p>添加 index 版本控制和发布/rollback。</p>
+<ol><li>Add A/B testing.</li></ol>
+<p>添加 A/B 测试。</p>
+<ol><li>Scale ingestion with Kafka/Flink and batch embedding jobs.</li></ol>
+<p>使用 Kafka/Flink 和批量 embedding 作业扩展ingestion。</p>
+<ol><li>Add production monitoring and debug tools.</li></ol>
+<p>添加生产监控和调试工具。</p>
+<p>This order works because it proves the online search loop first, then scales ingestion and ranking complexity. 这个顺序之所以有效，是因为它首先证明了 online 搜索循环，然后扩展了ingestion和 ranking 的复杂性。</p>
+<h3 id="local-prototype-architecture">Local Prototype Architecture</h3>
+<p>局部原型架构</p>
+<p>Local components: 本地组件：</p>
+<ul><li>FastAPI query API.</li></ul>
+<p>FastAPIqueryAPI。</p>
+<ul><li>Elasticsearch single node.</li></ul>
+<p>Elasticsearch 单节点。</p>
+<ul><li>Milvus or Qdrant local vector database.</li></ul>
+<p>Milvus 或 Qdrant 本地载体数据库。</p>
+<ul><li>Postgres for metadata and feature store.</li></ul>
+<p>用于元数据和 feature store的 Postgres。</p>
+<ul><li>MinIO for asset and embedding artifacts.</li></ul>
+<p>MinIO 用于 asset 和 embeddingartifact。</p>
+<ul><li>Kafka/Redpanda for ingestion events.</li></ul>
+<p>Kafka/Redpanda 用于ingestion事件。</p>
+<ul><li>Mock embedding model or local sentence/image encoder.</li></ul>
+<p>模拟 embedding 模型或本地句子/图像编码器。</p>
+<p>Local docker-compose sketch: 本地 docker-compose 草图：</p>
+<pre><code class="language-yaml">services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+    ports: ["9200:9200"]
+
+  milvus:
+    image: milvusdb/milvus:latest
+    ports: ["19530:19530"]
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports: ["5432:5432"]
+
+  redpanda:
+    image: redpandadata/redpanda:latest
+    command: redpanda start --overprovisioned --smp 1 --memory 1G --reserve-memory 0M --node-id 0 --check=false
+    ports: ["9092:9092"]
+
+  query-api:
+    build: ./services/query-api
+    ports: ["8080:8080"]</code></pre>
+<h3 id="data-model-asset-embedding-feature-event">Data Model: Asset, Embedding, Feature, Event</h3>
+<p>数据模型：asset、embedding、feature、事件</p>
+<p>Core asset fields: 核心 asset 领域：</p>
+<pre><code class="language-sql">CREATE TABLE asset (
+  asset_id TEXT PRIMARY KEY,
+  owner_id TEXT,
+  tenant_id TEXT,
+  product_source TEXT,
+  asset_type TEXT,
+  title TEXT,
+  description TEXT,
+  tags TEXT[],
+  language TEXT,
+  license_type TEXT,
+  orientation TEXT,
+  moderation_status TEXT,
+  visibility TEXT,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+);
+
+CREATE TABLE asset_embedding (
+  asset_id TEXT,
+  asset_version TEXT,
+  embedding_version TEXT,
+  modality TEXT,
+  vector_ref TEXT,
+  generated_at TIMESTAMP,
+  PRIMARY KEY(asset_id, asset_version, embedding_version, modality)
+);
+
+CREATE TABLE asset_feature (
+  asset_id TEXT PRIMARY KEY,
+  aesthetic_score FLOAT,
+  quality_score FLOAT,
+  popularity_score FLOAT,
+  freshness_score FLOAT,
+  duplicate_cluster_id TEXT,
+  style_labels TEXT[],
+  color_palette TEXT[],
+  updated_at TIMESTAMP
+);
+
+CREATE TABLE search_event (
+  request_id TEXT PRIMARY KEY,
+  user_id TEXT,
+  session_id TEXT,
+  experiment_id TEXT,
+  variant TEXT,
+  query_json JSONB,
+  candidates_json JSONB,
+  ranked_ids TEXT[],
+  latency_ms INT,
+  created_at TIMESTAMP
+);</code></pre>
+<p>Important design choice: 重要的设计选择：</p>
+<ul><li>Store large vectors in vector DB/object storage, not in the main metadata database.</li></ul>
+<p>将大型向量存储在vector DB/object storage 中，而不是在主元数据数据库中。</p>
+<ul><li>Store embedding version and asset version together so reindexing and rollback are possible.</li></ul>
+<p>将 embedding 版本和 asset 版本存储在一起，以便可以重新 index 和 rollback。</p>
+<h3 id="asset-ingestion-pipeline">Asset Ingestion Pipeline</h3>
+<p>asset ingestion管道</p>
+<p>Implementation steps: 实施步骤：</p>
+<ol><li>Consume asset upsert/delete events from Kafka.</li></ol>
+<p>使用 Kafka 中的 asset 更新插入/删除事件。</p>
+<ol><li>Normalize metadata and generate asset version.</li></ol>
+<p>标准化元数据并生成 asset 版本。</p>
+<ol><li>Route modality-specific tasks.</li></ol>
+<p>路由特定于模态的任务。</p>
+<ol><li>Extract text, previews, frames, audio transcripts, and metadata.</li></ol>
+<p>提取文本、预览、帧、音频转录和元数据。</p>
+<ol><li>Generate lexical document.</li></ol>
+<p>生成词汇文档。</p>
+<ol><li>Generate embedding tasks.</li></ol>
+<p>生成 embedding 任务。</p>
+<ol><li>Write metadata/features.</li></ol>
+<p>编写元数据/功能。</p>
+<ol><li>Publish indexing tasks.</li></ol>
+<p>发布 index 任务。</p>
+<p>Event partitioning: 事件分区：</p>
+<ul><li>Partition by <code>asset_id</code> to preserve per-asset ordering.</li></ul>
+<p>按“asset_id”分区以保留每个 asset 的 ranking。</p>
+<ul><li>Use idempotent writes keyed by <code>asset_id + asset_version</code>.</li></ul>
+<p>使用以“asset_id + asset_version”为键的idempotent写入。</p>
+<ul><li>Handle deletes and policy changes as first-class events.</li></ul>
+<p>将删除和策略更改作为一流事件来处理。</p>
+<p>Backpressure strategy: 反压策略：</p>
+<ul><li>Separate topics by modality or workload class.</li></ul>
+<p>按 schema 或 workload 类别分隔主题。</p>
+<ul><li>Video and 3D processing should not block image/text updates.</li></ul>
+<p>视频和 3D 处理不应阻止图像/文本更新。</p>
+<ul><li>Track Kafka lag by modality and tenant.</li></ul>
+<p>按 schema 和 tenanttrace Kafka 滞后。</p>
+<ul><li>Prioritize freshness-sensitive asset classes.</li></ul>
+<p>优先考虑freshness敏感的 asset 类别。</p>
+<h3 id="embedding-generation">Embedding Generation</h3>
+<p>embedding 生成</p>
+<p>Embedding pipeline modes: embedding 管道 schema：</p>
+<ul><li>Online query encoding: encode the user's text/image query.</li></ul>
+<p>onlinequery 编码：对用户的文本/图像 query 进行编码。</p>
+<ul><li>Nearline asset embedding: embed new or updated assets quickly.</li></ul>
+<p>nearlineassetembedding：快速 embedding 新的或更新的 asset。</p>
+<ul><li>Batch backfill: re-embed a large corpus after model upgrade.</li></ul>
+<p>批量回填：模型升级后重新 embedding 大型语料库。</p>
+<p>Implementation decisions: 实施决策：</p>
+<ul><li>Use deterministic embedding keys.</li></ul>
+<p>使用确定性 embedding 键。</p>
+<ul><li>Store model version and preprocessing version.</li></ul>
+<p>存储模型版本和预处理版本。</p>
+<ul><li>Normalize vectors before indexing if cosine/IP similarity requires it.</li></ul>
+<p>如果余弦/IP similarity需要，请在 index 之前对向量进行归一化。</p>
+<ul><li>Use batch inference for throughput.</li></ul>
+<p>使用批量推理来提高 throughput。</p>
+<ul><li>Keep query encoder and index encoder compatible.</li></ul>
+<p>保持 query 编码器和 index 编码器兼容。</p>
+<p>Model versioning: 模型版本控制：</p>
+<pre><code class="language-text">embedding_version = model_name + model_version + preprocessing_version + projection_version</code></pre>
+<p>Backfill strategy: 回填策略：</p>
+<ol><li>Create new embedding version.</li></ol>
+<p>创建新的 embedding 版本。</p>
+<ol><li>Backfill to shadow vector collection.</li></ol>
+<p>回填到shadow向量集合。</p>
+<ol><li>Validate recall and latency.</li></ol>
+<p>验证recall率和 latency。</p>
+<ol><li>Dual-read or canary a small traffic percentage.</li></ol>
+<p>双读或 canarytraffic百分比较小。</p>
+<ol><li>Swap active index pointer.</li></ol>
+<p>交换活动 index 指针。</p>
+<ol><li>Keep previous index for rollback.</li></ol>
+<p>保留先前的 index 以进行 rollback。</p>
+<h3 id="vector-index-implementation">Vector Index Implementation</h3>
+<p>向量 index 实现</p>
+<p>Milvus collection design: Milvus 系列设计：</p>
+<ul><li>Partition by product, tenant, or asset type when it improves filtering.</li></ul>
+<p>在改进过滤时按产品、tenant 或 asset 类型进行分区。</p>
+<ul><li>Include metadata fields needed for pre-filtering.</li></ul>
+<p>包括预过滤所需的元数据字段。</p>
+<ul><li>Use IVF/PQ/HNSW depending on memory, latency, and recall needs.</li></ul>
+<p>根据内存、latency 和回忆需求使用 IVF/PQ/HNSW。</p>
+<ul><li>Keep separate collections for major embedding versions.</li></ul>
+<p>为主要 embedding 版本保留单独的集合。</p>
+<p>Search flow: 搜索流程：</p>
+<pre><code class="language-text">query embedding
+  -&gt; choose active vector collection
+  -&gt; apply tenant/license/product filters where possible
+  -&gt; ANN search top K
+  -&gt; return asset IDs + vector scores + debug metadata</code></pre>
+<p>Scaling considerations: 扩展考虑因素：</p>
+<ul><li>Increase shards/partitions when collection size grows.</li></ul>
+<p>当集合大小增加时增加分片/分区。</p>
+<ul><li>Tune <code>nprobe</code> or equivalent search parameter by latency class.</li></ul>
+<p>按 latency 类别调整“nprobe”或等效搜索参数。</p>
+<ul><li>Cache hot query vectors or hot result sets when repetition exists.</li></ul>
+<p>当存在重复时缓存热 query 向量或热结果集。</p>
+<ul><li>Measure recall using labeled or mined query-asset pairs.</li></ul>
+<p>使用标记或挖掘的 queryasset 对来衡量recall率。</p>
+<p>Failure handling: 故障处理：</p>
+<ul><li>If vector DB times out, return lexical results plus cached semantic results if available.</li></ul>
+<p>如果向量 DB 超时，则返回词法结果以及缓存的语义结果（如果可用）。</p>
+<ul><li>If one shard fails, degrade by returning partial candidates only if product policy allows.</li></ul>
+<p>如果一个分片失败，只有在产品 policy允许的情况下，才会通过返回部分 candidate 分片来降级。</p>
+<ul><li>Alert on recall regression after index changes.</li></ul>
+<p>index 更改后recall回归警报。</p>
+<h3 id="lexical-index-implementation">Lexical Index Implementation</h3>
+<p>lexical index 的实现</p>
+<p>Elasticsearch index design: Elasticsearchindex 设计：</p>
+<ul><li>Text fields: title, description, extracted text.</li></ul>
+<p>文本字段：标题、描述、提取的文本。</p>
+<ul><li>Keyword fields: tags, asset type, license, orientation, tenant, product source.</li></ul>
+<p>关键字字段：标签、asset 类型、license、方向、tenant、产品来源。</p>
+<ul><li>Numeric fields: quality, freshness, popularity.</li></ul>
+<p>数字字段：质量、freshness、受欢迎程度。</p>
+<ul><li>Date fields: created/updated timestamps.</li></ul>
+<p>日期字段：创建/更新的时间戳。</p>
+<p>Search flow: 搜索流程：</p>
+<pre><code class="language-text">parsed query
+  -&gt; build text query
+  -&gt; apply hard filters
+  -&gt; apply boosts for title/tags/style labels
+  -&gt; return asset IDs + lexical scores + matched fields</code></pre>
+<p>Tuning considerations: 调整注意事项：</p>
+<ul><li>Analyzer choice affects recall and precision.</li></ul>
+<p>分析仪的选择会影响recall率和precision度。</p>
+<ul><li>Too many shards increase overhead; too few limit parallelism.</li></ul>
+<p>太多的分片会增加开销；太少会限制并行性。</p>
+<ul><li>Filter caches help repeated structured filters.</li></ul>
+<p>过滤器缓存有助于重复的结构化过滤器。</p>
+<ul><li>Use aliases for atomic index rollout.</li></ul>
+<p>使用alias进行原子 index 部署。</p>
+<p>Failure handling: 故障处理：</p>
+<ul><li>If lexical search degrades, rely on vector retrieval plus metadata filters.</li></ul>
+<p>如果词汇搜索性能下降，请依靠向量 retrieval 和元数据过滤器。</p>
+<ul><li>If metadata is stale, fail closed for license and moderation.</li></ul>
+<p>如果元数据已过时，则许可和moderation将失败。</p>
+<h3 id="query-api">Query API</h3>
+<p>query 接口</p>
+<p>Request contract: 请求合同：</p>
+<pre><code class="language-json">{
+  "request_id": "req_123",
+  "user_id": "user_456",
+  "product": "creative_tool",
+  "query": {
+    "text": "minimal blue poster background",
+    "image_ref": null,
+    "mode": "text"
+  },
+  "filters": {
+    "asset_type": ["image", "template"],
+    "license": ["standard"],
+    "orientation": ["portrait"]
+  },
+  "pagination": {
+    "limit": 40,
+    "cursor": null
+  },
+  "context": {
+    "locale": "en-US",
+    "surface": "search"
+  }
+}</code></pre>
+<p>Response contract: 响应合约：</p>
+<pre><code class="language-json">{
+  "request_id": "req_123",
+  "results": [
+    {
+      "asset_id": "asset_1",
+      "score": 0.93,
+      "reason_codes": ["semantic_match", "style_match"],
+      "thumbnail_url": "https://...",
+      "metadata": {
+        "title": "Blue minimal poster",
+        "asset_type": "template"
+      }
+    }
+  ],
+  "next_cursor": "cursor_abc",
+  "debug_id": "dbg_123"
+}</code></pre>
+<p>Implementation flow: 实施流程：</p>
+<pre><code class="language-text">receive request
+  -&gt; validate filters and product constraints
+  -&gt; parse query and extract structured constraints
+  -&gt; encode text/image query
+  -&gt; launch vector and lexical retrieval in parallel
+  -&gt; merge candidates
+  -&gt; apply hard policy filters
+  -&gt; fetch features
+  -&gt; rank
+  -&gt; diversify if discovery surface
+  -&gt; log search event
+  -&gt; return results</code></pre>
+<h3 id="candidate-generation">Candidate Generation</h3>
+<p>candidate 一代</p>
+<p>Candidate sources: candidate 来源：</p>
+<ul><li>Vector candidates from Milvus.</li></ul>
+<p>来自 Milvus 的向量 candidate 者。</p>
+<ul><li>Lexical candidates from Elasticsearch.</li></ul>
+<p>来自 Elasticsearch 的词汇 candidate 者。</p>
+<ul><li>Similarity candidates from item-item neighbors.</li></ul>
+<p>来自项目-项目邻居的相似 candidate 者。</p>
+<ul><li>Graph candidates from co-click/co-save.</li></ul>
+<p>通过共同点击/共同保存绘制 candidate 图表。</p>
+<ul><li>Cluster candidates from style or topic clusters.</li></ul>
+<p>对来自风格或主题集群的 candidate 者进行聚类。</p>
+<ul><li>Fresh/trending candidates for discovery.</li></ul>
+<p>可供discovery的新鲜/趋势 candidate 者。</p>
+<p>Fusion methods: 融合方法：</p>
+<ul><li>Weighted score merge.</li></ul>
+<p>加权分数合并。</p>
+<ul><li>Reciprocal rank fusion.</li></ul>
+<p>相互等级融合。</p>
+<ul><li>Query-dependent source weights.</li></ul>
+<p>依赖于 query 的源权重。</p>
+<ul><li>Hard union followed by learned ranker.</li></ul>
+<p>硬联合之后是有学问的 ranking 者。</p>
+<p>Practical approach: 实用方法：</p>
+<ul><li>Start with vector + lexical union.</li></ul>
+<p>从向量+词法并集开始。</p>
+<ul><li>Deduplicate by asset ID.</li></ul>
+<p>按 asset ID 进行重复数据删除。</p>
+<ul><li>Keep source scores and ranks as ranking features.</li></ul>
+<p>保留源分数和 ranking 作为 rankingfeature。</p>
+<ul><li>Limit total candidates before feature join.</li></ul>
+<p>在功能加入之前限制 candidate 者总数。</p>
+<h3 id="ranking-implementation">Ranking Implementation</h3>
+<p>ranking 实施</p>
+<p>Two-stage ranking is usually safer: 两阶段 ranking 通常更安全：</p>
+<ol><li>Lightweight ranker over hundreds/thousands of candidates.</li></ol>
+<p>超过数百/数千名 candidate 的轻量级 ranking。</p>
+<ol><li>Heavier ranker over top N candidates if latency allows.</li></ol>
+<p>如果 latency 允许，ranking 比前 N 个 candidate 者更重。</p>
+<p>Feature families: 功能系列：</p>
+<ul><li>Query features: text length, language, modality, filters.</li></ul>
+<p>queryfeature：文本长度、语言、模态、过滤器。</p>
+<ul><li>Candidate features: quality, freshness, popularity, type.</li></ul>
+<p>candidatefeature：质量、freshness、流行度、类型。</p>
+<ul><li>Retrieval features: vector score/rank, lexical score/rank, source count.</li></ul>
+<p>retrievalfeature：向量得分/ranking、词汇得分/ranking、来源计数。</p>
+<ul><li>Cross features: style match, color match, category match.</li></ul>
+<p>交叉 feature：风格搭配、色彩搭配、品类搭配。</p>
+<ul><li>Policy features: license, moderation, tenant visibility.</li></ul>
+<p>policy feature：license、moderation、tenant 可见性。</p>
+<ul><li>Discovery features: novelty, diversity, long-tail score.</li></ul>
+<p>discoveryfeature：新颖性、diversity、长尾分数。</p>
+<p>Latency controls: latency 控制：</p>
+<ul><li>Bound candidate count.</li></ul>
+<p>绑定 candidate 数。</p>
+<ul><li>Cache static features.</li></ul>
+<p>缓存静态 feature。</p>
+<ul><li>Use default values for missing non-critical features.</li></ul>
+<p>对于缺少的非关键功能使用默认值。</p>
+<ul><li>Skip heavy reranker under high load.</li></ul>
+<p>在高负载下跳过 reranking 序。</p>
+<ul><li>Log feature null rates.</li></ul>
+<p>记录 feature 空率。</p>
+<h3 id="discovery-implementation">Discovery Implementation</h3>
+<p>discovery实施</p>
+<p>Discovery flow: discovery流程：</p>
+<pre><code class="language-text">seed asset or session context
+  -&gt; visual neighbors
+  -&gt; semantic neighbors
+  -&gt; graph candidates
+  -&gt; cluster candidates
+  -&gt; trending/long-tail candidates
+  -&gt; merge
+  -&gt; rank with relevance + diversity + novelty
+  -&gt; return feed/rail</code></pre>
+<p>Discovery-specific concerns: 特定于discovery的问题：</p>
+<ul><li>Avoid near-duplicates.</li></ul>
+<p>避免接近重复。</p>
+<ul><li>Avoid popularity collapse.</li></ul>
+<p>避免人气崩溃。</p>
+<ul><li>Keep enough relevance to preserve trust.</li></ul>
+<p>保持足够的相关性以保持信任。</p>
+<ul><li>Track long-tail coverage and repeat engagement.</li></ul>
+<p>trace 长尾覆盖率和重复参与度。</p>
+<ul><li>Use session context when available.</li></ul>
+<p>如果可用，请使用session上下文。</p>
+<h3 id="index-publishing-and-rollback">Index Publishing and Rollback</h3>
+<p>index 发布与 rollback</p>
+<p>Index publishing needs a consistent pointer model: index 发布需要一致的指针模型：</p>
+<pre><code class="language-text">active_search_index:
+  vector_collection = creative_embedding_v3_2026_04_28
+  lexical_alias = creative_lexical_2026_04_28
+  embedding_version = embedding_v3
+  ranker_version = ranker_v5</code></pre>
+<p>Publish flow: 发布流程：</p>
+<ol><li>Build candidate vector collection.</li></ol>
+<p>构建 candidate 向量集合。</p>
+<ol><li>Build candidate lexical index.</li></ol>
+<p>建立 candidate lexical index。</p>
+<ol><li>Validate counts and sample queries.</li></ol>
+<p>验证计数和示例 query。</p>
+<ol><li>Run offline relevance eval.</li></ol>
+<p>运行 offline 相关性 evaluation。</p>
+<ol><li>Run latency benchmark.</li></ol>
+<p>运行 latency 基准。</p>
+<ol><li>Warm caches.</li></ol>
+<p>热缓存。</p>
+<ol><li>Swap read alias/pointer.</li></ol>
+<p>交换读取alias/指针。</p>
+<ol><li>Monitor zero-result rate, latency, CTR, and errors.</li></ol>
+<p>监控零结果率、latency、点击率和错误。</p>
+<ol><li>Roll back pointer if needed.</li></ol>
+<p>如果需要，rollback 指针。</p>
+<h3 id="evaluation-implementation">Evaluation Implementation</h3>
+<p>evaluation 实施</p>
+<p>Offline metrics: offlinemetrics：</p>
+<ul><li>Recall@100/500.</li></ul>
+<p>回忆@100/500。</p>
+<ul><li>NDCG@10.</li></ul>
+<p>NDCG@10。</p>
+<ul><li>MRR.</li></ul>
+<p>MRR。</p>
+<ul><li>Duplicate rate.</li></ul>
+<p>重复率。</p>
+<ul><li>Filter compliance.</li></ul>
+<p>过滤器合规性。</p>
+<ul><li>Embedding drift.</li></ul>
+<p>embedding 漂移。</p>
+<ul><li>Long-tail coverage.</li></ul>
+<p>长尾覆盖。</p>
+<p>Online metrics: online metrics：</p>
+<ul><li>CTR.</li></ul>
+<p>点击率。</p>
+<ul><li>Save/download rate.</li></ul>
+<p>保存/下载率。</p>
+<ul><li>Query reformulation rate.</li></ul>
+<p>query 重构率。</p>
+<ul><li>Zero-result rate.</li></ul>
+<p>零结果率。</p>
+<ul><li>Time to first useful result.</li></ul>
+<p>获得第一个有用结果的时间。</p>
+<ul><li>p95 latency.</li></ul>
+<p>p95 潜伏期。</p>
+<ul><li>Abandonment rate.</li></ul>
+<p>放弃率。</p>
+<p>Evaluation datasets: evaluation 数据集：</p>
+<ul><li>Human-labeled query-result pairs.</li></ul>
+<p>人工标记的 query 结果对。</p>
+<ul><li>Click/save/download logs with debiasing.</li></ul>
+<p>单击/保存/下载带去偏的logs。</p>
+<ul><li>Query reformulation pairs.</li></ul>
+<p>query 重构对。</p>
+<ul><li>Similarity pairs from user actions.</li></ul>
+<p>来自用户操作的相似对。</p>
+<ul><li>Hard negatives from visually similar but semantically wrong assets.</li></ul>
+<p>视觉上相似但语义上错误的 asset 带来的硬底片。</p>
+<p>Important caveat: 重要警告：</p>
+<ul><li>Clicks are useful but biased by ranking position, thumbnail attractiveness, and UI.</li></ul>
+<p>点击很有用，但会因 ranking 位置、缩略图吸引力和用户界面而产生偏差。</p>
+<ul><li>Use online A/B tests to confirm offline improvements.</li></ul>
+<p>使用 online A/B 测试来确认 offline 改进。</p>
+<h3 id="debugging-implementation">Debugging Implementation</h3>
+<p>调试实施</p>
+<p>Debug data to store per request: 每个请求存储的调试数据：</p>
+<ul><li>Parsed query.</li></ul>
+<p>已解析的 query。</p>
+<ul><li>Extracted filters.</li></ul>
+<p>提取的过滤器。</p>
+<ul><li>Query embedding version.</li></ul>
+<p>queryembedding 版本。</p>
+<ul><li>Active index version.</li></ul>
+<p>活动 index 版本。</p>
+<ul><li>Candidate source counts.</li></ul>
+<p>candidate 来源很重要。</p>
+<ul><li>Source latency breakdown.</li></ul>
+<p>源 latency 细分。</p>
+<ul><li>Top candidate features.</li></ul>
+<p>最佳 candidatefeature。</p>
+<ul><li>Ranker version.</li></ul>
+<p>ranking 者版本。</p>
+<ul><li>Experiment assignment.</li></ul>
+<p>experiment作业。</p>
+<ul><li>Policy filters applied.</li></ul>
+<p>应用策略过滤器。</p>
+<ul><li>Final ranked IDs.</li></ul>
+<p>最终 ranking 的ID。</p>
+<p>Why this matters: 为什么这很重要：</p>
+<ul><li>Relevance bugs cannot be debugged from aggregate metrics alone.</li></ul>
+<p>无法仅通过聚合 metrics 来调试相关性错误。</p>
+<ul><li>You need per-request traceability to explain why an asset ranked or disappeared.</li></ul>
+<p>您需要每个请求的可追溯性来解释 assetranking 或消失的原因。</p>
+<h3 id="search-runtime-cache-feature-store-and-failure-logic">Search Runtime Cache, Feature Store, and Failure Logic</h3>
+<p>搜索运行时缓存、feature 存储和故障逻辑</p>
+<p>This section connects the search project to the platform-infra tech stack: Redis, feature serving, circuit breakers, and graceful degradation. 本部分将搜索项目连接到平台基础设施技术堆栈：Redis、feature service、circuit breaker和优雅降级。</p>
+<p>Redis/cache usage: Redis/缓存使用：</p>
+<ul><li>Query-result cache for very common anonymous queries with short TTL.</li></ul>
+<p>用于非常常见的具有短 TTL 的匿名 query 的 query 结果缓存。</p>
+<ul><li>Embedding cache for repeated text queries and repeated reference-image hashes.</li></ul>
+<p>embedding 用于重复文本 query 和重复参考图像哈希的缓存。</p>
+<ul><li>Feature cache for asset quality/popularity/freshness features.</li></ul>
+<p>asset 质量/流行度/freshnessfeature 的 feature 缓存。</p>
+<ul><li>Deduplication keys for ingestion events and indexing retries.</li></ul>
+<p>用于ingestion事件和 index 重试的重复数据删除键。</p>
+<ul><li>Distributed locks only for short critical sections such as index alias swaps.</li></ul>
+<p>分布式锁仅适用于短关键部分，例如 indexalias交换。</p>
+<pre><code class="language-python">async def get_query_embedding(query_text: str, encoder_version: str, cache):
+    key = f"qemb:{encoder_version}:{stable_hash(query_text)}"
+    cached = await cache.get(key)
+    if cached:
+        return decode_vector(cached), {"cache_hit": True}
+
+    vector = await text_encoder.embed(query_text)
+    await cache.set(key, encode_vector(vector), ex=3600)
+    return vector, {"cache_hit": False}</code></pre>
+<p>Feature serving logic: feature service逻辑：</p>
+<pre><code class="language-python">async def join_ranking_features(asset_ids, user_context, feature_store, cache):
+    cached = await cache.mget([f"asset_features:{a}" for a in asset_ids])
+    missing = [asset_id for asset_id, value in zip(asset_ids, cached) if value is None]
+
+    fresh = {}
+    if missing:
+        fresh = await feature_store.batch_get(
+            keys=missing,
+            features=["quality_score", "freshness_score", "license_score", "popularity_7d", "style_cluster"],
+        )
+        for asset_id, values in fresh.items():
+            await cache.set(f"asset_features:{asset_id}", json.dumps(values), ex=300)
+
+    return merge_cached_and_fresh(asset_ids, cached, fresh, user_context)</code></pre>
+<p>Graceful degradation: 优雅降级：</p>
+<pre><code class="language-python">async def search_with_degradation(query, ctx):
+    vector_task = asyncio.create_task(vector_retrieve(query, ctx))
+    lexical_task = asyncio.create_task(lexical_retrieve(query, ctx))
+    graph_task = asyncio.create_task(graph_retrieve(query, ctx))
+
+    done, pending = await asyncio.wait(
+        [vector_task, lexical_task, graph_task],
+        timeout=ctx.latency_budget_ms / 1000,
+        return_when=asyncio.ALL_COMPLETED,
+    )
+
+    for task in pending:
+        task.cancel()
+
+    candidates = merge_successful_sources(done)
+    if not candidates:
+        candidates = await lexical_fallback(query, ctx)
+
+    rerank_depth = 200 if ctx.remaining_budget_ms &gt; 80 else 50
+    features = await join_ranking_features(candidates[:rerank_depth], ctx.user_context, feature_store, cache)
+    return rank(candidates, features, ctx)</code></pre>
+<p>Failure logic: 失败逻辑：</p>
+<ul><li>If Milvus is slow, reduce vector top-k or return lexical plus cached semantic candidates.</li></ul>
+<p>如果 Milvus 很慢，请减少向量 top-k 或返回词汇加上缓存的语义 candidate 者。</p>
+<ul><li>If Elasticsearch is slow, keep vector candidates but enforce required filters using metadata service.</li></ul>
+<p>如果 Elasticsearch 速度慢，请保留向量 candidate，但使用元数据服务强制执行所需的过滤器。</p>
+<ul><li>If feature service is slow, use cached/default features and reduce rerank depth.</li></ul>
+<p>如果要素服务很慢，请使用缓存/默认要素并减少重新 ranking 深度。</p>
+<ul><li>If ranker is slow, use lightweight ranker or retrieval score fusion.</li></ul>
+<p>如果 ranking 器很慢，请使用轻量级 ranking 器或 retrieval 分数融合。</p>
+<ul><li>If index freshness lags, expose freshness metrics and prioritize high-value asset types in Kafka/Flink.</li></ul>
+<p>如果 index freshness滞后，请公开freshnessmetrics 并优先考虑 Kafka/Flink 中的高价值 asset 类型。</p>
+<h3 id="kafka-flink-operational-logic-for-index-freshness">Kafka/Flink Operational Logic for Index Freshness</h3>
+<p>Kafka/Flink index freshness操作逻辑</p>
+<p>The implementation detail that matters in interviews is not just "we used Kafka and Flink." It is how the stream preserves asset identity, absorbs backpressure, and avoids corrupting indexes. 面试中重要的实现细节不仅仅是“我们使用了 Kafka 和 Flink”。这就是流如何保留 asset 身份、吸收backpressure并避免损坏 index 的方式。</p>
+<p>Kafka partitioning: Kafka分区：</p>
+<pre><code class="language-python">def partition_key(event):
+    return f"{event.tenant_id}:{event.asset_id}"</code></pre>
+<p>Reasons: 理由：</p>
+<ul><li>All updates for the same asset preserve order within a partition.</li></ul>
+<p>同一 asset 的所有更新都保留分区内的顺序。</p>
+<ul><li>Different asset IDs can process independently.</li></ul>
+<p>不同的 assetID可以独立处理。</p>
+<ul><li>Hot tenants can be isolated with tenant-aware partitioning.</li></ul>
+<p>可以通过 tenant 感知分区来隔离热 tenant。</p>
+<ul><li>Delete/update races are easier to reason about because each event carries <code>asset_version</code>.</li></ul>
+<p>删除/更新竞赛更容易推理，因为每个事件都带有“asset_version”。</p>
+<p>Flink checkpoint and idempotent sink logic: Flinkcheckpoint 和idempotentsink逻辑：</p>
+<pre><code class="language-python">def should_apply_event(event, current_index_record):
+    if current_index_record is None:
+        return True
+    if event.asset_version &lt;= current_index_record.asset_version:
+        return False
+    return True
+
+
+def build_index_writes(normalized_event):
+    return {
+        "metadata_doc": build_elasticsearch_doc(normalized_event),
+        "vector_records": build_milvus_vectors(normalized_event),
+        "feature_records": build_feature_records(normalized_event),
+    }</code></pre>
+<p>Freshness SLO metrics: freshness SLO metrics：</p>
+<pre><code class="language-text">search_ingestion_kafka_lag{tenant,modality,topic}
+search_flink_checkpoint_age_seconds{job}
+search_asset_freshness_lag_seconds{tenant,modality}
+search_index_publish_duration_seconds{index_type}
+search_index_validation_failures_total{index_type,reason}</code></pre>
+<p>Dead-letter handling: dead-letter处理：</p>
+<ul><li>Schema errors go to a DLQ with event ID, asset ID, version, and validation error.</li></ul>
+<p>架构错误将转入 DLQ，其中包含事件 ID、asset ID、版本和验证错误。</p>
+<ul><li>Transient model-serving errors retry with exponential backoff.</li></ul>
+<p>瞬态模型服务错误使用指数退避重试。</p>
+<ul><li>Poison assets are quarantined by asset/version so they do not block the partition forever.</li></ul>
+<p>有毒 asset 按 asset/版本隔离，因此它们不会永远阻塞分区。</p>
+<ul><li>Backfills read from durable object storage or asset metadata, not from the DLQ alone.</li></ul>
+<p>回填从持久 object storage 或 asset 元数据中读取，而不是单独从 DLQ 中读取。</p>
+<h3 id="model-embedding-and-index-version-compatibility">Model, Embedding, and Index Version Compatibility</h3>
+<p>模型、embedding 和 index 版本兼容性</p>
+<p>Embedding and index versions are coupled. A new encoder cannot safely serve against an old vector index unless compatibility has been measured. embedding 和 index 版本是耦合的。除非测量了兼容性，否则新编码器无法安全地针对旧向量 index 提供服务。</p>
+<pre><code class="language-json">{
+  "embedding_family": "creative_clip",
+  "query_encoder_version": "qenc_2026_04_15",
+  "asset_encoder_version": "aenc_2026_04_15",
+  "vector_index_version": "milvus_assets_2026_04_29",
+  "ranker_version": "ranker_v18",
+  "compatible_modalities": ["image", "video_keyframe", "document_thumbnail"],
+  "distance_metric": "cosine",
+  "dimension": 768,
+  "status": "active"
+}</code></pre>
+<p>Compatibility checks: 兼容性检查：</p>
+<ul><li>Vector dimension and distance metric match.</li></ul>
+<p>向量维度和距离度量匹配。</p>
+<ul><li>Query and asset encoders were trained/aligned together.</li></ul>
+<p>query 和 asset 编码器一起训练/对齐。</p>
+<ul><li>Offline recall does not regress for key query classes.</li></ul>
+<p>offlinerecall不会对关键 query 类进行回归。</p>
+<ul><li>Online shadow queries show stable candidate overlap.</li></ul>
+<p>online 影子 query 显示稳定的 candidate 重叠。</p>
+<ul><li>Metadata filters and ACL behavior are unchanged.</li></ul>
+<p>元数据过滤器和 ACL 行为保持不变。</p>
+<ul><li>Index alias swap is atomic and rollback keeps the previous index warm.</li></ul>
+<p>indexalias交换是原子性的，rollback 可以使先前的 index 保持温暖。</p>
+<h3 id="production-hardening-checklist">Production Hardening Checklist</h3>
+<p>生产强化清单</p>
+<p>Reliability: 可靠性：</p>
+<ul><li>Idempotent ingestion.</li></ul>
+<p>idempotentingestion。</p>
+<ul><li>Reprocessable embedding jobs.</li></ul>
+<p>可再加工的 embedding 作业。</p>
+<ul><li>Index version rollback.</li></ul>
+<p>index 版本 rollback。</p>
+<ul><li>Dead-letter queues.</li></ul>
+<p>dead-letter队列。</p>
+<ul><li>Partial retrieval fallback.</li></ul>
+<p>部分 retrievalfallback。</p>
+<ul><li>Policy fail-closed behavior.</li></ul>
+<p>策略失败关闭行为。</p>
+<p>Performance: 表现：</p>
+<ul><li>Parallel candidate generation.</li></ul>
+<p>并行 candidate 生成。</p>
+<ul><li>Bounded retrieval timeouts.</li></ul>
+<p>有界 retrieval 超时。</p>
+<ul><li>Feature cache.</li></ul>
+<p>功能缓存。</p>
+<ul><li>Two-stage ranking.</li></ul>
+<p>两阶段 ranking。</p>
+<ul><li>ANN tuning by query class.</li></ul>
+<p>按 query 类别调整 ANN。</p>
+<ul><li>Separate online and batch capacity.</li></ul>
+<p>独立的 online 和批量容量。</p>
+<p>Scalability: 可扩展性：</p>
+<ul><li>Shard vector and lexical indexes.</li></ul>
+<p>分片向量和lexical index。</p>
+<ul><li>Partition Kafka topics by asset ID.</li></ul>
+<p>按 asset ID 对 Kafka 主题进行分区。</p>
+<ul><li>Isolate slow modality pipelines.</li></ul>
+<p>隔离慢模态管道。</p>
+<ul><li>Batch embedding generation.</li></ul>
+<p>批量 embedding 生成。</p>
+<ul><li>Use tiered storage for cold assets.</li></ul>
+<p>对冷 asset 使用分层存储。</p>
+<p>Observability: 可观测性：</p>
+<ul><li>Query latency breakdown.</li></ul>
+<p>querylatency 细分。</p>
+<ul><li>Candidate count by source.</li></ul>
+<p>按来源统计 candidate 数量。</p>
+<ul><li>Feature null rate.</li></ul>
+<p>feature 空率。</p>
+<ul><li>Index freshness lag.</li></ul>
+<p>index freshness滞后。</p>
+<ul><li>Zero-result rate.</li></ul>
+<p>零结果率。</p>
+<ul><li>CTR and save/download metrics.</li></ul>
+<p>点击率和保存/下载 metrics。</p>
+<ul><li>Recall/regression dashboards.</li></ul>
+<p>recall/回归 dashboard。</p>
+<h3 id="end-to-end-example-text-search">End-to-End Example: Text Search</h3>
+<p>端到端示例：文本搜索</p>
+<p>Flow: 流动：</p>
+<ol><li>User searches "minimal blue poster background."</li></ol>
+<p>用户搜索“最小的蓝色海报背景”。</p>
+<ol><li>Query API validates filters.</li></ol>
+<p>query API 验证过滤器。</p>
+<ol><li>Query understanding extracts style terms and structured filters.</li></ol>
+<p>query 理解提取样式术语和结构化过滤器。</p>
+<ol><li>Text encoder creates query embedding.</li></ol>
+<p>文本编码器创建 queryembedding。</p>
+<ol><li>Vector service retrieves semantic/style candidates.</li></ol>
+<p>向量服务 retrieval 语义/风格 candidate 者。</p>
+<ol><li>Lexical service retrieves exact keyword candidates.</li></ol>
+<p>词汇服务 retrieval 准确的 candidate 关键字。</p>
+<ol><li>Candidate merger deduplicates and applies hard filters.</li></ol>
+<p>candidate 合并会删除重复数据并应用硬过滤器。</p>
+<ol><li>Feature service joins quality, freshness, popularity, and style features.</li></ol>
+<p>特色服务结合了质量、freshness、流行度和风格 feature。</p>
+<ol><li>Ranker scores candidates.</li></ol>
+<p>ranking 器对 candidate 进行评分。</p>
+<ol><li>Results API returns top 40.</li></ol>
+<p>结果 API 返回前 40 名。</p>
+<ol><li>Search event logs candidates, ranks, latency, and experiment.</li></ol>
+<p>搜索事件记录 candidate 者、ranking、latency 和experiment。</p>
+<h3 id="end-to-end-example-search-by-image">End-to-End Example: Search By Image</h3>
+<p>端到端示例：按图像搜索</p>
+<p>Flow: 流动：</p>
+<ol><li>User submits reference image.</li></ol>
+<p>用户提交参考图像。</p>
+<ol><li>Client SDK may resize or compute local representation.</li></ol>
+<p>客户端 SDK 可以调整大小或计算本地表示。</p>
+<ol><li>Query API receives image reference or compact embedding.</li></ol>
+<p>query API 接收图像引用或紧凑 embedding。</p>
+<ol><li>Image encoder creates query vector if needed.</li></ol>
+<p>如果需要，图像编码器会创建 query 向量。</p>
+<ol><li>Vector service retrieves visually and semantically similar assets.</li></ol>
+<p>向量服务 retrieval 视觉上和语义上相似的 asset。</p>
+<ol><li>Optional lexical/metadata filters apply.</li></ol>
+<p>可选的词汇/元数据过滤器适用。</p>
+<ol><li>Ranker balances similarity, quality, license, and diversity.</li></ol>
+<p>Ranker 平衡了similarity、质量、许可和diversity。</p>
+<ol><li>Results are returned with reason codes.</li></ol>
+<p>结果与原因代码一起返回。</p>
+<h3 id="end-to-end-example-discovery-rail">End-to-End Example: Discovery Rail</h3>
+<p>端到端示例：Discovery Rail</p>
+<p>Flow: 流动：</p>
+<ol><li>User views or saves an asset.</li></ol>
+<p>用户查看或保存 asset。</p>
+<ol><li>Discovery service uses asset ID and session context as seed.</li></ol>
+<p>discovery服务使用 asset ID 和session上下文作为种子。</p>
+<ol><li>Candidate sources retrieve visual neighbors, semantic neighbors, co-engagement graph items, and style cluster items.</li></ol>
+<p>candidate 源 retrieval 视觉邻居、语义邻居、共同参与图项目和样式集群项目。</p>
+<ol><li>Candidate merger removes duplicates and policy-invalid assets.</li></ol>
+<p>candidate 合并删除重复 asset 和policy无效 asset。</p>
+<ol><li>Ranker balances relevance, diversity, novelty, and long-tail coverage.</li></ol>
+<p>Ranker 平衡了相关性、diversity、新颖性和长尾覆盖范围。</p>
+<ol><li>Discovery rail returns related assets.</li></ol>
+<p>Discovery铁路返还相关 asset。</p>
+<ol><li>Engagement logs update graph and evaluation metrics.</li></ol>
+<p>参与logs更新图表和 evaluationmetrics。</p>
+<h3 id="interview-drill-small-part-questions">Interview Drill: Small-Part Questions</h3>
+<p>面试练习：小问题</p>
+<p>If asked "How do you prevent vector and lexical indexes from being inconsistent?": 如果问“如何防止向量和lexical index 不一致？”：</p>
+<ul><li>Use index version registry.</li></ul>
+<p>使用 index 版本 registry。</p>
+<ul><li>Build candidate indexes separately.</li></ul>
+<p>单独构建 candidateindex。</p>
+<ul><li>Validate counts and sample queries.</li></ul>
+<p>验证计数和示例 query。</p>
+<ul><li>Atomically swap active pointers/aliases.</li></ul>
+<p>原子地交换活动指针/alias。</p>
+<ul><li>Keep previous index for rollback.</li></ul>
+<p>保留先前的 index 以进行 rollback。</p>
+<p>If asked "How do you handle new assets quickly?": 如果被问到“你如何快速处理新 asset？”：</p>
+<ul><li>Use nearline updates for fresh assets.</li></ul>
+<p>对新 asset 使用 nearline 更新。</p>
+<ul><li>Run periodic full rebuilds for compaction.</li></ul>
+<p>定期运行完整重建以进行压缩。</p>
+<ul><li>Track freshness lag.</li></ul>
+<p>tracefreshness滞后。</p>
+<ul><li>Prioritize high-value asset types if backlog grows.</li></ul>
+<p>如果积压订单增加，优先考虑高价值 asset 类型。</p>
+<p>If asked "How do you tune vector retrieval?": 如果被问到“你如何调整向量 retrieval？”：</p>
+<ul><li>Measure recall and latency.</li></ul>
+<p>测量recall率和 latency。</p>
+<ul><li>Tune ANN parameters by query class.</li></ul>
+<p>按 query 类别调整 ANN 参数。</p>
+<ul><li>Use partitioning or metadata prefilters when effective.</li></ul>
+<p>在有效时使用分区或元数据预过滤器。</p>
+<ul><li>Keep reranking separate so retrieval can optimize recall.</li></ul>
+<p>保持单独的重新 ranking，以便 retrieval 可以优化recall率。</p>
+<p>If asked "How do you debug bad search results?": 如果被问到“如何调试错误的搜索结果？”：</p>
+<ul><li>Pull request debug trace.</li></ul>
+<p>拉取请求调试 trace。</p>
+<ul><li>Check query parse and filters.</li></ul>
+<p>检查 query 解析和过滤器。</p>
+<ul><li>Check candidate source counts.</li></ul>
+<p>检查 candidate 来源计数。</p>
+<ul><li>Compare vector vs lexical candidates.</li></ul>
+<p>比较向量与词汇 candidate 者。</p>
+<ul><li>Inspect feature values and ranker version.</li></ul>
+<p>检查 feature 值和 ranking 器版本。</p>
+<ul><li>Replay against previous index/ranker.</li></ul>
+<p>replay之前的 index/ranking。</p>
+<p>If asked "What happens if feature service is slow?": 如果被问到“如果要素服务很慢会发生什么？”：</p>
+<ul><li>Use cached/default features.</li></ul>
+<p>使用缓存/默认功能。</p>
+<ul><li>Reduce rerank depth.</li></ul>
+<p>减少 reranking 深度。</p>
+<ul><li>Skip non-critical features.</li></ul>
+<p>跳过非关键功能。</p>
+<ul><li>Return results from retrieval plus lightweight ranking.</li></ul>
+<p>返回 retrieval 结果加上轻量级 ranking。</p>
+<ul><li>Alert on feature latency and null-rate regression.</li></ul>
+<p>关于功能 latency 和空率回归的警报。</p></section></main></section></div><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script><script>const tabs=[...document.querySelectorAll('.top-tab')],panels=[...document.querySelectorAll('.panel')];function show(id){tabs.forEach(t=>t.classList.toggle('active',t.dataset.panel===id));panels.forEach(p=>p.classList.toggle('active',p.id===id));window.scrollTo({top:0,behavior:'smooth'});if(history.replaceState)history.replaceState(null,'','#'+id)}tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.panel)));const init=location.hash.slice(1);if(init&&document.getElementById(init))show(init);if(window.hljs)window.hljs.highlightAll();</script>
+
+</body></html>

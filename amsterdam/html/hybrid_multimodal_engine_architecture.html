@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>End-to-End Architecture: Context-Aware Hybrid Multimodal Engine</title><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" rel="stylesheet"/><style>:root{color-scheme:dark;--bg:#0b1020;--panel:#111827;--panel2:#0f172a;--text:#e6edf3;--muted:#9aa8bb;--border:#263348;--accent:#06b6d4;--code:#080d19;--soft:color-mix(in srgb,var(--accent) 14%,transparent)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 0%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.64}.page{width:min(1240px,calc(100vw - 28px));margin:0 auto;padding:12px 0 54px}.topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 14px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(135deg,rgba(17,24,39,.97),rgba(15,23,42,.92));position:sticky;top:0;z-index:20;box-shadow:0 12px 36px rgba(0,0,0,.3);backdrop-filter:blur(12px)}h1{margin:0;font-size:clamp(.98rem,1.6vw,1.22rem);line-height:1.2}.meta{color:var(--muted);font-size:.8rem}.badge{border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));background:var(--soft);color:var(--accent);border-radius:999px;padding:5px 9px;font-size:.78rem;white-space:nowrap}.top-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.top-tab{border:1px solid var(--border);background:rgba(17,24,39,.78);color:var(--muted);padding:8px 11px;border-radius:999px;font:inherit;font-size:.88rem;cursor:pointer}.top-tab:hover{color:var(--text);border-color:var(--accent)}.top-tab.active{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:760}.panel{display:none}.panel.active{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px}.side{position:sticky;top:86px;align-self:start;max-height:calc(100vh - 104px);overflow:auto;border:1px solid var(--border);border-radius:14px;background:rgba(17,24,39,.78);padding:10px}.side-title{font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800;margin:4px 6px 8px}.side a{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:start;color:var(--muted);text-decoration:none;padding:8px 6px;border-radius:9px;font-size:.88rem;line-height:1.25}.side a:hover{background:rgba(148,163,184,.1);color:var(--text)}.side span{color:var(--accent);font-weight:800}.content{min-width:0;border:1px solid var(--border);border-radius:16px;background:rgba(17,24,39,.84);box-shadow:0 14px 42px rgba(0,0,0,.24);padding:22px}.doc-section{padding:0 0 26px;margin:0 0 26px;border-bottom:1px solid var(--border)}.doc-section:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}.article h1,.article h2,.article h3,.article h4{line-height:1.25;margin:1.25em 0 .6em}.article h1:first-child,.article h2:first-child,.article h3:first-child{margin-top:0}.article h1{font-size:1.7rem}.article h2{font-size:1.35rem;border-bottom:1px solid var(--border);padding-bottom:.3rem}.article h3{font-size:1.13rem;color:#dbeafe}.article h4{font-size:1.02rem;color:#e9d5ff}.article p{margin:.72rem 0}.article ul,.article ol{padding-left:1.35rem}.article li{margin:.32rem 0}.article code{background:rgba(125,211,252,.12);color:#d8f3ff;padding:.12rem .34rem;border-radius:5px;font-family:"Cascadia Code",Consolas,monospace;font-size:.92em}pre{margin:1rem 0;border:1px solid #263348;border-radius:12px;background:var(--code);overflow:auto}pre code{display:block;background:transparent!important;color:#e6edf3;padding:18px;white-space:pre;line-height:1.55;font-size:.92rem}.table-scroll{overflow-x:auto;margin:1rem 0}.article table{width:100%;min-width:520px;border-collapse:collapse}.article th,.article td{border:1px solid var(--border);padding:9px 10px;vertical-align:top}.article th{background:rgba(148,163,184,.13);color:#dbeafe;text-align:left}.article tr:nth-child(even) td{background:rgba(15,23,42,.45)}blockquote{margin:1rem 0;padding:.5rem 1rem;border-left:4px solid var(--accent);background:var(--soft);color:#d5e7f5}img{max-width:100%;border-radius:10px;border:1px solid var(--border)}@media(max-width:900px){.page{width:min(100vw - 18px,1240px)}.topbar{position:static;grid-template-columns:1fr}.panel.active{grid-template-columns:1fr}.side{position:static;max-height:none}.content{padding:16px}}
+.side-toggle{width:34px;height:34px;display:grid;place-items:center;margin:0 0 10px;border:1px solid var(--border,var(--line,#263348));border-radius:10px;background:rgba(17,24,39,.78);color:var(--text,var(--ink,#e6edf3));cursor:pointer;font:900 15px/1 "Segoe UI",Arial,sans-serif}.side-toggle:hover{border-color:var(--accent,#78a6ff);background:var(--soft,rgba(120,166,255,.12))}body.toc-collapsed .panel.active{grid-template-columns:46px minmax(0,1fr)}body.toc-collapsed .side{width:46px;min-width:46px;padding:8px 6px;overflow:hidden}body.toc-collapsed .side>*:not(.side-toggle){display:none}body.toc-collapsed .side-toggle{margin:0 auto}.panel.active{transition:grid-template-columns .18s ease}.side{transition:width .18s ease,padding .18s ease}
+
+/* Layout cleanup: inner section navigation is a horizontal tab row, not a second left panel. */
+.panel.active{display:block!important;}
+.side{position:sticky!important;top:62px!important;z-index:10!important;height:auto!important;min-height:0!important;max-height:72px!important;overflow-x:auto!important;overflow-y:hidden!important;display:flex!important;gap:6px!important;align-items:center!important;margin:0 0 12px!important;padding:8px!important;width:auto!important;min-width:0!important;}
+.side-title{flex:0 0 auto!important;margin:0 8px 0 2px!important;white-space:nowrap!important;}
+.side a{display:inline-flex!important;grid-template-columns:none!important;gap:7px!important;align-items:center!important;white-space:nowrap!important;min-width:max-content!important;border-radius:999px!important;padding:7px 10px!important;}
+.side-toggle{display:none!important;}
+body.toc-collapsed .panel.active{display:block!important;}
+body.toc-collapsed .side{width:auto!important;min-width:0!important;padding:8px!important;overflow-x:auto!important;overflow-y:hidden!important;}
+body.toc-collapsed .side>*:not(.side-toggle){display:inherit!important;}
+
+</style></head><body class="toc-collapsed"><div class="page"><header class="topbar"><div><h1>End-to-End Architecture: Context-Aware Hybrid Multimodal Engine</h1><div class="meta">hybrid_multimodal_engine_architecture.md ? 8 top sections ? Hybrid engine</div></div></header><nav aria-label="Top sections" class="top-tabs"><button class="top-tab active" data-panel="panel-0" type="button">Opening</button>
+<button class="top-tab" data-panel="panel-1" type="button">High-Level Architecture Concept</button>
+<button class="top-tab" data-panel="panel-2" type="button">Modern System Component Diagram</button>
+<button class="top-tab" data-panel="panel-3" type="button">Workflow: End-to-End Execution Path</button>
+<button class="top-tab" data-panel="panel-4" type="button">Core Data Structures &amp; Logical Code</button>
+<button class="top-tab" data-panel="panel-5" type="button">Deep Dive into Specific Workflows</button>
+<button class="top-tab" data-panel="panel-6" type="button">Modern Complexities &amp; Engineering Considerations</button>
+<button class="top-tab" data-panel="panel-7" type="button">How this maps to Interviews (Uber/Fireworks)</button></nav><section class="panel active" id="panel-0"><main class="content"><section class="doc-section article" id="opening"><p>This document outlines the end-to-end system design, logical architecture, and core codebase for the <strong>Context-Aware Hybrid Multimodal Engine</strong>. This system intelligently paralyzes and delegates multimodal workflows (indexing, retrieving, processing, rendering) across Edge devices (user hardware) and Cloud clusters (Amsterdam CPU/GPU grids) based on real-time environmental context.</p></section></main></section>
+<section class="panel" id="panel-1"><main class="content"><section class="doc-section article" id="1-high-level-architecture-concept"><h2 id="1-high-level-architecture-concept">1. High-Level Architecture Concept</h2>
+<p>The core premise of this project is that <strong>pushing everything to the cloud is inefficient (high bandwidth/latency for raw video/3D), and processing everything on the edge is impossible (limited VRAM, battery, compute).</strong></p>
+<p>The solution is a dynamic, Context-Aware Dispatcher that utilizes a Directed Acyclic Graph (DAG) for task execution.</p>
+<h3 id="the-4-primary-tiers">The 4 Primary Tiers:</h3>
+<ol><li><strong>Edge Profiling Service:</strong> Runs on the client SDK. Monitors network bandwidth, device GPU/CPU load, thermal throttling, and user presets (e.g., "power saving vs. high performance").</li><li><strong>Hybrid Dispatcher (The Brain):</strong> Evaluates the task payload (e.g., "Index this 4K video") against the Edge Profile. Decides what executes locally and what offloads.</li><li><strong>Edge Execution Engine:</strong> Local WebAssembly/ONNX runtime or native C++ rendering engine capable of executing partial blocks (e.g., extracting keyframes locally to save upload bandwidth).</li><li><strong>Cloud Heterogeneous Clusters:</strong> Amsterdam’s elastic compute. CPU nodes for basic transformations; GPU nodes (A100s/H100s) for heavy embedding extraction, neural reranking, or heavy 3D rendering.</li></ol>
+<p>---</p></section></main></section>
+<section class="panel" id="panel-2"><main class="content"><section class="doc-section article" id="2-modern-system-component-diagram"><h2 id="2-modern-system-component-diagram">2. Modern System Component Diagram</h2>
+<p>This architecture reflects a modern, complex, and highly resilient cloud-native framework leveraging asynchronous event streaming, service meshes, and fast caching layers to handle multimodal load.</p>
+<pre><code class="language-mermaid">graph TD
+    %% EDGE ENVIRONMENT
+    subgraph Edge Client [Edge Client : Web, Mobile, Desktop]
+        A[Client Application UI] --&gt; B[Telemetry Profiler Sidecar]
+        A --&gt; C[Edge Workflow Orchestrator]
+        B --&gt; |State: VRAM, Ping, Network, Power| C
+        C --&gt; D[Local Edge Runtime ONNX/WebGPU]
+        C --&gt; E[Local SQLite/IndexedDB]
+    end
+
+    %% INGRESS &amp; DISPATCHING
+    subgraph Core API &amp; Gateway [Ingress &amp; Control Plane]
+        F[API Gateway / GraphQL]
+        G[Hybrid Dispatcher Service]
+        H[(Redis - State &amp; Circuit Breakers)]
+        F &lt;--&gt; G
+        G &lt;--&gt; H
+    end
+
+    %% ASYNC EVENT FABRIC
+    subgraph Streaming Fabric [Event Streaming]
+        I[Kafka / Event Bus]
+    end
+
+    %% CLOUD EXECUTION TIER
+    subgraph Cloud Execution [Heterogeneous Compute / K8s EKS]
+        J[Envoy Service Mesh / Load Balancer]
+        K[CPU Cluster - Heavy OpenCV/FFMPEG]
+        L[GPU T4 Cluster - Inference/VRAM &lt; 16GB]
+        M[GPU H100 Cluster - High-End Raytracing/GenAI]
+        N[(LoRA / Adapter Store)]
+        J --&gt; K
+        J --&gt; L
+        J --&gt; M
+        L -.-&gt; N
+        M -.-&gt; N
+    end
+
+    %% STORAGE TIER
+    subgraph Persistence [Data &amp; Storage]
+        O[(AWS S3 / Blob Storage)]
+        P[(Vector Database - Milvus / Qdrant)]
+        Q[(Metadata Doc DB - MongoDB)]
+    end
+
+    %% WORKFLOW CONNECTIONS
+    C -- Payload &amp; Context via gRPC --&gt; F
+    D -- Processed Bytes (Frames/Vectors) --&gt; F
+    
+    G -- Async Tasks --&gt; I
+    I -- Consumer Polling --&gt; J
+    
+    K --&gt; O
+    M --&gt; O
+    
+    L -- Embeddings --&gt; P
+    M -- Embeddings --&gt; P
+    K -- Feature Metadata --&gt; Q
+    
+    P -- Nearest Neighbor Result --&gt; G</code></pre></section></main></section>
+<section class="panel" id="panel-3"><main class="content"><section class="doc-section article" id="3-workflow-end-to-end-execution-path"><h2 id="3-workflow-end-to-end-execution-path">3. Workflow: End-to-End Execution Path</h2>
+<p>Let's trace a highly complex modern workflow through these components: <strong>Creating a 3D multimodal search index from high-res video</strong>.</p>
+<ol><li><strong>Ingress &amp; Profiling (The Edge):</strong> The Client App issues a request to index a 4K, 10GB video. The Telemetry Profiler evaluates the local machine. It detects an Apple M3 Max (high compute) but an unstable cellular hotspot (terrible network). </li><li><strong>Context-Aware Dispaching (API Gateway):</strong> The Edge Context is sent via gRPC to the API Gateway. The Hybrid Dispatcher determines that uploading 10GB will fail or take hours. It commands the Edge to perform "Keyframe Extraction &amp; Local Quantized Embedding".</li><li><strong>Edge Execution:</strong> The Local Edge Runtime (via ONNX/WebNN) processes the raw 10GB video down into an array of 256-dimension float values (just 10MB of text/vector data), persisting temp files to the Local SQLite index.</li><li><strong>Cloud Offload &amp; Queueing:</strong> The 10MB vector payload is successfully transmitted to the API Gateway. The Dispatcher accepts the payload, caching the session state in <strong>Redis</strong>, and drops an indexing event into <strong>Kafka</strong>.</li><li><strong>Compute &amp; Storage (The Cloud):</strong> The Cloud Execution tier consumes the Kafka message. The <strong>Envoy Service Mesh</strong> routes the payload to the GPU T4 Cluster. The GPU cluster uses a specialized LoRA (pulled dynamically from the LoRA store) to re-align the quantized edge vectors into the native massive cloud representation, committing the final vectors into the <strong>Vector Database (Qdrant/Milvus)</strong> and updating the central <strong>Doc DB</strong> with the metadata.</li></ol>
+<p>---</p></section></main></section>
+<section class="panel" id="panel-4"><main class="content"><section class="doc-section article" id="3-core-data-structures-logical-code"><h2 id="3-core-data-structures-logical-code">3. Core Data Structures &amp; Logical Code</h2>
+<p>Let's look at the foundational logical code that powers this engine. This is essentially the code that your backend API and edge client use to communicate state.</p>
+<h3 id="a-the-environment-profile">A. The Environment Profile</h3>
+<p>The edge client must serialize its state in every major request.</p>
+<pre><code class="language-python">from dataclasses import dataclass
+from typing import Dict, List, Optional
+
+@dataclass
+class EdgeProfile:
+    device_type: str            # "mobile", "desktop_high_end", "desktop_low_end"
+    available_vram_mb: int      # e.g., 8192
+    available_ram_mb: int       # e.g., 16384
+    network_uplink_mbps: float  # e.g., 5.2 (Critical for video/3D upload)
+    network_downlink_mbps: float
+    battery_level: float        # 0.0 to 1.0 (Critical to avoid draining mobile)
+    is_charging: bool
+    user_preset: str            # "eco", "balanced", "max_performance"
+
+@dataclass
+class MultimodalTask:
+    task_id: str
+    modality: str               # "text", "image", "video", "3D_substance"
+    operation: str              # "index", "retrieve", "render", "process"
+    payload_size_mb: float
+    raw_data_uri: str
+    strict_latency_ms: int      # SLO requirement</code></pre>
+<h3 id="b-the-decision-matrix-the-dispatcher">B. The Decision Matrix (The Dispatcher)</h3>
+<p>When a request hits the Dispatcher, it calculates a cost function. Should it process on Edge, Cloud, or Hybrid?</p>
+<pre><code class="language-python">class CostOptimizer:
+    def __init__(self, cloud_gpu_cost_per_ms, edge_battery_penalty):
+        self.cloud_cost = cloud_gpu_cost_per_ms
+        self.battery_penalty = edge_battery_penalty
+
+    def evaluate_execution_plan(self, task: MultimodalTask, profile: EdgeProfile) -&gt; str:
+        # 1. Hard Constraints (Cannot execute on edge)
+        if task.modality == "3D_substance" and profile.available_vram_mb &lt; 4000:
+            return "cloud_gpu_heavy"
+        
+        # 2. Network Constraints
+        # If payload is huge (e.g., 500MB video) and uplink is terrible, but the edge
+        # device is powerful, do local processing (e.g., frame extraction).
+        estimated_upload_time = task.payload_size_mb / profile.network_uplink_mbps
+        
+        if task.modality == "video" and task.operation == "index":
+            if estimated_upload_time &gt; 5.0 and profile.device_type == "desktop_high_end":
+                return "hybrid_split" # Extract frames locally, send frames to cloud
+        
+        # 3. Energy / User Preset constraints
+        if profile.user_preset == "eco" or (not profile.is_charging and profile.battery_level &lt; 0.2):
+            return "cloud_cpu" if task.modality == "text" else "cloud_gpu_light"
+
+        # Default to highest performance path
+        return "cloud_gpu_heavy"</code></pre>
+<h3 id="c-the-dag-execution-logic-hybrid-split-example">C. The DAG Execution Logic (Hybrid Split Example)</h3>
+<p>This is where the magic happens. A "video indexing" task gets split. Instead of uploading a raw 4K video, the engine instructs the client to run a local WebAssembly process, extract embedding frames, and <em>only</em> upload the frames for vector indexing.</p>
+<pre><code class="language-python">class HybridTaskOrchestrator:
+    
+    def process_task(self, task: MultimodalTask, profile: EdgeProfile):
+        optimizer = CostOptimizer(cloud_gpu_cost_per_ms=0.01, edge_battery_penalty=0.5)
+        execution_plan = optimizer.evaluate_execution_plan(task, profile)
+        
+        if execution_plan == "hybrid_split":
+            return self._execute_hybrid_video_index(task, profile)
+        elif execution_plan.startswith("cloud"):
+            return self._upload_and_execute_cloud(task, execution_plan)
+        else:
+            return self._execute_edge_only(task)
+
+    def _execute_hybrid_video_index(self, task: MultimodalTask, profile: EdgeProfile):
+        print(f"Executing Hybrid Split for Task {task.task_id} via {profile.device_type}")
+        
+        # Step 1: Assign Local Task
+        local_task = {
+            "action": "extract_keyframes",
+            "fps": 1,
+            "max_resolution": "720p"
+        }
+        # Edge executes via ONNX/WebGPU, returns byte array of compressed frames
+        extracted_frames = edge_client.execute(local_task, task.raw_data_uri)
+        
+        # Step 2: Cloud takes over for heavy embedding extraction
+        cloud_payload_size = len(extracted_frames) / (1024 * 1024)
+        print(f"Reduced upload payload from {task.payload_size_mb}MB to {cloud_payload_size}MB")
+        
+        cloud_task = {
+            "action": "extract_clip_embeddings_and_index",
+            "data": extracted_frames
+        }
+        
+        # Dispatch to specific Amsterdam Cloud cluster based on latency SLO
+        cloud_cluster = "GPU_A10G" if task.strict_latency_ms &lt; 500 else "GPU_T4"
+        return amsterdam_cloud.execute(cloud_task, cluster=cloud_cluster)</code></pre>
+<p>---</p></section></main></section>
+<section class="panel" id="panel-5"><main class="content"><section class="doc-section article" id="4-deep-dive-into-specific-workflows"><h2 id="4-deep-dive-into-specific-workflows">4. Deep Dive into Specific Workflows</h2>
+<h3 id="scenario-1-high-fidelity-3d-rendering-retrieval-commerce">Scenario 1: High-Fidelity 3D Rendering &amp; Retrieval (Commerce)</h3>
+<ul><li><strong>The User:</strong> A shopper on a mobile device (low battery, poor network) wants to search for and view a 3D substance/texture for a piece of furniture.</li><li><strong>The Logic:</strong></li></ul>
+<ol><li>Profiler detects <code>mobile</code>, <code>VRAM &lt; 2GB</code>, and <code>network=slow</code>.</li><li>Dispatcher recognizes that the device cannot render the raw 3D mesh + high-res raytraced textures locally. </li><li><strong>Action:</strong> The Cloud GPU cluster renders a 360-degree high-res video proxy of the 3D model, streaming it to the user. The edge device only handles lightweight video playback UI.</li></ol>
+<ul><li><strong>Business Impact:</strong> Zero app crashes. High conversion rate because the visual fidelity remains perfect, bypassing hardware limitations.</li></ul>
+<h3 id="scenario-2-massive-image-ingestion-creative-cloud-sdk">Scenario 2: Massive Image Ingestion (Creative Cloud SDK)</h3>
+<ul><li><strong>The User:</strong> A photographer using Photoshop on a MacBook Pro M2 (high VRAM, connected to gigabit Wi-Fi, <code>user_preset=max_performance</code>). They want to "Semantic Search" across 10,000 local RAW photos.</li><li><strong>The Logic:</strong></li></ul>
+<ol><li>Uploading 10,000 RAW files (300GB+) to the cloud to extract embeddings would take hours and cost massive cloud ingress bandwidth.</li><li>Profiler detects <code>Apple Neural Engine / M2 Mac</code>.</li><li><strong>Action:</strong> The Dispatcher sends the CLIP (or Amsterdam Firefly) embedding model weights <em>down</em> to the client. The edge device iterates through the 10,000 images, extracts the 768-dimensional float vectors locally, and uploads <em>only</em> the arrays of vectors to the Cloud Unified Vector Index.</li></ol>
+<ul><li><strong>Business Impact:</strong> Privacy is preserved (raw assets never leave device), cloud costs drop by 99%, and indexing happens instantly utilizing the edge's idle Apple Silicon.</li></ul></section></main></section>
+<section class="panel" id="panel-6"><main class="content"><section class="doc-section article" id="5-modern-complexities-engineering-considerations"><h2 id="5-modern-complexities-engineering-considerations">5. Modern Complexities &amp; Engineering Considerations</h2>
+<p>When discussing this project in interviews, highlight these modern systems architectural challenges:</p>
+<ol><li><strong>State Synchronization &amp; Eventual Consistency via Kafka:</strong> If a user jumps from Wi-Fi to Cellular mid-process, the Dispatcher must dynamically failover. By using Kafka, if the client drops connection, the cloud consumer doesn't crash; it finishes the indexing, writes to the Vector DB, and updates a "Notification State" in Redis, allowing the client to resync state gracefully upon reconnection.</li><li><strong>Envoy &amp; KEDA Auto-Scaling:</strong> We don't just route randomly. Envoy acts as a service mesh measuring exact saturation on the GPU nodes. We pair this with KEDA (Kubernetes Event-driven Autoscaling) to spin up expensive H100 nodes <em>only</em> when the Kafka backlog of GenAI/3D rendering tasks exceeds our p95 SLA targets, minimizing idle GPU burn rate.</li><li><strong>Model Drift / Parity:</strong> You must ensure the ONNX embedding model running on the Mac/Windows edge yields the exact same tensor outputs as the massive PyTorch model running on the cloud GPUs, otherwise the vector similarity search breaks.</li><li><strong>Presigned URLs &amp; Blob Storage:</strong> To avoid choking the API Gateway with massive binary ingress, if a task <em>does</em> require heavy cloud rendering (e.g. generating a 3D mesh), the API Gateway issues a temporary S3 Pre-Signed Upload URL to the client. The client blasts the file directly to S3. S3 triggers an event to Kafka, which unblocks the GPU tier.</li></ol></section></main></section>
+<section class="panel" id="panel-7"><main class="content"><section class="doc-section article" id="6-how-this-maps-to-interviews-uber-fireworks"><h2 id="6-how-this-maps-to-interviews-uber-fireworks">6. How this maps to Interviews (Uber/Fireworks)</h2>
+<ul><li><strong>Fireworks AI Focus:</strong> Emphasize the routing logic. Fireworks is building cloud routers that optimize inference. Show them you understand how to mathematically benchmark cost/latency to route requests to the right GPU tier.</li><li><strong>Uber Focus:</strong> Emphasize the network and battery constraints. Uber app drivers and users are entirely mobile. Building orchestration that respects a user's battery life and poor 3G connection via hybrid computation is a million-dollar skill.</li></ul></section></main></section></div><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script><script>const tabs=[...document.querySelectorAll('.top-tab')],panels=[...document.querySelectorAll('.panel')];function show(id){tabs.forEach(t=>t.classList.toggle('active',t.dataset.panel===id));panels.forEach(p=>p.classList.toggle('active',p.id===id));window.scrollTo({top:0,behavior:'smooth'});if(history.replaceState)history.replaceState(null,'','#'+id)}tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.panel)));const init=location.hash.slice(1);if(init&&document.getElementById(init))show(init);if(window.hljs)window.hljs.highlightAll();</script>
+
+</body></html>

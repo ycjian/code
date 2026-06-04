@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Amsterdam Project 2: Multimodal Search and Discovery Platform</title><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" rel="stylesheet"/><style>:root{color-scheme:dark;--bg:#0b1020;--panel:#111827;--panel2:#0f172a;--text:#e6edf3;--muted:#9aa8bb;--border:#263348;--accent:#34d399;--code:#080d19;--soft:color-mix(in srgb,var(--accent) 14%,transparent)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 0%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.64}.page{width:min(1240px,calc(100vw - 28px));margin:0 auto;padding:12px 0 54px}.topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 14px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(135deg,rgba(17,24,39,.97),rgba(15,23,42,.92));position:sticky;top:0;z-index:20;box-shadow:0 12px 36px rgba(0,0,0,.3);backdrop-filter:blur(12px)}h1{margin:0;font-size:clamp(.98rem,1.6vw,1.22rem);line-height:1.2}.meta{color:var(--muted);font-size:.8rem}.badge{border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));background:var(--soft);color:var(--accent);border-radius:999px;padding:5px 9px;font-size:.78rem;white-space:nowrap}.top-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.top-tab{border:1px solid var(--border);background:rgba(17,24,39,.78);color:var(--muted);padding:8px 11px;border-radius:999px;font:inherit;font-size:.88rem;cursor:pointer}.top-tab:hover{color:var(--text);border-color:var(--accent)}.top-tab.active{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:760}.panel{display:none}.panel.active{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px}.side{position:sticky;top:86px;align-self:start;max-height:calc(100vh - 104px);overflow:auto;border:1px solid var(--border);border-radius:14px;background:rgba(17,24,39,.78);padding:10px}.side-title{font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800;margin:4px 6px 8px}.side a{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:start;color:var(--muted);text-decoration:none;padding:8px 6px;border-radius:9px;font-size:.88rem;line-height:1.25}.side a:hover{background:rgba(148,163,184,.1);color:var(--text)}.side span{color:var(--accent);font-weight:800}.content{min-width:0;border:1px solid var(--border);border-radius:16px;background:rgba(17,24,39,.84);box-shadow:0 14px 42px rgba(0,0,0,.24);padding:22px}.doc-section{padding:0 0 26px;margin:0 0 26px;border-bottom:1px solid var(--border)}.doc-section:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}.article h1,.article h2,.article h3,.article h4{line-height:1.25;margin:1.25em 0 .6em}.article h1:first-child,.article h2:first-child,.article h3:first-child{margin-top:0}.article h1{font-size:1.7rem}.article h2{font-size:1.35rem;border-bottom:1px solid var(--border);padding-bottom:.3rem}.article h3{font-size:1.13rem;color:#dbeafe}.article h4{font-size:1.02rem;color:#e9d5ff}.article p{margin:.72rem 0}.article ul,.article ol{padding-left:1.35rem}.article li{margin:.32rem 0}.article code{background:rgba(125,211,252,.12);color:#d8f3ff;padding:.12rem .34rem;border-radius:5px;font-family:"Cascadia Code",Consolas,monospace;font-size:.92em}pre{margin:1rem 0;border:1px solid #263348;border-radius:12px;background:var(--code);overflow:auto}pre code{display:block;background:transparent!important;color:#e6edf3;padding:18px;white-space:pre;line-height:1.55;font-size:.92rem}.table-scroll{overflow-x:auto;margin:1rem 0}.article table{width:100%;min-width:520px;border-collapse:collapse}.article th,.article td{border:1px solid var(--border);padding:9px 10px;vertical-align:top}.article th{background:rgba(148,163,184,.13);color:#dbeafe;text-align:left}.article tr:nth-child(even) td{background:rgba(15,23,42,.45)}blockquote{margin:1rem 0;padding:.5rem 1rem;border-left:4px solid var(--accent);background:var(--soft);color:#d5e7f5}img{max-width:100%;border-radius:10px;border:1px solid var(--border)}@media(max-width:900px){.page{width:min(100vw - 18px,1240px)}.topbar{position:static;grid-template-columns:1fr}.panel.active{grid-template-columns:1fr}.side{position:static;max-height:none}.content{padding:16px}}
+.side-toggle{width:34px;height:34px;display:grid;place-items:center;margin:0 0 10px;border:1px solid var(--border,var(--line,#263348));border-radius:10px;background:rgba(17,24,39,.78);color:var(--text,var(--ink,#e6edf3));cursor:pointer;font:900 15px/1 "Segoe UI",Arial,sans-serif}.side-toggle:hover{border-color:var(--accent,#78a6ff);background:var(--soft,rgba(120,166,255,.12))}body.toc-collapsed .panel.active{grid-template-columns:46px minmax(0,1fr)}body.toc-collapsed .side{width:46px;min-width:46px;padding:8px 6px;overflow:hidden}body.toc-collapsed .side>*:not(.side-toggle){display:none}body.toc-collapsed .side-toggle{margin:0 auto}.panel.active{transition:grid-template-columns .18s ease}.side{transition:width .18s ease,padding .18s ease}
+
+/* Layout cleanup: inner section navigation is a horizontal tab row, not a second left panel. */
+.panel.active{display:block!important;}
+.side{position:sticky!important;top:62px!important;z-index:10!important;height:auto!important;min-height:0!important;max-height:72px!important;overflow-x:auto!important;overflow-y:hidden!important;display:flex!important;gap:6px!important;align-items:center!important;margin:0 0 12px!important;padding:8px!important;width:auto!important;min-width:0!important;}
+.side-title{flex:0 0 auto!important;margin:0 8px 0 2px!important;white-space:nowrap!important;}
+.side a{display:inline-flex!important;grid-template-columns:none!important;gap:7px!important;align-items:center!important;white-space:nowrap!important;min-width:max-content!important;border-radius:999px!important;padding:7px 10px!important;}
+.side-toggle{display:none!important;}
+body.toc-collapsed .panel.active{display:block!important;}
+body.toc-collapsed .side{width:auto!important;min-width:0!important;padding:8px!important;overflow-x:auto!important;overflow-y:hidden!important;}
+body.toc-collapsed .side>*:not(.side-toggle){display:inherit!important;}
+
+</style></head><body class="toc-collapsed"><div class="page"><header class="topbar"><div><h1>Amsterdam Project 2: Multimodal Search and Discovery Platform</h1><div class="meta">amsterdam-project2.md ? 7 top sections ? Search and discovery</div></div></header><nav aria-label="Top sections" class="top-tabs"><button class="top-tab active" data-panel="panel-0" type="button">Opening</button>
+<button class="top-tab" data-panel="panel-1" type="button">Resume</button>
+<button class="top-tab" data-panel="panel-2" type="button">System Design</button>
+<button class="top-tab" data-panel="panel-3" type="button">Stories</button>
+<button class="top-tab" data-panel="panel-4" type="button">Tasks</button>
+<button class="top-tab" data-panel="panel-5" type="button">Product Scenarios</button>
+<button class="top-tab" data-panel="panel-6" type="button">Stress Tests</button></nav><section class="panel active" id="panel-0"><main class="content"><section class="doc-section article" id="opening"><p>This document covers the Amsterdam Search &amp; Discovery project. It focuses on project scope, architecture, tradeoffs, ownership, product impact, and interview talk tracks. Detailed code, diagrams, schemas, and implementation logic live in <code>amsterdam-code.md</code>.</p>
+<p>本文件聚焦 Amsterdam 的 Search &amp; Discovery 项目，重点放在项目范围、架构、权衡、职责边界、产品价值以及面试表达。具体代码、图示、schema 和实现逻辑都放在 <code>amsterdam-code.md</code> 中。</p></section></main></section>
+<section class="panel" id="panel-1"><main class="content"><section class="doc-section article" id="resume-anchor"><h2 id="resume-anchor">Resume Anchor</h2>
+<h3 id="machine-learning-engineer-search-discovery-team-amsterdam">Machine Learning Engineer, Search &amp; Discovery Team, Amsterdam</h3>
+<p>08/2019 - 07/2023 08/2019 - 07/2023</p>
+<ul><li>Designed an extensible, multimodal discovery platform to unify asset search across Photoshop, Lightroom, and Premiere. Developed a distributed vector-lexical pipeline using Milvus, Elasticsearch, Flink, and Kafka, enabling the seamless onboarding of 50B+ assets across image, audio, video, 3D, and document modalities; implemented a tiered storage strategy on multi-cloud Kubernetes to optimize cost-performance.</li></ul>
+<p>设计了一个可扩展的多模态发现平台，以统一 Photoshop、Lightroom 和 Premiere 之间的资产搜索。使用 Milvus、Elasticsearch、Flink 和 Kafka 开发分布式向量-词法 pipeline，实现跨图像、音频、视频、3D 和文档模态的 50B+ 资产的无缝接入；在多云 Kubernetes 上实施分层存储策略，优化性价比。</p>
+<ul><li>Shipped cross-modal discovery in a shared embedding space with aligned encoders, unified retrieval, and client SDK support for on-device pruning and hybrid edge-cloud execution, enabling search-by-description, search-by-image, similarity search, and semantic tagging while reducing heavy-media payload transfer by 10-20x for asset-heavy workflows.</li></ul>
+<p>在共享 embedding space 中提供跨模态 discovery，具有对齐的编码器、统一检索和客户端 SDK 支持，支持端侧 pruning 和混合端云执行，支持按描述搜索、按图像搜索、similarity search 和 semantic tagging，同时将重资产workflow的heavy-media payload 传输减少 10-20 倍。</p>
+<ul><li>Implemented multi-stage retrieval and ranking engine fusing multimodal signals with real-time feature serving for explicit and related-asset discovery. Leveraged multi-objective optimization and asynchronous retrieval to balance relevance with diversity, driving a 15% increase in discovery CTR through auto-scaling inference and rigorous A/B testing.</li></ul>
+<p>实施了多阶段检索和排序引擎，将多模态信号与实时特征服务相融合，以实现显式和相关资产发现。利用多目标优化和异步检索来平衡相关性与多样性，通过自动扩缩容推理和严格的 A/B 测试将 discovery CTR 提高 15%。</p></section></main></section>
+<section class="panel" id="panel-2"><main class="content"><section class="doc-section article" id="project-2-multimodal-search-and-discovery-platform"><h2 id="project-2-multimodal-search-and-discovery-platform">Project 2: Multimodal Search and Discovery Platform</h2>
+<h3 id="hiring-manager-summary">Hiring Manager Summary</h3>
+<p>This project built the retrieval and ranking foundation for creative asset discovery. Users could search with text, images, or mixed prompts and discover related assets across large heterogeneous catalogs. The system combined vector retrieval, lexical search, metadata filters, real-time features, and multimodal ranking.</p>
+<p>这个项目建立了 creative asset discovery 的检索与排序基础。用户可以用文本、图片或混合 prompt来搜索，并在大规模异构资产库中发现相关资产。系统把向量检索、词法检索、元数据过滤、实时特征和多模态排序结合到了一起。</p>
+<p>It is the earlier platform layer that explains why the later AI execution platform mattered. Search and discovery created demand for embeddings, rerankers, media understanding, edge-cloud execution, and large-scale indexing. The later AI Platform project generalized many of those infrastructure patterns for broader AI workflows.</p>
+<p>这也是为什么后来的 AI execution platform 变得重要。Search 和 discovery 本身就催生了 embedding、reranker、媒体理解、端云协同执行以及大规模索引的需求。后面的 AI Platform 项目把这些基础设施模式进一步抽象和泛化，用到了更广泛的 AI workflows 中。</p>
+<h3 id="thirty-second-pitch">Thirty-Second Pitch</h3>
+<p>I built a multimodal search and discovery platform for creative assets. It supported text-to-image, image-to-image, similarity search, semantic tagging, and related-asset discovery across image, audio, video, 3D, and document modalities. The architecture used aligned embeddings, Milvus, Elasticsearch, Flink, Kafka, multi-stage retrieval and ranking, and a hybrid edge-cloud SDK to reduce heavy-media transfer. The system scaled to 50B+ assets and improved discovery CTR by 15%.</p>
+<p>我构建了一个面向 creative assets 的多模态 search and discovery platform。它支持 text-to-image、image-to-image、similarity search、semantic tagging 和 related-asset discovery，覆盖 image、audio、video、3D 和 document 等模态。架构上使用了 aligned embeddings、Milvus、Elasticsearch、Flink、Kafka、多阶段检索与排序，以及一个端云混合的 SDK 来减少重媒体传输。系统扩展到了 50B+ assets，并将 discovery CTR 提升了 15%。</p>
+<h3 id="problem-statement">Problem Statement</h3>
+<p>Creative users often search by intent rather than exact keywords:</p>
+<p>创意用户搜索时通常不是按精确关键词，而是按 intent来搜：</p>
+<ul><li>"Minimal blue poster background."</li></ul>
+<p>“最小的蓝色海报背景。”</p>
+<ul><li>"Find assets similar to this image."</li></ul>
+<p>“查找与此图像类似的资产。”</p>
+<ul><li>"Like this image, but warmer and more cinematic."</li></ul>
+<p>“就像这张照片，但更温暖、更有电影感。”</p>
+<ul><li>"Show me clips with a person walking through snow."</li></ul>
+<p>“给我看一个人在雪中行走的片段。”</p>
+<ul><li>"Find related assets for this design."</li></ul>
+<p>“查找此设计的相关资源。”</p>
+<p>Traditional lexical search is not enough because creative similarity includes semantics, style, color, composition, modality, metadata, and user context. Pure vector search is also not enough because exact filters such as license, asset type, orientation, product source, and enterprise access must be enforced.</p>
+<p>传统的词法搜索并不够，因为 creative similarity 里面包含语义、风格、颜色、构图、模态、元数据和用户上下文。单纯的向量检索也不够，因为像 license、asset type、orientation、product source 和 enterprise access 这样的精确约束必须被严格执行。</p>
+<h3 id="motivation-and-product-context">Motivation and Product Context</h3>
+<p>The motivation was to make creative discovery feel natural. Creative users often do not search like database users. They search by intent, style, mood, visual reference, incomplete memory, or the current project context. A keyword-only system can retrieve assets with matching tags, but it struggles with style and visual similarity. A vector-only system can retrieve semantically close assets, but it can miss hard constraints such as format, license, orientation, product availability, or enterprise access control.</p>
+<p>动机是让 creative discovery 更自然。创意用户并不像数据库用户那样搜索，他们会按 intent、风格、氛围、视觉参考、不完整记忆或当前项目上下文来搜。只靠关键词的系统可以找到标签匹配的资产，但在风格和视觉相似度上会很弱；只靠向量的系统可以找到语义接近的资产，但又可能漏掉格式、license、orientation、产品可用性或 enterprise access control 这类硬约束。</p>
+<p>The platform had to serve both explicit search and exploratory discovery:</p>
+<p>这个平台需要同时支持显式搜索和探索式 discovery：</p>
+<ul><li>Search: the user has a query and expects precise results.</li></ul>
+<p>搜索：用户有一个查询并期望得到精确的结果。</p>
+<ul><li>Similarity: the user has an example asset and wants more like it.</li></ul>
+<p>相似性：用户有一个示例资产并想要更多类似的资产。</p>
+<ul><li>Discovery: the user has partial or evolving intent and wants inspiration.</li></ul>
+<p>发现：用户有部分或不断变化的intent并需要灵感。</p>
+<ul><li>Semantic tagging: the system enriches assets so search and discovery improve over time.</li></ul>
+<p>semantic tagging：系统丰富了资产，因此搜索和发现随着时间的推移而不断改进。</p>
+<p>The product value was that a single retrieval foundation could support multiple user surfaces while still respecting each surface's ranking objective. Search, related assets, and discovery feeds should share infrastructure, but they should not blindly share the same candidate generation strategy.</p>
+<p>产品价值在于：一个统一的检索基础设施可以支持多个用户界面，但仍然尊重每种界面的排序目标。Search、related assets 和 discovery feeds 可以共享基础设施，但不能盲目共享同一种 candidate generation 策略。</p>
+<h3 id="design-goals">Design Goals</h3>
+<ul><li>Support text, image, and mixed-query retrieval.</li></ul>
+<p>支持文本、图像和混合查询检索。</p>
+<ul><li>Unify retrieval across images, audio, video, 3D, and documents.</li></ul>
+<p>统一图像、音频、视频、3D 和文档的检索。</p>
+<ul><li>Combine semantic vector search with exact lexical retrieval.</li></ul>
+<p>将语义向量搜索与精确词汇检索相结合。</p>
+<ul><li>Provide explicit search and related-asset discovery.</li></ul>
+<p>提供显式搜索和相关资产发现。</p>
+<ul><li>Support large-scale indexing and freshness.</li></ul>
+<p>支持大规模索引和freshness。</p>
+<ul><li>Reduce heavy-media transfer with client-side pruning and edge-cloud execution.</li></ul>
+<p>通过客户端修剪和端云执行减少重媒体传输。</p>
+<ul><li>Improve ranking quality while preserving latency.</li></ul>
+<p>提高排序质量，同时保留延迟。</p>
+<ul><li>Make retrieval explainable and measurable with offline and online metrics.</li></ul>
+<p>通过离线和在线指标使检索变得可解释和可衡量。</p>
+<h3 id="end-to-end-system-design-walkthrough">End-to-End System Design Walkthrough</h3>
+<p>The system has two main paths: offline/nearline ingestion and online serving.</p>
+<p>这个系统主要有两条路径：offline/nearline ingestion 和 online serving。</p>
+<p>Offline and nearline ingestion start when an asset is created or updated. The ingestion event enters Kafka, is normalized through stream processing, and is expanded into modality-specific tasks. Images are resized and embedded. Videos are sampled into keyframes and transcripts. Documents are parsed into text and layout features. 3D assets may be rendered into representative views. The pipeline writes metadata, feature records, lexical documents, and vector embeddings. New index versions are validated and published so serving reads a consistent view.</p>
+<p>离线与nearline ingestion 从资产创建或更新开始：事件进入 Kafka，经由流式处理做规范化，然后被拆分为按模态的任务。图片会被缩放并生成 embedding；视频会被采样成 keyframes 和 transcript；文档会被解析出文本与版面特征；3D 资产可能会渲染成代表性视图。流水线写入元数据、特征记录、词法文档与向量 embeddings，并在验证后发布新的索引版本，使在线 serving 读取到一致视图。</p>
+<p>Online serving starts when the user searches with text, a reference image, or a mixed prompt. The query API normalizes the request, extracts filters, computes or retrieves query embeddings, fans out to vector and lexical retrieval, merges candidates, applies policy filters, joins ranking features, and returns ranked results. Discovery surfaces may also add graph, cluster, co-engagement, diversity, and novelty candidate sources.</p>
+<p>在线 serving 从用户提交文本、参考图像或混合 prompt 开始：Query API 规范化请求、提取过滤条件、计算或读取 query embeddings，并并行触发向量与词法检索；随后合并候选、应用策略过滤、拼接排序特征并返回排序结果。Discovery 场景还可能引入 graph、cluster、co-engagement、多样性与新颖性等候选来源。</p>
+<p>The training and evaluation loop connects the two paths. Search and engagement logs are used to evaluate recall, ranking quality, zero-result rate, discovery diversity, and product metrics such as CTR or save/download rate. Better models, features, and indexes are rolled out through offline validation and online A/B testing.</p>
+<p>训练和评估闭环把这两条路径连接起来。Search 和用户行为日志被用来评估 recall、排序质量、zero-result rate、discovery diversity 以及 CTR 或 save/download rate 等产品指标。更好的模型、特征和索引会通过离线验证和线上 A/B testing 逐步上线。</p>
+<h3 id="component-interactions-to-explain-in-interviews">Component Interactions To Explain In Interviews</h3>
+<ul><li>Kafka and Flink: Kafka provides durable asset and event streams; Flink normalizes and routes events into extraction, embedding, and indexing tasks.</li></ul>
+<p>Kafka和Flink：Kafka提供持久的资产和事件流； Flink 将事件标准化并路由到提取、嵌入和索引任务中。</p>
+<ul><li>Embedding pipeline and vector database: embeddings are generated offline or nearline and published to Milvus collections by model/index version.</li></ul>
+<p>嵌入管道和向量数据库：嵌入是离线或nearline生成的，并按模型/索引版本发布到 Milvus 集合中。</p>
+<ul><li>Metadata pipeline and Elasticsearch: metadata and text fields are indexed for exact matching, filters, and product constraints.</li></ul>
+<p>元数据管道和 Elasticsearch：对元数据和文本字段进行索引，以实现精确匹配、过滤器和产品约束。</p>
+<ul><li>Query understanding and retrieval services: query parsing determines whether to run text, image, mixed, lexical, vector, or discovery candidate generation.</li></ul>
+<p>查询理解和检索服务：查询解析确定是否运行文本、图像、混合、词汇、向量或发现候选生成。</p>
+<ul><li>Candidate merger and ranker: retrieval optimizes recall; ranking optimizes precision and product usefulness.</li></ul>
+<p>候选合并和排序：检索优化召回；排序优化了精度和产品实用性。</p>
+<ul><li>Feature service and ranker: the feature layer joins asset, context, quality, freshness, popularity, and policy features before scoring.</li></ul>
+<p>特征服务和排序器：特征层在评分之前加入资产、上下文、质量、freshness、流行度和策略特征。</p>
+<ul><li>Experimentation and logging: every request logs enough context to debug quality, run A/B tests, and retrain models.</li></ul>
+<p>实验和日志记录：每个请求都会记录足够的上下文来调试质量、运行 A/B 测试和重新训练模型。</p>
+<h3 id="performance-model">Performance Model</h3>
+<p>For search, end-to-end latency is usually a sum of several smaller latencies rather than one large model call:</p>
+<p>对搜索来说，端到端延迟通常是多个小阶段延迟的累加，而不是一次大型模型调用的单点延迟：</p>
+<ul><li>Query parse and normalization.</li></ul>
+<p>查询解析和规范化。</p>
+<ul><li>Query encoding.</li></ul>
+<p>查询编码。</p>
+<ul><li>Vector retrieval.</li></ul>
+<p>向量检索。</p>
+<ul><li>Lexical retrieval.</li></ul>
+<p>词汇检索。</p>
+<ul><li>Metadata filtering.</li></ul>
+<p>元数据过滤。</p>
+<ul><li>Candidate merge and deduplication.</li></ul>
+<p>候选合并和重复数据删除。</p>
+<ul><li>Feature joins.</li></ul>
+<p>特征加入。</p>
+<ul><li>Ranking.</li></ul>
+<p>排行。</p>
+<ul><li>Result formatting and cache write.</li></ul>
+<p>结果格式化和缓存写入。</p>
+<p>At scale, the bottleneck can move:</p>
+<p>在规模扩大后，瓶颈会在不同阶段之间迁移：</p>
+<ul><li>If vector retrieval is slow, tune ANN parameters, sharding, filtering, and index memory layout.</li></ul>
+<p>如果向量检索很慢，请调整 ANN 参数、分片、过滤和索引内存布局。</p>
+<ul><li>If lexical retrieval is slow, tune mappings, filter selectivity, shard count, and query construction.</li></ul>
+<p>如果词汇检索很慢，请调整映射、过滤器选择性、分片计数和查询构造。</p>
+<ul><li>If feature joins are slow, cache hot features and reduce per-candidate fan-out.</li></ul>
+<p>如果功能连接很慢，请缓存热门功能并减少每个候选者的扇出。</p>
+<ul><li>If ranking is slow, reduce rerank depth, use a two-stage ranker, or move the heavier ranker to top candidates only.</li></ul>
+<p>如果排序很慢，请减少重新排序深度，使用两阶段排序器，或仅将较重的排序器移至顶级候选者。</p>
+<ul><li>If freshness is slow, separate nearline updates from full rebuilds.</li></ul>
+<p>如果freshness很慢，请将nearline更新与完整重建分开。</p>
+<p>The interview point is that search performance is pipeline performance. A fast vector database alone does not guarantee a fast product search experience.</p>
+<p>面试时最值得强调的一点是：search performance 本质上就是 pipeline performance。单独一个快的 vector database，并不等于一个快的产品搜索体验。</p>
+<h3 id="hardware-and-scale-constraints">Hardware and Scale Constraints</h3>
+<p>Large-scale multimodal retrieval has different hardware constraints than LLM serving:</p>
+<p>大规模多模态检索和 LLM serving 面临的硬件约束并不相同：</p>
+<ul><li>Vector search is memory and cache sensitive. Large vector indexes require careful compression, sharding, and memory layout.</li></ul>
+<p>向量搜索对内存和缓存敏感。大型向量索引需要仔细的压缩、分片和内存布局。</p>
+<ul><li>GPU is useful for embedding generation and heavy reranking, but online candidate retrieval is often CPU/memory/network bound.</li></ul>
+<p>GPU 对于嵌入生成和重排序非常有用，但在线候选检索通常受 CPU/内存/网络限制。</p>
+<ul><li>Batch embedding jobs can consume large GPU capacity but are usually less latency-sensitive than online serving.</li></ul>
+<p>批量嵌入作业可能会消耗大量 GPU 容量，但通常比在线服务对延迟不太敏感。</p>
+<ul><li>Elasticsearch performance depends on shard sizing, filter selectivity, heap pressure, disk layout, and query patterns.</li></ul>
+<p>Elasticsearch 性能取决于分片大小、过滤器选择性、堆压力、磁盘布局和查询模式。</p>
+<ul><li>Kafka and Flink throughput depend on partitioning, checkpointing, backpressure, and exactly-once or at-least-once semantics.</li></ul>
+<p>Kafka 和 Flink 吞吐量取决于分区、checkpoint、背压以及恰好一次或至少一次语义。</p>
+<ul><li>Metadata joins can become a hidden bottleneck if ranking requires many per-candidate features.</li></ul>
+<p>如果排序需要许多每个候选特征，则元数据连接可能成为隐藏的瓶颈。</p>
+<ul><li>Cross-region or multi-cloud deployment introduces consistency, replication, and latency tradeoffs.</li></ul>
+<p>跨区域或多云部署引入了一致性、复制和延迟权衡。</p>
+<p>This project is a good way to show backend scalability because the hardest problems are not only ML quality. They are index freshness, sharding, tail latency, cache design, feature joins, and safe rollout at very large asset scale.</p>
+<p>这个项目很适合展示后端可扩展性，因为最难的问题不只是 ML quality，还包括 index freshness、sharding、tail latency、cache design、feature joins 以及在超大规模资产下的安全发布。</p>
+<h3 id="high-level-architecture">High-Level Architecture</h3>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 18, High-Level Architecture.]</p>
+<p>Architecture in words:</p>
+<p>文字版架构：</p>
+<ul><li>Asset ingestion listens to create/update events and normalizes metadata.</li></ul>
+<p>资产ingestion监听创建/更新事件并标准化元数据。</p>
+<ul><li>Modality-specific preprocessors extract text, frames, transcripts, previews, metadata, and embeddings.</li></ul>
+<p>特定于模态的预处理器提取文本、框架、转录本、预览、元数据和嵌入。</p>
+<ul><li>Vector indexes store dense embeddings for semantic retrieval.</li></ul>
+<p>向量索引存储用于语义检索的密集嵌入。</p>
+<ul><li>Lexical indexes store text and structured fields for exact search and filters.</li></ul>
+<p>词法索引存储文本和结构化字段以进行精确搜索和过滤。</p>
+<ul><li>Query understanding prepares text, image, or mixed prompts.</li></ul>
+<p>查询理解准备文本、图像或混合 prompt。</p>
+<ul><li>Candidate services retrieve from vector, lexical, graph, and style sources.</li></ul>
+<p>候选服务从向量、词汇、图形和样式源中检索。</p>
+<ul><li>Candidate merging deduplicates and enforces policy filters.</li></ul>
+<p>候选合并可消除重复并强制执行策略过滤器。</p>
+<ul><li>Feature services join ranking features.</li></ul>
+<p>特征服务加入排序特征。</p>
+<ul><li>Rankers optimize final result ordering for search, similarity, or discovery.</li></ul>
+<p>排序器优化搜索、相似性或发现的最终结果排序。</p>
+<ul><li>Logging and experimentation close the loop for evaluation and model improvement.</li></ul>
+<p>记录和实验形成了评估和模型改进的闭环。</p>
+<p>The architecture separates ingestion from serving. Expensive embedding generation and index building happen offline or nearline, while the online path focuses on low-latency candidate generation, feature joins, ranking, and result delivery.</p>
+<p>该架构把 ingestion 与 serving 分离：昂贵的 embedding 生成与索引构建放在离线或nearline完成；在线路径则聚焦低延迟的候选生成、特征拼接、排序以及结果交付。</p>
+<h3 id="search-vs-discovery">Search vs Discovery</h3>
+<p>Search and discovery share infrastructure but optimize different user needs.</p>
+<p>Search 和 discovery 共享基础设施，但优化目标不同。</p>
+<div class="table-scroll"><table><thead><tr><th>Surface</th><th>User Intent</th><th>Candidate Sources</th><th>Ranking Objective</th></tr></thead><tbody><tr><td>Search</td><td>Explicit query</td><td>Vector, lexical, filters</td><td>Relevance and precision</td></tr><tr><td>Similarity</td><td>Current asset</td><td>Embedding neighbors, duplicate clusters</td><td>Visual and semantic closeness</td></tr><tr><td>Related discovery</td><td>Partial or latent intent</td><td>Graph, clusters, style, co-engagement</td><td>Relevance, diversity, novelty</td></tr><tr><td>Semantic tagging</td><td>Asset understanding</td><td>Embedding and classifier outputs</td><td>Tag accuracy and coverage</td></tr></tbody></table></div>
+<p>Strong interview line: 强面试线：</p>
+<p>"Search captures explicit intent, while discovery captures latent intent. They can share embeddings and ranking features, but candidate generation usually needs different strategies."</p>
+<p>面试强句（中文版本）：</p>
+<p>"Search 解决显式intent，discovery 解决隐式/潜在intent。它们可以共享 embeddings 与 ranking 特征，但 candidate generation 往往需要不同策略。"</p>
+<h3 id="query-flow">Query Flow</h3>
+<ol><li>User submits text, image, or text-plus-image query.</li></ol>
+<p>用户提交文本、图像或文本加图像查询。</p>
+<ol><li>Client SDK preprocesses payload and may apply on-device pruning.</li></ol>
+<p>客户端 SDK 预处理有效负载并可能应用端侧 pruning。</p>
+<ol><li>Query API normalizes request and applies product policy.</li></ol>
+<p>查询 API 规范请求并应用产品策略。</p>
+<ol><li>Text and/or image encoders map query into shared embedding space.</li></ol>
+<p>文本和/或图像编码器将查询映射到共享 embedding space。</p>
+<ol><li>Vector retrieval returns semantic candidates.</li></ol>
+<p>向量检索返回语义候选。</p>
+<ol><li>Lexical retrieval returns exact-match candidates.</li></ol>
+<p>词汇检索返回完全匹配的候选者。</p>
+<ol><li>Metadata filters enforce asset type, license, orientation, product source, and policy.</li></ol>
+<p>元数据过滤器强制实施资产类型、许可证、方向、产品来源和政策。</p>
+<ol><li>Candidate merger deduplicates and trims.</li></ol>
+<p>候选合并会删除重复数据并进行修剪。</p>
+<ol><li>Feature service joins semantic, lexical, quality, freshness, popularity, and context features.</li></ol>
+<p>特征服务结合了语义、词汇、质量、freshness、流行度和上下文特征。</p>
+<ol><li>Ranker scores and returns final results.</li></ol>
+<p>排序器评分并返回最终结果。</p>
+<ol><li>Engagement events are logged for evaluation and training.</li></ol>
+<p>记录参与事件以供评估和培训。</p>
+<h3 id="shared-embedding-space">Shared Embedding Space</h3>
+<p>The platform used aligned encoders so text, images, and other modalities could be compared in a shared space.</p>
+<p>平台使用 aligned encoders，使文本、图片以及其他模态的表示可以在同一向量空间中进行比较。</p>
+<p>Conceptual flow: 概念流程：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 19, Shared Embedding Space.]</p>
+<p>Key challenge: 主要挑战：</p>
+<p>Different encoders and model versions can drift. If the query encoder and asset encoder do not produce compatible vectors, retrieval quality degrades.</p>
+<p>不同 encoder 与模型版本会发生漂移。如果 query encoder 和 asset encoder 产出的向量不再兼容（不在同一空间或分布错位），检索质量就会下降。</p>
+<p>Mitigation: 减轻：</p>
+<ul><li>Store embedding version with every vector.</li></ul>
+<p>存储每个向量的嵌入版本。</p>
+<ul><li>Use model-index compatibility checks.</li></ul>
+<p>使用模型索引兼容性检查。</p>
+<ul><li>Run offline recall/NDCG tests before index promotion.</li></ul>
+<p>在指数提升之前运行离线召回/NDCG 测试。</p>
+<ul><li>Use backfills or dual-index rollout for major embedding changes.</li></ul>
+<p>使用回填或双索引发布来进行主要的嵌入更改。</p>
+<ul><li>Track embedding drift metrics.</li></ul>
+<p>跟踪嵌入漂移指标。</p>
+<h3 id="ingestion-and-indexing-pipeline">Ingestion and Indexing Pipeline</h3>
+<p>The ingestion pipeline handled large heterogeneous assets.</p>
+<p>Ingestion 流水线需要处理大规模且高度异构的资产。</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 20, Ingestion and Indexing Pipeline.]</p>
+<p>Modality handling: 模态处理：</p>
+<ul><li>Image: resize, color features, aesthetic features, visual embeddings.</li></ul>
+<p>图像：调整大小、颜色特征、美学特征、视觉嵌入。</p>
+<ul><li>Video: keyframe extraction, scene metadata, audio transcript, temporal features.</li></ul>
+<p>视频：关键帧提取、场景元数据、音频转录、时间特征。</p>
+<ul><li>Audio: transcript, audio embeddings, event tags.</li></ul>
+<p>音频：文字记录、音频嵌入、事件标签。</p>
+<ul><li>Document: text extraction, layout hints, document embeddings.</li></ul>
+<p>文档：文本提取、布局prompt、文档嵌入。</p>
+<ul><li>3D: rendered views or proxy images, metadata, spatial descriptors.</li></ul>
+<p>3D：渲染视图或代理图像、元数据、空间描述符。</p>
+<h3 id="data-model">Data Model</h3>
+<p>Representative asset schema:</p>
+<p>代表性的资产数据模型：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 21, Data Model.]</p>
+<h3 id="hybrid-retrieval">Hybrid Retrieval</h3>
+<p>Vector retrieval and lexical retrieval solve different problems.</p>
+<p>向量检索与词法检索解决的是不同问题：向量检索负责语义/风格的召回，词法检索负责精确匹配与结构化约束；两者结合才能既“找得到”又“找得准”。</p>
+<p>Vector retrieval: 向量检索：</p>
+<ul><li>Semantic similarity.</li></ul>
+<p>语义相似性。</p>
+<ul><li>Style similarity.</li></ul>
+<p>风格相似。</p>
+<ul><li>Cross-modal retrieval.</li></ul>
+<p>跨模态检索。</p>
+<ul><li>Related assets.</li></ul>
+<p>相关资产。</p>
+<ul><li>Discovery.</li></ul>
+<p>发现。</p>
+<p>Lexical retrieval: 词汇检索：</p>
+<ul><li>Exact terms.</li></ul>
+<p>确切的条款。</p>
+<ul><li>Asset names.</li></ul>
+<p>资产名称。</p>
+<ul><li>Tags.</li></ul>
+<p>标签。</p>
+<ul><li>Structured filters.</li></ul>
+<p>结构化过滤器。</p>
+<ul><li>License constraints.</li></ul>
+<p>许可限制。</p>
+<ul><li>Product-specific constraints.</li></ul>
+<p>产品特定的限制。</p>
+<p>Candidate generation sketch: 候选生成草图：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 22, Hybrid Retrieval.]</p>
+<h3 id="ranking">Ranking</h3>
+<p>Ranking combines multiple feature families: 排序结合了多个功能系列：</p>
+<ul><li>Embedding similarity.</li></ul>
+<p>嵌入相似性。</p>
+<ul><li>Lexical score.</li></ul>
+<p>词汇得分。</p>
+<ul><li>Metadata match.</li></ul>
+<p>元数据匹配。</p>
+<ul><li>Asset quality.</li></ul>
+<p>资产质量。</p>
+<ul><li>Freshness.</li></ul>
+<p>新鲜。</p>
+<ul><li>Popularity.</li></ul>
+<p>人气。</p>
+<ul><li>Product context.</li></ul>
+<p>产品背景。</p>
+<ul><li>User/session context.</li></ul>
+<p>用户/会话上下文。</p>
+<ul><li>Diversity and novelty for discovery.</li></ul>
+<p>发现的多样性和新颖性。</p>
+<ul><li>Duplicate penalties.</li></ul>
+<p>重复处罚。</p>
+<ul><li>Safety and licensing filters.</li></ul>
+<p>安全和许可过滤器。</p>
+<p>Representative ranking feature object: 代表性排序特征对象：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 23, Ranking.]</p>
+<p>Simple scoring sketch: 简单的评分草图：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 24, Ranking.]</p>
+<p>Production note: 制作注意事项：</p>
+<p>In production, this would typically be a learned ranker or ensemble rather than a fixed-weight formula. The formula is useful for explaining feature interactions in an interview.</p>
+<p>生产实践说明：</p>
+<p>在生产环境中，排序通常会使用学习得到的 ranker 或 ensemble，而不是固定权重公式。这里写成公式只是为了在面试中更直观地解释特征之间的交互关系与权衡。</p>
+<h3 id="asynchronous-retrieval">Asynchronous Retrieval</h3>
+<p>Some candidate sources are slower than others. The system used asynchronous retrieval to avoid blocking on one source.</p>
+<p>一些候选来源比其他来源更慢。系统采用异步检索，避免因为某个来源变慢而阻塞整体请求，从而更稳定地满足交互式延迟预算。</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 25, Asynchronous Retrieval.]</p>
+<p>Interview point: 面试要点：</p>
+<p>"For interactive search, it is better to return a strong result within the latency budget than to wait for every candidate source and miss p95."</p>
+<p>面试表达（中文版本）：</p>
+<p>"对交互式搜索来说，在延迟预算内返回一个足够强的结果，比为了等齐所有候选来源而错过 p95 更重要。"</p>
+<h3 id="edge-cloud-retrieval-optimization">Edge-Cloud Retrieval Optimization</h3>
+<p>The platform reduced heavy-media transfer by moving some preprocessing or pruning to the client SDK.</p>
+<p>平台通过把部分预处理/剪枝下沉到客户端 SDK 来减少重媒体传输：尽可能用紧凑表示（embedding、keyframes、proxies、metadata）替代原始大文件的上传。</p>
+<p>Examples: 示例：</p>
+<ul><li>Search-by-image: compute a small embedding or image fingerprint locally when supported.</li></ul>
+<p>按图像搜索：在支持时在本地计算小型嵌入或图像指纹。</p>
+<ul><li>Video search: extract keyframes or proxies locally.</li></ul>
+<p>视频搜索：在本地提取关键帧或代理。</p>
+<ul><li>Similarity search: use local cache for recent assets.</li></ul>
+<p>similarity search：使用本地缓存来查找最近的资源。</p>
+<ul><li>Semantic tagging: batch local previews and upload compact metadata.</li></ul>
+<p>semantic tagging：批量本地预览并上传紧凑的元数据。</p>
+<p>Hybrid flow: 混合流：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 26, Edge-Cloud Retrieval Optimization.]</p>
+<p>Impact: 影响：</p>
+<ul><li>Reduced payload transfer by 10-20x for asset-heavy workflows.</li></ul>
+<p>对于资产密集型workflow，有效负载传输减少了 10-20 倍。</p>
+<ul><li>Improved responsiveness for large images/video.</li></ul>
+<p>提高了对大图像/视频的响应能力。</p>
+<ul><li>Preserved privacy by avoiding raw upload when not needed.</li></ul>
+<p>通过在不需要时避免原始上传来保护隐私。</p>
+<ul><li>Reduced cloud ingress and preprocessing cost.</li></ul>
+<p>减少云入口和预处理成本。</p>
+<h3 id="key-tech-stack-deep-dive">Key Tech Stack Deep Dive</h3>
+<p>This section is designed for interview preparation. For each technology, be ready to explain what it does, why it was useful, and when it is not the right choice.</p>
+<p>这一节用于面试准备：对每项技术，你要能解释它做什么、为什么有用，以及在什么情况下它不是最合适的选择（强调权衡，而不是“标准答案”）。</p>
+<h4 id="milvus-and-vector-search">Milvus and Vector Search</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>Milvus is a vector database used for approximate nearest neighbor search.</li></ul>
+<p>Milvus 是一个用于近似最近邻搜索的向量数据库。</p>
+<ul><li>It stores dense embeddings and retrieves nearest vectors by similarity.</li></ul>
+<p>它存储密集的嵌入并通过相似性检索最近的向量。</p>
+<ul><li>It supports index types and search parameters that trade recall, latency, and memory.</li></ul>
+<p>它支持以召回率、延迟和内存为代价的索引类型和搜索参数。</p>
+<p>How it fits here: 它如何适合这里：</p>
+<ul><li>Milvus stores multimodal asset embeddings.</li></ul>
+<p>Milvus 存储多模态资产嵌入。</p>
+<ul><li>It enables text-to-image, image-to-image, similarity search, and semantic retrieval.</li></ul>
+<p>它支持文本到图像、图像到图像、similarity search和语义检索。</p>
+<ul><li>It supports high-recall candidate generation before ranking.</li></ul>
+<p>它支持排序前的高召回率候选生成。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>Approximate search is not exact; recall must be measured.</li></ul>
+<p>近似搜索并不精确；必须衡量召回率。</p>
+<ul><li>Dense vectors can be memory-heavy at very large scale.</li></ul>
+<p>dense vector在非常大的规模下可能会占用大量内存。</p>
+<ul><li>Filtering can be expensive if not planned with partitioning or metadata strategy.</li></ul>
+<p>如果没有规划分区或元数据策略，过滤的成本可能会很高。</p>
+<ul><li>Index rebuilds and embedding version changes require careful rollout.</li></ul>
+<p>索引重建和嵌入版本更改需要仔细部署。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"Vector search gives semantic recall, but it does not replace ranking, metadata filters, or lexical retrieval. I treat it as candidate generation, not the final relevance layer."</p>
+<p>面试表达要点：</p>
+<p>"向量检索提供语义召回，但它不能替代 ranking、元数据过滤或词法检索。我把向量检索当作 candidate generation，而不是最终相关性层。"</p>
+<h4 id="elasticsearch-and-lexical-retrieval">Elasticsearch and Lexical Retrieval</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>Elasticsearch is strong for text search, inverted indexes, structured filters, and exact constraints.</li></ul>
+<p>Elasticsearch 非常适合文本搜索、倒排索引、结构化过滤器和精确约束。</p>
+<ul><li>It handles keyword matching, text analyzers, facets, and metadata filtering.</li></ul>
+<p>它处理关键字匹配、文本分析器、方面和元数据过滤。</p>
+<p>How it fits here: 它如何适合这里：</p>
+<ul><li>Elasticsearch retrieves exact keyword matches and enforces structured constraints such as asset type, license, orientation, product source, and tags.</li></ul>
+<p>Elasticsearch 检索精确的关键字匹配并强制实施结构化约束，例如资产类型、许可证、方向、产品来源和标签。</p>
+<ul><li>It complements vector retrieval when users include precise terms or filters.</li></ul>
+<p>当用户添加精确的术语或过滤器时，它可以补充向量检索。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>Lexical search can miss semantic or visual similarity.</li></ul>
+<p>词法搜索可能会错过语义或视觉相似性。</p>
+<ul><li>Query analyzers and mappings require careful tuning.</li></ul>
+<p>查询分析器和映射需要仔细调整。</p>
+<ul><li>Large filter-heavy workloads can stress heap, shards, and caches.</li></ul>
+<p>大量过滤器的workload会给堆、分片和缓存带来压力。</p>
+<ul><li>Relevance can be brittle for creative terms like "modern," "clean," or "cinematic."</li></ul>
+<p>对于“现代”、“干净”或“电影”等创意术语来说，相关性可能很脆弱。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"I would not choose between vector and lexical retrieval. Creative search needs both: vector for meaning and style, lexical for exact constraints and business rules."</p>
+<p>面试表达要点：</p>
+<p>"我不会在向量检索和词法检索之间二选一。创意搜索两者都需要：向量负责语义/风格，词法负责精确约束与业务规则。"</p>
+<h4 id="kafka-and-flink">Kafka and Flink</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>Kafka provides durable event streams.</li></ul>
+<p>Kafka 提供持久的事件流。</p>
+<ul><li>Flink provides stateful stream processing, event-time processing, backpressure handling, and checkpointing.</li></ul>
+<p>Flink 提供有状态流处理、事件时间处理、背压处理和checkpoint。</p>
+<p>How they fit here: 它们如何适合这里：</p>
+<ul><li>Kafka carries asset ingestion, asset update, metadata, embedding, indexing, and engagement events.</li></ul>
+<p>Kafka 承载资产ingestion、资产更新、元数据、嵌入、索引和参与事件。</p>
+<ul><li>Flink normalizes asset events, joins metadata, routes modality-specific processing, and produces indexing tasks.</li></ul>
+<p>Flink 规范资产事件、连接元数据、路由特定于模态的处理并生成索引任务。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>Stream processing adds operational complexity.</li></ul>
+<p>流处理增加了操作复杂性。</p>
+<ul><li>Event ordering, idempotency, and replay must be designed explicitly.</li></ul>
+<p>事件排序、幂等性和重播必须明确设计。</p>
+<ul><li>Checkpointing improves reliability but can add latency and state-management overhead.</li></ul>
+<p>checkpoint提高了可靠性，但会增加延迟和状态管理开销。</p>
+<ul><li>Backpressure in one modality pipeline can affect freshness if not isolated.</li></ul>
+<p>如果不隔离，一种模式管道中的背压可能会影响freshness。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"Kafka and Flink let the indexing system be nearline and resilient. The important design is partitioning by asset identity, making writes idempotent, and keeping online serving independent from ingestion backpressure."</p>
+<p>面试表达要点：</p>
+<p>"Kafka 和 Flink 让索引系统可以nearline且更具韧性。关键设计在于按资产 identity 做分区、保证写入幂等，并让在线 serving 不被 ingestion 的 backpressure 拖垮。"</p>
+<h4 id="kubernetes-and-multi-cloud-serving">Kubernetes and Multi-Cloud Serving</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>Kubernetes provides deployment, scaling, scheduling, service discovery, and isolation.</li></ul>
+<p>Kubernetes 提供部署、扩展、调度、服务发现和隔离。</p>
+<ul><li>Multi-cloud or multi-region deployment improves availability and data locality but complicates operations.</li></ul>
+<p>多云或多区域部署提高了可用性和数据局部性，但使操作变得复杂。</p>
+<p>How it fits here: 它如何适合这里：</p>
+<ul><li>Kubernetes hosts retrieval services, rankers, feature services, stream processors, and indexing jobs.</li></ul>
+<p>Kubernetes 托管检索服务、排序器、特征服务、流处理器和索引作业。</p>
+<ul><li>Separate node pools can isolate online serving, batch embedding, and backfill workloads.</li></ul>
+<p>单独的节点池可以隔离在线服务、批量嵌入和回填workload。</p>
+<ul><li>Multi-cloud or tiered storage can optimize cost and locality for massive asset catalogs.</li></ul>
+<p>多云或分层存储可以优化海量资产目录的成本和位置。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>Multi-cloud adds complexity in networking, observability, deployment, and data consistency.</li></ul>
+<p>多云增加了网络、可观测性、部署和数据一致性方面的复杂性。</p>
+<ul><li>Kubernetes does not automatically solve tail latency; service-level design still matters.</li></ul>
+<p>Kubernetes 不会自动解决尾延迟；服务水平设计仍然很重要。</p>
+<ul><li>Batch workloads can interfere with online serving if resource classes are not separated.</li></ul>
+<p>如果不分离资源类，批量workload可能会干扰在线服务。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"Kubernetes gives a common deployment substrate, but the scalable design comes from workload isolation, autoscaling signals, sharding, caching, and clear SLO boundaries."</p>
+<p>面试表达要点：</p>
+<p>"Kubernetes 提供统一部署底座，但真正的可扩展性来自workload隔离、合理的 autoscaling 信号、分片、缓存以及清晰的 SLO 边界。"</p>
+<h4 id="embedding-models-and-aligned-encoders">Embedding Models and Aligned Encoders</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>Embedding models map text, images, and other modality-derived inputs into vectors.</li></ul>
+<p>嵌入模型将文本、图像和其他模态派生的输入映射到向量中。</p>
+<ul><li>Aligned encoders make different modalities comparable in a shared space.</li></ul>
+<p>对齐的编码器使不同的模态在共享空间中具有可比性。</p>
+<p>How they fit here: 它们如何适合这里：</p>
+<ul><li>Text queries, reference images, video keyframes, document chunks, and 3D previews can be mapped into compatible vectors.</li></ul>
+<p>文本查询、参考图像、视频关键帧、文档块和 3D 预览可以映射到兼容的向量。</p>
+<ul><li>This enables search-by-description, search-by-image, related assets, and semantic tagging.</li></ul>
+<p>这支持按描述搜索、按图像搜索、相关资产和semantic tagging。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>Model drift can break index compatibility.</li></ul>
+<p>模型漂移会破坏索引兼容性。</p>
+<ul><li>Distilled or edge models may not match cloud model embeddings exactly.</li></ul>
+<p>蒸馏模型或边缘模型可能与云模型嵌入不完全匹配。</p>
+<ul><li>Fine-tuning improves domain relevance but can hurt generalization.</li></ul>
+<p>微调可以提高领域相关性，但可能会损害泛化能力。</p>
+<ul><li>Higher-dimensional embeddings can improve quality but increase memory and latency.</li></ul>
+<p>高维嵌入可以提高质量，但会增加内存和延迟。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"Embedding quality is not only a model metric. It has system implications: index size, recall, latency, compatibility, freshness, and rollout cost."</p>
+<p>面试表达要点：</p>
+<p>"Embedding 质量不只是模型指标，它也会影响系统：索引大小、召回、延迟、兼容性、freshness以及发布/回填成本。"</p>
+<h4 id="feature-store-and-ranking-layer">Feature Store and Ranking Layer</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>The feature layer provides low-latency access to ranking features.</li></ul>
+<p>特征层提供对排序功能的低延迟访问。</p>
+<ul><li>Ranking combines retrieval scores with metadata, quality, popularity, freshness, context, and discovery-specific diversity signals.</li></ul>
+<p>排序将检索score与元数据、质量、流行度、freshness、上下文和特定于发现的多样性信号结合起来。</p>
+<p>How it fits here: 它如何适合这里：</p>
+<ul><li>Candidate generation returns hundreds or thousands of candidates.</li></ul>
+<p>候选生成会返回数百或数千个候选。</p>
+<ul><li>The feature layer enriches candidates.</li></ul>
+<p>特征层丰富了候选者。</p>
+<ul><li>The ranker decides final ordering for search or discovery.</li></ul>
+<p>排序者决定搜索或发现的最终顺序。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>More features can improve quality but increase latency and operational risk.</li></ul>
+<p>更多功能可以提高质量，但会增加延迟和运营风险。</p>
+<ul><li>Real-time features may be fresher but more expensive to serve.</li></ul>
+<p>实时功能可能更新鲜，但服务成本更高。</p>
+<ul><li>Cached/offline features are cheaper but can become stale.</li></ul>
+<p>缓存/离线功能更便宜，但可能会变得过时。</p>
+<ul><li>Neural rerankers may improve relevance but need careful latency budgeting.</li></ul>
+<p>神经重新排序可能会提高相关性，但需要仔细的延迟预算。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"Retrieval is broad and recall-oriented. Ranking is precision-oriented. The production challenge is deciding how much feature and model complexity is worth the latency cost."</p>
+<p>面试表达要点：</p>
+<p>"Retrieval 追求覆盖面与召回，Ranking 追求精度。生产上的难点是：多少特征与模型复杂度值得为它付出延迟成本。"</p>
+<h4 id="client-sdk-and-edge-cloud-split">Client SDK and Edge-Cloud Split</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>The client SDK performs lightweight preprocessing, pruning, caching, or local feature extraction.</li></ul>
+<p>客户端 SDK 执行轻量级预处理、修剪、缓存或本地特征提取。</p>
+<ul><li>It reduces unnecessary network transfer and improves responsiveness for asset-heavy workflows.</li></ul>
+<p>它减少了不必要的网络传输并提高了资产密集型workflow的响应能力。</p>
+<p>How it fits here: 它如何适合这里：</p>
+<ul><li>For search-by-image or video workflows, the client can send compact representations rather than raw media.</li></ul>
+<p>对于按图像搜索或视频 workflow，客户端可以发送紧凑的表示而不是raw media。</p>
+<ul><li>Local preprocessing helps privacy because raw user assets do not always need to leave the device.</li></ul>
+<p>本地预处理有助于隐私，因为原始用户资产并不总是需要离开设备。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>Client environments vary widely in hardware and runtime support.</li></ul>
+<p>客户端环境在硬件和运行时支持方面差异很大。</p>
+<ul><li>Edge model parity with cloud embeddings is difficult.</li></ul>
+<p>边缘模型与云嵌入的对等是很困难的。</p>
+<ul><li>Offline or local cache behavior must be reconciled with cloud search results.</li></ul>
+<p>离线或本地缓存行为必须与云搜索结果保持一致。</p>
+<ul><li>Too much client complexity can make product integration harder.</li></ul>
+<p>太多的客户端复杂性会使产品集成变得更加困难。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"The edge-cloud split is a tradeoff, not a religion. I would use edge processing when it reduces payload, latency, cost, or privacy risk, but keep full-catalog retrieval and global ranking in the cloud."</p>
+<p>面试表达要点：</p>
+<p>"端云拆分是一种权衡，不是教条。我会在端侧处理确实能减少 payload、延迟、成本或隐私风险时使用端侧能力，但把全量目录检索与全局排序留在云端。"</p>
+<h3 id="evaluation-metrics">Evaluation Metrics</h3>
+<p>Offline: 离线：</p>
+<ul><li>Recall@100.</li></ul>
+<p>回忆@100。</p>
+<ul><li>Recall@500.</li></ul>
+<p>回忆@500。</p>
+<ul><li>NDCG@10.</li></ul>
+<p>NDCG@10。</p>
+<ul><li>MRR.</li></ul>
+<p>MRR。</p>
+<ul><li>Duplicate rate.</li></ul>
+<p>重复率。</p>
+<ul><li>Embedding drift.</li></ul>
+<p>嵌入漂移。</p>
+<ul><li>Filter compliance.</li></ul>
+<p>过滤器合规性。</p>
+<ul><li>Long-tail coverage.</li></ul>
+<p>长尾覆盖。</p>
+<ul><li>Diversity and novelty.</li></ul>
+<p>多样性和新颖性。</p>
+<p>Online: 在线的：</p>
+<ul><li>CTR.</li></ul>
+<p>点击率。</p>
+<ul><li>Save/download rate.</li></ul>
+<p>保存/下载率。</p>
+<ul><li>Time to first useful result.</li></ul>
+<p>获得第一个有用结果的时间。</p>
+<ul><li>Reformulation rate.</li></ul>
+<p>重组率。</p>
+<ul><li>Zero-result rate.</li></ul>
+<p>零结果率。</p>
+<ul><li>Abandonment rate.</li></ul>
+<p>放弃率。</p>
+<ul><li>p50/p95 latency.</li></ul>
+<p>p50/p95 延迟。</p>
+<ul><li>GPU cost per 1k queries.</li></ul>
+<p>每 1k 查询的 GPU 成本。</p>
+<p>Project metric: 项目指标：</p>
+<ul><li>Discovery CTR improved by 15%.</li></ul>
+<p>discovery CTR提高了 15%。</p>
+<p>How to defend this metric: 如何捍卫这个指标：</p>
+<p>"The CTR lift came from a combination of better candidate generation, multimodal features, reranking, and experimentation. I would not attribute it to one model alone; it was a system-level improvement." “点击率的提升来自于更好的候选生成、多模态特征、重新排序和实验的结合。我不会将其单独归因于一个模型；这是一种系统级的改进。”</p>
+<h3 id="system-reliability">System Reliability</h3>
+<p>Failure modes: 失效模式：</p>
+<div class="table-scroll"><table><thead><tr><th>Failure Mode</th><th>Mitigation</th></tr></thead><tbody><tr><td>Vector index unavailable</td><td>Fall back to lexical and cached results</td></tr><tr><td>Lexical backend degraded</td><td>Fall back to dense retrieval and filters</td></tr><tr><td>Feature service latency spike</td><td>Use cached/default features and reduce rerank depth</td></tr><tr><td>Embedding model rollout regression</td><td>Roll back model/index version</td></tr><tr><td>Duplicate results</td><td>Deduplicate during candidate merge and ranking</td></tr><tr><td>Metadata stale</td><td>Fail closed for license and moderation</td></tr><tr><td>New asset freshness lag</td><td>Nearline index updates plus periodic rebuilds</td></tr></tbody></table></div>
+<h3 id="design-and-implementation-challenges">Design and Implementation Challenges</h3>
+<h4 id="challenge-1-semantic-relevance-vs-exact-constraints">Challenge 1: Semantic Relevance vs Exact Constraints</h4>
+<p>Creative users expect semantic understanding, but the product still needs strict constraints. A search for "transparent PNG logo" should not return a visually similar JPG with the wrong license.</p>
+<p>挑战 1（中文理解）：</p>
+<p>创意用户希望系统“懂语义”，但产品仍然必须满足严格约束。例如搜索“transparent PNG logo”时，不能返回视觉相似但格式/授权错误的 JPG。</p>
+<p>Design response: 设计响应：</p>
+<ul><li>Use vector retrieval for semantic recall.</li></ul>
+<p>使用向量检索进行语义回忆。</p>
+<ul><li>Use lexical retrieval and metadata filters for exact constraints.</li></ul>
+<p>使用词法检索和元数据过滤器来实现精确约束。</p>
+<ul><li>Apply hard filters for license, moderation, tenant access, and unsupported asset types.</li></ul>
+<p>对许可证、审核、tenant访问和不支持的资产类型应用硬过滤器。</p>
+<ul><li>Let ranking combine soft relevance features after hard constraints are satisfied.</li></ul>
+<p>在满足硬约束后，让排序结合软相关特征。</p>
+<h4 id="challenge-2-scaling-vector-search-without-losing-quality">Challenge 2: Scaling Vector Search Without Losing Quality</h4>
+<p>At 50B+ assets, brute-force nearest neighbor search is impossible. Approximate indexes and sharding are necessary, but they introduce recall tradeoffs.</p>
+<p>挑战 2（中文理解）：</p>
+<p>在 50B+ 资产规模下，暴力最近邻搜索不可行，必须使用近似索引与分片；但这会带来召回损失与参数权衡。</p>
+<p>Design response: 设计响应：</p>
+<ul><li>Use approximate nearest neighbor indexes for candidate generation.</li></ul>
+<p>使用近似最近邻索引来生成候选。</p>
+<ul><li>Tune recall/latency parameters by query class.</li></ul>
+<p>按查询类别调整召回/延迟参数。</p>
+<ul><li>Keep reranking separate from vector retrieval.</li></ul>
+<p>将重新排序与向量检索分开。</p>
+<ul><li>Validate with offline Recall@K and online product metrics.</li></ul>
+<p>使用离线 Recall@K 和在线产品指标进行验证。</p>
+<ul><li>Use index versioning and rollback for embedding/index changes.</li></ul>
+<p>使用索引版本控制和回滚来进行嵌入/索引更改。</p>
+<h4 id="challenge-3-freshness-vs-index-stability">Challenge 3: Freshness vs Index Stability</h4>
+<p>Users expect new assets to appear quickly, but constant index mutation can hurt consistency and performance.</p>
+<p>挑战 3（中文理解）：</p>
+<p>用户希望新资产快速可见，但索引频繁变更会损害一致性与性能，需要在 freshness 与稳定性之间取舍。</p>
+<p>Design response: 设计响应：</p>
+<ul><li>Use nearline updates for fresh assets.</li></ul>
+<p>对新资产使用nearline更新。</p>
+<ul><li>Use periodic full rebuilds for compaction and consistency.</li></ul>
+<p>使用定期完全重建来实现压缩和一致性。</p>
+<ul><li>Publish index versions atomically.</li></ul>
+<p>以原子方式发布索引版本。</p>
+<ul><li>Track freshness lag separately from query latency.</li></ul>
+<p>单独跟踪freshness滞后和查询延迟。</p>
+<h4 id="challenge-4-multimodal-alignment-and-model-drift">Challenge 4: Multimodal Alignment and Model Drift</h4>
+<p>Text, image, video, document, and 3D-derived representations must remain compatible. If model versions drift, cross-modal retrieval degrades.</p>
+<p>挑战 4（中文理解）：</p>
+<p>文本、图像、视频、文档与 3D 衍生表示必须保持空间兼容；一旦模型版本漂移，跨模态检索质量会显著下降。</p>
+<p>Design response: 设计响应：</p>
+<ul><li>Store embedding version and model ID with every vector.</li></ul>
+<p>存储每个向量的嵌入版本和模型 ID。</p>
+<ul><li>Tie query encoder versions to compatible index versions.</li></ul>
+<p>将查询编码器版本与兼容的索引版本联系起来。</p>
+<ul><li>Use offline regression sets for cross-modal retrieval.</li></ul>
+<p>使用离线回归集进行跨模态检索。</p>
+<ul><li>Run staged backfills for major embedding upgrades.</li></ul>
+<p>运行分阶段回填以进行主要嵌入升级。</p>
+<h4 id="challenge-5-ranking-complexity-vs-tail-latency">Challenge 5: Ranking Complexity vs Tail Latency</h4>
+<p>Ranking quality improves with more features and heavier models, but every feature join and reranker call adds latency.</p>
+<p>挑战 5（中文理解）：</p>
+<p>更多特征与更重的模型通常能提升排序质量，但每一次 feature join 与 reranker 调用都会增加尾延迟，必须做延迟预算与分层策略。</p>
+<p>Design response: 设计响应：</p>
+<ul><li>Use multi-stage ranking.</li></ul>
+<p>使用多阶段排序。</p>
+<ul><li>Keep candidate generation broad but bounded.</li></ul>
+<p>保持候选人的产生范围广泛但有限。</p>
+<ul><li>Apply heavy reranking only to top candidates.</li></ul>
+<p>仅对顶尖候选人进行大幅重新排序。</p>
+<ul><li>Cache hot features.</li></ul>
+<p>缓存热门功能。</p>
+<ul><li>Degrade gracefully by reducing candidate depth or using lighter rankers under load.</li></ul>
+<p>通过减少候选深度或在负载下使用较轻的排序器来优雅地降级。</p>
+<h4 id="challenge-6-discovery-is-not-search-with-different-weights">Challenge 6: Discovery Is Not Search With Different Weights</h4>
+<p>Discovery needs diversity, novelty, and exploration. If it only uses nearest neighbors, the feed collapses into duplicates or already-popular assets.</p>
+<p>挑战 6（中文理解）：</p>
+<p>Discovery 需要多样性、新颖性与探索性。如果只靠 nearest neighbors，feed 很容易坍塌为重复内容或被热门资产主导。</p>
+<p>Design response: 设计响应：</p>
+<ul><li>Use separate candidate sources for discovery.</li></ul>
+<p>使用单独的候选源进行发现。</p>
+<ul><li>Add graph and style-cluster candidates.</li></ul>
+<p>添加图形和样式簇候选。</p>
+<ul><li>Penalize near-duplicates.</li></ul>
+<p>惩罚接近重复的人。</p>
+<ul><li>Track long-tail coverage and repeat engagement, not only CTR.</li></ul>
+<p>跟踪长尾覆盖率和重复参与度，而不仅仅是点击率。</p>
+<h3 id="project-2-interview-q-a">Project 2 Interview Q&amp;A</h3>
+<h4 id="q-why-not-pure-vector-search">Q: Why not pure vector search?</h4>
+<p>Creative search needs semantic matching and exact constraints. Vector search is good for style and meaning, but it does not naturally enforce license, asset type, orientation, product source, or exact keywords. Hybrid retrieval provides semantic recall and structured precision.</p>
+<p>创意搜索既需要语义匹配，也需要精确约束。向量检索擅长捕捉风格与语义，但它并不能天然保证 license、asset type、orientation、product source 或精确关键词等硬约束。混合检索让系统同时具备语义召回能力与结构化约束的精确性。</p>
+<h4 id="q-how-did-you-support-cross-modal-search">Q: How did you support cross-modal search?</h4>
+<p>We used aligned encoders and a shared embedding space. Text, images, video keyframes, and other modality-derived representations were projected into compatible vectors so that a text query could retrieve images or videos and an image could retrieve similar assets.</p>
+<p>我们使用 aligned encoders 与共享 embedding 空间。文本、图片、视频 keyframes 以及其他模态衍生表示会被投影到兼容的向量空间里，从而让文本查询能检索到图片/视频，让图片也能检索到相似资产。</p>
+<h4 id="q-how-did-you-scale-to-50b-assets">Q: How did you scale to 50B+ assets?</h4>
+<p>We used distributed ingestion with Kafka and Flink, precomputed embeddings, vector indexing with Milvus, lexical indexing with Elasticsearch, sharding, tiered storage, and index versioning. The online path retrieved candidates from prebuilt indexes rather than computing everything at request time.</p>
+<p>我们通过 Kafka + Flink 的分布式 ingestion、预计算 embeddings、Milvus 向量索引、Elasticsearch 词法索引、分片、分层存储和索引版本管理来支撑 50B+ 资产规模。在线路径从预构建的索引中召回候选，而不是在请求时现算全部内容。</p>
+<h4 id="q-how-did-you-handle-freshness">Q: How did you handle freshness?</h4>
+<p>New or modified assets used nearline updates, while periodic full rebuilds handled compaction and consistency. Index versions were published atomically to avoid mixed reads during rollout.</p>
+<p>新/变更资产通过 nearline updates 快速进入索引；周期性 full rebuild 用于压缩与一致性修复。索引版本采用原子发布，避免上线过程中出现混合读（mixed reads）。</p>
+<h4 id="q-what-was-the-ranking-strategy">Q: What was the ranking strategy?</h4>
+<p>Candidate generation optimized recall using vector, lexical, graph, and style sources. The ranker optimized precision using semantic similarity, lexical relevance, metadata, asset quality, freshness, popularity, context, and diversity signals for discovery.</p>
+<p>候选生成阶段通过向量、词法、图结构与风格等多来源来最大化 recall；排序阶段则通过语义相似度、词法相关性、元数据、资产质量、freshness、热度、上下文，以及 discovery 场景下的多样性信号来最大化 precision。</p>
+<h4 id="q-how-did-you-balance-relevance-and-diversity">Q: How did you balance relevance and diversity?</h4>
+<p>For explicit search, relevance dominates. For discovery, near-duplicates can hurt exploration, so the ranker adds diversity, novelty, and long-tail coverage objectives. We evaluated both engagement and quality metrics.</p>
+<p>对于显式搜索，relevance 是第一优先级；对于 discovery，近重复会伤害探索体验，因此 ranker 会加入 diversity、novelty 与 long-tail coverage 目标。我们同时评估 engagement 指标与质量指标，避免系统只追热门或只追相似。</p>
+<h4 id="q-what-was-your-personal-contribution">Q: What was your personal contribution?</h4>
+<p>I worked on the retrieval and ranking platform: vector-lexical candidate generation, multimodal embeddings integration, feature serving, ranking logic, hybrid edge-cloud execution patterns, indexing pipeline design, and experimentation. I also helped turn the system into reusable platform capabilities across asset types and product surfaces.</p>
+<p>我主要做的是检索与排序平台相关工作：vector-lexical 候选生成、多模态 embeddings 集成、特征服务、排序逻辑、端云混合执行模式、索引流水线设计与实验体系。同时也推动把系统能力抽象为可复用的平台模块，支持更多资产类型与产品入口。</p>
+<h4 id="q-how-did-the-earlier-search-platform-connect-to-the-later-ai-platform-work">Q: How did the earlier search platform connect to the later AI platform work?</h4>
+<p>The search platform exposed repeated infrastructure patterns: embeddings, ranking, batch indexing, edge preprocessing, GPU inference, model rollout, observability, and resource management. The later AI Platform project generalized these patterns into a shared intent-based execution layer for broader AI workflows.</p>
+<p>Search 平台暴露了大量可复用的基础设施模式：embeddings、ranking、batch indexing、端侧预处理、GPU 推理、模型发布、可观测性与资源管理。后续 AI Platform 项目把这些模式进一步抽象为共享的 intent-based 执行层，从而覆盖更广泛的 AI workflows。</p>
+<h3 id="hiring-manager-deep-dive">Hiring Manager Deep Dive</h3>
+<h4 id="leadership-scope">Leadership Scope</h4>
+<p>This project demonstrates: 该项目展示了：</p>
+<ul><li>Deep retrieval and ranking system knowledge.</li></ul>
+<p>深度检索和排序系统知识。</p>
+<ul><li>Production-scale data and indexing experience.</li></ul>
+<p>生产规模的数据和索引经验。</p>
+<ul><li>Ability to connect ML quality to product metrics.</li></ul>
+<p>能够将机器学习质量与产品指标联系起来。</p>
+<ul><li>Practical understanding of hybrid vector-lexical search.</li></ul>
+<p>混合向量词法搜索的实际理解。</p>
+<ul><li>Experience scaling multimodal systems beyond a demo.</li></ul>
+<p>体验超越演示的多模态系统扩展。</p>
+<ul><li>Strong operational awareness around freshness, latency, cost, and reliability.</li></ul>
+<p>对freshness、延迟、成本和可靠性有很强的运营意识。</p>
+<h4 id="what-to-emphasize">What To Emphasize</h4>
+<ul><li>You built an end-to-end system, not a notebook.</li></ul>
+<p>您构建了一个端到端系统，而不是笔记本。</p>
+<ul><li>You understood both search quality and distributed systems.</li></ul>
+<p>您了解搜索质量和分布式系统。</p>
+<ul><li>You measured impact with CTR and latency, not only offline accuracy.</li></ul>
+<p>您衡量了点击率和延迟的影响，而不仅仅是离线准确性。</p>
+<ul><li>You balanced vector retrieval with exact filters.</li></ul>
+<p>您平衡了向量检索与精确过滤器。</p>
+<ul><li>You connected client SDK work with cloud retrieval.</li></ul>
+<p>您将客户端 SDK 与云检索连接起来。</p>
+<h4 id="hiring-manager-version">Hiring Manager Version</h4>
+<p>"This work was about making creative search production-grade. Users do not always know exact keywords; they search by style, mood, visual reference, and context. I helped build the system that combined multimodal embeddings, lexical search, metadata filters, ranking, and client-side preprocessing so that search and discovery could work across very large creative catalogs."</p>
+<p>面试官视角（中文版本）：</p>
+<p>"这项工作是把 creative search 做到 production-grade。用户不一定知道精确关键词，他们会按风格、氛围、视觉参考和上下文来搜。我参与构建了一个把多模态 embeddings、词法检索、元数据过滤、排序以及客户端预处理结合起来的系统，让 search 与 discovery 能在超大规模 creative catalog 上稳定运行。"</p></section></main></section>
+<section class="panel" id="panel-3"><main class="content"><section class="doc-section article" id="relationship-to-project-1"><h2 id="relationship-to-project-1">Relationship To Project 1</h2>
+<p>This Search &amp; Discovery project created many of the platform patterns that later became important in the AI Platform work: embeddings, ranking, batch indexing, edge preprocessing, GPU inference, model rollout, observability, and resource management.</p>
+<p>这个 Search &amp; Discovery 项目沉淀了很多后来 AI Platform 工作所需要的平台模式：embeddings、ranking、batch indexing、端侧预处理、GPU 推理、模型发布、可观测性以及资源管理。</p></section>
+<section class="doc-section article" id="star-story"><h2 id="star-story">STAR Story</h2>
+<h3 id="story-3-building-multimodal-search">Story 3: Building Multimodal Search</h3>
+<p>Situation:</p>
+<p>Creative users needed to search and discover assets by visual style, semantic meaning, and exact constraints.</p>
+<p>背景：</p>
+<p>创意用户希望按视觉风格、语义含义以及精确约束来搜索和发现资产，而不仅仅是按关键词匹配。</p>
+<p>Task:</p>
+<p>Build a scalable retrieval and ranking platform across heterogeneous asset types.</p>
+<p>任务：</p>
+<p>构建一个可扩展的检索与排序平台，覆盖多种异构资产类型。</p>
+<p>Action:</p>
+<p>Combined shared embedding space retrieval, Milvus vector search, Elasticsearch lexical search, metadata filters, real-time feature serving, and multi-stage ranking. Added client SDK support for on-device pruning and hybrid edge-cloud execution.</p>
+<p>行动：</p>
+<p>将共享 embedding 空间检索、Milvus 向量检索、Elasticsearch 词法检索、元数据过滤、实时特征服务与多阶段排序组合成统一流水线；同时引入客户端 SDK 的端侧剪枝与端云混合执行支持。</p>
+<p>Result:</p>
+<p>Enabled onboarding of 50B+ assets, reduced heavy-media transfer by 10-20x, and drove a 15% increase in discovery CTR.</p>
+<p>结果：</p>
+<p>支持 50B+ 资产接入，将重媒体传输降低 10-20 倍，并带来 discovery CTR 提升 15%。</p></section></main></section>
+<section class="panel" id="panel-4"><main class="content"><section class="doc-section article" id="interview-task-deep-dives"><h2 id="interview-task-deep-dives">Interview Task Deep Dives</h2>
+<p>These task deep dives are designed to help you answer follow-up questions beyond the resume bullets. They show how the Search &amp; Discovery project was not only an ML retrieval project, but also a scalable distributed system with ingestion, indexing, ranking, evaluation, rollout, and client/cloud tradeoffs.</p>
+<p>这些任务深挖帮助你回答简历 bullet 之外的追问。它们展示 Search &amp; Discovery 项目不仅是一个 ML 检索项目，也是一个包含 ingestion、indexing、ranking、evaluation、rollout 以及端云权衡的大规模分布式系统。</p>
+<p>Memorization and proof-point matrix: 记忆和证明点矩阵：</p>
+<div class="table-scroll"><table><thead><tr><th>Task</th><th>Why it fits Project 2</th><th>Simple metrics / logic to mention</th><th>Capability shown</th></tr></thead><tbody><tr><td>Billion-scale ingestion/indexing</td><td>Directly maps to 50B+ asset onboarding</td><td>Kafka lag by modality/tenant, Flink checkpoints, embedding queue delay, index publish delay</td><td>Large-scale data pipelines</td></tr><tr><td>Hybrid vector-lexical retrieval</td><td>Directly maps to Milvus + Elasticsearch</td><td>Dense retrieval for semantic recall; BM25/filters for exact constraints; rerank top candidates</td><td>Practical search architecture</td></tr><tr><td>Shared embedding space</td><td>Maps to search-by-description, image, similarity, semantic tagging</td><td>One aligned space across image/audio/video/3D/document; segment-level vectors for video/docs</td><td>Multimodal ML systems</td></tr><tr><td>Edge-cloud payload reduction</td><td>Maps to 10-20x heavy-media transfer reduction</td><td>Send thumbnails/keyframes/OCR/local embeddings instead of raw media</td><td>Device/cloud systems thinking</td></tr><tr><td>Model/index rollout</td><td>Critical for embedding/index compatibility</td><td>Version embedding model + vector index + ranker + feature schema; canary or dual-read</td><td>Production ML reliability</td></tr><tr><td>CTR/latency debugging</td><td>Maps to 15% discovery CTR improvement and p95 constraints</td><td>Compare recall@k, candidate overlap, filter drop rate, feature availability, p95 per stage</td><td>Relevance + distributed debugging</td></tr></tbody></table></div>
+<p>记忆与证明点矩阵：</p>
+<h3 id="task-1-build-a-billion-scale-multimodal-ingestion-and-indexing-pipeline">Task 1: Build A Billion-Scale Multimodal Ingestion And Indexing Pipeline</h3>
+<p>Interviewer prompt:</p>
+<p>"How would you ingest and index tens of billions of creative assets across image, audio, video, 3D, and documents?" “您将如何ingestion和索引图像、音频、视频、3D 和文档中的数百亿创意资产？”</p>
+<p>Problem:</p>
+<p>Assets arrived from different products and storage systems with different metadata quality, file sizes, formats, update rates, privacy rules, and freshness expectations. A single batch pipeline could not keep up with continuous asset changes, and direct synchronous indexing would couple product systems to search infrastructure.</p>
+<p>问题：</p>
+<p>资产来自不同产品和存储系统，metadata 质量、文件大小、格式、更新频率、隐私规则和 freshness 预期都不同。单一 batch pipeline 无法跟上持续资产变更，而同步索引会把产品系统和搜索基础设施强耦合。</p>
+<p>Solution:</p>
+<p>Use Kafka as the durable asset-change log and Flink as the stateful stream-processing layer. Normalize metadata, validate asset ownership/licensing, extract modality-specific signals, generate or queue embeddings, and write indexable records. Separate hot incremental indexing from lower-priority backfill. Use idempotent writes keyed by asset ID and asset version so retries do not duplicate vectors or corrupt index state.</p>
+<p>解决方案：</p>
+<p>用 Kafka 作为持久化 asset-change log，用 Flink 作为有状态 stream-processing 层。对 metadata 做标准化，校验资产所有权/授权，抽取模态相关信号，生成或排队 embeddings，并写入可索引记录。把热路径增量索引和低优先级 backfill 分离。使用 <code>asset_id + asset_version</code> 作为幂等写入键，避免重试时重复写 vector 或污染索引状态。</p>
+<p>Why it is impressive:</p>
+<p>This demonstrates large-scale data-system capability. It shows that you understand replay, idempotency, freshness, partitioning, backpressure, and index consistency, not only embedding generation.</p>
+<p>亮点：</p>
+<p>这展示的是大规模数据系统能力。它说明你理解 replay、idempotency、freshness、partitioning、backpressure 和 index consistency，而不只是生成 embedding。</p>
+<p>What to emphasize:</p>
+<ul><li>Kafka gives replay and decoupling.</li></ul>
+<p>Kafka 提供重放和解耦。</p>
+<ul><li>Flink provides state, checkpoints, and backpressure visibility.</li></ul>
+<p>Flink 提供状态、checkpoint和背压可见性。</p>
+<ul><li>Indexing must be idempotent and version-aware.</li></ul>
+<p>索引必须是幂等且版本感知的。</p>
+<ul><li>Freshness and cost require separate online and backfill paths.</li></ul>
+<p>freshness和成本需要单独的在线和回填路径。</p>
+<h3 id="task-2-design-hybrid-vector-lexical-retrieval-for-creative-search">Task 2: Design Hybrid Vector-Lexical Retrieval For Creative Search</h3>
+<p>Interviewer prompt:</p>
+<p>"Why not use only vector search? Why keep Elasticsearch/BM25 in a multimodal system?" “为什么不只使用向量搜索？为什么将 Elasticsearch/BM25 保留在多模态系统中？”</p>
+<p>Problem:</p>
+<p>Vector retrieval is strong for semantic similarity, style, and cross-modal matching, but it can be weak for exact terms, product IDs, rare artist names, file types, licenses, dimensions, and precise filters. Lexical retrieval is strong for exact constraints but misses semantic and visual similarity.</p>
+<p>问题：</p>
+<p>向量检索擅长语义相似、风格和跨模态匹配，但对精确词、产品 ID、罕见作者名、文件类型、license、尺寸和精确过滤可能较弱。词法检索擅长精确约束，但容易错过语义和视觉相似性。</p>
+<p>Solution:</p>
+<p>Run hybrid candidate generation. Milvus or a vector index retrieves semantic candidates from image/text/audio/video/document embeddings. Elasticsearch retrieves lexical and metadata-filtered candidates. A fusion layer combines candidates using rank fusion, calibrated scores, or feature-based blending, then a reranker reorders candidates using semantic, lexical, quality, freshness, popularity, and policy features.</p>
+<p>解决方案：</p>
+<p>采用 hybrid candidate generation。Milvus 或 vector index 从 image/text/audio/video/document embeddings 中召回语义候选；Elasticsearch 召回词法和 metadata-filtered 候选。fusion 层通过 rank fusion、校准score或 feature-based blending 合并候选，然后由 reranker 使用语义、词法、质量、freshness、popularity 和 policy features 重排。</p>
+<p>Why it is impressive:</p>
+<p>This demonstrates practical retrieval judgment. You are not blindly replacing search with vectors; you are building a system that handles both fuzzy creative intent and precise production constraints.</p>
+<p>亮点：</p>
+<p>这展示的是务实的检索判断。你不是盲目用向量替代搜索，而是构建一个既能处理模糊创意intent，又能处理精确生产约束的系统。</p>
+<p>What to emphasize:</p>
+<ul><li>Dense retrieval improves semantic recall.</li></ul>
+<p>密集检索提高了语义回忆。</p>
+<ul><li>Lexical retrieval protects exact-match quality.</li></ul>
+<p>词汇检索可保护精确匹配质量。</p>
+<ul><li>Metadata filters must be applied early where possible.</li></ul>
+<p>元数据过滤器必须尽可能尽早应用。</p>
+<ul><li>Fusion and reranking determine final quality.</li></ul>
+<p>融合和重新排序决定了最终的质量。</p>
+<h3 id="task-3-build-cross-modal-retrieval-in-a-shared-embedding-space">Task 3: Build Cross-Modal Retrieval In A Shared Embedding Space</h3>
+<p>Interviewer prompt:</p>
+<p>"How did search-by-description, search-by-image, and similarity search use the same system?" “按描述搜索、按图像搜索和similarity search如何使用同一个系统？”</p>
+<p>Problem:</p>
+<p>Different modalities produce different raw signals. Text queries, images, videos, audio clips, 3D assets, and documents cannot be compared directly. A user might search with text and expect image results, or provide an image and expect similar templates, clips, or assets.</p>
+<p>问题：</p>
+<p>不同模态产生的原始信号不同。文本查询、图像、视频、音频片段、3D 资产和文档无法直接比较。用户可能用文本搜索图像结果，也可能上传图像来找相似模板、视频片段或资产。</p>
+<p>Solution:</p>
+<p>Use aligned encoders to map multiple modalities into a shared representation space. For video/audio/document assets, extract representative segments, frames, transcripts, captions, OCR text, or structural metadata before embedding. Store vectors with modality, asset ID, segment ID, version, and policy metadata. Query-time routing determines whether to run text embedding, image embedding, multi-vector search, lexical search, or a mixed plan.</p>
+<p>解决方案：</p>
+<p>使用 aligned encoders 把多种模态映射到共享表示空间。对于 video/audio/document assets，先抽取代表性片段、帧、transcript、caption、OCR 文本或结构化 metadata，再生成 embedding。向量记录携带 modality、asset ID、segment ID、version 和 policy metadata。查询时根据输入类型决定运行 text embedding、image embedding、multi-vector search、lexical search 或混合计划。</p>
+<p>Why it is impressive:</p>
+<p>This shows ML-platform depth. You can discuss representation learning, data modeling, indexing, segment-level retrieval, and product search behavior in one coherent story.</p>
+<p>亮点：</p>
+<p>这展示的是 ML 平台深度。你可以把 representation learning、数据建模、索引、segment-level retrieval 和产品搜索体验放在一个完整故事里讲清楚。</p>
+<p>What to emphasize:</p>
+<ul><li>Shared embedding space enables cross-modal search.</li></ul>
+<p>共享 embedding space可以实现跨模式搜索。</p>
+<ul><li>Segment-level indexing matters for video/audio/document retrieval.</li></ul>
+<p>段级索引对于视频/音频/文档检索很重要。</p>
+<ul><li>Embedding version must match index version.</li></ul>
+<p>嵌入版本必须与索引版本匹配。</p>
+<ul><li>Query routing is part of retrieval quality.</li></ul>
+<p>查询路由是检索质量的一部分。</p>
+<h3 id="task-4-reduce-heavy-media-transfer-with-hybrid-edge-cloud-execution">Task 4: Reduce Heavy-Media Transfer With Hybrid Edge-Cloud Execution</h3>
+<p>Interviewer prompt:</p>
+<p>"Your resume says heavy-media payload transfer was reduced by 10-20x. What kind of system design creates that result?" “你的简历说heavy-media payload 传输减少了 10-20 倍。什么样的系统设计创造了这样的结果？”</p>
+<p>Problem:</p>
+<p>Uploading full-resolution images, long videos, or large creative projects for every search/discovery action is slow, expensive, and unreliable. Many retrieval tasks need compact signals rather than raw media.</p>
+<p>问题：</p>
+<p>每次 search/discovery 都上传全分辨率图像、长视频或大型 creative project，会导致延迟高、成本高且可靠性差。很多检索任务真正需要的是紧凑信号，而不是raw media。</p>
+<p>Solution:</p>
+<p>Use a client SDK or edge preprocessing layer to extract thumbnails, crops, keyframes, downsampled audio, OCR text, local embeddings, metadata, or perceptual hashes. The cloud receives compact artifacts and references instead of raw media when policy allows. For privacy-sensitive assets, edge-side pruning can remove irrelevant candidates before cloud retrieval. The cloud still performs canonical embedding/ranking where consistency is required.</p>
+<p>解决方案：</p>
+<p>使用 client SDK 或端侧预处理层抽取 thumbnails、crops、keyframes、downsampled audio、OCR text、本地 embeddings、metadata 或 perceptual hashes。在策略允许时，云端接收紧凑 artifacts 和引用，而不是raw media。对于隐私敏感资产，端侧 pruning 可以在云端检索前去掉无关候选。需要一致性的场景仍由云端执行标准化 embedding/ranking。</p>
+<p>Why it is impressive:</p>
+<p>This shows end-to-end systems thinking from device constraints to cloud cost. It also connects user experience, privacy, network bandwidth, and backend scalability.</p>
+<p>亮点：</p>
+<p>这体现从设备约束到云成本的端到端系统思维，同时连接了用户体验、隐私、网络带宽和后端可扩展性。</p>
+<p>What to emphasize:</p>
+<ul><li>Raw media is often the wrong unit of transfer.</li></ul>
+<p>原始介质通常是错误的传输单位。</p>
+<ul><li>Edge preprocessing reduces network and cloud preprocessing load.</li></ul>
+<p>边缘预处理减少了网络和云预处理负载。</p>
+<ul><li>Cloud canonicalization protects quality consistency.</li></ul>
+<p>云标准化可保护质量一致性。</p>
+<ul><li>Hybrid execution requires stable contracts between client and cloud.</li></ul>
+<p>混合执行需要客户端和云之间有稳定的合同。</p>
+<h3 id="task-5-design-model-and-index-versioning-with-safe-rollout">Task 5: Design Model And Index Versioning With Safe Rollout</h3>
+<p>Interviewer prompt:</p>
+<p>"How do you roll out a new embedding model without breaking retrieval quality across billions of indexed assets?" “如何在不影响数十亿索引资产的检索质量的情况下发布新的嵌入模型？”</p>
+<p>Problem:</p>
+<p>Embedding models and vector indexes are tightly coupled. If new query vectors are compared against old asset vectors, retrieval quality can silently regress. Full re-indexing can be expensive and slow, but switching traffic too early can hurt users.</p>
+<p>问题：</p>
+<p>Embedding model 和 vector index 是强耦合的。如果新 query vector 去和旧 asset vector 比较，检索质量可能静默下降。全量重建索引成本高且耗时，但过早切流会伤害用户体验。</p>
+<p>Solution:</p>
+<p>Version embedding models, vector indexes, lexical indexes, rankers, feature schemas, and query planners. Build new indexes in parallel, validate offline recall/nDCG/MRR, dual-read or shadow traffic for selected queries, then canary traffic by product, tenant, region, or asset type. Use index aliases or routing config for atomic publish/rollback. Keep compatibility rules so query-time embedding version matches index version.</p>
+<p>解决方案：</p>
+<p>对 embedding model、vector index、lexical index、ranker、feature schema 和 query planner 做版本化。并行构建新索引，离线验证 recall/nDCG/MRR，对部分查询进行 dual-read 或 shadow traffic，然后按产品、tenant、region 或 asset type 做 canary。使用 index alias 或 routing config 做原子 publish/rollback。保持兼容性规则，确保 query-time embedding version 匹配 index version。</p>
+<p>Why it is impressive:</p>
+<p>This demonstrates production ML reliability. It shows you understand that model rollout is also data rollout and index rollout.</p>
+<p>亮点：</p>
+<p>这展示的是 production ML reliability。它说明你理解模型发布不仅是模型文件发布，也是数据发布和索引发布。</p>
+<p>What to emphasize:</p>
+<ul><li>Embedding/index compatibility is mandatory.</li></ul>
+<p>嵌入/索引兼容性是强制性的。</p>
+<ul><li>Offline metrics and online behavior both matter.</li></ul>
+<p>线下指标和线上行为都很重要。</p>
+<ul><li>Aliases/routing config enable rollback.</li></ul>
+<p>别名/路由配置启用回滚。</p>
+<ul><li>Canarying by slice reduces blast radius.</li></ul>
+<p>切片canary减少了爆炸半径。</p>
+<h3 id="task-6-debug-a-discovery-ctr-or-latency-regression">Task 6: Debug A Discovery CTR Or Latency Regression</h3>
+<p>Interviewer prompt:</p>
+<p>"A new release caused discovery CTR to drop and p95 latency to increase. How would you debug it?" “新版本导致discovery CTR下降，p95 延迟增加。您将如何调试它？”</p>
+<p>Problem:</p>
+<p>Search quality and system performance are coupled. A latency regression may come from vector search parameters, Elasticsearch filters, feature service latency, reranker batch size, cache misses, Flink freshness lag, or client payload changes. A CTR drop may come from retrieval recall, ranking features, index freshness, query understanding, or UI traffic mix.</p>
+<p>问题：</p>
+<p>搜索质量和系统性能是耦合的。延迟回归可能来自 vector search 参数、Elasticsearch filters、feature service latency、reranker batch size、cache miss、Flink freshness lag 或客户端 payload 变化。CTR 下降可能来自召回、排序特征、索引 freshness、query understanding 或 UI 流量结构变化。</p>
+<p>Solution:</p>
+<p>Break the pipeline into stages: query understanding, lexical retrieval, vector retrieval, fusion, feature join, reranking, post-filtering, and response assembly. Compare old vs new versions for recall@k, candidate overlap, filter drop rate, feature availability, reranker score distribution, p95 latency per stage, cache hit rate, and index freshness. Use experiment logs and trace IDs to replay representative bad queries.</p>
+<p>解决方案：</p>
+<p>把 pipeline 拆成 query understanding、lexical retrieval、vector retrieval、fusion、feature join、reranking、post-filtering 和 response assembly。对比新旧版本的 recall@k、candidate overlap、filter drop rate、feature availability、reranker score distribution、每阶段 p95 latency、cache hit rate 和 index freshness。使用实验日志和 trace IDs replay 代表性坏查询。</p>
+<p>Why it is impressive:</p>
+<p>This shows engineering judgment under ambiguity. Instead of guessing "the model got worse," you isolate retrieval, ranking, serving, freshness, and product traffic factors.</p>
+<p>亮点：</p>
+<p>这展示的是在模糊问题下的工程判断力。不是简单猜测“模型变差了”，而是系统性隔离 retrieval、ranking、serving、freshness 和产品流量因素。</p>
+<p>What to emphasize:</p>
+<ul><li>Quality regressions need both offline and online analysis.</li></ul>
+<p>质量回归需要离线和在线分析。</p>
+<ul><li>Stage-level metrics prevent blind debugging.</li></ul>
+<p>阶段级指标可以防止盲目调试。</p>
+<ul><li>Search relevance and distributed latency must be debugged together.</li></ul>
+<p>搜索相关性和分布式延迟必须一起调试。</p>
+<ul><li>Replayable logs and versioned artifacts are essential.</li></ul>
+<p>可重播的日志和版本化的artifact是必不可少的。</p></section></main></section>
+<section class="panel" id="panel-5"><main class="content"><section class="doc-section article" id="amsterdam-product-surface-scenario-deep-dives"><h2 id="amsterdam-product-surface-scenario-deep-dives">Amsterdam Product-Surface Scenario Deep Dives</h2>
+<p>These scenarios connect the search platform to recognizable Amsterdam search and discovery experiences. They should be framed as Amsterdam-style product-surface examples that demonstrate the kind of platform capability your project built: multimodal retrieval, ranking, indexing, filtering, and hybrid edge-cloud execution.</p>
+<p>这些场景把搜索平台和 Amsterdam 中常见的 search/discovery 体验连接起来。建议把它们表述为 Amsterdam-style 产品场景，用来展示你的项目构建的核心平台能力：多模态检索、排序、索引、过滤和端云混合执行。</p>
+<p>How to keep these scenarios credible: 如何保持这些场景的可信度：</p>
+<div class="table-scroll"><table><thead><tr><th>Scenario</th><th>Project 2 connection</th><th>Useful numbers / signals</th><th>Interview-safe framing</th></tr></thead><tbody><tr><td>Amsterdam Stock-style Find Similar</td><td>Similarity search + visual embeddings + filters</td><td>Retrieve hundreds/thousands of candidates, rerank smaller top set; track diversity and near-duplicate rate</td><td>"A direct example of multimodal retrieval and reranking"</td></tr><tr><td>Premiere-style media search</td><td>Video/audio/transcript segment indexing</td><td>Use shot/keyframe/transcript-span granularity; avoid embedding every frame</td><td>"A video retrieval case where granularity controls cost"</td></tr><tr><td>Creative Cloud asset search</td><td>Unified schema across products/modalities</td><td>50B+ asset scale; asset ID + version + permissions + modality + derived artifacts</td><td>"A shared asset normalization and retrieval layer"</td></tr><tr><td>Express template discovery</td><td>Structural + semantic retrieval</td><td>Layout, typography, aspect ratio, color palette, editability, brand constraints</td><td>"Search where usability is part of relevance"</td></tr><tr><td>Lightroom photo-library discovery</td><td>Hybrid edge/cloud indexing</td><td>10-20x payload reduction anchor; local pruning + cloud consistency</td><td>"Privacy-sensitive personal search with edge signals"</td></tr><tr><td>Search quality debugging</td><td>Stage-level traceability</td><td>15% CTR improvement anchor; recall@k, candidate overlap, filter drop, p95 per stage</td><td>"Debug search as a system, not only a model"</td></tr></tbody></table></div>
+<p>如何让这些场景听起来可信：</p>
+<h3 id="scenario-1-amsterdam-stock-style-find-similar-and-reverse-image-search">Scenario 1: Amsterdam Stock-Style Find Similar And Reverse Image Search</h3>
+<p>Interviewer prompt:</p>
+<p>"How would you build a Find Similar feature for a huge creative catalog where users can search by image, color, composition, or visual content?" “如何为庞大的创意目录构建“查找相似”功能，让用户可以按图像、颜色、构图或视觉内容进行搜索？”</p>
+<p>Product context:</p>
+<p>Amsterdam Stock-style search surfaces include reverse image search, Find Similar, similarity by content, color, composition, and rich filters. This is a direct product-facing example of multimodal retrieval and ranking.</p>
+<p>产品上下文：</p>
+<p>Amsterdam Stock 风格的搜索入口包括 reverse image search、Find Similar、按内容/颜色/构图相似检索以及丰富过滤条件。这是多模态检索与排序最直接的产品化例子。</p>
+<p>Platform task:</p>
+<p>When a user provides an image or clicks Find Similar, extract visual embeddings and optional specialized signals such as color palette, object layout, aspect ratio, composition, and asset type. Retrieve candidates from the vector index, apply metadata and licensing filters, optionally blend with lexical context, then rerank by semantic similarity, visual quality, freshness, license eligibility, popularity, and diversity.</p>
+<p>平台任务：</p>
+<p>当用户上传图片或点击 Find Similar 时，提取视觉 embedding，以及可选的颜色 palette、object layout、aspect ratio、composition 和 asset type 等专门信号。从向量索引召回候选，应用 metadata 和 license filters，必要时融合词法上下文，再按语义相似度、视觉质量、freshness、license eligibility、popularity 和 diversity 进行 rerank。</p>
+<p>Why it is hard:</p>
+<ul><li>Similarity is subjective: users may mean content, color, composition, mood, or layout.</li></ul>
+<p>相似性是主观的：用户可能指的是内容、颜色、构图、情绪或布局。</p>
+<ul><li>Exact licensing and product filters must not be lost during vector retrieval.</li></ul>
+<p>在向量检索过程中不得丢失精确的许可和产品过滤器。</p>
+<ul><li>Vector scores, lexical scores, and business features are not naturally on the same scale.</li></ul>
+<p>向量score、词汇score和业务特征自然不在同一尺度上。</p>
+<ul><li>Diversity is important because near-duplicates can dominate top results.</li></ul>
+<p>难点：</p>
+<ul><li>“相似”是主观的：用户可能指内容、颜色、构图、氛围或版式。</li><li>在向量召回中不能丢失精确的 license 和产品过滤条件。</li><li>向量score、词法score和业务特征天然不在同一尺度。</li><li>多样性很重要，否则 near-duplicate 会占满 top results。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"I would treat Find Similar as a multi-signal retrieval problem, not just nearest-neighbor search. The platform needs modality-specific embeddings, metadata filters, fusion, reranking, diversity, and versioned evaluation."</p>
+<p>高亮回答角度：</p>
+<p>“我会把 Find Similar 当作多信号检索问题，而不是单纯 nearest-neighbor search。平台需要模态特定 embedding、metadata filters、fusion、reranking、多样性和版本化评估。”</p>
+<h3 id="scenario-2-premiere-style-media-search-across-footage-transcript-and-metadata">Scenario 2: Premiere-Style Media Search Across Footage, Transcript, And Metadata</h3>
+<p>Interviewer prompt:</p>
+<p>"How would you build search for video editors who want to find the right clip using natural language, spoken words, or camera metadata?" “如果视频编辑想要使用自然语言、口语或摄像机元数据找到合适的剪辑，您将如何构建搜索？”</p>
+<p>Product context:</p>
+<p>Premiere-style media search is hard because video is not one object. It contains shots, frames, objects, camera movement, transcripts, audio, embedded metadata, and timecodes. Editors need results that map back to exact clips and timeline positions.</p>
+<p>产品上下文：</p>
+<p>Premiere 风格的 media search 很难，因为视频不是一个单一对象。它包含 shots、frames、objects、camera movement、transcripts、audio、嵌入 metadata 和 timecodes。编辑需要结果能映射回具体 clip 和 timeline 位置。</p>
+<p>Platform task:</p>
+<p>Index video at multiple granularities: asset level, clip level, shot level, frame/keyframe level, and transcript span level. Build embeddings for visual frames, text transcripts, audio descriptors, and metadata. Query understanding decides whether the user intent is visual, spoken text, metadata, or mixed. The ranker returns results with timecode spans and confidence explanations.</p>
+<p>平台任务：</p>
+<p>按多个粒度索引视频：asset level、clip level、shot level、frame/keyframe level 和 transcript span level。为视觉帧、文本 transcript、音频描述和 metadata 构建 embeddings。Query understanding 判断用户intent是视觉、口播文本、metadata 还是混合。ranker 返回带 timecode span 和置信解释的结果。</p>
+<p>Why it is hard:</p>
+<ul><li>Video indexes can explode in size if every frame is embedded.</li></ul>
+<p>如果嵌入每一帧，视频索引的大小可能会爆炸。</p>
+<ul><li>Segment boundaries affect retrieval quality.</li></ul>
+<p>段边界影响检索质量。</p>
+<ul><li>Users expect search results to be actionable inside the editor, not just asset IDs.</li></ul>
+<p>用户希望搜索结果在编辑器内可操作，而不仅仅是资产 ID。</p>
+<ul><li>Local privacy requirements may require on-device analysis or local cache indexes.</li></ul>
+<p>难点：</p>
+<ul><li>如果每帧都做 embedding，视频索引规模会爆炸。</li><li>segment boundary 会影响检索质量。</li><li>用户期待搜索结果能在剪辑软件中直接操作，而不只是 asset ID。</li><li>本地隐私要求可能需要端侧分析或本地 cache index。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"The design challenge is granularity. Too coarse and search cannot find the moment; too fine and index cost explodes. I would use shot/keyframe/transcript-span indexing with query-time expansion and reranking."</p>
+<p>高亮回答角度：</p>
+<p>“设计难点是粒度。太粗找不到具体片段，太细索引成本会爆炸。我会使用 shot/keyframe/transcript-span indexing，并在查询时做 expansion 和 reranking。”</p>
+<h3 id="scenario-3-creative-cloud-asset-search-across-photoshop-lightroom-and-premiere">Scenario 3: Creative Cloud Asset Search Across Photoshop, Lightroom, And Premiere</h3>
+<p>Interviewer prompt:</p>
+<p>"How would you unify search across products when a user’s creative assets include PSDs, photos, videos, templates, documents, and project files?" “当用户的创意资产包括 PSD、照片、视频、模板、文档和项目文件时，您将如何统一跨产品的搜索？”</p>
+<p>Product context:</p>
+<p>Creative workflows span many asset types and product surfaces. A designer may remember a color palette, a photographer may remember a location or subject, and a video editor may remember a scene or spoken phrase. A unified discovery platform needs to handle heterogeneous assets without forcing every product to build its own search backend.</p>
+<p>产品上下文：</p>
+<p>Creative workflow 横跨多种资产类型和产品入口。设计师可能记得某个色彩 palette，摄影师可能记得地点或主体，视频编辑可能记得某个场景或台词。统一 discovery 平台需要处理异构资产，而不是让每个产品都自建搜索后端。</p>
+<p>Platform task:</p>
+<p>Create a common asset schema with product source, tenant, modality, asset version, derived artifacts, embeddings, metadata, permissions, and freshness state. Product-specific adapters normalize inputs into this schema. Retrieval services can then run vector, lexical, metadata, and graph-based discovery across products while still respecting permissions and product-specific filters.</p>
+<p>平台任务：</p>
+<p>创建统一 asset schema，包含 product source、tenant、modality、asset version、derived artifacts、embeddings、metadata、permissions 和 freshness state。产品特定 adapter 把输入标准化到该 schema。检索服务即可跨产品运行 vector、lexical、metadata 和 graph-based discovery，同时遵守权限和产品特定过滤条件。</p>
+<p>Why it is hard:</p>
+<ul><li>Each product has different metadata conventions and asset lifecycles.</li></ul>
+<p>每个产品都有不同的元数据约定和资产生命周期。</p>
+<ul><li>Permissions and licensing rules must be enforced consistently.</li></ul>
+<p>必须一致地执行权限和许可规则。</p>
+<ul><li>Some assets are cloud-native while others are local/project-bound.</li></ul>
+<p>一些资产是云原生的，而另一些资产是本地/项目绑定的。</p>
+<ul><li>Freshness requirements differ between interactive search and batch catalog indexing.</li></ul>
+<p>难点：</p>
+<ul><li>每个产品的 metadata 约定和 asset lifecycle 不同。</li><li>权限和授权规则必须一致执行。</li><li>有些资产是云端原生，有些是本地或项目绑定。</li><li>交互式搜索和批量 catalog indexing 的 freshness 要求不同。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"The core platform problem is not one embedding model. It is the asset normalization layer: common identity, permissions, versions, derived artifacts, and retrieval contracts across heterogeneous creative products."</p>
+<p>高亮回答角度：</p>
+<p>“核心平台问题不是某一个 embedding model，而是 asset normalization layer：跨异构 creative products 的统一身份、权限、版本、derived artifacts 和 retrieval contracts。”</p>
+<h3 id="scenario-4-express-style-template-and-design-discovery">Scenario 4: Express-Style Template And Design Discovery</h3>
+<p>Interviewer prompt:</p>
+<p>"How would you help an Express-style user find the right template or design asset for a brand, style, campaign, or social format?" “您如何帮助 Express 风格的用户找到适合品牌、风格、营销活动或社交格式的正确模板或设计资源？”</p>
+<p>Product context:</p>
+<p>Template discovery is different from generic image search. Users care about layout, typography, brand tone, aspect ratio, social-media format, editable regions, commercial suitability, and visual style. The right result is not only semantically relevant; it must be usable.</p>
+<p>产品上下文：</p>
+<p>模板发现不同于普通图片搜索。用户关心 layout、typography、brand tone、aspect ratio、social-media format、可编辑区域、商用适配性和视觉风格。好的结果不只是语义相关，还必须可用。</p>
+<p>Platform task:</p>
+<p>Represent templates with structural metadata and embeddings: layout graph, text regions, image placeholders, color palette, typography, aspect ratio, content category, brand compatibility, and popularity. Retrieval combines semantic query embeddings with structured filters. Ranking balances relevance, editability, diversity, freshness, and brand/style fit.</p>
+<p>平台任务：</p>
+<p>用结构化 metadata 和 embeddings 表示模板：layout graph、text regions、image placeholders、color palette、typography、aspect ratio、content category、brand compatibility 和 popularity。检索结合语义 query embedding 与结构化 filters。排序在相关性、可编辑性、多样性、freshness 和品牌/风格匹配之间平衡。</p>
+<p>Why it is hard:</p>
+<ul><li>Visual similarity alone does not capture editability.</li></ul>
+<p>仅视觉相似性并不能体现可编辑性。</p>
+<ul><li>Brand-safe discovery may require tenant-specific rules or custom embeddings.</li></ul>
+<p>品牌安全发现可能需要特定于tenant的规则或自定义嵌入。</p>
+<ul><li>Social formats need aspect-ratio and layout constraints.</li></ul>
+<p>社交格式需要宽高比和布局限制。</p>
+<ul><li>Diversity matters because repeated near-identical templates reduce exploration.</li></ul>
+<p>难点：</p>
+<ul><li>视觉相似度本身不能表示可编辑性。</li><li>品牌安全发现可能需要 tenant-specific rules 或 custom embeddings。</li><li>社交媒体格式需要 aspect-ratio 和 layout constraints。</li><li>多样性很重要，因为重复的近似模板会降低探索体验。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"For templates, I would not rely only on CLIP-style visual embeddings. I would combine semantic embeddings with layout features, editability features, brand constraints, and diversity-aware ranking."</p>
+<p>高亮回答角度：</p>
+<p>“对模板检索，我不会只依赖 CLIP 风格的视觉 embedding。我会结合语义 embedding、layout features、editability features、brand constraints 和 diversity-aware ranking。”</p>
+<h3 id="scenario-5-lightroom-style-photo-library-discovery-and-smart-organization">Scenario 5: Lightroom-Style Photo Library Discovery And Smart Organization</h3>
+<p>Interviewer prompt:</p>
+<p>"How would you help photographers search huge photo libraries by subject, location, style, lighting, camera metadata, or editing intent?" “您如何帮助摄影师按主题、地点、风格、灯光、相机元数据或编辑intent搜索庞大的照片库？”</p>
+<p>Product context:</p>
+<p>Photo-library discovery is personal, privacy-sensitive, and often latency-sensitive. A photographer may search for "golden hour beach portraits," "all blurry photos," "shots with shallow depth of field," or "images similar to this edit."</p>
+<p>产品上下文：</p>
+<p>照片库发现具有个人性、隐私敏感性和低延迟要求。摄影师可能搜索 “golden hour beach portraits”、“all blurry photos”、“shots with shallow depth of field” 或 “images similar to this edit”。</p>
+<p>Platform task:</p>
+<p>Combine local/edge analysis with cloud indexing when policy allows. Extract image embeddings, EXIF/camera metadata, location/time features, quality signals, edit history, and style descriptors. On-device pruning can reduce sensitive payload transfer, while cloud retrieval can provide cross-device consistency and heavier reranking.</p>
+<p>平台任务：</p>
+<p>在策略允许的情况下结合本地/端侧分析与云端索引。抽取 image embeddings、EXIF/camera metadata、location/time features、quality signals、edit history 和 style descriptors。端侧 pruning 可以减少敏感 payload 传输，云端检索则提供跨设备一致性和更重的 reranking。</p>
+<p>Why it is hard:</p>
+<ul><li>Personal libraries require strong privacy boundaries.</li></ul>
+<p>个人图书馆需要严格的隐私界限。</p>
+<ul><li>Device storage and compute vary widely.</li></ul>
+<p>设备存储和计算差异很大。</p>
+<ul><li>Query intent can be semantic, aesthetic, technical, or temporal.</li></ul>
+<p>查询intent可以是语义的、美学的、技术的或时间的。</p>
+<ul><li>Edits change asset representation over time.</li></ul>
+<p>难点：</p>
+<ul><li>个人照片库需要强隐私边界。</li><li>设备存储和计算能力差异很大。</li><li>查询intent可能是语义、美学、技术或时间相关。</li><li>编辑操作会随时间改变资产表示。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"The key is hybrid indexing: use local models for privacy-sensitive and immediate signals, cloud indexes for cross-device recall, and versioned derived artifacts so edits and embeddings stay consistent."</p>
+<p>高亮回答角度：</p>
+<p>“关键是 hybrid indexing：用本地模型处理隐私敏感和即时信号，用云端索引提供跨设备召回，并通过版本化 derived artifacts 保证 edits 和 embeddings 一致。”</p>
+<h3 id="scenario-6-search-quality-debugging-with-amsterdam-specific-failure-cases">Scenario 6: Search Quality Debugging With Amsterdam-Specific Failure Cases</h3>
+<p>Interviewer prompt:</p>
+<p>"Give examples of tricky search failures in a creative platform and how you would debug them." “举例说明创意平台中棘手的搜索失败以及如何调试它们。”</p>
+<p>Product context:</p>
+<p>Creative search failures are often subtle. A search for "minimal black wedding invitation" might return black photos instead of templates. "Find similar" may match color but not composition. A Premiere-style search may find the right transcript but wrong shot. An Amsterdam Stock-style query may retrieve beautiful assets that fail license or orientation filters.</p>
+<p>产品上下文：</p>
+<p>创意搜索失败通常很微妙。搜索 “minimal black wedding invitation” 可能返回黑色照片而不是模板；Find Similar 可能匹配颜色但不匹配构图；Premiere 风格搜索可能找到正确 transcript 但时间片段不对；Amsterdam Stock 风格查询可能召回很好看的资产，却不满足 license 或 orientation filters。</p>
+<p>Platform task:</p>
+<p>Build failure-analysis tooling around query traces. For each query, capture parsed intent, filters, vector candidates, lexical candidates, fusion result, ranker features, post-filter drops, final ranking, latency per stage, and user feedback. Debug by slicing failures by product, modality, query class, asset type, tenant, index version, and model version.</p>
+<p>平台任务：</p>
+<p>围绕 query traces 构建 failure-analysis tooling。对每个 query 记录 parsed intent、filters、vector candidates、lexical candidates、fusion result、ranker features、post-filter drops、final ranking、每阶段延迟和用户反馈。按 product、modality、query class、asset type、tenant、index version 和 model version 切片分析失败。</p>
+<p>Why it is hard:</p>
+<ul><li>Relevance failures are not always binary.</li></ul>
+<p>相关性失败并不总是二元的。</p>
+<ul><li>Different products optimize different success metrics.</li></ul>
+<p>不同的产品优化不同的成功指标。</p>
+<ul><li>Model, index, feature, and product UI changes interact.</li></ul>
+<p>模型、索引、功能和产品 UI 更改相互影响。</p>
+<ul><li>Debugging requires both ML metrics and distributed trace visibility.</li></ul>
+<p>难点：</p>
+<ul><li>relevance failure 不总是二元判断。</li><li>不同产品优化的成功指标不同。</li><li>模型、索引、特征和产品 UI 变更会相互影响。</li><li>调试同时需要 ML metrics 和 distributed trace visibility。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"I would make search explainable to engineers. Every result should be traceable back to candidates, filters, features, model/index version, and ranker score, so quality and latency regressions can be debugged as a system problem."</p>
+<p>高亮回答角度：</p>
+<p>“我会让 search 对工程师可解释。每个结果都应该能追溯到候选、过滤、特征、模型/索引版本和 ranker score，这样质量和延迟回归才能作为系统问题来调试。”</p></section></main></section>
+<section class="panel" id="panel-6"><main class="content"><section class="doc-section article" id="advanced-interview-stress-tests"><h2 id="advanced-interview-stress-tests">Advanced Interview Stress Tests</h2>
+<p>These prompts help you show depth beyond normal retrieval architecture. They are designed around uncomfortable production questions: freshness, index cost, legal filters, personalization, multilingual behavior, and non-image modalities.</p>
+<p>这些问题帮助你展示普通检索架构之外的深度。它们围绕真实生产中的棘手问题设计：freshness、索引成本、法律过滤、个性化、多语言行为和非图像模态。</p>
+<p>Stress-test metrics to memorize: 要记住的压力测试指标：</p>
+<div class="table-scroll"><table><thead><tr><th>Stress test</th><th>First signals to check</th><th>Concrete mitigation</th><th>Strong metric anchor</th></tr></thead><tbody><tr><td>Freshness regression</td><td>Kafka lag, Flink checkpoint delay, embedding queue delay, index publish delay, cache age</td><td>Isolate hot ingestion from backfill; replay by asset ID/version</td><td>50B+ assets require end-to-end freshness SLO</td></tr><tr><td>Video/3D index cost explosion</td><td>Vectors per asset, index size, recall@k, index build time, storage cost</td><td>Shot/keyframe sampling, transcript spans, canonical 3D views, tiered storage</td><td>Do not embed every frame/view</td></tr><tr><td>Legal/license filters</td><td>Filter drop rate, policy miss rate, negative test failures</td><td>Enforce eligibility before ranking and final post-filter</td><td>Policy must never fail open</td></tr><tr><td>Multilingual search</td><td>Zero-result rate by language, recall@k by language, CTR by locale</td><td>Multilingual embeddings + query expansion + exact handling for product/brand terms</td><td>Global search is not just translation</td></tr><tr><td>Personalization</td><td>Repeat rate, diversity score, privacy policy violations, opt-out rate</td><td>Use coarse style/context features; keep eligibility separate</td><td>Personalization without creepy behavior</td></tr><tr><td>Near-duplicate flood</td><td>Duplicate cluster size, result diversity, user reformulation rate</td><td>Diversity-aware rerank, grouping, lineage/perceptual hash filters</td><td>Discovery needs relevance plus diversity</td></tr></tbody></table></div>
+<p>需要记住的压力测试指标：</p>
+<h3 id="stress-test-1-freshness-regression-in-a-50b-asset-index">Stress Test 1: Freshness Regression In A 50B+ Asset Index</h3>
+<p>Interviewer challenge:</p>
+<p>"A product team says newly uploaded assets are not searchable for hours. Where do you look?" “产品团队表示，新上传的资源在数小时内无法搜索。您在哪里查找？”</p>
+<p>Strong answer:</p>
+<p>Break freshness into stages: ingestion event delay, Kafka lag, Flink processing delay, embedding queue delay, vector index build/publish delay, Elasticsearch refresh delay, feature-store delay, and serving cache invalidation. Use asset version and trace ID to follow one asset through the pipeline. If backfill is starving live ingestion, isolate hot incremental indexing from bulk jobs and apply backpressure by modality or tenant.</p>
+<p>强回答：</p>
+<p>把 freshness 拆成多个阶段：ingestion event delay、Kafka lag、Flink processing delay、embedding queue delay、vector index build/publish delay、Elasticsearch refresh delay、feature-store delay 和 serving cache invalidation。用 asset version 和 trace ID 跟踪单个资产在流水线中的路径。如果 backfill 挤占 live ingestion，就隔离热路径增量索引和批量任务，并按模态或 tenant 做 backpressure。</p>
+<p>What this demonstrates:</p>
+<ul><li>Distributed tracing across data pipelines.</li></ul>
+<p>跨数据管道的分布式跟踪。</p>
+<ul><li>Understanding of indexing freshness as an end-to-end SLO.</li></ul>
+<p>了解索引freshness作为端到端 SLO。</p>
+<ul><li>Ability to protect live ingestion from batch backfill.</li></ul>
+<p>能够保护实时ingestion免受批量回填的影响。</p>
+<h3 id="stress-test-2-index-cost-explosion-from-video-and-3d-assets">Stress Test 2: Index Cost Explosion From Video And 3D Assets</h3>
+<p>Interviewer challenge:</p>
+<p>"Video and 3D assets create too many embeddings and index size is exploding. What do you change?" “视频和 3D 资源创建了太多嵌入，索引大小呈爆炸式增长。您会更改什么？”</p>
+<p>Strong answer:</p>
+<p>Do not embed every frame or every possible 3D view. Use representative sampling: shot boundaries, keyframes, transcript spans, audio segments, scene changes, and rendered canonical views for 3D assets. Store multi-vector representations only when retrieval quality justifies it. Use tiered storage, compressed indexes, product-specific retention, and search-time expansion from coarse to fine granularity.</p>
+<p>强回答：</p>
+<p>不要对每一帧或每个 3D 视角都生成 embedding。使用代表性采样：shot boundaries、keyframes、transcript spans、audio segments、scene changes，以及 3D 资产的 canonical rendered views。只有在检索质量证明必要时才存储 multi-vector representations。使用分层存储、压缩索引、产品特定 retention，以及查询时从粗粒度扩展到细粒度。</p>
+<p>What this demonstrates:</p>
+<ul><li>Cost-aware multimodal indexing.</li></ul>
+<p>成本感知的多模态索引。</p>
+<ul><li>Understanding of video/3D representation tradeoffs.</li></ul>
+<p>了解视频/3D 表示权衡。</p>
+<ul><li>Ability to optimize index size without blindly sacrificing recall.</li></ul>
+<p>能够在不盲目牺牲召回率的情况下优化索引大小。</p>
+<h3 id="stress-test-3-legal-license-and-policy-filters-must-never-fail-open">Stress Test 3: Legal, License, And Policy Filters Must Never Fail Open</h3>
+<p>Interviewer challenge:</p>
+<p>"How do you guarantee that search does not return assets a user is not allowed to see or license?" “如何保证搜索不会返回不允许用户查看或许可的资产？”</p>
+<p>Strong answer:</p>
+<p>Treat policy filters as mandatory constraints, not ranking features. Enforce tenant, entitlement, license, region, age/safety, and visibility filters as early as possible in candidate generation. Also apply final post-filter validation before returning results. Make policy fields part of the index schema, version policy logic, test with negative cases, and alert on filter-drop anomalies.</p>
+<p>强回答：</p>
+<p>把 policy filters 当作强制约束，而不是排序特征。尽可能在 candidate generation 早期执行 tenant、entitlement、license、region、age/safety 和 visibility filters，并在返回结果前做 final post-filter validation。把 policy fields 作为索引 schema 的一部分，版本化 policy logic，用负例测试，并对 filter-drop anomalies 告警。</p>
+<p>What this demonstrates:</p>
+<ul><li>Trust and compliance awareness.</li></ul>
+<p>信任和合规意识。</p>
+<ul><li>Clear separation between eligibility and ranking.</li></ul>
+<p>资格和排序之间清晰分离。</p>
+<ul><li>Defensive design for high-risk retrieval failures.</li></ul>
+<p>针对高风险检索失败的防御设计。</p>
+<h3 id="stress-test-4-multilingual-creative-search">Stress Test 4: Multilingual Creative Search</h3>
+<p>Interviewer challenge:</p>
+<p>"A user searches in Spanish, Japanese, or German, but the assets were tagged in English. How would you support that?" “用户用西班牙语、日语或德语进行搜索，但资产却用英语标记。您将如何支持这一点？”</p>
+<p>Strong answer:</p>
+<p>Use a combination of multilingual embeddings, query translation/expansion, normalized metadata, and localized synonyms. Evaluate by language and query class because cross-lingual performance is uneven. Avoid translating structured filters blindly; product names, file types, camera metadata, and brand terms may need exact handling. Track language-specific recall, CTR, and zero-result rate.</p>
+<p>强回答：</p>
+<p>结合 multilingual embeddings、query translation/expansion、标准化 metadata 和本地化同义词。按语言和 query class 分别评估，因为跨语言效果并不均匀。不要盲目翻译结构化 filters；产品名、文件类型、相机 metadata 和品牌词可能需要精确处理。跟踪按语言划分的 recall、CTR 和 zero-result rate。</p>
+<p>What this demonstrates:</p>
+<ul><li>Global product awareness.</li></ul>
+<p>全球产品意识。</p>
+<ul><li>Understanding that multilingual retrieval is not just translation.</li></ul>
+<p>了解多语言检索不仅仅是翻译。</p>
+<ul><li>Ability to combine model, metadata, and evaluation design.</li></ul>
+<p>能够结合模型、元数据和评估设计。</p>
+<h3 id="stress-test-5-personalization-without-breaking-privacy-or-diversity">Stress Test 5: Personalization Without Breaking Privacy Or Diversity</h3>
+<p>Interviewer challenge:</p>
+<p>"How would you personalize discovery for creative users without making results creepy, repetitive, or privacy-risky?" “如何为创意用户提供个性化的发现，而不会使结果令人毛骨悚然、重复或存在隐私风险？”</p>
+<p>Strong answer:</p>
+<p>Keep personalization bounded and explainable. Use coarse preference signals such as recent asset types, style clusters, product context, and project intent rather than sensitive raw content. Apply diversity constraints so personalization does not collapse exploration. Respect tenant/user privacy policy, provide opt-out where needed, and separate personalization features from eligibility filters.</p>
+<p>强回答：</p>
+<p>让个性化保持有边界且可解释。使用较粗粒度的偏好信号，例如近期 asset types、style clusters、product context 和 project intent，而不是敏感原始内容。应用多样性约束，避免个性化让探索收缩。遵守 tenant/user privacy policy，在需要时提供 opt-out，并把 personalization features 和 eligibility filters 分开。</p>
+<p>What this demonstrates:</p>
+<ul><li>Product sensitivity and privacy judgment.</li></ul>
+<p>产品敏感性和隐私判断。</p>
+<ul><li>Understanding of recommendation/search tradeoffs.</li></ul>
+<p>了解推荐/搜索权衡。</p>
+<ul><li>Awareness of diversity and filter-bubble risks.</li></ul>
+<p>对多样性和过滤泡沫风险的认识。</p>
+<h3 id="stress-test-6-near-duplicate-flood-in-search-results">Stress Test 6: Near-Duplicate Flood In Search Results</h3>
+<p>Interviewer challenge:</p>
+<p>"A search result page is filled with near-identical assets. How would you fix it?" “搜索结果页面充满了几乎相同的资源。您将如何解决它？”</p>
+<p>Strong answer:</p>
+<p>Detect near-duplicates using perceptual hashes, embedding similarity, asset lineage, creator/source metadata, and visual clusters. Add diversity-aware reranking or result grouping so the top page covers multiple concepts, styles, colors, and compositions. Tune the diversity strength by query type: exact search may tolerate similar results, while discovery needs broader exploration.</p>
+<p>强回答：</p>
+<p>使用 perceptual hashes、embedding similarity、asset lineage、creator/source metadata 和 visual clusters 检测 near-duplicates。加入 diversity-aware reranking 或结果分组，让首页覆盖更多概念、风格、颜色和构图。按 query type 调整多样性强度：精确搜索可以容忍相似结果，而 discovery 需要更广泛探索。</p>
+<p>What this demonstrates:</p>
+<ul><li>Ranking beyond relevance score.</li></ul>
+<p>排序超出相关性score。</p>
+<ul><li>Understanding of discovery user experience.</li></ul>
+<p>了解发现用户体验。</p>
+<ul><li>Ability to balance similarity and exploration.</li></ul>
+<p>平衡相似性和探索的能力。</p></section></main></section></div><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script><script>const tabs=[...document.querySelectorAll('.top-tab')],panels=[...document.querySelectorAll('.panel')];function show(id){tabs.forEach(t=>t.classList.toggle('active',t.dataset.panel===id));panels.forEach(p=>p.classList.toggle('active',p.id===id));window.scrollTo({top:0,behavior:'smooth'});if(history.replaceState)history.replaceState(null,'','#'+id)}tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.panel)));const init=location.hash.slice(1);if(init&&document.getElementById(init))show(init);if(window.hljs)window.hljs.highlightAll();</script>
+
+</body></html>

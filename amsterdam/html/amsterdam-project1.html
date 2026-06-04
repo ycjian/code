@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Amsterdam Project 1: Product-Facing Core AI Infrastructure for Hybrid Multimodal and LLM Inference</title><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" rel="stylesheet"/><style>:root{color-scheme:dark;--bg:#0b1020;--panel:#111827;--panel2:#0f172a;--text:#e6edf3;--muted:#9aa8bb;--border:#263348;--accent:#38bdf8;--code:#080d19;--soft:color-mix(in srgb,var(--accent) 14%,transparent)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 0%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.64}.page{width:min(1240px,calc(100vw - 28px));margin:0 auto;padding:12px 0 54px}.topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 14px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(135deg,rgba(17,24,39,.97),rgba(15,23,42,.92));position:sticky;top:0;z-index:20;box-shadow:0 12px 36px rgba(0,0,0,.3);backdrop-filter:blur(12px)}h1{margin:0;font-size:clamp(.98rem,1.6vw,1.22rem);line-height:1.2}.meta{color:var(--muted);font-size:.8rem}.badge{border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));background:var(--soft);color:var(--accent);border-radius:999px;padding:5px 9px;font-size:.78rem;white-space:nowrap}.top-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.top-tab{border:1px solid var(--border);background:rgba(17,24,39,.78);color:var(--muted);padding:8px 11px;border-radius:999px;font:inherit;font-size:.88rem;cursor:pointer}.top-tab:hover{color:var(--text);border-color:var(--accent)}.top-tab.active{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:760}.panel{display:none}.panel.active{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px}.side{position:sticky;top:86px;align-self:start;max-height:calc(100vh - 104px);overflow:auto;border:1px solid var(--border);border-radius:14px;background:rgba(17,24,39,.78);padding:10px}.side-title{font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800;margin:4px 6px 8px}.side a{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:start;color:var(--muted);text-decoration:none;padding:8px 6px;border-radius:9px;font-size:.88rem;line-height:1.25}.side a:hover{background:rgba(148,163,184,.1);color:var(--text)}.side span{color:var(--accent);font-weight:800}.content{min-width:0;border:1px solid var(--border);border-radius:16px;background:rgba(17,24,39,.84);box-shadow:0 14px 42px rgba(0,0,0,.24);padding:22px}.doc-section{padding:0 0 26px;margin:0 0 26px;border-bottom:1px solid var(--border)}.doc-section:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}.article h1,.article h2,.article h3,.article h4{line-height:1.25;margin:1.25em 0 .6em}.article h1:first-child,.article h2:first-child,.article h3:first-child{margin-top:0}.article h1{font-size:1.7rem}.article h2{font-size:1.35rem;border-bottom:1px solid var(--border);padding-bottom:.3rem}.article h3{font-size:1.13rem;color:#dbeafe}.article h4{font-size:1.02rem;color:#e9d5ff}.article p{margin:.72rem 0}.article ul,.article ol{padding-left:1.35rem}.article li{margin:.32rem 0}.article code{background:rgba(125,211,252,.12);color:#d8f3ff;padding:.12rem .34rem;border-radius:5px;font-family:"Cascadia Code",Consolas,monospace;font-size:.92em}pre{margin:1rem 0;border:1px solid #263348;border-radius:12px;background:var(--code);overflow:auto}pre code{display:block;background:transparent!important;color:#e6edf3;padding:18px;white-space:pre;line-height:1.55;font-size:.92rem}.table-scroll{overflow-x:auto;margin:1rem 0}.article table{width:100%;min-width:520px;border-collapse:collapse}.article th,.article td{border:1px solid var(--border);padding:9px 10px;vertical-align:top}.article th{background:rgba(148,163,184,.13);color:#dbeafe;text-align:left}.article tr:nth-child(even) td{background:rgba(15,23,42,.45)}blockquote{margin:1rem 0;padding:.5rem 1rem;border-left:4px solid var(--accent);background:var(--soft);color:#d5e7f5}img{max-width:100%;border-radius:10px;border:1px solid var(--border)}@media(max-width:900px){.page{width:min(100vw - 18px,1240px)}.topbar{position:static;grid-template-columns:1fr}.panel.active{grid-template-columns:1fr}.side{position:static;max-height:none}.content{padding:16px}}
+.side-toggle{width:34px;height:34px;display:grid;place-items:center;margin:0 0 10px;border:1px solid var(--border,var(--line,#263348));border-radius:10px;background:rgba(17,24,39,.78);color:var(--text,var(--ink,#e6edf3));cursor:pointer;font:900 15px/1 "Segoe UI",Arial,sans-serif}.side-toggle:hover{border-color:var(--accent,#78a6ff);background:var(--soft,rgba(120,166,255,.12))}body.toc-collapsed .panel.active{grid-template-columns:46px minmax(0,1fr)}body.toc-collapsed .side{width:46px;min-width:46px;padding:8px 6px;overflow:hidden}body.toc-collapsed .side>*:not(.side-toggle){display:none}body.toc-collapsed .side-toggle{margin:0 auto}.panel.active{transition:grid-template-columns .18s ease}.side{transition:width .18s ease,padding .18s ease}
+
+/* Layout cleanup: inner section navigation is a horizontal tab row, not a second left panel. */
+.panel.active{display:block!important;}
+.side{position:sticky!important;top:62px!important;z-index:10!important;height:auto!important;min-height:0!important;max-height:72px!important;overflow-x:auto!important;overflow-y:hidden!important;display:flex!important;gap:6px!important;align-items:center!important;margin:0 0 12px!important;padding:8px!important;width:auto!important;min-width:0!important;}
+.side-title{flex:0 0 auto!important;margin:0 8px 0 2px!important;white-space:nowrap!important;}
+.side a{display:inline-flex!important;grid-template-columns:none!important;gap:7px!important;align-items:center!important;white-space:nowrap!important;min-width:max-content!important;border-radius:999px!important;padding:7px 10px!important;}
+.side-toggle{display:none!important;}
+body.toc-collapsed .panel.active{display:block!important;}
+body.toc-collapsed .side{width:auto!important;min-width:0!important;padding:8px!important;overflow-x:auto!important;overflow-y:hidden!important;}
+body.toc-collapsed .side>*:not(.side-toggle){display:inherit!important;}
+
+</style></head><body class="toc-collapsed"><div class="page"><header class="topbar"><div><h1>Amsterdam Project 1: Product-Facing Core AI Infrastructure for Hybrid Multimodal and LLM Inference</h1><div class="meta">amsterdam-project1.md ? 7 top sections ? Core AI infra dossier</div></div></header><nav aria-label="Top sections" class="top-tabs"><button class="top-tab active" data-panel="panel-0" type="button">Opening</button>
+<button class="top-tab" data-panel="panel-1" type="button">Resume</button>
+<button class="top-tab" data-panel="panel-2" type="button">System Design</button>
+<button class="top-tab" data-panel="panel-3" type="button">Stories</button>
+<button class="top-tab" data-panel="panel-4" type="button">Tasks</button>
+<button class="top-tab" data-panel="panel-5" type="button">Product Scenarios</button>
+<button class="top-tab" data-panel="panel-6" type="button">Stress Tests</button></nav><section class="panel active" id="panel-0"><main class="content"><section class="doc-section article" id="opening"><p>This document covers the current Amsterdam core AI infrastructure project. It focuses on the shared execution layer underneath product-facing multimodal and LLM workflows: intent contracts, workflow orchestration, layered inference serving, LLM-as-a-service, GPU/CPU resource control, rollout safety, observability, and model-routing primitives. Detailed code, diagrams, schemas, and implementation logic live in <code>amsterdam-code.md</code>.</p>
+<p>本文件聚焦 Amsterdam 当前的 core AI infrastructure 项目，重点放在支撑产品级多模态与 LLM workflow 的共享执行层：intent contract、workflow orchestration、layered inference serving、LLM-as-a-service、GPU/CPU 资源控制、rollout safety、observability 和 model-routing primitives。具体代码、图示、schema 和实现逻辑都放在 <code>amsterdam-code.md</code> 中。</p></section></main></section>
+<section class="panel" id="panel-1"><main class="content"><section class="doc-section article" id="resume-anchor"><h2 id="resume-anchor">Resume Anchor</h2>
+<h3 id="senior-software-engineer-and-tech-lead-ai-platform-team-amsterdam">Senior Software Engineer and Tech Lead, AI Platform Team, Amsterdam</h3>
+<p>08/2023 - Present 08/2023 - 至今</p>
+<ul><li>Designed product-facing core AI infrastructure for Amsterdam multimodal and LLM workflows, enabling partner teams to onboard AI intents onto a shared execution layer without rebuilding inference routing, retry, rollout, and GPU-resource logic. Built a unified intent registry that dynamically routes workloads across on-device runtimes, cloud CPU services, and GPU clusters based on hardware, network, latency, privacy, model profile, and user context.</li></ul>
+<p>为 Amsterdam 多模态与 LLM workflow 设计面向产品的 core AI infrastructure，使合作产品团队可以把 AI intent 接入共享执行层，而不必重复建设 inference routing、retry、rollout 和 GPU resource logic。构建统一 intent registry，根据硬件、网络、延迟、隐私、模型画像和用户上下文，在端侧运行时、云端 CPU 服务与 GPU 集群之间动态路由 workload。</p>
+<ul><li>Implemented core orchestration services for a layered inference stack supporting generative editing, semantic retrieval, media understanding, LLM assistants, and multi-step AI workflows, with Ray Serve for CPU-bound routing and DAG composition, Triton for high-throughput embedding/ranking/CV inference, and vLLM for LLM-as-a-service generation; added edge-first preprocessing and checkpointed execution to reduce raw-media transfer by 40% and stabilize long-running image/video workloads.</li></ul>
+<p>为分层推理堆栈实现核心编排服务，支持生成式编辑、语义检索、媒体理解、LLM 助手和多步骤 AI workflow，其中 Ray Serve 负责 CPU-bound routing 与 DAG composition，Triton 负责高吞吐 embedding/ranking/CV inference，vLLM 负责 LLM-as-a-service generation；通过 edge-first preprocessing 和 checkpointed execution 将 raw-media transfer 降低 40%，并稳定长时间运行的图像/视频 workload。</p>
+<ul><li>Developed resource-control, LLM serving, and rollout-safety capabilities for retrieval, reranking, batch embedding, media analysis, and GenAI workloads across CPU/GPU pools. Implemented Multi-Instance GPU-aware placement, proactive bin-packing, KubeRay autoscaling with queue, p95 latency, and live token telemetry, plus LLM-as-judge rollout evaluation, increasing aggregate GPU utilization from 45% to 80%.</li></ul>
+<p>开发资源控制、LLM serving 与发布安全能力，用于跨 CPU/GPU 池承载检索、reranking、batch embedding、媒体分析和 GenAI workload。实现 MIG-aware placement、proactive bin-packing、结合队列/p95 latency/live token telemetry 的 KubeRay autoscaling，以及 LLM-as-Judge rollout evaluation，将 GPU 整体利用率从 45% 提高到 80%。</p></section></main></section>
+<section class="panel" id="panel-2"><main class="content"><section class="doc-section article" id="project-1-product-facing-core-ai-infrastructure-for-hybrid-multimodal-and-llm-inference"><h2 id="project-1-product-facing-core-ai-infrastructure-for-hybrid-multimodal-and-llm-inference">Project 1: Product-Facing Core AI Infrastructure for Hybrid Multimodal and LLM Inference</h2>
+<h3 id="hiring-manager-summary">Hiring Manager Summary</h3>
+<p>This project is best described as product-facing core AI infrastructure. Partner product teams own their product-specific features and UX. The core AI infrastructure team provides a common execution layer for selected multimodal and LLM-powered workflows that need intent contracts, model serving, LLM-as-a-service, GPU scheduling, retries, rollout safety, observability, and cost controls.</p>
+<p>这个项目更准确地说是面向产品的 core AI infrastructure。合作产品团队负责各自的产品功能与用户体验，core AI infrastructure 团队提供统一执行层，承载需要 intent contract、model serving、LLM-as-a-service、GPU scheduling、retry、rollout safety、observability 和 cost control 的多模态与 LLM workflow。</p>
+<p>The core idea is to decouple "what the product wants" from "where and how the AI workload runs." Product teams submit an intent such as image embedding, media understanding, semantic retrieval, generative editing, LLM assistant execution, or multi-step workflow execution. The infrastructure layer translates that intent into an execution plan across on-device runtimes, cloud CPU orchestration, GPU inference pools, LLM serving backends, batch pipelines, retrieval systems, and rollout/evaluation gates.</p>
+<p>核心思路是把“产品想做什么”和“AI workload 在哪里、怎样运行”解耦。产品团队提交 intent，例如图像 embedding、媒体理解、语义检索、生成式编辑、LLM 助手执行或多步骤 workflow，基础设施层再把它转换成跨端侧运行时、云端 CPU 编排、GPU 推理池、LLM serving backend、批处理流水线、检索系统以及 rollout/evaluation gate 的执行计划。</p>
+<h3 id="thirty-second-pitch">Thirty-Second Pitch</h3>
+<p>I helped design and implement product-facing core AI infrastructure for Amsterdam multimodal and LLM workflows. Product teams could register AI intents instead of rebuilding routing, GPU scheduling, retries, LLM serving, and observability for every feature. The infrastructure layer used runtime context such as device hardware, network, latency SLO, privacy policy, model profile, queue pressure, and token pressure to choose edge, cloud CPU, GPU, or hybrid execution. I worked on orchestration, checkpointed execution, layered inference serving, LLM-as-a-service, GPU resource controls, and rollout safety, improving media-transfer efficiency and GPU utilization.</p>
+<p>我参与设计并实现了面向 Amsterdam 多模态与 LLM workflow 的 product-facing core AI infrastructure。产品团队可以注册 AI intent，而不必为每个功能重新搭建 routing、GPU scheduling、retry、LLM serving 和 observability。基础设施层结合设备硬件、网络、延迟 SLO、隐私策略、模型画像、队列压力和 token pressure，决定走端侧、云端 CPU、GPU 还是混合执行。我主要负责 orchestration、checkpointed execution、layered inference serving、LLM-as-a-service、GPU resource control 和 rollout safety，最终提升了媒体传输效率与 GPU 利用率。</p>
+<h3 id="two-minute-pitch">Two-Minute Pitch</h3>
+<p>Amsterdam AI workflows are heterogeneous, which is why I frame this as core AI infrastructure rather than generic platform work. Some tasks are CPU-heavy orchestration and feature joins, some are high-throughput embedding or ranking workloads, some are autoregressive LLM generation, and some are long-running image/video jobs where uploading raw media is expensive and fragile. A one-size-fits-all serving path creates poor latency, high GPU cost, and brittle operational behavior.</p>
+<p>Amsterdam 的 AI workload 高度异构，所以我会把它表述为 core AI infrastructure，而不是泛泛的 platform 工作。有些任务偏 CPU，例如编排和特征拼接；有些任务是高吞吐 embedding 或 ranking；有些任务是自回归 LLM 生成；还有一些是长时间运行的图像/视频任务，直接上传 raw media 既昂贵又脆弱。单一 serving 路径会导致延迟差、GPU 成本高以及运维脆弱。</p>
+<p>The system I worked on introduced an intent-based control plane and a shared LLM/multimodal serving substrate. Product teams registered workflow intents and policy requirements. The infrastructure layer created execution plans that selected the right runtime: on-device preprocessing for privacy and media reduction, cloud CPU services for orchestration, Triton for high-throughput tensor inference, Ray Serve for DAG composition and fan-out, vLLM for generation, and dedicated GPU pools for heavy workloads.</p>
+<p>我参与的系统引入了基于 intent 的控制面，以及共享的 LLM/multimodal serving substrate。产品团队注册 workflow intent 和策略要求，基础设施层生成 execution plan，并选择合适运行时：端侧预处理用于隐私保护和媒体减量，云端 CPU 用于编排，Triton 用于高吞吐 tensor inference，Ray Serve 用于 DAG composition 和 fan-out，vLLM 用于 generation，专用 GPU pool 用于重负载任务。</p>
+<p>My IC/tech-lead scope centered on core orchestration services, layered inference routing, checkpointed workflow execution, edge-first preprocessing contracts, LLM-as-a-service integration, resource-control policies, GPU placement, autoscaling, live token telemetry, and rollout safety with LLM-as-judge evaluation. The practical impact was reduced raw-media transfer, more stable long-running workflows, and better GPU utilization without sacrificing p95 latency or model quality.</p>
+<p>作为 IC / tech lead，我的主要职责集中在核心编排服务、分层推理路由、checkpointed workflow execution、edge-first preprocessing contract、LLM-as-a-service 集成、资源控制策略、GPU placement、自动扩缩容、实时 token telemetry，以及使用 LLM-as-Judge 的 rollout safety。实际效果是减少 raw-media transfer，让长时间运行的 workflow 更稳定，并在不牺牲 p95 latency 或 model quality 的前提下提升 GPU utilization。</p>
+<h3 id="problem-statement">Problem Statement</h3>
+<p>Amsterdam AI features often operate on large, private, multimodal payloads:</p>
+<p>Amsterdam 的 AI 功能通常处理的是大规模、私密且多模态的负载：</p>
+<ul><li>High-resolution Photoshop documents.</li></ul>
+<p>高分辨率 Photoshop 文档。</p>
+<ul><li>Lightroom RAW images and local libraries.</li></ul>
+<p>Lightroom RAW 图像和本地库。</p>
+<ul><li>Premiere videos and audio tracks.</li></ul>
+<p>Premiere 视频和音轨。</p>
+<ul><li>Firefly-style generative editing requests.</li></ul>
+<p>Firefly 风格的生成编辑请求。</p>
+<ul><li>Acrobat-style document intelligence tasks.</li></ul>
+<p>Acrobat 风格的文档智能任务。</p>
+<ul><li>Search and retrieval workflows over large catalogs.</li></ul>
+<p>大型目录的搜索和检索 workflow。</p>
+<ul><li>LLM assistants and multi-step AI workflows.</li></ul>
+<p>LLM 助手和多步骤 AI workflow。</p>
+<p>The platform had to solve several problems at once:</p>
+<p>这个平台需要同时解决多个问题：</p>
+<ul><li>Product teams should not rebuild GPU routing, retries, model rollout, and observability for each feature.</li></ul>
+<p>产品团队不应为每个功能重建 GPU 路由、重试、模型发布和可观测性。</p>
+<ul><li>Heavy media cannot always be uploaded in raw form because of latency, bandwidth, privacy, and cost.</li></ul>
+<p>由于延迟、带宽、隐私和成本的原因，重媒体并不总是以原始形式上传。</p>
+<ul><li>GPU capacity is expensive and fragmented across model types, latency classes, and tenants.</li></ul>
+<p>GPU 容量非常昂贵，并且跨模型类型、延迟类别和tenant分散。</p>
+<ul><li>LLM workloads have different bottlenecks from embedding/ranking workloads.</li></ul>
+<p>LLM workload 与嵌入/排序 workload有不同的瓶颈。</p>
+<ul><li>Long-running multimodal jobs need checkpointing and recovery.</li></ul>
+<p>长时间运行的多模态作业需要checkpoint和恢复。</p>
+<ul><li>Model and index rollouts need automated evaluation and safe fallback.</li></ul>
+<p>模型和索引的发布需要自动评估和安全fallback。</p>
+<h3 id="motivation-and-product-context">Motivation and Product Context</h3>
+<p>The motivation was not simply "serve more models." The real product problem was that Amsterdam AI workflows were becoming too diverse for one-off infrastructure. A generative editing feature, a semantic retrieval feature, a media-understanding job, and an LLM assistant may all look like "AI requests" from a distance, but they stress the backend in very different ways.</p>
+<p>动机并不只是“多服务一些模型”。真正的产品问题是，Amsterdam 的 AI workflows 变得过于多样，无法继续依赖一次性的基础设施方案。生成式编辑、语义检索、媒体理解和 LLM 助手从表面看都像“AI 请求”，但它们对后端的压力完全不同。</p>
+<p>The platform existed to create a repeatable path for partner teams:</p>
+<p>这个平台存在的意义，是给合作团队提供一条可复用的路径：</p>
+<ul><li>Product teams define the user-facing feature and submit a high-level intent.</li></ul>
+<p>产品团队定义面向用户的功能并提交高级intent。</p>
+<ul><li>The core AI infrastructure layer owns execution planning, infrastructure routing, failure handling, rollout safety, and observability.</li></ul>
+<p>Core AI infrastructure 层拥有 execution planning、infrastructure routing、failure handling、rollout safety 和 observability。</p>
+<ul><li>Model teams own model artifacts, quality criteria, and evaluation datasets.</li></ul>
+<p>模型团队拥有模型artifact、质量标准和评估数据集。</p>
+<ul><li>Infrastructure teams provide Kubernetes clusters, GPU pools, storage, networking, and monitoring primitives.</li></ul>
+<p>基础设施团队提供 Kubernetes 集群、GPU 池、存储、网络和监控原语。</p>
+<p>The important interview framing is that this was a control-plane problem as much as a model-serving problem. The value was in creating a shared abstraction that made AI execution predictable across heterogeneous workloads instead of letting each feature team invent its own routing, retry, GPU allocation, and evaluation stack.</p>
+<p>面试时最重要的表述是：这不仅是模型服务问题，更是控制面问题。价值在于创建一个共享抽象，让异构workload下的 AI 执行变得可预测，而不是让每个功能团队都自己发明路由、重试、GPU 分配和评估体系。</p>
+<h3 id="industry-positioning-core-ai-infrastructure-not-generic-devops">Industry Positioning: Core AI Infrastructure, Not Generic DevOps</h3>
+<p>In current AI-infra hiring language, this project maps more closely to core AI infrastructure than to generic DevOps. The work is not mainly "operate Kubernetes." The work is to design shared abstractions and execution paths that make product-facing AI capabilities reliable, scalable, observable, and cost-aware: intent contracts, inference routing, model-serving integration, LLM serving, GPU fleet utilization, rollout gates, failure recovery, and developer experience for product teams.</p>
+<p>从当前 AI infra 的招聘语言看，这个项目更接近 core AI infrastructure，而不是普通 DevOps。重点不是“运维 Kubernetes”，而是设计共享抽象与执行路径，让面向产品的 AI 能力可靠、可扩展、可观测、成本可控：intent contract、inference routing、model-serving integration、LLM serving、GPU fleet utilization、rollout gate、failure recovery，以及面向产品团队的 developer experience。</p>
+<p>The best one-line interview framing is: "I worked on product-facing core AI infrastructure: the shared execution layer that turns product-level multimodal and LLM intents into reliable, cost-aware execution plans across edge, CPU, GPU, and model-serving backends."</p>
+<p>面试中最好的单句表述是：“我做的是 product-facing core AI infrastructure：把产品层的 multimodal 和 LLM intent 转换成跨端侧、CPU、GPU 与 model-serving backend 的可靠、成本感知 execution plan 的共享执行层。”</p>
+<p>This framing is stronger than saying only "AI platform" because it signals that the work sits in the critical path of model serving and product delivery. It also avoids sounding like a team that owns every Amsterdam product feature. The team owns common infrastructure primitives and selected shared execution paths; product teams still own UX, feature semantics, and product-specific business logic.</p>
+<p>这个表述比只说 “AI platform” 更强，因为它强调工作处在 model serving 与 product delivery 的关键路径上；同时也避免听起来像“一个团队承接所有 Amsterdam 产品功能”。团队拥有的是通用基础设施原语与选定的共享执行路径；产品团队仍然负责 UX、功能语义和产品特定业务逻辑。</p>
+<h3 id="design-goals">Design Goals</h3>
+<ul><li>Provide a shared execution layer for selected AI workflows.</li></ul>
+<p>为选定的 AI workflow提供共享执行层。</p>
+<ul><li>Provide core AI infrastructure primitives, not product-specific feature ownership.</li></ul>
+<p>提供 core AI infrastructure 原语，而不是接管产品特定功能 ownership。</p>
+<ul><li>Let partner teams express product intent without owning infrastructure routing.</li></ul>
+<p>让合作伙伴团队无需拥有基础设施路由即可表达产品intent。</p>
+<ul><li>Offer LLM-as-a-service capabilities with controlled model, prompt, token, streaming, and rollout behavior.</li></ul>
+<p>提供 LLM-as-a-service 能力，对 model、prompt、token、streaming 和 rollout 行为进行统一控制。</p>
+<ul><li>Support hybrid execution across edge, cloud CPU, and cloud GPU.</li></ul>
+<p>支持跨边缘、云CPU和云GPU的混合执行。</p>
+<ul><li>Keep GPUs focused on tensor-heavy work rather than Python business logic.</li></ul>
+<p>让 GPU 专注于张量密集型工作，而不是 Python 业务逻辑。</p>
+<ul><li>Reduce raw-media transfer through edge-first preprocessing.</li></ul>
+<p>通过edge-first 预处理减少原始介质传输。</p>
+<ul><li>Support both synchronous low-latency requests and asynchronous long-running jobs.</li></ul>
+<p>支持同步低延迟请求和异步长时间运行作业。</p>
+<ul><li>Make model and index rollout observable, reversible, and testable.</li></ul>
+<p>使模型和索引的发布可观察、可逆且可测试。</p>
+<ul><li>Improve aggregate GPU utilization while protecting p95 latency.</li></ul>
+<p>提高 GPU 总体利用率，同时保护 p95 延迟。</p>
+<h3 id="non-goals">Non-Goals</h3>
+<ul><li>The platform does not own every Amsterdam AI prompt.</li></ul>
+<p>该平台并不拥有所有 Amsterdam AI prompt。</p>
+<ul><li>It does not replace product-owned feature services or UX.</li></ul>
+<p>它不会取代产品拥有的功能服务或用户体验。</p>
+<ul><li>It does not force all AI workloads into one serving engine.</li></ul>
+<p>它不会强制将所有AI workload放入一个服务引擎中。</p>
+<ul><li>It does not require all assets to be uploaded to the cloud.</li></ul>
+<p>它不需要将所有资产上传到云端。</p>
+<ul><li>It does not make local execution mandatory when the device cannot support it.</li></ul>
+<p>当设备不支持时，它不会强制执行本地执行。</p>
+<h3 id="product-workflow-classes">Product Workflow Classes</h3>
+<p>The platform is best described by workflow classes rather than by claiming ownership of every product: 该平台最好通过工作流类来描述，而不是通过声明每个产品的所有权来描述：</p>
+<ul><li>Generative editing: masks, crops, prompts, and local postprocessing.</li></ul>
+<p>生成编辑：遮罩、裁剪、prompt和本地后处理。</p>
+<ul><li>Semantic retrieval: embeddings, vector search, reranking, and filters.</li></ul>
+<p>语义检索：嵌入、向量搜索、重新排序和过滤器。</p>
+<ul><li>Media understanding: image/video/audio preprocessing, captioning, tagging, scene extraction.</li></ul>
+<p>媒体理解：图像/视频/音频预处理、字幕、标签、场景提取。</p>
+<ul><li>LLM assistants: query rewrite, summarization, explanation, and user-facing generation.</li></ul>
+<p>LLM 助手：查询重写、摘要、解释和面向用户的生成。</p>
+<ul><li>Multi-step AI workflows: sequences of preprocess, infer, retrieve, rerank, generate, postprocess, and persist.</li></ul>
+<p>多步骤 AI workflow：预处理、推断、检索、重新排序、生成、后处理和持久化序列。</p>
+<ul><li>Rollout evaluation: LLM-as-judge and offline/online quality gates.</li></ul>
+<p>发布评估：LLM-as-Judge 和离线/在线质量门。</p>
+<h3 id="core-ai-infrastructure-surface-area">Core AI Infrastructure Surface Area</h3>
+<p>For interviews, I would describe the project surface area as a set of reusable infrastructure capabilities rather than one monolithic service:</p>
+<p>面试时，我会把项目边界描述为一组可复用的基础设施能力，而不是一个巨大的单体服务：</p>
+<ul><li>Intent and admission control: validate schema, product owner, privacy class, quota, and allowed execution targets.</li></ul>
+<p>Intent 与准入控制：校验 schema、产品 owner、隐私等级、配额以及允许的执行目标。</p>
+<ul><li>Execution planning: choose edge, cloud CPU, GPU, batch, retrieval, or LLM serving path from runtime context and policy.</li></ul>
+<p>Execution planning：根据运行时上下文与策略选择端侧、云端 CPU、GPU、batch、retrieval 或 LLM serving 路径。</p>
+<ul><li>Workflow orchestration: expand multi-step AI workflows into resumable DAGs with durable state and artifact references.</li></ul>
+<p>Workflow orchestration：把多步骤 AI workflow 展开为可恢复 DAG，并持久化状态与 artifact reference。</p>
+<ul><li>Layered inference serving: use different serving engines for CPU orchestration, embedding/ranking/CV inference, and autoregressive generation.</li></ul>
+<p>Layered inference serving：针对 CPU orchestration、embedding/ranking/CV inference 与 autoregressive generation 使用不同 serving engine。</p>
+<ul><li>LLM-as-a-service: expose internal generation capabilities with model routing, prompt/version control, token budgets, streaming, telemetry, safety gates, and rollback.</li></ul>
+<p>LLM-as-a-service：以内部服务形式暴露 generation 能力，包含 model routing、prompt/version control、token budget、streaming、telemetry、safety gate 与 rollback。</p>
+<ul><li>GPU/CPU resource control: place workloads by latency class, model profile, MIG feasibility, queue pressure, token pressure, and cost budget.</li></ul>
+<p>GPU/CPU resource control：根据 latency class、model profile、MIG 可行性、queue pressure、token pressure 与 cost budget 做 workload placement。</p>
+<ul><li>Rollout and evaluation infrastructure: safely roll out model, prompt, index, and routing changes with canaries, LLM-as-Judge, metrics, and fallbacks.</li></ul>
+<p>Rollout 与 evaluation infrastructure：通过 canary、LLM-as-Judge、metrics 与 fallback 安全发布 model、prompt、index 与 routing 变更。</p>
+<ul><li>Observability and operations: make request traces, queueing, model latency, token metrics, GPU fragmentation, and cost attribution visible.</li></ul>
+<p>Observability 与 operations：让 request trace、queueing、model latency、token metrics、GPU fragmentation 和 cost attribution 可见。</p>
+<h3 id="end-to-end-system-design-walkthrough">End-to-End System Design Walkthrough</h3>
+<p>An end-to-end request starts outside the platform. A product feature service receives a user action, such as asking for a generative edit, requesting semantic retrieval, analyzing a media asset, or invoking an LLM assistant. The product service does not directly call a GPU model. Instead, it sends an intent request with the payload reference, modality, privacy requirements, latency class, and device/session context.</p>
+<p>端到端请求从平台之外开始：产品特性服务接收用户动作，例如发起生成式编辑、请求语义检索、分析媒体资产或调用 LLM 助手。产品服务不会直接调用 GPU 模型，而是发送一个 intent 请求，并携带负载引用、模态、隐私要求、延迟等级以及设备/会话上下文。</p>
+<p>The first platform stage is admission and policy. The intent gateway validates the intent version, checks schema compatibility, resolves the owner and policy, applies quota, and attaches trace IDs. This stage is deliberately CPU-bound and lightweight because it sits on the hot path for every request.</p>
+<p>第一阶段是准入与策略：intent gateway 校验 intent 版本、检查 schema 兼容性、解析 owner 与策略、执行配额控制，并附加 trace IDs。该阶段刻意保持 CPU 绑定且轻量，因为它处在每个请求的关键路径上。</p>
+<p>The second stage is planning. The dispatcher uses device context, network quality, payload size, privacy class, model requirements, and live capacity signals to choose an execution mode. A small text rewrite can go directly to an LLM pool. A high-resolution media request may use edge preprocessing first. A retrieval request may call embedding inference, vector search, and reranking. A batch indexing request may be routed away from interactive GPU pools.</p>
+<p>第二阶段是规划：dispatcher 结合端侧下文、网络质量、负载大小、隐私等级、模型要求与实时容量信号来选择执行模式。轻量的文本改写可以直接走 LLM pool；高分辨率媒体请求可能先做端侧预处理；检索请求可能会调用 embedding 推理、向量检索和 reranking；批量索引请求通常会被从交互式 GPU 池分流出去。</p>
+<p>The third stage is workflow execution. Simple interactive requests can run synchronously. Long-running image/video/document workflows are expanded into a DAG with checkpoints. Each step produces durable artifacts or metadata so failures do not force a restart from raw input.</p>
+<p>第三阶段是工作流执行：简单的交互式请求可以同步完成；长时间运行的图像/视频/文档工作流会被展开为带 checkpoint 的 DAG。每个 step 都会产出可持久化的 artifacts 或元数据，从而在失败时无需从原始输入重新开始。</p>
+<p>The fourth stage is layered inference. CPU orchestration handles fan-out, feature joins, policy checks, and result composition. Triton handles high-throughput embedding, ranker, and CV inference. vLLM handles autoregressive generation. Batch workers handle lower-priority backfills and evaluation jobs. This separation is central to the design because each layer has a different bottleneck.</p>
+<p>第四阶段是分层推理：CPU 编排层负责 fan-out、特征拼接、策略检查与结果组装；Triton 负责高吞吐的 embedding、ranker 和 CV 推理；vLLM 负责自回归生成；批处理 worker 负责低优先级的回填与评估任务。分层是设计核心，因为每一层的瓶颈都不同。</p>
+<p>The fifth stage is resource control and rollout safety. Metrics from queues, model servers, GPU nodes, and token streams feed autoscaling and placement decisions. New model, prompt, index, or routing changes go through evaluation, canary rollout, monitoring, and rollback gates.</p>
+<p>第五阶段是资源控制与发布安全：来自队列、模型服务、GPU 节点与 token 流的指标会驱动 autoscaling 与 placement 决策。新的模型、prompt、索引或路由策略变更都会经过评估、canary发布、监控与回滚门禁。</p>
+<h3 id="component-interactions-to-explain-in-interviews">Component Interactions To Explain In Interviews</h3>
+<ul><li>Intent registry and dispatcher: the registry defines what is allowed; the dispatcher chooses how to execute it under current context.</li></ul>
+<p>intent注册和dispatcher：注册定义允许什么；dispatcher选择如何在当前上下文下执行它。</p>
+<ul><li>Dispatcher and workflow orchestrator: the dispatcher creates the plan; the orchestrator executes the plan and owns durable progress.</li></ul>
+<p>调度员和工作流编排器：调度员创建计划；协调者执行计划并拥有持久的进展。</p>
+<ul><li>Edge runtime and cloud inference: edge preprocessing reduces raw payloads; cloud inference handles the heavy tensor work or full-catalog retrieval.</li></ul>
+<p>边缘运行时和云推理：边缘预处理减少原始负载；云推理处理繁重的张量工作或全目录检索。</p>
+<ul><li>Ray Serve and Triton: Ray Serve composes the application graph; Triton executes optimized tensor inference.</li></ul>
+<p>Ray Serve 和 Triton：Ray Serve 组成应用图； Triton 执行优化的张量推理。</p>
+<ul><li>Ray Serve and vLLM: Ray Serve decides when generation is needed; vLLM handles token scheduling and memory-heavy generation.</li></ul>
+<p>Ray Serve 和 vLLM：Ray Serve 决定何时需要生成； vLLM 处理token调度和占用大量内存的生成。</p>
+<ul><li>Resource controller and model servers: model servers expose queue, latency, GPU, and token metrics; the controller changes placement or scale.</li></ul>
+<p>资源控制器和模型服务器：模型服务器公开队列、延迟、GPU 和token指标；控制器改变位置或比例。</p>
+<ul><li>Rollout controller and intent registry: rollout decisions update which model/index/prompt version an intent uses.</li></ul>
+<p>发布控制器和intent registry：发布决策更新intent使用的模型/索引/prompt版本。</p>
+<h3 id="performance-model">Performance Model</h3>
+<p>The most important performance model is that total latency is not only model latency. For hybrid AI workflows, end-to-end latency includes client preprocessing, upload time, queueing, orchestration, model inference, retrieval, postprocessing, and result transfer.</p>
+<p>最关键的性能认知是：总延迟不等于模型推理延迟。对于混合式 AI workflows，端到端延迟包含客户端预处理、上传耗时、排队、编排、模型推理、检索、后处理以及结果回传等多个部分。</p>
+<p>Useful mental formula: 有用的心理公式：</p>
+<ul><li>Interactive latency = admission + planning + queueing + inference + postprocessing.</li></ul>
+<p>交互延迟=准入+规划+排队+推理+后处理。</p>
+<ul><li>Media workflow latency = edge preprocess + upload compact artifact + cloud DAG execution + callback/poll.</li></ul>
+<p>媒体 workflow延迟 = 边缘预处理 + 上传压缩artifact + 云端 DAG 执行 + 回调/轮询。</p>
+<ul><li>LLM latency = admission + queue wait + prefill + time to first token + decode time per token.</li></ul>
+<p>LLM 延迟 = 准入 + 队列等待 + 预填充 + 第一个token的时间 + 每个token的解码时间。</p>
+<ul><li>Cost = GPU time + CPU orchestration + storage + network transfer + evaluation/backfill overhead.</li></ul>
+<p>成本 = GPU 时间 + CPU 编排 + 存储 + 网络传输 + 评估/回填开销。</p>
+<p>This is why the system cannot optimize only GPU utilization or only model throughput. A GPU can be highly utilized while users still see poor p95 latency because queueing or token backlog is too high. Conversely, low GPU utilization is not always bad if the pool protects interactive latency for high-value workloads.</p>
+<p>因此系统不能只优化 GPU 利用率或只优化模型吞吐。即使 GPU 利用率很高，用户仍可能因为排队或 token backlog 过大而看到糟糕的 p95 延迟；反过来，如果 GPU 池是在保护高价值交互请求的延迟，较低的 GPU 利用率也未必是坏事。</p>
+<h3 id="hardware-and-runtime-constraints">Hardware and Runtime Constraints</h3>
+<p>Hybrid AI serving is constrained by hardware as much as software:</p>
+<p>混合式 AI serving 的约束来自硬件与软件两方面，而且往往硬件约束同样关键：</p>
+<ul><li>Edge devices vary in CPU, GPU, NPU, RAM, VRAM, battery, thermal state, browser support, and local storage.</li></ul>
+<p>边缘设备在 CPU、GPU、NPU、RAM、VRAM、电池、热状态、浏览器支持和本地存储方面各不相同。</p>
+<ul><li>Network bandwidth and upload stability can dominate total latency for image/video/document payloads.</li></ul>
+<p>网络带宽和上传稳定性可以主导图像/视频/文档负载的总延迟。</p>
+<ul><li>A100/H100-class GPUs are expensive and should be reserved for workloads that actually benefit from them.</li></ul>
+<p>A100/H100 级 GPU 价格昂贵，应保留给真正从中受益的workload。</p>
+<ul><li>MIG improves packing for smaller models but can be a poor fit for large LLMs or workloads needing full GPU memory bandwidth.</li></ul>
+<p>MIG 改进了较小模型的打包，但可能不太适合大型 LLM 或需要完整 GPU 内存带宽的workload。</p>
+<ul><li>LLM serving is often constrained by KV cache and memory bandwidth, not just FLOPS.</li></ul>
+<p>LLM 服务通常受到 KV 缓存和内存带宽的限制，而不仅仅是 FLOPS。</p>
+<ul><li>Embedding and ranker serving often benefit from batching, but batching trades latency for throughput.</li></ul>
+<p>嵌入和排序服务通常受益于批处理，但批处理会牺牲延迟来换取吞吐量。</p>
+<ul><li>Training, batch inference, and online inference should usually be isolated because they have different tolerance for queueing and preemption.</li></ul>
+<p>训练、批量推理和在线推理通常应该隔离，因为它们对排队和抢占的容忍度不同。</p>
+<p>The key interview point is that hardware constraints shape the architecture. This is not just microservice routing; it is a resource allocation problem across devices, CPUs, GPUs, memory, network, queues, and user-facing SLOs.</p>
+<p>面试里要强调的是：硬件约束会直接塑造架构。这不仅是“微服务路由”问题，而是跨设备、CPU、GPU、内存、网络、队列以及用户侧 SLO 的资源分配问题。</p>
+<h3 id="high-level-architecture">High-Level Architecture</h3>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 1, High-Level Architecture.]</p>
+<p>Architecture in words:</p>
+<p>文字版架构：</p>
+<ul><li>Product feature services submit intent requests rather than calling model servers directly.</li></ul>
+<p>产品特征服务提交intent请求而不是直接调用模型服务器。</p>
+<ul><li>The intent gateway validates schema, identity, quota, and policy.</li></ul>
+<p>intent网关验证架构、身份、配额和策略。</p>
+<ul><li>The registry stores intent versions, model/index dependencies, privacy class, latency class, allowed targets, and fallback behavior.</li></ul>
+<p>注册表存储intent版本、模型/索引依赖项、隐私类别、延迟类别、允许的目标和fallback行为。</p>
+<ul><li>The dispatcher creates an execution plan using request context and live capacity signals.</li></ul>
+<p>dispatcher使用请求上下文和实时容量信号创建执行计划。</p>
+<ul><li>The workflow orchestrator executes DAG steps and stores progress.</li></ul>
+<p>工作流编排器执行 DAG 步骤并存储进度。</p>
+<ul><li>Edge runtimes produce compact artifacts when local preprocessing is useful.</li></ul>
+<p>当本地预处理有用时，边缘运行时会产生紧凑的artifact。</p>
+<ul><li>CPU services handle routing, joins, policy, retrieval calls, and orchestration.</li></ul>
+<p>CPU 服务处理路由、连接、策略、检索调用和编排。</p>
+<ul><li>GPU pools run embeddings, ranking, CV inference, LLM generation, and selected heavy media workloads.</li></ul>
+<p>GPU 池运行嵌入、排序、CV 推理、LLM 生成和选定的重型媒体 workload。</p>
+<ul><li>Resource control, observability, and rollout safety feed back into routing decisions.</li></ul>
+<p>资源控制、可观测性和部署安全反馈到路由决策中。</p>
+<p>The architecture is intentionally layered. The control plane remains mostly CPU-bound, while specialized serving engines own the GPU-heavy paths. That separation is what makes the system easier to scale and debug.</p>
+<p>该架构刻意做成分层：控制面主要保持 CPU 绑定，而 GPU-heavy 的路径交给专门的 serving engine。这样的分离让系统更容易扩展，也更容易定位和调试问题。</p>
+<h3 id="request-lifecycle">Request Lifecycle</h3>
+<ol><li>A product service submits an intent request to the platform.</li></ol>
+<p>产品服务向平台提交intent请求。</p>
+<ol><li>The Intent API validates the request against the registered schema and policy.</li></ol>
+<p>Intent API 根据注册的架构和策略验证请求。</p>
+<ol><li>The dispatcher collects context: device type, network, payload size, latency target, privacy flags, model profile, and current capacity signals.</li></ol>
+<p>dispatcher收集上下文：设备类型、网络、有效负载大小、延迟目标、隐私标志、model profile和当前容量信号。</p>
+<ol><li>The execution planner chooses edge-only, cloud-only, or hybrid execution.</li></ol>
+<p>执行规划器选择仅边缘、仅云或混合执行。</p>
+<ol><li>The workflow orchestrator expands the intent into a DAG.</li></ol>
+<p>工作流编排器将intent扩展为 DAG。</p>
+<ol><li>Edge preprocessing may produce compact payloads such as crops, masks, keyframes, embeddings, text chunks, or metadata.</li></ol>
+<p>边缘预处理可以产生紧凑的有效负载，例如裁剪、掩模、关键帧、嵌入、文本块或元数据。</p>
+<ol><li>Cloud CPU services perform routing, fan-out, feature joins, metadata lookup, and business logic.</li></ol>
+<p>云 CPU 服务执行路由、扇出、功能连接、元数据查找和业务逻辑。</p>
+<ol><li>Triton serves high-throughput embeddings, rankers, and CV models.</li></ol>
+<p>Triton 提供高通量嵌入、排序器和 CV 模型。</p>
+<ol><li>vLLM serves autoregressive generation where token throughput and KV-cache management matter.</li></ol>
+<p>vLLM 服务于自回归生成，其中token吞吐量和 KV 缓存管理很重要。</p>
+<ol><li>Results are checkpointed and returned or persisted.</li></ol>
+<p>结果被checkpoint并返回或保留。</p>
+<ol><li>Observability data flows into dashboards, alerting, autoscaling, and rollout safety.</li></ol>
+<p>可观测性数据流入仪表板、警报、自动扩缩容和发布安全性。</p>
+<h3 id="core-components">Core Components</h3>
+<h4 id="intent-registry">Intent Registry</h4>
+<p>The registry defines what a workflow is allowed to do and how the platform should reason about it.</p>
+<p>Registry 定义了某个 workflow “允许做什么”，以及平台应该如何对它进行推理与决策。</p>
+<p>It stores: 它存储：</p>
+<ul><li>Intent name and version.</li></ul>
+<p>intent名称和版本。</p>
+<ul><li>Input and output schemas.</li></ul>
+<p>输入和输出模式。</p>
+<ul><li>Supported modalities.</li></ul>
+<p>支持的方式。</p>
+<ul><li>Latency class.</li></ul>
+<p>延迟类。</p>
+<ul><li>Privacy class.</li></ul>
+<p>隐私类。</p>
+<ul><li>Model and index dependencies.</li></ul>
+<p>模型和索引依赖性。</p>
+<ul><li>Allowed execution targets.</li></ul>
+<p>允许的执行目标。</p>
+<ul><li>Fallback behavior.</li></ul>
+<p>fallback行为。</p>
+<ul><li>Owner team and on-call routing.</li></ul>
+<p>业主团队和待命路由。</p>
+<ul><li>Evaluation gates for rollout.</li></ul>
+<p>发布的评估门。</p>
+<p>Example intent specification: intent规范示例：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 2, Intent Registry.]</p>
+<p>Why this matters: 为什么这很重要：</p>
+<ul><li>Product teams can onboard a workflow by registering intent metadata rather than hardcoding infrastructure routing.</li></ul>
+<p>产品团队可以通过注册 intent元数据而不是硬编码基础设施路由来加入workflow。</p>
+<ul><li>Platform teams can enforce privacy, quotas, model compatibility, and fallback behavior consistently.</li></ul>
+<p>平台团队可以一致地强制执行隐私、配额、模型兼容性和fallback行为。</p>
+<ul><li>Rollout safety becomes tied to intent and model version rather than scattered service logic.</li></ul>
+<p>发布安全性与intent和模型版本相关，而不是与分散的服务逻辑相关。</p>
+<h4 id="context-aware-dispatcher">Context-Aware Dispatcher</h4>
+<p>The dispatcher converts product intent into an execution plan.</p>
+<p>Dispatcher 把产品层的 intent 转换为可执行的 execution plan。</p>
+<p>Primary inputs: 主要输入：</p>
+<ul><li>Workload type.</li></ul>
+<p>workload类型。</p>
+<ul><li>Payload size and modality.</li></ul>
+<p>有效负载大小和方式。</p>
+<ul><li>Device CPU/GPU/VRAM.</li></ul>
+<p>设备 CPU/GPU/VRAM。</p>
+<ul><li>Network uplink/downlink and stability.</li></ul>
+<p>网络上下行稳定。</p>
+<ul><li>Battery and thermal state when available.</li></ul>
+<p>电池和热状态（如果可用）。</p>
+<ul><li>User or product latency SLO.</li></ul>
+<p>用户或产品延迟 SLO。</p>
+<ul><li>Privacy policy.</li></ul>
+<p>隐私政策。</p>
+<ul><li>Model profile and memory footprint.</li></ul>
+<p>model profile和内存占用。</p>
+<ul><li>Current queue pressure and GPU capacity.</li></ul>
+<p>当前队列压力和GPU容量。</p>
+<ul><li>Cost budget or tenant quota.</li></ul>
+<p>成本预算或tenant配额。</p>
+<p>Representative data model: 代表性数据模型：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 3, Context-Aware Dispatcher.]</p>
+<p>Representative planner logic: 代表规划者逻辑：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 4, Context-Aware Dispatcher.]</p>
+<p>Key interview point: 面试要点：</p>
+<p>The dispatcher is not just an if/else router. It is a policy and cost function that reasons about payload physics, device feasibility, privacy, latency, model constraints, and live capacity.</p>
+<p>关键点是：dispatcher 不只是 if/else 路由器，它更像一个策略与成本函数，会综合考虑负载“物理属性”、设备可行性、隐私、延迟、模型约束以及实时容量。</p>
+<h4 id="workflow-orchestrator">Workflow Orchestrator</h4>
+<p>The workflow orchestrator takes an intent and builds a DAG. This supports long-running multimodal jobs without forcing everything into a single synchronous request.</p>
+<p>Workflow orchestrator 接收 intent 并构建 DAG。它让长时间运行的多模态任务可以被可靠执行，而不必强行塞进一次同步请求里。</p>
+<p>Example DAG for image/video workflow: 图像/视频 workflow的 DAG 示例：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 5, Workflow Orchestrator.]</p>
+<p>Representative workflow code: 代表性workflow代码：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 6, Workflow Orchestrator.]</p>
+<p>Why checkpointing mattered: 为什么checkpoint很重要：</p>
+<ul><li>Long video or image workflows can fail due to network drop, client closure, GPU preemption, or model-serving timeout.</li></ul>
+<p>由于网络丢失、客户端关闭、GPU 抢占或模型服务超时，长视频或图像workflow可能会失败。</p>
+<ul><li>Checkpoints let the system resume from the last completed stage.</li></ul>
+<p>checkpoint让系统从最后完成的阶段恢复。</p>
+<ul><li>Idempotent step keys prevent duplicate writes to storage, vector indexes, or result tables.</li></ul>
+<p>幂等步骤键可防止重复写入存储、向量索引或结果表。</p>
+<ul><li>User-facing workflows can show progress instead of hard failure.</li></ul>
+<p>面向用户的workflow 可以显示进度而不是硬故障。</p>
+<h4 id="layered-inference-stack">Layered Inference Stack</h4>
+<p>The stack follows a "right engine, right bottleneck" design:</p>
+<p>该栈遵循“用对引擎解决对瓶颈”的设计原则：</p>
+<div class="table-scroll"><table><thead><tr><th>Layer</th><th>Role</th><th>Best For</th><th>Bottleneck Managed</th></tr></thead><tbody><tr><td>Ray Serve</td><td>Routing, DAG composition, Python business logic, fan-out, service composition</td><td>CPU-bound orchestration, feature joins, request shaping</td><td>Fan-out complexity, async I/O</td></tr><tr><td>Triton</td><td>High-throughput non-LLM tensor inference</td><td>Embeddings, rankers, CV models, moderation models</td><td>GPU utilization, batching, model concurrency</td></tr><tr><td>vLLM</td><td>Autoregressive generation</td><td>LLM assistants, query rewrite, explanation, tool planning, evaluation generation</td><td>KV cache, token throughput, memory bandwidth</td></tr><tr><td>Edge runtime</td><td>Local preprocessing and selected lightweight inference</td><td>Crops, masks, frame sampling, local embedding, privacy-sensitive transforms</td><td>Network transfer, latency, privacy</td></tr></tbody></table></div>
+<p>Important design principle: 重要设计原则：</p>
+<p>Keep GPUs isolated from Python-heavy business logic. Use CPU orchestration for routing and fan-out, then push tensor-heavy work into specialized serving engines.</p>
+<p>重要原则：把 GPU 与 Python-heavy 的业务逻辑隔离开。用 CPU 编排做路由与 fan-out，把 tensor-heavy 的工作下沉到专门的 serving engine 中。</p>
+<h4 id="ray-serve-role">Ray Serve Role</h4>
+<p>Ray Serve is used for application-level orchestration, not as the only inference engine.</p>
+<p>Ray Serve 用在应用层编排，而不是作为唯一的推理引擎。 Typical responsibilities: 典型职责：</p>
+<ul><li>Normalize request.</li></ul>
+<p>规范化请求。</p>
+<ul><li>Resolve intent metadata.</li></ul>
+<p>解析intent元数据。</p>
+<ul><li>Build workflow DAG.</li></ul>
+<p>构建工作流 DAG。</p>
+<ul><li>Fan out to feature services.</li></ul>
+<p>扇出以提供特色服务。</p>
+<ul><li>Call retrieval service.</li></ul>
+<p>呼叫检索服务。</p>
+<ul><li>Call Triton for embeddings or rankers.</li></ul>
+<p>请致电 Triton 进行嵌入或排序。</p>
+<ul><li>Call vLLM for generation.</li></ul>
+<p>调用 vLLM 进行生成。</p>
+<ul><li>Merge outputs and apply policy.</li></ul>
+<p>合并输出并应用策略。</p>
+<ul><li>Emit metrics and traces.</li></ul>
+<p>发出指标和跟踪。</p>
+<p>Representative Ray Serve style: 代表雷发球风格：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 7, Ray Serve Role.]</p>
+<h4 id="triton-role">Triton Role</h4>
+<p>Triton is used for embedding, ranking, and computer vision inference where dynamic batching, model repository management, GPU metrics, and per-model scheduling are useful.</p>
+<p>Triton 用于 embedding、ranking 与计算机视觉推理场景，尤其适合需要动态 batching、模型仓库管理、GPU 指标暴露以及按模型调度的场景。 Typical model families: 典型型号系列：</p>
+<ul><li>Text embedding.</li></ul>
+<p>文本嵌入。</p>
+<ul><li>Image embedding.</li></ul>
+<p>图像嵌入。</p>
+<ul><li>Video frame embedding.</li></ul>
+<p>视频帧嵌入。</p>
+<ul><li>Cross-encoder ranker.</li></ul>
+<p>交叉编码器排序器。</p>
+<ul><li>Quality classifier.</li></ul>
+<p>质量分类器。</p>
+<ul><li>Safety classifier.</li></ul>
+<p>安全分级器。</p>
+<ul><li>OCR or layout-related vision models when applicable.</li></ul>
+<p>OCR 或布局相关的视觉模型（如果适用）。</p>
+<p>Example Triton model config sketch: Triton 模型配置草图示例：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 8, Triton Role.]</p>
+<p>Tuning principle: 调音原理：</p>
+<ul><li>If GPU utilization is low and latency budget allows, increase dynamic batching.</li></ul>
+<p>如果 GPU 利用率较低且延迟预算允许，请增加动态批处理。</p>
+<ul><li>If queue time dominates p95 latency, lower queue delay or scale out replicas.</li></ul>
+<p>如果队列时间主导 p95 延迟，请降低队列延迟或横向扩展副本。</p>
+<ul><li>If memory is tight, reduce instance count or use a smaller model variant.</li></ul>
+<p>如果内存紧张，请减少实例数量或使用较小的模型变体。</p>
+<h4 id="vllm-role">vLLM Role</h4>
+<p>vLLM is used for generation-heavy workflows:</p>
+<p>vLLM 用于以生成为主的workload：</p>
+<ul><li>LLM assistants.</li></ul>
+<p>LLM助手。</p>
+<ul><li>Query rewriting.</li></ul>
+<p>查询重写。</p>
+<ul><li>Retrieval result explanation.</li></ul>
+<p>检索结果说明。</p>
+<ul><li>Content summarization.</li></ul>
+<p>内容概括。</p>
+<ul><li>Tool-using or multi-step AI workflows.</li></ul>
+<p>使用工具或多步骤 AI workflow。</p>
+<ul><li>LLM-as-judge evaluation.</li></ul>
+<p>LLM-as-Judge 评估。</p>
+<p>Important metrics: 重要指标：</p>
+<ul><li>TTFT: time to first token.</li></ul>
+<p>TTFT：第一个token的时间。</p>
+<ul><li>TPOT: time per output token.</li></ul>
+<p>TPOT：每个输出token的时间。</p>
+<ul><li>Tokens/sec.</li></ul>
+<p>token/秒。</p>
+<ul><li>Request backlog.</li></ul>
+<p>请求积压。</p>
+<ul><li>KV-cache utilization.</li></ul>
+<p>KV-缓存利用率。</p>
+<ul><li>GPU memory utilization.</li></ul>
+<p>GPU 内存利用率。</p>
+<ul><li>Preemption count.</li></ul>
+<p>抢占计数。</p>
+<p>Representative routing logic: 代表性路由逻辑：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 9, vLLM Role.]</p>
+<h4 id="llm-as-a-service-role">LLM-as-a-Service Role</h4>
+<p>LLM-as-a-service is broader than "run vLLM behind an endpoint." In this project, it means providing a product-safe internal generation layer where product teams can request generation, rewriting, summarization, explanation, evaluation, or tool-planning without owning model placement, prompt rollout, token budgets, streaming behavior, fallback models, or GPU scheduling.</p>
+<p>LLM-as-a-service 不只是“在 endpoint 后面跑 vLLM”。在这个项目里，它意味着提供一个面向产品安全的内部 generation layer，让产品团队可以请求 generation、rewrite、summarization、explanation、evaluation 或 tool-planning，而不需要自己负责 model placement、prompt rollout、token budget、streaming behavior、fallback model 或 GPU scheduling。</p>
+<p>The service boundary is intentionally infrastructure-oriented. It provides a stable contract for internal callers, then maps each request to the right model family, prompt template version, context window policy, latency class, tenant quota, and streaming mode. This keeps product services focused on UX and feature semantics while the infra layer owns the hard runtime decisions.</p>
+<p>这个服务边界有意设计成基础设施导向。它给内部调用方提供稳定契约，再把每个请求映射到合适的 model family、prompt template version、context window policy、latency class、tenant quota 和 streaming mode。这样产品服务可以专注于 UX 与功能语义，infra layer 负责困难的运行时决策。</p>
+<p>Key responsibilities: 关键职责：</p>
+<ul><li>OpenAI-compatible or chat-completion-like API shape for internal workloads.</li></ul>
+<p>面向内部 workload 提供 OpenAI-compatible 或 chat-completion-like API 形态。</p>
+<ul><li>Model routing across small, medium, and large model tiers.</li></ul>
+<p>在 small、medium、large model tier 之间做 model routing。</p>
+<ul><li>Prompt and system-instruction versioning tied to rollout gates.</li></ul>
+<p>把 prompt 与 system instruction versioning 绑定到 rollout gate。</p>
+<ul><li>Context assembly from retrieval, document parsing, media understanding, or product state.</li></ul>
+<p>从 retrieval、document parsing、media understanding 或 product state 中组装 context。</p>
+<ul><li>Token budgeting for input context, output length, and tenant-level cost control.</li></ul>
+<p>对输入上下文、输出长度与 tenant-level cost control 做 token budgeting。</p>
+<ul><li>Streaming response contracts for user-facing assistants and creative workflows.</li></ul>
+<p>为面向用户的 assistant 与 creative workflow 提供 streaming response contract。</p>
+<ul><li>TTFT, TPOT, generated-token, waiting-token, and KV-cache telemetry.</li></ul>
+<p>采集 TTFT、TPOT、generated token、waiting token 和 KV-cache telemetry。</p>
+<ul><li>Safety, policy, LLM-as-Judge, canary, and rollback integration.</li></ul>
+<p>集成 safety、policy、LLM-as-Judge、canary 与 rollback。</p>
+<p>The main tradeoff is abstraction depth. If the service hides too much, product teams lose control over prompt behavior and UX-specific semantics. If it hides too little, each product team rebuilds routing, safety, cost control, and fallback logic. The practical compromise is a stable infrastructure contract plus product-owned intent metadata, prompt ownership, and evaluation criteria.</p>
+<p>核心权衡是抽象深度。如果服务隐藏太多，产品团队会失去对 prompt behavior 与 UX-specific semantics 的控制；如果隐藏太少，每个产品团队又会重复建设 routing、safety、cost control 与 fallback logic。实际折中是：基础设施层提供稳定 contract，产品团队拥有 intent metadata、prompt ownership 与 evaluation criteria。</p>
+<h4 id="edge-first-preprocessing-contracts">Edge-First Preprocessing Contracts</h4>
+<p>The platform reduces raw-media transfer by making edge preprocessing a formal contract instead of a one-off product optimization.</p>
+<p>平台通过“端侧预处理契约化”来减少 raw-media 传输，而不是把预处理当作某个产品的一次性优化。 Examples: 示例：</p>
+<ul><li>Image: crop to selected region, generate mask, downsample preview, extract metadata.</li></ul>
+<p>图像：裁剪到选定区域、生成蒙版、下采样预览、提取元数据。</p>
+<ul><li>Video: scene detection, keyframe extraction, audio track extraction, proxy generation.</li></ul>
+<p>视频：场景检测、关键帧提取、音轨提取、代理生成。</p>
+<ul><li>Document: text extraction, layout tree, page thumbnails, table hints.</li></ul>
+<p>文档：文本提取、布局树、页面缩略图、表格prompt。</p>
+<ul><li>Retrieval: local candidate pruning, local embedding for recent assets, cache lookup.</li></ul>
+<p>检索：本地候选修剪、最近资产的本地嵌入、缓存查找。</p>
+<p>Example contract: 合同示例：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 10, Edge-First Preprocessing Contracts.]</p>
+<p>Why this mattered: 为什么这很重要：</p>
+<ul><li>It avoids sending full raw media when the model only needs a crop, keyframe, mask, or transcript.</li></ul>
+<p>当模型只需要裁剪、关键帧、蒙版或转录本时，它会避免发送完整的raw media。</p>
+<ul><li>It allows privacy-sensitive workflows to keep raw content local where possible.</li></ul>
+<p>它允许隐私敏感的workflow尽可能将原始内容保留在本地。</p>
+<ul><li>It lets the platform enforce compatibility between edge outputs and cloud model inputs.</li></ul>
+<p>它让平台强制边缘输出和云模型输入之间的兼容性。</p>
+<ul><li>It makes long-running workflows resumable because intermediate artifacts are addressable.</li></ul>
+<p>之所以重要，是因为它让端侧产物成为可验证、可版本化、可复用的中间件：既减少网络传输，也提升隐私与可靠性，并让长流程可以从中间产物恢复继续执行。</p>
+<h3 id="key-tech-stack-deep-dive">Key Tech Stack Deep Dive</h3>
+<p>This section is useful for interviews because it explains why each system exists and what tradeoffs it introduces. The goal is not to claim each tool is always the right answer; the goal is to show that the architecture matches bottlenecks.</p>
+<p>这一节用于面试准备：解释每个系统为什么存在、引入了哪些权衡。目的不是宣称某个工具永远“正确”，而是展示架构如何与瓶颈相匹配。</p>
+<h4 id="ray-serve">Ray Serve</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>Ray Serve is a Python-native serving framework built on Ray.</li></ul>
+<p>Ray Serve 是一个基于 Ray 构建的 Python 原生服务框架。</p>
+<ul><li>It is strong for composing model calls, Python business logic, request routing, fan-out, and multi-step serving graphs.</li></ul>
+<p>它对于编写模型调用、Python 业务逻辑、请求路由、扇出和多步骤服务图非常强大。</p>
+<ul><li>It can autoscale deployments and run distributed Python actors.</li></ul>
+<p>它可以自动扩展部署并运行分布式 Python Actor。</p>
+<p>How it fits here: 它如何适合这里：</p>
+<ul><li>Ray Serve sits at the application orchestration layer.</li></ul>
+<p>Ray Serve 位于应用程序编排层。</p>
+<ul><li>It handles intent routing, DAG composition, calls into retrieval services, calls into Triton or vLLM, and result assembly.</li></ul>
+<p>它处理intent路由、DAG 组合、调用检索服务、调用 Triton 或 vLLM 以及结果组装。</p>
+<ul><li>It is a good place for CPU-heavy logic such as feature joins, policy checks, request shaping, and workflow orchestration.</li></ul>
+<p>它是执行 CPU 密集型逻辑（例如功能连接、策略检查、请求整形和工作流编排）的好地方。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>It is not usually the best engine for squeezing maximum single-model GPU throughput.</li></ul>
+<p>它通常不是压缩最大单模型 GPU 吞吐量的最佳引擎。</p>
+<ul><li>Python orchestration can become a bottleneck if too much tensor work is kept there.</li></ul>
+<p>如果 Python 编排中保留过多的张量工作，则可能会成为瓶颈。</p>
+<ul><li>Cold starts and dependency packaging need attention.</li></ul>
+<p>冷启动和依赖打包需要注意。</p>
+<ul><li>Operationally, Ray clusters add another control plane on top of Kubernetes.</li></ul>
+<p>从操作上来说，Ray 集群在 Kubernetes 之上添加了另一个控制平面。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"I would use Ray Serve for application-level ML orchestration, not as a replacement for specialized inference engines. The separation lets Python stay in the control path while Triton and vLLM own GPU-heavy serving."</p>
+<p>面试表达要点：</p>
+<p>"我会把 Ray Serve 用在应用层的 ML 编排上，而不是用它替代专门的推理引擎。这样可以让 Python 留在控制路径中，而把 GPU-heavy 的 serving 交给 Triton 和 vLLM。"</p>
+<h4 id="nvidia-triton">NVIDIA Triton</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>Triton is an inference server optimized for serving models from multiple frameworks.</li></ul>
+<p>Triton 是一款推理服务器，针对多个框架的模型服务进行了优化。</p>
+<ul><li>It supports dynamic batching, concurrent model execution, model repositories, HTTP/gRPC APIs, and Prometheus metrics.</li></ul>
+<p>它支持动态批处理、并发模型执行、模型存储库、HTTP/gRPC API 和 Prometheus 指标。</p>
+<ul><li>It is widely used for embeddings, rankers, CV models, classifiers, and other non-LLM inference.</li></ul>
+<p>它广泛用于嵌入、排序器、CV 模型、分类器和其他非 LLM 推理。</p>
+<p>How it fits here: 它如何适合这里：</p>
+<ul><li>Triton serves high-throughput embedding, ranking, CV, moderation, and quality models.</li></ul>
+<p>Triton 提供高通量嵌入、排序、CV、审核和质量模型。</p>
+<ul><li>It is useful when many small or medium tensor requests can be batched to improve GPU utilization.</li></ul>
+<p>当可以批量处理许多小型或中型张量请求以提高 GPU 利用率时，它非常有用。</p>
+<ul><li>It provides per-model configuration knobs such as batch size, queue delay, and instance count.</li></ul>
+<p>它提供每个模型的配置旋钮，例如批量大小、队列延迟和实例计数。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>Dynamic batching improves throughput but can hurt tail latency.</li></ul>
+<p>动态批处理可以提高吞吐量，但会损害尾部延迟。</p>
+<ul><li>More model instances can improve concurrency but increase memory pressure.</li></ul>
+<p>更多的模型实例可以提高并发性，但会增加内存压力。</p>
+<ul><li>Triton is less natural for autoregressive token generation than vLLM.</li></ul>
+<p>Triton 在自回归token生成方面不如 vLLM 自然。</p>
+<ul><li>Model repository and deployment versioning must be managed carefully.</li></ul>
+<p>必须仔细管理模型存储库和部署版本控制。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"For embedding and ranker models, Triton lets you tune the latency-throughput frontier. If p95 latency is healthy but GPU utilization is low, batching can help. If queue time dominates, scaling out or reducing queue delay is better."</p>
+<p>面试表达要点：</p>
+<p>"对 embedding 和 ranker 模型来说，Triton 让你可以在延迟与吞吐之间做可控调参：如果 p95 延迟健康但 GPU 利用率偏低，可以通过 batching 提升吞吐；如果 p95 主要被 queue time 拖慢，更好的做法是扩容或降低 queue delay。"</p>
+<h4 id="vllm">vLLM</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>vLLM is optimized for autoregressive LLM serving.</li></ul>
+<p>vLLM 针对自回归 LLM 服务进行了优化。</p>
+<ul><li>It focuses on memory-efficient KV-cache management, batching of sequences, streaming output, and high token throughput.</li></ul>
+<p>它专注于内存高效的 KV 缓存管理、序列批处理、流输出和高token吞吐量。</p>
+<ul><li>Important metrics include time to first token, time per output token, request backlog, tokens/sec, and KV-cache utilization.</li></ul>
+<p>重要指标包括第一个token的时间、每个输出token的时间、请求积压、token/秒和 KV 缓存利用率。</p>
+<ul><li>Its PagedAttention-style memory management treats KV cache like paged memory, reducing waste from variable-length sequences and making continuous batching more practical.</li></ul>
+<p>它的 PagedAttention-style memory management 把 KV cache 视为类似分页内存的资源，减少 variable-length sequence 带来的浪费，并让 continuous batching 更可行。</p>
+<ul><li>For production serving, prefill and decode have different bottlenecks: prefill is compute-heavy over the prompt, while decode is memory-bandwidth and KV-cache heavy as tokens are generated one by one.</li></ul>
+<p>在生产 serving 中，prefill 与 decode 的瓶颈不同：prefill 对 prompt 做并行计算，偏 compute-heavy；decode 逐 token 生成，更受 memory bandwidth 与 KV-cache 压力影响。</p>
+<p>How it fits here: 它如何适合这里：</p>
+<ul><li>vLLM serves LLM assistants, query rewrite, explanation, summarization, multi-step AI workflow steps, and LLM-as-judge evaluation.</li></ul>
+<p>vLLM 为LLM助手、查询重写、解释、总结、多步 AI workflow步骤以及LLM-as-Judge 评估提供服务。</p>
+<ul><li>It is separated from embedding/ranking paths because generation has different capacity behavior.</li></ul>
+<p>它与嵌入/排序路径分开，因为一代具有不同的容量行为。</p>
+<ul><li>It provides the runtime foundation for LLM-as-a-service, but the platform still needs admission control, prompt/model routing, safety gates, quota, and rollback around it.</li></ul>
+<p>它提供 LLM-as-a-service 的运行时基础，但平台仍然需要围绕它实现 admission control、prompt/model routing、safety gate、quota 与 rollback。</p>
+<ul><li>Token telemetry flows back to autoscaling and routing so the system can react to actual generated-token pressure rather than raw request count.</li></ul>
+<p>Token telemetry 会回流到 autoscaling 与 routing，让系统根据真实 generated-token pressure 做决策，而不是只看 request count。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>Long prompts and long outputs can dominate memory and latency.</li></ul>
+<p>长prompt和长输出可能会影响内存和延迟。</p>
+<ul><li>Request count is a poor scaling signal; token backlog is more meaningful.</li></ul>
+<p>请求计数是一个较差的扩展信号；代币积压更有意义。</p>
+<ul><li>Stronger models may improve quality but reduce throughput and increase cost.</li></ul>
+<p>更强大的模型可能会提高质量，但会降低吞吐量并增加成本。</p>
+<ul><li>Multi-tenant LLM serving requires careful admission control, max-token policies, and priority classes.</li></ul>
+<p>多tenant LLM 服务需要仔细的准入控制、最大token策略和优先级。</p>
+<ul><li>Prefix caching and prompt reuse can reduce repeated prefill work, but they increase cache-management complexity and need guardrails around tenant isolation and prompt-version compatibility.</li></ul>
+<p>Prefix caching 与 prompt reuse 可以减少重复 prefill 工作，但会增加 cache management 复杂度，并且需要围绕 tenant isolation 与 prompt-version compatibility 设置 guardrail。</p>
+<ul><li>Disaggregating prefill and decode can improve specialization at large scale, but it adds scheduling, routing, and cache-transfer complexity; for many teams, colocated serving is simpler until traffic scale justifies the split.</li></ul>
+<p>将 prefill 与 decode 解耦可以在大规模下提升专业化程度，但会引入 scheduling、routing 与 cache-transfer 复杂度；对很多团队来说，在流量规模足够之前，colocated serving 更简单。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"For LLM serving I care less about raw request QPS and more about token pressure, KV-cache utilization, TTFT, TPOT, and queue behavior. Two requests can cost very different amounts depending on prompt and output length."</p>
+<p>面试表达要点：</p>
+<p>"做 LLM serving 时，我不会只看 request QPS，而更关注 token 压力、KV-cache 利用率、TTFT、TPOT 以及队列行为。因为两个请求的成本可能完全不同，主要取决于 prompt 长度和输出长度。"</p>
+<h4 id="kubernetes-kuberay-keda-and-mig">Kubernetes, KubeRay, KEDA, and MIG</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>Kubernetes provides scheduling, deployment, service discovery, and cluster operations.</li></ul>
+<p>Kubernetes 提供调度、部署、服务发现和集群操作。</p>
+<ul><li>KubeRay manages Ray clusters and Ray services on Kubernetes.</li></ul>
+<p>KubeRay 管理 Kubernetes 上的 Ray 集群和 Ray 服务。</p>
+<ul><li>KEDA scales workloads from external signals such as queues or Prometheus metrics.</li></ul>
+<p>KEDA 通过外部信号（例如队列或 Prometheus 指标）扩展 workload。</p>
+<ul><li>MIG partitions supported NVIDIA GPUs into smaller isolated slices.</li></ul>
+<p>MIG 分区支持 NVIDIA GPU 分成更小的隔离片。</p>
+<p>How they fit here: 它们如何适合这里：</p>
+<ul><li>Kubernetes is the base substrate for CPU and GPU workloads.</li></ul>
+<p>Kubernetes 是 CPU 和 GPU workload 的基础。</p>
+<ul><li>KubeRay manages Ray Serve orchestration clusters.</li></ul>
+<p>KubeRay 管理 Ray Serve 编排集群。</p>
+<ul><li>KEDA scales model-serving and worker pools based on queue depth, p95 latency, token backlog, or custom metrics.</li></ul>
+<p>KEDA 根据队列深度、p95 延迟、token积压或自定义指标来扩展模型服务和工作池。</p>
+<ul><li>MIG-aware placement improves utilization for smaller models that do not need a full A100/H100.</li></ul>
+<p>MIG 感知布局可提高不需要完整 A100/H100 的小型模型的利用率。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>Kubernetes scheduling is powerful but not automatically workload-aware; GPU fragmentation still needs policy.</li></ul>
+<p>Kubernetes 调度功能强大，但不能自动感知 workload； GPU碎片化仍然需要政策。</p>
+<ul><li>MIG improves isolation and packing but reduces flexibility for large models.</li></ul>
+<p>MIG 改善了隔离和封装，但降低了大型模型的灵活性。</p>
+<ul><li>Autoscaling too aggressively can cause oscillation; autoscaling too slowly causes latency spikes.</li></ul>
+<p>过于激进的自动扩缩容可能会导致振荡；自动扩缩容太慢会导致延迟峰值。</p>
+<ul><li>GPU cold starts are expensive because large model loading takes time.</li></ul>
+<p>GPU 冷启动的成本很高，因为大型模型加载需要时间。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"The hard part is not just creating pods with GPU limits. The hard part is matching model shape, latency class, memory footprint, and tenant priority to the right GPU slice or pool."</p>
+<p>面试表达要点：</p>
+<p>"难点不在于给 pod 配一个 GPU limit，而在于把模型形态、延迟等级、内存占用和tenant优先级，匹配到合适的 GPU slice 或 GPU pool 上。"</p>
+<h4 id="kafka-redis-and-object-storage">Kafka, Redis, and Object Storage</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>Kafka provides durable event streams and decouples producers from consumers.</li></ul>
+<p>Kafka 提供持久的事件流并将生产者与消费者解耦。</p>
+<ul><li>Redis is useful for low-latency state, leases, deduplication, caching, and circuit-breaker state.</li></ul>
+<p>Redis 对于低延迟状态、租赁、重复数据删除、缓存和熔断器状态很有用。</p>
+<ul><li>Object storage is the durable artifact layer for large media, intermediate outputs, and audit records.</li></ul>
+<p>对象存储是大型媒体、中间输出和审计记录的持久artifact层。</p>
+<p>How they fit here: 它们如何适合这里：</p>
+<ul><li>Kafka carries workflow events, task-ready events, completion events, telemetry, and rollout events.</li></ul>
+<p>Kafka 承载工作流事件、任务就绪事件、完成事件、遥测和发布事件。</p>
+<ul><li>Redis can store short-lived workflow state, idempotency keys, active circuit breakers, and hot routing decisions.</li></ul>
+<p>Redis 可以存储短暂​​的工作流状态、幂等性密钥、活动熔断器和热路由决策。</p>
+<ul><li>Object storage stores media artifacts, edge outputs, embeddings, generated outputs, and evaluation traces.</li></ul>
+<p>对象存储存储媒体artifact、边缘输出、嵌入、生成的输出和评估跟踪。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>Kafka gives durability and replay but introduces eventual consistency and operational complexity.</li></ul>
+<p>Kafka 提供持久性和重播性，但引入了最终一致性和操作复杂性。</p>
+<ul><li>Redis is fast but should not be the only durable source of truth for long-lived workflow artifacts.</li></ul>
+<p>Redis 速度很快，但不应该成为长期workflow artifact的唯一持久事实来源。</p>
+<ul><li>Object storage is scalable and cheap but has higher latency than local disk or memory.</li></ul>
+<p>对象存储具有可扩展性且成本低廉，但比本地磁盘或内存具有更高的延迟。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"I would use Kafka for durable workflow progress and fan-out, Redis for fast coordination and hot state, and object storage for large artifacts. Mixing their responsibilities too much creates reliability problems."</p>
+<p>面试表达要点：</p>
+<p>"我会用 Kafka 承载工作流进度与 fan-out 的持久事件流，用 Redis 做快速协作/热点状态，用对象存储承载大体积 artifacts。如果把它们的职责混在一起，会造成可靠性问题。"</p>
+<h4 id="envoy-prometheus-and-grafana">Envoy, Prometheus, and Grafana</h4>
+<p>Basics: 基础知识：</p>
+<ul><li>Envoy provides proxying, routing, retries, load balancing, timeouts, and service-mesh integration.</li></ul>
+<p>Envoy 提供代理、路由、重试、负载均衡、超时和服务网格集成。</p>
+<ul><li>Prometheus collects metrics.</li></ul>
+<p>Prometheus 收集指标。</p>
+<ul><li>Grafana provides dashboards and operational views.</li></ul>
+<p>Grafana 提供仪表板和操作视图。</p>
+<p>How they fit here: 它们如何适合这里：</p>
+<ul><li>Envoy helps enforce service timeouts, route requests, and collect traffic-level metrics.</li></ul>
+<p>Envoy 帮助强制执行服务超时、路由请求并收集流量级别指标。</p>
+<ul><li>Prometheus scrapes model-serving, GPU, Ray, Kubernetes, and application metrics.</li></ul>
+<p>Prometheus 抓取模型服务、GPU、Ray、Kubernetes 和应用程序指标。</p>
+<ul><li>Grafana gives service health, latency, queue, GPU, token, and rollout dashboards.</li></ul>
+<p>Grafana 提供服务运行状况、延迟、队列、GPU、token和发布仪表板。</p>
+<p>Tradeoffs: 权衡：</p>
+<ul><li>Retrying at the proxy layer can amplify load if not bounded.</li></ul>
+<p>如果没有限制，在代理层重试可能会放大负载。</p>
+<ul><li>High-cardinality metrics can become expensive and noisy.</li></ul>
+<p>高基数指标可能会变得昂贵且嘈杂。</p>
+<ul><li>Dashboards are useful only if tied to SLOs and action paths.</li></ul>
+<p>仅当与 SLO 和操作路径相关联时，仪表板才有用。</p>
+<p>Interview angle: 面试角度：</p>
+<p>"Observability is part of the design. For AI serving, I want dashboards that connect product SLOs to infrastructure causes: queue depth, GPU memory, token backlog, model version, and workflow state."</p>
+<p>面试表达要点：</p>
+<p>"可观测性是设计的一部分。对 AI serving 来说，我希望 dashboard 能把产品 SLO 和基础设施根因连起来：队列深度、GPU 内存、token backlog、模型版本以及工作流状态。"</p>
+<h3 id="resource-control-and-gpu-optimization">Resource Control and GPU Optimization</h3>
+<h4 id="resource-control-problem">Resource Control Problem</h4>
+<p>The platform needed to run different workload types on shared infrastructure:</p>
+<p>平台需要在同一套基础设施上运行不同类型的负载：</p>
+<ul><li>Interactive retrieval and reranking.</li></ul>
+<p>交互式检索和重新排序。</p>
+<ul><li>Batch embedding generation.</li></ul>
+<p>批量嵌入生成。</p>
+<ul><li>Media analysis jobs.</li></ul>
+<p>媒体分析工作。</p>
+<ul><li>LLM generation.</li></ul>
+<p>LLM一代。</p>
+<ul><li>LLM-as-judge evaluation.</li></ul>
+<p>LLM-as-Judge 评估。</p>
+<ul><li>Training and model validation jobs.</li></ul>
+<p>培训和模型验证工作。</p>
+<ul><li>Backfills and index refreshes.</li></ul>
+<p>回填和索引刷新。</p>
+<p>These workloads have different bottlenecks:</p>
+<p>这些负载的瓶颈并不相同：</p>
+<ul><li>Embeddings and rankers need batching and high GPU utilization.</li></ul>
+<p>嵌入和排序需要批处理和高 GPU 利用率。</p>
+<ul><li>LLMs need KV-cache management and token throughput.</li></ul>
+<p>LLM 需要 KV 缓存管理和token吞吐量。</p>
+<ul><li>Long-running video jobs need durable state and fairness.</li></ul>
+<p>长时间运行的视频作业需要持久的状态和公平性。</p>
+<ul><li>Batch jobs can tolerate delay but consume large capacity.</li></ul>
+<p>批处理作业可以容忍延迟，但消耗较大的容量。</p>
+<ul><li>Interactive workloads need protected p95 latency.</li></ul>
+<p>交互式 workload需要受保护的 p95 延迟。</p>
+<h4 id="placement-signals">Placement Signals</h4>
+<p>The resource controller used signals such as: 资源控制器使用以下信号：</p>
+<ul><li>Latency class.</li></ul>
+<p>延迟类。</p>
+<ul><li>Model memory footprint.</li></ul>
+<p>模型内存占用。</p>
+<ul><li>GPU type requirement.</li></ul>
+<p>GPU 类型要求。</p>
+<ul><li>MIG slice compatibility.</li></ul>
+<p>MIG 切片兼容性。</p>
+<ul><li>Queue depth.</li></ul>
+<p>队列深度。</p>
+<ul><li>Token backlog.</li></ul>
+<p>代币积压。</p>
+<ul><li>TTFT and TPOT.</li></ul>
+<p>TTFT 和 TPOT。</p>
+<ul><li>Triton queue duration.</li></ul>
+<p>Triton 队列持续时间。</p>
+<ul><li>GPU memory pressure.</li></ul>
+<p>GPU内存压力。</p>
+<ul><li>Tenant quota and budget.</li></ul>
+<p>tenant配额和预算。</p>
+<ul><li>Rollout status.</li></ul>
+<p>发布状态。</p>
+<p>Representative scheduling decision: 代表调度决策：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 11, Placement Signals.]</p>
+<h4 id="mig-aware-placement">MIG-Aware Placement</h4>
+<p>MIG-aware placement is useful when models do not need a full GPU. Smaller embedding or classifier models can run on slices, while larger LLM or diffusion workloads may need full GPUs.</p>
+<p>当模型不需要整张 GPU 时，MIG-aware placement 很有价值：小型 embedding / classifier 可以跑在 MIG slice 上，而大型 LLM 或 diffusion 这类负载可能仍需要整卡（或更大的 slice）以获得足够的显存与带宽。</p>
+<p>Example Kubernetes scheduling sketch: Kubernetes 调度草图示例：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 12, MIG-Aware Placement.]</p>
+<h4 id="keda-and-kuberay-autoscaling">KEDA and KubeRay Autoscaling</h4>
+<p>Autoscaling should not use raw GPU utilization alone. GPU utilization can look healthy while request queues are growing and p95 latency is already bad.</p>
+<p>自动扩缩容不应该只看 GPU utilization。即使 GPU utilization 看起来“健康”，请求队列也可能在增长，此时用户侧的 p95 延迟已经在变差。</p>
+<p>Better signals: 更好的信号：</p>
+<ul><li>Queue depth.</li></ul>
+<p>队列深度。</p>
+<ul><li>In-flight requests.</li></ul>
+<p>飞行中的请求。</p>
+<ul><li>p95 latency.</li></ul>
+<p>p95 潜伏期。</p>
+<ul><li>Triton queue time.</li></ul>
+<p>Triton 排队时间。</p>
+<ul><li>vLLM token backlog.</li></ul>
+<p>vLLM 代币积压。</p>
+<ul><li>TTFT and TPOT.</li></ul>
+<p>TTFT 和 TPOT。</p>
+<ul><li>KV-cache utilization.</li></ul>
+<p>KV-缓存利用率。</p>
+<ul><li>Ray Serve queue depth.</li></ul>
+<p>Ray Serve 队列深度。</p>
+<p>Example KEDA ScaledObject sketch: KEDA ScaledObject 草图示例：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 13, KEDA and KubeRay Autoscaling.]</p>
+<p>Example KubeRay scaling concept: KubeRay 扩展概念示例：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 14, KEDA and KubeRay Autoscaling.]</p>
+<h4 id="gpu-utilization-improvement">GPU Utilization Improvement</h4>
+<p>The resume metric states aggregate GPU utilization improved from 45% to 80%.</p>
+<p>简历里的指标是：整体 GPU 利用率从 45% 提升到 80%。</p>
+<p>Defensible explanation: 辩护的解释：</p>
+<ul><li>Before: workload placement was fragmented, some models were overprovisioned, interactive and batch jobs competed, and expensive GPUs had idle periods due to poor batching or cold model placement.</li></ul>
+<p>之前：workloadplacement分散，某些模型过度配置，交互式和批处理作业竞争，昂贵的 GPU 由于批处理不良或冷模型placement而出现空闲期。</p>
+<ul><li>After: MIG-aware placement, model warm pools, proactive bin-packing, queue-aware autoscaling, separate latency classes, and token telemetry allowed the platform to increase aggregate utilization while protecting latency.</li></ul>
+<p>之后：MIG 感知placement、模型热池、主动 bin-packing、队列感知自动扩缩容、单独的延迟类别和token遥测使平台能够提高聚合利用率，同时保护延迟。</p>
+<p>Interview phrasing: 面试用语：</p>
+<p>"I did not chase utilization blindly. The goal was to raise useful utilization while keeping p95 latency and rollout safety intact. We treated latency-sensitive serving, batch embedding, and evaluation jobs differently, and used queue and token signals instead of GPU utilization alone."</p>
+<p>面试表达建议：</p>
+<p>"我不会盲目追求利用率。目标是在保证 p95 延迟与发布安全的前提下，把‘有效利用率’做高。我们对延迟敏感的 serving、batch embedding 和评估任务做了差异化处理，并用队列与 token 指标来驱动扩缩容，而不是只盯 GPU utilization。"</p>
+<h3 id="rollout-safety-and-llm-as-judge-evaluation">Rollout Safety and LLM-as-Judge Evaluation</h3>
+<p>Rollout safety applied to: 发布安全适用于：</p>
+<ul><li>Model version changes.</li></ul>
+<p>型号版本变更。</p>
+<ul><li>Prompt/template changes.</li></ul>
+<p>prompt/模板更改。</p>
+<ul><li>Index version changes.</li></ul>
+<p>索引版本更改。</p>
+<ul><li>Reranker changes.</li></ul>
+<p>重新排序更改。</p>
+<ul><li>LLM assistant changes.</li></ul>
+<p>LLM助手变动。</p>
+<ul><li>Intent routing changes.</li></ul>
+<p>intent路由更改。</p>
+<p>Example evaluation pipeline: 评估流程示例：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 15, Rollout Safety and LLM-as-Judge Evaluation.]</p>
+<p>Example judge rubric: 评判标准示例：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 16, Rollout Safety and LLM-as-Judge Evaluation.]</p>
+<p>Representative evaluation code: 代表性评价代码：</p>
+<p>[Implementation artifact moved to <code>amsterdam-code.md</code>: Block 17, Rollout Safety and LLM-as-Judge Evaluation.]</p>
+<p>Key point: 关键点：</p>
+<p>LLM-as-judge should supplement deterministic metrics, not replace them. Use deterministic metrics for latency, retrieval quality, format compliance, and regression tests; use judge models for semantic quality signals that are hard to label manually at scale.</p>
+<p>关键点：</p>
+<p>LLM-as-judge 应该用来补充 deterministic metrics，而不是替代它们。延迟、检索质量、格式合规与回归测试应以确定性指标为主；judge model 更适合补齐那些难以大规模人工标注的语义质量信号。</p>
+<h3 id="observability">Observability</h3>
+<h4 id="dashboard-groups">Dashboard Groups</h4>
+<ul><li>Executive service health.</li></ul>
+<p>行政服务卫生。</p>
+<ul><li>Intent-level request volume and error rate.</li></ul>
+<p>intent级请求量和错误率。</p>
+<ul><li>Workflow latency and checkpoint status.</li></ul>
+<p>workflow延迟和checkpoint状态。</p>
+<ul><li>Ray Serve queue depth and deployment health.</li></ul>
+<p>Ray Serve 队列深度和部署运行状况。</p>
+<ul><li>Triton request duration, queue duration, batch size, and error rate.</li></ul>
+<p>Triton 请求持续时间、队列持续时间、批量大小和错误率。</p>
+<ul><li>vLLM TTFT, TPOT, tokens/sec, request backlog, and KV-cache utilization.</li></ul>
+<p>vLLM TTFT、TPOT、token/秒、请求积压和 KV 缓存利用率。</p>
+<ul><li>GPU utilization, memory, MIG occupancy, and pod scheduling.</li></ul>
+<p>GPU利用率、内存、MIG占用和Pod调度。</p>
+<ul><li>Model/index rollout health.</li></ul>
+<p>模型/索引发布健康状况。</p>
+<ul><li>LLM-as-judge eval pass/fail trends.</li></ul>
+<p>LLM-as-Judge 评估通过/失败趋势。</p>
+<ul><li>Cost and quota by tenant or workload class.</li></ul>
+<p>按tenant或workload类别划分的成本和配额。</p>
+<h4 id="metrics">Metrics</h4>
+<div class="table-scroll"><table><thead><tr><th>Metric</th><th>Why It Matters</th></tr></thead><tbody><tr><td>request_rate_by_intent</td><td>Product demand and capacity planning</td></tr><tr><td>p50/p95/p99_latency_by_intent</td><td>User experience and SLO tracking</td></tr><tr><td>workflow_checkpoint_resume_count</td><td>Long-running job stability</td></tr><tr><td>raw_media_input_mb vs uploaded_payload_mb</td><td>Edge preprocessing effectiveness</td></tr><tr><td>triton_queue_duration_ms</td><td>Inference saturation and batching tuning</td></tr><tr><td>vllm_ttft_ms / vllm_tpot_ms</td><td>LLM serving health</td></tr><tr><td>vllm_kv_cache_utilization</td><td>Memory pressure and admission control</td></tr><tr><td>gpu_utilization_by_pool</td><td>Capacity efficiency</td></tr><tr><td>gpu_memory_utilization_by_pool</td><td>OOM risk and placement quality</td></tr><tr><td>model_version_error_rate</td><td>Rollout regression detection</td></tr><tr><td>judge_eval_fail_rate</td><td>Quality and safety gates</td></tr></tbody></table></div>
+<h4 id="alert-examples">Alert Examples</h4>
+<ul><li>P0: Intent API unavailable.</li></ul>
+<p>P0：Intent API 不可用。</p>
+<ul><li>P1: p95 latency above SLO for 10 minutes.</li></ul>
+<p>P1：p95 延迟高于 SLO 10 分钟。</p>
+<ul><li>P1: vLLM TTFT regression above threshold.</li></ul>
+<p>P1：vLLM TTFT 回归高于阈值。</p>
+<ul><li>P1: Triton queue duration rising while throughput falls.</li></ul>
+<p>P1：Triton 队列持续时间增加，而吞吐量下降。</p>
+<ul><li>P1: GPU memory pressure near OOM.</li></ul>
+<p>P1：GPU内存压力接近OOM。</p>
+<ul><li>P1: checkpoint failure rate spike for long-running workflows.</li></ul>
+<p>P1：长时间运行的workflow的checkpoint故障率激增。</p>
+<ul><li>P2: LLM-as-judge fail rate rising during canary.</li></ul>
+<p>P2：canary期间LLM-as-Judge的失败率上升。</p>
+<ul><li>P2: token backlog growing faster than autoscaler response.</li></ul>
+<p>P2：代币积压增长速度快于自动扩缩容器响应。</p>
+<ul><li>P2: model/index freshness lag above target.</li></ul>
+<p>P2：模型/索引freshness滞后于目标。</p>
+<h3 id="failure-modes-and-mitigations">Failure Modes and Mitigations</h3>
+<div class="table-scroll"><table><thead><tr><th>Failure Mode</th><th>Impact</th><th>Mitigation</th></tr></thead><tbody><tr><td>Client network drops during media workflow</td><td>Upload or workflow stalls</td><td>Checkpointing, resumable uploads, compact edge artifacts</td></tr><tr><td>GPU pool saturation</td><td>Latency spikes or failed inference</td><td>Queue-aware autoscaling, fallback to smaller model, degraded mode</td></tr><tr><td>vLLM KV-cache pressure</td><td>High TTFT, failed generation</td><td>Admission control, routing to larger pool, max-token limits</td></tr><tr><td>Triton queue grows</td><td>p95 latency regression</td><td>Scale replicas, tune batching, split interactive vs batch pools</td></tr><tr><td>Model rollout regression</td><td>Quality drop</td><td>Eval gates, canary rollout, model rollback</td></tr><tr><td>Index version mismatch</td><td>Retrieval inconsistency</td><td>Model-index compatibility registry, atomic publish</td></tr><tr><td>Edge preprocessing output incompatible</td><td>Cloud inference failure</td><td>Contract versioning and schema validation</td></tr><tr><td>Object storage event delay</td><td>Async workflow lag</td><td>Durable task queue and state reconciliation</td></tr></tbody></table></div>
+<h3 id="security-privacy-and-compliance">Security, Privacy, and Compliance</h3>
+<p>Privacy-oriented design choices: 注重隐私的设计选择：</p>
+<ul><li>Treat device and network telemetry as ephemeral execution context.</li></ul>
+<p>将设备和网络遥测视为临时执行上下文。</p>
+<ul><li>Avoid tying hardware telemetry to unnecessary personal identifiers.</li></ul>
+<p>避免将硬件遥测与不必要的个人标识符联系起来。</p>
+<ul><li>Use privacy class to control edge/cloud routing.</li></ul>
+<p>使用隐私等级来控制边缘/云路由。</p>
+<ul><li>Prefer edge preprocessing for sensitive raw media.</li></ul>
+<p>优选对敏感原始介质进行边缘预处理。</p>
+<ul><li>Use presigned upload URLs for large assets instead of routing through API servers.</li></ul>
+<p>对大型资产使用预签名的上传 URL，而不是通过 API 服务器进行路由。</p>
+<ul><li>Fail closed for moderation or license constraints.</li></ul>
+<p>由于审核或许可限制而无法关闭。</p>
+<ul><li>Track tenant or enterprise policy in the intent registry.</li></ul>
+<p>在意向注册表中跟踪tenant或企业策略。</p>
+<p>Interview phrasing: 面试用语：</p>
+<p>"The platform was designed so privacy was a first-class routing input, not a post-hoc filter. A privacy-sensitive intent could force edge execution, restricted-region cloud execution, or metadata-only transfer depending on policy and model requirements."</p>
+<p>面试表达建议：</p>
+<p>"我们把隐私当作一等公民的路由输入，而不是事后才加的过滤器。对隐私敏感的 intent，可以根据策略和模型需求强制走端侧执行、受限区域云端执行，或只传输元数据/特征。"</p>
+<h3 id="technical-tradeoffs">Technical Tradeoffs</h3>
+<h4 id="why-not-force-everything-through-one-serving-stack">Why Not Force Everything Through One Serving Stack?</h4>
+<p>Because the workloads have different bottlenecks:</p>
+<p>原因是这些workload的瓶颈不同：</p>
+<ul><li>CPU orchestration is not the same as GPU tensor inference.</li></ul>
+<p>CPU 编排与 GPU 张量推理不同。</p>
+<ul><li>Embedding/ranking throughput is not the same as autoregressive generation.</li></ul>
+<p>嵌入/排序吞吐量与自回归生成不同。</p>
+<ul><li>LLM serving bottlenecks are often KV cache and memory bandwidth.</li></ul>
+<p>LLM 服务瓶颈通常是 KV 缓存和内存带宽。</p>
+<ul><li>Multimodal media workflows need durable state and payload reduction.</li></ul>
+<p>多模态媒体 workflow需要持久状态和减少负载。</p>
+<p>Best answer: 最佳答案:</p>
+<p>"We did not force one engine to do everything. Ray Serve handled composition and routing, Triton handled high-throughput non-LLM inference, vLLM handled generation, and the edge handled privacy-sensitive preprocessing and media reduction."</p>
+<p>最佳回答（示例）：</p>
+<p>"我们没有强迫用一个引擎解决所有问题。Ray Serve 负责组合与路由，Triton 负责高吞吐的非 LLM 推理，vLLM 负责生成，端侧负责隐私敏感的预处理与媒体减量。"</p>
+<h4 id="why-use-edge-preprocessing">Why Use Edge Preprocessing?</h4>
+<p>Raw media is often the bottleneck:</p>
+<p>raw media 往往才是瓶颈所在：</p>
+<ul><li>A 4K video or high-resolution image can be too large for interactive upload.</li></ul>
+<p>4K 视频或高分辨率图像对于交互式上传来说可能太大。</p>
+<ul><li>Models often need only a crop, keyframe, mask, audio proxy, or text extraction.</li></ul>
+<p>模型通常只需要裁剪、关键帧、蒙版、音频代理或文本提取。</p>
+<ul><li>Keeping raw media local can improve privacy and reduce cost.</li></ul>
+<p>将raw media保留在本地可以改善隐私并降低成本。</p>
+<p>Best answer: 最佳答案:</p>
+<p>"The cheapest byte is the byte you never send. For asset-heavy workflows, edge preprocessing reduced payload size and improved reliability more than simply adding cloud capacity."</p>
+<p>最佳回答（示例）：</p>
+<p>"最便宜的字节是你根本不需要发送的字节。对于资产很重的工作流，端侧预处理通过减少 payload 体积与网络依赖，带来的可靠性提升往往比单纯加云端容量更有效。"</p>
+<h4 id="why-use-llm-as-judge">Why Use LLM-as-Judge?</h4>
+<p>Manual evaluation does not scale across all LLM and multimodal outputs, but deterministic metrics miss semantic quality.</p>
+<p>人工评估无法覆盖所有 LLM 与多模态输出规模，而 deterministic metrics 又容易遗漏语义层面的质量问题。</p>
+<p>Best answer: 最佳答案:</p>
+<p>"We used LLM-as-judge as one signal in a broader rollout safety system. It was useful for semantic quality, grounding, and instruction-following checks, but we still relied on deterministic metrics and online canaries for latency, errors, and business impact."</p>
+<p>最佳回答（示例）：</p>
+<p>"我们把 LLM-as-judge 作为更大范围发布安全体系中的一个信号。它对语义质量、grounding 以及指令遵循检查很有帮助，但在延迟、错误率和业务影响上，我们仍主要依赖确定性指标与线上 canary。"</p>
+<h3 id="design-and-implementation-challenges">Design and Implementation Challenges</h3>
+<h4 id="challenge-1-avoiding-a-platform-that-is-too-generic">Challenge 1: Avoiding A Platform That Is Too Generic</h4>
+<p>The risk of an intent platform is that it becomes too abstract. If every workflow is forced into the same schema, product teams will bypass the platform. The design needs a stable core and flexible edges.</p>
+<p>intent 平台最大的风险是抽象过度：如果所有工作流都被强行塞进同一种 schema，产品团队会选择绕开平台。设计必须在“稳定的核心能力”和“灵活的扩展边界”之间取得平衡。</p>
+<p>What worked: 什么有效：</p>
+<ul><li>Keep common platform concepts stable: intent, policy, execution plan, workflow state, model/index version, rollout gate, and observability.</li></ul>
+<p>保持通用平台概念稳定：intent、策略、执行计划、工作流状态、模型/索引版本、发布门和可观测性。</p>
+<ul><li>Allow product-specific payload schemas and postprocessing.</li></ul>
+<p>允许特定于产品的有效负载模式和后处理。</p>
+<ul><li>Treat partner teams as owners of user experience and product semantics.</li></ul>
+<p>将合作伙伴团队视为用户体验和产品语义的所有者。</p>
+<ul><li>Keep platform ownership focused on execution, reliability, routing, and resource control.</li></ul>
+<p>让平台所有权重点关注执行、可靠性、路由和资源控制。</p>
+<p>Interview phrasing: 面试用语：</p>
+<p>"The goal was not to build a universal AI machine. The goal was to standardize the parts that every serious AI workflow needs: routing, execution, retries, model versioning, evaluation, observability, and cost controls."</p>
+<p>"目标不是打造一个万能 AI 平台，而是把每个严肃 AI 工作流都需要的部分标准化：路由、执行、重试、模型版本管理、评估、可观测性和成本控制。"</p>
+<h4 id="challenge-2-planning-with-incomplete-runtime-information">Challenge 2: Planning With Incomplete Runtime Information</h4>
+<p>Device and network context can be stale. A device can move from Wi-Fi to cellular, the user can close the app, a GPU pool can saturate after the plan is created, or a model can be rolled back.</p>
+<p>设备与网络上下文可能会过期：设备从 Wi-Fi 切换到蜂窝网络、用户关闭应用、execution plan 创建后 GPU 池突然饱和、或模型被回滚，这些都可能发生。</p>
+<p>Design response: 设计响应：</p>
+<ul><li>Treat execution plans as adaptive rather than permanent.</li></ul>
+<p>将执行计划视为适应性的而不是永久性的。</p>
+<ul><li>Use checkpoints so the workflow can change path mid-flight.</li></ul>
+<p>使用checkpoint，以便workflow 可以在飞行中更改路径。</p>
+<ul><li>Use live capacity signals and circuit breakers.</li></ul>
+<p>使用带电容量信号和熔断器。</p>
+<ul><li>Keep fallback plans in the intent policy.</li></ul>
+<p>将fallback计划保留在意向政策中。</p>
+<ul><li>Make each step idempotent and observable.</li></ul>
+<p>使每一步都是幂等且可观察的。</p>
+<h4 id="challenge-3-protecting-interactive-latency-while-improving-utilization">Challenge 3: Protecting Interactive Latency While Improving Utilization</h4>
+<p>GPU utilization and p95 latency often fight each other. Batch jobs improve utilization but can damage interactive serving if not isolated.</p>
+<p>GPU 利用率与 p95 延迟经常互相冲突：batch 作业能提升利用率，但如果不隔离，会伤害交互式 serving 的尾延迟。</p>
+<p>Design response: 设计响应：</p>
+<ul><li>Separate latency classes.</li></ul>
+<p>单独的延迟类别。</p>
+<ul><li>Keep warm capacity for interactive pools.</li></ul>
+<p>为互动池保温。</p>
+<ul><li>Use batch/eval workloads as flexible fill capacity.</li></ul>
+<p>使用批处理/评估workload作为灵活的填充容量。</p>
+<ul><li>Scale on queue and latency signals, not only GPU utilization.</li></ul>
+<p>扩展队列和延迟信号，而不仅仅是 GPU 利用率。</p>
+<ul><li>Apply preemption or throttling when interactive pressure rises.</li></ul>
+<p>当交互压力上升时应用抢占或节流。</p>
+<h4 id="challenge-4-managing-model-prompt-and-index-compatibility">Challenge 4: Managing Model, Prompt, and Index Compatibility</h4>
+<p>AI workflows often depend on multiple versioned artifacts. A model change can require an index rebuild. A prompt change can affect evaluation behavior. A reranker change can shift product metrics.</p>
+<p>AI workflows 往往依赖多个“可版本化的artifact”（model、prompt、index 等）。模型升级可能需要重建索引；prompt 变更会影响评估行为；reranker 变更会改变产品指标。</p>
+<p>Design response: 设计响应：</p>
+<ul><li>Track model/index compatibility in the registry.</li></ul>
+<p>跟踪注册表中的模型/索引兼容性。</p>
+<ul><li>Use canary rollout and rollback pointers.</li></ul>
+<p>使用canary发布和回滚指针。</p>
+<ul><li>Require offline and online evaluation gates.</li></ul>
+<p>需要离线和在线评估门。</p>
+<ul><li>Store enough evaluation context to debug regressions.</li></ul>
+<p>存储足够的评估上下文来调试回归。</p>
+<h4 id="challenge-5-making-failures-user-tolerable">Challenge 5: Making Failures User-Tolerable</h4>
+<p>Long-running multimodal workflows fail in ways that normal request/response services do not. The user may not care whether the failure came from network, object storage, GPU capacity, or client preprocessing.</p>
+<p>长时间运行的多模态工作流会以不同于普通 request/response 服务的方式失败。用户通常不关心故障来自网络、对象存储、GPU 容量还是客户端预处理，他们只关心能否继续完成任务。</p>
+<p>Design response: 设计响应：</p>
+<ul><li>Checkpoint steps.</li></ul>
+<p>checkpoint步骤。</p>
+<ul><li>Persist intermediate artifacts.</li></ul>
+<p>保留中间artifact。</p>
+<ul><li>Expose workflow state.</li></ul>
+<p>公开workflow状态。</p>
+<ul><li>Provide degraded results when possible.</li></ul>
+<p>尽可能提供降级的结果。</p>
+<ul><li>Keep failure semantics simple for product teams.</li></ul>
+<p>对于产品团队来说，保持故障语义简单。</p>
+<h3 id="project-1-interview-q-a">Project 1 Interview Q&amp;A</h3>
+<h4 id="q-what-did-you-personally-own">Q: What did you personally own?</h4>
+<p>I owned core platform components in the control plane: intent registration and routing flows, orchestration service design, workflow execution patterns, inference engine integration boundaries, resource-control policies, and rollout-safety mechanisms. As a tech lead IC, I also aligned partner teams on contracts, reviewed designs, and drove production readiness around observability, autoscaling, and failure handling.</p>
+<p>我主要负责控制面上的核心平台组件：intent 注册与路由流程、编排服务设计、工作流执行模式、推理引擎集成边界、资源控制策略以及发布安全机制。作为 tech lead IC，我也推动跨团队契约对齐、设计评审，并围绕可观测性、自动扩缩容与故障处理推进生产化准备。</p>
+<h4 id="q-did-your-team-serve-all-amsterdam-ai-requests">Q: Did your team serve all Amsterdam AI requests?</h4>
+<p>No. The platform was a shared execution layer for selected workflows. Product teams retained ownership of their product APIs and user experience. We provided common infrastructure for intent onboarding, routing, orchestration, model-serving integration, resource controls, retries, and observability.</p>
+<p>没有。平台是面向“选定工作流”的共享执行层，产品团队依然掌握自己的产品 API 与用户体验。我们提供可复用的基础能力：intent 接入、路由、编排、模型服务集成、资源控制、重试与可观测性。</p>
+<h4 id="q-why-call-it-core-ai-infrastructure-instead-of-just-ai-platform">Q: Why call it core AI infrastructure instead of just AI platform?</h4>
+<p>I use core AI infrastructure when I want to emphasize that the work sits in the critical path of AI execution: serving contracts, model routing, LLM serving, GPU placement, token telemetry, rollout gates, and failure recovery. "AI platform" can sound like a broad internal tooling layer. This project was closer to the runtime substrate that made product-facing multimodal and LLM workflows reliable, scalable, and cost-aware.</p>
+<p>我会使用 core AI infrastructure，是因为它强调这项工作处在 AI execution 的关键路径上：serving contract、model routing、LLM serving、GPU placement、token telemetry、rollout gate 和 failure recovery。“AI platform” 有时听起来像泛泛的内部工具层，而这个项目更接近让面向产品的多模态与 LLM workflow 可靠、可扩展、成本可控的 runtime substrate。</p>
+<h4 id="q-what-did-llm-as-a-service-mean-in-your-project">Q: What did LLM-as-a-service mean in your project?</h4>
+<p>It meant providing an internal generation service boundary, not just exposing a single model endpoint. The service handled model tier routing, prompt/template versioning, context assembly, token budgets, streaming contracts, live token telemetry, fallback behavior, evaluation gates, and rollout safety. Product teams owned the feature semantics and prompts; the infra layer owned the runtime decisions and operational controls.</p>
+<p>它指的是提供内部 generation service boundary，而不只是暴露一个 model endpoint。这个服务处理 model tier routing、prompt/template versioning、context assembly、token budget、streaming contract、live token telemetry、fallback behavior、evaluation gate 与 rollout safety。产品团队拥有功能语义与 prompt，infra layer 拥有运行时决策与运营控制。</p>
+<h4 id="q-what-is-an-intent">Q: What is an "intent"?</h4>
+<p>An intent is a product-level AI task expressed in infrastructure-neutral terms. For example: generate an embedding, summarize a document, rerank candidates, analyze media, execute a generative edit, or run an LLM assistant step. The intent registry stores schema, policy, model dependencies, latency class, fallback behavior, and evaluation gates.</p>
+<p>intent 是以“基础设施无关”的方式表达的产品层 AI 任务。例如：生成 embedding、文档摘要、候选 rerank、媒体分析、执行生成式编辑、或运行 LLM 助手的一步。intent registry 会记录 schema、策略、模型依赖、延迟等级、fallback 行为以及评估门禁。</p>
+<h4 id="q-how-did-you-decide-edge-vs-cloud">Q: How did you decide edge vs cloud?</h4>
+<p>We evaluated payload size, device capability, network quality, latency SLO, privacy class, model profile, and live capacity. Large media with available local preprocessing often used hybrid execution. Tensor-heavy workloads used GPU pools. CPU orchestration handled routing and feature joins. Privacy-sensitive workloads could force edge or restricted-region execution.</p>
+<p>我们会评估负载大小、设备能力、网络质量、延迟 SLO、隐私等级、模型特性以及实时容量。可在本地预处理的大媒体负载通常走混合执行；tensor-heavy workload使用 GPU 池；CPU 编排层负责路由和特征拼接；对隐私敏感的workload可能会强制走端侧或受限区域云端路径。</p>
+<h4 id="q-why-mention-ray-serve-triton-and-vllm">Q: Why mention Ray Serve, Triton, and vLLM?</h4>
+<p>They solve different bottlenecks. Ray Serve is good for DAG composition and Python orchestration. Triton is good for high-throughput embedding and ranking inference with dynamic batching. vLLM is good for autoregressive generation where KV-cache and token throughput matter.</p>
+<p>它们分别解决不同的瓶颈：Ray Serve 擅长 DAG 组合与 Python 编排；Triton 擅长通过动态 batching 做高吞吐的 embedding 与 ranking 推理；vLLM 擅长自回归生成，重点解决 KV-cache 与 token 吞吐相关的瓶颈。</p>
+<h4 id="q-how-did-you-improve-gpu-utilization-without-hurting-latency">Q: How did you improve GPU utilization without hurting latency?</h4>
+<p>We separated latency classes, used MIG-aware placement, kept warm capacity for interactive workloads, applied bin-packing to reduce fragmentation, and scaled on queues, p95 latency, and token telemetry rather than raw utilization alone. Batch and evaluation workloads could fill spare capacity but were preempted or throttled when interactive load increased.</p>
+<p>我们把workload按延迟等级拆分，采用 MIG-aware placement，给交互式负载保留 warm capacity，并通过 bin-packing 降低碎片化；扩缩容信号更多依赖队列、p95 延迟和 token telemetry，而不是只看利用率。batch/评估类负载可以填充空闲容量，但在交互压力上升时会被抢占或限流。</p>
+<h4 id="q-what-did-live-token-telemetry-mean">Q: What did live token telemetry mean?</h4>
+<p>For LLM serving, requests are not equal. A short query and a long generation consume very different capacity. Token telemetry tracked waiting tokens, generated tokens, TTFT, TPOT, and KV-cache pressure so autoscaling and routing could react to actual generation load instead of request count alone.</p>
+<p>在 LLM serving 中，“请求数量”并不等价。短请求与长生成消耗的资源差异很大。token telemetry 会跟踪 waiting tokens、generated tokens、TTFT、TPOT 以及 KV-cache 压力，从而让 autoscaling 和路由能够对真实的生成负载做出反应，而不是只看请求数。</p>
+<h4 id="q-how-did-checkpointed-execution-work">Q: How did checkpointed execution work?</h4>
+<p>Each workflow step wrote a durable state transition and artifact reference. If a network or compute failure occurred, the workflow runner resumed from the last completed step instead of restarting from raw input. Step keys were idempotent to prevent duplicate writes.</p>
+<p>每个 workflow step 都会写入可持久化的状态迁移记录与 artifact 引用。一旦出现网络或算力故障，workflow runner 会从最后完成的 step 继续，而不是从原始输入重跑。step key 采用幂等设计来避免重复写入。</p>
+<h4 id="q-what-was-the-hardest-part">Q: What was the hardest part?</h4>
+<p>The hard part was balancing several constraints simultaneously: product latency, privacy, GPU cost, model quality, workflow reliability, and partner-team usability. A routing decision that optimizes one dimension can hurt another, so the platform needed explicit policy, metrics, and safe fallback behavior.</p>
+<p>最难的是同时平衡多个约束：产品延迟、隐私、GPU 成本、模型质量、工作流可靠性以及合作团队的易用性。一个优化某个维度的路由决策，可能会伤害另一个维度，因此平台必须具备明确的策略、指标体系以及安全的 fallback 行为。</p>
+<h4 id="q-how-would-you-improve-the-system-next">Q: How would you improve the system next?</h4>
+<p>I would invest in stronger predictive capacity planning, richer cost attribution by intent, better simulation for routing-policy changes, and automated model compatibility validation between edge and cloud outputs. I would also improve multi-region failover and make rollout guardrails more standardized across intent types.</p>
+<p>下一步我会投入在更强的预测式容量规划、更细粒度的按 intent 成本归因、更好的路由策略变更仿真，以及端云输出兼容性的自动化验证上。同时提升多区域 failover，并让不同 intent 类型的发布 guardrails 更标准化。</p>
+<h3 id="hiring-manager-deep-dive">Hiring Manager Deep Dive</h3>
+<h4 id="leadership-scope">Leadership Scope</h4>
+<p>This project demonstrates tech-lead scope because it required: 该项目展示了技术领先的范围，因为它需要：</p>
+<ul><li>Defining shared platform abstractions.</li></ul>
+<p>定义共享平台抽象。</p>
+<ul><li>Aligning product partner teams around intent contracts.</li></ul>
+<p>根据意向合同调整产品合作伙伴团队。</p>
+<ul><li>Designing production-ready infrastructure for AI workloads.</li></ul>
+<p>为AI workload设计生产就绪的基础设施。</p>
+<ul><li>Owning core AI infrastructure surfaces such as LLM serving, model routing, GPU placement, and rollout gates.</li></ul>
+<p>拥有 LLM serving、model routing、GPU placement 与 rollout gate 等 core AI infrastructure surface。</p>
+<ul><li>Making CPU/GPU resource tradeoffs.</li></ul>
+<p>进行 CPU/GPU 资源权衡。</p>
+<ul><li>Coordinating rollout safety and observability.</li></ul>
+<p>协调发布安全性和可观测性。</p>
+<ul><li>Translating product needs into platform APIs.</li></ul>
+<p>将产品需求转化为平台 API。</p>
+<h4 id="what-to-emphasize">What To Emphasize</h4>
+<ul><li>You did not just wire together tools; you designed control-plane abstractions.</li></ul>
+<p>您不仅将工具连接在一起，而且还连接了工具。您设计了控制平面抽象。</p>
+<ul><li>You worked on product-facing core AI infrastructure, not generic DevOps.</li></ul>
+<p>你做的是面向产品的 core AI infrastructure，而不是泛泛的 DevOps。</p>
+<ul><li>You separated product intent from execution details.</li></ul>
+<p>您将产品intent与执行细节分开。</p>
+<ul><li>You treated LLM-as-a-service as a runtime and rollout contract, not just a model endpoint.</li></ul>
+<p>你把 LLM-as-a-service 当作 runtime 与 rollout contract，而不是单纯的 model endpoint。</p>
+<ul><li>You understood inference bottlenecks at the system level.</li></ul>
+<p>您了解系统级别的推理瓶颈。</p>
+<ul><li>You balanced GPU utilization with latency and reliability.</li></ul>
+<p>您在 GPU 利用率与延迟和可靠性之间取得了平衡。</p>
+<ul><li>You created operational safety through metrics, canaries, evaluation, and fallback.</li></ul>
+<p>您通过指标、canary、评估和fallback创建了操作安全性。</p>
+<h4 id="hiring-manager-version">Hiring Manager Version</h4>
+<p>"The valuable part of this work was not just running models. It was building product-facing core AI infrastructure that made AI serving repeatable for partner teams. Instead of each team building bespoke routing, retries, LLM serving, GPU placement, and evaluation pipelines, we provided a shared execution layer. My role was to design and implement orchestration, resource control, and rollout-safety components that translated product-level AI intents into reliable execution plans across edge, CPU, GPU, and model-serving infrastructure."</p>
+<p>"这项工作的价值不只是把模型跑起来，而是建设面向产品的 core AI infrastructure，让合作团队可以重复使用同一套 AI serving 能力。与其让每个团队都自建 routing、retry、LLM serving、GPU placement 和 evaluation pipeline，我们提供共享执行层。我的角色是设计并实现 orchestration、resource control 与 rollout-safety 组件，把产品层 AI intent 转换成跨端侧、CPU、GPU 与 model-serving infrastructure 的可靠 execution plan。"</p>
+<h3 id="public-industry-references-for-interview-framing">Public Industry References For Interview Framing</h3>
+<p>These references are not part of the resume claim. They are useful for calibrating interview language against how major AI infrastructure teams publicly describe similar work.</p>
+<p>这些资料不是简历 claim 的一部分，而是帮助你校准面试语言：大型 AI infra 团队公开描述类似工作时，通常会强调哪些关键词与系统边界。</p>
+<ul><li><a href="https://openai.com/careers/software-engineer-chatgpt-infrastructure-san-francisco/">OpenAI ChatGPT Infrastructure</a> describes platform-building work around shared systems, data paths, rollout mechanisms, reliability guardrails, performance, observability, and safe change management. This maps well to the "product-facing core AI infrastructure" framing.</li></ul>
+<p><a href="https://openai.com/careers/software-engineer-chatgpt-infrastructure-san-francisco/">OpenAI ChatGPT Infrastructure</a> 强调 shared systems、data path、rollout mechanism、reliability guardrail、performance、observability 和 safe change management。这与“product-facing core AI infrastructure”的表述非常贴近。</p>
+<ul><li><a href="https://openai.com/careers/software-engineer-core-services/">OpenAI Core Services</a> positions core services as the bridge between compute/storage/networking and product engineering teams, with workflow orchestration, caching, metadata, file services, reliable APIs, and scalable backend platforms. This supports describing the Amsterdam work as infrastructure that accelerates product teams.</li></ul>
+<p><a href="https://openai.com/careers/software-engineer-core-services/">OpenAI Core Services</a> 把 core services 描述为 compute/storage/networking 与 product engineering team 之间的桥梁，包含 workflow orchestration、caching、metadata、file service、可靠 API 与可扩展 backend platform。这支持把 Amsterdam 项目表述为加速产品团队的基础设施。</p>
+<ul><li><a href="https://openai.com/careers/software-engineer-platform-systems-san-francisco/">OpenAI Platform Systems</a> emphasizes deep distributed systems work such as fault tolerance, failure detection, observability, performance, and large-scale debugging. This helps explain why observability and failure recovery are first-class design elements rather than afterthoughts.</li></ul>
+<p><a href="https://openai.com/careers/software-engineer-platform-systems-san-francisco/">OpenAI Platform Systems</a> 强调 fault tolerance、failure detection、observability、performance 与 large-scale debugging 等深层分布式系统问题。这有助于解释为什么 observability 与 failure recovery 是一等设计目标，而不是事后补充。</p>
+<ul><li><a href="https://docs.vllm.ai/en/stable/design/paged_attention/">vLLM PagedAttention</a> and the <a href="https://vllm.ai/blog/vllm">vLLM launch blog</a> explain why LLM serving is often bottlenecked by KV-cache memory management and continuous batching rather than only FLOPS. This supports the token-telemetry and KV-cache discussion.</li></ul>
+<p><a href="https://docs.vllm.ai/en/stable/design/paged_attention/">vLLM PagedAttention</a> 与 <a href="https://vllm.ai/blog/vllm">vLLM launch blog</a> 解释了为什么 LLM serving 的瓶颈经常来自 KV-cache memory management 与 continuous batching，而不只是 FLOPS。这支撑 token telemetry 与 KV-cache 的面试讨论。</p>
+<ul><li><a href="https://docs.nvidia.com/dynamo/latest/user-guides/kv-cache-aware-routing">NVIDIA Dynamo KV-cache-aware routing</a> and <a href="https://docs.dynamo.nvidia.com/dynamo/design-docs/disaggregated-serving">Dynamo disaggregated serving</a> show current industry direction around KV-cache-aware routing, prefill/decode separation, and distributed inference scheduling. This is a good reference when discussing future evolution, not something you need to claim you fully implemented.</li></ul>
+<p><a href="https://docs.nvidia.com/dynamo/latest/user-guides/kv-cache-aware-routing">NVIDIA Dynamo KV-cache-aware routing</a> 与 <a href="https://docs.dynamo.nvidia.com/dynamo/design-docs/disaggregated-serving">Dynamo disaggregated serving</a> 展示了行业在 KV-cache-aware routing、prefill/decode separation 与 distributed inference scheduling 方面的方向。它适合用来讨论未来演进方向，不需要声称自己完整实现了这一套。</p></section></main></section>
+<section class="panel" id="panel-3"><main class="content"><section class="doc-section article" id="relationship-to-project-2"><h2 id="relationship-to-project-2">Relationship To Project 2</h2>
+<p>The earlier Search &amp; Discovery platform built the retrieval foundation: embeddings, vector search, lexical search, ranking, indexing, and discovery. This core AI infrastructure project generalized the infrastructure foundation into shared intent routing, hybrid execution, LLM-as-a-service, inference serving, GPU resource control, rollout safety, and observability.</p>
+<p>更早的 Search &amp; Discovery 平台打下了检索基础：embeddings、向量检索、词法检索、ranking、索引与 discovery。这个 core AI infrastructure 项目则把这些基础设施能力进一步抽象为共享的 intent routing、hybrid execution、LLM-as-a-service、inference serving、GPU resource control、rollout safety 与 observability。</p></section>
+<section class="doc-section article" id="star-stories"><h2 id="star-stories">STAR Stories</h2>
+<h3 id="story-1-reducing-raw-media-transfer">Story 1: Reducing Raw-Media Transfer</h3>
+<p>Situation:</p>
+<p>Long-running image and video workflows were expensive and fragile when raw assets were uploaded directly.</p>
+<p>背景：</p>
+<p>当直接上传原始资产时，长时间运行的图像/视频工作流既昂贵又脆弱，容易受到网络与系统波动影响。</p>
+<p>Task:</p>
+<p>Design a more reliable execution path that reduced transfer size without forcing every product team to build custom preprocessing.</p>
+<p>任务：</p>
+<p>设计一条更可靠的执行路径，在不要求每个产品团队都自建预处理的前提下，减少传输体积并提升稳定性。</p>
+<p>Action:</p>
+<p>Introduced edge-first preprocessing contracts and checkpointed workflow execution. The client could produce compact artifacts such as masks, crops, keyframes, audio proxies, or metadata. The cloud workflow consumed these artifacts through a stable contract and resumed from checkpoints on failure.</p>
+<p>行动：</p>
+<p>引入端侧优先的预处理契约与带 checkpoint 的工作流执行。客户端产出 mask、crop、keyframes、audio proxy 或元数据等紧凑 artifacts；云端工作流通过稳定契约消费这些 artifacts，并在失败时从 checkpoint 恢复继续执行。</p>
+<p>Result:</p>
+<p>Reduced raw-media transfer overhead by 40% and stabilized long-running image/video workflows.</p>
+<p>结果：</p>
+<p>将 raw-media 传输开销降低 40%，并显著提升长时间运行的图像/视频工作流稳定性。</p>
+<h3 id="story-2-improving-gpu-utilization">Story 2: Improving GPU Utilization</h3>
+<p>Situation:</p>
+<p>GPU capacity was fragmented across interactive inference, batch embedding, media analysis, LLM generation, and evaluation jobs.</p>
+<p>背景：</p>
+<p>GPU 产能被交互式推理、batch embedding、媒体分析、LLM 生成与评估任务切分，导致碎片化和资源利用不佳。</p>
+<p>Task:</p>
+<p>Improve utilization while protecting p95 latency and rollout safety.</p>
+<p>任务：</p>
+<p>在保护 p95 延迟与发布安全的前提下提升 GPU 利用率。</p>
+<p>Action:</p>
+<p>Implemented MIG-aware placement, proactive bin-packing, warm capacity, KubeRay autoscaling, and token-aware scaling signals. Separated latency-sensitive and batch workloads and used LLM-as-judge for rollout evaluation.</p>
+<p>行动：</p>
+<p>实现 MIG-aware placement、主动 bin-packing、warm capacity、KubeRay autoscaling 以及 token-aware 的扩缩容信号；隔离延迟敏感与 batch workload，并用 LLM-as-judge 做发布评估。</p>
+<p>Result:</p>
+<p>Increased aggregate GPU utilization from 45% to 80% while maintaining reliability and latency controls.</p>
+<p>结果：</p>
+<p>在保持可靠性与延迟控制的同时，将整体 GPU 利用率从 45% 提升到 80%。</p></section></main></section>
+<section class="panel" id="panel-4"><main class="content"><section class="doc-section article" id="interview-task-deep-dives"><h2 id="interview-task-deep-dives">Interview Task Deep Dives</h2>
+<p>These task deep dives are designed for interviews where the interviewer asks, "What did you actually design or implement?" Each one frames a concrete engineering problem, the solution direction, the difficult tradeoffs, and the capability it demonstrates.</p>
+<p>这些任务深挖适合面试中回答“你具体设计或实现了什么？”这类问题。每个任务都围绕一个具体工程问题展开，说明解决方案、困难权衡点，以及它展示出的工程能力。</p>
+<p>Memorization and proof-point matrix: 记忆和证明点矩阵：</p>
+<div class="table-scroll"><table><thead><tr><th>Task</th><th>Why it fits Project 1</th><th>Simple metrics / logic to mention</th><th>Capability shown</th></tr></thead><tbody><tr><td>Intent registry</td><td>Core control-plane abstraction for partner AI workflows</td><td>Intent definition carries owner, schema, latency class, privacy class, allowed targets, quota, fallback, model/index/prompt version, and eval gates</td><td>Platform design, API contracts, governance</td></tr><tr><td>Checkpointed DAG</td><td>Matches long-running image/video/document workflows</td><td>40% raw-media transfer reduction; resume from last successful step; idempotent step keys prevent duplicate writes</td><td>Reliability, distributed workflow recovery</td></tr><tr><td>Layered inference stack</td><td>Directly maps to Ray Serve + Triton + vLLM architecture</td><td>Ray for DAG/fan-out, Triton for batched embeddings/rankers, vLLM for TTFT/TPOT/KV-cache generation</td><td>Hardware-aware serving design</td></tr><tr><td>MIG placement + bin-packing</td><td>Maps to resource-control bullet on GPU optimization</td><td>GPU utilization improved from 45% to 80%; small models to MIG slices; large LLM/video jobs to full GPUs</td><td>Cost/resource optimization, K8s/GPU depth</td></tr><tr><td>Token-aware autoscaling</td><td>Maps to live token telemetry and LLM serving</td><td>Scale on waiting tokens, active sequences, TTFT, TPOT, KV-cache pressure, not raw QPS</td><td>LLM infra depth</td></tr><tr><td>Rollout safety</td><td>Maps to LLM-as-judge and canary gates</td><td>Version model, prompt, index, routing policy; canary 1% -&gt; 10% -&gt; full rollout</td><td>Production AI governance</td></tr></tbody></table></div>
+<p>记忆与证明点矩阵：</p>
+<h3 id="task-1-design-an-intent-registry-that-decouples-product-features-from-infrastructure">Task 1: Design An Intent Registry That Decouples Product Features From Infrastructure</h3>
+<p>Interviewer prompt:</p>
+<p>"If Photoshop, Acrobat, Firefly, or another product team wants to add a new AI feature, how does your platform avoid hardcoding routing logic for every feature?" “如果 Photoshop、Acrobat、Firefly 或其他产品团队想要添加新的 AI 功能，您的平台如何避免对每个功能进行硬编码路由逻辑？”</p>
+<p>Problem:</p>
+<p>Product AI features looked similar from the outside, but each had different modalities, privacy rules, latency targets, model dependencies, fallback behavior, and cost constraints. If every product team directly called model servers or GPU clusters, infrastructure logic would be duplicated and rollout safety would be inconsistent.</p>
+<p>问题：</p>
+<p>产品侧 AI 功能表面看都像“调用 AI”，但它们的模态、隐私规则、延迟目标、模型依赖、fallback 行为和成本约束都不同。如果每个产品团队直接调用模型服务或 GPU 集群，基础设施逻辑会被重复实现，发布安全也会变得不一致。</p>
+<p>Solution:</p>
+<p>Create an intent registry where each workflow is registered as a versioned intent. The registry stores allowed modalities, input/output contract, owner, latency class, privacy class, model/index/prompt dependencies, allowed execution targets, quota policy, fallback policy, and evaluation gates. The dispatcher reads the intent definition and combines it with runtime context such as device hardware, network state, payload size, queue pressure, model profile, and GPU availability to create an execution plan.</p>
+<p>解决方案：</p>
+<p>创建一个 intent registry，把每个工作流注册成带版本的 intent。registry 存储允许的模态、输入输出契约、owner、延迟等级、隐私等级、模型/索引/prompt 依赖、允许执行目标、quota policy、fallback policy 和评估门禁。dispatcher 读取 intent 定义，并结合设备硬件、网络状态、payload 大小、队列压力、模型 profile 和 GPU 可用性生成执行计划。</p>
+<p>Why it is impressive:</p>
+<p>This shows platform thinking. The hard part is not only routing one request. The hard part is creating a contract that lets many teams onboard new AI workflows without copying infrastructure logic. It also makes rollout, quota, privacy, and fallback policy auditable and versioned.</p>
+<p>亮点：</p>
+<p>这展示的是平台化思维。难点不只是路由一个请求，而是设计一个契约，让多个团队可以接入新的 AI workflow，而不需要复制基础设施逻辑。同时，发布、quota、隐私和 fallback policy 都可以被审计和版本化。</p>
+<p>What to emphasize:</p>
+<ul><li>You separated product intent from execution policy.</li></ul>
+<p>您将产品intent与执行策略分开。</p>
+<ul><li>You made routing, evaluation, fallback, and quota consistent across workflows.</li></ul>
+<p>您使路由、评估、fallback和配额在整个workflow中保持一致。</p>
+<ul><li>You avoided turning the platform into a pile of feature-specific if/else logic.</li></ul>
+<p>您避免将平台变成一堆特定于功能的 if/else 逻辑。</p>
+<ul><li>You enabled safe onboarding instead of manual infrastructure coordination.</li></ul>
+<p>您启用了安全入职，而不是手动基础设施协调。</p>
+<h3 id="task-2-build-a-checkpointed-dag-for-long-running-multimodal-workflows">Task 2: Build A Checkpointed DAG For Long-Running Multimodal Workflows</h3>
+<p>Interviewer prompt:</p>
+<p>"How would you make a long image/video/document AI workflow resilient if the client disconnects, the network drops, or a GPU step times out?" “如果客户端断开连接、网络中断或 GPU 步骤超时，如何使长图像/视频/文档 AI workflow具有弹性？”</p>
+<p>Problem:</p>
+<p>Creative media workflows are not simple request/response calls. A single workflow may include upload, preprocessing, OCR/frame extraction, embedding, retrieval, reranking, generation, moderation, and result assembly. Failures can happen at any stage, and restarting from raw media wastes network, CPU, GPU, and user time.</p>
+<p>问题：</p>
+<p>创意媒体 workflow 不是简单的请求响应。一个 workflow 可能包含上传、预处理、OCR/抽帧、embedding、检索、reranking、生成、审核和结果组装。任何阶段都可能失败，如果每次都从raw media重新开始，会浪费网络、CPU、GPU 和用户时间。</p>
+<p>Solution:</p>
+<p>Represent long workflows as DAGs with durable step state. Each step writes a checkpoint containing status, input artifact references, output artifact references, model/index version, idempotency key, retry count, and error category. Steps are designed to be idempotent so a retry does not duplicate storage writes, vector index updates, or result records. Large assets move through presigned object-storage paths, while the workflow service passes references and metadata.</p>
+<p>解决方案：</p>
+<p>把长流程表示为带持久化状态的 DAG。每个 step 写入 checkpoint，记录状态、输入 artifact 引用、输出 artifact 引用、模型/索引版本、idempotency key、retry 次数和错误类别。每个 step 需要具备幂等性，避免重试时重复写对象存储、向量索引或结果表。大文件通过 presigned object-storage 路径传输，workflow service 只传递引用和元数据。</p>
+<p>Why it is impressive:</p>
+<p>This demonstrates production maturity. Many candidates can describe model inference, but fewer can explain how to recover a multi-step AI job after partial failure without corrupting downstream systems.</p>
+<p>亮点：</p>
+<p>这体现的是生产系统成熟度。很多候选人能讲模型推理，但能讲清楚如何在多步骤 AI job 的部分失败后恢复，并且不污染下游系统的人更少。</p>
+<p>What to emphasize:</p>
+<ul><li>You used durable checkpoints, not in-memory progress.</li></ul>
+<p>您使用了持久checkpoint，而不是内存中的进度。</p>
+<ul><li>You separated control metadata from large media payloads.</li></ul>
+<p>您将控制元数据与大型媒体负载分开。</p>
+<ul><li>You made retries safe with idempotency keys.</li></ul>
+<p>您使用幂等密钥使重试变得安全。</p>
+<ul><li>You designed resume behavior around step boundaries.</li></ul>
+<p>您围绕步骤边界设计了恢复行为。</p>
+<h3 id="task-3-design-a-layered-inference-stack-with-ray-serve-triton-and-vllm">Task 3: Design A Layered Inference Stack With Ray Serve, Triton, And vLLM</h3>
+<p>Interviewer prompt:</p>
+<p>"Why did you use multiple inference engines instead of one serving layer for everything?" “为什么对所有事情都使用多个推理引擎而不是一个服务层？”</p>
+<p>Problem:</p>
+<p>AI workloads had different bottlenecks. CPU-heavy orchestration needed fan-out, feature joins, policy checks, and async I/O. Embeddings and rankers needed high-throughput GPU tensor inference. LLM assistants needed autoregressive generation, KV-cache management, token streaming, and token-level scheduling. Putting all workloads behind one generic serving engine would make each bottleneck harder to optimize.</p>
+<p>问题：</p>
+<p>AI workload的瓶颈不同。CPU-heavy 编排需要 fan-out、特征拼接、策略检查和异步 I/O；embedding 和 ranker 需要高吞吐 GPU tensor inference；LLM assistant 需要自回归生成、KV-cache 管理、token streaming 和 token-level scheduling。如果所有任务都放进一个通用 serving engine，每个瓶颈都会变得更难优化。</p>
+<p>Solution:</p>
+<p>Use Ray Serve for application-level orchestration and DAG composition, Triton for high-throughput non-LLM tensor inference, and vLLM for generation-heavy LLM workloads. Ray Serve owns routing, fan-out, retrieval calls, policy checks, and result assembly. Triton owns batching and model execution for embeddings, rankers, and CV models. vLLM owns continuous batching, KV-cache memory behavior, and streaming generation.</p>
+<p>解决方案：</p>
+<p>用 Ray Serve 做应用层编排与 DAG composition，用 Triton 做高吞吐的非 LLM tensor inference，用 vLLM 做生成型 LLM workload。Ray Serve 负责路由、fan-out、检索调用、策略检查和结果组装；Triton 负责 embedding、ranker 和 CV 模型的 batching 与执行；vLLM 负责 continuous batching、KV-cache 内存行为和 streaming generation。</p>
+<p>Why it is impressive:</p>
+<p>This shows hardware-aware architecture. You are not just listing tools. You are matching each runtime to its bottleneck: Python orchestration, dense tensor batching, or memory-bound token generation.</p>
+<p>亮点：</p>
+<p>这展示的是 hardware-aware architecture。不是简单列技术栈，而是把每个 runtime 匹配到它最适合解决的瓶颈：Python 编排、dense tensor batching，或 memory-bound 的 token generation。</p>
+<p>What to emphasize:</p>
+<ul><li>Ray Serve is not a replacement for Triton or vLLM.</li></ul>
+<p>Ray Serve 不能替代 Triton 或 vLLM。</p>
+<ul><li>Triton is better for batched embedding/ranking/CV inference.</li></ul>
+<p>Triton 更适合批量嵌入/排序/CV 推理。</p>
+<ul><li>vLLM is better for LLM generation because KV cache and token scheduling dominate.</li></ul>
+<p>vLLM 更适合 LLM 生成，因为 KV 缓存和token调度占主导地位。</p>
+<ul><li>The clean boundary reduces debugging complexity and improves utilization.</li></ul>
+<p>清晰的边界降低了调试复杂性并提高了利用率。</p>
+<h3 id="task-4-implement-mig-aware-placement-and-proactive-bin-packing">Task 4: Implement MIG-Aware Placement And Proactive Bin-Packing</h3>
+<p>Interviewer prompt:</p>
+<p>"Your resume says MIG-aware placement and bin-packing. What exactly did that mean?" “你的简历上写着 MIG 感知placement和bin-packing。这到底是什么意思？”</p>
+<p>Problem:</p>
+<p>GPU capacity was expensive and fragmented. Small embedding/ranking models did not always need a full A100/H100, but large LLM/video workloads needed full GPU memory or bandwidth. Batch jobs could tolerate queueing, while interactive workflows needed low p95 latency. A generic Kubernetes GPU request could not express these differences.</p>
+<p>问题：</p>
+<p>GPU 产能昂贵且容易碎片化。小型 embedding/ranking 模型不一定需要完整 A100/H100，但大型 LLM/视频 workload 需要完整 GPU 内存或带宽。batch job 可以接受排队，而交互式 workflow 需要低 p95 延迟。普通 Kubernetes GPU request 很难表达这些差异。</p>
+<p>Solution:</p>
+<p>Build a resource-control layer above Kubernetes scheduling. Each workload receives a model profile describing memory footprint, runtime, batchability, latency class, tenant priority, and MIG compatibility. The placement policy routes small stable models to MIG-compatible pools, reserves full GPUs for large or variable-memory workloads, separates online and batch pools, and keeps warm capacity for high-value interactive models. A slow optimization loop analyzes fragmentation and bin-packing efficiency; a fast loop reacts to queue pressure, p95 latency, token backlog, and GPU telemetry.</p>
+<p>解决方案：</p>
+<p>在 Kubernetes scheduler 之上构建 resource-control 层。每个 workload 都有 model profile，描述内存占用、runtime、batchability、latency class、tenant priority 和 MIG 兼容性。placement policy 把小型稳定模型路由到 MIG-compatible pool，把完整 GPU 保留给大型或内存波动大的 workload，隔离 online 与 batch pool，并为高价值交互模型保留 warm capacity。慢循环分析碎片化和 bin-packing 效率，快循环响应队列压力、p95 延迟、token backlog 和 GPU telemetry。</p>
+<p>Why it is impressive:</p>
+<p>This is a strong senior/tech-lead story because it connects distributed systems, Kubernetes, hardware constraints, LLM serving, and cost management. It also shows that you optimized utilization without blindly sacrificing latency.</p>
+<p>亮点：</p>
+<p>这是很强的 senior/tech-lead 项目点，因为它把分布式系统、Kubernetes、硬件约束、LLM serving 和成本管理连接起来。同时也说明你不是盲目追求利用率，而是在保护延迟的前提下优化资源。</p>
+<p>What to emphasize:</p>
+<ul><li>Kubernetes schedules declared resources, but your platform decided the right resource class.</li></ul>
+<p>Kubernetes 调度已声明的资源，但您的平台决定了正确的资源类别。</p>
+<ul><li>MIG improves packing for small models but can hurt flexibility for large workloads.</li></ul>
+<p>MIG 改进了小型模型的打包，但可能会损害大型workload的灵活性。</p>
+<ul><li>Bin-packing must be constrained by latency, tenant isolation, GPU memory, and rollback safety.</li></ul>
+<p>bin-packing必须受到延迟、tenant隔离、GPU 内存和回滚安全性的限制。</p>
+<ul><li>GPU utilization is not the only success metric; p95 latency and queue health matter.</li></ul>
+<p>GPU 利用率并不是唯一的成功指标； p95 延迟和队列健康状况很重要。</p>
+<h3 id="task-5-build-token-aware-autoscaling-for-llm-workloads">Task 5: Build Token-Aware Autoscaling For LLM Workloads</h3>
+<p>Interviewer prompt:</p>
+<p>"Why is QPS not enough for scaling LLM serving, and what would you scale on instead?" “为什么 QPS 不足以扩展 LLM 服务，您会扩展什么？”</p>
+<p>Problem:</p>
+<p>In LLM serving, one request is not one unit of work. A short prompt with a short answer and a long-context prompt with a long generation can differ by orders of magnitude in cost. Scaling only on QPS or CPU/GPU utilization can miss KV-cache pressure, token backlog, and time-to-first-token regressions.</p>
+<p>问题：</p>
+<p>在 LLM serving 中，一个 request 并不等于一个固定工作量。短 prompt 短回答和长上下文长生成的成本可能相差几个数量级。只按 QPS 或 CPU/GPU 利用率扩缩容，会漏掉 KV-cache 压力、token backlog 和 TTFT 回归。</p>
+<p>Solution:</p>
+<p>Collect live token telemetry from vLLM and gateway queues: active sequences, waiting tokens, prefill backlog, decode tokens/sec, TTFT, TPOT, KV-cache utilization, max-token admission rejections, and preemptions. Use these signals to scale vLLM pools, adjust warm capacity, route long-context requests to separate pools, and throttle low-priority workloads when token pressure is high.</p>
+<p>解决方案：</p>
+<p>从 vLLM 和 gateway queue 收集实时 token telemetry：active sequences、waiting tokens、prefill backlog、decode tokens/sec、TTFT、TPOT、KV-cache utilization、max-token admission rejection 和 preemption。用这些信号扩缩 vLLM pool、调整 warm capacity、把长上下文请求路由到独立 pool，并在 token pressure 高时限制低优先级 workload。</p>
+<p>Why it is impressive:</p>
+<p>This shows deep LLM-serving understanding. It proves you understand that LLM bottlenecks are often memory and token-scheduler problems, not simple request throughput problems.</p>
+<p>亮点：</p>
+<p>这展示了对 LLM serving 的深入理解。它说明你知道 LLM 的瓶颈常常是内存和 token scheduler，而不是简单的请求吞吐。</p>
+<p>What to emphasize:</p>
+<ul><li>TTFT and TPOT are different user-facing signals.</li></ul>
+<p>TTFT 和 TPOT 是不同的面向用户的信号。</p>
+<ul><li>KV-cache utilization can be a better saturation signal than GPU utilization.</li></ul>
+<p>KV 缓存利用率可以是比 GPU 利用率更好的饱和信号。</p>
+<ul><li>Long-context and interactive requests should often be isolated.</li></ul>
+<p>长上下文和交互式请求通常应该被隔离。</p>
+<ul><li>Admission control is part of scaling, not a separate afterthought.</li></ul>
+<p>准入控制是扩展的一部分，而不是一个单独的事后想法。</p>
+<h3 id="task-6-design-rollout-safety-with-llm-as-judge-and-canary-gates">Task 6: Design Rollout Safety With LLM-As-Judge And Canary Gates</h3>
+<p>Interviewer prompt:</p>
+<p>"How do you safely roll out a new model, prompt, retrieval index, or routing policy?" “如何安全地发布新模型、prompt、检索索引或路由策略？”</p>
+<p>Problem:</p>
+<p>AI changes can regress quality without throwing errors. A model may become slower, a prompt may become more verbose, an index may reduce retrieval quality, or a new placement policy may improve utilization while hurting p95 latency. Traditional deploy success metrics are not enough.</p>
+<p>问题：</p>
+<p>AI 变更可能在不报错的情况下让质量变差。模型可能变慢，prompt 可能更啰嗦，索引可能降低检索质量，新的 placement policy 可能提高利用率但损害 p95 延迟。传统的部署成功指标不够。</p>
+<p>Solution:</p>
+<p>Version every rollout entity: model, prompt, index, routing policy, decoding config, and evaluation dataset. Run offline deterministic checks, LLM-as-judge semantic evaluation when applicable, shadow traffic, canary rollout, and online monitoring. Gates watch quality, latency, cost, error rate, safety, queue depth, and rollback signals. Rollout decisions are tied to intent versions so a failing change can be rolled back cleanly.</p>
+<p>解决方案：</p>
+<p>对每个 rollout entity 做版本化：model、prompt、index、routing policy、decoding config 和 evaluation dataset。先跑离线 deterministic checks，再在适用场景用 LLM-as-judge 做语义评估，然后 shadow traffic、canary rollout 和线上监控。门禁关注质量、延迟、成本、错误率、安全、队列深度和 rollback 信号。rollout decision 绑定到 intent version，失败变更可以干净回滚。</p>
+<p>Why it is impressive:</p>
+<p>This demonstrates that you understand production AI is not only model serving. It is evaluation, governance, observability, and rollback.</p>
+<p>亮点：</p>
+<p>这说明你理解 production AI 不只是 model serving，还包括评估、治理、可观测性和回滚能力。</p>
+<p>What to emphasize:</p>
+<ul><li>LLM-as-judge is a gate, not the only source of truth.</li></ul>
+<p>LLM-as-Judge是一扇门，而不是唯一的真理来源。</p>
+<ul><li>Offline eval, canary, and online metrics complement each other.</li></ul>
+<p>离线评估、canary和在线指标相辅相成。</p>
+<ul><li>Versioning is required for reproducibility.</li></ul>
+<p>为了实现可重复性，需要进行版本控制。</p>
+<ul><li>Rollback must include model, prompt, index, and routing config.</li></ul>
+<p>回滚必须包括模型、prompt、索引和路由配置。</p>
+<h3 id="task-7-design-an-internal-llm-as-a-service-layer">Task 7: Design An Internal LLM-As-A-Service Layer</h3>
+<p>Interviewer prompt:</p>
+<p>"If Amsterdam product teams need LLM capabilities, why not let each team call a model endpoint directly?" “如果 Amsterdam 产品团队需要 LLM 能力，为什么不让每个团队直接调用一个模型 endpoint？”</p>
+<p>Problem:</p>
+<p>Direct model calls are simple at first but become expensive and unsafe at scale. Each team would need to solve model selection, prompt versioning, token budgets, streaming, quota, safety checks, grounded context assembly, fallback models, tenant isolation, observability, and rollback. The same failure modes would be rediscovered across Photoshop, Express, Acrobat-style assistant workflows, and creative copilots.</p>
+<p>问题：</p>
+<p>直接调用 model endpoint 一开始简单，但规模变大后会变得昂贵且不安全。每个团队都需要重复解决 model selection、prompt versioning、token budget、streaming、quota、safety check、grounded context assembly、fallback model、tenant isolation、observability 与 rollback。类似故障会在 Photoshop、Express、Acrobat-style assistant workflow 和 creative copilot 中反复出现。</p>
+<p>Solution:</p>
+<p>Build an internal LLM-as-a-service layer with a stable generation contract. Product teams submit an intent plus prompt/context metadata; the infra layer performs admission control, selects the model tier, applies prompt/template versioning, enforces token budgets, assembles retrieval or document context when needed, streams partial responses, emits TTFT/TPOT/token telemetry, and applies safety/evaluation gates. Small or distilled models can handle lightweight routing, rewriting, and classification; larger models are reserved for high-quality generation or reasoning steps.</p>
+<p>解决方案：</p>
+<p>构建内部 LLM-as-a-service layer，提供稳定的 generation contract。产品团队提交 intent 与 prompt/context metadata；infra layer 负责 admission control、选择 model tier、应用 prompt/template versioning、执行 token budget、在需要时组装 retrieval 或 document context、streaming partial response、发出 TTFT/TPOT/token telemetry，并应用 safety/evaluation gate。小模型或蒸馏模型可处理轻量 routing、rewrite 与 classification，大模型保留给高质量 generation 或 reasoning step。</p>
+<p>Why it is impressive:</p>
+<p>This shows product engineering plus core infrastructure. You are not only optimizing GPUs; you are creating a reusable product-facing runtime that gives teams safe access to LLM capabilities while preserving control over latency, cost, quality, and policy.</p>
+<p>亮点：</p>
+<p>这展示的是 product engineering 与 core infrastructure 的结合。你不只是优化 GPU，而是在创建一个可复用、面向产品的 runtime，让团队安全使用 LLM 能力，同时控制 latency、cost、quality 与 policy。</p>
+<p>What to emphasize:</p>
+<ul><li>LLM-as-a-service is an execution contract, not just an HTTP wrapper.</li></ul>
+<p>LLM-as-a-service 是 execution contract，不只是 HTTP wrapper。</p>
+<ul><li>Prompt, model, retrieval context, and decoding config must be versioned together.</li></ul>
+<p>Prompt、model、retrieval context 与 decoding config 必须一起版本化。</p>
+<ul><li>Token budget is both a cost-control mechanism and a latency-control mechanism.</li></ul>
+<p>Token budget 既是成本控制机制，也是延迟控制机制。</p>
+<ul><li>Product teams should own feature semantics; core infra should own runtime safety and resource control.</li></ul>
+<p>产品团队应该拥有 feature semantics；core infra 应该拥有 runtime safety 与 resource control。</p>
+<p>Simple metrics to mention:</p>
+<ul><li>TTFT and TPOT by model tier.</li></ul>
+<p>按 model tier 统计 TTFT 与 TPOT。</p>
+<ul><li>Cost per successful generation or assistant turn.</li></ul>
+<p>每次成功 generation 或 assistant turn 的成本。</p>
+<ul><li>Prompt/version rollout quality score and rollback count.</li></ul>
+<p>Prompt/version rollout 的质量分数与 rollback 次数。</p>
+<ul><li>Token admission rejection rate and fallback-model usage rate.</li></ul>
+<p>Token admission rejection rate 与 fallback-model usage rate。</p>
+<h3 id="task-8-build-core-ai-infra-observability-and-cost-attribution">Task 8: Build Core AI Infra Observability And Cost Attribution</h3>
+<p>Interviewer prompt:</p>
+<p>"How would you know whether a slow AI feature is caused by the product service, the network, the queue, the model, retrieval, or GPU saturation?" “你怎么判断一个变慢的 AI 功能到底是产品服务、网络、队列、模型、检索还是 GPU 饱和导致的？”</p>
+<p>Problem:</p>
+<p>AI workflows are multi-stage and heterogeneous. A user-visible slowdown may come from upload time, edge preprocessing, intent admission, Ray orchestration, Triton queue delay, vLLM prefill, decode backlog, vector retrieval latency, object storage, GPU memory fragmentation, or a bad rollout. Without a cross-layer trace and cost model, teams argue about ownership instead of fixing the bottleneck.</p>
+<p>问题：</p>
+<p>AI workflow 是多阶段、异构的。用户可见的变慢可能来自 upload time、edge preprocessing、intent admission、Ray orchestration、Triton queue delay、vLLM prefill、decode backlog、vector retrieval latency、object storage、GPU memory fragmentation 或 bad rollout。如果没有跨层 trace 与 cost model，团队容易争论 ownership，而不是定位 bottleneck。</p>
+<p>Solution:</p>
+<p>Create an observability model centered on <code>intent_id</code>, <code>workflow_id</code>, <code>tenant</code>, <code>model_version</code>, <code>prompt_version</code>, <code>index_version</code>, <code>latency_class</code>, and <code>resource_pool</code>. Every stage emits duration, queue time, retry count, artifact size, token count, GPU memory pressure, and fallback decisions. Dashboards show p50/p95/p99 latency decomposition, GPU utilization versus queue health, raw-media transfer size, token throughput, KV-cache pressure, rollout version split, and cost per intent.</p>
+<p>解决方案：</p>
+<p>围绕 <code>intent_id</code>、<code>workflow_id</code>、<code>tenant</code>、<code>model_version</code>、<code>prompt_version</code>、<code>index_version</code>、<code>latency_class</code> 与 <code>resource_pool</code> 建立 observability model。每个 stage 发出 duration、queue time、retry count、artifact size、token count、GPU memory pressure 与 fallback decision。Dashboard 展示 p50/p95/p99 latency decomposition、GPU utilization versus queue health、raw-media transfer size、token throughput、KV-cache pressure、rollout version split 与 cost per intent。</p>
+<p>Why it is impressive:</p>
+<p>This is a strong senior-infra story because it connects product SLOs to backend root causes. It also makes resource and budget management credible: you cannot optimize GPU cost, rollout safety, or model quality if you cannot attribute cost and latency by intent and version.</p>
+<p>亮点：</p>
+<p>这是很强的 senior infra 故事，因为它把 product SLO 与 backend root cause 连接起来。同时它让 resource 与 budget management 更可信：如果不能按 intent 和 version 归因 cost 与 latency，就很难真正优化 GPU cost、rollout safety 或 model quality。</p>
+<p>What to emphasize:</p>
+<ul><li>Observability is part of the architecture, not a dashboard after the fact.</li></ul>
+<p>Observability 是架构的一部分，不是事后做一个 dashboard。</p>
+<ul><li>Trace IDs must survive across edge, gateway, workflow, model serving, retrieval, and storage.</li></ul>
+<p>Trace ID 必须跨 edge、gateway、workflow、model serving、retrieval 与 storage 保持连续。</p>
+<ul><li>High GPU utilization is only healthy if queue time and p95 latency remain bounded.</li></ul>
+<p>GPU utilization 高只有在 queue time 与 p95 latency 可控时才算健康。</p>
+<ul><li>Cost attribution by intent helps partner teams make product tradeoffs.</li></ul>
+<p>按 intent 做 cost attribution 可以帮助合作产品团队做产品权衡。</p>
+<p>Simple metrics to mention:</p>
+<ul><li>End-to-end p95 latency decomposition by stage.</li></ul>
+<p>按 stage 拆解的端到端 p95 latency。</p>
+<ul><li>GPU seconds, generated tokens, and raw-media MB per successful workflow.</li></ul>
+<p>每个成功 workflow 的 GPU seconds、generated tokens 与 raw-media MB。</p>
+<ul><li>Queue wait as a percentage of total latency.</li></ul>
+<p>Queue wait 占总 latency 的比例。</p>
+<ul><li>Cost and quality regression by model/prompt/index rollout version.</li></ul>
+<p>按 model/prompt/index rollout version 统计 cost 与 quality regression。</p></section></main></section>
+<section class="panel" id="panel-5"><main class="content"><section class="doc-section article" id="amsterdam-product-surface-scenario-deep-dives"><h2 id="amsterdam-product-surface-scenario-deep-dives">Amsterdam Product-Surface Scenario Deep Dives</h2>
+<p>These scenarios connect the platform architecture to recognizable Amsterdam product surfaces. In interviews, phrase them as representative workflows the platform pattern can support, not as a claim that one team owned every product feature end to end.</p>
+<p>这些场景把平台架构和面试官熟悉的 Amsterdam 产品功能连接起来。面试时建议把它们表述为“这种平台模式可以支撑的代表性 workflow”，而不是声称一个团队端到端拥有所有产品功能。</p>
+<p>How to keep these scenarios credible: 如何保持这些场景的可信度：</p>
+<div class="table-scroll"><table><thead><tr><th>Scenario</th><th>Project 1 connection</th><th>Useful numbers / signals</th><th>Interview-safe framing</th></tr></thead><tbody><tr><td>Photoshop-style Generative Fill/Expand</td><td>Multimodal intent + edge-first artifacts + GPU generation</td><td>Mask/crop/reference image instead of full document; cap variation count; track p95 and GPU seconds per generation</td><td>"A representative generative editing workflow the platform pattern supports"</td></tr><tr><td>Lightroom-style Generative Remove</td><td>Hybrid edge/cloud execution and preview/final split</td><td>Fast preview path vs high-quality finalization; 40% raw-media transfer reduction as platform anchor</td><td>"A mobile/web/desktop example of why context-aware routing matters"</td></tr><tr><td>Premiere-style Media Intelligence / video generation</td><td>Long-running media DAG + object-storage artifacts</td><td>Keyframes/transcripts/timecodes instead of raw video; checkpoint per stage; protect interactive editing</td><td>"A video-heavy workload that stresses payload size and resumability"</td></tr><tr><td>Acrobat-style document assistant</td><td>RAG, privacy, groundedness, tenant policy</td><td>Track retrieval hit rate, citation coverage, groundedness score, hallucination/safety blocks</td><td>"A document-grounded AI workflow, not just an LLM call"</td></tr><tr><td>Firefly/Express multi-model generation</td><td>Intent routing, cost budget, safety gates</td><td>Cost per successful generation, safety block rate, retry rate, model/version split</td><td>"A model-agnostic creative execution layer"</td></tr><tr><td>Content authenticity / trust metadata</td><td>Versioning, audit, policy propagation</td><td>Attach model version, prompt/edit recipe, source asset, timestamp, policy decision, rollout version</td><td>"Trust metadata as part of the platform data model"</td></tr></tbody></table></div>
+<p>如何让这些场景听起来可信：</p>
+<h3 id="scenario-1-photoshop-style-generative-fill-generative-expand-workflow">Scenario 1: Photoshop-Style Generative Fill / Generative Expand Workflow</h3>
+<p>Interviewer prompt:</p>
+<p>"How would your platform support a Photoshop-style generative edit where the user selects a region, provides a prompt, and expects multiple high-quality variations?" “您的平台如何支持 Photoshop 风格的生成编辑，其中用户选择区域、提供prompt并期望多个高质量变体？”</p>
+<p>Product context:</p>
+<p>Photoshop Generative Fill and Generative Expand are Firefly-powered creative editing workflows where the user provides a selection or expanded canvas area and optionally a text prompt or reference image. From a platform perspective, this is a great example of a multimodal intent: image region, mask, prompt, reference asset, privacy policy, latency class, and generation settings all matter.</p>
+<p>产品上下文：</p>
+<p>Photoshop 的 Generative Fill / Generative Expand 是 Firefly 驱动的创意编辑流程。用户提供选区或扩展画布区域，并可能提供文本 prompt 或 reference image。从平台角度看，这是典型的多模态 intent：图像区域、mask、prompt、reference asset、隐私策略、延迟等级和生成参数都很重要。</p>
+<p>Platform task:</p>
+<p>The platform receives an intent such as <code>creative.generative_edit</code>. The client sends compact artifacts: mask, bounding box, crop, low-resolution context, prompt, reference image pointer, and document/session metadata. The planner decides whether preprocessing stays on-device, whether full-resolution context is needed, which generation pool should serve the request, and how many variations can be generated within the latency and cost budget.</p>
+<p>平台任务：</p>
+<p>平台接收类似 <code>creative.generative_edit</code> 的 intent。客户端发送紧凑 artifacts：mask、bounding box、crop、低分辨率上下文、prompt、reference image 指针以及文档/会话 metadata。planner 决定哪些预处理留在端侧、是否需要完整分辨率上下文、哪个 generation pool 处理请求，以及在延迟和成本预算内生成多少 variations。</p>
+<p>Why it is hard:</p>
+<ul><li>User-perceived latency matters because the feature sits inside an interactive creative loop.</li></ul>
+<p>用户感知的延迟很重要，因为该功能位于交互式创意循环内。</p>
+<ul><li>Raw PSD/image context can be large, so payload minimization matters.</li></ul>
+<p>原始 PSD/图像上下文可能很大，因此有效负载最小化很重要。</p>
+<ul><li>Multiple variations multiply GPU cost.</li></ul>
+<p>多种变体会增加 GPU 成本。</p>
+<ul><li>Reference-image guidance adds extra modality and policy checks.</li></ul>
+<p>参考图像指导增加了额外的模式和策略检查。</p>
+<ul><li>The result must preserve nondestructive editing semantics and versioned outputs.</li></ul>
+<p>难点：</p>
+<ul><li>这是交互式创意循环的一部分，用户感知延迟非常关键。</li><li>PSD/图像上下文可能很大，必须减少 payload。</li><li>多个 variations 会放大 GPU 成本。</li><li>Reference image 引入额外模态和策略检查。</li><li>结果需要支持非破坏式编辑语义和版本化输出。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"I would avoid sending the whole document through the orchestration service. The platform would pass object references and compact edit artifacts, route generation to a warm GPU pool, checkpoint variation generation, and version the model/prompt/edit parameters so the result can be reproduced or rolled back."</p>
+<p>高亮回答角度：</p>
+<p>“我不会让整个文档经过编排服务。平台应该传递对象引用和紧凑编辑 artifacts，把生成请求路由到 warm GPU pool，对 variation generation 做 checkpoint，并版本化 model/prompt/edit 参数，这样结果可以复现或回滚。”</p>
+<h3 id="scenario-2-lightroom-style-generative-remove-across-mobile-web-and-desktop">Scenario 2: Lightroom-Style Generative Remove Across Mobile, Web, And Desktop</h3>
+<p>Interviewer prompt:</p>
+<p>"How would you design the backend path for a Lightroom-style AI remove feature that must work across mobile, web, desktop, and large photo libraries?" “您将如何设计必须跨移动、Web、桌面和大型照片库运行的 Lightroom 式 AI 删除功能的后端路径？”</p>
+<p>Product context:</p>
+<p>Lightroom-style AI editing surfaces are interesting because they combine mobile constraints, raw photo sizes, user privacy, interactive latency, and photo-library scale. The same user may edit from a phone on weak network, a desktop with GPU/NPU capability, or the web.</p>
+<p>产品上下文：</p>
+<p>Lightroom 风格的 AI editing 很有代表性，因为它同时涉及移动端约束、RAW/大图尺寸、用户隐私、交互延迟和照片库规模。同一个用户可能在弱网手机、带 GPU/NPU 的桌面端或 Web 上编辑。</p>
+<p>Platform task:</p>
+<p>The platform uses device context to decide whether object selection, segmentation, preview generation, or mask refinement can run locally. The cloud path receives the smallest sufficient artifact: mask, crop, local preview, edit recipe, and asset reference. For high-resolution finalization, the workflow can run asynchronously with checkpointed artifact outputs and notify the product surface when the final result is ready.</p>
+<p>平台任务：</p>
+<p>平台使用端侧下文判断 object selection、segmentation、preview generation 或 mask refinement 是否可以在本地执行。云端路径接收最小充分 artifact：mask、crop、本地 preview、edit recipe 和 asset reference。高分辨率 finalization 可以异步执行，使用 checkpointed artifact outputs，并在最终结果准备好后通知产品界面。</p>
+<p>Why it is hard:</p>
+<ul><li>Mobile battery, thermal state, memory, and network quality change quickly.</li></ul>
+<p>手机电池、热状态、内存、网络质量变化很快。</p>
+<ul><li>Users expect fast previews but also high-quality final output.</li></ul>
+<p>用户期望快速预览，但也期望高质量的最终输出。</p>
+<ul><li>Retry must not duplicate edits or overwrite the wrong version.</li></ul>
+<p>重试不得重复编辑或覆盖错误版本。</p>
+<ul><li>Edge and cloud models may not produce exactly identical masks or fills.</li></ul>
+<p>难点：</p>
+<ul><li>移动端电量、温度、内存和网络质量变化很快。</li><li>用户既期待快速 preview，也期待高质量最终输出。</li><li>重试不能重复创建 edit，也不能覆盖错误版本。</li><li>端侧和云端模型输出的 mask/fill 可能不完全一致。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"I would split preview and finalization. Preview is latency-first and can use local/compact artifacts; finalization is quality-first and can use a cloud workflow with checkpoints, idempotent edit IDs, and versioned model outputs."</p>
+<p>高亮回答角度：</p>
+<p>“我会把 preview 和 finalization 分开。preview 以延迟优先，可以使用本地或紧凑 artifacts；finalization 以质量优先，可以走带 checkpoint、幂等 edit ID 和版本化模型输出的云端 workflow。”</p>
+<h3 id="scenario-3-premiere-style-media-intelligence-and-generative-video-workflow">Scenario 3: Premiere-Style Media Intelligence And Generative Video Workflow</h3>
+<p>Interviewer prompt:</p>
+<p>"How would your platform handle video workflows where an editor searches footage, analyzes clips, or generates/extends media?" “您的平台将如何处理编辑器搜索素材、分析剪辑或生成/扩展媒体的视频 workflow？”</p>
+<p>Product context:</p>
+<p>Premiere-style workflows are special because professional editors may work with hours of footage, high-resolution clips, transcripts, embedded metadata, camera information, and local media caches. Some analysis should happen locally for privacy and responsiveness, while generation or expensive inference may require cloud GPU pools.</p>
+<p>产品上下文：</p>
+<p>Premiere 风格的 workflow 很特殊，因为专业编辑可能处理数小时素材、高分辨率视频、transcript、嵌入 metadata、相机信息和本地 media cache。有些分析为了隐私和响应速度应在本地执行，而生成或重推理可能需要云端 GPU pool。</p>
+<p>Platform task:</p>
+<p>Use a hybrid plan: local media intelligence extracts searchable clip descriptors, keyframes, transcript references, and metadata; cloud services handle heavier generation, reranking, evaluation, or cross-project indexing when policy allows. Long video jobs are represented as DAGs: analyze frames, embed segments, retrieve related clips, generate extension candidates, evaluate quality, and write versioned outputs.</p>
+<p>平台任务：</p>
+<p>使用混合执行计划：本地 media intelligence 抽取可搜索 clip descriptors、keyframes、transcript references 和 metadata；在策略允许时，云端处理更重的生成、reranking、evaluation 或跨项目索引。长视频任务表示为 DAG：分析帧、生成片段 embedding、检索相关 clip、生成扩展候选、评估质量并写入版本化输出。</p>
+<p>Why it is hard:</p>
+<ul><li>Video payloads are huge, and uploading everything is often unacceptable.</li></ul>
+<p>视频负载巨大，上传所有内容通常是不可接受的。</p>
+<ul><li>Frame-level and segment-level outputs must map back to timeline timecodes.</li></ul>
+<p>帧级和段级输出必须映射回时间线时间码。</p>
+<ul><li>Long jobs need resumability because failures are common.</li></ul>
+<p>长时间的作业需要可恢复性，因为失败很常见。</p>
+<ul><li>Interactive editing cannot be blocked by slow batch analysis.</li></ul>
+<p>难点：</p>
+<ul><li>视频 payload 巨大，全部上传通常不可接受。</li><li>帧级和片段级输出必须映射回 timeline timecode。</li><li>长任务必须可恢复，因为失败很常见。</li><li>交互式剪辑不能被慢速 batch analysis 阻塞。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"The important design is not only a video model. It is the artifact contract: keyframes, timecodes, transcript spans, segment embeddings, cache keys, and versioned outputs. Once those contracts exist, the platform can route local analysis, cloud inference, and async indexing without moving raw footage unnecessarily."</p>
+<p>高亮回答角度：</p>
+<p>“关键设计不只是视频模型，而是 artifact contract：keyframes、timecodes、transcript spans、segment embeddings、cache keys 和版本化输出。有了这些契约，平台才能路由本地分析、云端推理和异步索引，同时避免不必要地移动原始视频。”</p>
+<h3 id="scenario-4-acrobat-style-ai-assistant-for-pdf-summarization-and-document-q-a">Scenario 4: Acrobat-Style AI Assistant For PDF Summarization And Document Q&amp;A</h3>
+<p>Interviewer prompt:</p>
+<p>"How would your platform support an Acrobat-style AI assistant that summarizes PDFs and answers document-grounded questions?" “您的平台如何支持 Acrobat 风格的 AI 助手来总结 PDF 并回答基于文档的问题？”</p>
+<p>Product context:</p>
+<p>Document intelligence differs from creative image/video generation. It is retrieval-grounded, privacy-sensitive, and often enterprise-facing. Users expect answers to be grounded in the document, not generic LLM responses.</p>
+<p>产品上下文：</p>
+<p>文档智能不同于创intent像/视频生成。它是 retrieval-grounded、隐私敏感，并且常常面向企业用户。用户期待答案基于文档内容，而不是泛泛的 LLM 回复。</p>
+<p>Platform task:</p>
+<p>Parse the document into pages, sections, tables, OCR text, figures, and metadata. Build a document-scoped retrieval index, then route user questions through query understanding, retrieval, reranking, context assembly, and LLM generation. The rollout gate evaluates groundedness, citation quality, refusal behavior, and hallucination risk. Enterprise policy controls retention, tenant isolation, and whether content can leave a region or device.</p>
+<p>平台任务：</p>
+<p>把文档解析成 pages、sections、tables、OCR text、figures 和 metadata。建立 document-scoped retrieval index，然后将用户问题经过 query understanding、retrieval、reranking、context assembly 和 LLM generation。发布门禁评估 groundedness、citation quality、refusal behavior 和 hallucination risk。企业策略控制 retention、tenant isolation，以及内容是否可以离开某个 region 或 device。</p>
+<p>Why it is hard:</p>
+<ul><li>PDFs are structurally messy: tables, footnotes, scans, columns, and forms.</li></ul>
+<p>PDF 结构混乱：表格、脚注、扫描件、栏目和表格。</p>
+<ul><li>Summaries must be faithful, not just fluent.</li></ul>
+<p>摘要必须忠实，而不仅仅是流利。</p>
+<ul><li>Enterprise privacy and auditability matter.</li></ul>
+<p>企业隐私和可审计性很重要。</p>
+<ul><li>RAG failures can come from parsing, chunking, retrieval, reranking, or generation.</li></ul>
+<p>难点：</p>
+<ul><li>PDF 结构复杂：表格、脚注、扫描件、分栏和表单都可能出问题。</li><li>summary 必须忠实，而不只是流畅。</li><li>企业隐私和审计能力很重要。</li><li>RAG 失败可能来自 parsing、chunking、retrieval、reranking 或 generation 任一环节。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"For document AI, I would treat generation as the last stage, not the whole system. The hard parts are document parsing, chunk/index versioning, retrieval quality, tenant policy, evidence tracking, and evaluation of groundedness."</p>
+<p>高亮回答角度：</p>
+<p>“对 document AI，我会把 generation 看作最后一步，而不是整个系统。真正难的是文档解析、chunk/index versioning、检索质量、tenant policy、evidence tracking 和 groundedness 评估。”</p>
+<h3 id="scenario-5-firefly-express-multi-model-creative-generation-with-cost-and-safety-controls">Scenario 5: Firefly / Express Multi-Model Creative Generation With Cost And Safety Controls</h3>
+<p>Interviewer prompt:</p>
+<p>"How would you support a creative generation surface where users can generate images, video, audio, vectors, or templates, while the platform may have multiple model providers and cost tiers?" “您如何支持用户可以生成图像、视频、音频、向量或模板的创意生成界面，而该平台可能有多个模型提供商和成本层？”</p>
+<p>Product context:</p>
+<p>Firefly and Express-style surfaces are broader than one model call. Users may generate images, videos, audio, designs, templates, text effects, or variations. The platform needs model routing, credits/cost controls, safety checks, latency classes, and product-specific UX contracts.</p>
+<p>产品上下文：</p>
+<p>Firefly / Express 风格的产品入口不只是一次模型调用。用户可能生成图像、视频、音频、设计、模板、文字效果或 variations。平台需要 model routing、credits/cost controls、安全检查、延迟等级和产品侧 UX 契约。</p>
+<p>Platform task:</p>
+<p>Represent each generation capability as an intent with allowed models, quality tiers, maximum output size, safety policy, cost budget, and evaluation gates. The dispatcher chooses between fast preview, high-quality generation, batch variation generation, or fallback model paths. Observability tracks cost per successful generation, safety blocks, latency, retry rate, and user acceptance.</p>
+<p>平台任务：</p>
+<p>把每种生成能力表示为 intent，包含 allowed models、quality tiers、maximum output size、safety policy、cost budget 和 evaluation gates。dispatcher 在 fast preview、高质量生成、batch variation generation 或 fallback model path 之间做选择。可观测性跟踪每次成功生成成本、安全拦截、延迟、重试率和用户接受度。</p>
+<p>Why it is hard:</p>
+<ul><li>Different models have different latency, cost, safety, and output quality profiles.</li></ul>
+<p>不同的模型具有不同的延迟、成本、安全性和输出质量配置文件。</p>
+<ul><li>Creative users often request multiple variations, which multiplies cost.</li></ul>
+<p>创意用户经常要求多种变体，这会成倍增加成本。</p>
+<ul><li>Product teams need predictable contracts even when model providers or versions change.</li></ul>
+<p>即使模型提供商或版本发生变化，产品团队也需要可预测的合同。</p>
+<ul><li>Safety and policy checks must be part of the execution plan, not bolted on later.</li></ul>
+<p>难点：</p>
+<ul><li>不同模型的延迟、成本、安全和输出质量特征不同。</li><li>创意用户经常生成多个 variations，会放大成本。</li><li>即使模型 provider 或版本变化，产品团队也需要稳定契约。</li><li>安全和策略检查必须是执行计划的一部分，而不是后加的逻辑。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"The platform value is creating a model-agnostic creative execution layer. Product teams ask for an outcome; the platform chooses model, runtime, cost tier, safety gates, and rollout version under policy."</p>
+<p>高亮回答角度：</p>
+<p>“平台价值在于创建 model-agnostic 的创意执行层。产品团队请求的是 outcome；平台在 policy 下选择 model、runtime、cost tier、安全门禁和 rollout version。”</p>
+<h3 id="scenario-6-content-authenticity-policy-and-trust-aware-ai-execution">Scenario 6: Content Authenticity, Policy, And Trust-Aware AI Execution</h3>
+<p>Interviewer prompt:</p>
+<p>"How would you make AI-generated or AI-edited content trustworthy and auditable in a creative platform?" “如何使AI生成或AI编辑的内容在创意平台中值得信赖和可审核？”</p>
+<p>Product context:</p>
+<p>Amsterdam product surfaces increasingly care about whether content was generated, edited, licensed, or safe for commercial use. For a platform engineer, that means policy, provenance, and audit metadata must flow with the asset, not live only in UI text.</p>
+<p>产品上下文：</p>
+<p>Amsterdam 产品越来越关注内容是否由 AI 生成或编辑、是否授权、是否可商用。对平台工程师来说，这意味着 policy、provenance 和 audit metadata 必须跟随 asset 流动，而不能只存在于 UI 文案中。</p>
+<p>Platform task:</p>
+<p>Attach provenance metadata to workflow outputs: source asset references, model version, prompt/edit recipe, generation timestamp, tenant, policy decision, safety checks, and rollout version. The platform can expose this metadata to downstream product services, asset libraries, review tools, and audit pipelines.</p>
+<p>平台任务：</p>
+<p>给 workflow 输出附加 provenance metadata：源资产引用、模型版本、prompt/edit recipe、生成时间、tenant、policy decision、安全检查和 rollout version。平台可以把这些 metadata 暴露给下游产品服务、资产库、审核工具和审计流水线。</p>
+<p>Why it is hard:</p>
+<ul><li>Provenance must survive retries, edits, exports, and downstream transformations.</li></ul>
+<p>出处必须能够经受住重试、编辑、导出和下游转换。</p>
+<ul><li>Policy decisions need to be reproducible.</li></ul>
+<p>政策决定需要可重复。</p>
+<ul><li>Product experiences differ, but trust metadata should be consistent.</li></ul>
+<p>产品体验不同，但信任元数据应该一致。</p>
+<ul><li>Privacy rules may limit what metadata can be retained.</li></ul>
+<p>难点：</p>
+<ul><li>provenance 必须在重试、编辑、导出和下游转换后仍然可追踪。</li><li>policy decision 需要可复现。</li><li>产品体验不同，但 trust metadata 应该一致。</li><li>隐私规则可能限制 metadata 的保留方式。</li></ul>
+<p>Impressive answer angle:</p>
+<p>"I would treat trust metadata as part of the data model, not an afterthought. Every generated artifact should carry enough versioned context for audit, rollback, evaluation, and downstream policy enforcement."</p>
+<p>高亮回答角度：</p>
+<p>“我会把 trust metadata 当作数据模型的一部分，而不是事后补丁。每个生成 artifact 都应该携带足够的版本化上下文，支持审计、回滚、评估和下游策略执行。”</p></section></main></section>
+<section class="panel" id="panel-6"><main class="content"><section class="doc-section article" id="advanced-interview-stress-tests"><h2 id="advanced-interview-stress-tests">Advanced Interview Stress Tests</h2>
+<p>These prompts are useful when an interviewer tries to push beyond the happy path. They help you show senior engineering judgment: incident response, capacity planning, privacy, launch readiness, and operational tradeoffs.</p>
+<p>这些问题适合面试官继续追问 happy path 之外的情况。它们帮助你展示 senior engineering 判断力：故障响应、容量规划、隐私、发布准备和运维权衡。</p>
+<p>Stress-test metrics to memorize: 要记住的压力测试指标：</p>
+<div class="table-scroll"><table><thead><tr><th>Stress test</th><th>First signals to check</th><th>Concrete mitigation</th><th>Strong metric anchor</th></tr></thead><tbody><tr><td>Launch spike</td><td>Queue depth, TTFT/TPOT, token backlog, GPU memory, cold starts</td><td>Protect interactive traffic, cap variations, defer batch/eval, route to warm/smaller pools</td><td>45% -&gt; 80% GPU utilization story, while protecting p95</td></tr><tr><td>Enterprise privacy mode</td><td>Privacy class, region policy, retention policy, raw-content logging</td><td>Force edge/region-locked/no-retention execution</td><td>Policy enforced before model routing</td></tr><tr><td>KV-cache OOM</td><td>Active sequences, waiting tokens, KV-cache utilization, preemptions</td><td>Cap max tokens, split long-context pool, adjust chunked prefill</td><td>Scale on token telemetry, not QPS</td></tr><tr><td>Fast onboarding</td><td>Missing schema, owner, fallback, quota, eval gates</td><td>Require intent contract and sandbox/canary path</td><td>Intent onboarding without custom routing logic</td></tr><tr><td>Silent quality regression</td><td>Judge score, human sample review, acceptance rate, p95, prompt distribution</td><td>Slice rollback by intent/model/prompt/index version</td><td>Version every AI artifact, not only model weights</td></tr></tbody></table></div>
+<p>需要记住的压力测试指标：</p>
+<h3 id="stress-test-1-firefly-launch-spike-and-gpu-capacity-exhaustion">Stress Test 1: Firefly Launch Spike And GPU Capacity Exhaustion</h3>
+<p>Interviewer challenge:</p>
+<p>"A new Firefly-powered feature launches inside a high-traffic product surface, and GPU demand suddenly triples. What happens?" “一项由 Firefly 驱动的新功能在高流量产品入口内启动，GPU 需求突然增加了两倍。会发生什么？”</p>
+<p>Strong answer:</p>
+<p>The platform should not wait for complete GPU exhaustion. The gateway and resource controller should detect rising queue depth, TTFT/TPOT, token backlog, cold-start failures, and GPU memory pressure. It should protect interactive requests first, defer batch/evaluation jobs, cap variation count, route eligible requests to smaller or warmer models, apply tenant/feature quotas, and increase warm capacity only where the traffic pattern justifies the cost.</p>
+<p>强回答：</p>
+<p>平台不能等到 GPU 完全耗尽才行动。gateway 和 resource controller 应该检测 queue depth、TTFT/TPOT、token backlog、cold-start failures 和 GPU memory pressure 的上升。系统应优先保护交互请求，延后 batch/evaluation jobs，限制 variation 数量，把符合条件的请求路由到更小或更热的模型，应用 tenant/feature quotas，并只在流量模式证明值得时增加 warm capacity。</p>
+<p>What this demonstrates:</p>
+<ul><li>Capacity planning under bursty product traffic.</li></ul>
+<p>突发产品流量下的容量规划。</p>
+<ul><li>Graceful degradation instead of full outage.</li></ul>
+<p>优雅降级而不是完全中断。</p>
+<ul><li>Cost-aware scaling, not unlimited GPU spend.</li></ul>
+<p>成本感知扩展，而不是无限制的 GPU 支出。</p>
+<ul><li>User-facing latency protection as the top priority.</li></ul>
+<p>面向用户的延迟保护是重中之重。</p>
+<h3 id="stress-test-2-enterprise-privacy-mode-for-acrobat-or-creative-cloud-content">Stress Test 2: Enterprise Privacy Mode For Acrobat Or Creative Cloud Content</h3>
+<p>Interviewer challenge:</p>
+<p>"What if an enterprise customer requires that sensitive documents or media never leave a region or device?" “如果企业客户要求敏感文档或媒体永远不会离开某个区域或设备怎么办？”</p>
+<p>Strong answer:</p>
+<p>The intent registry should carry privacy class, region policy, retention policy, and allowed execution targets. The planner should enforce those policies before model routing. Some workflows may be forced to on-device preprocessing, region-locked cloud execution, document-scoped retrieval, encrypted object storage, or no-retention mode. Observability should record policy decisions without logging raw content.</p>
+<p>强回答：</p>
+<p>intent registry 应携带 privacy class、region policy、retention policy 和 allowed execution targets。planner 必须在模型路由前执行这些策略。某些 workflow 可能被强制走端侧预处理、region-locked cloud execution、document-scoped retrieval、加密对象存储或 no-retention mode。可观测性需要记录策略决策，但不能记录原始内容。</p>
+<p>What this demonstrates:</p>
+<ul><li>Privacy and compliance built into control-plane design.</li></ul>
+<p>控制平面设计中内置了隐私和合规性。</p>
+<ul><li>Policy enforcement before expensive or risky execution.</li></ul>
+<p>在昂贵或有风险的执行之前执行策略。</p>
+<ul><li>Ability to support enterprise constraints without one-off product hacks.</li></ul>
+<p>无需一次性产品破解即可支持企业限制的能力。</p>
+<h3 id="stress-test-3-vllm-kv-cache-oom-during-long-context-assistant-traffic">Stress Test 3: vLLM KV-Cache OOM During Long-Context Assistant Traffic</h3>
+<p>Interviewer challenge:</p>
+<p>"An LLM assistant feature starts timing out and vLLM reports KV-cache pressure. What do you check and what do you change?" “LLM 助手功能开始超时，vLLM 报告 KV 缓存压力。您检查什么以及更改什么？”</p>
+<p>Strong answer:</p>
+<p>First split the problem into admission, queueing, prefill, and decode. Check prompt length distribution, output length distribution, active sequences, waiting tokens, KV-cache utilization, preemptions, TTFT, and TPOT. Short-term mitigation can cap max tokens, route long-context requests to a separate pool, reduce concurrency, enable/adjust chunked prefill, increase replicas, or shed low-priority work. Long-term fixes include better context compression, prompt caching, pool separation, and token-aware autoscaling.</p>
+<p>强回答：</p>
+<p>先把问题拆成 admission、queueing、prefill 和 decode。检查 prompt length distribution、output length distribution、active sequences、waiting tokens、KV-cache utilization、preemptions、TTFT 和 TPOT。短期缓解可以限制 max tokens，把长上下文请求路由到独立 pool，降低 concurrency，启用/调整 chunked prefill，增加 replicas，或丢弃低优先级工作。长期优化包括更好的 context compression、prompt caching、pool separation 和 token-aware autoscaling。</p>
+<p>What this demonstrates:</p>
+<ul><li>Real LLM-serving debugging knowledge.</li></ul>
+<p>真正的LLM服务调试知识。</p>
+<ul><li>Understanding that GPU utilization alone is insufficient.</li></ul>
+<p>仅了解 GPU 利用率是不够的。</p>
+<ul><li>Ability to protect interactive quality under memory pressure.</li></ul>
+<p>能够在内存压力下保护交互质量。</p>
+<h3 id="stress-test-4-product-team-wants-to-onboard-a-new-ai-feature-in-two-weeks">Stress Test 4: Product Team Wants To Onboard A New AI Feature In Two Weeks</h3>
+<p>Interviewer challenge:</p>
+<p>"A partner team wants to launch a new AI feature quickly. How do you keep velocity high without creating platform debt?" “合作伙伴团队希望快速发布新的AI功能。如何在不产生平台债务的情况下保持高速度？”</p>
+<p>Strong answer:</p>
+<p>Use the intent registry as the onboarding contract. Require the product team to define input/output schema, owner, latency class, privacy policy, cost budget, model dependency, fallback behavior, and evaluation criteria. Provide a sandbox path for shadow traffic and offline evaluation, then canary by tenant or feature flag. Avoid custom routing code unless the feature introduces a genuinely new execution pattern.</p>
+<p>强回答：</p>
+<p>用 intent registry 作为 onboarding contract。要求产品团队定义输入输出 schema、owner、latency class、privacy policy、cost budget、model dependency、fallback behavior 和 evaluation criteria。提供 sandbox 路径用于 shadow traffic 和离线评估，然后按 tenant 或 feature flag 做 canary。除非这个功能引入真正新的执行模式，否则避免写 feature-specific routing code。</p>
+<p>What this demonstrates:</p>
+<ul><li>Platform leverage and product-team empathy.</li></ul>
+<p>平台杠杆和产品团队同理心。</p>
+<ul><li>Governance without blocking speed.</li></ul>
+<p>治速不堵。</p>
+<ul><li>Ability to prevent one-off architecture drift.</li></ul>
+<p>能够防止一次性架构漂移。</p>
+<h3 id="stress-test-5-model-quality-regression-without-system-errors">Stress Test 5: Model Quality Regression Without System Errors</h3>
+<p>Interviewer challenge:</p>
+<p>"The new model deployment is healthy from an infra perspective, but users say results are worse. How do you diagnose it?" “从基础设施的角度来看，新模型的部署是健康的，但用户表示结果更糟。你如何诊断它？”</p>
+<p>Strong answer:</p>
+<p>Treat quality regression as a versioned system problem. Compare old and new model/prompt/index versions on golden datasets, shadow traffic, and canary slices. Look at LLM-as-judge scores, human review samples, user acceptance, safety blocks, latency changes, retry rate, prompt distribution, and downstream product metrics. If the issue is isolated to a modality, region, tenant, or prompt class, rollback only that slice instead of globally reverting the release.</p>
+<p>强回答：</p>
+<p>把质量回归看成一个版本化系统问题。在 golden datasets、shadow traffic 和 canary slices 上比较新旧 model/prompt/index versions。检查 LLM-as-judge scores、human review samples、user acceptance、安全拦截、延迟变化、重试率、prompt distribution 和下游产品指标。如果问题只发生在某个模态、region、tenant 或 prompt class，可以只回滚该 slice，而不是全局回滚。</p>
+<p>What this demonstrates:</p>
+<ul><li>AI rollout maturity beyond green dashboards.</li></ul>
+<p>AI的发布成熟度超越了绿色仪表板。</p>
+<ul><li>Quality, safety, latency, and product metrics considered together.</li></ul>
+<p>质量、安全性、延迟和产品指标一起考虑。</p>
+<ul><li>Fine-grained rollback strategy.</li></ul>
+<p>细粒度的回滚策略。</p></section></main></section></div><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script><script>const tabs=[...document.querySelectorAll('.top-tab')],panels=[...document.querySelectorAll('.panel')];function show(id){tabs.forEach(t=>t.classList.toggle('active',t.dataset.panel===id));panels.forEach(p=>p.classList.toggle('active',p.id===id));window.scrollTo({top:0,behavior:'smooth'});if(history.replaceState)history.replaceState(null,'','#'+id)}tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.panel)));const init=location.hash.slice(1);if(init&&document.getElementById(init))show(init);if(window.hljs)window.hljs.highlightAll();</script>
+
+</body></html>

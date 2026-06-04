@@ -1,0 +1,433 @@
+:root {
+  color-scheme: dark;
+  --bg: #05070b;
+  --panel: #0b1118;
+  --panel-2: #101923;
+  --panel-3: #152235;
+  --line: #243449;
+  --line-soft: rgba(116, 145, 177, .22);
+  --ink: #f4f8fd;
+  --muted: #91a3b8;
+  --soft: #c7d5e4;
+  --accent: #67b7ff;
+  --accent-2: #40d9a8;
+  --warn: #f6c56f;
+  --shadow: 0 24px 74px rgba(0, 0, 0, .42);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(255, 255, 255, .021) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .015) 1px, transparent 1px),
+    radial-gradient(circle at 18% -4%, rgba(63, 137, 220, .3), transparent 32rem),
+    radial-gradient(circle at 88% 2%, rgba(64, 217, 168, .13), transparent 30rem),
+    linear-gradient(135deg, #05070b 0%, #0b1018 48%, #06090f 100%);
+  background-size: 32px 32px, 32px 32px, auto, auto, auto;
+  color: var(--ink);
+  font: 15px/1.55 "Segoe UI", "Aptos", Arial, sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 292px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.library {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: auto;
+  border-right: 1px solid rgba(109, 144, 182, .28);
+  background:
+    linear-gradient(180deg, rgba(16, 25, 37, .94), rgba(6, 10, 16, .96)),
+    radial-gradient(circle at top left, rgba(103, 183, 255, .13), transparent 18rem);
+  backdrop-filter: blur(18px);
+  padding: 18px 14px;
+}
+
+.brand {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 11px;
+  align-items: start;
+  padding: 2px 2px 14px;
+}
+
+.brand-logo {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  position: relative;
+  overflow: hidden;
+  color: #fff7f4;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  box-shadow: 0 16px 42px rgba(220, 45, 45, .22);
+}
+
+.brand-logo span {
+  position: relative;
+  z-index: 1;
+}
+
+.amsterdam-logo {
+  border: 1px solid rgba(255, 112, 112, .58);
+  background:
+    linear-gradient(145deg, #e73935, #7b161d),
+    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, .32), transparent 35%);
+}
+
+.amsterdam-logo::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  bottom: 8px;
+  height: 14px;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  background: rgba(255, 255, 255, .86);
+  opacity: .24;
+}
+
+.eyebrow,
+.doc-group-title,
+.kicker {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.brand h1 {
+  margin: 4px 0 6px;
+  font: 760 19px/1.12 Georgia, "Times New Roman", serif;
+}
+
+.brand p {
+  margin: 0;
+  color: var(--soft);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+
+.path-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.path-button,
+.doc-button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.path-button {
+  position: relative;
+  overflow: hidden;
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgba(29, 57, 91, .95), rgba(13, 24, 36, .95));
+  padding: 13px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .18);
+}
+
+.path-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, .055), transparent);
+  transform: translateX(-100%);
+  transition: transform .35s ease;
+}
+
+.path-button:hover::after {
+  transform: translateX(100%);
+}
+
+.path-button strong,
+.path-button span {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
+.path-button strong {
+  font-size: 14px;
+}
+
+.path-button span {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.doc-group {
+  margin: 0 0 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.doc-group-title {
+  margin: 0 0 7px 3px;
+  color: #d7e6f7;
+  font-size: 13px;
+  font-weight: 760;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.doc-items {
+  display: grid;
+  gap: 5px;
+}
+
+.doc-button {
+  border-color: rgba(116, 145, 177, .09);
+  border-radius: 11px;
+  background: rgba(10, 17, 26, .36);
+  padding: 8px 9px;
+  position: relative;
+  transition: transform .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
+}
+
+.doc-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(103, 183, 255, .44);
+  background: rgba(20, 32, 47, .72);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .2);
+}
+
+.doc-button.active {
+  border-color: var(--accent);
+  background:
+    linear-gradient(135deg, rgba(27, 65, 103, .96), rgba(15, 30, 47, .9)),
+    radial-gradient(circle at 100% 0%, rgba(64, 217, 168, .14), transparent 10rem);
+  box-shadow: inset 3px 0 0 var(--accent), 0 16px 34px rgba(0, 0, 0, .28);
+}
+
+.doc-title {
+  display: block;
+  font-weight: 650;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.doc-meta {
+  display: grid;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.doc-level {
+  color: #aabbd0;
+}
+
+.doc-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  color: #9eb4ca;
+}
+
+.reader {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background:
+    radial-gradient(circle at top right, rgba(103, 183, 255, .11), transparent 24rem),
+    linear-gradient(180deg, rgba(9, 14, 21, .55), rgba(5, 7, 11, .15));
+}
+
+.reader-top {
+  display: grid;
+  gap: 8px;
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(109, 144, 182, .28);
+  background:
+    linear-gradient(180deg, rgba(13, 20, 30, .91), rgba(7, 11, 17, .72));
+  backdrop-filter: blur(12px);
+}
+
+.reader-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 22px;
+}
+
+.reader-title-block {
+  min-width: 0;
+}
+
+.reader-top h2 {
+  margin: 2px 0;
+  font: 740 18px/1.18 Georgia, "Times New Roman", serif;
+  letter-spacing: 0;
+}
+
+.reader-top p {
+  margin: 0;
+  color: var(--soft);
+  max-width: 980px;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+
+.frame-wrap {
+  min-height: 0;
+  padding: 16px 20px 20px;
+}
+
+.frame-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(180deg, rgba(18, 28, 41, .92), rgba(9, 15, 23, .9));
+  color: var(--soft);
+  padding: 0 14px;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, .22);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent-2);
+  box-shadow: 0 0 0 5px rgba(64, 217, 168, .1), 0 0 18px rgba(64, 217, 168, .65);
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+#readerTags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.mini-chip {
+  border: 1px solid rgba(116, 145, 177, .28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .035);
+  color: #aec3d9;
+  font-size: 11px;
+  padding: 3px 7px;
+}
+
+#readerFrame {
+  width: 100%;
+  height: calc(100vh - 148px);
+  min-height: 680px;
+  border: 1px solid var(--line);
+  border-radius: 0 0 16px 16px;
+  background: #080b10;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 270px minmax(760px, 1fr);
+    min-width: 1030px;
+  }
+
+  .library {
+    position: sticky;
+    height: 100vh;
+    max-height: none;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    grid-template-columns: 250px minmax(700px, 1fr);
+    min-width: 950px;
+  }
+
+  .reader-hero {
+    display: block;
+  }
+
+  #readerFrame {
+    min-height: 640px;
+  }
+}
+
+
+.app-shell.nav-collapsed { grid-template-columns: 54px minmax(0,1fr); }
+.app-shell.nav-collapsed .library { padding: 14px 8px; overflow: hidden; }
+.app-shell.nav-collapsed .library .brand > div:not(.brand-logo),
+.app-shell.nav-collapsed .library .doc-list { display: none; }
+.app-shell.nav-collapsed .library .brand { display: block; padding: 0 0 12px; }
+.app-shell.nav-collapsed .library .brand-logo { width: 36px; height: 36px; margin: 0 auto; }
+.nav-toggle {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  border: 1px solid var(--line-soft, rgba(116,145,177,.22));
+  border-radius: 11px;
+  background: rgba(10,17,26,.72);
+  color: var(--ink, #f4f8fd);
+  cursor: pointer;
+  font: 800 18px/1 "Segoe UI", Arial, sans-serif;
+}
+.nav-toggle:hover { border-color: var(--accent, #67b7ff); background: rgba(20,32,47,.88); }
+.app-shell.nav-collapsed .nav-toggle { margin-top: 2px; }
+@media (max-width: 1100px) { .app-shell.nav-collapsed { grid-template-columns: 54px minmax(760px,1fr); } }
+
+
+
+/* Compact open navigation rail: starts open, folds on demand, toggle at bottom. */
+.app-shell { grid-template-columns: 236px minmax(0,1fr); }
+.library { display:flex; flex-direction:column; overflow:hidden; padding:14px 10px; }
+.brand { flex:0 0 auto; }
+.doc-list { flex:1 1 auto; min-height:0; overflow:auto; padding-bottom:12px; }
+.nav-toggle { order:99; flex:0 0 auto; margin:auto auto 0; }
+.app-shell.nav-collapsed { grid-template-columns:54px minmax(0,1fr); }
+.app-shell.nav-collapsed .nav-toggle { margin:auto auto 0; }
+@media (max-width:1100px){ .app-shell{grid-template-columns:236px minmax(760px,1fr);} .app-shell.nav-collapsed{grid-template-columns:54px minmax(760px,1fr);} }
+
+
+/* Compact brand header to keep the navigation rail content-first. */
+.brand { grid-template-columns:30px minmax(0,1fr); gap:8px; padding:0 2px 8px; align-items:center; }
+.brand-logo, .logo { width:30px; height:30px; border-radius:9px; font-size:11px; }
+.eyebrow { font-size:9px; letter-spacing:.06em; line-height:1.1; }
+.brand h1 { margin:2px 0 2px; font-size:13px; line-height:1.12; }
+.brand p { margin:0; font-size:10.5px; line-height:1.25; color:var(--muted); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.app-shell.nav-collapsed .library .brand-logo, .app-shell.nav-collapsed .library .logo { width:30px; height:30px; margin:0 auto; }

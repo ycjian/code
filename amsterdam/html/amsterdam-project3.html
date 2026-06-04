@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Amsterdam Project 3: Product-Facing Model Cascade and Intent Router</title><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" rel="stylesheet"/><style>:root{color-scheme:dark;--bg:#0b1020;--panel:#111827;--panel2:#0f172a;--text:#e6edf3;--muted:#9aa8bb;--border:#263348;--accent:#f59e0b;--code:#080d19;--soft:color-mix(in srgb,var(--accent) 14%,transparent)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 0%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.64}.page{width:min(1240px,calc(100vw - 28px));margin:0 auto;padding:12px 0 54px}.topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 14px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(135deg,rgba(17,24,39,.97),rgba(15,23,42,.92));position:sticky;top:0;z-index:20;box-shadow:0 12px 36px rgba(0,0,0,.3);backdrop-filter:blur(12px)}h1{margin:0;font-size:clamp(.98rem,1.6vw,1.22rem);line-height:1.2}.meta{color:var(--muted);font-size:.8rem}.badge{border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));background:var(--soft);color:var(--accent);border-radius:999px;padding:5px 9px;font-size:.78rem;white-space:nowrap}.top-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.top-tab{border:1px solid var(--border);background:rgba(17,24,39,.78);color:var(--muted);padding:8px 11px;border-radius:999px;font:inherit;font-size:.88rem;cursor:pointer}.top-tab:hover{color:var(--text);border-color:var(--accent)}.top-tab.active{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:760}.panel{display:none}.panel.active{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px}.side{position:sticky;top:86px;align-self:start;max-height:calc(100vh - 104px);overflow:auto;border:1px solid var(--border);border-radius:14px;background:rgba(17,24,39,.78);padding:10px}.side-title{font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800;margin:4px 6px 8px}.side a{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:start;color:var(--muted);text-decoration:none;padding:8px 6px;border-radius:9px;font-size:.88rem;line-height:1.25}.side a:hover{background:rgba(148,163,184,.1);color:var(--text)}.side span{color:var(--accent);font-weight:800}.content{min-width:0;border:1px solid var(--border);border-radius:16px;background:rgba(17,24,39,.84);box-shadow:0 14px 42px rgba(0,0,0,.24);padding:22px}.doc-section{padding:0 0 26px;margin:0 0 26px;border-bottom:1px solid var(--border)}.doc-section:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}.article h1,.article h2,.article h3,.article h4{line-height:1.25;margin:1.25em 0 .6em}.article h1:first-child,.article h2:first-child,.article h3:first-child{margin-top:0}.article h1{font-size:1.7rem}.article h2{font-size:1.35rem;border-bottom:1px solid var(--border);padding-bottom:.3rem}.article h3{font-size:1.13rem;color:#dbeafe}.article h4{font-size:1.02rem;color:#e9d5ff}.article p{margin:.72rem 0}.article ul,.article ol{padding-left:1.35rem}.article li{margin:.32rem 0}.article code{background:rgba(125,211,252,.12);color:#d8f3ff;padding:.12rem .34rem;border-radius:5px;font-family:"Cascadia Code",Consolas,monospace;font-size:.92em}pre{margin:1rem 0;border:1px solid #263348;border-radius:12px;background:var(--code);overflow:auto}pre code{display:block;background:transparent!important;color:#e6edf3;padding:18px;white-space:pre;line-height:1.55;font-size:.92rem}.table-scroll{overflow-x:auto;margin:1rem 0}.article table{width:100%;min-width:520px;border-collapse:collapse}.article th,.article td{border:1px solid var(--border);padding:9px 10px;vertical-align:top}.article th{background:rgba(148,163,184,.13);color:#dbeafe;text-align:left}.article tr:nth-child(even) td{background:rgba(15,23,42,.45)}blockquote{margin:1rem 0;padding:.5rem 1rem;border-left:4px solid var(--accent);background:var(--soft);color:#d5e7f5}img{max-width:100%;border-radius:10px;border:1px solid var(--border)}@media(max-width:900px){.page{width:min(100vw - 18px,1240px)}.topbar{position:static;grid-template-columns:1fr}.panel.active{grid-template-columns:1fr}.side{position:static;max-height:none}.content{padding:16px}}
+.side-toggle{width:34px;height:34px;display:grid;place-items:center;margin:0 0 10px;border:1px solid var(--border,var(--line,#263348));border-radius:10px;background:rgba(17,24,39,.78);color:var(--text,var(--ink,#e6edf3));cursor:pointer;font:900 15px/1 "Segoe UI",Arial,sans-serif}.side-toggle:hover{border-color:var(--accent,#78a6ff);background:var(--soft,rgba(120,166,255,.12))}body.toc-collapsed .panel.active{grid-template-columns:46px minmax(0,1fr)}body.toc-collapsed .side{width:46px;min-width:46px;padding:8px 6px;overflow:hidden}body.toc-collapsed .side>*:not(.side-toggle){display:none}body.toc-collapsed .side-toggle{margin:0 auto}.panel.active{transition:grid-template-columns .18s ease}.side{transition:width .18s ease,padding .18s ease}
+
+/* Layout cleanup: inner section navigation is a horizontal tab row, not a second left panel. */
+.panel.active{display:block!important;}
+.side{position:sticky!important;top:62px!important;z-index:10!important;height:auto!important;min-height:0!important;max-height:72px!important;overflow-x:auto!important;overflow-y:hidden!important;display:flex!important;gap:6px!important;align-items:center!important;margin:0 0 12px!important;padding:8px!important;width:auto!important;min-width:0!important;}
+.side-title{flex:0 0 auto!important;margin:0 8px 0 2px!important;white-space:nowrap!important;}
+.side a{display:inline-flex!important;grid-template-columns:none!important;gap:7px!important;align-items:center!important;white-space:nowrap!important;min-width:max-content!important;border-radius:999px!important;padding:7px 10px!important;}
+.side-toggle{display:none!important;}
+body.toc-collapsed .panel.active{display:block!important;}
+body.toc-collapsed .side{width:auto!important;min-width:0!important;padding:8px!important;overflow-x:auto!important;overflow-y:hidden!important;}
+body.toc-collapsed .side>*:not(.side-toggle){display:inherit!important;}
+
+</style></head><body class="toc-collapsed"><div class="page"><header class="topbar"><div><h1>Amsterdam Project 3: Product-Facing Model Cascade and Intent Router</h1><div class="meta">amsterdam-project3.md ? 6 top sections ? Model cascade</div></div></header><nav aria-label="Top sections" class="top-tabs"><button class="top-tab active" data-panel="panel-0" type="button">Opening</button>
+<button class="top-tab" data-panel="panel-1" type="button">Pitch + Motivation</button>
+<button class="top-tab" data-panel="panel-2" type="button">Architecture</button>
+<button class="top-tab" data-panel="panel-3" type="button">Modeling + Eval</button>
+<button class="top-tab" data-panel="panel-4" type="button">Interview</button>
+<button class="top-tab" data-panel="panel-5" type="button">Resume + Sources</button></nav><section class="panel active" id="panel-0"><main class="content"><section class="doc-section article" id="opening"><p>Amsterdam 项目 3：面向产品的模型级联与 Intent Router</p>
+<p>This project is a product-engineering-heavy AI platform story. It uses the same Amsterdam background as Project 1 and Project 2, but the emphasis is different: instead of leading with Kubernetes, GPU scheduling, or vector databases, the project starts from product AI experiences and asks how to route each user request to the cheapest, fastest, safest model path that can still meet product quality.</p>
+<p>这个项目是偏 product engineering 的 AI platform 叙事。它使用和 Project 1、Project 2 相同的 Amsterdam 背景，但侧重点不同：不是从 Kubernetes、GPU 调度或向量数据库讲起，而是从产品 AI 体验出发，讨论如何把每个用户请求路由到最便宜、最快、最安全，同时仍能满足产品质量要求的模型路径。</p>
+<p>The project idea is directly aligned with a real industry trend: model routing, LLM cascading, semantic routing, intelligent prompt routing, and small-model triage. AWS Bedrock has Intelligent Prompt Routing. RouteLLM studies routing between stronger and weaker LLMs using preference data. FrugalGPT studies LLM cascades for cost/quality tradeoffs. Red Hat's LLM Semantic Router uses an Envoy external processor, embeddings, semantic cache, and routing to backend LLMs. NVIDIA NeMo Guardrails and Meta Llama Guard show another related pattern: small or specialized guard models can sit before or after larger LLMs to enforce safety, policy, and task control.</p>
+<p>这个项目想法和真实行业趋势高度一致：model routing、LLM cascading、semantic routing、intelligent prompt routing、小模型前置 triage。AWS Bedrock 有 Intelligent Prompt Routing。RouteLLM 研究如何基于 preference data 在强模型和弱模型之间路由。FrugalGPT 研究用 LLM cascade 平衡成本和质量。Red Hat 的 LLM Semantic Router 使用 Envoy external processor、embedding、semantic cache 和后端 LLM routing。NVIDIA NeMo Guardrails 与 Meta Llama Guard 也体现了类似模式：小型或专用 guard model 可以位于大 LLM 前后，用于安全、策略和任务控制。</p></section></main></section>
+<section class="panel" id="panel-1"><main class="content"><section class="doc-section article" id="resume-anchor"><h2 id="resume-anchor">Resume Anchor</h2></section>
+<section class="doc-section article" id="简历锚点"><h2 id="简历锚点">简历锚点</h2>
+<p>Senior Software Engineer and Tech Lead, AI Platform Team, Amsterdam</p>
+<p>Amsterdam AI 平台团队高级软件工程师兼技术主管</p>
+<p>08/2023 - Present</p>
+<p>08/2023 - 至今</p>
+<ul><li>Designed a product-facing model cascade and intent-routing platform for Amsterdam AI workflows, using lightweight classifiers, embedding routers, and policy models at the gateway to classify task intent, modality, privacy risk, complexity, latency class, and escalation need before routing to retrieval pipelines, small task-specific models, or larger GenAI/LLM backends.</li></ul>
+<ul><li>为 Amsterdam AI workflow 设计面向产品的 model cascade 与 intent-routing 平台，在 gateway 使用轻量 classifier、embedding router 和 policy model，对 task intent、modality、privacy risk、complexity、latency class 和 escalation need 进行判断，再路由到 retrieval pipeline、小型 task-specific model 或更大的 GenAI/LLM backend。</li></ul>
+<ul><li>Built confidence-aware escalation and fallback policies for creative AI experiences such as semantic retrieval, generative editing, media understanding, document summarization, and assistant workflows. Routed simple/low-risk requests to smaller models or cached paths, while escalating ambiguous, high-risk, long-context, or quality-sensitive requests to larger models, preserving product quality while reducing avoidable GPU and token cost.</li></ul>
+<ul><li>为 semantic retrieval、generative editing、media understanding、document summarization 和 assistant workflow 等创意 AI 体验构建 confidence-aware escalation 与 fallback 策略。简单、低风险请求走小模型或缓存路径；模糊、高风险、长上下文或质量敏感请求升级到更大模型，在保持产品质量的同时减少不必要的 GPU 与 token 成本。</li></ul>
+<ul><li>Developed evaluation and feedback loops for routing quality, including shadow evaluation against larger models, LLM-as-Judge review, human-labeled routing sets, semantic cache hit analysis, calibration metrics, canary rollout, and product telemetry. Connected routing decisions to latency, acceptance rate, retrieval success, safety/policy violations, and cost-per-successful-task.</li></ul>
+<ul><li>为 routing quality 构建评估与反馈闭环，包括用大模型做 shadow evaluation、LLM-as-Judge review、人工标注 routing set、semantic cache hit analysis、calibration metrics、canary rollout 和 product telemetry。将 routing 决策与 latency、acceptance rate、retrieval success、safety/policy violation 和 cost-per-successful-task 连接起来。</li></ul></section>
+<section class="doc-section article" id="thirty-second-pitch"><h2 id="thirty-second-pitch">Thirty-Second Pitch</h2></section>
+<section class="doc-section article" id="30-秒-pitch"><h2 id="30-秒-pitch">30 秒 Pitch</h2>
+<p>I designed a model cascade and intent-routing layer for product-facing Amsterdam AI workflows. The platform used lightweight models at the gateway to classify intent, modality, privacy, safety, prompt complexity, and expected cost before choosing the execution path. Simple requests could use small models, retrieval, semantic cache, or edge preprocessing, while difficult or high-risk requests escalated to larger GenAI or LLM backends. The goal was to preserve user-facing quality while reducing unnecessary large-model calls, GPU pressure, and latency.</p>
+<p>我设计了一个面向 Amsterdam 产品 AI workflow 的 model cascade 与 intent-routing 层。平台在 gateway 使用轻量模型判断 intent、modality、privacy、safety、prompt complexity 和 expected cost，然后选择执行路径。简单请求可以走小模型、retrieval、semantic cache 或 edge preprocessing；困难或高风险请求升级到更大的 GenAI/LLM backend。目标是在保持用户体验质量的同时，减少不必要的大模型调用、GPU 压力和延迟。</p></section>
+<section class="doc-section article" id="two-minute-pitch"><h2 id="two-minute-pitch">Two-Minute Pitch</h2></section>
+<section class="doc-section article" id="两分钟-pitch"><h2 id="两分钟-pitch">两分钟 Pitch</h2>
+<p>Amsterdam AI workflows are diverse. A Photoshop-style generative edit, a Premiere-style video understanding request, a Lightroom-style semantic search, an Acrobat-style document summary, and an Express-style design assistant may all look like AI requests, but they do not need the same model path. Some only need intent classification or retrieval. Some need a lightweight model. Some require a large LLM or GenAI backend. Some should never leave the device or should be blocked by policy.</p>
+<p>Amsterdam AI workflow 非常多样。Photoshop 风格的生成式编辑、Premiere 风格的视频理解请求、Lightroom 风格的语义搜索、Acrobat 风格的文档摘要、Express 风格的设计助手，从外部看都像 AI 请求，但它们并不需要相同的模型路径。有些只需要 intent classification 或 retrieval，有些需要轻量模型，有些必须走大 LLM 或 GenAI backend，有些由于隐私或策略原因不应该离开设备或应该被拦截。</p>
+<p>The model cascade platform introduced a product-facing routing layer. It performed small-model triage at the front: classify task type, estimate complexity, detect privacy/safety risk, check semantic cache, estimate token/media cost, and decide whether to answer locally, call retrieval, use a small model, call a specialized model, or escalate to a larger model. The important engineering challenge was not only routing; it was calibration, evaluation, fallback, observability, and safe rollout. A bad router can save cost but hurt product quality, so the system needed shadow evaluation, confidence thresholds, LLM-as-Judge review, human routing labels, and product telemetry.</p>
+<p>model cascade 平台引入了一个面向产品的 routing 层。它在前端做 small-model triage：判断 task type、估计 complexity、检测 privacy/safety risk、检查 semantic cache、估算 token/media cost，并决定本地回答、调用 retrieval、使用小模型、调用 specialized model，还是升级到更大模型。核心工程挑战不只是 routing，而是 calibration、evaluation、fallback、observability 和 safe rollout。一个差的 router 可能省成本但伤害产品质量，所以系统需要 shadow evaluation、confidence threshold、LLM-as-Judge review、人工 routing label 和 product telemetry。</p></section>
+<section class="doc-section article" id="why-this-is-a-strong-project"><h2 id="why-this-is-a-strong-project">Why This Is A Strong Project</h2></section>
+<section class="doc-section article" id="为什么这个项目强"><h2 id="为什么这个项目强">为什么这个项目强</h2>
+<p>This project is not DevOps. It is product-enabling AI engineering. The primary user is a product team building AI experiences. The platform gives them a clean contract: submit a product intent and user context; the router chooses the model path that balances quality, latency, privacy, safety, and cost.</p>
+<p>这个项目不是 DevOps，而是 product-enabling AI engineering。主要用户是构建 AI 体验的产品团队。平台提供清晰契约：产品团队提交 product intent 与 user context；router 选择能平衡 quality、latency、privacy、safety 和 cost 的模型路径。</p>
+<p>It also lets you talk about modeling without overclaiming foundation-model ownership. You can credibly own the router model, calibration data, evaluation sets, escalation policy, prompt/model/index compatibility checks, and production feedback loop.</p>
+<p>它也让你可以谈 modeling，而不需要夸大自己拥有 foundation model。你可以可信地拥有 router model、calibration data、evaluation set、escalation policy、prompt/model/index compatibility check 和 production feedback loop。</p>
+<p>It connects naturally to Project 1 and Project 2:</p>
+<p>它自然连接 Project 1 和 Project 2：</p>
+<ul><li>Project 1 gives the execution layer: intent registry, workflow orchestration, Ray/Triton/vLLM, GPU pools, rollout safety.</li></ul>
+<ul><li>Project 1 提供执行层：intent registry、workflow orchestration、Ray/Triton/vLLM、GPU pool、rollout safety。</li></ul>
+<ul><li>Project 2 gives the retrieval layer: embeddings, vector/lexical retrieval, ranking, indexes, feedback.</li></ul>
+<ul><li>Project 2 提供 retrieval 层：embedding、vector/lexical retrieval、ranking、index、feedback。</li></ul>
+<ul><li>Project 3 adds the model-decision layer: which model path should this product request use?</li></ul>
+<ul><li>Project 3 增加模型决策层：这个产品请求应该走哪条模型路径？</li></ul></section>
+<section class="doc-section article" id="industry-pattern-and-public-examples"><h2 id="industry-pattern-and-public-examples">Industry Pattern And Public Examples</h2></section>
+<section class="doc-section article" id="行业模式与公开例子"><h2 id="行业模式与公开例子">行业模式与公开例子</h2>
+<p>Several public systems support this direction:</p>
+<p>多个公开系统都支持这个方向：</p>
+<div class="table-scroll"><table><thead><tr><th>Public example</th><th>What it shows</th><th>Why it matters for this project</th></tr></thead><tbody><tr><td>Amazon Bedrock Intelligent Prompt Routing</td><td>A single endpoint can dynamically route requests between foundation models to balance response quality and cost.</td><td>Validates the idea of quality/cost-aware prompt routing as a cloud product feature.</td></tr><tr><td>RouteLLM</td><td>Router models can learn to choose between weaker and stronger LLMs using preference data.</td><td>Validates routing as a modeling problem, not only a rules engine.</td></tr><tr><td>FrugalGPT</td><td>LLM cascades can reduce inference cost by trying cheaper options first and escalating when needed.</td><td>Validates cascade design and cost-quality tradeoffs.</td></tr><tr><td>Red Hat LLM Semantic Router</td><td>Envoy ExtProc can inspect OpenAI-compatible requests, embed/classify prompts, check semantic cache, and route to backend models.</td><td>Validates the gateway-level architecture.</td></tr><tr><td>NVIDIA NeMo Guardrails</td><td>Guardrail services can sit between applications and LLMs, run input/output checks, and route through policy-specific models.</td><td>Validates policy/safety as part of the model path.</td></tr><tr><td>Meta Llama Guard</td><td>A smaller specialized safety classifier can check input/output safety risks.</td><td>Validates small specialized models as front/back gates.</td></tr><tr><td>Speculative decoding</td><td>A smaller draft path can help a larger model by proposing tokens that the larger model verifies.</td><td>Related idea: use cheaper compute first, then let the stronger model verify.</td></tr></tbody></table></div></section>
+<section class="doc-section article" id="product-motivation"><h2 id="product-motivation">Product Motivation</h2></section>
+<section class="doc-section article" id="产品动机"><h2 id="产品动机">产品动机</h2>
+<p>Amsterdam product teams want AI features that feel fast, safe, and context-aware. But always sending every request to the largest model is usually wrong.</p>
+<p>Amsterdam 产品团队希望 AI 功能快速、安全、理解上下文。但把每个请求都发送给最大模型通常是错误选择。</p>
+<p>Reasons:</p>
+<p>原因：</p>
+<ul><li>Many requests are simple: classify intent, rewrite query, detect document type, retrieve similar assets, summarize a short paragraph, extract keyframes.</li></ul>
+<ul><li>很多请求很简单：分类 intent、重写 query、检测 document type、retrieval 相似 asset、总结短文本、提取 keyframe。</li></ul>
+<ul><li>Some requests are latency-sensitive: UI autocomplete, search suggestions, design assistant follow-up, in-canvas edit planning.</li></ul>
+<ul><li>有些请求对 latency 敏感：UI autocomplete、search suggestion、design assistant follow-up、in-canvas edit planning。</li></ul>
+<ul><li>Some requests are privacy-sensitive: local photos, enterprise PDFs, unreleased creative assets, client brand files.</li></ul>
+<ul><li>有些请求对 privacy 敏感：本地照片、企业 PDF、未发布创意 asset、客户品牌文件。</li></ul>
+<ul><li>Some requests are high-risk: legal/financial documents, safety-sensitive prompts, copyrighted or licensed content.</li></ul>
+<ul><li>有些请求风险高：法律/财务文档、安全敏感 prompt、版权或授权内容。</li></ul>
+<ul><li>Some requests need retrieval more than generation: asset discovery, document question answering, semantic tagging.</li></ul>
+<ul><li>有些请求更需要 retrieval 而不是 generation：asset discovery、document QA、semantic tagging。</li></ul>
+<ul><li>Some requests truly need large models: complex reasoning, long-context synthesis, high-quality creative generation, ambiguous multimodal tasks.</li></ul>
+<ul><li>有些请求确实需要大模型：复杂推理、长上下文综合、高质量创意生成、模糊多模态任务。</li></ul>
+<p>The router's product promise:</p>
+<p>router 的产品承诺：</p>
+<blockquote><p>Give each AI workflow the right model path for its product intent, not the biggest model by default.</p></blockquote>
+<blockquote><p>根据产品 intent 给每个 AI workflow 选择正确模型路径，而不是默认使用最大模型。</p></blockquote></section></main></section>
+<section class="panel" id="panel-2"><main class="content"><section class="doc-section article" id="representative-amsterdam-product-surfaces"><h2 id="representative-amsterdam-product-surfaces">Representative Amsterdam Product Surfaces</h2></section>
+<section class="doc-section article" id="代表性-amsterdam-产品场景"><h2 id="代表性-amsterdam-产品场景">代表性 Amsterdam 产品场景</h2>
+<p>These are representative Amsterdam-style workflows. Phrase them carefully in interviews as workflows the platform pattern can support, not as a claim that one team owned every product feature end to end.</p>
+<p>这些是 Amsterdam-style 的代表性 workflow。面试中要谨慎表述为“这种平台模式可以支持的 workflow”，不要说一个团队端到端拥有所有产品功能。</p>
+<h3 id="photoshop-style-generative-editing">Photoshop-Style Generative Editing</h3>
+<h3 id="photoshop-风格生成式编辑">Photoshop 风格生成式编辑</h3>
+<p>User action:</p>
+<p>用户动作：</p>
+<ul><li>"Remove this object."</li></ul>
+<ul><li>“移除这个物体。”</li></ul>
+<ul><li>"Extend the background."</li></ul>
+<ul><li>“扩展背景。”</li></ul>
+<ul><li>"Make the lighting warmer."</li></ul>
+<ul><li>“让光线更温暖。”</li></ul>
+<p>Router decisions:</p>
+<p>router 决策：</p>
+<ul><li>Small vision model detects edit region, mask quality, image size, and whether the request is simple object removal or complex generation.</li></ul>
+<ul><li>小型 vision model 检测 edit region、mask quality、image size，以及请求是简单 object removal 还是复杂 generation。</li></ul>
+<ul><li>Lightweight policy model checks safety, enterprise policy, and content provenance.</li></ul>
+<ul><li>轻量 policy model 检查 safety、enterprise policy 和 content provenance。</li></ul>
+<ul><li>Simple edits can go to a smaller inpainting or task-specific model.</li></ul>
+<ul><li>简单编辑可以走较小的 inpainting 或 task-specific model。</li></ul>
+<ul><li>Complex generative edits escalate to a larger Firefly-style backend.</li></ul>
+<ul><li>复杂生成式编辑升级到更大的 Firefly-style backend。</li></ul>
+<ul><li>If privacy requires local handling, the router can choose edge preprocessing or block cloud upload.</li></ul>
+<ul><li>如果 privacy 要求本地处理，router 可以选择 edge preprocessing 或阻止 cloud upload。</li></ul>
+<p>Interview angle:</p>
+<p>面试角度：</p>
+<blockquote><p>The router is product-aware. It knows the difference between a simple edit operation, a mask-quality problem, a policy-sensitive prompt, and a high-quality generative request. That prevents every edit from becoming an expensive large-model call.</p></blockquote>
+<blockquote><p>router 是 product-aware 的。它知道简单编辑操作、mask quality 问题、policy-sensitive prompt 和高质量生成请求之间的区别。这避免每次编辑都变成昂贵的大模型调用。</p></blockquote>
+<h3 id="premiere-style-video-understanding">Premiere-Style Video Understanding</h3>
+<h3 id="premiere-风格视频理解">Premiere 风格视频理解</h3>
+<p>User action:</p>
+<p>用户动作：</p>
+<ul><li>"Find clips where someone walks through snow."</li></ul>
+<ul><li>“找到有人在雪中行走的片段。”</li></ul>
+<ul><li>"Summarize this 20-minute interview."</li></ul>
+<ul><li>“总结这个 20 分钟采访。”</li></ul>
+<ul><li>"Find the moment where the speaker mentions the product launch."</li></ul>
+<ul><li>“找到说话者提到产品发布的时刻。”</li></ul>
+<p>Router decisions:</p>
+<p>router 决策：</p>
+<ul><li>Small router classifies whether the request needs visual search, transcript search, audio understanding, or long-form summarization.</li></ul>
+<ul><li>小 router 判断请求需要 visual search、transcript search、audio understanding 还是 long-form summarization。</li></ul>
+<ul><li>Edge preprocessing samples keyframes and extracts transcript chunks before cloud upload.</li></ul>
+<ul><li>edge preprocessing 在上传云端前采样 keyframe 并抽取 transcript chunk。</li></ul>
+<ul><li>Retrieval path handles search-like requests without large generation.</li></ul>
+<ul><li>retrieval path 处理 search-like 请求，不需要大生成模型。</li></ul>
+<ul><li>Long-context summarization escalates to larger LLM only after chunk retrieval and compression.</li></ul>
+<ul><li>长上下文摘要先做 chunk retrieval 与 compression，再升级到大 LLM。</li></ul>
+<ul><li>If confidence is low, the platform can return top moments with explanation rather than hallucinated summary.</li></ul>
+<ul><li>如果 confidence 低，平台可以返回 top moment 和 explanation，而不是生成幻觉摘要。</li></ul>
+<h3 id="acrobat-style-document-intelligence">Acrobat-Style Document Intelligence</h3>
+<h3 id="acrobat-风格文档智能">Acrobat 风格文档智能</h3>
+<p>User action:</p>
+<p>用户动作：</p>
+<ul><li>"Summarize this PDF."</li></ul>
+<ul><li>“总结这个 PDF。”</li></ul>
+<ul><li>"What are the key risks in this contract?"</li></ul>
+<ul><li>“这份合同的关键风险是什么？”</li></ul>
+<ul><li>"Find all payment terms."</li></ul>
+<ul><li>“找出所有付款条款。”</li></ul>
+<p>Router decisions:</p>
+<p>router 决策：</p>
+<ul><li>Small document classifier detects document type, length, structure, language, and risk class.</li></ul>
+<ul><li>小型 document classifier 检测 document type、length、structure、language 和 risk class。</li></ul>
+<ul><li>PII/policy model decides whether data can leave region or must use enterprise-safe path.</li></ul>
+<ul><li>PII/policy model 判断数据是否可以离开区域，或必须使用 enterprise-safe path。</li></ul>
+<ul><li>Retrieval-first RAG path handles factual QA.</li></ul>
+<ul><li>retrieval-first RAG path 处理 factual QA。</li></ul>
+<ul><li>Bigger LLM is used for synthesis, risk analysis, or multi-section reasoning.</li></ul>
+<ul><li>大 LLM 用于 synthesis、risk analysis 或 multi-section reasoning。</li></ul>
+<ul><li>Citation and grounding checks run before response is returned.</li></ul>
+<ul><li>返回响应前运行 citation 和 grounding check。</li></ul>
+<h3 id="lightroom-style-and-amsterdam-stock-style-discovery">Lightroom-Style And Amsterdam Stock-Style Discovery</h3>
+<h3 id="lightroom-与-amsterdam-stock-风格-discovery">Lightroom 与 Amsterdam Stock 风格 Discovery</h3>
+<p>User action:</p>
+<p>用户动作：</p>
+<ul><li>"Find warm cinematic portraits."</li></ul>
+<ul><li>“查找温暖电影感人像。”</li></ul>
+<ul><li>"Show photos similar to this one but brighter."</li></ul>
+<ul><li>“展示与这张类似但更明亮的照片。”</li></ul>
+<ul><li>"Find assets for a minimal black wedding invitation."</li></ul>
+<ul><li>“查找极简黑色婚礼邀请函 asset。”</li></ul>
+<p>Router decisions:</p>
+<p>router 决策：</p>
+<ul><li>Query classifier detects whether the query is style, object, color, template, layout, or licensing-heavy.</li></ul>
+<ul><li>query classifier 判断 query 是 style、object、color、template、layout 还是 license-heavy。</li></ul>
+<ul><li>Search-like requests go to vector/lexical retrieval and ranker rather than LLM generation.</li></ul>
+<ul><li>search-like 请求走 vector/lexical retrieval 和 ranker，而不是 LLM generation。</li></ul>
+<ul><li>Query rewrite model may clarify "minimal black wedding invitation" into template/style constraints.</li></ul>
+<ul><li>query rewrite model 可以把 “minimal black wedding invitation” 解析成 template/style constraint。</li></ul>
+<ul><li>Ambiguous queries can use a larger LLM for query understanding or clarification.</li></ul>
+<ul><li>模糊 query 可以使用更大 LLM 做 query understanding 或 clarification。</li></ul>
+<h3 id="express-style-design-assistant">Express-Style Design Assistant</h3>
+<h3 id="express-风格设计助手">Express 风格设计助手</h3>
+<p>User action:</p>
+<p>用户动作：</p>
+<ul><li>"Make this flyer more modern."</li></ul>
+<ul><li>“让这张 flyer 更现代。”</li></ul>
+<ul><li>"Create three social post variations."</li></ul>
+<ul><li>“创建三个社交帖子变体。”</li></ul>
+<ul><li>"Suggest fonts and colors for this brand."</li></ul>
+<ul><li>“为这个品牌推荐字体和颜色。”</li></ul>
+<p>Router decisions:</p>
+<p>router 决策：</p>
+<ul><li>Small model detects design intent: layout, copy, color, font, asset search, or generation.</li></ul>
+<ul><li>小模型检测 design intent：layout、copy、color、font、asset search 或 generation。</li></ul>
+<ul><li>Retrieval path finds brand assets, templates, color palettes, and examples.</li></ul>
+<ul><li>retrieval path 查找 brand asset、template、color palette 和 example。</li></ul>
+<ul><li>Small model handles simple rewrite or template classification.</li></ul>
+<ul><li>小模型处理简单 rewrite 或 template classification。</li></ul>
+<ul><li>Larger model handles open-ended creative planning or multi-step assistant workflow.</li></ul>
+<ul><li>大模型处理开放式 creative planning 或多步骤 assistant workflow。</li></ul></section>
+<section class="doc-section article" id="architecture-in-words"><h2 id="architecture-in-words">Architecture In Words</h2></section>
+<section class="doc-section article" id="架构文字版"><h2 id="架构文字版">架构文字版</h2>
+<p>The system has seven layers:</p>
+<p>系统有七层：</p>
+<ol><li>Product gateway: receives product intent, user context, payload references, privacy class, and latency target.</li></ol>
+<ol><li>Product gateway：接收 product intent、user context、payload reference、privacy class 和 latency target。</li></ol>
+<ol><li>Triage layer: small classifiers and embedding models extract routing signals.</li></ol>
+<ol><li>Triage layer：小 classifier 与 embedding model 提取 routing signal。</li></ol>
+<ol><li>Policy layer: safety, privacy, license, enterprise policy, and data residency checks.</li></ol>
+<ol><li>Policy layer：safety、privacy、license、enterprise policy 和 data residency check。</li></ol>
+<ol><li>Routing layer: chooses cache, retrieval, small model, specialized model, large model, edge path, or blocked path.</li></ol>
+<ol><li>Routing layer：选择 cache、retrieval、小模型、specialized model、大模型、edge path 或 blocked path。</li></ol>
+<ol><li>Execution layer: Ray Serve, Triton, vLLM, retrieval services, and batch workers execute the selected path.</li></ol>
+<ol><li>Execution layer：Ray Serve、Triton、vLLM、retrieval service 与 batch worker 执行选定路径。</li></ol>
+<ol><li>Evaluation layer: compares router decisions against large-model shadow, human labels, LLM-as-Judge, and product outcomes.</li></ol>
+<ol><li>Evaluation layer：将 router 决策与大模型 shadow、人工 label、LLM-as-Judge 和产品结果对比。</li></ol>
+<ol><li>Feedback layer: mines routing failures, updates calibration, retrains router, and adjusts escalation thresholds.</li></ol>
+<ol><li>Feedback layer：挖掘 routing failure，更新 calibration，重训 router，调整 escalation threshold。</li></ol></section>
+<section class="doc-section article" id="routing-signals"><h2 id="routing-signals">Routing Signals</h2></section>
+<section class="doc-section article" id="路由信号"><h2 id="路由信号">路由信号</h2>
+<p>The router should not use a single confidence score. It should combine heterogeneous signals:</p>
+<p>router 不应该只用单一 confidence score，而应融合多种异构信号：</p>
+<div class="table-scroll"><table><thead><tr><th>Signal family</th><th>Examples</th><th>Model/path impact</th></tr></thead><tbody><tr><td>Intent</td><td>summarize, search, edit, caption, classify, retrieve, generate</td><td>Select workflow template</td></tr><tr><td>Modality</td><td>text, image, video, audio, PDF, 3D</td><td>Select encoder/model family</td></tr><tr><td>Complexity</td><td>prompt length, ambiguity, reasoning depth, long context, multiple constraints</td><td>Small model vs large model</td></tr><tr><td>Privacy</td><td>local user content, enterprise content, public catalog, licensed content</td><td>Edge/local/private cloud path</td></tr><tr><td>Safety</td><td>PII, unsafe prompt, copyrighted content, jailbreak risk</td><td>block, redact, guarded path</td></tr><tr><td>Latency</td><td>interactive, standard, async, batch</td><td>warm pool vs queue</td></tr><tr><td>Cost</td><td>token budget, media size, expected GPU seconds</td><td>cheap path vs escalation</td></tr><tr><td>Confidence</td><td>router probability, margin, calibration, disagreement</td><td>accept, ask clarification, escalate</td></tr><tr><td>Cacheability</td><td>semantic similarity to prior request, deterministic result</td><td>semantic cache or reuse</td></tr><tr><td>Product context</td><td>Photoshop edit, Premiere timeline, Acrobat PDF, Express design</td><td>product-specific policy</td></tr></tbody></table></div></section>
+<section class="doc-section article" id="model-cascade-policy"><h2 id="model-cascade-policy">Model Cascade Policy</h2></section>
+<section class="doc-section article" id="模型级联策略"><h2 id="模型级联策略">模型级联策略</h2>
+<p>A practical cascade has more than "small then big." It should support several paths:</p>
+<p>实际 cascade 不只是“小模型再大模型”，而应支持多种路径：</p>
+<div class="table-scroll"><table><thead><tr><th>Path</th><th>When to use</th><th>Amsterdam-style example</th></tr></thead><tbody><tr><td>Cache path</td><td>Semantically similar request with stable answer</td><td>Repeated document FAQ or common assistant help</td></tr><tr><td>Retrieval-only path</td><td>User needs existing assets or facts, not generation</td><td>"Find clips where speaker mentions launch"</td></tr><tr><td>Small model path</td><td>Simple classification, rewrite, tag, short summary</td><td>Query rewrite, intent classification, short caption</td></tr><tr><td>Specialized model path</td><td>Best model is not largest but domain-specific</td><td>OCR/layout model, image tagger, safety classifier</td></tr><tr><td>Large model path</td><td>Ambiguous, creative, long-context, reasoning-heavy</td><td>Contract risk summary, creative planning, complex edit</td></tr><tr><td>Edge path</td><td>Privacy/media-size makes local processing better</td><td>Local keyframe extraction, crop/mask preprocessing</td></tr><tr><td>Block/redact path</td><td>Policy or privacy violation</td><td>PII, unsafe prompt, license violation</td></tr><tr><td>Clarification path</td><td>Router confidence low but user can resolve ambiguity</td><td>"Do you mean templates or photos?"</td></tr></tbody></table></div></section>
+<section class="doc-section article" id="interesting-fancy-ideas-that-are-still-practical"><h2 id="interesting-fancy-ideas-that-are-still-practical">Interesting/Fancy Ideas That Are Still Practical</h2></section>
+<section class="doc-section article" id="有趣但仍然实用的设计点"><h2 id="有趣但仍然实用的设计点">有趣但仍然实用的设计点</h2>
+<h3 id="1-confidence-aware-escalation">1. Confidence-Aware Escalation</h3>
+<h3 id="1-置信度感知的升级策略">1. 置信度感知的升级策略</h3>
+<p>The router should not simply pick the top class. It should reason about confidence margin, calibration, product risk, and cost. If the small router is 99% confident that a query is simple retrieval, use retrieval. If it is 55% confident and the request is a paid enterprise workflow, escalate or ask clarification.</p>
+<p>router 不应只选概率最高的类别，而应考虑 confidence margin、calibration、product risk 和 cost。如果小 router 99% 确定 query 是简单 retrieval，就走 retrieval。如果只有 55% 且请求来自付费企业 workflow，就升级或询问澄清。</p>
+<p>Good metrics:</p>
+<p>好的指标：</p>
+<ul><li>Expected calibration error.</li></ul>
+<ul><li>预期校准误差。</li></ul>
+<ul><li>False cheap-routing rate: cases routed to small model but large model was needed.</li></ul>
+<ul><li>错误低成本路由率：被路由到小模型但其实需要大模型的 case。</li></ul>
+<ul><li>False escalation rate: cases escalated unnecessarily.</li></ul>
+<ul><li>错误升级率：不必要升级的 case。</li></ul>
+<ul><li>Cost per successful task.</li></ul>
+<ul><li>每个成功任务的成本。</li></ul>
+<ul><li>Quality delta vs large-model baseline.</li></ul>
+<ul><li>相对大模型 baseline 的 quality delta。</li></ul>
+<h3 id="2-shadow-big-model-as-teacher">2. Shadow Big Model As Teacher</h3>
+<h3 id="2-shadow-big-model-作为-teacher">2. Shadow Big Model 作为 Teacher</h3>
+<p>During canary, a sample of small-model decisions can be shadowed by a larger model. The larger model does not serve the user; it produces labels or judgments for router improvement.</p>
+<p>canary 期间，可以抽样让大模型 shadow 小模型决策。大模型不直接服务用户，而是生成 label 或 judgment，用于改进 router。</p>
+<p>This creates a teacher-student feedback loop:</p>
+<p>这形成 teacher-student 反馈闭环：</p>
+<ul><li>Small router makes production decision.</li></ul>
+<ul><li>小 router 做生产决策。</li></ul>
+<ul><li>Large model produces shadow decision or quality score.</li></ul>
+<ul><li>大模型产出 shadow decision 或 quality score。</li></ul>
+<ul><li>Disagreements become training/evaluation examples.</li></ul>
+<ul><li>disagreement 变成训练/评估样本。</li></ul>
+<ul><li>Human review samples high-impact disagreements.</li></ul>
+<ul><li>高影响 disagreement 抽样给人工 review。</li></ul>
+<p>This is a strong modeling-engineering story because it turns production traffic into router training data without exposing every user to the large-model path.</p>
+<p>这是很强的 modeling-engineering 故事，因为它把生产 traffic 转化为 router training data，同时不让每个用户都走大模型路径。</p>
+<h3 id="3-semantic-cache-before-model-call">3. Semantic Cache Before Model Call</h3>
+<h3 id="3-模型调用前的-semantic-cache">3. 模型调用前的 Semantic Cache</h3>
+<p>Semantic cache can reduce repeated LLM calls when users ask similar questions. But it must be scoped carefully by tenant, document version, asset version, model version, policy, and freshness.</p>
+<p>当用户提出相似问题时，semantic cache 可以减少重复 LLM 调用。但必须按 tenant、document version、asset version、model version、policy 和 freshness 严格限定。</p>
+<p>For Amsterdam:</p>
+<p>对于 Amsterdam：</p>
+<ul><li>Acrobat document QA cache must be tied to document ID and version.</li></ul>
+<ul><li>Acrobat document QA cache 必须绑定 document ID 与 version。</li></ul>
+<ul><li>Enterprise content cache must not leak across tenants.</li></ul>
+<ul><li>enterprise content cache 不能跨 tenant 泄漏。</li></ul>
+<ul><li>Creative asset search cache must respect license and region filters.</li></ul>
+<ul><li>creative asset search cache 必须尊重 license 与 region filter。</li></ul>
+<ul><li>Generated content cache may be inappropriate when the user expects novelty.</li></ul>
+<ul><li>如果用户期望 novelty，generated content cache 可能不合适。</li></ul>
+<h3 id="4-router-as-product-ux-layer">4. Router As Product UX Layer</h3>
+<h3 id="4-router-作为产品-ux-层">4. Router 作为产品 UX 层</h3>
+<p>A router can improve UX, not only cost:</p>
+<p>router 不仅可以省成本，还能改善 UX：</p>
+<ul><li>Ask clarification instead of hallucinating.</li></ul>
+<ul><li>询问澄清，而不是 hallucinate。</li></ul>
+<ul><li>Return retrieval results instead of long generated text.</li></ul>
+<ul><li>返回 retrieval result，而不是长篇生成文本。</li></ul>
+<ul><li>Use async workflow when media job is long-running.</li></ul>
+<ul><li>媒体任务耗时时使用 async workflow。</li></ul>
+<ul><li>Show progress and partial results.</li></ul>
+<ul><li>展示 progress 和 partial result。</li></ul>
+<ul><li>Route to edge preprocessing for privacy and faster upload.</li></ul>
+<ul><li>为隐私和更快上传路由到 edge preprocessing。</li></ul>
+<h3 id="5-multi-model-agreement">5. Multi-Model Agreement</h3>
+<h3 id="5-多模型一致性">5. 多模型一致性</h3>
+<p>For high-risk requests, the system can compare a small router, policy classifier, and retrieval confidence. If they disagree, escalate. This is useful for ambiguous or policy-sensitive workflows.</p>
+<p>对于高风险请求，系统可以比较小 router、policy classifier 和 retrieval confidence。如果它们不一致，就升级。这对模糊或 policy-sensitive workflow 很有用。</p>
+<p>Example:</p>
+<p>示例：</p>
+<ul><li>Router says: "document summary."</li></ul>
+<ul><li>router 说：“document summary。”</li></ul>
+<ul><li>PII classifier says: "high privacy risk."</li></ul>
+<ul><li>PII classifier 说：“high privacy risk。”</li></ul>
+<ul><li>Document classifier says: "legal contract."</li></ul>
+<ul><li>document classifier 说：“legal contract。”</li></ul>
+<ul><li>Decision: use enterprise-safe RAG path, no public model, require citations.</li></ul>
+<ul><li>决策：使用 enterprise-safe RAG path，不调用 public model，要求 citations。</li></ul>
+<h3 id="6-product-specific-budget-control">6. Product-Specific Budget Control</h3>
+<h3 id="6-产品特定-budget-control">6. 产品特定 Budget Control</h3>
+<p>Routing policy should differ by product surface:</p>
+<p>routing policy 应按产品场景不同而不同：</p>
+<ul><li>Interactive canvas editing has tight latency and high UX sensitivity.</li></ul>
+<ul><li>交互式画布编辑 latency 紧、UX 敏感。</li></ul>
+<ul><li>Batch media indexing can wait for cheaper capacity.</li></ul>
+<ul><li>batch media indexing 可以等待便宜容量。</li></ul>
+<ul><li>Enterprise document assistant may prioritize privacy and citations over cost.</li></ul>
+<ul><li>企业文档助手可能优先 privacy 和 citation，而不是 cost。</li></ul>
+<ul><li>Creative exploration may tolerate more variants but lower per-variant cost.</li></ul>
+<ul><li>创意探索可以容忍更多 variant，但需要更低单 variant 成本。</li></ul></section>
+<section class="doc-section article" id="end-to-end-request-flow"><h2 id="end-to-end-request-flow">End-To-End Request Flow</h2></section>
+<section class="doc-section article" id="端到端请求流程"><h2 id="端到端请求流程">端到端请求流程</h2>
+<p>Representative flow for an Acrobat-style document assistant request:</p>
+<p>Acrobat 风格 document assistant 的代表性流程：</p>
+<ol><li>Product service submits intent: document.assistant.answer.</li></ol>
+<ol><li>产品服务提交 intent：document.assistant.answer。</li></ol>
+<ol><li>Gateway validates tenant, privacy class, document reference, and latency class.</li></ol>
+<ol><li>gateway 校验 tenant、privacy class、document reference 和 latency class。</li></ol>
+<ol><li>Small document classifier detects document type, length, structure, language, and risk level.</li></ol>
+<ol><li>小型 document classifier 检测 document type、length、structure、language 和 risk level。</li></ol>
+<ol><li>PII/policy classifier checks whether the request can use public cloud, private cloud, or only enterprise-safe path.</li></ol>
+<ol><li>PII/policy classifier 检查请求可使用 public cloud、private cloud，还是只能走 enterprise-safe path。</li></ol>
+<ol><li>Router checks semantic cache scoped by tenant, document version, prompt version, and policy version.</li></ol>
+<ol><li>router 检查按 tenant、document version、prompt version 和 policy version 限定的 semantic cache。</li></ol>
+<ol><li>If cache misses, retrieval service fetches relevant chunks with access filters.</li></ol>
+<ol><li>如果 cache miss，retrieval service 使用 access filter 取回相关 chunk。</li></ol>
+<ol><li>Small router estimates whether retrieved context is enough for a small model answer.</li></ol>
+<ol><li>小 router 估计 retrieved context 是否足够让小模型回答。</li></ol>
+<ol><li>If confidence is high, small model generates grounded answer.</li></ol>
+<ol><li>如果 confidence 高，小模型生成 grounded answer。</li></ol>
+<ol><li>If confidence is low, context is long, or policy risk is high, request escalates to larger model.</li></ol>
+<ol><li>如果 confidence 低、context 长或 policy risk 高，请求升级到更大模型。</li></ol>
+<ol><li>Grounding/citation checker validates output.</li></ol>
+<ol><li>grounding/citation checker 验证输出。</li></ol>
+<ol><li>Response, route decision, latency, model versions, and evaluation signals are logged.</li></ol>
+<ol><li>记录 response、route decision、latency、model version 和 evaluation signal。</li></ol>
+<ol><li>Shadow evaluation samples are sent to larger model or human review for router calibration.</li></ol>
+<ol><li>shadow evaluation 样本发送给大模型或人工 review，用于 router calibration。</li></ol></section></main></section>
+<section class="panel" id="panel-3"><main class="content"><section class="doc-section article" id="modeling-components"><h2 id="modeling-components">Modeling Components</h2></section>
+<section class="doc-section article" id="modeling-组件"><h2 id="modeling-组件">Modeling 组件</h2>
+<h3 id="intent-classifier">Intent Classifier</h3>
+<h3 id="intent-分类器">Intent 分类器</h3>
+<p>Input:</p>
+<p>输入：</p>
+<ul><li>Prompt text.</li></ul>
+<ul><li>prompt 文本。</li></ul>
+<ul><li>Product surface.</li></ul>
+<ul><li>产品界面或产品场景。</li></ul>
+<ul><li>User action type.</li></ul>
+<ul><li>用户动作类型。</li></ul>
+<ul><li>Payload metadata.</li></ul>
+<ul><li>payload 元数据。</li></ul>
+<p>Output:</p>
+<p>输出：</p>
+<ul><li>intent category.</li></ul>
+<ul><li>intent 类别。</li></ul>
+<ul><li>confidence.</li></ul>
+<ul><li>置信度。</li></ul>
+<ul><li>required modalities.</li></ul>
+<ul><li>所需模态。</li></ul>
+<ul><li>workflow template.</li></ul>
+<ul><li>workflow 模板。</li></ul>
+<p>Model choices:</p>
+<p>模型选择：</p>
+<ul><li>Fine-tuned small transformer classifier.</li></ul>
+<ul><li>经过 fine-tuning 的小型 Transformer 分类器。</li></ul>
+<ul><li>Embedding nearest-neighbor classifier.</li></ul>
+<ul><li>基于 embedding 最近邻的分类器。</li></ul>
+<ul><li>Lightweight LLM classifier for more flexible labels.</li></ul>
+<ul><li>轻量 LLM classifier，用于更灵活 label。</li></ul>
+<h3 id="complexity-estimator">Complexity Estimator</h3>
+<h3 id="复杂度估计器">复杂度估计器</h3>
+<p>Complexity is not just prompt length.</p>
+<p>complexity 不只是 prompt length。</p>
+<p>Features:</p>
+<p>特征：</p>
+<ul><li>Number of constraints.</li></ul>
+<ul><li>constraint 数量。</li></ul>
+<ul><li>Ambiguity score.</li></ul>
+<ul><li>歧义分数。</li></ul>
+<ul><li>Long-context requirement.</li></ul>
+<ul><li>长上下文需求。</li></ul>
+<ul><li>Required modalities.</li></ul>
+<ul><li>所需模态。</li></ul>
+<ul><li>Need for reasoning or synthesis.</li></ul>
+<ul><li>是否需要 reasoning 或 synthesis。</li></ul>
+<ul><li>Retrieval confidence.</li></ul>
+<ul><li>retrieval 置信度。</li></ul>
+<ul><li>Safety/privacy risk.</li></ul>
+<ul><li>安全与隐私风险。</li></ul>
+<ul><li>Expected output length.</li></ul>
+<ul><li>预期输出长度。</li></ul>
+<h3 id="policy-and-safety-classifier">Policy And Safety Classifier</h3>
+<h3 id="policy-与-safety-分类器">Policy 与 Safety 分类器</h3>
+<p>This is where Llama Guard or NeMo Guardrails-style thinking fits:</p>
+<p>这里可以借鉴 Llama Guard 或 NeMo Guardrails-style 思路：</p>
+<ul><li>Input safety classification.</li></ul>
+<ul><li>输入安全分类。</li></ul>
+<ul><li>Output safety classification.</li></ul>
+<ul><li>输出安全分类。</li></ul>
+<ul><li>PII detection.</li></ul>
+<ul><li>PII 检测。</li></ul>
+<ul><li>Copyright/license risk.</li></ul>
+<ul><li>版权与 license 风险。</li></ul>
+<ul><li>Enterprise data handling.</li></ul>
+<ul><li>企业数据处理方式。</li></ul>
+<ul><li>Topic control.</li></ul>
+<ul><li>主题控制。</li></ul>
+<h3 id="route-selector">Route Selector</h3>
+<h3 id="route-选择器">Route 选择器</h3>
+<p>The route selector combines model scores and policy:</p>
+<p>route selector 融合模型分数和策略：</p>
+<ul><li>if policy blocks request, do not route.</li></ul>
+<ul><li>如果 policy block 请求，则不路由。</li></ul>
+<ul><li>if semantic cache hit is safe and fresh, return cached response.</li></ul>
+<ul><li>如果 semantic cache hit 安全且新鲜，则返回 cache response。</li></ul>
+<ul><li>if retrieval confidence is high and generation is unnecessary, return retrieval/ranking result.</li></ul>
+<ul><li>如果 retrieval confidence 高且不需要 generation，则返回 retrieval/ranking result。</li></ul>
+<ul><li>if small model confidence is high and risk is low, use small model.</li></ul>
+<ul><li>如果小模型 confidence 高且风险低，则使用小模型。</li></ul>
+<ul><li>if confidence is low, risk is high, or output quality is critical, escalate.</li></ul>
+<ul><li>如果 confidence 低、风险高或输出质量关键，则升级。</li></ul>
+<ul><li>if request is ambiguous and user can clarify, ask a short clarification question.</li></ul>
+<ul><li>如果请求模糊且用户可以澄清，则提出简短澄清问题。</li></ul></section>
+<section class="doc-section article" id="evaluation-design"><h2 id="evaluation-design">Evaluation Design</h2></section>
+<section class="doc-section article" id="评估设计"><h2 id="评估设计">评估设计</h2>
+<p>This is where the project becomes credible. A model cascade is dangerous without evaluation because routing mistakes are user-visible.</p>
+<p>这是让项目可信的关键。没有评估的 model cascade 很危险，因为 routing 错误会直接影响用户。</p>
+<h3 id="offline-evaluation">Offline Evaluation</h3>
+<h3 id="离线评估">离线评估</h3>
+<p>Datasets:</p>
+<p>数据集：</p>
+<ul><li>Product-labeled routing examples.</li></ul>
+<ul><li>产品标注的 routing example。</li></ul>
+<ul><li>Query logs with successful/failed outcomes.</li></ul>
+<ul><li>带成功/失败结果的 query log。</li></ul>
+<ul><li>Human-labeled complexity labels.</li></ul>
+<ul><li>人工标注的 complexity label。</li></ul>
+<ul><li>Safety/privacy edge cases.</li></ul>
+<ul><li>安全与隐私边界案例。</li></ul>
+<ul><li>Product-specific slices: image edit, video search, PDF QA, design assistant, asset discovery.</li></ul>
+<ul><li>产品特定 slice：image edit、video search、PDF QA、design assistant、asset discovery。</li></ul>
+<p>Metrics:</p>
+<p>指标：</p>
+<ul><li>Routing accuracy.</li></ul>
+<ul><li>routing 准确率。</li></ul>
+<ul><li>Escalation precision and recall.</li></ul>
+<ul><li>escalation precision 与 recall。</li></ul>
+<ul><li>False cheap-routing rate.</li></ul>
+<ul><li>错误低成本路由率。</li></ul>
+<ul><li>False escalation rate.</li></ul>
+<ul><li>错误升级率。</li></ul>
+<ul><li>Calibration error.</li></ul>
+<ul><li>校准误差。</li></ul>
+<ul><li>Quality delta vs always-large-model baseline.</li></ul>
+<ul><li>与 always-large-model baseline 的 quality delta。</li></ul>
+<ul><li>Cost reduction at fixed quality threshold.</li></ul>
+<ul><li>固定质量阈值下的 cost reduction。</li></ul>
+<h3 id="online-evaluation">Online Evaluation</h3>
+<h3 id="在线评估">在线评估</h3>
+<p>Online metrics:</p>
+<p>在线指标：</p>
+<ul><li>Acceptance rate.</li></ul>
+<ul><li>用户接受率。</li></ul>
+<ul><li>Edit success rate.</li></ul>
+<ul><li>编辑成功率。</li></ul>
+<ul><li>Search/refinement rate.</li></ul>
+<ul><li>搜索或二次改写率。</li></ul>
+<ul><li>Time to first useful result.</li></ul>
+<ul><li>首个有用结果耗时。</li></ul>
+<ul><li>p95 latency.</li></ul>
+<ul><li>p95 延迟。</li></ul>
+<ul><li>GPU seconds per successful task.</li></ul>
+<ul><li>每个 successful task 的 GPU seconds。</li></ul>
+<ul><li>Token cost per successful task.</li></ul>
+<ul><li>每个 successful task 的 token cost。</li></ul>
+<ul><li>Safety/policy violation rate.</li></ul>
+<ul><li>安全或 policy 违规率。</li></ul>
+<ul><li>Escalation rate by product surface.</li></ul>
+<ul><li>按 product surface 切分的 escalation rate。</li></ul>
+<h3 id="shadow-and-canary">Shadow And Canary</h3>
+<h3 id="shadow-与-canary">Shadow 与 Canary</h3>
+<p>Safe rollout pattern:</p>
+<p>安全发布模式：</p>
+<ol><li>Start with logging-only router.</li></ol>
+<ol><li>从 logging-only router 开始。</li></ol>
+<ol><li>Compare router decision against current production path.</li></ol>
+<ol><li>将 router 决策与当前 production path 对比。</li></ol>
+<ol><li>Run shadow large-model evaluation on sampled traffic.</li></ol>
+<ol><li>对抽样 traffic 运行 shadow large-model evaluation。</li></ol>
+<ol><li>Enable router for low-risk intents first.</li></ol>
+<ol><li>先对低风险 intent 启用 router。</li></ol>
+<ol><li>Canary by product surface and tenant.</li></ol>
+<ol><li>按 product surface 和 tenant 做 canary。</li></ol>
+<ol><li>Monitor quality, latency, cost, and safety.</li></ol>
+<ol><li>监控 quality、latency、cost 和 safety。</li></ol>
+<ol><li>Auto rollback if false cheap-routing or policy violations exceed threshold.</li></ol>
+<ol><li>如果 false cheap-routing 或 policy violation 超阈值，自动 rollback。</li></ol></section>
+<section class="doc-section article" id="metrics-that-sound-real"><h2 id="metrics-that-sound-real">Metrics That Sound Real</h2></section>
+<section class="doc-section article" id="听起来真实的指标"><h2 id="听起来真实的指标">听起来真实的指标</h2>
+<p>Use metrics carefully. They should sound like project metrics, not magic claims.</p>
+<p>要谨慎使用指标。它们应该像项目指标，而不是神奇数字。</p>
+<p>Possible metrics:</p>
+<p>可用指标：</p>
+<ul><li>Routed 45-60% of low-risk assistant and retrieval-adjacent requests away from large LLM paths.</li></ul>
+<ul><li>将 45-60% 的低风险 assistant 和 retrieval-adjacent 请求从大 LLM 路径分流。</li></ul>
+<ul><li>Reduced average token cost by 25-40% for selected workflow families while keeping quality within 1-2% of large-model baseline.</li></ul>
+<ul><li>在选定 workflow family 中，将平均 token cost 降低 25-40%，同时质量保持在大模型 baseline 的 1-2% 以内。</li></ul>
+<ul><li>Reduced p95 latency by 15-30% for simple query rewrite, tagging, and short-summary workflows.</li></ul>
+<ul><li>对简单 query rewrite、tagging 和 short-summary workflow，将 p95 latency 降低 15-30%。</li></ul>
+<ul><li>Achieved 90%+ router agreement with human labels on low-risk intent classes.</li></ul>
+<ul><li>在低风险 intent class 上达到 90%+ 的 router 与人工 label 一致率。</li></ul>
+<ul><li>Kept false cheap-routing below 2-3% for canaried product slices.</li></ul>
+<ul><li>在 canary 的产品 slice 上将 false cheap-routing 控制在 2-3% 以下。</li></ul>
+<ul><li>Improved semantic cache hit rate for repeated document or assistant queries by 10-20% after version-aware cache keys.</li></ul>
+<ul><li>通过 version-aware cache key，将重复 document/assistant query 的 semantic cache hit rate 提高 10-20%。</li></ul>
+<p>Interview caveat:</p>
+<p>面试提醒：</p>
+<blockquote><p>I would present metrics as examples of the kind of impact measured, and only use exact numbers when they are defensible from your experience.</p></blockquote>
+<blockquote><p>指标应作为 impact 类型示例来表达，只有当数字确实可靠时才使用精确数字。</p></blockquote></section>
+<section class="doc-section article" id="what-you-personally-owned-as-ic-tech-lead"><h2 id="what-you-personally-owned-as-ic-tech-lead">What You Personally Owned As IC / Tech Lead</h2></section>
+<section class="doc-section article" id="作为-ic-tech-lead-的个人-ownership"><h2 id="作为-ic-tech-lead-的个人-ownership">作为 IC / Tech Lead 的个人 Ownership</h2>
+<p>Good ownership framing:</p>
+<p>好的 ownership 表达：</p>
+<ul><li>Designed routing contracts between product services and AI execution platform.</li></ul>
+<ul><li>设计 product service 与 AI execution platform 之间的 routing contract。</li></ul>
+<ul><li>Built router decision schema: intent, modality, complexity, policy, confidence, route, fallback.</li></ul>
+<ul><li>构建 router decision schema：intent、modality、complexity、policy、confidence、route、fallback。</li></ul>
+<ul><li>Implemented small-model inference service for classification/embedding-based routing.</li></ul>
+<ul><li>实现小模型 inference service，用于 classification/embedding-based routing。</li></ul>
+<ul><li>Integrated router with intent registry and workflow planner.</li></ul>
+<ul><li>将 router 与 intent registry、workflow planner 集成。</li></ul>
+<ul><li>Built escalation and fallback policies.</li></ul>
+<ul><li>构建 escalation 与 fallback policy。</li></ul>
+<ul><li>Added semantic cache keys with tenant/document/model/policy versioning.</li></ul>
+<ul><li>添加带 tenant/document/model/policy versioning 的 semantic cache key。</li></ul>
+<ul><li>Built evaluation harness for router quality.</li></ul>
+<ul><li>构建 router quality evaluation harness。</li></ul>
+<ul><li>Added dashboards for route distribution, cost, latency, quality, and false-routing cases.</li></ul>
+<ul><li>添加 dashboard，监控 route distribution、cost、latency、quality 和 false-routing case。</li></ul>
+<ul><li>Partnered with product/model teams on labeled routing datasets and rollout gates.</li></ul>
+<ul><li>与 product/model team 合作构建 labeled routing dataset 和 rollout gate。</li></ul>
+<p>Avoid:</p>
+<p>避免：</p>
+<ul><li>"I built all Amsterdam AI routing."</li></ul>
+<ul><li>“我构建了所有 Amsterdam AI routing。”</li></ul>
+<ul><li>"I trained the foundation models."</li></ul>
+<ul><li>“我训练了 foundation model。”</li></ul>
+<ul><li>"Small models replaced large models."</li></ul>
+<ul><li>“小模型替代了大模型。”</li></ul>
+<p>Better:</p>
+<p>更好：</p>
+<blockquote><p>I built a shared routing and escalation layer for selected AI workflow families. It used lightweight models and policies to decide when small models, retrieval, cache, edge preprocessing, or larger model backends were appropriate.</p></blockquote>
+<blockquote><p>我为选定 AI workflow family 构建共享 routing 与 escalation 层。它使用轻量模型和策略判断何时适合小模型、retrieval、cache、edge preprocessing 或更大模型 backend。</p></blockquote></section></main></section>
+<section class="panel" id="panel-4"><main class="content"><section class="doc-section article" id="interview-q-a"><h2 id="interview-q-a">Interview Q&amp;A</h2></section>
+<section class="doc-section article" id="面试-q-a"><h2 id="面试-q-a">面试 Q&amp;A</h2>
+<h3 id="q-why-not-send-everything-to-the-largest-model">Q: Why not send everything to the largest model?</h3>
+<h3 id="q-为什么不把所有请求都发给最大模型">Q：为什么不把所有请求都发给最大模型？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>Because product AI workflows have different bottlenecks. Some need retrieval, some need classification, some need edge preprocessing, some need safety blocking, and only some need large-model generation. Sending everything to the largest model increases latency, cost, and GPU pressure while sometimes reducing privacy or determinism. The router chooses the cheapest safe path that can meet quality.</p></blockquote>
+<blockquote><p>因为产品 AI workflow 的瓶颈不同。有些需要 retrieval，有些需要 classification，有些需要 edge preprocessing，有些需要 safety blocking，只有一部分需要大模型生成。所有请求都发给最大模型会增加 latency、cost 和 GPU pressure，有时还会降低 privacy 或 determinism。router 选择能满足质量要求的最便宜安全路径。</p></blockquote>
+<h3 id="q-how-do-you-know-the-small-model-is-good-enough">Q: How do you know the small model is good enough?</h3>
+<h3 id="q-你如何知道小模型足够好">Q：你如何知道小模型足够好？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>I would not trust raw confidence alone. I would calibrate the router on labeled product slices, compare against large-model or human baselines, track false cheap-routing and false escalation, and start with low-risk intents. In production, I would use shadow evaluation and canary rollout before enabling it broadly.</p></blockquote>
+<blockquote><p>我不会只相信原始 confidence。我会在带 label 的产品 slice 上校准 router，与大模型或人工 baseline 对比，跟踪 false cheap-routing 和 false escalation，并从低风险 intent 开始。生产中会先做 shadow evaluation 和 canary rollout，再大范围启用。</p></blockquote>
+<h3 id="q-what-happens-if-the-router-is-wrong">Q: What happens if the router is wrong?</h3>
+<h3 id="q-如果-router-错了怎么办">Q：如果 router 错了怎么办？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>Wrong routing has different severity. If a simple query escalates unnecessarily, cost increases but quality is safe. If a hard query is routed to a weak model, quality may drop. So I bias thresholds by risk: high-risk or low-confidence requests escalate; low-risk high-confidence requests can use smaller paths. Every route decision is logged with model versions, confidence, product surface, and outcome so we can debug and retrain.</p></blockquote>
+<blockquote><p>错误 routing 的严重程度不同。如果简单 query 被不必要升级，成本增加但质量安全；如果困难 query 被路由到弱模型，质量可能下降。所以我按风险设置 threshold：高风险或低 confidence 请求升级，低风险高 confidence 请求可走小路径。每个 route decision 都记录 model version、confidence、product surface 和 outcome，用于 debug 和 retrain。</p></blockquote>
+<h3 id="q-is-this-just-a-rules-engine">Q: Is this just a rules engine?</h3>
+<h3 id="q-这只是规则引擎吗">Q：这只是规则引擎吗？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>It starts with rules for safety and product constraints, but the core router is a learned or calibrated decision system. It can use embeddings, classifiers, preference data, production feedback, and large-model shadow labels. Rules define hard constraints; models estimate intent, complexity, and confidence.</p></blockquote>
+<blockquote><p>它从 safety 和产品约束规则开始，但核心 router 是 learned 或 calibrated decision system。它可以使用 embedding、classifier、preference data、production feedback 和大模型 shadow label。规则定义硬约束，模型估计 intent、complexity 和 confidence。</p></blockquote>
+<h3 id="q-how-is-this-different-from-mixture-of-experts">Q: How is this different from Mixture of Experts?</h3>
+<h3 id="q-这和-mixture-of-experts-有什么不同">Q：这和 Mixture of Experts 有什么不同？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>Mixture of Experts routes inside a model architecture. This project routes at the application/platform level across models, retrieval systems, caches, edge preprocessing, and policy paths. It is more visible to product constraints: privacy, latency, model cost, tenant policy, and workflow type.</p></blockquote>
+<blockquote><p>Mixture of Experts 是在模型架构内部 routing。这个项目是在应用/平台层 across models、retrieval system、cache、edge preprocessing 和 policy path 做 routing。它更能感知产品约束：privacy、latency、model cost、tenant policy 和 workflow type。</p></blockquote>
+<h3 id="q-how-would-you-train-the-router">Q: How would you train the router?</h3>
+<h3 id="q-你会如何训练-router">Q：你会如何训练 router？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>I would combine product labels, historical outcomes, model comparison data, and shadow large-model judgments. Features include prompt embedding, product surface, modality, privacy class, token/media size, retrieval confidence, prior route, and outcome. The label can be the cheapest route that met quality, or whether escalation was needed. I would evaluate by cost-quality frontier, calibration, and slice-level false-routing rates.</p></blockquote>
+<blockquote><p>我会结合产品 label、历史 outcome、模型对比数据和大模型 shadow judgment。特征包括 prompt embedding、product surface、modality、privacy class、token/media size、retrieval confidence、prior route 和 outcome。label 可以是满足质量的最便宜 route，或是否需要 escalation。我会用 cost-quality frontier、calibration 和 slice-level false-routing rate 评估。</p></blockquote>
+<h3 id="q-how-would-this-interact-with-rag">Q: How would this interact with RAG?</h3>
+<h3 id="q-它如何与-rag-交互">Q：它如何与 RAG 交互？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>The router decides whether the request needs RAG at all. For factual document or asset questions, retrieval should happen before generation. If retrieved evidence is strong and answer format is simple, a smaller model may be enough. If retrieval is weak or synthesis is complex, escalate to a stronger model. The router should also enforce citation and grounding checks before returning output.</p></blockquote>
+<blockquote><p>router 先决定请求是否需要 RAG。对于 factual document 或 asset question，retrieval 应在 generation 前发生。如果 retrieved evidence 强且答案格式简单，小模型可能足够。如果 retrieval 弱或 synthesis 复杂，就升级到强模型。router 还应该在返回输出前强制 citation 和 grounding check。</p></blockquote>
+<h3 id="q-how-do-you-make-this-product-facing-instead-of-infra-only">Q: How do you make this product-facing instead of infra-only?</h3>
+<h3 id="q-如何让它听起来是-product-facing-而不是-infra-only">Q：如何让它听起来是 product-facing，而不是 infra-only？</h3>
+<p>Answer:</p>
+<p>回答：</p>
+<blockquote><p>I start from the product workflow. For example, a Premiere user asking to find a moment in a video should not pay the cost of a large creative generation model. A Photoshop user doing complex generative editing may need that backend. An Acrobat enterprise user may need private RAG with citations. The routing platform maps product intent to the right model path while preserving UX, privacy, and quality.</p></blockquote>
+<blockquote><p>我从产品 workflow 开始讲。例如，Premiere 用户想在视频里找某个时刻，不应该付出大创意生成模型的成本；Photoshop 用户做复杂生成式编辑可能需要那个 backend；Acrobat 企业用户可能需要带 citation 的 private RAG。routing 平台把 product intent 映射到正确模型路径，同时保持 UX、privacy 和 quality。</p></blockquote></section>
+<section class="doc-section article" id="advanced-interview-scenarios"><h2 id="advanced-interview-scenarios">Advanced Interview Scenarios</h2></section>
+<section class="doc-section article" id="高阶面试场景"><h2 id="高阶面试场景">高阶面试场景</h2>
+<h3 id="scenario-1-router-saves-cost-but-quality-drops">Scenario 1: Router Saves Cost But Quality Drops</h3>
+<h3 id="场景-1-router-省成本但质量下降">场景 1：Router 省成本但质量下降</h3>
+<p>Diagnosis:</p>
+<p>诊断：</p>
+<ul><li>Check false cheap-routing by product surface.</li></ul>
+<ul><li>按 product surface 检查 false cheap-routing。</li></ul>
+<ul><li>Slice by intent, modality, language, tenant, and query length.</li></ul>
+<ul><li>按 intent、modality、language、tenant 和 query length 切分。</li></ul>
+<ul><li>Compare small-model path against large-model shadow outputs.</li></ul>
+<ul><li>将小模型路径与大模型 shadow output 对比。</li></ul>
+<ul><li>Check confidence calibration and threshold drift.</li></ul>
+<ul><li>检查 confidence calibration 和 threshold drift。</li></ul>
+<ul><li>Roll back low-confidence route families.</li></ul>
+<ul><li>rollback 低 confidence route family。</li></ul>
+<p>Fix:</p>
+<p>修复：</p>
+<ul><li>Increase escalation threshold.</li></ul>
+<ul><li>提高 escalation threshold。</li></ul>
+<ul><li>Add more hard examples to router training.</li></ul>
+<ul><li>给 router training 增加 hard example。</li></ul>
+<ul><li>Separate router by product surface.</li></ul>
+<ul><li>按 product surface 拆分 router。</li></ul>
+<ul><li>Add clarification path for ambiguous prompts.</li></ul>
+<ul><li>对模糊 prompt 增加 clarification path。</li></ul>
+<h3 id="scenario-2-large-model-still-overused">Scenario 2: Large Model Still Overused</h3>
+<h3 id="场景-2-大模型仍然被过度使用">场景 2：大模型仍然被过度使用</h3>
+<p>Diagnosis:</p>
+<p>诊断：</p>
+<ul><li>Check false escalation rate.</li></ul>
+<ul><li>检查 false escalation rate。</li></ul>
+<ul><li>Identify route families with high escalation but low quality gain.</li></ul>
+<ul><li>找出 escalation 高但 quality gain 低的 route family。</li></ul>
+<ul><li>Check whether safety/privacy rules are too broad.</li></ul>
+<ul><li>检查 safety/privacy rule 是否过宽。</li></ul>
+<ul><li>Check cache miss rate and cache key strictness.</li></ul>
+<ul><li>检查 cache miss rate 和 cache key 是否过严。</li></ul>
+<p>Fix:</p>
+<p>修复：</p>
+<ul><li>Add intermediate model tier.</li></ul>
+<ul><li>增加中间模型层。</li></ul>
+<ul><li>Improve semantic cache.</li></ul>
+<ul><li>改进 semantic cache。</li></ul>
+<ul><li>Add retrieval-first path.</li></ul>
+<ul><li>增加 retrieval-first path。</li></ul>
+<ul><li>Distill large-model routing decisions into small router.</li></ul>
+<ul><li>将大模型 routing decision distill 到小 router。</li></ul>
+<h3 id="scenario-3-privacy-risk-in-enterprise-workflow">Scenario 3: Privacy Risk In Enterprise Workflow</h3>
+<h3 id="场景-3-企业-workflow-中的隐私风险">场景 3：企业 Workflow 中的隐私风险</h3>
+<p>Diagnosis:</p>
+<p>诊断：</p>
+<ul><li>Check tenant policy and data residency.</li></ul>
+<ul><li>检查 tenant policy 和 data residency。</li></ul>
+<ul><li>Check whether semantic cache is tenant-scoped.</li></ul>
+<ul><li>检查 semantic cache 是否按 tenant scope。</li></ul>
+<ul><li>Check whether prompt, chunks, and outputs are logged safely.</li></ul>
+<ul><li>检查 prompt、chunk 和 output 是否安全记录。</li></ul>
+<p>Fix:</p>
+<p>修复：</p>
+<ul><li>Force enterprise-safe model path.</li></ul>
+<ul><li>强制 enterprise-safe model path。</li></ul>
+<ul><li>Disable cross-tenant cache.</li></ul>
+<ul><li>禁用跨 tenant cache。</li></ul>
+<ul><li>Redact PII before routing.</li></ul>
+<ul><li>routing 前 redact PII。</li></ul>
+<ul><li>Require citations and audit trace.</li></ul>
+<ul><li>要求 citation 和 audit trace。</li></ul></section></main></section>
+<section class="panel" id="panel-5"><main class="content"><section class="doc-section article" id="how-to-add-this-to-your-resume-without-overloading-it"><h2 id="how-to-add-this-to-your-resume-without-overloading-it">How To Add This To Your Resume Without Overloading It</h2></section>
+<section class="doc-section article" id="如何加到简历中而不显得太拥挤"><h2 id="如何加到简历中而不显得太拥挤">如何加到简历中而不显得太拥挤</h2>
+<p>If you want Project 3 to replace or augment one Project 1 bullet, use this compressed version:</p>
+<p>如果你想让 Project 3 替换或增强 Project 1 的一条 bullet，可以用这个压缩版：</p>
+<ul><li>Designed a product-facing model cascade and intent router for Amsterdam AI workflows, using lightweight classifiers, embedding-based semantic routing, policy checks, and confidence-aware escalation to route simple requests to retrieval/cache/small-model paths while escalating complex, high-risk, or quality-sensitive workflows to larger GenAI/LLM backends; added shadow evaluation, LLM-as-Judge review, and canary metrics to balance latency, privacy, quality, and cost.</li></ul>
+<ul><li>为 Amsterdam AI workflow 设计面向产品的 model cascade 与 intent router，使用轻量 classifier、embedding-based semantic routing、policy check 和 confidence-aware escalation，将简单请求路由到 retrieval/cache/small-model 路径，将复杂、高风险或质量敏感 workflow 升级到更大的 GenAI/LLM backend；加入 shadow evaluation、LLM-as-Judge review 和 canary metrics，以平衡 latency、privacy、quality 和 cost。</li></ul></section>
+<section class="doc-section article" id="sources-and-references"><h2 id="sources-and-references">Sources And References</h2></section>
+<section class="doc-section article" id="来源与参考"><h2 id="来源与参考">来源与参考</h2>
+<p>These are public references that validate the pattern. They are not claims about Amsterdam internal implementation.</p>
+<p>这些公开资料用于证明该模式在行业中真实存在，并不是对 Amsterdam 内部实现的声明。</p>
+<ul><li>Amazon Bedrock Intelligent Prompt Routing routes prompts between foundation models to optimize response quality and cost. <a href="https://aws.amazon.com/bedrock/intelligent-prompt-routing/">AWS Bedrock</a></li></ul>
+<ul><li>Amazon Bedrock Intelligent Prompt Routing 在 foundation model 之间路由 prompt，以优化 response quality 和 cost。<a href="https://aws.amazon.com/bedrock/intelligent-prompt-routing/">AWS Bedrock</a></li></ul>
+<ul><li>Amazon Bedrock user guide describes a single endpoint that predicts model response quality and routes requests dynamically. <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-routing.html">AWS Docs</a></li></ul>
+<ul><li>Amazon Bedrock user guide 描述了单一 endpoint 如何预测模型 response quality 并动态路由请求。<a href="https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-routing.html">AWS Docs</a></li></ul>
+<ul><li>RouteLLM is an open-source framework for routing between weaker and stronger LLMs using preference data. <a href="https://www.lmsys.org/blog/2024-07-01-routellm/">LMSYS Blog</a></li></ul>
+<ul><li>RouteLLM 是一个使用 preference data 在弱模型和强模型之间路由的开源框架。<a href="https://www.lmsys.org/blog/2024-07-01-routellm/">LMSYS Blog</a></li></ul>
+<ul><li>FrugalGPT studies prompt adaptation, LLM approximation, and LLM cascade for reducing inference cost while preserving quality. <a href="https://arxiv.org/abs/2305.05176">arXiv</a></li></ul>
+<ul><li>FrugalGPT 研究 prompt adaptation、LLM approximation 和 LLM cascade，用于在保持质量的同时降低 inference cost。<a href="https://arxiv.org/abs/2305.05176">arXiv</a></li></ul>
+<ul><li>Red Hat's LLM Semantic Router uses Envoy ExtProc, BERT embeddings, semantic cache, and backend model routing. <a href="https://developers.redhat.com/articles/2025/05/20/llm-semantic-router-intelligent-request-routing">Red Hat Developer</a></li></ul>
+<ul><li>Red Hat 的 LLM Semantic Router 使用 Envoy ExtProc、BERT embedding、semantic cache 和后端模型路由。<a href="https://developers.redhat.com/articles/2025/05/20/llm-semantic-router-intelligent-request-routing">Red Hat Developer</a></li></ul>
+<ul><li>NVIDIA NeMo Guardrails shows guardrail services sitting between applications and LLMs with input/output checks and policy-specific model paths. <a href="https://docs.nvidia.com/nemo/microservices/latest/guardrails/index.html">NVIDIA Docs</a></li></ul>
+<ul><li>NVIDIA NeMo Guardrails 展示了 guardrail service 如何位于应用与 LLM 之间，做 input/output check 和 policy-specific model path。<a href="https://docs.nvidia.com/nemo/microservices/latest/guardrails/index.html">NVIDIA Docs</a></li></ul>
+<ul><li>Llama Guard is an LLM-based input-output safeguard model for human-AI conversations. <a href="https://arxiv.org/abs/2312.06674">arXiv</a></li></ul>
+<ul><li>Llama Guard 是用于 human-AI conversation 的 LLM-based input-output safeguard model。<a href="https://arxiv.org/abs/2312.06674">arXiv</a></li></ul>
+<ul><li>Speculative decoding uses a smaller draft model and larger verifier model for faster generation. <a href="https://proceedings.mlr.press/v202/leviathan23a.html">ICML/PMLR</a></li></ul>
+<ul><li>Speculative decoding 使用小 draft model 与大 verifier model 来加速生成。<a href="https://proceedings.mlr.press/v202/leviathan23a.html">ICML/PMLR</a></li></ul></section></main></section></div><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script><script>const tabs=[...document.querySelectorAll('.top-tab')],panels=[...document.querySelectorAll('.panel')];function show(id){tabs.forEach(t=>t.classList.toggle('active',t.dataset.panel===id));panels.forEach(p=>p.classList.toggle('active',p.id===id));window.scrollTo({top:0,behavior:'smooth'});if(history.replaceState)history.replaceState(null,'','#'+id)}tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.panel)));const init=location.hash.slice(1);if(init&&document.getElementById(init))show(init);if(window.hljs)window.hljs.highlightAll();</script>
+
+</body></html>
