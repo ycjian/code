@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Interview Study Hub</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #070b14;
+  --panel: rgba(15, 23, 42, 0.82);
+  --panel-2: rgba(17, 24, 39, 0.72);
+  --text: #e5eefb;
+  --muted: #9fb0ca;
+  --line: rgba(148, 163, 184, 0.24);
+  --cyan: #67e8f9;
+  --green: #86efac;
+  --orange: #fdba74;
+  --rose: #fda4af;
+  --blue: #93c5fd;
+  --violet: #c4b5fd;
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(103, 232, 249, 0.14), transparent 30%),
+    radial-gradient(circle at 82% 10%, rgba(196, 181, 253, 0.13), transparent 28%),
+    linear-gradient(135deg, #070b14 0%, #0b1020 46%, #07111f 100%);
+}
+
+a { color: inherit; text-decoration: none; }
+
+.shell {
+  width: min(1180px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 42px 0 54px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(270px, 0.75fr);
+  gap: 24px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.hero-main,
+.status-card,
+.site-card {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.62));
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.hero-main {
+  min-height: 285px;
+  border-radius: 22px;
+  padding: 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-main::after {
+  content: "";
+  position: absolute;
+  inset: auto -80px -110px auto;
+  width: 300px;
+  height: 300px;
+  border: 1px solid rgba(103, 232, 249, 0.22);
+  border-radius: 999px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 7px 11px;
+  border: 1px solid rgba(103, 232, 249, 0.28);
+  border-radius: 999px;
+  color: var(--cyan);
+  background: rgba(8, 145, 178, 0.10);
+  font: 700 12px/1 "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 18px rgba(134, 239, 172, 0.85);
+}
+
+h1 {
+  margin: 24px 0 14px;
+  max-width: 780px;
+  font-size: clamp(40px, 6vw, 74px);
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.hero-main p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.status-card {
+  border-radius: 22px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.status-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.status-title h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(134, 239, 172, 0.12);
+  border: 1px solid rgba(134, 239, 172, 0.28);
+  color: var(--green);
+  font: 800 12px/1 "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.stat {
+  min-height: 96px;
+  padding: 15px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 16px;
+  background: rgba(2, 6, 23, 0.34);
+}
+
+.stat strong {
+  display: block;
+  font-size: 30px;
+  line-height: 1;
+  margin-bottom: 9px;
+}
+
+.stat span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 30px 0 16px;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.section-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.site-card {
+  min-height: 238px;
+  border-radius: 18px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.site-card:hover,
+.site-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgba(103, 232, 249, 0.54);
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.68));
+  outline: none;
+}
+
+.site-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--accent);
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  font: 900 18px/1 "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+}
+
+.open {
+  color: var(--muted);
+  font-size: 22px;
+}
+
+.site-card h3 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+.site-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.tag {
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.19);
+  background: rgba(2, 6, 23, 0.28);
+  color: #cbd5e1;
+  font-size: 12px;
+}
+
+footer {
+  margin-top: 28px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 920px) {
+  .hero { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .shell {
+    width: min(100% - 24px, 1180px);
+    padding-top: 20px;
+  }
+  .hero-main,
+  .status-card,
+  .site-card {
+    border-radius: 16px;
+  }
+  .hero-main { padding: 24px; min-height: 250px; }
+  .grid { grid-template-columns: 1fr; }
+  .section-head { align-items: start; flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <section class="hero" aria-labelledby="page-title">
+    <div class="hero-main">
+      <div>
+        <div class="eyebrow"><span class="pulse"></span> Interview Library</div>
+        <h1 id="page-title">One clean doorway into your study system.</h1>
+      </div>
+      <p>Seven main readers for algorithm prep, system design, AI infrastructure notes, RAG projects, and company-focused question sets. Pick a surface and get straight into the material.</p>
+    </div>
+    <aside class="status-card" aria-label="Library summary">
+      <div class="status-title">
+        <h2>Main Index</h2>
+        <span class="badge">Live</span>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><strong>7</strong><span>Main reading surfaces</span></div>
+        <div class="stat"><strong>1</strong><span>Entry point for GitHub Pages</span></div>
+        <div class="stat"><strong>AI</strong><span>Infra, RAG, LLM and multimodal notes</span></div>
+        <div class="stat"><strong>LC</strong><span>Algorithm interview practice</span></div>
+      </div>
+    </aside>
+  </section>
+
+  <div class="section-head">
+    <div>
+      <h2>Open A Reader</h2>
+      <p>Direct links to the seven main published pages.</p>
+    </div>
+  </div>
+
+  <main class="grid" aria-label="Main reader links">
+    <a class="site-card" href="aaabdt.html" style="--accent: var(--cyan)">
+      <div class="card-top"><span class="icon">A</span><span class="open">↗</span></div>
+      <h3>AAABDT</h3>
+      <p>Combined company interview reader organized by topic, with algorithms, system notes, and article-style study content.</p>
+      <div class="tags"><span class="tag">Algorithms</span><span class="tag">Topics</span><span class="tag">Combined</span></div>
+    </a>
+
+    <a class="site-card" href="ai_leetcode_frequent.html" style="--accent: var(--blue)">
+      <div class="card-top"><span class="icon">AI</span><span class="open">↗</span></div>
+      <h3>AI LeetCode Frequent</h3>
+      <p>High-frequency LeetCode patterns and Java implementations for focused interview drilling.</p>
+      <div class="tags"><span class="tag">LeetCode</span><span class="tag">Java</span><span class="tag">Patterns</span></div>
+    </a>
+
+    <a class="site-card" href="amsterdam.html" style="--accent: var(--violet)">
+      <div class="card-top"><span class="icon">AM</span><span class="open">↗</span></div>
+      <h3>Amsterdam</h3>
+      <p>AI infrastructure, hybrid multimodal architecture, project deep dives, and resume-defense material.</p>
+      <div class="tags"><span class="tag">AI Infra</span><span class="tag">Multimodal</span><span class="tag">LLM</span></div>
+    </a>
+
+    <a class="site-card" href="day_100.html" style="--accent: var(--green)">
+      <div class="card-top"><span class="icon">100</span><span class="open">↗</span></div>
+      <h3>Day 100</h3>
+      <p>A larger day-by-day algorithm prep surface for sustained review and repeated practice.</p>
+      <div class="tags"><span class="tag">Practice</span><span class="tag">Review</span><span class="tag">Java</span></div>
+    </a>
+
+    <a class="site-card" href="rag.html" style="--accent: var(--orange)">
+      <div class="card-top"><span class="icon">R</span><span class="open">↗</span></div>
+      <h3>RAG / Agents</h3>
+      <p>Project deep-dive notes for RAG, AI agents, LLM service architecture, on-device and cloud infrastructure.</p>
+      <div class="tags"><span class="tag">RAG</span><span class="tag">Agents</span><span class="tag">Cloud</span></div>
+    </a>
+
+    <a class="site-card" href="sliding_window.html" style="--accent: var(--rose)">
+      <div class="card-top"><span class="icon">SW</span><span class="open">↗</span></div>
+      <h3>Sliding Window</h3>
+      <p>Dedicated sliding-window problem set, examples, and Java solutions for one-pattern mastery.</p>
+      <div class="tags"><span class="tag">Arrays</span><span class="tag">Strings</span><span class="tag">Window</span></div>
+    </a>
+
+    <a class="site-card" href="system.html" style="--accent: #f0abfc">
+      <div class="card-top"><span class="icon">SD</span><span class="open">↗</span></div>
+      <h3>System Design</h3>
+      <p>System design interview notes with architecture framing, tradeoffs, and implementation-oriented detail.</p>
+      <div class="tags"><span class="tag">Design</span><span class="tag">Scale</span><span class="tag">Tradeoffs</span></div>
+    </a>
+  </main>
+
+  <footer>ycjian.github.io/code • curated local interview workspace</footer>
+</div>
+</body>
+</html>
