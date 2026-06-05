@@ -1,4 +1,4 @@
-const state = { manifest: null, activeDocId: null };
+﻿const state = { manifest: null, activeDocId: null };
 const els = {
   docList: document.querySelector('#docList'),
   activeGroup: document.querySelector('#activeGroup'),
@@ -10,7 +10,7 @@ const els = {
 };
 init();
 function init() {
-  state.manifest = window.MOVEWORKS_MANIFEST;
+  state.manifest = window.MMM_MANIFEST;
   state.manifest.documents.sort((a, b) => a.priority - b.priority);
   renderDocuments();
   openDocument(state.manifest.documents[0].id);
