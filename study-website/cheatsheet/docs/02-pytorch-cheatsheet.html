@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Pytorch Cheat Sheet — Basic To Medium Asap</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>Pytorch Cheat Sheet — Basic To Medium Asap</h1>
+<p>deep learning coding + ML interviews</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>PYTORCH CHEAT SHEET — Basic to Medium ASAP<br/>Purpose: deep learning coding + ML interviews</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model</h2>
+<div class="section-body"><p>PyTorch = Tensor + Autograd + nn.Module + Optimizer + DataLoader.</p>
+<h3>Workflow</h3>
+<p class="numbered-line">1. Prepare dataset / dataloader</p>
+<p class="numbered-line">2. Define model with nn.Module</p>
+<p class="numbered-line">3. Define loss</p>
+<p class="numbered-line">4. Define optimizer</p>
+<p class="numbered-line">5. Training loop: forward -&gt; loss -&gt; backward -&gt; step</p>
+<p class="numbered-line">6. Evaluation loop: model.eval() + torch.no_grad()</p>
+<h3>中文</h3>
+<p>Tensor 类似 numpy array, but can run on GPU.<br/>Autograd 自动算梯度.<br/>nn.Module 是模型/层的基类.</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Tensor basics</h2>
+<div class="section-body"><pre><code class="language-python">import torch
+
+x = torch.tensor([[1, 2], [3, 4]], dtype=torch.float32)
+z = torch.zeros(2, 3)
+o = torch.ones(2, 3)
+r = torch.randn(2, 3)</code></pre>
+<h3>Shape/device</h3>
+<pre><code class="language-python">x.shape
+x.dtype
+x.device</code></pre>
+<h3>Move to GPU</h3>
+<pre><code class="language-python">device = "cuda" if torch.cuda.is_available() else "cpu"
+x = x.to(device)</code></pre>
+<h3>Common ops</h3>
+<pre><code class="language-python">x + y
+x * y                  # element-wise
+x @ y                  # matrix multiply
+torch.matmul(x, y)
+torch.mean(x)
+torch.sum(x, dim=1)
+torch.argmax(logits, dim=1)</code></pre>
+<h3>Reshape</h3>
+<pre><code class="language-python">x.reshape(batch_size, -1)  # safer than view
+x.unsqueeze(0)             # add dimension
+x.squeeze()                # remove size-1 dimensions</code></pre></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Autograd</h2>
+<div class="section-body"><pre><code class="language-python">x = torch.tensor(2.0, requires_grad=True)
+y = x * x + 3 * x
+y.backward()
+print(x.grad)   # 7.0 because dy/dx = 2x + 3</code></pre>
+<h3>Training</h3>
+<pre><code class="language-python">loss.backward()
+optimizer.step()
+optimizer.zero_grad()</code></pre>
+<h3>Important</h3>
+<p>Gradients accumulate by default. Always zero gradients each step.</p>
+<h3>Inference</h3>
+<pre><code class="language-python">model.eval()
+with torch.no_grad():
+    y_pred = model(x)</code></pre></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. nn.Module</h2>
+<div class="section-body"><pre><code class="language-python">import torch.nn as nn
+
+class MLP(nn.Module):
+    def __init__(self, input_dim, hidden_dim, num_classes):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(hidden_dim, num_classes),
+        )
+
+    def forward(self, x):
+        return self.net(x)</code></pre>
+<h3>Grammar</h3>
+<ul><li><code>super().__init__()</code> initializes parent nn.Module.</li></ul>
+<ul><li>layers assigned to <code>self.xxx</code> are registered as parameters.</li></ul>
+<ul><li>call <code>model(x)</code>, not <code>model.forward(x)</code>.</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Loss functions</h2>
+<div class="section-body"><h3>Multi-class classification</h3>
+<pre><code class="language-python">criterion = nn.CrossEntropyLoss()
+logits = model(x)              # [batch, num_classes]
+loss = criterion(logits, y)    # y: [batch], class ids, dtype long</code></pre>
+<p>Important: CrossEntropyLoss expects raw logits, NOT softmax.</p>
+<h3>Binary classification</h3>
+<pre><code class="language-python">criterion = nn.BCEWithLogitsLoss()
+logits = model(x).squeeze(1)   # [batch]
+loss = criterion(logits, y.float())</code></pre>
+<h3>Regression</h3>
+<pre><code class="language-python">criterion = nn.MSELoss()
+loss = criterion(pred, y)</code></pre></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Optimizers</h2>
+<div class="section-body"><pre><code class="language-python">optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-2)</code></pre>
+<h3>Common choices</h3>
+<ul><li>AdamW: default for transformers/deep learning</li></ul>
+<ul><li>Adam: older common baseline</li></ul>
+<ul><li>SGD + momentum: classic CV training</li></ul>
+<h3>Scheduler</h3>
+<pre><code class="language-python">scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
+for epoch in range(num_epochs):
+    train_one_epoch()
+    scheduler.step()</code></pre></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Dataset and DataLoader</h2>
+<div class="section-body"><pre><code class="language-python">from torch.utils.data import Dataset, DataLoader
+
+class MyDataset(Dataset):
+    def __init__(self, X, y):
+        self.X = torch.tensor(X, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.long)
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
+
+loader = DataLoader(MyDataset(X, y), batch_size=32, shuffle=True)</code></pre>
+<p>Dataset defines how to get one sample. DataLoader handles batching/shuffling.</p></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Complete training loop</h2>
+<div class="section-body"><pre><code class="language-python">import torch
+import torch.nn as nn
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = MLP(input_dim=100, hidden_dim=64, num_classes=3).to(device)
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
+
+for epoch in range(10):
+    model.train()
+    total_loss = 0.0
+
+    for xb, yb in train_loader:
+        xb = xb.to(device)
+        yb = yb.to(device)
+
+        logits = model(xb)
+        loss = criterion(logits, yb)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item() * xb.size(0)
+
+    avg_loss = total_loss / len(train_loader.dataset)
+    print(f"epoch={epoch}, train_loss={avg_loss:.4f}")</code></pre></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Evaluation loop</h2>
+<div class="section-body"><pre><code class="language-python">def evaluate(model, loader):
+    model.eval()
+    correct = 0
+    total = 0
+
+    with torch.no_grad():
+        for xb, yb in loader:
+            xb = xb.to(device)
+            yb = yb.to(device)
+
+            logits = model(xb)
+            pred = torch.argmax(logits, dim=1)
+
+            correct += (pred == yb).sum().item()
+            total += yb.size(0)
+
+    return correct / total</code></pre></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Save and load</h2>
+<div class="section-body"><h3>Recommended</h3>
+<pre><code class="language-python">torch.save(model.state_dict(), "model.pt")
+
+model = MLP(...)
+model.load_state_dict(torch.load("model.pt", map_location=device))
+model.to(device)
+model.eval()</code></pre>
+<h3>Checkpoint</h3>
+<pre><code class="language-python">torch.save({
+    "model": model.state_dict(),
+    "optimizer": optimizer.state_dict(),
+    "epoch": epoch,
+}, "checkpoint.pt")</code></pre></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Common layers</h2>
+<div class="section-body"><pre><code class="language-python">nn.Linear(in_dim, out_dim)
+nn.ReLU()
+nn.GELU()
+nn.Dropout(p=0.2)
+nn.BatchNorm1d(num_features)
+nn.LayerNorm(normalized_shape)
+nn.Embedding(num_embeddings, embedding_dim)
+nn.Conv2d(in_channels, out_channels, kernel_size)
+nn.MaxPool2d(kernel_size)
+nn.LSTM(input_size, hidden_size, batch_first=True)
+nn.TransformerEncoderLayer(...)</code></pre></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Embedding layer</h2>
+<div class="section-body"><pre><code class="language-python">embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
+token_ids = torch.tensor([[1, 5, 9], [2, 3, 4]])
+x = embedding(token_ids)     # [batch, seq_len, embed_dim]</code></pre>
+<p>Use for NLP tokens, user IDs, item IDs, categorical features.</p></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Simple text classifier</h2>
+<div class="section-body"><pre><code class="language-python">class TextClassifier(nn.Module):
+    def __init__(self, vocab_size, embed_dim, num_classes):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
+        self.fc = nn.Linear(embed_dim, num_classes)
+
+    def forward(self, input_ids):
+        x = self.embedding(input_ids)          # [B, T, D]
+        mask = (input_ids != 0).unsqueeze(-1)  # [B, T, 1]
+        x = x * mask
+        pooled = x.sum(dim=1) / mask.sum(dim=1).clamp(min=1)
+        return self.fc(pooled)</code></pre></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. Mixed precision</h2>
+<div class="section-body"><pre><code class="language-python">scaler = torch.cuda.amp.GradScaler()
+
+for xb, yb in loader:
+    optimizer.zero_grad()
+    with torch.cuda.amp.autocast():
+        logits = model(xb)
+        loss = criterion(logits, yb)
+    scaler.scale(loss).backward()
+    scaler.step(optimizer)
+    scaler.update()</code></pre></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>14. Gradient clipping</h2>
+<div class="section-body"><pre><code class="language-python">torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)</code></pre>
+<p>Use for unstable RNN/Transformer training.</p></div>
+</section>
+<section class="section-card" id="sec-16">
+<div class="section-kicker">Section 17</div>
+<h2>15. Transfer learning</h2>
+<div class="section-body"><pre><code class="language-python">import torchvision.models as models
+model = models.resnet18(weights="DEFAULT")
+model.fc = nn.Linear(model.fc.in_features, num_classes)</code></pre>
+<h3>Freeze backbone</h3>
+<pre><code class="language-python">for p in model.parameters():
+    p.requires_grad = False
+model.fc = nn.Linear(model.fc.in_features, num_classes)</code></pre></div>
+</section>
+<section class="section-card" id="sec-17">
+<div class="section-kicker">Section 18</div>
+<h2>16. Debugging checklist</h2>
+<div class="section-body"><h3>Common bugs</h3>
+<p class="numbered-line">1. Forgot optimizer.zero_grad()</p>
+<p class="numbered-line">2. Applied softmax before CrossEntropyLoss</p>
+<p class="numbered-line">3. Wrong label dtype; classification y should be long</p>
+<p class="numbered-line">4. Model/data on different devices</p>
+<p class="numbered-line">5. Used model.train() during validation</p>
+<p class="numbered-line">6. Forgot torch.no_grad() during inference</p>
+<h3>Print shapes</h3>
+<pre><code class="language-python">print(x.shape, y.shape, logits.shape)</code></pre>
+<h3>Check gradients</h3>
+<pre><code class="language-python">for name, p in model.named_parameters():
+    if p.grad is not None:
+        print(name, p.grad.norm())</code></pre></div>
+</section>
+<section class="section-card" id="sec-18">
+<div class="section-kicker">Section 19</div>
+<h2>17. Interview talking points</h2>
+<div class="section-body"><p>Q: What is autograd?<br/>A: It records tensor operations in a computation graph and computes gradients automatically via backpropagation.</p>
+<p>Q: train() vs eval()?<br/>A: They change dropout/batchnorm behavior. eval disables dropout and uses running stats for batchnorm.</p>
+<p>Q: Why DataLoader?<br/>A: Batching, shuffling, parallel data loading, and cleaner training loops.</p></div>
+</section>
+<section class="section-card" id="sec-19">
+<div class="section-kicker">Section 20</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. PyTorch mental model<br/>------------------------------------------------------------<br/>PyTorch is eager tensor computation plus autograd. For interviews, connect tensor shapes, autograd graph, module parameters, optimizer state, GPU memory, and distributed training.</p>
+<p>B. Shape discipline<br/>------------------------------------------------------------<br/>Most PyTorch bugs are shape bugs.</p>
+<ul><li>classification logits: <code>[batch, num_classes]</code>.</li></ul>
+<ul><li>CrossEntropy labels: <code>[batch]</code>, dtype <code>torch.long</code>.</li></ul>
+<ul><li>transformer hidden states: often <code>[batch, seq, hidden]</code>.</li></ul>
+<ul><li>attention masks must align with sequence length.</li></ul>
+<pre><code class="language-python">assert logits.shape == (x.size(0), num_classes)
+assert y.dtype == torch.long</code></pre>
+<p>C. Autograd and memory<br/>------------------------------------------------------------<br/>Autograd records operations for tensors with <code>requires_grad=True</code>. Backward uses saved activations, so training uses much more memory than inference.</p>
+<h3>Key tools</h3>
+<ul><li><code>model.eval()</code> changes dropout/batchnorm behavior.</li></ul>
+<ul><li><code>torch.no_grad()</code> disables grad recording.</li></ul>
+<ul><li><code>torch.inference_mode()</code> is stricter/faster for pure inference.</li></ul>
+<ul><li>gradient checkpointing trades compute for memory.</li></ul>
+<ul><li>AMP reduces bandwidth and activation memory.</li></ul>
+<pre><code class="language-python">scaler = torch.cuda.amp.GradScaler()
+for xb, yb in loader:
+    optimizer.zero_grad(set_to_none=True)
+    with torch.cuda.amp.autocast(dtype=torch.float16):
+        loss = criterion(model(xb), yb)
+    scaler.scale(loss).backward()
+    scaler.step(optimizer)
+    scaler.update()</code></pre>
+<p>D. Training at scale<br/>------------------------------------------------------------</p>
+<ul><li>DataParallel: simple, usually slower.</li></ul>
+<ul><li>DistributedDataParallel: one process per GPU; preferred data parallelism.</li></ul>
+<ul><li>FSDP/ZeRO: shard parameters, gradients, optimizer states.</li></ul>
+<ul><li>Tensor parallelism: split matrix multiplies across GPUs.</li></ul>
+<ul><li>Pipeline parallelism: split layers across GPUs.</li></ul>
+<p>Interview answer: DDP replicates the model, each GPU computes gradients for a data shard, then all-reduce averages gradients. It improves throughput but not model capacity. FSDP improves memory capacity by sharding state.</p>
+<p>E. Optimization basics<br/>------------------------------------------------------------<br/>AdamW is standard for transformers because it decouples weight decay from adaptive gradient update. Warmup prevents early instability; cosine/linear decay is common. Regularization includes dropout, weight decay, augmentation, early stopping, and label smoothing.</p>
+<p>F. Inference performance<br/>------------------------------------------------------------</p>
+<pre><code class="language-python">model.eval()
+with torch.inference_mode():
+    out = model(x)</code></pre>
+<p><code>torch.compile(model)</code> can reduce Python overhead and fuse operations, but dynamic shapes, unsupported ops, and cold-start compile time can matter.</p>
+<p>G. Failure modes<br/>------------------------------------------------------------</p>
+<ul><li>NaN loss: LR too high, fp16 overflow, bad labels, divide by zero.</li></ul>
+<ul><li>GPU OOM: batch/sequence too large, retained graph, eval without no_grad.</li></ul>
+<ul><li>Training slow: dataloader bottleneck, CPU transforms, no pinned memory, tiny batches.</li></ul>
+<ul><li>Metric mismatch: train/eval mode wrong, label encoding mismatch, data leakage.</li></ul>
+<p>H. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: Why CrossEntropyLoss expects logits?<br/>A: It combines log-softmax and NLL internally for numerical stability.</p>
+<p>Q: What is gradient accumulation?<br/>A: Accumulate gradients across microbatches before optimizer step to simulate larger batch. Usually divide loss by accumulation steps.</p>
+<p>Q: DDP vs FSDP?<br/>A: DDP replicates full model and synchronizes gradients. FSDP shards model/optimizer/grad states to fit larger models, at cost of more communication/orchestration.</p>
+<p>Q: How do you speed up inference?<br/>A: eval + inference_mode, batching, AMP, compile/export when stable, optimize preprocessing, and use serving systems like Triton/vLLM for production.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

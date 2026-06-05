@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Ranking / Recommender / Learning-To-Rank Cheatsheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Infra Deep Dives / Infra</div>
+<h1>Ranking / Recommender / Learning-To-Rank Cheatsheet</h1>
+<p>deep-dive search, discovery, personalization, ads, recommendation systems.</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>RANKING / RECOMMENDER / LEARNING-TO-RANK CHEATSHEET<br/>Purpose: deep-dive search, discovery, personalization, ads, recommendation systems.</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model / 中文总览</h2>
+<div class="section-body"><h3>Most search/recommendation systems use a multi-stage funnel</h3>
+<p>  request/query/user context<br/>      -&gt; candidate generation<br/>      -&gt; filtering<br/>      -&gt; feature hydration<br/>      -&gt; ranking/reranking<br/>      -&gt; diversity/business rules<br/>      -&gt; response + logging</p>
+<h3>Chinese</h3>
+<ul><li>candidate generation = 快速召回几百/几千个候选.</li></ul>
+<ul><li>ranking = 用更贵更准模型精排.</li></ul>
+<ul><li>reranking = 加多样性、新鲜度、规则、exploration.</li></ul>
+<ul><li>metrics 要分 offline ranking metrics 和 online business metrics.</li></ul>
+<h3>Interview one-liner</h3>
+<p>"I would design a multi-stage system: fast candidate generation using lexical/vector/two-tower retrieval, feature hydration from online stores, a ranking model optimized for NDCG/CTR/conversion, and final reranking for diversity, freshness, policy, and business constraints."</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Search/recommendation stages</h2>
+<div class="section-body"><p class="numbered-line">1. Query/user understanding</p>
+<ul><li>tokenize/query rewrite</li></ul>
+<ul><li>intent classification</li></ul>
+<ul><li>language detection</li></ul>
+<ul><li>entity extraction</li></ul>
+<ul><li>user context and personalization</li></ul>
+<p class="numbered-line">2. Candidate generation</p>
+<ul><li>BM25 lexical search</li></ul>
+<ul><li>dense vector ANN search</li></ul>
+<ul><li>collaborative filtering</li></ul>
+<ul><li>two-tower retrieval</li></ul>
+<ul><li>trending/popular fallback</li></ul>
+<p class="numbered-line">3. Filtering</p>
+<ul><li>permissions</li></ul>
+<ul><li>inventory availability</li></ul>
+<ul><li>geography</li></ul>
+<ul><li>safety/policy</li></ul>
+<ul><li>dedup</li></ul>
+<p class="numbered-line">4. Feature hydration</p>
+<ul><li>query-doc features</li></ul>
+<ul><li>user-item features</li></ul>
+<ul><li>item quality/freshness features</li></ul>
+<ul><li>realtime session features</li></ul>
+<p class="numbered-line">5. Ranking</p>
+<ul><li>GBDT: XGBoost/LightGBM LambdaMART</li></ul>
+<ul><li>DNN ranking model</li></ul>
+<ul><li>cross-encoder for semantic reranking</li></ul>
+<p class="numbered-line">6. Final reranking</p>
+<ul><li>diversity</li></ul>
+<ul><li>freshness</li></ul>
+<ul><li>fairness/business rules</li></ul>
+<ul><li>exploration</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. BM25 vs dense retrieval</h2>
+<div class="section-body"><h3>BM25</h3>
+<ul><li>lexical keyword matching</li></ul>
+<ul><li>strong for exact terms, names, IDs, rare words</li></ul>
+<ul><li>interpretable</li></ul>
+<ul><li>poor at semantic paraphrase</li></ul>
+<h3>Dense vector retrieval</h3>
+<ul><li>semantic similarity</li></ul>
+<ul><li>strong for natural language and paraphrase</li></ul>
+<ul><li>needs embeddings + ANN index</li></ul>
+<ul><li>can miss exact rare terms</li></ul>
+<h3>Hybrid search</h3>
+<ul><li>combine BM25 + dense vector results</li></ul>
+<ul><li>robust in production</li></ul>
+<ul><li>often use Reciprocal Rank Fusion (RRF) or weighted score blend</li></ul>
+<h3>RRF formula idea</h3>
+<pre><code class="language-python">def rrf(rankings, k=60):
+    scores = {}
+    for ranking in rankings:
+        for rank, doc_id in enumerate(ranking, start=1):
+            scores[doc_id] = scores.get(doc_id, 0) + 1 / (k + rank)
+    return sorted(scores.items(), key=lambda x: x[1], reverse=True)</code></pre></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Two-tower retrieval</h2>
+<div class="section-body"><h3>Two-tower model</h3>
+<p>  user/query tower -&gt; embedding q<br/>  item/doc tower   -&gt; embedding d<br/>  score = dot(q, d)</p>
+<h3>Why</h3>
+<ul><li>Precompute item embeddings offline.</li></ul>
+<ul><li>Compute query/user embedding online.</li></ul>
+<ul><li>Use ANN to retrieve nearest items.</li></ul>
+<h3>Training data</h3>
+<ul><li>positive pairs: clicked/purchased/relevant</li></ul>
+<ul><li>negatives: random negatives, in-batch negatives, hard negatives</li></ul>
+<h3>PyTorch sketch</h3>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class TwoTower(nn.Module):
+    def __init__(self, user_dim, item_dim, hidden=128):
+        super().__init__()
+        self.user_tower = nn.Sequential(nn.Linear(user_dim, hidden), nn.ReLU(), nn.Linear(hidden, hidden))
+        self.item_tower = nn.Sequential(nn.Linear(item_dim, hidden), nn.ReLU(), nn.Linear(hidden, hidden))
+
+    def forward(self, user_x, item_x):
+        u = F.normalize(self.user_tower(user_x), dim=-1)
+        v = F.normalize(self.item_tower(item_x), dim=-1)
+        return u @ v.T  # in-batch scores
+
+model = TwoTower(user_dim=50, item_dim=100)
+scores = model(user_features, item_features)
+labels = torch.arange(scores.size(0)).to(scores.device)  # diagonal positives
+loss = F.cross_entropy(scores, labels)</code></pre></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Learning to Rank with LightGBM</h2>
+<div class="section-body"><h3>Learning-to-rank data format</h3>
+<ul><li>Each row = query-item pair</li></ul>
+<ul><li>label = relevance grade/click/conversion</li></ul>
+<ul><li>group = number of items per query</li></ul>
+<h3>Example</h3>
+<pre><code class="language-python">import lightgbm as lgb
+import numpy as np
+
+X = np.array([
+    [0.9, 3.2, 1.0],  # query1-doc1 features
+    [0.2, 1.1, 0.0],  # query1-doc2
+    [0.7, 2.0, 1.0],  # query1-doc3
+    [0.1, 0.5, 0.0],  # query2-doc1
+    [0.8, 1.9, 1.0],  # query2-doc2
+])
+y = np.array([3, 1, 2, 0, 2])
+group = np.array([3, 2])  # query1 has 3 docs, query2 has 2 docs
+
+ranker = lgb.LGBMRanker(
+    objective="lambdarank",
+    metric="ndcg",
+    n_estimators=100,
+    learning_rate=0.05,
+)
+ranker.fit(X, y, group=group)
+
+scores = ranker.predict(X)</code></pre>
+<h3>Feature examples</h3>
+<pre><code class="language-text">bm25_score
+embedding_cosine
+query_doc_title_overlap
+doc_freshness_hours
+doc_quality_score
+user_category_affinity
+item_ctr_7d
+item_conversion_rate_7d
+seller_quality_score
+price_normalized
+availability</code></pre></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Learning to Rank with XGBoost</h2>
+<div class="section-body"><pre><code class="language-python">import xgboost as xgb
+import numpy as np
+
+X = np.array([...])
+y = np.array([...])
+group = np.array([10, 8, 12])  # items per query
+
+dtrain = xgb.DMatrix(X, label=y)
+dtrain.set_group(group)
+
+params = {
+    "objective": "rank:ndcg",
+    "eval_metric": "ndcg@10",
+    "eta": 0.05,
+    "max_depth": 6,
+}
+
+model = xgb.train(params, dtrain, num_boost_round=100)</code></pre></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Ranking metrics</h2>
+<div class="section-body"><h3>Precision@k</h3>
+<pre><code class="language-text">among top k, how many are relevant?</code></pre>
+<h3>Recall@k</h3>
+<pre><code class="language-text">of all relevant items, how many appear in top k?</code></pre>
+<h3>MRR</h3>
+<pre><code class="language-text">1 / rank of first relevant item</code></pre>
+<h3>DCG@k</h3>
+<pre><code class="language-text">sum((2^rel_i - 1) / log2(i + 1))</code></pre>
+<h3>NDCG@k</h3>
+<pre><code class="language-text">DCG@k / ideal_DCG@k</code></pre>
+<h3>Simple NDCG</h3>
+<pre><code class="language-python">import math
+
+def dcg(rels):
+    return sum((2**rel - 1) / math.log2(i + 2) for i, rel in enumerate(rels))
+
+def ndcg(rels):
+    ideal = sorted(rels, reverse=True)
+    return dcg(rels) / dcg(ideal) if dcg(ideal) &gt; 0 else 0.0
+
+print(ndcg([3, 2, 0, 1]))</code></pre></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Bias and counterfactual logging</h2>
+<div class="section-body"><h3>Clicks are biased</h3>
+<ul><li>position bias: top results get more clicks</li></ul>
+<ul><li>presentation bias</li></ul>
+<ul><li>selection bias</li></ul>
+<ul><li>popularity bias</li></ul>
+<h3>Log enough for training</h3>
+<pre><code class="language-json">{
+  "request_id": "r1",
+  "user_id_hash": "u123",
+  "query": "running shoes",
+  "shown_items": ["i1", "i2", "i3"],
+  "positions": [1, 2, 3],
+  "scores": [0.9, 0.8, 0.7],
+  "features_version": "v5",
+  "clicked_item": "i2",
+  "timestamp": "2026-05-14T10:00:00Z"
+}</code></pre>
+<h3>Why log impressions, not just clicks</h3>
+<ul><li>Need negatives.</li></ul>
+<ul><li>Need position info.</li></ul>
+<ul><li>Need reconstruct training examples.</li></ul></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Exploration vs exploitation</h2>
+<div class="section-body"><h3>Problem</h3>
+<ul><li>If you only show top predicted items, new items never get exposure.</li></ul>
+<h3>Strategies</h3>
+<ul><li>epsilon-greedy</li></ul>
+<ul><li>Thompson sampling</li></ul>
+<ul><li>UCB</li></ul>
+<ul><li>freshness boost</li></ul>
+<ul><li>quota for new items</li></ul>
+<h3>Simple epsilon-greedy</h3>
+<pre><code class="language-python">import random
+
+def choose_item(ranked_items, epsilon=0.05):
+    if random.random() &lt; epsilon:
+        return random.choice(ranked_items[:50])
+    return ranked_items[0]</code></pre></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Online A/B for ranking</h2>
+<div class="section-body"><h3>Primary metrics</h3>
+<ul><li>CTR</li></ul>
+<ul><li>conversion</li></ul>
+<ul><li>revenue/session</li></ul>
+<ul><li>search success</li></ul>
+<ul><li>long click / dwell time</li></ul>
+<h3>Guardrails</h3>
+<ul><li>latency</li></ul>
+<ul><li>error rate</li></ul>
+<ul><li>diversity</li></ul>
+<ul><li>complaint/report rate</li></ul>
+<ul><li>zero result rate</li></ul>
+<ul><li>fairness/policy constraints</li></ul>
+<h3>Interleaving</h3>
+<ul><li>Good for comparing rankers with fewer users.</li></ul>
+<ul><li>Mix results from ranker A and B.</li></ul>
+<ul><li>Infer winner from user clicks.</li></ul></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Common deep-dive questions</h2>
+<div class="section-body"><p>Q: How to build search for billions of assets?<br/>A: Use inverted index for lexical retrieval, ANN vector index for semantic retrieval, retrieve top candidates from both, merge/dedupe, hydrate features, rerank with LTR/cross-encoder, and cache popular queries. Keep index fresh via Kafka/Flink and batch rebuilds via Spark.</p>
+<p>Q: How to handle cold-start items?<br/>A: Use content-based features, embeddings from item text/image, freshness boosts, exploration traffic, and seller/category priors.</p>
+<p>Q: How to personalize search?<br/>A: Add user context and user-item/category affinity features at ranking stage. Keep retrieval broad enough to avoid over-personalization.</p>
+<p>Q: Why offline NDCG improves but online CTR drops?<br/>A: Offline labels may be biased/stale, slice regression may be hidden, model may reduce diversity/freshness, or online latency changed user behavior.</p></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. References / official docs</h2>
+<div class="section-body"><ul><li>Elasticsearch: https://www.elastic.co/elasticsearch</li></ul>
+<ul><li>Elasticsearch kNN search: https://www.elastic.co/docs/solutions/search/vector/knn</li></ul>
+<ul><li>LightGBM docs: https://lightgbm.readthedocs.io/</li></ul>
+<ul><li>XGBoost learning to rank: https://xgboost.readthedocs.io/en/latest/tutorials/learning_to_rank.html</li></ul>
+<ul><li>Faiss docs: https://faiss.ai/index.html</li></ul></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>RESUME-ALIGNED INTERVIEW DEEP DIVE</h2>
+<div class="section-body"><p>A. Billion-scale search/recommendation answer<br/>------------------------------------------------------------</p>
+<h3>Flow</h3>
+<p class="numbered-line">1. Query understanding and intent classification.</p>
+<p class="numbered-line">2. Candidate generation from BM25, vector ANN, collaborative/personalized sources.</p>
+<p class="numbered-line">3. Business and permission filters.</p>
+<p class="numbered-line">4. Feature hydration from online feature store/cache.</p>
+<p class="numbered-line">5. First-stage ranker for hundreds/thousands of candidates.</p>
+<p class="numbered-line">6. Cross-encoder/LLM/richer reranker for top candidates.</p>
+<p class="numbered-line">7. Diversity/freshness/dedup policy.</p>
+<p class="numbered-line">8. Online metrics, interleaving/A-B tests, and offline regression suites.</p>
+<p>B. Learning-to-rank models<br/>------------------------------------------------------------<br/>Classic stack: LambdaMART/XGBoost/LightGBM with dense feature vectors. Modern stack: two-tower retrieval, cross-encoder reranking, transformer rankers, and LLM-assisted reranking for small candidate sets.</p>
+<p>C. Metrics to know<br/>------------------------------------------------------------<br/>NDCG: graded relevance with position discount.<br/>MRR: rank of first relevant result.<br/>Recall@K: whether retrieval includes relevant items.<br/>CTR/conversion/task success: online impact.<br/>Calibration: whether predicted probabilities match observed rates.</p>
+<p>D. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: How do you avoid optimizing only CTR?<br/>A: Track long-term satisfaction, diversity, freshness, reformulation rate, saves/conversions, and guardrail metrics. CTR can reward clickbait.</p>
+<p>Q: How do you handle cold start?<br/>A: Use content features, metadata, embeddings, exploration, popularity priors, and rapid online feature updates.</p>
+<p>Q: Why interleaving?<br/>A: It compares rankers within the same user/query context and can be more sensitive than coarse A/B for ranking changes.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

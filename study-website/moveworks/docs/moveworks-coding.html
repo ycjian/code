@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Moveworks Coding Problems</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Coding and Implementation / TEXT</div>
+<h1>Moveworks Coding Problems</h1>
+<p>Full notes from moveworks-coding.txt</p>
+</div>
+</header>
+
+<article class="markdown-body"><p>moveworks<br/>
+Most challenging project<br/>
+Miss deadline <br/>
+===<br/>
+Problem Statement<br/>
+Design a hypothetical product where the user can configure an assistant with access to a<br/>
+set of documents</p>
+<p>This exercise includes all aspects related to the creation and use of the hypothetical<br/>
+assistant, looking for you to guide us on everything from how it works underneath to how<br/>
+the user will interact with it, taking into account how to architect the system, deploy and<br/>
+operate it in production.</p>
+<hr/>
+<p>设计一个review search engine. 假设有100m review，类似yelp的评论存在数据库里，每个review 10个words的长度。搜索的words必须严格出现在review里，返回所有的这样的review。<br/>
+比如 搜索:"sea food", review 1: "sea food in santa cruz" 返回。 review 2: “food supply” 不返回，因为只cover了food，没有cover sea。</p>
+<hr/>
+<h2 id="search-enginedesign-elastic-search">地里很多的Search Engine，但是问的很深，基本可以当作Design Elastic Search来做</h2>
+<h1 id="system-designcar-rental-booking-system-database-lockhigh-level-design">system design问的是car rental booking system, 自己太菜了，对database lock不大懂，完全被问倒，high level design都没有完成。</h1>
+<pre><code>AWS is in the very early phase, where new cloud services such as EC2, DynamoDB, and S3 are under development. Before the launch of these cloud services, we need to build the billing infrastructure, so AWS can charge customers for their use of different services. Task is to design this billing infrastructure.
+</code></pre>
+<ul>
+<li>Different AWS cloud services should be able to send usage data to the billing service at any granularity.</li>
+<li>Billing service/infrastructure needs to generate bills for different accounts.</li>
+<li>Account users should be able to view their service usage through AWS portal.</li>
+</ul>
+<hr/>
+<pre><code>公司里有很多llm based service，设计一个layer 来 support这些service to  navigate their llm request to the service providers
+</code></pre>
+<p>===<br/>
+ 第一轮coding, 是那个猜字游戏。大家一定要和面试官确定好要求，题意挺难懂的。这轮因为做好了准备，过了<br/>
+题意主要是hangman word game，给了前一轮的状态 （上一轮猜词的结果，已经猜过的字母，和词库），让你找出这一轮可能性最高的字母。<br/>
+感觉，主要是理解题意，preprocessing input，tiebreaker 需要花点时间来思考。</p>
+<p>Hangman game （一个classic猜词游戏，大家可以google之了解一下规则）<br/>
+given a mystery word __xx_xx (x是已经猜出来的字母，可以有duplicate的字母，也可以是不同）<br/>
+and a guessed_char [x1,x2,x3] （这其中有一些事正确的，有一些事错误的）</p>
+<p>and a candidate pools of a list of words （最后的正确的词是这些candidate中的一员）<br/>
+out put a char that have highest probability in the candidate pools<br/>
+这个probability在题干里面定义很特殊：<br/>
+如果你猜字母x，x要存在在最多的eligible candidate words中，eligible的定义来源于mystery word本身的pattern，和 guessed_char。如果不match mystery word 的pattern，或是在guessed_char 里面那些猜错的字母里有的，都不elgibile，<br/>
+如果两个字母，都match了一样多的eligible words，就看哪个字母在eligible words里面出现的频率高；<br/>
+如果以上两个条件都是tie，那就要看alphabetically，两个字母谁排前面）<br/>
+楼主体会：<br/>
+之前没有见过这道题，理解题目理解了很久很久，这个probability和楼主对probability理解的比较counterintuitive，所以跑test的时候发现忽略了一点题干，其实最后没做完。<br/>
+面完之后和别人聊起又听说是到老题，这道题难在题干特别特别长，有整整一屏幕，总有一些容易忽略的要求和constraints 所以特别分享给大家。<br/>
+楼主没有在利口里找到这道题，如果有知道是哪道题的小伙伴请分享题号。楼主也想知道最优解是什么。</p>
+<hr/>
+<p>题目一个word guess game，在string pool里选出potential word，然后选出出现频率最高的char作为输出。如果有多个char的频率是一样的，那么根据alphabet输出。<br/>
+（感觉是一个纯rule based的题目，没什么算法在里面）<br/>
+Input：<br/>
+1. mystrious_string: <em>a</em><br/>
+2. guessed_char: 'a', 'b'<br/>
+3. string_pool: ["bat", "cat", "hat"]<br/>
+Output:<br/>
+'t'</p>
+<p>这题有很多的corner cases，比如<br/>
+1. mystrious string可能包含space，如 _ _ _    _ _ _ _ (New York)<br/>
+2. 如果string pool里面的word 和 mystrious string不match 就不能算在里面了， 比如“bat”不能作为“h_ _” 的candidate<br/>
+3. string pool的word的character只count一次，<br/>
+     比如 ———， string pool ["ccc", "bat", "boa"]. 那么输出“b”，而不是“c”，因为c只算出现了一次。</p>
+<p>coding又是一道string相关的题目，就是地里有的jacard similarity那道。不难，但是用java很吃亏，根本写不完。</p>
+<p>===<br/>
+题目parse citations，分成两小问<br/>
+1. string parsing.  Validated  brackets，不准用regex<br/>
+valid “xxx xxx [1],  xxxxx[2-5]”  return all valid ranges [1,1][2,5]， 注意，只有这两种情况是符合要求的，所以实际上只需要几个（java的话）indexof和split就可以筛出来。可惜意识过来的时候已经35+分钟了。<br/>
+2. merge intervals from 1就是把第一题的输出给merge了。lc原题级别的。</p>
+<ol start="2">
+<li>Coding</li>
+</ol>
+<p>三哥面试官口音很重，有点听不太懂。我用C++，他好像不太懂C++（阻止我把function signature改成reference，比如string =》 string&amp;，怕会影响他Test Case运行，😑）可笑的是最后他自己的预设了16个Test Cases，有些case没通过，但是他也无法解释expected result的合理性。有点无语。。</p>
+<p>====<br/>
+hm全程都在问我用如何用自然语言模型的，不是train模型，是调用模型的经验，感觉要求很专项<br/>
+===========<br/>
+两轮coding<br/>
+第一轮<br/>
+    具体题目没有save，given a list of strings,  compute the score for each of the string （好像是based on 有多少的common letter）, and order them based on that. 一共有三问，我只完成了第一问，第二问和第三问是换了另外一种scoring的方式</p>
+<p>第二轮<br/>
+    given a list of string, find the unique substring that can represent each of them, quote [] them in the orginal string<br/>
+ML system design<br/>
+    设计一个iPhone上面推荐app的系统，用户点进iphone先看到的是我们推荐的app</p>
+<p>BQ<br/>
+    talk about a project that is a failure<br/>
+    talk about a time you didn't meet expectation<br/>
+    还是需要认真准备的，我最后发现挂在了这个上面<br/>
+HM<br/>
+    又问了一下具体的项目</p></article>
+</main>
+</body>
+</html>

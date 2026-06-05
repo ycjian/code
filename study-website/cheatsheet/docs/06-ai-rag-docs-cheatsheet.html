@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>AI RAG Docs Cheat Sheet — Retrieval-Augmented Generation Over Documents</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>AI RAG Docs Cheat Sheet — Retrieval-Augmented Generation Over Documents</h1>
+<p>build reliable doc QA / enterprise search / support bots</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>AI RAG DOCS CHEAT SHEET — Retrieval-Augmented Generation over Documents<br/>Purpose: build reliable doc QA / enterprise search / support bots</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. RAG mental model</h2>
+<div class="section-body"><p>RAG = Retrieval-Augmented Generation.</p>
+<h3>Instead of asking the LLM from memory</h3>
+<p class="numbered-line">1. Retrieve relevant documents/chunks.</p>
+<p class="numbered-line">2. Put them into prompt as context.</p>
+<p class="numbered-line">3. Ask LLM to answer grounded in context.</p>
+<p class="numbered-line">4. Return answer with citations.</p>
+<h3>中文</h3>
+<p>RAG 的目标是让 LLM 基于你的文档回答,降低 hallucination,并支持更新的私有知识。</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Pipeline overview</h2>
+<div class="section-body"><h3>Ingestion/indexing</h3>
+<pre><code class="language-text">documents -&gt; parse -&gt; clean -&gt; chunk -&gt; metadata -&gt; embeddings -&gt; vector store/search index</code></pre>
+<h3>Query time</h3>
+<pre><code class="language-text">query -&gt; rewrite/expand -&gt; retrieve top-k -&gt; rerank -&gt; build context -&gt; generate answer -&gt; cite sources -&gt; evaluate/log</code></pre></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Document loaders</h2>
+<div class="section-body"><h3>Common libraries</h3>
+<pre><code class="language-text">pypdf: PDF text extraction
+PyMuPDF/fitz: PDF text + page rendering
+unstructured: parse PDFs, HTML, docs
+docling: document conversion/parsing
+BeautifulSoup: HTML
+python-docx: Word docs
+pandas/openpyxl: Excel/CSV
+LlamaIndex readers
+LangChain document loaders
+Haystack converters</code></pre>
+<h3>PyMuPDF</h3>
+<pre><code class="language-python">import fitz
+
+def load_pdf(path):
+    doc = fitz.open(path)
+    chunks = []
+    for page_idx, page in enumerate(doc):
+        text = page.get_text()
+        chunks.append({
+            "text": text,
+            "metadata": {"source": path, "page": page_idx + 1}
+        })
+    return chunks</code></pre></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Chunking</h2>
+<div class="section-body"><h3>Naive chunking</h3>
+<pre><code class="language-python">def chunk_text(text, chunk_size=800, overlap=100):
+    chunks = []
+    start = 0
+    while start &lt; len(text):
+        end = start + chunk_size
+        chunks.append(text[start:end])
+        start = end - overlap
+    return chunks</code></pre>
+<h3>Better chunking</h3>
+<ul><li>split by sections/headings</li></ul>
+<ul><li>preserve paragraphs</li></ul>
+<ul><li>keep tables together</li></ul>
+<ul><li>keep code blocks together</li></ul>
+<ul><li>add overlap</li></ul>
+<ul><li>attach metadata</li></ul>
+<h3>Chunk size guidance</h3>
+<pre><code class="language-text">Short FAQ/support: 200-500 tokens
+General docs: 500-1000 tokens
+Legal/technical docs: 800-1500 tokens
+Tables: keep as whole logical unit</code></pre>
+<h3>Tradeoff</h3>
+<pre><code class="language-text">Small chunks: high precision, may lose context
+Large chunks: more context, lower retrieval precision</code></pre></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Metadata design</h2>
+<div class="section-body"><h3>Store with every chunk</h3>
+<pre><code class="language-json">{
+  "chunk_id": "doc1_p3_c2",
+  "source": "employee_handbook.pdf",
+  "page": 3,
+  "section": "Vacation Policy",
+  "created_at": "2026-05-01",
+  "doc_type": "policy",
+  "access_level": "internal",
+  "text": "...",
+  "embedding": []
+}</code></pre>
+<h3>Why metadata matters</h3>
+<ul><li>citation</li></ul>
+<ul><li>filtering</li></ul>
+<ul><li>access control</li></ul>
+<ul><li>freshness</li></ul>
+<ul><li>debugging</li></ul>
+<ul><li>reranking</li></ul></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Embeddings</h2>
+<div class="section-body"><h3>OpenAI-style</h3>
+<pre><code class="language-python">from openai import OpenAI
+client = OpenAI()
+
+def embed_texts(texts):
+    resp = client.embeddings.create(
+        model="text-embedding-model",
+        input=texts,
+    )
+    return [item.embedding for item in resp.data]</code></pre>
+<h3>SentenceTransformers</h3>
+<pre><code class="language-python">from sentence_transformers import SentenceTransformer
+
+encoder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+vectors = encoder.encode(texts, normalize_embeddings=True)</code></pre>
+<h3>Notes</h3>
+<ul><li>Normalize embeddings if using dot product as cosine similarity.</li></ul>
+<ul><li>Keep embedding model consistent between indexing and query.</li></ul>
+<ul><li>Re-embed all docs if changing embedding model.</li></ul></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Vector DB options</h2>
+<div class="section-body"><pre><code class="language-text">FAISS: local/in-memory vector search
+Chroma: simple local dev
+Qdrant: vector search + filtering, easy local/production
+Milvus/Zilliz: large-scale vector database
+Weaviate: vector DB with schema and hybrid search
+Pinecone: managed vector DB
+Elasticsearch/OpenSearch: keyword + vector + hybrid search
+Postgres pgvector: simple infra when Postgres already exists</code></pre>
+<h3>Choose</h3>
+<pre><code class="language-text">Prototype: FAISS / Chroma / local Qdrant
+Production with filters: Qdrant / Milvus / Weaviate / Pinecone
+Existing search stack: Elasticsearch / OpenSearch
+Existing DB-first system: Postgres + pgvector</code></pre></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Simple FAISS retrieval</h2>
+<div class="section-body"><pre><code class="language-python">import faiss
+import numpy as np
+
+vectors = np.array(vectors).astype("float32")
+dim = vectors.shape[1]
+index = faiss.IndexFlatIP(dim)  # inner product
+index.add(vectors)
+
+def retrieve(query_vector, k=5):
+    q = np.array([query_vector]).astype("float32")
+    scores, ids = index.search(q, k)
+    return list(zip(ids[0], scores[0]))</code></pre>
+<p>If embeddings are normalized: inner product == cosine similarity.</p></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. LlamaIndex quick RAG</h2>
+<div class="section-body"><pre><code class="language-python">from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+
+documents = SimpleDirectoryReader("./docs").load_data()
+index = VectorStoreIndex.from_documents(documents)
+query_engine = index.as_query_engine()
+
+response = query_engine.query("What is the refund policy?")
+print(response)</code></pre>
+<p>Good for quick prototype, doc QA, easy connectors/query engines.</p></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Haystack RAG mental model</h2>
+<div class="section-body"><h3>Haystack uses components and pipelines</h3>
+<pre><code class="language-text">DocumentStore -&gt; Retriever -&gt; PromptBuilder -&gt; Generator</code></pre>
+<h3>Conceptual</h3>
+<pre><code class="language-python">from haystack import Pipeline
+
+pipe = Pipeline()
+pipe.add_component("retriever", retriever)
+pipe.add_component("prompt_builder", prompt_builder)
+pipe.add_component("llm", generator)
+
+pipe.connect("retriever", "prompt_builder.documents")
+pipe.connect("prompt_builder", "llm")</code></pre>
+<p>Good for explicit component graphs and retriever/generator separation.</p></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Retrieval strategies</h2>
+<div class="section-body"><h3>Sparse / lexical</h3>
+<pre><code class="language-text">BM25, keyword match
+Great for exact terms, IDs, names.</code></pre>
+<h3>Dense / semantic</h3>
+<pre><code class="language-text">embeddings
+Great for meaning/synonyms.</code></pre>
+<h3>Hybrid</h3>
+<pre><code class="language-text">BM25 + dense
+Often best for enterprise docs.</code></pre>
+<h3>Reranking</h3>
+<pre><code class="language-text">retrieve top 50 -&gt; rerank top 50 with cross-encoder/LLM -&gt; send top 5 to generator</code></pre></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Reranker example</h2>
+<div class="section-body"><pre><code class="language-python">from sentence_transformers import CrossEncoder
+
+reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+
+pairs = [(query, doc["text"]) for doc in retrieved_docs]
+scores = reranker.predict(pairs)
+ranked = sorted(zip(retrieved_docs, scores), key=lambda x: x[1], reverse=True)
+top_docs = [doc for doc, score in ranked[:5]]</code></pre>
+<h3>Why rerank</h3>
+<p>Vector search is fast but approximate. Cross-encoder compares query+doc together and improves precision.</p></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Prompt template</h2>
+<div class="section-body"><pre><code class="language-text">You are a helpful assistant. Answer the question using only the context below.
+If the answer is not in the context, say "I don't know based on the provided documents."
+Cite sources using [source, page].
+
+Question:
+{question}
+
+Context:
+{context}
+
+Answer:</code></pre>
+<h3>Key</h3>
+<ul><li>force grounding</li></ul>
+<ul><li>require citations</li></ul>
+<ul><li>allow "I don't know"</li></ul>
+<ul><li>keep context concise</li></ul></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. Context packing</h2>
+<div class="section-body"><p>Bad: dump top 20 chunks blindly.</p>
+<h3>Good</h3>
+<ul><li>remove duplicates</li></ul>
+<ul><li>group by source/page</li></ul>
+<ul><li>sort by relevance</li></ul>
+<ul><li>include metadata</li></ul>
+<ul><li>fit token budget</li></ul>
+<pre><code class="language-python">def build_context(docs, max_chars=8000):
+    parts = []
+    total = 0
+    for d in docs:
+        header = f"[source={d['source']}, page={d.get('page')}]"
+        text = header + "\n" + d["text"]
+        if total + len(text) &gt; max_chars:
+            break
+        parts.append(text)
+        total += len(text)
+    return "\n\n---\n\n".join(parts)</code></pre></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>14. Citations and validation</h2>
+<div class="section-body"><p>Store source metadata. Ask model to cite every claim.</p>
+<h3>Post-validate</h3>
+<ul><li>Are cited chunk IDs in retrieved context?</li></ul>
+<ul><li>Does answer contain unsupported claims?</li></ul>
+<ul><li>Did model cite wrong page?</li></ul></div>
+</section>
+<section class="section-card" id="sec-16">
+<div class="section-kicker">Section 17</div>
+<h2>15. Query rewriting</h2>
+<div class="section-body"><p>User: "What about holidays?"<br/>Rewrite: "What is the company holiday policy, paid holidays, and floating holidays?"</p>
+<h3>Multi-query retrieval</h3>
+<pre><code class="language-python">rewrites = [query, llm_rewrite(query), keyword_query(query)]
+all_results = []
+for q in rewrites:
+    all_results.extend(retrieve(q))</code></pre></div>
+</section>
+<section class="section-card" id="sec-17">
+<div class="section-kicker">Section 18</div>
+<h2>16. Access control</h2>
+<div class="section-body"><p>Never rely only on prompt. Filter retrieval by permissions before context enters LLM.</p>
+<pre><code class="language-python">results = vector_db.search(
+    query_vector,
+    filter={"access_level": {"$in": user.allowed_levels}},
+)</code></pre></div>
+</section>
+<section class="section-card" id="sec-18">
+<div class="section-kicker">Section 19</div>
+<h2>17. Freshness and updates</h2>
+<div class="section-body"><h3>Track</h3>
+<ul><li>doc_id</li></ul>
+<ul><li>version</li></ul>
+<ul><li>updated_at</li></ul>
+<ul><li>hash</li></ul>
+<ul><li>deleted flag</li></ul>
+<h3>On update</h3>
+<p class="numbered-line">1. delete old chunks by doc_id/version</p>
+<p class="numbered-line">2. reparse</p>
+<p class="numbered-line">3. rechunk</p>
+<p class="numbered-line">4. reembed</p>
+<p class="numbered-line">5. upsert new chunks</p></div>
+</section>
+<section class="section-card" id="sec-19">
+<div class="section-kicker">Section 20</div>
+<h2>18. Evaluation</h2>
+<div class="section-body"><h3>Retrieval metrics</h3>
+<ul><li>Recall@k: did we retrieve the needed chunk?</li></ul>
+<ul><li>Precision@k: are top results relevant?</li></ul>
+<ul><li>MRR: rank of first relevant result</li></ul>
+<ul><li>NDCG: ranking quality</li></ul>
+<h3>Answer metrics</h3>
+<ul><li>faithfulness</li></ul>
+<ul><li>answer correctness</li></ul>
+<ul><li>citation correctness</li></ul>
+<ul><li>completeness</li></ul>
+<h3>Golden dataset</h3>
+<pre><code class="language-json">{
+  "question": "How many PTO days do employees get?",
+  "expected_answer": "15 days",
+  "relevant_sources": ["handbook.pdf:page12"]
+}</code></pre></div>
+</section>
+<section class="section-card" id="sec-20">
+<div class="section-kicker">Section 21</div>
+<h2>19. Common failure modes</h2>
+<div class="section-body"><p class="numbered-line">1. Bad parsing</p>
+<p class="numbered-line">2. Bad chunking</p>
+<p class="numbered-line">3. Missing metadata</p>
+<p class="numbered-line">4. Wrong embedding model</p>
+<p class="numbered-line">5. Retrieval misses exact terms</p>
+<p class="numbered-line">6. No reranking</p>
+<p class="numbered-line">7. Too much irrelevant context</p>
+<p class="numbered-line">8. No citations</p>
+<p class="numbered-line">9. No access control</p>
+<p class="numbered-line">10. Model answers beyond context</p>
+<p>Fix: parse better -&gt; chunk better -&gt; hybrid retrieve -&gt; rerank -&gt; cite -&gt; evaluate.</p></div>
+</section>
+<section class="section-card" id="sec-21">
+<div class="section-kicker">Section 22</div>
+<h2>20. Interview answer pattern</h2>
+<div class="section-body"><p>Question: Design RAG over company documents.</p>
+<h3>Answer</h3>
+<p>I would build an ingestion pipeline that parses documents, chunks them by semantic structure, attaches metadata such as source, page, section, version, and ACL, then embeds chunks and stores them in a vector database. At query time, I would apply permission filters, retrieve using hybrid search, rerank candidates, construct compact context with citations, and ask the LLM to answer only from retrieved context. I would evaluate retrieval recall@k, answer faithfulness, citation accuracy, latency, and cost.</p></div>
+</section>
+<section class="section-card" id="sec-22">
+<div class="section-kicker">Section 23</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. RAG mental model<br/>------------------------------------------------------------<br/>RAG grounds generation in external knowledge. The hardest parts are ingestion quality, permissions, retrieval recall, context assembly, citation correctness, and evaluation.</p>
+<p>B. End-to-end pipeline<br/>------------------------------------------------------------</p>
+<p class="numbered-line">1. Ingest connectors.</p>
+<p class="numbered-line">2. Parse text/layout/tables/images/OCR.</p>
+<p class="numbered-line">3. Chunk by semantic/page/section boundaries.</p>
+<p class="numbered-line">4. Compute embeddings and lexical fields.</p>
+<p class="numbered-line">5. Store chunks with ACLs, tenant, source, version, timestamp.</p>
+<p class="numbered-line">6. Hybrid retrieve.</p>
+<p class="numbered-line">7. Rerank/dedup/diversify.</p>
+<p class="numbered-line">8. Build prompt with citations.</p>
+<p class="numbered-line">9. Generate answer.</p>
+<p class="numbered-line">10. Evaluate and log feedback.</p>
+<p>C. Chunking deep dive<br/>------------------------------------------------------------<br/>Small chunks improve precision but lose context. Large chunks preserve context but waste tokens and reduce precision. Overlap helps continuity but creates duplicates. Structure-aware chunking is best for policies, PDFs, code, and tables.</p>
+<p>D. Retrieval strategies<br/>------------------------------------------------------------<br/>Hybrid retrieval combines BM25, vector search, metadata filters, query rewriting, and reranking. Use RRF when scores are not calibrated; use learned fusion when labels exist.</p>
+<p>E. Context assembly<br/>------------------------------------------------------------<br/>Context is scarce. Select diverse chunks, remove near-duplicates, preserve hierarchy, include citations, and keep instructions separate from retrieved content. Compress evidence only after retrieval, not before recall is solved.</p>
+<p>F. Permissions and privacy<br/>------------------------------------------------------------<br/>Apply ACL and tenant filters during retrieval, before generation. Never let unauthorized chunks enter the prompt. Cache ACL-aware results carefully and version documents to avoid stale leaks.</p>
+<p>G. Evaluation<br/>------------------------------------------------------------</p>
+<ul><li>retrieval recall@K.</li></ul>
+<ul><li>answer faithfulness.</li></ul>
+<ul><li>citation precision.</li></ul>
+<ul><li>refusal correctness when evidence is missing.</li></ul>
+<ul><li>latency/cost per answer.</li></ul>
+<ul><li>human/LLM judge agreement.</li></ul>
+<p>H. Failure modes<br/>------------------------------------------------------------<br/>Stale index, ACL leak through cache, semantically similar wrong policy, prompt injection in documents, correct retrieval but ungrounded generation, and model ignoring citations.</p>
+<p>I. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: How improve hallucinating RAG?<br/>A: Separate retrieval failure from generation failure. Improve chunking/recall/reranking if evidence missing; improve prompt constraints, citation validation, and refusal logic if evidence exists.</p>
+<p>Q: Why hybrid search?<br/>A: Enterprise queries contain exact names, IDs, acronyms, and policy terms. Dense handles paraphrase; BM25 handles exact/rare terms.</p>
+<p>Q: How handle document updates?<br/>A: Version documents, incremental index, tombstone old chunks, track embedding model version, and exclude stale/deleted chunks at query time.</p>
+<p>Q: How evaluate citations?<br/>A: Compare answer claims to cited chunks with human labels or calibrated LLM-as-judge, and track citation precision/recall on hard examples.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

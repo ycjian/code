@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agent Workflow Orchestration Cheatsheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Infra Deep Dives / Infra</div>
+<h1>Agent Workflow Orchestration Cheatsheet</h1>
+<p>build production-minded AI agents, not toy while-loops.</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>AGENT WORKFLOW ORCHESTRATION CHEATSHEET<br/>LangGraph + Temporal + tool calling + durable production agents<br/>Purpose: build production-minded AI agents, not toy while-loops.</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model / 中文总览</h2>
+<div class="section-body"><p>An agent is an application that uses an LLM to decide actions, call tools, keep state, and complete multi-step work.</p>
+<h3>Toy agent</h3>
+<h3>while not done</h3>
+<p>      ask LLM what to do<br/>      call tool</p>
+<h3>Production agent</h3>
+<p>  graph/workflow with state<br/>  checkpointing<br/>  retries<br/>  idempotency<br/>  human approval<br/>  audit logs<br/>  permission checks<br/>  tool sandboxing</p>
+<h3>Chinese</h3>
+<ul><li>agent 难点不是 demo,而是 durable execution, retry, approval, audit, security.</li></ul>
+<ul><li>对生产系统,不要只靠一个 while loop.</li></ul>
+<h3>Interview one-liner</h3>
+<p>"For production agents, I would model the workflow as a state machine or durable workflow, checkpoint state after each step, make tool calls idempotent, require human approval for risky actions, and log every decision/tool call for auditability."</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Tool calling basics</h2>
+<div class="section-body"><p>Tool = function the model can ask the app to call.</p>
+<h3>Example tool schema idea</h3>
+<pre><code class="language-python">def search_docs(query: str, top_k: int = 5) -&gt; list[dict]:
+    """Search internal docs."""
+    return vector_search(query, top_k=top_k)</code></pre>
+<h3>Tool calling flow</h3>
+<p class="numbered-line">1. Send user request + available tools to model.</p>
+<p class="numbered-line">2. Model returns tool call name + arguments.</p>
+<p class="numbered-line">3. App validates arguments and permissions.</p>
+<p class="numbered-line">4. App executes tool.</p>
+<p class="numbered-line">5. App sends tool output back to model.</p>
+<p class="numbered-line">6. Model responds or calls more tools.</p>
+<h3>Critical rule</h3>
+<ul><li>The model suggests tool calls; your application executes them.</li></ul>
+<ul><li>Validate all tool args.</li></ul>
+<ul><li>Enforce permissions outside the model.</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Agent state design</h2>
+<div class="section-body"><h3>State example</h3>
+<pre><code class="language-python">from typing import TypedDict, List, Dict, Any
+
+class AgentState(TypedDict):
+    user_id: str
+    goal: str
+    messages: List[dict]
+    retrieved_docs: List[dict]
+    plan: List[str]
+    tool_results: Dict[str, Any]
+    needs_approval: bool
+    final_answer: str</code></pre>
+<h3>State should include</h3>
+<ul><li>current goal</li></ul>
+<ul><li>conversation/messages</li></ul>
+<ul><li>plan</li></ul>
+<ul><li>tool outputs</li></ul>
+<ul><li>approvals</li></ul>
+<ul><li>retries/errors</li></ul>
+<ul><li>audit metadata</li></ul></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. LangGraph-style state machine</h2>
+<div class="section-body"><p>LangGraph is useful for stateful/durable agents and graph-based control flow.</p>
+<h3>Conceptual example</h3>
+<pre><code class="language-python"># Pseudocode close to LangGraph style.
+from typing import TypedDict, List
+from langgraph.graph import StateGraph, END
+
+class State(TypedDict):
+    question: str
+    docs: List[str]
+    answer: str
+    need_human: bool
+
+
+def retrieve(state: State):
+    docs = search_docs(state["question"])
+    return {"docs": docs}
+
+
+def generate(state: State):
+    answer = call_llm(question=state["question"], docs=state["docs"])
+    return {"answer": answer}
+
+
+def check_risk(state: State):
+    risky = contains_sensitive_action(state["answer"])
+    return {"need_human": risky}
+
+
+def route_after_risk(state: State):
+    return "human_review" if state["need_human"] else "done"
+
+
+def human_review(state: State):
+    # pause / wait for human approval in real system
+    approved = request_human_approval(state["answer"])
+    if not approved:
+        return {"answer": "I cannot proceed without approval."}
+    return state
+
+builder = StateGraph(State)
+builder.add_node("retrieve", retrieve)
+builder.add_node("generate", generate)
+builder.add_node("check_risk", check_risk)
+builder.add_node("human_review", human_review)
+
+builder.set_entry_point("retrieve")
+builder.add_edge("retrieve", "generate")
+builder.add_edge("generate", "check_risk")
+builder.add_conditional_edges("check_risk", route_after_risk, {
+    "human_review": "human_review",
+    "done": END,
+})
+builder.add_edge("human_review", END)
+
+graph = builder.compile()
+result = graph.invoke({"question": "Can I refund this customer?"})</code></pre></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Temporal workflow basics</h2>
+<div class="section-body"><h3>Temporal is for durable workflows</h3>
+<ul><li>workflow state is persisted</li></ul>
+<ul><li>activities can retry</li></ul>
+<ul><li>workflow can resume after worker crash</li></ul>
+<ul><li>good for long-running business processes</li></ul>
+<h3>Concepts</h3>
+<ul><li>Workflow: deterministic orchestration logic.</li></ul>
+<ul><li>Activity: external side effect, e.g. call API, send email.</li></ul>
+<ul><li>Retry policy: automatic retries for transient failure.</li></ul>
+<ul><li>Signal: external event sent to workflow.</li></ul>
+<ul><li>Timer: durable sleep.</li></ul>
+<h3>Python sketch</h3>
+<pre><code class="language-python">from temporalio import workflow, activity
+from datetime import timedelta
+
+@activity.defn
+async def call_llm_activity(prompt: str) -&gt; str:
+    return await call_llm(prompt)
+
+@activity.defn
+async def send_email_activity(to: str, body: str) -&gt; None:
+    await send_email(to, body)
+
+@workflow.defn
+class RefundAgentWorkflow:
+    def __init__(self):
+        self.approved = False
+
+    @workflow.signal
+    async def approve(self):
+        self.approved = True
+
+    @workflow.run
+    async def run(self, user_request: str) -&gt; str:
+        draft = await workflow.execute_activity(
+            call_llm_activity,
+            user_request,
+            start_to_close_timeout=timedelta(seconds=30),
+        )
+
+        # wait for human approval signal
+        await workflow.wait_condition(lambda: self.approved)
+
+        await workflow.execute_activity(
+            send_email_activity,
+            "customer@example.com",
+            draft,
+            start_to_close_timeout=timedelta(seconds=30),
+        )
+        return "sent"</code></pre></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Idempotency</h2>
+<div class="section-body"><p>Tool calls may retry. Make them safe.</p>
+<h3>Bad</h3>
+<pre><code class="language-python">def charge_card(user_id, amount):
+    payment_api.charge(user_id, amount)</code></pre>
+<h3>Good</h3>
+<pre><code class="language-python">def charge_card(user_id, amount, idempotency_key):
+    payment_api.charge(
+        user_id=user_id,
+        amount=amount,
+        idempotency_key=idempotency_key,
+    )</code></pre>
+<h3>Idempotency key examples</h3>
+<pre><code class="language-text">workflow_id + activity_name + attempt-independent operation id
+request_id + tool_name + business_entity_id</code></pre></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Human-in-the-loop</h2>
+<div class="section-body"><h3>Require approval for</h3>
+<ul><li>sending email externally</li></ul>
+<ul><li>modifying production data</li></ul>
+<ul><li>issuing refund/payment</li></ul>
+<ul><li>deleting resources</li></ul>
+<ul><li>accessing sensitive documents</li></ul>
+<ul><li>taking irreversible actions</li></ul>
+<h3>Approval object</h3>
+<pre><code class="language-json">{
+  "approval_id": "appr-123",
+  "request_id": "req-1",
+  "proposed_action": "refund_customer",
+  "arguments": {"customer_id": "c1", "amount": 100},
+  "risk_level": "high",
+  "status": "pending"
+}</code></pre></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Guardrails and permissions</h2>
+<div class="section-body"><h3>Guardrails</h3>
+<ul><li>input validation</li></ul>
+<ul><li>output validation</li></ul>
+<ul><li>policy checks</li></ul>
+<ul><li>PII redaction</li></ul>
+<ul><li>tool allowlist</li></ul>
+<ul><li>rate limits</li></ul>
+<ul><li>max tool calls</li></ul>
+<ul><li>max cost</li></ul>
+<ul><li>sandboxed code execution</li></ul>
+<h3>Permission checks</h3>
+<pre><code class="language-python">def execute_tool(user, tool_name, args):
+    if not policy.can_call(user, tool_name, args):
+        raise PermissionError("not allowed")
+    validated_args = schema.validate(args)
+    return tools[tool_name](**validated_args)</code></pre>
+<h3>Never trust model text like</h3>
+<p>"The user has permission." The app must verify permission.</p></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Memory</h2>
+<div class="section-body"><h3>Short-term memory</h3>
+<ul><li>current conversation state</li></ul>
+<ul><li>scratchpad/tool results</li></ul>
+<h3>Long-term memory</h3>
+<ul><li>user preferences</li></ul>
+<ul><li>project facts</li></ul>
+<ul><li>persistent profile</li></ul>
+<h3>Rules</h3>
+<ul><li>Store only useful, policy-compliant memory.</li></ul>
+<ul><li>Separate memory retrieval from permission checks.</li></ul>
+<ul><li>Version memory schema.</li></ul>
+<ul><li>Allow deletion.</li></ul></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Agent observability</h2>
+<div class="section-body"><h3>Log every step</h3>
+<pre><code class="language-json">{
+  "request_id": "r1",
+  "agent_version": "v3",
+  "node": "retrieve_docs",
+  "tool_name": "search_docs",
+  "tool_args_redacted": {"query": "..."},
+  "latency_ms": 120,
+  "status": "success"
+}</code></pre>
+<h3>Metrics</h3>
+<ul><li>task success rate</li></ul>
+<ul><li>average steps per task</li></ul>
+<ul><li>tool error rate</li></ul>
+<ul><li>tool retry rate</li></ul>
+<ul><li>human approval rate</li></ul>
+<ul><li>cost/task</li></ul>
+<ul><li>latency/task</li></ul>
+<ul><li>unsafe action blocked count</li></ul></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Failure handling</h2>
+<div class="section-body"><h3>Common failures</h3>
+<ul><li>tool timeout</li></ul>
+<ul><li>invalid tool args</li></ul>
+<ul><li>model loops</li></ul>
+<ul><li>hallucinated tool name</li></ul>
+<ul><li>permission denied</li></ul>
+<ul><li>partial workflow completion</li></ul>
+<ul><li>external API side effect succeeded but response lost</li></ul>
+<h3>Mitigations</h3>
+<ul><li>schema validation</li></ul>
+<ul><li>retry with backoff</li></ul>
+<ul><li>idempotency keys</li></ul>
+<ul><li>max iterations</li></ul>
+<ul><li>fallback path</li></ul>
+<ul><li>compensation action</li></ul>
+<ul><li>DLQ/manual review</li></ul></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Interview quick answers</h2>
+<div class="section-body"><p>Q: Why not just use a ReAct loop?<br/>A: A ReAct loop is fine for prototypes. Production needs persisted state, retries, idempotent tools, human approval, and audit logs. A graph/workflow engine makes execution resumable and safer.</p>
+<p>Q: How prevent agents from doing dangerous actions?<br/>A: Enforce tool-level authorization, validate args, require approval for risky tools, sandbox execution, limit cost/iterations, and log actions for audit.</p>
+<p>Q: How recover if agent crashes halfway?<br/>A: Use durable execution/checkpoints. Completed steps are persisted, activities are idempotent, and the workflow resumes from the last safe state.</p>
+<p>Q: How debug bad agent behavior?<br/>A: Inspect trace by node/tool call, prompt/model versions, retrieved context, tool outputs, and decision points. Add failure to regression eval.</p></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. References / official docs</h2>
+<div class="section-body"><ul><li>LangGraph overview: https://docs.langchain.com/oss/python/langgraph/overview</li></ul>
+<ul><li>LangGraph durable execution: https://docs.langchain.com/oss/python/langgraph/durable-execution</li></ul>
+<ul><li>LangChain tools: https://docs.langchain.com/oss/python/langchain/tools</li></ul>
+<ul><li>LangChain agents: https://docs.langchain.com/oss/python/langchain/agents</li></ul>
+<ul><li>OpenAI Agents SDK: https://developers.openai.com/api/docs/guides/agents</li></ul>
+<ul><li>OpenAI function calling: https://developers.openai.com/api/docs/guides/function-calling</li></ul>
+<ul><li>Temporal: https://temporal.io/</li></ul>
+<ul><li>Temporal docs: https://docs.temporal.io/</li></ul></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>RESUME-ALIGNED INTERVIEW DEEP DIVE</h2>
+<div class="section-body"><p>A. Production agent stance<br/>------------------------------------------------------------<br/>For production agents, do not rely on a simple while loop. Use a graph/state machine or durable workflow so execution can be resumed, audited, retried, and approved by humans.</p>
+<p>B. LangGraph vs Temporal<br/>------------------------------------------------------------<br/>LangGraph: useful for stateful agent control flow, tool loops, branching, human-in-the-loop, and durable agent state.<br/>Temporal: durable workflow engine for long-running business processes, retries, timeouts, activities, compensation, and event history.</p>
+<h3>Use together conceptually</h3>
+<ul><li>LangGraph controls agent reasoning/tool graph.</li></ul>
+<ul><li>Temporal controls durable execution around external side effects and long-running jobs.</li></ul>
+<p>C. Reliability rules<br/>------------------------------------------------------------</p>
+<ul><li>Workflow state must be checkpointed.</li></ul>
+<ul><li>Tool calls must be idempotent or protected with dedup keys.</li></ul>
+<ul><li>Risky actions need approval gates.</li></ul>
+<ul><li>Activities need timeouts and retry policy.</li></ul>
+<ul><li>Compensation/saga steps are needed for partial failure.</li></ul>
+<ul><li>Every tool call needs audit metadata.</li></ul>
+<p>D. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: Why is deterministic workflow code important?<br/>A: Durable workflow engines replay history to rebuild state. Non-deterministic workflow logic can break replay; side effects belong in activities.</p>
+<p>Q: How do you resume an agent after worker failure?<br/>A: Persist state/checkpoints after each step, use durable workflow history, retry idempotent activities, and resume from the last committed state.</p>
+<p>Q: How do you handle human approval?<br/>A: Represent approval as an explicit workflow state, pause execution, show decision context, record approver/action/time, then continue or compensate.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

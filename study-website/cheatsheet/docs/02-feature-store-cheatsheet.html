@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Feature Store Cheatsheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Infra Deep Dives / Infra</div>
+<h1>Feature Store Cheatsheet</h1>
+<p>prepare for ML infra deep dives around offline/online features, training-serving skew, and freshness.</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>FEATURE STORE CHEATSHEET<br/>Feast / Tecton concepts + production feature correctness<br/>Purpose: prepare for ML infra deep dives around offline/online features, training-serving skew, and freshness.</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model / 中文总览</h2>
+<div class="section-body"><p>A feature store is not just a database. It is a system that keeps feature definitions, historical training data, and low-latency serving features consistent.</p>
+<h3>Core split</h3>
+<p>  offline store                       online store<br/>  ------------                        ------------<br/>  S3/GCS/Iceberg/BigQuery/Snowflake   Redis/DynamoDB/Cassandra/Bigtable<br/>  historical features                 latest feature values<br/>  training data generation            low-latency inference<br/>  point-in-time joins                 materialized features</p>
+<h3>Chinese</h3>
+<ul><li>offline store = 训练用,历史特征,必须 point-in-time correct.</li></ul>
+<ul><li>online store = serving 用,低延迟读最新特征.</li></ul>
+<ul><li>materialization = 把 offline/computed features 推到 online store.</li></ul>
+<ul><li>entity = feature 的主键,比如 user_id, item_id, driver_id.</li></ul>
+<h3>Interview one-liner</h3>
+<p>"The feature store solves two hard problems: point-in-time correct historical features for training, and low-latency fresh features for online inference, using shared feature definitions to reduce training-serving skew."</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Key concepts</h2>
+<div class="section-body"><h3>Entity</h3>
+<ul><li>The object features describe.</li></ul>
+<ul><li>Examples: user_id, item_id, query_id, merchant_id, doc_id.</li></ul>
+<h3>Feature</h3>
+<ul><li>A typed value used by a model.</li></ul>
+<ul><li>Examples: user_click_7d, item_ctr_1h, doc_quality_score.</li></ul>
+<h3>Feature view</h3>
+<ul><li>A group of features from a source table, with entity key and timestamp.</li></ul>
+<h3>Offline store</h3>
+<ul><li>Historical feature data.</li></ul>
+<ul><li>Used for training datasets and backtesting.</li></ul>
+<h3>Online store</h3>
+<ul><li>Low-latency key-value store.</li></ul>
+<ul><li>Used by online model serving.</li></ul>
+<h3>Point-in-time correctness</h3>
+<ul><li>When building a training row at timestamp T, only use feature values known at or before T.</li></ul>
+<ul><li>Never use future information.</li></ul>
+<h3>Training-serving skew</h3>
+<ul><li>Training computed one way, serving computed another way.</li></ul>
+<ul><li>Model performs well offline but poorly online.</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Feast-style example</h2>
+<div class="section-body"><h3>Install sketch</h3>
+<pre><code class="language-bash">pip install feast
+feast init feature_repo</code></pre>
+<h3>Feature definitions</h3>
+<pre><code class="language-python"># feature_repo/features.py
+from datetime import timedelta
+from feast import Entity, FeatureView, Field, FileSource
+from feast.types import Float32, Int64
+
+user = Entity(name="user", join_keys=["user_id"])
+
+user_stats_source = FileSource(
+    path="data/user_stats.parquet",
+    timestamp_field="event_timestamp",
+)
+
+user_stats_fv = FeatureView(
+    name="user_stats",
+    entities=[user],
+    ttl=timedelta(days=7),
+    schema=[
+        Field(name="click_count_7d", dtype=Int64),
+        Field(name="avg_session_length_7d", dtype=Float32),
+    ],
+    online=True,
+    source=user_stats_source,
+)</code></pre>
+<h3>Apply definitions</h3>
+<pre><code class="language-bash">feast apply</code></pre>
+<h3>Generate historical training data</h3>
+<pre><code class="language-python">from feast import FeatureStore
+import pandas as pd
+
+store = FeatureStore(repo_path=".")
+
+entity_df = pd.DataFrame({
+    "user_id": ["u1", "u2", "u3"],
+    "event_timestamp": pd.to_datetime([
+        "2026-05-01 10:00:00",
+        "2026-05-01 10:05:00",
+        "2026-05-01 10:10:00",
+    ]),
+    "label": [1, 0, 1],
+})
+
+training_df = store.get_historical_features(
+    entity_df=entity_df,
+    features=[
+        "user_stats:click_count_7d",
+        "user_stats:avg_session_length_7d",
+    ],
+).to_df()</code></pre>
+<h3>Online feature lookup</h3>
+<pre><code class="language-python">online_features = store.get_online_features(
+    features=[
+        "user_stats:click_count_7d",
+        "user_stats:avg_session_length_7d",
+    ],
+    entity_rows=[{"user_id": "u1"}, {"user_id": "u2"}],
+).to_dict()</code></pre>
+<h3>Materialize features</h3>
+<pre><code class="language-bash">feast materialize 2026-05-01T00:00:00 2026-05-14T00:00:00</code></pre></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Point-in-time correctness example</h2>
+<div class="section-body"><h3>Bad training row</h3>
+<p>  label timestamp = 10:00 AM<br/>  feature used    = click_count_7d computed at 11:00 AM</p>
+<p>This leaks future behavior.</p>
+<h3>Correct rule</h3>
+<h3>For each entity row (user_id, event_timestamp), find latest feature row where</h3>
+<p>  feature.entity_id == entity.entity_id<br/>  feature.event_timestamp &lt;= entity.event_timestamp<br/>  feature.event_timestamp &gt;= entity.event_timestamp - ttl</p>
+<h3>SQL sketch</h3>
+<pre><code class="language-sql">WITH ranked AS (
+  SELECT
+    e.user_id,
+    e.event_timestamp AS label_ts,
+    e.label,
+    f.click_count_7d,
+    f.event_timestamp AS feature_ts,
+    ROW_NUMBER() OVER (
+      PARTITION BY e.user_id, e.event_timestamp
+      ORDER BY f.event_timestamp DESC
+    ) AS rn
+  FROM labels e
+  LEFT JOIN user_features f
+    ON e.user_id = f.user_id
+   AND f.event_timestamp &lt;= e.event_timestamp
+   AND f.event_timestamp &gt; e.event_timestamp - INTERVAL '7' DAY
+)
+SELECT * FROM ranked WHERE rn = 1;</code></pre></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Feature freshness</h2>
+<div class="section-body"><p>Freshness = how old the online feature value is.</p>
+<h3>Examples</h3>
+<ul><li>user_click_count_5m must be &lt; 2 minutes old.</li></ul>
+<ul><li>user_profile_country can be hours/days old.</li></ul>
+<ul><li>fraud velocity features may need seconds-level freshness.</li></ul>
+<h3>Monitoring</h3>
+<pre><code class="language-python">feature_age_seconds = now() - feature_value.event_timestamp</code></pre>
+<h3>Metrics</h3>
+<ul><li>p50/p95/p99 feature age</li></ul>
+<ul><li>materialization lag</li></ul>
+<ul><li>missing feature rate</li></ul>
+<ul><li>online store read latency</li></ul>
+<ul><li>online/offline distribution drift</li></ul>
+<ul><li>default value rate</li></ul></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Online store design choices</h2>
+<div class="section-body"><h3>Redis</h3>
+<ul><li>Very low latency.</li></ul>
+<ul><li>Good for hot features.</li></ul>
+<ul><li>Memory cost can be high.</li></ul>
+<h3>DynamoDB / Bigtable / Cassandra</h3>
+<ul><li>Higher scale and durability.</li></ul>
+<ul><li>Good for massive key-value workloads.</li></ul>
+<ul><li>Usually single-digit to tens of ms latency.</li></ul>
+<h3>Key design</h3>
+<pre><code class="language-text">feature_key = entity_type + ":" + entity_id + ":" + feature_view_name
+value = serialized feature vector + event_timestamp + feature_version</code></pre>
+<h3>Example online lookup API</h3>
+<pre><code class="language-python">class FeatureClient:
+    def get_features(self, user_id: str, item_id: str) -&gt; dict:
+        user_features = redis.hgetall(f"user:{user_id}:user_stats")
+        item_features = redis.hgetall(f"item:{item_id}:item_stats")
+        return {**user_features, **item_features}</code></pre>
+<h3>Production improvements</h3>
+<ul><li>batch get instead of one key at a time</li></ul>
+<ul><li>cache hot keys</li></ul>
+<ul><li>timeout and fallback defaults</li></ul>
+<ul><li>feature freshness validation</li></ul>
+<ul><li>record feature version with prediction logs</li></ul></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Streaming features</h2>
+<div class="section-body"><p>Example: compute user_click_count_5m with Kafka + Flink.</p>
+<h3>Flow</h3>
+<p>  click events -&gt; Kafka -&gt; Flink keyed state -&gt; Redis online store</p>
+<h3>Flink logic</h3>
+<ul><li>key_by user_id</li></ul>
+<ul><li>maintain event-time window or rolling state</li></ul>
+<ul><li>update Redis with count and timestamp</li></ul>
+<ul><li>checkpoint state</li></ul>
+<h3>Pseudocode</h3>
+<pre><code class="language-python">def process_event(event, state):
+    user_id = event["user_id"]
+    ts = event["event_ts"]
+    state[user_id].add(ts)
+    state[user_id].remove_older_than(ts - 5 * 60)
+    redis.hset(f"user:{user_id}:realtime", mapping={
+        "click_count_5m": state[user_id].count(),
+        "feature_ts": ts,
+    })</code></pre></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Feature versioning</h2>
+<div class="section-body"><h3>Every feature should have</h3>
+<ul><li>name</li></ul>
+<ul><li>owner</li></ul>
+<ul><li>description</li></ul>
+<ul><li>entity key</li></ul>
+<ul><li>type</li></ul>
+<ul><li>source</li></ul>
+<ul><li>transformation logic</li></ul>
+<ul><li>freshness SLA</li></ul>
+<ul><li>TTL</li></ul>
+<ul><li>version</li></ul>
+<ul><li>validation checks</li></ul>
+<h3>Why versioning matters</h3>
+<ul><li>model v1 trained with old definition</li></ul>
+<ul><li>model v2 trained with new definition</li></ul>
+<ul><li>serving must fetch compatible feature versions</li></ul>
+<h3>Example</h3>
+<pre><code class="language-text">user_click_count_7d_v1 = count all clicks
+user_click_count_7d_v2 = count only qualified clicks excluding bots</code></pre></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Feature drift and skew checks</h2>
+<div class="section-body"><h3>Offline/online skew check</h3>
+<p class="numbered-line">1. Log online features used at prediction time.</p>
+<p class="numbered-line">2. Recompute same features offline for the same entity/timestamp.</p>
+<p class="numbered-line">3. Compare values.</p>
+<h3>Example</h3>
+<pre><code class="language-python">import pandas as pd
+
+joined = online_log.merge(offline_recomputed, on=["request_id", "feature_name"])
+joined["abs_diff"] = (joined["online_value"] - joined["offline_value"]).abs()
+
+skew_rate = (joined["abs_diff"] &gt; 1e-6).mean()
+assert skew_rate &lt; 0.001</code></pre></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Common feature engineering patterns</h2>
+<div class="section-body"><h3>User features</h3>
+<ul><li>clicks_1h / clicks_1d / clicks_7d</li></ul>
+<ul><li>purchases_30d</li></ul>
+<ul><li>avg_order_value_90d</li></ul>
+<ul><li>last_active_days</li></ul>
+<ul><li>preferred_category</li></ul>
+<h3>Item/doc features</h3>
+<ul><li>ctr_1d / ctr_7d</li></ul>
+<ul><li>quality_score</li></ul>
+<ul><li>freshness_age_hours</li></ul>
+<ul><li>embedding cluster id</li></ul>
+<ul><li>content language</li></ul>
+<h3>Cross features</h3>
+<ul><li>user_category_affinity</li></ul>
+<ul><li>user_item_similarity</li></ul>
+<ul><li>query_doc_bm25</li></ul>
+<ul><li>query_doc_embedding_cosine</li></ul>
+<h3>Realtime features</h3>
+<ul><li>session_click_count</li></ul>
+<ul><li>recent_query_count</li></ul>
+<ul><li>fraud_velocity_5m</li></ul>
+<ul><li>inventory_remaining</li></ul></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Feature store interview questions</h2>
+<div class="section-body"><p>Q: Why not just read features from the warehouse?<br/>A: Warehouse is not low-latency enough for online serving and does not automatically enforce point-in-time joins or shared feature definitions.</p>
+<p>Q: How do you avoid future leakage?<br/>A: Use event timestamps and point-in-time joins. For each label timestamp, only join feature values with feature_ts &lt;= label_ts.</p>
+<p>Q: How to handle missing features online?<br/>A: Use defaults, fallback features, freshness checks, and log missing/default rates. Important models may use feature availability as a separate signal.</p>
+<p>Q: How do you backfill a feature?<br/>A: Write feature definition, compute historical values with Spark into offline store, validate, materialize recent values to online store, then update model training/serving config.</p>
+<p>Q: What if online feature is stale?<br/>A: Return default/fallback, mark feature freshness in request context, maybe route to a safe model, and alert if freshness SLA is violated.</p></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. References / official docs</h2>
+<div class="section-body"><ul><li>Feast docs: https://docs.feast.dev/</li></ul>
+<ul><li>Feast point-in-time joins: https://docs.feast.dev/getting-started/concepts/point-in-time-joins</li></ul>
+<ul><li>Feast online store: https://docs.feast.dev/getting-started/components/online-store</li></ul>
+<ul><li>Feast offline store: https://docs.feast.dev/getting-started/components/offline-store</li></ul></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>RESUME-ALIGNED INTERVIEW DEEP DIVE</h2>
+<div class="section-body"><p>A. How this maps to ranking and personalization<br/>------------------------------------------------------------<br/>For search/discovery, the feature store provides consistent features for retrieval/ranking models: user affinity, asset popularity, freshness, creator quality, query intent, doc engagement, tenant-level preferences, and safety signals.</p>
+<p>The hard part is not only computing features. It is ensuring point-in-time correctness for training and low-latency freshness for serving.</p>
+<p>B. Feature-store design for AI search<br/>------------------------------------------------------------</p>
+<h3>Offline path</h3>
+<ul><li>Spark/Flink writes feature histories to Iceberg/S3/warehouse.</li></ul>
+<ul><li>Training jobs request point-in-time joins for labels.</li></ul>
+<ul><li>Feature definitions are versioned with model versions.</li></ul>
+<h3>Online path</h3>
+<ul><li>Flink or batch materialization writes latest feature values to Redis/DynamoDB/Cassandra/Bigtable.</li></ul>
+<ul><li>Serving service hydrates features by entity keys with strict latency budget.</li></ul>
+<ul><li>Missing/stale feature defaults are tracked and monitored.</li></ul>
+<p>C. Freshness and skew checks<br/>------------------------------------------------------------</p>
+<h3>Metrics</h3>
+<ul><li>online feature p95 lookup latency.</li></ul>
+<ul><li>feature freshness age by feature view.</li></ul>
+<ul><li>missing feature rate.</li></ul>
+<ul><li>training-serving skew sample checks.</li></ul>
+<ul><li>materialization lag.</li></ul>
+<ul><li>entity hot-key rate.</li></ul>
+<p>D. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: What is point-in-time correctness?<br/>A: For a training row at time T, features must reflect only information available at or before T. Otherwise future data leaks into training.</p>
+<p>Q: How do you handle real-time features?<br/>A: Use streaming jobs to update online features, watermark/event-time logic for windows, TTLs to prevent stale values, and online/offline parity tests.</p>
+<p>Q: What causes training-serving skew?<br/>A: Different code paths, different defaults, stale online values, inconsistent time windows, schema changes, or offline features using data unavailable online.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

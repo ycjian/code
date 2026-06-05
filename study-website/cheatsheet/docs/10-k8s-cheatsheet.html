@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Kubernetes Cheat Sheet — For Ai/ML Engineers</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>Kubernetes Cheat Sheet — For Ai/ML Engineers</h1>
+<p>interviews + daily model deployment</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>KUBERNETES CHEAT SHEET — For AI/ML Engineers<br/>Purpose: interviews + daily model deployment</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Kubernetes mental model</h2>
+<div class="section-body"><p>Kubernetes is a platform for running containerized workloads.</p>
+<h3>Core ideas</h3>
+<pre><code class="language-text">Pod: smallest deployable unit; one or more containers
+Deployment: manages replicated stateless Pods
+Service: stable network endpoint for Pods
+Ingress/Gateway: external HTTP routing
+ConfigMap/Secret: configuration
+Volume/PVC: storage
+Job/CronJob: batch work
+Namespace: isolation
+Node: machine
+Cluster: group of nodes</code></pre>
+<p>中文: Pod 会被创建/删除,IP 不稳定。Service 给 Pod 一个稳定入口。</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. kubectl basics</h2>
+<div class="section-body"><pre><code class="language-bash">kubectl get pods
+kubectl get deployments
+kubectl get svc
+kubectl get ingress
+kubectl describe pod POD_NAME
+kubectl logs POD_NAME
+kubectl logs -f POD_NAME
+kubectl exec -it POD_NAME -- bash
+kubectl apply -f app.yaml
+kubectl delete -f app.yaml</code></pre>
+<h3>Namespace</h3>
+<pre><code class="language-bash">kubectl get pods -n my-ns
+kubectl config set-context --current --namespace=my-ns</code></pre></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Deployment</h2>
+<div class="section-body"><pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sentiment-api
+  template:
+    metadata:
+      labels:
+        app: sentiment-api
+    spec:
+      containers:
+        - name: api
+          image: myrepo/sentiment-api:1.0.0
+          ports:
+            - containerPort: 8080</code></pre>
+<h3>Apply and rollout</h3>
+<pre><code class="language-bash">kubectl apply -f deployment.yaml
+kubectl rollout status deployment/sentiment-api
+kubectl rollout undo deployment/sentiment-api</code></pre></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Service</h2>
+<div class="section-body"><pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-service
+spec:
+  type: ClusterIP
+  selector:
+    app: sentiment-api
+  ports:
+    - port: 80
+      targetPort: 8080</code></pre>
+<p>Meaning: Service port 80 -&gt; container port 8080. Selector chooses Pods by labels.</p>
+<h3>Types</h3>
+<ul><li>ClusterIP: internal only</li></ul>
+<ul><li>NodePort: exposes on node port</li></ul>
+<ul><li>LoadBalancer: cloud load balancer</li></ul>
+<ul><li>ExternalName: DNS alias</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Ingress</h2>
+<div class="section-body"><pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sentiment-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: sentiment.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sentiment-service
+                port:
+                  number: 80</code></pre>
+<p>Need an Ingress Controller installed.</p></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. ConfigMap and Secret</h2>
+<div class="section-body"><h3>ConfigMap</h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  MODEL_NAME: "distilbert-base-uncased"
+  LOG_LEVEL: "INFO"</code></pre>
+<h3>Secret</h3>
+<pre><code class="language-bash">kubectl create secret generic api-secret --from-literal=OPENAI_API_KEY=xxx</code></pre>
+<h3>Use in Deployment</h3>
+<pre><code class="language-yaml">envFrom:
+  - configMapRef:
+      name: app-config
+  - secretRef:
+      name: api-secret</code></pre></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Resource requests and limits</h2>
+<div class="section-body"><pre><code class="language-yaml">resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1"
+    memory: "2Gi"</code></pre>
+<h3>Meaning</h3>
+<ul><li>requests: scheduler uses this to place Pod</li></ul>
+<ul><li>limits: max allowed usage</li></ul>
+<h3>GPU</h3>
+<pre><code class="language-yaml">resources:
+  limits:
+    nvidia.com/gpu: 1</code></pre>
+<p>For GPU workloads, NVIDIA device plugin is usually needed.</p></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Probes</h2>
+<div class="section-body"><pre><code class="language-yaml">livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5</code></pre>
+<p>liveness: should container be restarted?<br/>readiness: should Pod receive traffic?<br/>For model serving, readiness should be false until model is loaded.</p></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Horizontal Pod Autoscaler</h2>
+<div class="section-body"><pre><code class="language-bash">kubectl autoscale deployment sentiment-api --cpu-percent=70 --min=2 --max=10</code></pre>
+<p>For LLM serving, CPU is often not enough. Use custom metrics: queue length, GPU utilization, tokens/sec, latency.</p></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Job and CronJob</h2>
+<div class="section-body"><h3>Job</h3>
+<pre><code class="language-yaml">apiVersion: batch/v1
+kind: Job
+metadata:
+  name: embedding-backfill
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: worker
+          image: myrepo/embedding-worker:1.0</code></pre>
+<h3>CronJob</h3>
+<pre><code class="language-yaml">apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: daily-index-refresh
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: worker
+              image: myrepo/indexer:1.0</code></pre>
+<p>Use for embedding backfills, offline evaluation, batch inference, daily index refresh.</p></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Persistent storage</h2>
+<div class="section-body"><h3>PVC</h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-cache-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi</code></pre>
+<h3>Mount</h3>
+<pre><code class="language-yaml">volumeMounts:
+  - name: model-cache
+    mountPath: /models
+volumes:
+  - name: model-cache
+    persistentVolumeClaim:
+      claimName: model-cache-pvc</code></pre></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. AI model serving Deployment example</h2>
+<div class="section-body"><pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-server
+  template:
+    metadata:
+      labels:
+        app: llm-server
+    spec:
+      nodeSelector:
+        accelerator: nvidia-gpu
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:latest
+          args:
+            - "--model"
+            - "meta-llama/Llama-3.1-8B-Instruct"
+            - "--host"
+            - "0.0.0.0"
+            - "--port"
+            - "8000"
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+              memory: "48Gi"
+            requests:
+              cpu: "4"
+              memory: "32Gi"</code></pre></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Helm basics</h2>
+<div class="section-body"><pre><code class="language-bash">helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install my-release bitnami/nginx
+helm upgrade my-release ./chart
+helm uninstall my-release</code></pre>
+<p>Helm = package manager/templates for K8s YAML.</p></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. Debugging</h2>
+<div class="section-body"><h3>Pod pending</h3>
+<pre><code class="language-bash">kubectl describe pod POD</code></pre>
+<p>Check insufficient CPU/memory/GPU, node selector mismatch, taints/tolerations, PVC not bound, image pull error.</p>
+<h3>CrashLoopBackOff</h3>
+<pre><code class="language-bash">kubectl logs POD --previous
+kubectl describe pod POD</code></pre>
+<h3>Service not working</h3>
+<pre><code class="language-bash">kubectl get endpoints SERVICE_NAME
+kubectl port-forward svc/SERVICE_NAME 8080:80</code></pre></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>14. K8s for ML/AI systems</h2>
+<div class="section-body"><h3>Components</h3>
+<pre><code class="language-text">training jobs: Job/Kubeflow/Ray
+model serving: Deployment/KServe/Seldon/Ray Serve/vLLM/Triton
+feature store: online store + batch jobs
+vector DB: StatefulSet or managed service
+monitoring: Prometheus/Grafana
+logging: Fluent Bit/ELK
+secrets: cloud secret manager</code></pre></div>
+</section>
+<section class="section-card" id="sec-16">
+<div class="section-kicker">Section 17</div>
+<h2>15. Interview answer pattern</h2>
+<div class="section-body"><p>Question: Deploy a model on Kubernetes.</p>
+<h3>Answer</h3>
+<p>I would containerize the model server, deploy it with a Deployment, expose it through a Service and Ingress, configure resource requests/limits including GPU if needed, and add readiness/liveness probes. For production I would add autoscaling based on latency or queue length, rolling updates, monitoring with Prometheus, centralized logs, and a rollback strategy. For LLMs I would pay special attention to model loading time, GPU memory, readiness probe delay, and long-running request timeouts.</p></div>
+</section>
+<section class="section-card" id="sec-17">
+<div class="section-kicker">Section 18</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. Kubernetes mental model for AI infra<br/>------------------------------------------------------------<br/>Kubernetes is the control plane for container scheduling, networking, rollout, and resource isolation. For AI, hard parts are GPU placement, cold start, autoscaling signals, model artifacts, and safe rollouts.</p>
+<p>B. Scheduler and resources<br/>------------------------------------------------------------<br/>Requests affect scheduling; limits affect runtime enforcement. CPU over limit throttles; memory over limit can OOMKill. GPU resources usually come from the NVIDIA device plugin.</p>
+<p>Placement tools: nodeSelector, nodeAffinity, podAffinity/antiAffinity, taints/tolerations, priority/preemption, topology spread constraints.</p>
+<p>C. GPU workloads<br/>------------------------------------------------------------<br/>Need correct CUDA image, GPU node pools, device plugin, readiness after model warmup, model cache/local SSD strategy, and GPU observability. MIG partitions one GPU into isolated instances; useful for smaller models but less flexible for large models.</p>
+<p>D. Autoscaling<br/>------------------------------------------------------------<br/>HPA can use CPU/memory/custom metrics. KEDA adds event-driven scaling from queues/Kafka/Prometheus/etc. For AI serving, better signals include queue depth, p95 latency, token backlog, GPU utilization, KV-cache pressure, and model warm capacity. Avoid scale-to-zero for huge models unless cold start is acceptable.</p>
+<p>E. Rollout safety<br/>------------------------------------------------------------<br/>Rollout unit includes image, model artifact, tokenizer, prompt template, schema, and index version. Use canary, blue/green, or shadow. Readiness should remain false until model is loaded and warmed.</p>
+<p>F. Networking<br/>------------------------------------------------------------<br/>Service gives stable DNS/IP. Ingress/Gateway handles external HTTP. Envoy/Istio can add retries, timeouts, mTLS, traffic splitting. Be careful: retries can amplify incidents; use deadlines and retry budgets.</p>
+<p>G. Artifact storage<br/>------------------------------------------------------------<br/>Options: bake model into image, initContainer download, sidecar/model cache, object storage + local SSD. Trade off rollout speed, startup latency, image size, and cache hit rate.</p>
+<p>H. Failure modes<br/>------------------------------------------------------------<br/>CrashLoopBackOff, ImagePullBackOff, Pending due insufficient resources, OOMKilled, readiness false, node pressure, GPU plugin issues, failed scheduling constraints.</p>
+<p>I. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: Request vs limit?<br/>A: Request is reserved for placement. Limit is max runtime usage. CPU throttles; memory can kill.</p>
+<p>Q: How deploy model safely?<br/>A: Immutable versions, readiness after warmup, canary, monitor latency/error/quality, and rollback to prior image/model/tokenizer/config.</p>
+<p>Q: How autoscale LLM serving?<br/>A: Use queue/token/latency metrics, keep warm replicas, account for GPU capacity and cold starts, and avoid pure CPU HPA.</p>
+<p>Q: Bin-packing vs spreading?<br/>A: Bin-packing improves utilization/cost; spreading improves availability. AI platforms often combine both by workload class.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

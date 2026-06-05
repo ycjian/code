@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Search &amp; Discovery Libraries Cheat Sheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>Search &amp; Discovery Libraries Cheat Sheet</h1>
+<p>search/recommendation/discovery systems, RAG retrieval, interviews</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>SEARCH &amp; DISCOVERY LIBRARIES CHEAT SHEET<br/>Purpose: search/recommendation/discovery systems, RAG retrieval, interviews</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Search mental model</h2>
+<div class="section-body"><h3>Search is usually a multi-stage ranking system</h3>
+<pre><code class="language-text">Query -&gt; understand/rewrite/tokenize -&gt; candidate generation -&gt; ranking/reranking -&gt; filters/business rules -&gt; results</code></pre>
+<h3>Retrieval stages</h3>
+<pre><code class="language-text">Stage 1: retrieve many candidates fast
+Stage 2: rank/rerank with better model
+Stage 3: diversify/personalize/business rules</code></pre>
+<p>中文: 搜索不是一个模型,而是一条 pipeline。</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Search types</h2>
+<div class="section-body"><h3>Lexical search</h3>
+<ul><li>BM25, inverted index, exact keyword matching</li></ul>
+<ul><li>good for names, IDs, rare terms, exact phrases</li></ul>
+<h3>Semantic search</h3>
+<ul><li>embeddings/vector search</li></ul>
+<ul><li>good for synonyms, intent, natural language</li></ul>
+<h3>Hybrid search</h3>
+<ul><li>BM25 + vector</li></ul>
+<ul><li>often best in real products</li></ul>
+<h3>Discovery/recommendation</h3>
+<ul><li>similar items</li></ul>
+<ul><li>personalized ranking</li></ul>
+<ul><li>exploration</li></ul>
+<ul><li>diversity</li></ul>
+<ul><li>trending/popular</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Core metrics</h2>
+<div class="section-body"><pre><code class="language-text">Precision@k: relevant items in top k
+Recall@k: how many relevant items retrieved
+MRR: reciprocal rank of first relevant item
+MAP: mean average precision
+NDCG@k: ranking quality with graded relevance
+CTR: click-through rate
+CVR: conversion rate
+Dwell time: engagement
+Zero-result rate: search failure signal
+Latency p50/p95/p99</code></pre>
+<p>NDCG intuition: relevant results are better when ranked higher.</p></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. sklearn text search baseline</h2>
+<div class="section-body"><pre><code class="language-python">from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+docs = [
+    "reset password instructions",
+    "refund policy for returned items",
+    "shipping time and delivery tracking",
+]
+
+vectorizer = TfidfVectorizer(ngram_range=(1, 2))
+X = vectorizer.fit_transform(docs)
+
+def search(query, k=3):
+    q = vectorizer.transform([query])
+    scores = cosine_similarity(q, X)[0]
+    idx = scores.argsort()[::-1][:k]
+    return [(docs[i], float(scores[i])) for i in idx]
+
+print(search("how do I return my order"))</code></pre>
+<p>Good for small demos, interview baseline, simple internal tools.</p></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. BM25 with rank_bm25</h2>
+<div class="section-body"><pre><code class="language-python">from rank_bm25 import BM25Okapi
+import numpy as np
+
+docs = [
+    "reset password instructions",
+    "refund policy for returned items",
+    "shipping time and delivery tracking",
+]
+
+tokenized_docs = [d.split() for d in docs]
+bm25 = BM25Okapi(tokenized_docs)
+
+def search_bm25(query, k=3):
+    scores = bm25.get_scores(query.split())
+    idx = np.argsort(scores)[::-1][:k]
+    return [(docs[i], float(scores[i])) for i in idx]</code></pre></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. SentenceTransformers semantic search</h2>
+<div class="section-body"><pre><code class="language-python">from sentence_transformers import SentenceTransformer
+import numpy as np
+
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+docs = ["reset password", "refund order", "track shipment"]
+doc_vecs = model.encode(docs, normalize_embeddings=True)
+
+def semantic_search(query, k=3):
+    q = model.encode([query], normalize_embeddings=True)
+    scores = (q @ doc_vecs.T)[0]
+    idx = np.argsort(scores)[::-1][:k]
+    return [(docs[i], float(scores[i])) for i in idx]</code></pre></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. FAISS vector search</h2>
+<div class="section-body"><pre><code class="language-python">import faiss
+import numpy as np
+
+vectors = np.array(doc_vecs).astype("float32")
+index = faiss.IndexFlatIP(vectors.shape[1])
+index.add(vectors)
+
+def faiss_search(query, k=5):
+    q = model.encode([query], normalize_embeddings=True).astype("float32")
+    scores, ids = index.search(q, k)
+    return [(docs[i], float(s)) for i, s in zip(ids[0], scores[0])]</code></pre>
+<p>FAISS is good for local fast ANN, prototypes, and custom infra.</p></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Qdrant basics</h2>
+<div class="section-body"><p>Qdrant = vector search engine with payload filtering.</p>
+<h3>Concepts</h3>
+<ul><li>Collection: group of vectors</li></ul>
+<ul><li>Point: vector + id + payload</li></ul>
+<ul><li>Payload: metadata used for filtering</li></ul>
+<pre><code class="language-python">from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams, PointStruct
+
+client = QdrantClient(":memory:")
+
+client.create_collection(
+    collection_name="docs",
+    vectors_config=VectorParams(size=384, distance=Distance.COSINE),
+)
+
+client.upsert(
+    collection_name="docs",
+    points=[
+        PointStruct(
+            id=1,
+            vector=doc_vecs[0].tolist(),
+            payload={"title": "Reset password", "category": "account"},
+        )
+    ],
+)</code></pre>
+<h3>Search</h3>
+<pre><code class="language-python">hits = client.query_points(
+    collection_name="docs",
+    query=query_vec.tolist(),
+    limit=5,
+)</code></pre></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Milvus basics</h2>
+<div class="section-body"><p>Milvus = scalable open-source vector database.</p>
+<h3>Good for</h3>
+<ul><li>large corpus</li></ul>
+<ul><li>high-scale vector search</li></ul>
+<ul><li>AI applications</li></ul>
+<h3>Concepts</h3>
+<pre><code class="language-text">collection
+schema
+index
+insert
+load
+search</code></pre>
+<h3>Typical fields</h3>
+<pre><code class="language-text">id
+text
+embedding
+metadata</code></pre></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Elasticsearch / OpenSearch</h2>
+<div class="section-body"><h3>Use for</h3>
+<ul><li>BM25 keyword search</li></ul>
+<ul><li>filters/facets</li></ul>
+<ul><li>highlighting</li></ul>
+<ul><li>logs/docs/products</li></ul>
+<ul><li>hybrid lexical + vector search</li></ul>
+<h3>Elasticsearch query idea</h3>
+<pre><code class="language-json">{
+  "query": {
+    "multi_match": {
+      "query": "refund policy",
+      "fields": ["title^3", "body"]
+    }
+  }
+}</code></pre>
+<p>Boost: <code>title^3</code> means title is 3x more important.</p>
+<h3>Filters</h3>
+<pre><code class="language-json">{
+  "query": {
+    "bool": {
+      "must": [{"match": {"body": "refund"}}],
+      "filter": [{"term": {"status": "active"}}]
+    }
+  }
+}</code></pre></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. PyTerrier for IR research</h2>
+<div class="section-body"><h3>PyTerrier is useful for</h3>
+<ul><li>BM25 experiments</li></ul>
+<ul><li>learning-to-rank</li></ul>
+<ul><li>TREC-style evaluation</li></ul>
+<ul><li>retrieval pipeline composition</li></ul>
+<h3>Pipeline concept</h3>
+<pre><code class="language-text">Retriever &gt;&gt; Reranker &gt;&gt; Evaluation</code></pre>
+<h3>Learning-to-rank stages</h3>
+<p class="numbered-line">1. candidate retrieval</p>
+<p class="numbered-line">2. feature generation</p>
+<p class="numbered-line">3. learned reranker</p></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Reranking</h2>
+<div class="section-body"><h3>Cross-encoder reranker</h3>
+<pre><code class="language-python">from sentence_transformers import CrossEncoder
+
+reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+
+def rerank(query, docs):
+    pairs = [(query, d) for d in docs]
+    scores = reranker.predict(pairs)
+    return sorted(zip(docs, scores), key=lambda x: x[1], reverse=True)</code></pre>
+<h3>Why</h3>
+<p>Bi-encoder/vector search is fast. Cross-encoder is slower but more accurate. Use vector/BM25 for candidate generation, cross-encoder for reranking.</p></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Hybrid search</h2>
+<div class="section-body"><h3>Score fusion</h3>
+<pre><code class="language-python">def minmax(xs):
+    lo, hi = min(xs), max(xs)
+    return [(x - lo) / (hi - lo + 1e-9) for x in xs]
+
+hybrid_score = 0.5 * bm25_score_norm + 0.5 * dense_score_norm</code></pre>
+<h3>Reciprocal Rank Fusion</h3>
+<pre><code class="language-python">def rrf(rankings, k=60):
+    scores = {}
+    for ranking in rankings:
+        for rank, doc_id in enumerate(ranking, start=1):
+            scores[doc_id] = scores.get(doc_id, 0) + 1 / (k + rank)
+    return sorted(scores.items(), key=lambda x: x[1], reverse=True)</code></pre>
+<p>RRF is robust because it combines ranks, not raw scores.</p></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. Query understanding</h2>
+<div class="section-body"><h3>Techniques</h3>
+<ul><li>spell correction</li></ul>
+<ul><li>synonym expansion</li></ul>
+<ul><li>query rewriting</li></ul>
+<ul><li>intent classification</li></ul>
+<ul><li>entity extraction</li></ul>
+<ul><li>faceted filters</li></ul>
+<ul><li>personalization</li></ul>
+<h3>Example</h3>
+<pre><code class="language-text">"apple charger under 20"
+entities:
+- brand: apple
+- category: charger
+- price: &lt;20</code></pre></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>14. Discovery / recommendation basics</h2>
+<div class="section-body"><h3>Candidate sources</h3>
+<ul><li>similar items by embedding</li></ul>
+<ul><li>collaborative filtering</li></ul>
+<ul><li>popular/trending</li></ul>
+<ul><li>recently viewed</li></ul>
+<ul><li>rules/editorial</li></ul>
+<h3>Ranking features</h3>
+<ul><li>query-item relevance</li></ul>
+<ul><li>user-item affinity</li></ul>
+<ul><li>popularity</li></ul>
+<ul><li>freshness</li></ul>
+<ul><li>price/availability</li></ul>
+<ul><li>diversity</li></ul>
+<ul><li>business constraints</li></ul>
+<h3>Two-tower retrieval</h3>
+<pre><code class="language-text">user tower -&gt; user embedding
+item tower -&gt; item embedding
+nearest neighbor search -&gt; candidates</code></pre></div>
+</section>
+<section class="section-card" id="sec-16">
+<div class="section-kicker">Section 17</div>
+<h2>15. Production concerns</h2>
+<div class="section-body"><ul><li>latency budget</li></ul>
+<ul><li>index freshness</li></ul>
+<ul><li>shard/replica design</li></ul>
+<ul><li>access control</li></ul>
+<ul><li>A/B testing</li></ul>
+<ul><li>offline evaluation</li></ul>
+<ul><li>online metrics</li></ul>
+<ul><li>observability</li></ul>
+<ul><li>backfill/reindex pipeline</li></ul>
+<ul><li>fallback search when embedding service fails</li></ul></div>
+</section>
+<section class="section-card" id="sec-17">
+<div class="section-kicker">Section 18</div>
+<h2>16. Interview answer pattern</h2>
+<div class="section-body"><p>Question: Design search for documents/products.</p>
+<h3>Answer</h3>
+<p>I would use a multi-stage ranking architecture. First, query understanding extracts filters and entities. Then candidate generation combines BM25 for exact keyword matches and dense vector retrieval for semantic matches. I would merge results with RRF or score fusion, rerank top candidates with a cross-encoder or learning-to-rank model, apply business rules and diversity, and return results with explanations. Offline, I would measure Recall@k, NDCG, and MRR; online, CTR, conversion, zero-result rate, and latency.</p></div>
+</section>
+<section class="section-card" id="sec-18">
+<div class="section-kicker">Section 19</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. Search system mental model<br/>------------------------------------------------------------<br/>Search is a multi-stage funnel: candidate generation, filtering, ranking, reranking, diversification, and feedback learning. Strong systems balance relevance, latency, freshness, permissions, and business constraints.</p>
+<p>B. Core libraries and systems<br/>------------------------------------------------------------</p>
+<ul><li>Elasticsearch/OpenSearch/Lucene: inverted index, BM25, filters, aggregations.</li></ul>
+<ul><li>Milvus/Faiss/ScaNN: vector ANN search.</li></ul>
+<ul><li>Spark/Flink/Beam: indexing and feature generation.</li></ul>
+<ul><li>Kafka: ingestion/update event stream.</li></ul>
+<ul><li>Redis: cache, counters, feature cache.</li></ul>
+<ul><li>PyTerrier: IR research/evaluation.</li></ul>
+<ul><li>Sentence Transformers/HF: embedding models.</li></ul>
+<p>C. Indexing pipeline<br/>------------------------------------------------------------</p>
+<p class="numbered-line">1. Source event arrives.</p>
+<p class="numbered-line">2. Validate and normalize metadata.</p>
+<p class="numbered-line">3. Extract text/OCR/captions/embeddings.</p>
+<p class="numbered-line">4. Write lexical index and vector index.</p>
+<p class="numbered-line">5. Publish index version and health metrics.</p>
+<p class="numbered-line">6. Run backfill and incremental updates separately.</p>
+<p>Use immutable index versions for safe rollout and rollback. Query services can A/B old/new indexes.</p>
+<p>D. ANN deep dive<br/>------------------------------------------------------------<br/>Approximate nearest neighbor trades recall for speed/memory.</p>
+<ul><li>HNSW: graph-based, high recall/low latency, memory heavy.</li></ul>
+<ul><li>IVF: cluster vectors, search selected clusters.</li></ul>
+<ul><li>PQ: compress vectors, lower memory, quality tradeoff.</li></ul>
+<ul><li>DiskANN: large indexes with SSD.</li></ul>
+<p>Tune recall@K, latency, memory, index build time, update speed, and filter behavior.</p>
+<p>E. Ranking features<br/>------------------------------------------------------------</p>
+<h3>Feature families</h3>
+<ul><li>lexical: BM25, exact match, field match.</li></ul>
+<ul><li>semantic: vector similarity, cross-encoder score.</li></ul>
+<ul><li>behavioral: clicks, saves, dwell.</li></ul>
+<ul><li>freshness/popularity.</li></ul>
+<ul><li>personalization.</li></ul>
+<ul><li>permissions/availability.</li></ul>
+<ul><li>diversity/dedup.</li></ul>
+<p>F. Evaluation<br/>------------------------------------------------------------<br/>Offline: Recall@K, MRR, nDCG, coverage, freshness, latency. Online: CTR, conversion, zero-result rate, reformulation rate, task success. Watch for position bias and popularity feedback loops.</p>
+<p>G. Failure modes<br/>------------------------------------------------------------<br/>Vector index stale while lexical index is fresh; embedding model changed but old vectors remain; ANN recall too low for reranker; filters applied after ANN cause empty results; popularity bias buries niche content.</p>
+<p>H. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: Why multi-stage retrieval?<br/>A: Full ranking over all documents is too expensive. Use cheap high-recall retrieval first, then expensive reranking on a small candidate set.</p>
+<p>Q: Why Reciprocal Rank Fusion?<br/>A: It combines rankings with incomparable scores, such as BM25 and vector search, by using ranks rather than raw scores.</p>
+<p>Q: How handle permissions?<br/>A: Apply tenant/ACL filters during candidate generation where possible, cache carefully, and never generate/rerank from unauthorized candidates.</p>
+<p>Q: How debug relevance drop?<br/>A: Compare query mix, index freshness, retrieval recall, ranker features, model/index versions, timeouts, and A/B slices. Build query-level diff tools.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

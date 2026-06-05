@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Snorkel Interview Prep</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Recruiter and Adjacent Prep / TEXT</div>
+<h1>Snorkel Interview Prep</h1>
+<p>Recruiter Screen Prep: Snorkel AI</p>
+</div>
+</header>
+<article class="markdown-body"><h1 id="recruiter-screen-prep-snorkel-ai">Recruiter Screen Prep: Snorkel AI</h1>
+<p><strong>Role:</strong> Senior Software Engineer — Expert Contributor Lifecycle<br/>
+<strong>Call Format:</strong> Initial Recruiter Screen | Company &amp; Role Overview | Your Background | Next Steps</p>
+<hr/>
+<h2 id="1-company-overview-what-snorkel-ai-does-why-it-matters-now">1. COMPANY OVERVIEW: What Snorkel AI Does &amp; Why It Matters Now</h2>
+<p>Snorkel AI is one of the most strategically important companies in the current AI stack. Founded at Stanford, they pioneered <strong>programmatic data development</strong> — using code (labeling functions, weak supervision) instead of manual human annotation to create massive training datasets.</p>
+<p>In 2025, they raised a <strong>$100M Series D</strong> and launched:<br/>
+- <strong>Snorkel Flow:</strong> Core platform — turns raw enterprise data into curated training sets for LLMs.<br/>
+- <strong>Snorkel Evaluate:</strong> Fine-grained, specialized model evaluation beyond generic LLM-as-a-Judge.<br/>
+- <strong>Snorkel Expert Data-as-a-Service:</strong> A managed service combining their platform with a curated community of subject matter experts (PhDs, domain specialists).</p>
+<p><strong>The Core Business Insight:</strong> Generic foundation models (GPT-4, Claude) are not production-ready for specialized enterprise domains (medical, legal, financial). Snorkel helps enterprises fine-tune smaller, cheaper, more accurate models using proprietary data — without exposing sensitive data to external providers.</p>
+<p><strong>Why the "Expert Contributor Lifecycle" role exists right now:</strong><br/>
+The Expert Contributor community is their key competitive differentiator for the Data-as-a-Service business. Building the software systems that manage the lifecycle of thousands of expert contributors (recruitment, task assignment, quality scoring, payments, fraud detection) is a critical engineering challenge. This is essentially building a <strong>high-quality human-in-the-loop ML platform</strong> at scale.</p>
+<hr/>
+<h2 id="2-the-role-expert-contributor-lifecycle-what-youre-being-asked-to-build">2. THE ROLE: Expert Contributor Lifecycle — What You're Being Asked to Build</h2>
+<p>The "Expert Contributor Lifecycle" team owns the platform that:<br/>
+1. <strong>Onboards and vets</strong> contributors (PhDs, domain experts) for AI data tasks.<br/>
+2. <strong>Routes tasks intelligently</strong> to the right experts based on skill match and availability.<br/>
+3. <strong>Scores quality</strong> of expert contributions vs. programmatic ground truth.<br/>
+4. <strong>Manages payments and compliance</strong> (contractor payroll, 1099s, international compliance).<br/>
+5. <strong>Detects fraud and gaming</strong> (contributors manipulating tasks to earn more).<br/>
+6. <strong>Builds the feedback loop</strong> back into Snorkel Flow — expert signal improves the platform's labeling functions.</p>
+<p>This is a <strong>platform/systems engineering + ML infrastructure</strong> role, not a pure ML modeling role. It requires building resilient, high-throughput distributed systems that coordinate people and models.</p>
+<hr/>
+<h2 id="3-your-tailored-elevator-pitch">3. YOUR TAILORED ELEVATOR PITCH</h2>
+<p><em>"Hi, thanks for connecting. I'm currently a Senior AI Platform Engineer and Tech Lead at Adobe. My background sits right at the intersection of what this role seems to need — large-scale platform engineering and ML quality infrastructure.</em></p>
+<p><em>At Adobe, I've spent years building the AI platform that tens of millions of products depend on. Most recently, I led the backend for Acrobat's AI Assistant — RAG pipelines, LLM orchestration, and a highly complex automated quality evaluation system that scores AI-generated content at over 5 million times per day. Building LLM-as-a-Judge pipelines to determine whether AI outputs are safe and grounded is essentially the same problem as scoring whether an expert contributor's data annotation is high quality.</em></p>
+<p><em>Beyond evaluation, I built the unified search and discovery platform handling 50+ billion assets, including the hybrid retrieval pipelines, delta indexing, and the distributed systems infrastructure on AWS EKS that keeps it running reliably. I'm excited about Snorkel specifically because the Expert Contributor system is a deeply interesting engineering challenge — you're building a marketplace that has a direct causal feedback loop back into model quality, which I find intellectually compelling."</em></p>
+<hr/>
+<h2 id="4-connecting-your-adobe-experience-to-the-role">4. CONNECTING YOUR ADOBE EXPERIENCE TO THE ROLE</h2>
+<h3 id="a-quality-scoring-expert-contribution-scoring">A. Quality Scoring → Expert Contribution Scoring</h3>
+<p><strong>Adobe:</strong> You built an LLM-as-a-Judge pipeline scoring 5M+ AI responses/day for safety, factuality, and artifact quality at &lt;300ms p95 latency on AWS EKS.<br/>
+<strong>Snorkel:</strong> Expert contributors produce data annotations. The platform needs to score contributor output quality against programmatic ground truth and detect when a contributor is gaming the task.<br/>
+<strong>Bridge:</strong> <em>"My eval pipeline at Adobe is architecturally identical to scoring expert contributions. Both require deterministic, scalable, low-latency quality assessment of human-or-AI-generated outputs. The scoring rubrics differ, but the infrastructure doesn't."</em></p>
+<h3 id="b-canary-rollouts-model-registries-expert-quality-gating">B. Canary Rollouts &amp; Model Registries → Expert Quality Gating</h3>
+<p><strong>Adobe:</strong> You implemented staged canary rollouts (1%→5%→25%→100%) with automated rollback on quality regression using Jensen-Shannon Divergence against shadow traffic.<br/>
+<strong>Snorkel:</strong> Before promoting an expert contributor to high-value/high-trust tasks, the system needs a confidence score on their quality — exactly the same "gate before full promotion" problem.</p>
+<h3 id="c-multi-tenant-platform-multi-client-expert-routing">C. Multi-Tenant Platform → Multi-Client Expert Routing</h3>
+<p><strong>Adobe:</strong> You built multi-tenant isolation (AQL bitmask pre-filtering, per-tenant rate limiting, tenant-aware vector namespaces) for thousands of enterprise clients.<br/>
+<strong>Snorkel:</strong> Expert contributors work across multiple client data projects. A contributor working on a pharmaceutical client's data must be isolated from a fintech client's sensitive annotations. Tenant-aware routing is required.</p>
+<h3 id="d-rate-limiting-backpressure-task-queue-throttling">D. Rate Limiting &amp; Backpressure → Task Queue Throttling</h3>
+<p><strong>Adobe:</strong> You implemented Redis-based token bucket rate limiting and KEDA-based Kafka backpressure-aware task queues to manage GPU cluster saturation.<br/>
+<strong>Snorkel:</strong> The Expert Contributor platform needs intelligent task dispatch — don't flood contributors with tasks faster than they can complete them; saturating experts leads to quality drops and churn. This is the same backpressure problem, applied to human workers instead of GPU nodes.</p>
+<h3 id="e-50b-asset-search-platform-expert-to-task-matching">E. 50B+ Asset Search Platform → Expert-to-Task Matching</h3>
+<p><strong>Adobe:</strong> You built hybrid retrieval (Dense + Sparse + RRF) to match queries to the most relevant documents across 50B assets.<br/>
+<strong>Snorkel:</strong> Routing an incoming data task to the best-matched expert (by domain expertise, past performance, language, time zone, and availability) is a retrieval/ranking problem. Your search infrastructure experience directly applies.</p>
+<hr/>
+<h2 id="5-probable-recruiter-questions-answers">5. PROBABLE RECRUITER QUESTIONS &amp; ANSWERS</h2>
+<h3 id="q-what-interests-you-in-snorkel-specifically">Q: "What interests you in Snorkel specifically?"</h3>
+<p><strong>A:</strong> <em>"Two things. First, the intellectual problem: building a platform that manages expert contributors — routing tasks, scoring quality, building feedback loops back into training data — is a genuinely hard distributed systems and ML problem. It's not building another chatbot. Second, the timing: Snorkel is positioned at the critical bottleneck of the entire LLM industry. Every enterprise trying to fine-tune a custom model needs high-quality, specialized training data. Snorkel is building the infrastructure that makes that possible at scale. I want to work on infrastructure that the rest of the AI industry depends on."</em></p>
+<h3 id="q-why-are-you-leaving-adobe">Q: "Why are you leaving Adobe?"</h3>
+<p><strong>A:</strong> <em>"Adobe is a fantastic company and I built some of the most technically challenging systems of my career there. But I'm looking for a company in the earlier, faster-growth phase where I can have a more direct impact on product direction and where I'm closer to the technical frontier of AI infrastructure. Snorkel's focus on data-centric AI and the Expert Contributor platform is an engineering domain I genuinely want to specialize in."</em></p>
+<h3 id="q-have-you-worked-with-programmatic-labeling-or-weak-supervision-before">Q: "Have you worked with programmatic labeling or weak supervision before?"</h3>
+<p><strong>A:</strong> <em>"Not Snorkel Flow directly. But my LLM-as-a-Judge framework at Adobe is fundamentally a form of programmatic labeling — instead of manual human annotation, we use an LLM with structured rubrics to programmatically label AI outputs at scale at 5M annotations/day. The challenge of ensuring those programmatic labels are calibrated against human ground truth is exactly the weak supervision aggregation problem Snorkel solves. I understand the core intellectual problem deeply, even if I used different tooling."</em></p>
+<h3 id="q-what-does-senior-mean-to-you">Q: "What does 'Senior' mean to you?"</h3>
+<p><strong>A:</strong> <em>"Senior means owning not just implementation but the technical definition of a problem. At Adobe, I didn't just write the code for our eval pipeline — I defined what metrics mattered, designed the LLM-as-a-Judge rubric, built the canary testing gate to validate new models before they hit production, and presented the architecture to VPs. Senior means the output is a system other engineers can trust, not just code that runs."</em></p>
+<hr/>
+<h2 id="6-technical-topics-to-be-ready-to-discuss-for-any-follow-up-technical-screen">6. TECHNICAL TOPICS TO BE READY TO DISCUSS (For Any Follow-up Technical Screen)</h2>
+<p>The role will likely probe these areas:<br/>
+- <strong>Task queue design:</strong> How do you build a fair, fraud-resistant task assignment system for thousands of concurrent contributors?<br/>
+- <strong>Quality scoring at scale:</strong> How do you programmatically measure if a human's annotation is correct without a perfect ground truth?<br/>
+- <strong>Fraud detection:</strong> How do you detect a contributor clicking through tasks randomly to collect payment without doing real work?<br/>
+- <strong>Ranking and routing:</strong> How do you match tasks to the best-qualified contributor given skill, availability, and historical quality?<br/>
+- <strong>Payment/compliance systems:</strong> Contractor payroll, international tax compliance, 1099 automation.</p>
+<p>Prepare short answers (2-3 sentences) for each of these based on analogous Adobe systems.</p>
+<hr/>
+<h2 id="7-smart-questions-to-ask-the-recruiter">7. SMART QUESTIONS TO ASK THE RECRUITER</h2>
+<ol>
+<li><strong>On the Product:</strong> "The Expert Contributor Lifecycle role sits at the intersection of platform engineering and human-in-the-loop ML. For this role, is the primary engineering challenge more on the task routing/quality-scoring ML side, or on the distributed systems reliability and scale side?"</li>
+<li><strong>On the Team:</strong> "Who does this role report to, and how large is the Expert Contributor Lifecycle team today? Is this a greenfield build or iterating on existing systems?"</li>
+<li><strong>On Business Context:</strong> "How central is the Expert Data-as-a-Service product to Snorkel's revenue focus right now versus Snorkel Flow platform licenses? That would help me understand which part of the system has the most engineering priority."</li>
+<li><strong>On the Interview Process:</strong> "What does the technical interview loop look like? Is it primarily systems design, coding, or a mix with domain-specific ML infrastructure?"</li>
+</ol>
+<hr/>
+<h2 id="8-key-numbers-to-remember-in-the-call">8. KEY NUMBERS TO REMEMBER IN THE CALL</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daily eval inferences at Adobe</td>
+<td>5M+ / day</td>
+</tr>
+<tr>
+<td>Platform latency SLO</td>
+<td>&lt;300ms p95</td>
+</tr>
+<tr>
+<td>Assets on unified search platform</td>
+<td>50B+</td>
+</tr>
+<tr>
+<td>LLM-as-judge human agreement rate</td>
+<td>95%+</td>
+</tr>
+<tr>
+<td>Canary rollout stages</td>
+<td>1% → 5% → 25% → 100%</td>
+</tr>
+<tr>
+<td>Semantic cache LLM cost savings</td>
+<td>~34% hit rate = $17K/day saved</td>
+</tr>
+<tr>
+<td>Snorkel Series D (2025)</td>
+<td>$100M</td>
+</tr>
+</tbody>
+</table>
+<p>Keep these numbers natural in conversation — they demonstrate real production engineering credibility.</p>
+<hr/>
+<h2 id="9-tone-positioning-notes">9. TONE &amp; POSITIONING NOTES</h2>
+<ul>
+<li><strong>Tone:</strong> Confident, curious, and product-aware. Snorkel is still growing — show you think about engineering in terms of business impact, not just technical elegance.</li>
+<li><strong>What to avoid:</strong> Don't over-index on the multimodal / visual search angle (that's more Uber/Adobe CX). This role is about <strong>data quality, expert coordination, and ML training data infrastructure</strong>.</li>
+<li><strong>Your unique positioning:</strong> You have built eval and scoring systems at production AI scale (5M/day). Most candidates have not. Lead with this.</li>
+</ul></article>
+</main>
+</body>
+</html>

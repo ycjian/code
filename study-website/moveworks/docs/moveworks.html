@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Moveworks Hiring Manager Prep</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Moveworks Prep / TEXT</div>
+<h1>Moveworks Hiring Manager Prep</h1>
+<p>Hiring Manager Interview Prep: Praveen Gorthy (ServiceNow / Moveworks)</p>
+</div>
+</header>
+<article class="markdown-body"><h1 id="hiring-manager-interview-prep-praveen-gorthy-servicenow-moveworks">Hiring Manager Interview Prep: Praveen Gorthy (ServiceNow / Moveworks)</h1>
+<p><strong>Role:</strong> Director, ML Engineering - GAI Search Platform</p>
+<hr/>
+<h2 id="1-context-praveen-the-moveworks-engineering-culture">1. Context: Praveen &amp; The Moveworks Engineering Culture</h2>
+<p>Praveen is directing the <strong>GAI Search Platform</strong>. Within the Moveworks/ServiceNow ecosystem, this is the core engine that turns convoluted enterprise data (Jira, Confluence, HR policies) into resolved tickets and actionable answers via Agentic AI. <br/>
+Since he is a Director of ML Engineering, this conversation will bridge heavily between <strong>ML Architecture (Retrieval/Ranking)</strong> and <strong>Distributed Systems Infrastructure (Scaling/Serving LLMs)</strong>. You have mastery over both.</p>
+<p><strong>The Moveworks Superpower:</strong> Moveworks isn't just about retrieving a document; it's about <em>action</em>. It's a tool-calling system built over an enterprise search graph. Your recent work at Adobe leading the AI Platform for conversational AI (RAG + tool calling) and multi-modal search is a direct 1:1 match.</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示：</strong><br/>
+Praveen 领导的是 GAI 搜索平台。在 Moveworks/ServiceNow 生态中，这是将 Jira、Confluence、HR 政策等复杂企业数据转化为可执行操作（解决工单、回答问题）的核心引擎。作为 ML 工程 Director，他既关注 ML 架构（检索/排序），也关注分布式系统基础设施（大规模 LLM 部署）。Moveworks 的核心不只是"找文件"，而是"执行动作"——本质上是一个构建在企业搜索图之上的工具调用系统（tool-calling system）。</p>
+</blockquote>
+<hr/>
+<h2 id="2-your-tailored-elevator-pitch-for-praveen">2. Your Tailored "Elevator Pitch" for Praveen</h2>
+<p>"Hi Praveen. My name is Alex, and I'm currently a Senior AI Platform Engineer and Tech Lead at Adobe. My background essentially spans exactly what a 'GAI Search Platform' needs: the traditional ML search infrastructure, and the modern Generative AI orchestration layer built on top of it. </p>
+<p>For the first four years at Adobe, I architected the unified search and discovery platform handling over 50 billion assets—specifically solving hybrid retrieval at scale, merging dense embeddings with sparse lexical search via Reciprocal Rank Fusion. Most recently, I've been Tech Leading our GenAI orchestration. I built the backend for Acrobat's Conversational AI Assistant, managing the RAG pipelines, tool-calling agents, and the highly complex LLM-as-a-judge evaluation infrastructure that runs over 5 million times a day on EKS. I'm incredibly excited about what the Moveworks team is building with ServiceNow because unifying a massive, multi-tenant enterprise search graph with deterministic, agentic AI workflows is exactly the engineering domain I specialize in."</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（电梯演讲）：</strong><br/>
+你的自我介绍要覆盖两个维度：传统 ML 搜索基础设施（前四年在 Adobe 构建处理超 500 亿资产的统一搜索平台，实现密集向量检索与 BM25 稀疏检索的混合融合）和现代生成式 AI 编排层（近期主导 Acrobat AI 助手的 RAG 管道、Tool-Calling Agent 以及每天运行 500 万次的 LLM-as-a-Judge 评估基础设施）。强调：ServiceNow 的 GAI 搜索平台把这两块能力都用得上。</p>
+</blockquote>
+<hr/>
+<h2 id="3-deep-dive-adobe-projects-tailored-for-gai-search-platform">3. Deep Dive: Adobe Projects Tailored for GAI Search Platform</h2>
+<h3 id="project-1-acrobat-conversational-ai-agent-orchestration-the-moveworks-match">Project 1: Acrobat Conversational AI &amp; Agent Orchestration (The "Moveworks" Match)</h3>
+<p><strong>What you did:</strong> Built the backend orchestration for conversational RAG, tool-calling, and retrieval with strict rate limits, caching, and circuit breakers.<br/>
+<strong>How it maps to Moveworks:</strong> Moveworks agents have to hit 3rd party APIs natively to resolve tickets (tool-calling). If a ServiceNow backend goes down, the agent cannot crash (circuit breakers). <br/>
+<strong>HM Talking Points:</strong> <br/>
+*   <em>Scale &amp; Constraints:</em> Emphasize handling GenAI in a highly synchronous, low-latency environment. Enterprise users don't want to wait 15 seconds for a chatbot. <br/>
+*   <em>Caching Strategy:</em> Talk about how you cache semantic queries or intermediate contexts to prevent constantly pinging expensive LLM APIs.</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（项目1）：</strong><br/>
+这是与 Moveworks 最直接的映射。在 Adobe Acrobat 上，你构建了完整的 RAG + Tool-Calling 编排后端，包含严格的限流、语义缓存和熔断器（circuit breaker）机制。Moveworks 的 Agent 同样需要在调用第三方 API（如 ServiceNow 工单系统）时具备容错能力。面试时重点强调：企业用户不能接受 15 秒的等待——低延迟是生产工程的核心约束，而不是研究课题。</p>
+</blockquote>
+<h3 id="project-2-genai-evaluation-guardrails-llm-as-a-judge-the-enterprise-risk-match">Project 2: GenAI Evaluation, Guardrails, &amp; "LLM-as-a-Judge" (The "Enterprise Risk" Match)</h3>
+<p><strong>What you did:</strong> Shipped EKS inference handling 5M+ evals/day at &lt;300ms latency. Delivered model registry, feature store, canary rollouts, and built aesthetic, safety, and artifact scoring algorithms.<br/>
+<strong>How it maps to Moveworks:</strong> ServiceNow/Moveworks sells to Fortune 500 banks, hospitals, and governments. Hallucinations or offensive AI behaviors destroy enterprise contracts.<br/>
+<strong>HM Talking Points:</strong> <br/>
+*   Focus on your <em>architectural rigor</em>. GenAI is non-deterministic, but enterprise software must be deterministic. Show him how your LLM-as-a-judge frameworks provide a mathematical confidence score (95% agreement with humans) before responses are served. <br/>
+*   Mention multi-tenant isolation. You know how to ensure Data Client A is never fed into the RAG context of Client B.</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（项目2）：</strong><br/>
+这个项目直击 Moveworks 的企业级风险控制需求。你在 EKS 上构建了每天 500 万次、延迟 &lt;300ms 的评估流水线，包括模型注册（model registry）、金丝雀发布（canary rollout）以及安全评分、幻觉检测等算法。关键论点：生成式 AI 本质是不确定的，但企业合同要求确定性——你的 LLM-as-a-Judge 管道通过数学评分（与人类标注 95% 一致率）在响应送达用户前完成自动质检。同时强调多租户隔离：客户 A 的数据绝不进入客户 B 的 RAG 上下文。</p>
+</blockquote>
+<h3 id="project-3-50b-asset-hybrid-search-engine-the-foundational-ml-match">Project 3: 50B+ Asset Hybrid Search Engine (The "Foundational ML" Match)</h3>
+<p><strong>What you did:</strong> Hybrid Retrieval (Dense and Sparse in parallel), Reciprocal Rank Fusion, Neural Reranking via semantic similarity, freshness, and engagement. Delta indexing.<br/>
+<strong>How it maps to Moveworks:</strong> Vector search alone fails on enterprise acronyms (e.g., "PTO", "VPN", "Q3 OKRs"). <br/>
+<strong>HM Talking Points:</strong> <br/>
+*   Highlight why you use <em>Hybrid Retrieval</em>. Dense vector spaces are great for semantic intent ("how do I set up my monitor"), but sparse (BM25/TF-IDF) is required for hard lexical matches (Jira ticket "PROJ-8821"). <br/>
+*   Mention how your neural reranker leverages <em>freshness</em> signals (crucial for IT policies that get updated frequently).</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（项目3）：</strong><br/>
+这是你传统搜索基础最扎实的体现。你构建了处理 500 亿资产的统一搜索平台，采用密集检索（向量语义）+ 稀疏检索（BM25 关键词）并行运行、RRF 融合、神经重排序（neural reranking）以及增量索引（delta indexing）。在 Moveworks 场景中，纯向量搜索在企业数据上会失败——员工用"PTO"、"JIRA-8821"这样的专有词汇搜索时，BM25 的精确词匹配是不可替代的。神经重排序对"文档新鲜度"的感知（IT 政策和 HR 表格频繁更新）尤其重要。</p>
+</blockquote>
+<h3 id="project-4-the-edge-cloud-hybrid-multimodal-dispatcher-the-innovation-match">Project 4: The Edge-Cloud Hybrid Multimodal Dispatcher (The "Innovation" Match)</h3>
+<p><strong>What you did:</strong> Built an orchestration engine that decides dynamically whether to run multimodal inference on the edge device or on Adobe Cloud GPU/CPU clusters based on network/battery context.<br/>
+<strong>How it maps to Moveworks:</strong> While Moveworks doesn't heavily do edge rendering, this proves you are a top-tier systems engineer who treats inference latency and payload transit as a physics problem. It shows you understand heterogeneous computing environments.</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（项目4）：</strong><br/>
+这个项目展示你的创新力和系统设计深度：你构建了一个上下文感知的混合编排引擎，根据用户设备的网络状态、算力和电量，动态决定把推理任务路由到本地边缘端还是 Adobe 云端 GPU/CPU 集群。虽然 Moveworks 不做边缘渲染，但这证明你把推理延迟和数据传输当作物理约束问题来建模——这正是顶级系统工程师的思维方式。</p>
+</blockquote>
+<hr/>
+<h2 id="4-probable-interview-questions-how-to-answer-them">4. Probable Interview Questions &amp; How to Answer Them</h2>
+<h3 id="q1-architecture-how-did-you-balance-precision-and-latency-when-applying-dense-retrieval-vectors-across-billions-of-documents">Q1 (Architecture): "How did you balance precision and latency when applying dense retrieval (vectors) across billions of documents?"</h3>
+<p><strong>Your Strategy:</strong> Do not just say "we added more GPUs."<br/>
+<strong>Answer:</strong> "We utilized hierarchical indexing (like IVF-PQ) to shard the vector space and drop our search parameters drastically. But the key was our Parallel Hybrid Architecture. We ran sparse keyword queries and dense embedding searches asynchronously across isolated compute nodes, and merged them at the API gateway layer using Reciprocal Rank Fusion (RRF). To hit strict SLAs, we cached hot vectors in Redis and ensured our fallback mechanisms would downgrade to sparse-only search if the GPU Embedding cluster tripped a latency circuit breaker."</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（Q1答法）：</strong><br/>
+核心论点：不是靠堆 GPU，而是靠架构设计。IVF-PQ 分层索引将1000亿向量的 ANN 搜索时间从数小时压缩到毫秒级（PQ 量化节省95% 内存）。Parallel Hybrid Architecture：稀疏检索和密集检索并发执行、RRF 融合，在 API 网关层合并结果。Redis 热向量缓存 + 熔断器降级（Dense 超时自动回退到 Sparse）保障 SLA。</p>
+</blockquote>
+<h3 id="q2-genai-ops-enterprise-data-is-notoriously-messy-how-do-you-ensure-your-rag-pipelines-dont-just-hallucinate-bad-internal-facts">Q2 (GenAI Ops): "Enterprise data is notoriously messy. How do you ensure your RAG pipelines don't just 'hallucinate' bad internal facts?"</h3>
+<p><strong>Your Strategy:</strong> Lean entirely on your Acrobat AI Assistant Evals experience.<br/>
+<strong>Answer:</strong> "Two layers. First, retrieval relevancy: we employed strict intent classification during query understanding before fetching docs. If the retrieval score is below a certain confidence threshold, the agent rejects rather than guesses. Second, post-generation evals: I architected an LLM-as-a-judge pipeline sitting in front of our API gateway. It executes deterministic safety scoring and artifact checks on the generated response. By running 5 million of these evals a day on EKS with sub-300ms latency, we enforced extremely tight error budgets before user-facing delivery."</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（Q2答法）：</strong><br/>
+两层防护：第一层在检索端——先做意图分类，检索置信分低于阈值直接拒绝作答（宁可说"我不知道"也不猜）。第二层在生成端——LLM-as-a-Judge 管道在响应到达用户前执行确定性安全评分和引用核查（artifact check）。每天 500 万次、延迟 &lt;300ms 的规模保证了这不是实验性方案，而是生产级基础设施。</p>
+</blockquote>
+<h3 id="q3-scaling-what-happens-when-50000-employees-simultaneously-hit-the-search-bot-monday-morning-during-an-enterprise-outage">Q3 (Scaling): "What happens when 50,000 employees simultaneously hit the search bot Monday morning during an enterprise outage?"</h3>
+<p><strong>Your Strategy:</strong> Talk about Orchestration, Rate-limiting, and Cost-awareness.<br/>
+<strong>Answer:</strong> "We encountered massive traffic spikes like this during Creative Cloud launches. The architecture survived because of strict, multi-tiered rate limiting applied not just at the user level, but at the <em>routing</em> level. I implemented shared scaling policies and intelligent backpressure. If our primary Kubernetes GPU nodes hit 85% saturation, our orchestration layer dynamically routed to cheaper/smaller fallback models or served highly intelligent cached responses to shed load, ensuring the system degraded gracefully rather than crashing."</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（Q3答法）：</strong><br/>
+流量洪峰场景（类似 Creative Cloud 大版本发布日）的生存之道：多层限流——不只限制单个用户，而是在租户（tenant）和路由（routing）层面同时限流。GPU 节点饱和度达 85% 时，编排层自动降级：切换到更小的 fallback 模型，或直接从缓存返回智能响应以卸载压力。系统是"优雅降级"而非"硬崩溃"——这对企业级 SLA 合同至关重要。</p>
+</blockquote>
+<hr/>
+<h2 id="5-strategic-questions-to-ask-praveen">5. Strategic Questions to Ask Praveen</h2>
+<p>Since Praveen is directing the GAI Search Platform, these questions show you are thinking at a Director level:</p>
+<ol>
+<li><strong>On RAG vs Model Tuning:</strong> "Given the massive scale of ServiceNow's enterprise deployments, how much is the GAI Search Platform relying on vast, complex RAG architectures to inject real-time context, versus managing dynamically fine-tuned models (or LoRAs) for specific enterprise tenants?"</li>
+<li><strong>On Tool Calling / Agentic Flows:</strong> "The integration of Moveworks into ServiceNow implies shifting from just 'serving answers' to 'automating IT/HR actions.' What is the biggest architectural bottleneck the team faces right now in securely mapping LLM intent to internal enterprise APIs?"</li>
+<li><strong>On Evaluation at Scale:</strong> "Enterprise search requires near-perfect precision. I spend a lot of my time building LLM-as-a-judge frameworks for GenAI compliance. What does Moveworks' current automated evaluation pipeline look like before a new iteration of the semantic ranking model is pushed to production?"</li>
+<li><strong>On His Vision:</strong> "As Director, what are the technical capabilities not present in the platform today that you need senior engineering leadership to build over the next 12 to 18 months?"</li>
+</ol>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（向面试官提问）：</strong><br/>
+这四个问题体现你在 Director 层面的战略思考。问题1探究 RAG 与 LoRA 微调的边界决策（多租户场景下的权衡）；问题2直指 Moveworks 工具调用的核心架构瓶颈；问题3展示你对评估体系的重视（企业级部署不能靠人工审核，必须自动化）；问题4给 Praveen 机会谈他的技术愿景，同时让你评估这个角色的成长空间。</p>
+</blockquote>
+<hr/>
+<h2 id="6-deep-dive-platform-engineering-adobe-experience-moveworks-context">6. DEEP DIVE: Platform Engineering (Adobe Experience → Moveworks Context)</h2>
+<h3 id="what-ai-platform-engineering-means-at-adobe-and-why-it-maps-to-moveworks">What "AI Platform Engineering" means at Adobe (and why it maps to Moveworks)</h3>
+<p>At Adobe, "AI Platform" means building the horizontal infrastructure layer that every product team (Photoshop, Acrobat, Express, Firefly) relies on to ship AI features. They don't ship models—they ship the <strong>rails</strong> for others to ship models safely, at scale, with observability.<br/>
+At Moveworks, the "GAI Search Platform" is the exact same concept: build the underlying retrieval, ranking, and orchestration rails that the product (the Moveworks bot) relies on.</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（AI平台定义）：</strong><br/>
+Adobe 的 AI 平台工程不是直接做模型，而是搭建让所有产品团队（Photoshop、Acrobat、Firefly 等）能安全、高效地部署 AI 功能的"铁轨"——模型注册、推理服务编排、可观测性、CI/CD。Moveworks 的 GAI 搜索平台完全是同一个逻辑：构建底层检索、排序和编排基础设施，让 Moveworks 机器人能可靠地提供答案和执行动作。</p>
+</blockquote>
+<h3 id="a-the-model-registry-feature-store">A. The Model Registry &amp; Feature Store</h3>
+<p><strong>Adobe Experience:</strong> You built and managed a <strong>model registry with versioned artifacts</strong>: every model had a schema for its input features, output schema, latency SLO, and compute cost estimate. Before a new embedding model could be deployed into the hybrid search pipeline, it had to pass:<br/>
+1. Offline evaluation: Recall@10, MRR, NDCG on golden evaluation sets.<br/>
+2. Shadow traffic testing (receives real traffic, logs outputs without serving them).<br/>
+3. Staged canary rollout: 1% → 5% → 25% → 100% with automated rollback on NDCG regression &gt; 2%.</p>
+<p><strong>How to frame for Praveen:</strong><br/>
+<em>"I treated every ML model as a software artifact, not just a file on disk. We had a feature store that tracked embeddings, retrieval configs, and reranker weights together under a single version. This made rollbacks trivial—when one eval stage showed a regression, we could revert the whole retrieval 'stack' atomically, not just one component."</em></p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（模型注册表与特征存储）：</strong><br/>
+核心论点：ML 模型应被当作软件制品（software artifact）管理，而不是磁盘上的普通文件。你的模型注册表为每个模型记录了输入特征 schema、输出 schema、延迟 SLO 和算力成本估算。新 Embedding 模型上线必须经过三道门：离线评估（Recall@10、MRR、NDCG 黄金集评分）→ 影子流量测试（接收真实请求但不对外服务）→ 分阶段灰度发布（1%→5%→25%→100%，NDCG 回退超过 2% 自动触发回滚）。这是把搜索系统当软件工程来管理的体现。</p>
+</blockquote>
+<h3 id="b-multi-tenant-isolation-tenant-aware-inference-routing">B. Multi-Tenant Isolation &amp; Tenant-Aware Inference Routing</h3>
+<p><strong>Adobe Experience:</strong> Adobe has CC (Creative Cloud individual), teams, and enterprise plans. A Fortune 500 company's Firefly outputs and employee asset metadata must never bleed into another tenant's search results or RAG context.<br/>
+You built:<br/>
+- <strong>Tenant-partitioned vector namespaces:</strong> each enterprise org's embeddings are stored in a logically isolated shard; AQL (Access Query Layer) enforces <code>tenant_id</code> bitmask filtering before the ANN (Approximate Nearest Neighbor) search computes cosine similarity.<br/>
+- <strong>Per-tenant rate limiting at the API Gateway layer</strong> (not just per-user), preventing one high-traffic enterprise from starving others.<br/>
+- <strong>Audit logging per tenant</strong> for compliance (HIPAA, SOC2, GDPR data residency awareness).</p>
+<p><strong>How to frame for Praveen:</strong><br/>
+<em>"At Adobe we had thousands of enterprise tenants with strict isolation SLAs. The architectural primitive was that every ANN query was pre-filtered on a hard tenant_id bitmask before the vector math ran—so it was physically impossible for Tenant A's documents to appear in Tenant B's results. I see the same constraint being essential for Moveworks serving a hospital system alongside a fintech firm."</em></p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（多租户隔离）：</strong><br/>
+这是 B2B 企业产品最关键的安全架构约束。你构建的隔离机制分三层：向量命名空间按 tenant 分区（每个企业的 Embedding 存在独立分片中）；AQL 接入层在 ANN 余弦相似度计算执行之前就做 tenant_id 位掩码预过滤——从架构层面杜绝跨租户数据泄露（而不是事后过滤）；每个租户独立限流（防止高流量大客户"饿死"其他租户）；完整的租户级审计日志满足 HIPAA、SOC2、GDPR 合规要求。</p>
+</blockquote>
+<h3 id="c-serving-inference-infrastructure-eks-triton-vllm">C. Serving &amp; Inference Infrastructure (EKS / Triton / vLLM)</h3>
+<p><strong>Adobe Experience:</strong> The AI Platform ran on AWS EKS, with specialized node pools per workload:<br/>
+- <strong>CPU node pool:</strong> Ran lightweight preprocessing (tokenization, query expansion, BM25 sparse retrieval via FAISS, metadata filtering).<br/>
+- <strong>T4 GPU node pool:</strong> Ran online embedding inference (bi-encoder), neural reranking (cross-encoder), and the LLM-as-a-judge eval pipelines—5M+ inferences/day at &lt;300ms p95 latency.<br/>
+- <strong>A10G/A100 GPU node pool (spot instances):</strong> Runs async batch embedding jobs (delta-indexing overnight), Firefly image generation queues, and fine-tuned LoRA adapter merging.</p>
+<p><strong>Key optimizations you implemented:</strong><br/>
+1. <strong>Dynamic batching with Triton:</strong> Instead of sending one request at a time to the embedding model, Triton's dynamic batching groups up to 32 concurrent requests into a single GPU kernel call, massively improving GPU utilization from ~35% to ~82%.<br/>
+2. <strong>KV-Cache management for LLM evals:</strong> When running LLM-as-a-judge evals, the system prompt and rubric are constant across millions of calls. By pre-computing and caching the KV state of the fixed prefix, each eval call skips ~40% of the prefill phase.<br/>
+3. <strong>KEDA-based autoscaling on Kafka lag:</strong> Rather than scaling on CPU/memory (which lags behind real load by minutes), the EKS deployment scaled GPU node groups directly on the Kafka consumer lag metric. If the eval queue backlogged &gt; 5,000 messages, KEDA immediately provisioned additional T4 nodes.</p>
+<p><strong>How to frame for Praveen:</strong><br/>
+<em>"The secret to sub-300ms at 5M evals/day wasn't just raw hardware—it was eliminating every wasted GPU cycle. Dynamic batching turned our embedding servers from 35% to 82% utilized. KV-cache prefix sharing cut the latency of our LLM-as-a-judge calls nearly in half. And we scaled reactively on queue depth, not server metrics, which meant we provisioned capacity before users felt latency, not after."</em></p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（推理基础设施优化）：</strong><br/>
+三个关键优化最值得深入展开：1) Triton 动态批处理（dynamic batching）——将最多32个并发请求合并成单次 GPU 内核调用，GPU 利用率从35%提升到82%；2) KV-Cache 前缀共享——LLM评估的 system prompt 和评估标准在数百万次调用中是固定的，预计算并缓存这段固定前缀的 KV 状态，使每次评估调用跳过约40%的 prefill 阶段，延迟减半；3) 基于 Kafka 消费者 lag 的 KEDA 自动扩容——不等 CPU/内存告警（这会滞后几分钟），直接监控队列积压深度，超过5000条消息立即触发 T4 节点扩容，在用户感知到延迟之前就完成扩容。</p>
+</blockquote>
+<hr/>
+<h2 id="7-deep-dive-orchestration-layer-directly-maps-to-moveworks-agent-architecture">7. DEEP DIVE: Orchestration Layer (Directly Maps to Moveworks Agent Architecture)</h2>
+<h3 id="what-the-orchestration-layer-does-at-adobe">What the orchestration layer does at Adobe</h3>
+<p>The orchestration layer is the <strong>"traffic controller"</strong> sitting between user requests and the backend model/retrieval services. For Acrobat's AI Assistant, a single user question like "Summarize this contract and flag unusual clauses" triggers:<br/>
+1. Intent classification → route to "summarize" vs "QA" vs "comparison" flow.<br/>
+2. RAG retrieval → fetch top-K paragraph chunks from the PDF's vector index.<br/>
+3. Context assembly → merge retrieved chunks + conversation history + system prompt.<br/>
+4. LLM call → stream response from the primary model (Claude/Gemini/GPT-4).<br/>
+5. Eval gate → LLM-as-a-judge scores the output for safety, factuality, artifact quality.<br/>
+6. Tool-call loop → if the model decides to "look up the definition of a legal term", it triggers a secondary tool call (web search or internal KB lookup) and re-enters the pipeline.<br/>
+7. Response delivery → stream tokens to the user with citation metadata.</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（编排层全流程）：</strong><br/>
+编排层是用户请求和后端模型/检索服务之间的"流量控制器"。以 Acrobat AI 助手为例，"总结这份合同并标记异常条款"这个问题触发了一个完整的7步流水线：意图分类（路由到哪个子流程）→ RAG 检索（从 PDF 向量索引取 top-K 段落）→ 上下文组装（检索内容+对话历史+系统 Prompt）→ LLM 生成（流式响应）→ 评估门（安全性/事实性/引用核查）→ 工具调用循环（模型决定查外部知识库时重新入队）→ 带引用元数据的响应流式输出。这与 Moveworks 的架构几乎完全一致。</p>
+</blockquote>
+<h3 id="a-the-dag-based-orchestration-engine">A. The DAG-Based Orchestration Engine</h3>
+<p>You built a <strong>DAG-structured workflow engine</strong> rather than a simple linear chain. Reasons:<br/>
+- <strong>Parallelism:</strong> Query understanding, intent classification, and initial sparse retrieval can run in parallel before dense retrieval needs the intent signal.<br/>
+- <strong>Conditional branching:</strong> If intent = "document comparison," the DAG fans out to retrieve context from <em>two</em> documents simultaneously and joins the results before LLM context assembly.<br/>
+- <strong>Retry semantics:</strong> Each DAG node has its own retry policy and fallback behavior (e.g., if dense retrieval times out, re-route to sparse-only path rather than hard failing).</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（DAG编排引擎）：</strong><br/>
+选择 DAG（有向无环图）结构而非简单线性链的原因：并行性——意图分类和初始稀疏检索可以并发执行，Dense 检索在拿到意图信号后再启动；条件分支——"文档对比"意图时，DAG 同时展开从两份文档检索上下文，再合并后进行 LLM 组装；重试语义——每个 DAG 节点有独立的重试策略和 fallback 行为（Dense 检索超时 → 自动降级到 Sparse-only，而不是整体报错）。这使系统具备局部容错能力，而不是"一个节点失败全链崩溃"。</p>
+</blockquote>
+<h3 id="b-rate-limiting-circuit-breakers-and-backpressure">B. Rate Limiting, Circuit Breakers, and Backpressure</h3>
+<p>This is where Moveworks will probe you hardest—enterprise SLAs require the system to fail gracefully, not catastrophically.</p>
+<p><strong>Your Adobe Implementation:</strong><br/>
+- <strong>Token Bucket Rate Limiter (Redis):</strong> Every API caller (product team, enterprise tenant) gets a token bucket tracked in Redis. Tokens refresh at a configured rate (e.g., 100 requests/min per tenant). The orchestration layer checks the bucket atomically with Lua scripts on every incoming request—no distributed lock needed.<br/>
+- <strong>Circuit Breaker Pattern (Resilience4j / custom):</strong> Each downstream dependency (embedding service, LLM API, reranker) had a circuit breaker with three states:<br/>
+  - <strong>CLOSED (healthy):</strong> All requests pass through normally.<br/>
+  - <strong>OPEN (failing):</strong> After 10 consecutive failures or 50% error rate in a 10-second window, the circuit opens. Requests immediately return a fallback (cached result or degraded response) without hitting the failing service.<br/>
+  - <strong>HALF-OPEN (recovering):</strong> After 30 seconds, one probe request is sent. If it succeeds, the circuit closes. If it fails, it resets the open timer.<br/>
+- <strong>Backpressure via Kafka:</strong> Async tasks (batch indexing, eval scoring, LoRA fine-tune triggers) are queued in Kafka topics. If consumers fall behind (&gt; configurable lag threshold), the API gateway throttles new task submissions, preventing OOM crashes on the processing tier.</p>
+<p><strong>How to frame for Praveen:</strong><br/>
+<em>"Enterprise systems can't hard-fail during a supplier outage. I implemented circuit breakers around every external dependency—including our own LLM endpoints. When Anthropic had a brief API degradation, our circuit opened automatically, served cached responses, and the user never saw an error. Meanwhile, the system was paging our on-call and preparing to reroute to a fallback model."</em></p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（限流/熔断/背压）：</strong><br/>
+这是 Moveworks 必问的系统可靠性主题。三个机制形成纵深防御：1) Token Bucket 限流（Redis + Lua 原子脚本）——在租户层而非用户层限流，Lua 脚本确保原子性检查，无需分布式锁；2) 熔断器（三态：CLOSED健康/OPEN熔断/HALF-OPEN探测恢复）——每个下游依赖（Embedding 服务、LLM API、重排序器）独立保护，10次连续失败或10秒内50%错误率触发熔断，30秒后进入半开状态发送探针请求；3) Kafka 背压——异步任务队列的消费者 lag 超过阈值时，API 网关停止接受新任务提交，防止处理层 OOM。当 Anthropic API 短暂降级时，熔断自动触发、缓存响应兜底、用户无感知、on-call 同时收到报警——这就是企业级容错架构。</p>
+</blockquote>
+<h3 id="c-caching-strategy-semantic-exact">C. Caching Strategy (Semantic + Exact)</h3>
+<p>LLM inference is expensive. Every unnecessary LLM call at 5M/day scale costs real money.</p>
+<p><strong>Your two-tier caching architecture at Adobe:</strong><br/>
+1. <strong>Exact-match cache (Redis, TTL=1hr):</strong> The full MD5 hash of <code>(query + doc_id + model_version)</code> is the cache key. If a user asks "what is the termination clause?" on the same document twice, the second call returns in &lt;1ms from Redis.<br/>
+2. <strong>Semantic similarity cache (Vector-based, TTL=24hr):</strong> For near-duplicate queries that aren't byte-identical ("What does the termination section say?" vs "Summarize the termination clause"), a fast bi-encoder embedding is computed and compared against a small in-memory ANN index of recently answered queries. If cosine similarity &gt; 0.92, the cached response is returned. Cache hit rate: ~34% reduction in live LLM calls.</p>
+<p><strong>How to frame for Praveen:</strong><br/>
+<em>"We ran a two-tier cache. The exact-match layer is trivial but surprisingly effective for enterprise chatbots where employees ask the same VPN setup question repeatedly. The semantic layer was more interesting—we embedded every cached query and ran a fast ANN lookup before hitting the LLM. At 34% cache hit rate on 5M daily evals, that's 1.7 million LLM calls saved per day. At $0.01 per call average, that's $17,000/day in cost avoidance."</em></p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（两层缓存策略）：</strong><br/>
+LLM 调用很贵，在每天500万次的规模下，节省每一次多余的调用都相当于真金白银。两层缓存：第一层精确匹配缓存（Redis，TTL=1小时）——缓存键是 MD5(租户ID + 查询 + 模型版本)，完全相同的问题第二次 &lt;1ms 返回；第二层语义相似缓存（向量ANN，TTL=24小时）——对字节不完全相同但语义相近的查询（"终止条款是什么"vs"总结终止部分"），计算查询 Embedding 并与最近已回答问题的内存 ANN 索引比对余弦相似度，超过0.92直接返回缓存答案。34%的缓存命中率意味着每天节省170万次 LLM 调用，按均价$0.01/次计算，每天省17000美元——这是为 Director 准备的语言。</p>
+</blockquote>
+<hr/>
+<h2 id="8-key-interview-qa-platform-infra-and-orchestration-specifics">8. Key Interview Q&amp;A: Platform, Infra, and Orchestration Specifics</h2>
+<h3 id="q-how-do-you-handle-non-determinism-in-your-orchestration-pipeline-for-enterprise-grade-reliability">Q: "How do you handle non-determinism in your orchestration pipeline for enterprise-grade reliability?"</h3>
+<p><strong>A:</strong> "Non-determinism is the enemy of enterprise trust. We attacked it at three levels. First, at model selection: for safety-critical paths (flagging content, generating legal summaries), we always used temperature=0 and fixed seed to minimize variance. Second, at the eval layer: we didn't trust the LLM to be consistent, so we ran every response through a separate, deterministic scoring function (regex-anchored rubrics + lightweight classifier) alongside the LLM judge. Third, at the deployment level: we shadowed every new model on live traffic for 48 hours before promoting it, comparing against the old model's output distribution with Jensen-Shannon divergence. If JSD exceeded 0.05, the promotion was blocked."</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（非确定性处理）：</strong><br/>
+三层打击：模型层（temperature=0，固定 seed）→ 评估层（在 LLM judge 之外叠加确定性评分函数：正则锚定 rubric + 轻量分类器，不完全信任 LLM judge 自身的一致性）→ 部署层（每次新模型上线前做48小时影子流量测试，用 Jensen-Shannon 散度比较新旧模型输出分布，JSD &gt; 0.05 则阻断发布）。JSD 是衡量两个概率分布差异的统计量，用它来检测"看起来通过离线测试但在线行为已发生漂移"的静默回归——这是最危险的 ML 回归类型。</p>
+</blockquote>
+<h3 id="q-walk-me-through-how-youd-debug-a-latency-regression-in-the-retrieval-pipeline">Q: "Walk me through how you'd debug a latency regression in the retrieval pipeline."</h3>
+<p><strong>A:</strong> "I'd start with our per-stage Prometheus traces—we instrumented every hop (intent classification, sparse retrieval, dense retrieval, RRF merge, rerank, LLM call) with p50/p95/p99 histograms. If the aggregate latency spiked, the traces would show which stage's p95 had changed. Most often it was reranker throughput degrading on GPU nodes—either thermal throttling on spot instances, or a batch size regression from a code change. We also maintained a synthetic canary query that ran every 60 seconds across all regions and alarmed if p95 exceeded our SLO by 20%. Catching regressions before users do is the only acceptable strategy."</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（延迟回归调试）：</strong><br/>
+方法论：从 Prometheus 每阶段 trace 入手——对每个流水线节点（意图分类、稀疏检索、密集检索、RRF 融合、重排序、LLM 调用）都有 p50/p95/p99 直方图。总延迟上升时，trace 会精确指向哪个阶段的 p95 变了。最常见的原因是 GPU 节点的重排序器吞吐量下降——可能是 Spot 实例热降频（thermal throttling），也可能是代码变更导致批处理大小回退。此外还维护了一个综合 Canary 查询，每60秒在所有 Region 执行，p95 超出 SLO 20% 立即告警。核心理念：在用户感知到问题之前发现并处理，是唯一可接受的策略。</p>
+</blockquote>
+<h3 id="q-how-do-you-design-the-orchestration-layer-to-support-multimodal-inputs-at-moveworks-scalenot-just-text-queries-but-images-files-and-audio">Q: "How do you design the orchestration layer to support multimodal inputs at Moveworks scale—not just text queries but images, files, and audio?"</h3>
+<p><strong>A:</strong> "The orchestration DAG needs a modality normalization step at the very front. Every input—regardless of whether it's a Slack message, a PDF attachment, or a voice memo—passes through a Modality Router that extracts a unified semantic representation. A PDF goes through our document parser to extract text chunks. An image gets a CLIP embedding. An audio clip goes through Whisper for transcription before entering the same text pipeline. By the time a request hits the retrieval stage, the orchestration layer is always working with the same canonical data types: text chunks and embeddings. This is exactly what I built for Acrobat—a multimodal intake that normalized PDFs, images embedded in PDFs, and typed queries into a single retrieval context before any LLM call."</p>
+<blockquote>
+<p>🇨🇳 <strong>中文提示（多模态输入处理）：</strong><br/>
+架构原则：在 DAG 最前端加一个 Modality Router（模态路由器），将所有类型的输入归一化为统一的标准表示形式。PDF → 文档解析器提取文本块；图片 → CLIP 编码生成视觉 Embedding；音频 → Whisper ASR 转写为文本。到达检索阶段时，编排层面对的永远只有两种标准数据类型：文本块（text chunks）和 Embedding 向量。这意味着检索引擎和 LLM 调用代码完全不需要针对模态做特殊处理——模态复杂度被完全封装在 Router 层内。这正是你在 Acrobat 上构建的多模态进入管道的核心设计思路。</p>
+</blockquote></article>
+</main>
+</body>
+</html>

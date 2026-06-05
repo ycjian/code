@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Moveworks Coding Answers</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Coding and Implementation / TEXT</div>
+<h1>Moveworks Coding Answers</h1>
+<p>Full notes from moveworks-coding answer.txt</p>
+</div>
+</header>
+
+<article class="markdown-body"><p>在 Hangman（绞刑架猜词游戏） 中：</p>
+<p>电脑已经选好了一个神秘单词（mystery word），但你看不到。<br/>
+你每次只能猜 一个字母。<br/>
+电脑会告诉你这个字母是否在单词里，以及出现在哪些位置（用 _ 表示未知字母）。</p>
+<p>你的任务是：<br/>
+根据当前显示的状态（mystery_string），已经猜过的字母（guessed_characters），和一堆候选单词（string_pool），<br/>
+预测下一个最应该猜的字母（返回单个字符，如 "d"）。<br/>
+===<br/>
+1. String pattern = mystery_string.replaceAll("[^a-zA-Z_]", "").toLowerCase();</p>
+<p>作用：清理输入的 mystery_string，去掉所有不必要的字符（比如连字符 -、空格等），只保留字母和下划线 _，并全部转为小写。<br/>
+逻辑：统一格式，方便后面比较。题干中 mystery_string 可能包含 -，我们要忽略它。</p>
+<ol start="2">
+<li>Set<character> guessed = new HashSet&lt;&gt;(); 和 Set<character> wrongGuesses = new HashSet&lt;&gt;();</character></character></li>
+</ol>
+<p>guessed：记录所有已经猜过的字母（不管对错）。<br/>
+wrongGuesses：记录猜错的字母（即已经猜过，但当前 mystery_string 中并没有出现的字母）。<br/>
+逻辑：这是这道题最容易忽略的关键点！<br/>
+如果一个字母被猜过但没出现在当前显示的单词里，说明它不在神秘单词中，所有包含这个字母的候选词都必须被排除。</p>
+<ol start="3">
+<li>过滤候选单词部分（candidates）</li>
+</ol>
+<p>eligible candidate 的定义（最容易忽略）：<br/>
+必须 完全匹配 当前 mystery_string 的 pattern（已知字母位置必须一致，下划线 _ 可任意）<br/>
+不能包含任何“猜错的字母”（即 guessed_characters 里那些没有出现在 mystery_string 中的字母）</p>
+<p>probability 的定义（三级 tie-breaker）：<br/>
+第一优先级：该字母出现在最多个 eligible candidates 中（wordCount）<br/>
+第二优先级：wordCount 相同 → 比总出现次数（totalCount）<br/>
+第三优先级：以上都相同 → 字母序最小（a 优先于 b）</p>
+<p>只考虑还未猜过的字母（不在 guessed_characters 中）<br/>
+class Result {</p>
+<pre><code>public static String solution(String mystery_string, List&lt;String&gt; guessed_characters, List&lt;String&gt; string_pool) {
+    // 1. 清理 pattern（只保留字母和下划线）
+    String pattern = mystery_string.replaceAll("[^a-zA-Z_]", "").toLowerCase();
+
+    // 2. 收集所有已猜过的字母 + 猜错的字母（wrong guesses）
+    Set&lt;Character&gt; guessed = new HashSet&lt;&gt;();
+    Set&lt;Character&gt; wrongGuesses = new HashSet&lt;&gt;();
+    String lowerMystery = mystery_string.toLowerCase();
+
+    for (String s : guessed_characters) {
+        if (s != null &amp;&amp; s.length() &gt; 0) {
+            char ch = Character.toLowerCase(s.charAt(0));
+            guessed.add(ch);
+            // 如果这个字母没有在当前 mystery_string 中出现过，就是猜错的
+            if (!lowerMystery.contains(String.valueOf(ch))) {
+                wrongGuesses.add(ch);
+            }
+        }
+    }
+
+    // 3. 过滤出 eligible candidates
+    List&lt;String&gt; candidates = new ArrayList&lt;&gt;();
+    for (String word : string_pool) {
+        String w = word.toLowerCase();
+        if (isEligible(w, pattern, wrongGuesses)) {
+            candidates.add(w);
+        }
+    }
+
+    if (candidates.isEmpty()) {
+        return "a"; // 兜底，实际不会发生
+    }
+
+    // 4. 对每个未猜过的字母统计 wordCount 和 totalCount
+    Map&lt;Character, Integer&gt; wordCount = new HashMap&lt;&gt;();  // wordCount：这个字母出现在多少个合格单词中（第一优先级）
+    Map&lt;Character, Integer&gt; totalCount = new HashMap&lt;&gt;(); // totalCount：这个字母在所有合格单词中一共出现多少次（第二优先级）
+
+    for (String word : candidates) {
+        Set&lt;Character&gt; seenInThisWord = new HashSet&lt;&gt;();
+        for (char c : word.toCharArray()) {
+            if (Character.isLetter(c) &amp;&amp; !guessed.contains(c)) {
+                totalCount.put(c, totalCount.getOrDefault(c, 0) + 1);
+                seenInThisWord.add(c); //使用 seenInThisWord 是为了保证同一个单词中同一个字母只给 wordCount 加 1 次。
+            }
+        }
+        // 只给 wordCount 加一次（无论出现几次）
+        for (char c : seenInThisWord) {
+            wordCount.put(c, wordCount.getOrDefault(c, 0) + 1);
+        }
+    }
+
+    // 5. 找出最优字母（三级比较）
+    char best = 'z';
+    int bestWordCount = -1;
+    int bestTotalCount = -1;
+
+    for (char c = 'a'; c &lt;= 'z'; c++) {
+        if (!wordCount.containsKey(c)) continue;
+
+        int wc = wordCount.get(c);
+        int tc = totalCount.getOrDefault(c, 0);
+
+        boolean isBetter = false;
+        if (wc &gt; bestWordCount) {
+            isBetter = true;
+        } else if (wc == bestWordCount) {
+            if (tc &gt; bestTotalCount) {
+                isBetter = true;
+            } else if (tc == bestTotalCount &amp;&amp; c &lt; best) {
+                isBetter = true;
+            }
+        }
+
+        if (isBetter) {
+            best = c;
+            bestWordCount = wc;
+            bestTotalCount = tc;
+        }
+    }
+
+    return String.valueOf(best);
+}
+
+// 判断一个单词是否是 eligible candidate
+private static boolean isEligible(String word, String pattern, Set&lt;Character&gt; wrongGuesses) {
+    if (word.length() != pattern.length()) return false;
+
+    // 匹配 pattern
+    for (int i = 0; i &lt; pattern.length(); i++) {
+        char p = pattern.charAt(i);
+        char w = word.charAt(i);
+        if (p != '_' &amp;&amp; p != w) {
+            return false;
+        }
+    }
+
+    // 不允许包含任何猜错的字母
+    for (char c : word.toCharArray()) {
+        if (wrongGuesses.contains(c)) {
+            return false;
+        }
+    }
+    return true;
+}
+</code></pre>
+<p>}</p>
+<p>=====<br/>
+给定一个字符串，里面可能包含引用标记（citations），格式有两种合法情况：</p>
+<p>单引用的形式：[1]、[23] 等<br/>
+范围引用的形式：[2-5]、[10-12] 等</p>
+<p>任务：</p>
+<p>从字符串中找出所有合法的引用范围。<br/>
+返回格式类似：[1,1]、[2,5]、[10,12] 等（单引用也表示为 [start, start]）。</p>
+<p>示例（你提到的）：<br/>
+text输入: "xxx xxx [1], xxxxx[2-5]"<br/>
+输出: [1,1] [2,5]<br/>
+意思是：</p>
+<p>[1] 是单引用 → 返回 [1,1]<br/>
+[2-5] 是范围引用 → 返回 [2,5]</p>
+<p>其他情况如 []、[abc]、[1-]、[-5]、[3-2]（起始大于结束）等都属于不合法，不需要返回。<br/>
+不使用正则：完全用 indexOf、substring、split、Character.isDigit。<br/>
+时间复杂度：O(N)，N 是字符串长度。<br/>
+import java.util.*;</p>
+<p>public class CitationParser {</p>
+<pre><code>public static List&lt;String&gt; parseCitations(String text) {
+    List&lt;String&gt; result = new ArrayList&lt;&gt;();
+    int i = 0;
+    int n = text.length();
+
+    while (i &lt; n) {
+        // 找到下一个 '['
+        int start = text.indexOf('[', i);
+        if (start == -1) break;   // 后面没有 [ 了
+
+        // 找到对应的 ']'
+        int end = text.indexOf(']', start + 1);
+        if (end == -1) break;     // 没有匹配的 ]
+
+        // 提取 [ ] 里面的内容
+        String content = text.substring(start + 1, end).trim();
+
+        // 检查是否是合法的 citation
+        String range = parseSingleCitation(content);
+        if (range != null) {
+            result.add(range);
+        }
+
+        // 继续从 ] 后面搜索
+        i = end + 1;
+    }
+
+    return result;
+}
+
+// 解析单个 [content]，返回 "[start,end]" 或 null（不合法）
+private static String parseSingleCitation(String content) {
+    if (content.isEmpty()) return null;
+
+    // 情况1: 单数字 [1]、[23]
+    if (isAllDigits(content)) {
+        int num = Integer.parseInt(content);
+        if (num &gt;= 0) {   // 通常引用从1开始，但0也可能合法
+            return "[" + num + "," + num + "]";
+        }
+    }
+
+    // 情况2: 范围 [2-5]、[10-12]
+    if (content.contains("-")) {
+        String[] parts = content.split("-");
+        if (parts.length == 2) {
+            String left = parts[0].trim();
+            String right = parts[1].trim();
+            if (isAllDigits(left) &amp;&amp; isAllDigits(right)) {
+                int start = Integer.parseInt(left);
+                int end = Integer.parseInt(right);
+                if (start &gt;= 0 &amp;&amp; end &gt;= start) {   // 结束 &gt;= 开始
+                    return "[" + start + "," + end + "]";
+                }
+            }
+        }
+    }
+
+    return null; // 其他情况都不合法
+}
+
+// 判断字符串是否全是数字
+private static boolean isAllDigits(String s) {
+    if (s.isEmpty()) return false;
+    for (char c : s.toCharArray()) {
+        if (!Character.isDigit(c)) return false;
+    }
+    return true;
+}
+
+// ==================== 测试主函数 ====================
+public static void main(String[] args) {
+    String test1 = "xxx xxx [1], xxxxx[2-5]";
+    System.out.println("输入: " + test1);
+    System.out.println("输出: " + parseCitations(test1));
+    // 输出: [[1,1], [2,5]]
+
+    String test2 = "参考文献 [10] 和 [20-25], 还有无效的 [abc] 和 [3-1]";
+    System.out.println("\n输入: " + test2);
+    System.out.println("输出: " + parseCitations(test2));
+    // 输出: [[10,10], [20,25]]
+}
+</code></pre>
+<p>}</p>
+<p>====<br/>
+给定一个 List<string>（一组字符串），为每个字符串计算一个 score，然后按 score 从高到低排序后返回（或输出）。</string></p>
+<p>第一问：最简单版本 —— score 定义为 字符串中不同字母（common letter）的数量（即去重后的字符种类数）。<br/>
+例如："apple" 有 a,p,l,e → score = 4<br/>
+"banana" 有 b,a,n → score = 3</p>
+<p>第二问 / 第三问：换了一种 scoring 方式（你没记住具体细节，可能更复杂，例如：<br/>
+考虑字母出现频率<br/>
+考虑与某个 reference string 的公共子序列/公共字母加权<br/>
+或者考虑长度 + 独特字母数 等组合分数）</p>
+<p>import java.util.*;</p>
+<p>public class StringScoreSorter {</p>
+<pre><code>// 第一问：按不同字母数量（distinct characters）打分并排序
+public static List&lt;String&gt; sortByDistinctLetters(List&lt;String&gt; strings) {
+    // 自定义排序：score 高的在前，score 相同则保持原相对顺序（stable）
+    strings.sort((a, b) -&gt; {
+        int scoreA = countDistinctLetters(a);
+        int scoreB = countDistinctLetters(b);
+        return Integer.compare(scoreB, scoreA); // 降序
+    });
+    return strings;
+}
+
+// 计算一个字符串中不同字母的数量（忽略大小写或不忽略？按题意调整）
+private static int countDistinctLetters(String s) {
+    if (s == null || s.isEmpty()) return 0;
+    Set&lt;Character&gt; set = new HashSet&lt;&gt;();
+    for (char c : s.toLowerCase().toCharArray()) {  // 通常忽略大小写
+        if (Character.isLetter(c)) {
+            set.add(c);
+        }
+    }
+    return set.size();
+}
+
+public static void main(String[] args) {
+    List&lt;String&gt; input = Arrays.asList("apple", "banana", "cherry", "aaabbb", "xyz");
+    System.out.println("原始: " + input);
+    List&lt;String&gt; result = sortByDistinctLetters(new ArrayList&lt;&gt;(input));
+    System.out.println("排序后: " + result);
+    // 示例输出: [cherry, apple, xyz, banana, aaabbb] （cherry有5个不同字母）
+}
+</code></pre>
+<p>}</p>
+<p>===<br/>
+第二轮：Find Unique Substring + Quote in Original String<br/>
+题目描述（根据你的回忆）：<br/>
+给定一个 List<string>（一组字符串），为每个字符串找到一个 最短的 unique substring（唯一子串），即这个子串只在这个字符串中出现，在其他字符串中都不出现。<br/>
+然后在原始字符串中把这个 unique substring 用 [] 括起来（quote）后输出。<br/>
+例如：</string></p>
+<p>输入：["apple", "apricot", "banana"]<br/>
+对于 "apple"：可能找到 "pp" 或 "le" 等唯一子串（具体取决于最短规则）<br/>
+输出可能类似："a[pp]le"、"apri[cot]" 等</p>
+<p>常见变种：</p>
+<p>找 最短 的 unique substring<br/>
+如果有多个相同长度的，选字典序最小 / 最早出现的位置<br/>
+必须在原字符串中用 [] 标记出来</p>
+<p>解法思路（中等难度）：</p>
+<p>对所有字符串构建一个 全局子串出现次数 的统计（可用 Trie 或 Map<string, integer="">）。<br/>
+对每个字符串，枚举所有可能的 substring，找到只出现1次（且属于当前字符串）的最短那个。<br/>
+在原字符串中找到该 substring 的位置，用 [] 包裹它。<br/>
+构建一个 Trie，把所有字符串的所有可能子串插入 Trie，并记录每个节点被多少个不同字符串经过（frequency）。<br/>
+对于每个字符串，从长度 1 开始枚举其所有子串，查询 Trie 中该子串的 frequency 是否 == 1（只属于当前字符串）。<br/>
+一旦找到最短的，就立即标记并停止。<br/>
+import java.util.*;</string,></p>
+<p>class TrieNode {<br/>
+    Map<character, trienode=""> children = new HashMap&lt;&gt;();<br/>
+    int count = 0;        // 有多少个不同字符串经过这个节点<br/>
+}</character,></p>
+<p>public class OptimizedUniqueSubstringMarker {</p>
+<pre><code>public static List&lt;String&gt; markUniqueSubstrings(List&lt;String&gt; strings) {
+    if (strings == null || strings.isEmpty()) return new ArrayList&lt;&gt;();
+
+    TrieNode root = new TrieNode();
+
+    // Step 1: 构建 Trie 并统计每个子串被多少字符串包含
+    for (String s : strings) {
+        Set&lt;String&gt; visitedSubs = new HashSet&lt;&gt;(); // 避免同一字符串重复计数
+        for (int i = 0; i &lt; s.length(); i++) {
+            TrieNode node = root;
+            for (int j = i; j &lt; s.length(); j++) {
+                char c = s.charAt(j);
+                node = node.children.computeIfAbsent(c, k -&gt; new TrieNode());
+                String sub = s.substring(i, j + 1); // 实际中可优化，不存字符串
+                if (!visitedSubs.contains(sub)) {
+                    node.count++;
+                    visitedSubs.add(sub); // 同一字符串只算一次
+                }
+            }
+        }
+    }
+
+    // Step 2: 为每个字符串找最短 unique substring
+    List&lt;String&gt; result = new ArrayList&lt;&gt;();
+    for (String s : strings) {
+        String marked = findShortestUnique(s, root);
+        result.add(marked);
+    }
+    return result;
+}
+
+private static String findShortestUnique(String s, TrieNode root) {
+    int n = s.length();
+    for (int len = 1; len &lt;= n; len++) {
+        for (int i = 0; i &lt;= n - len; i++) {
+            String sub = s.substring(i, i + len);
+            if (isUnique(sub, root)) {
+                // 找到最短的，立即标记
+                return s.substring(0, i) + "[" + sub + "]" + s.substring(i + len);
+            }
+        }
+    }
+    return s; // 没有找到
+}
+
+private static boolean isUnique(String sub, TrieNode root) {
+    TrieNode node = root;
+    for (char c : sub.toCharArray()) {
+        node = node.children.get(c);
+        if (node == null) return false;
+    }
+    return node.count == 1;   // 只被一个字符串包含
+}
+
+public static void main(String[] args) {
+    List&lt;String&gt; input = Arrays.asList("apple", "apricot", "banana", "application");
+    System.out.println("输入: " + input);
+    List&lt;String&gt; result = markUniqueSubstrings(input);
+    System.out.println("优化后标记: " + result);
+}
+</code></pre>
+<p>}优化 Trie + 频率O(total_length × L)</p></article>
+</main>
+</body>
+</html>

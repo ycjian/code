@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>GPU / CUDA / Distributed Training &amp; LLM Inference Cheatsheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Infra Deep Dives / Infra</div>
+<h1>GPU / CUDA / Distributed Training &amp; LLM Inference Cheatsheet</h1>
+<p>explain GPU bottlenecks, DDP/FSDP/ZeRO, and LLM serving internals in interviews.</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>GPU / CUDA / DISTRIBUTED TRAINING &amp; LLM INFERENCE CHEATSHEET<br/>Purpose: explain GPU bottlenecks, DDP/FSDP/ZeRO, and LLM serving internals in interviews.</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model / 中文总览</h2>
+<div class="section-body"><h3>Deep learning performance depends on</h3>
+<ul><li>compute: matrix multiplication throughput</li></ul>
+<ul><li>memory: GPU HBM capacity and bandwidth</li></ul>
+<ul><li>communication: GPU-GPU / node-node synchronization</li></ul>
+<ul><li>input pipeline: data loading/preprocessing</li></ul>
+<ul><li>serving scheduler: batching, KV cache, queueing</li></ul>
+<h3>Chinese</h3>
+<ul><li>训练大模型不只是 "多加 GPU".</li></ul>
+<ul><li>要懂显存、通信、batching、activation checkpointing、FSDP/ZeRO.</li></ul>
+<ul><li>LLM serving 要懂 prefill/decode/KV cache/continuous batching.</li></ul>
+<h3>Interview one-liner</h3>
+<p>"For training, I would identify whether the bottleneck is compute, memory, communication, or input pipeline. For LLM serving, throughput is often limited by KV cache memory and decode scheduling, so continuous batching and memory-efficient KV cache management are critical."</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. GPU basics</h2>
+<div class="section-body"><h3>Terms</h3>
+<ul><li>GPU memory / HBM: stores model weights, activations, gradients, optimizer states, KV cache.</li></ul>
+<ul><li>CUDA kernel: function executed on GPU.</li></ul>
+<ul><li>Tensor cores: accelerate matrix operations in fp16/bf16/tf32.</li></ul>
+<ul><li>PCIe/NVLink: GPU interconnect.</li></ul>
+<ul><li>NCCL: communication library for all-reduce/all-gather/reduce-scatter.</li></ul>
+<h3>Memory during training</h3>
+<pre><code class="language-text">weights
++ gradients
++ optimizer states, often 2x weights for Adam moments
++ activations
++ temporary buffers</code></pre>
+<h3>Memory during inference</h3>
+<pre><code class="language-text">weights
++ KV cache
++ activations for current step
++ batching buffers</code></pre></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Precision</h2>
+<div class="section-body"><h3>fp32</h3>
+<ul><li>stable, high memory</li></ul>
+<h3>fp16</h3>
+<ul><li>lower memory, faster</li></ul>
+<ul><li>may need loss scaling</li></ul>
+<h3>bf16</h3>
+<ul><li>similar memory to fp16</li></ul>
+<ul><li>better numeric range, common on newer GPUs/TPUs</li></ul>
+<h3>int8/int4 quantization</h3>
+<ul><li>reduces memory and can speed inference</li></ul>
+<ul><li>may reduce accuracy</li></ul>
+<ul><li>useful for LLM serving</li></ul>
+<h3>PyTorch mixed precision</h3>
+<pre><code class="language-python">import torch
+
+scaler = torch.cuda.amp.GradScaler()
+
+for x, y in loader:
+    optimizer.zero_grad()
+    with torch.cuda.amp.autocast(dtype=torch.float16):
+        pred = model(x.cuda())
+        loss = loss_fn(pred, y.cuda())
+
+    scaler.scale(loss).backward()
+    scaler.step(optimizer)
+    scaler.update()</code></pre>
+<h3>With bf16</h3>
+<pre><code class="language-python">with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+    out = model(x)</code></pre></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Data Parallel / DDP</h2>
+<div class="section-body"><p>DDP = DistributedDataParallel.<br/>Each GPU has full model replica.<br/>Each GPU processes different mini-batch shard.<br/>Gradients are all-reduced across GPUs.</p>
+<h3>Command</h3>
+<pre><code class="language-bash">torchrun --nproc_per_node=8 train.py</code></pre>
+<h3>Minimal DDP sketch</h3>
+<pre><code class="language-python">import os
+import torch
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data.distributed import DistributedSampler
+
+
+def setup():
+    dist.init_process_group("nccl")
+    torch.cuda.set_device(int(os.environ["LOCAL_RANK"]))
+
+setup()
+local_rank = int(os.environ["LOCAL_RANK"])
+
+model = MyModel().cuda(local_rank)
+model = DDP(model, device_ids=[local_rank])
+
+sampler = DistributedSampler(dataset)
+loader = DataLoader(dataset, sampler=sampler, batch_size=32)
+
+for epoch in range(num_epochs):
+    sampler.set_epoch(epoch)
+    for x, y in loader:
+        x, y = x.cuda(local_rank), y.cuda(local_rank)
+        loss = loss_fn(model(x), y)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()</code></pre>
+<h3>DDP limitation</h3>
+<ul><li>Full model + optimizer states replicated on every GPU.</li></ul>
+<ul><li>Not enough for very large models.</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. FSDP</h2>
+<div class="section-body"><p>FSDP = Fully Sharded Data Parallel.<br/>It shards parameters, gradients, and optimizer states across workers.</p>
+<h3>Why</h3>
+<ul><li>Reduces GPU memory footprint.</li></ul>
+<ul><li>Enables training models too large for one GPU.</li></ul>
+<h3>FSDP sketch</h3>
+<pre><code class="language-python">import torch
+import torch.distributed as dist
+from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
+
+
+dist.init_process_group("nccl")
+local_rank = int(os.environ["LOCAL_RANK"])
+torch.cuda.set_device(local_rank)
+
+model = MyLargeModel().cuda()
+model = FSDP(model)
+
+for x, y in loader:
+    x, y = x.cuda(), y.cuda()
+    loss = loss_fn(model(x), y)
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()</code></pre>
+<h3>DDP vs FSDP</h3>
+<pre><code class="language-text">DDP: replicate model everywhere, sync gradients
+FSDP: shard model states, all-gather only when needed</code></pre>
+<h3>Interview phrase</h3>
+<p>"DDP is simpler and fast when the model fits on each GPU. FSDP trades communication complexity for memory savings by sharding model parameters, gradients, and optimizer states."</p></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. DeepSpeed ZeRO</h2>
+<div class="section-body"><p>ZeRO partitions model states across data-parallel workers.</p>
+<h3>Stages</h3>
+<ul><li>Stage 1: shard optimizer states</li></ul>
+<ul><li>Stage 2: shard optimizer states + gradients</li></ul>
+<ul><li>Stage 3: shard optimizer states + gradients + parameters</li></ul>
+<h3>DeepSpeed config sketch</h3>
+<pre><code class="language-json">{
+  "train_batch_size": 1024,
+  "bf16": {"enabled": true},
+  "zero_optimization": {
+    "stage": 3,
+    "offload_optimizer": {
+      "device": "cpu"
+    },
+    "offload_param": {
+      "device": "cpu"
+    }
+  }
+}</code></pre>
+<h3>Launch</h3>
+<pre><code class="language-bash">deepspeed train.py --deepspeed_config ds_config.json</code></pre>
+<h3>Tradeoff</h3>
+<ul><li>More memory savings.</li></ul>
+<ul><li>More communication and possible CPU/NVMe bottlenecks if offloading.</li></ul></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Tensor / pipeline / data parallelism</h2>
+<div class="section-body"><h3>Data parallelism</h3>
+<ul><li>Split data across replicas.</li></ul>
+<ul><li>Good when model fits on GPU.</li></ul>
+<h3>Tensor parallelism</h3>
+<ul><li>Split individual matrix operations/model layers across GPUs.</li></ul>
+<ul><li>Needed for huge models in inference/training.</li></ul>
+<h3>Pipeline parallelism</h3>
+<ul><li>Split model layers across GPUs.</li></ul>
+<ul><li>Micro-batches flow through pipeline.</li></ul>
+<ul><li>Bubble overhead if not tuned.</li></ul>
+<h3>Hybrid</h3>
+<ul><li>LLM training often combines data + tensor + pipeline + ZeRO/FSDP.</li></ul></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Activation checkpointing</h2>
+<div class="section-body"><h3>Problem</h3>
+<ul><li>Activations take lots of memory during training.</li></ul>
+<h3>Solution</h3>
+<ul><li>Save fewer activations, recompute during backward.</li></ul>
+<ul><li>Reduces memory, increases compute.</li></ul>
+<h3>PyTorch</h3>
+<pre><code class="language-python">from torch.utils.checkpoint import checkpoint
+
+class Block(torch.nn.Module):
+    def forward(self, x):
+        return expensive_layers(x)
+
+out = checkpoint(block, x)</code></pre></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. LLM inference: prefill vs decode</h2>
+<div class="section-body"><h3>Prefill</h3>
+<ul><li>Process input prompt tokens in parallel.</li></ul>
+<ul><li>Compute KV cache for prompt.</li></ul>
+<ul><li>More compute-heavy.</li></ul>
+<h3>Decode</h3>
+<ul><li>Generate one token at a time.</li></ul>
+<ul><li>Uses KV cache.</li></ul>
+<ul><li>Often memory-bandwidth/KV-cache constrained.</li></ul>
+<h3>KV cache</h3>
+<ul><li>Stores key/value tensors for attention for previous tokens.</li></ul>
+<ul><li>Grows with sequence length and batch size.</li></ul>
+<ul><li>Major memory consumer in LLM serving.</li></ul>
+<h3>Serving implications</h3>
+<ul><li>Long prompts consume KV cache.</li></ul>
+<ul><li>More concurrent requests increase KV cache memory.</li></ul>
+<ul><li>Continuous batching improves GPU utilization during decode.</li></ul></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. vLLM-related concepts</h2>
+<div class="section-body"><h3>PagedAttention</h3>
+<ul><li>Manages KV cache in blocks/pages to reduce memory fragmentation.</li></ul>
+<ul><li>Enables higher batching/concurrency.</li></ul>
+<h3>Continuous batching</h3>
+<ul><li>New requests can join while other requests are decoding.</li></ul>
+<ul><li>Avoids waiting for entire batch to finish.</li></ul>
+<h3>Prefix caching</h3>
+<ul><li>Reuse KV cache for shared prompt prefixes.</li></ul>
+<ul><li>Useful for system prompts and repeated contexts.</li></ul>
+<h3>Metrics</h3>
+<ul><li>time to first token (TTFT)</li></ul>
+<ul><li>inter-token latency</li></ul>
+<ul><li>output tokens/sec</li></ul>
+<ul><li>request throughput</li></ul>
+<ul><li>KV cache utilization</li></ul>
+<ul><li>queue wait time</li></ul></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Performance debug checklist</h2>
+<div class="section-body"><h3>Training slow</h3>
+<ul><li>GPU utilization low? input pipeline bottleneck.</li></ul>
+<ul><li>CPU dataloader slow? increase num_workers, prefetch, pin_memory.</li></ul>
+<ul><li>Communication high? check all-reduce, network, batch size.</li></ul>
+<ul><li>OOM? use bf16/fp16, gradient accumulation, activation checkpointing, FSDP/ZeRO.</li></ul>
+<ul><li>Loss unstable? check precision/lr/grad clipping.</li></ul>
+<h3>Inference slow</h3>
+<ul><li>TTFT high? prompt too long, prefill bottleneck, queueing.</li></ul>
+<ul><li>Decode slow? batch scheduling/KV cache/model size.</li></ul>
+<ul><li>GPU util low? batching too small or CPU bottleneck.</li></ul>
+<ul><li>OOM? reduce max tokens/concurrency, quantize, use tensor parallelism.</li></ul></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Common commands</h2>
+<div class="section-body"><h3>GPU status</h3>
+<pre><code class="language-bash">nvidia-smi
+nvidia-smi dmon</code></pre>
+<h3>Torch distributed</h3>
+<pre><code class="language-bash">torchrun --nnodes=1 --nproc_per_node=8 train.py</code></pre>
+<h3>Multi-node</h3>
+<pre><code class="language-bash">torchrun \
+  --nnodes=4 \
+  --nproc_per_node=8 \
+  --node_rank=$NODE_RANK \
+  --master_addr=$MASTER_ADDR \
+  --master_port=29500 \
+  train.py</code></pre></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Interview quick answers</h2>
+<div class="section-body"><p>Q: DDP vs FSDP?<br/>A: DDP replicates full model states on each GPU and synchronizes gradients. FSDP shards parameters, gradients, and optimizer states to reduce memory footprint for large models.</p>
+<p>Q: What is ZeRO?<br/>A: ZeRO reduces redundancy in data parallel training by partitioning optimizer states, gradients, and parameters across workers, with increasing savings from stage 1 to stage 3.</p>
+<p>Q: Why is LLM serving hard?<br/>A: Generation is autoregressive. Decode is token-by-token, KV cache grows with sequence length and concurrency, and inefficient memory management limits batch size and throughput.</p>
+<p>Q: How to improve LLM serving throughput?<br/>A: Use continuous batching, efficient KV cache management, quantization, prefix caching, tensor parallelism, and tune max concurrency/max tokens.</p></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. References / official docs</h2>
+<div class="section-body"><ul><li>PyTorch FSDP docs: https://docs.pytorch.org/docs/stable/fsdp.html</li></ul>
+<ul><li>PyTorch FSDP tutorial: https://docs.pytorch.org/tutorials/intermediate/FSDP_tutorial.html</li></ul>
+<ul><li>DeepSpeed ZeRO docs: https://deepspeed.readthedocs.io/en/stable/zero3.html</li></ul>
+<ul><li>DeepSpeed ZeRO tutorial: https://www.deepspeed.ai/tutorials/zero/</li></ul>
+<ul><li>NVIDIA NCCL docs: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/</li></ul>
+<ul><li>NVIDIA NCCL overview: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/overview.html</li></ul>
+<ul><li>vLLM docs: https://docs.vllm.ai/en/latest/</li></ul>
+<ul><li>vLLM PagedAttention: https://docs.vllm.ai/en/latest/design/paged_attention/</li></ul></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>RESUME-ALIGNED INTERVIEW DEEP DIVE</h2>
+<div class="section-body"><p>A. How to answer GPU bottleneck questions<br/>------------------------------------------------------------<br/>Start by separating training and inference.</p>
+<h3>Training bottlenecks</h3>
+<ul><li>compute throughput for matrix multiplies.</li></ul>
+<ul><li>activation/optimizer memory.</li></ul>
+<ul><li>data-loader and preprocessing throughput.</li></ul>
+<ul><li>all-reduce/all-gather communication.</li></ul>
+<ul><li>checkpointing overhead.</li></ul>
+<h3>LLM inference bottlenecks</h3>
+<ul><li>prefill compute for long prompts.</li></ul>
+<ul><li>decode memory bandwidth.</li></ul>
+<ul><li>KV-cache memory capacity and fragmentation.</li></ul>
+<ul><li>scheduler efficiency and continuous batching.</li></ul>
+<ul><li>model weight loading and cold start.</li></ul>
+<p>B. Parallelism decision tree<br/>------------------------------------------------------------<br/>Data parallel / DDP: model fits on one GPU; scale throughput by data shards.<br/>FSDP / ZeRO: model states do not fit comfortably; shard params/grads/optimizer.<br/>Tensor parallel: one layer's matrix ops too large for one GPU or model needs multiple GPUs.<br/>Pipeline parallel: layer stack split across GPUs; watch pipeline bubbles.<br/>Expert parallel: MoE models route tokens to different experts.</p>
+<p>C. MIG and bin-packing<br/>------------------------------------------------------------<br/>MIG is useful for isolating smaller inference workloads on one physical GPU. It is not ideal when models need full GPU memory or dynamic sharing. Bin-packing improves utilization but can hurt fault isolation; spreading improves availability but may waste GPU capacity.</p>
+<p>D. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: Why can adding GPUs fail to improve training speed?<br/>A: Communication overhead, small batch size, data-loader bottleneck, poor overlap, network bandwidth, or optimizer/checkpoint bottlenecks can dominate.</p>
+<p>Q: Why is LLM decode memory-bound?<br/>A: Each generated token reads model weights and KV cache with relatively small compute per token. Memory bandwidth and KV-cache access become limiting.</p>
+<p>Q: fp16 vs bf16?<br/>A: Both reduce memory/bandwidth. bf16 has wider exponent range and is often more numerically stable on supported hardware; fp16 may need loss scaling.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Vector DB Internals Cheatsheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Infra Deep Dives / Infra</div>
+<h1>Vector DB Internals Cheatsheet</h1>
+<p>answer vector search deep-dive questions beyond "use Milvus/FAISS".</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>VECTOR DB INTERNALS CHEATSHEET<br/>HNSW / IVF / PQ / hybrid search / filtering / migrations<br/>Purpose: answer vector search deep-dive questions beyond "use Milvus/FAISS".</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model / 中文总览</h2>
+<div class="section-body"><p>Vector DB stores embeddings and supports nearest-neighbor search.</p>
+<h3>Query flow</h3>
+<p>  text/image/query -&gt; embedding model -&gt; query vector<br/>      -&gt; ANN index search<br/>      -&gt; metadata filtering<br/>      -&gt; reranking<br/>      -&gt; top k results</p>
+<h3>Chinese</h3>
+<ul><li>ANN = approximate nearest neighbor, 用近似换速度.</li></ul>
+<ul><li>核心 tradeoff: recall, latency, memory, indexing cost.</li></ul>
+<ul><li>metadata filtering 很重要,不能只看向量相似度.</li></ul>
+<h3>Interview one-liner</h3>
+<p>"Vector search is approximate, so I would evaluate recall@k against an exact-search baseline, tune index parameters for recall-latency-memory tradeoffs, and design embedding version migration and metadata filtering carefully."</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Similarity metrics</h2>
+<div class="section-body"><h3>Cosine similarity</h3>
+<ul><li>Common for normalized text embeddings.</li></ul>
+<ul><li>If vectors are normalized, cosine similarity equals dot product ranking.</li></ul>
+<h3>Dot product</h3>
+<ul><li>Common for retrieval models trained with dot-product objective.</li></ul>
+<h3>Euclidean / L2</h3>
+<ul><li>Distance metric for many vector indexes.</li></ul>
+<h3>Normalize example</h3>
+<pre><code class="language-python">import numpy as np
+
+def normalize(x):
+    return x / np.linalg.norm(x, axis=1, keepdims=True)</code></pre></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Exact search baseline</h2>
+<div class="section-body"><p>Before tuning ANN, create exact baseline on sampled dataset.</p>
+<pre><code class="language-python">import numpy as np
+
+# vectors: [N, dim], query: [dim]
+vectors = normalize(vectors)
+query = query / np.linalg.norm(query)
+
+scores = vectors @ query
+topk = np.argsort(-scores)[:10]</code></pre>
+<h3>ANN recall@k</h3>
+<pre><code class="language-python">def recall_at_k(exact_ids, ann_ids, k):
+    return len(set(exact_ids[:k]) &amp; set(ann_ids[:k])) / k</code></pre></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. HNSW</h2>
+<div class="section-body"><p>HNSW = Hierarchical Navigable Small World graph.</p>
+<h3>Idea</h3>
+<ul><li>Build graph where each vector connects to nearby vectors.</li></ul>
+<ul><li>Search navigates graph from coarse to fine layers.</li></ul>
+<h3>Important parameters</h3>
+<ul><li>M: number of graph neighbors per node. Higher M = better recall, more memory.</li></ul>
+<ul><li>efConstruction: build-time search depth. Higher = better index, slower build.</li></ul>
+<ul><li>efSearch: query-time search depth. Higher = better recall, higher latency.</li></ul>
+<h3>When good</h3>
+<ul><li>High recall and low latency.</li></ul>
+<ul><li>Dynamic-ish workloads.</li></ul>
+<ul><li>Enough memory.</li></ul>
+<h3>When painful</h3>
+<ul><li>Large memory footprint.</li></ul>
+<ul><li>Filtering can hurt if graph traversal ignores metadata selectivity.</li></ul>
+<h3>Tuning</h3>
+<pre><code class="language-text">increase efSearch -&gt; improve recall, increase latency
+increase M -&gt; improve recall, increase memory/build time</code></pre></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. IVF</h2>
+<div class="section-body"><p>IVF = Inverted File Index.</p>
+<h3>Idea</h3>
+<ul><li>Cluster vectors into coarse centroids.</li></ul>
+<ul><li>At query time, search only nearest clusters.</li></ul>
+<h3>Parameters</h3>
+<ul><li>nlist: number of clusters</li></ul>
+<ul><li>nprobe: number of clusters searched per query</li></ul>
+<h3>Tradeoff</h3>
+<pre><code class="language-text">higher nprobe -&gt; better recall, higher latency
+higher nlist -&gt; smaller clusters, more index overhead</code></pre>
+<h3>When good</h3>
+<ul><li>Very large datasets.</li></ul>
+<ul><li>Need memory/latency control.</li></ul>
+<ul><li>Batch/offline index building acceptable.</li></ul></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. PQ / scalar quantization</h2>
+<div class="section-body"><p>Quantization reduces memory.</p>
+<h3>Scalar quantization</h3>
+<ul><li>Convert float32 dimensions to int8-like representation.</li></ul>
+<ul><li>Lower memory, some accuracy loss.</li></ul>
+<h3>Product quantization (PQ)</h3>
+<ul><li>Split vector into sub-vectors.</li></ul>
+<ul><li>Quantize each sub-vector separately.</li></ul>
+<ul><li>Strong compression, more recall loss.</li></ul>
+<h3>Use when</h3>
+<ul><li>Dataset huge.</li></ul>
+<ul><li>Memory cost matters.</li></ul>
+<ul><li>Approximate recall acceptable.</li></ul></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. FAISS examples</h2>
+<div class="section-body"><h3>Flat exact index</h3>
+<pre><code class="language-python">import faiss
+import numpy as np
+
+vectors = np.random.random((10000, 768)).astype("float32")
+faiss.normalize_L2(vectors)
+
+index = faiss.IndexFlatIP(768)  # inner product
+index.add(vectors)
+
+query = np.random.random((1, 768)).astype("float32")
+faiss.normalize_L2(query)
+D, I = index.search(query, k=10)</code></pre>
+<h3>HNSW</h3>
+<pre><code class="language-python">index = faiss.IndexHNSWFlat(768, 32)  # M=32
+index.hnsw.efConstruction = 200
+index.add(vectors)
+index.hnsw.efSearch = 64
+D, I = index.search(query, 10)</code></pre>
+<h3>IVF</h3>
+<pre><code class="language-python">quantizer = faiss.IndexFlatIP(768)
+index = faiss.IndexIVFFlat(quantizer, 768, 4096, faiss.METRIC_INNER_PRODUCT)
+index.train(vectors)
+index.add(vectors)
+index.nprobe = 16
+D, I = index.search(query, 10)</code></pre>
+<h3>IVF + PQ</h3>
+<pre><code class="language-python">quantizer = faiss.IndexFlatIP(768)
+index = faiss.IndexIVFPQ(quantizer, 768, 4096, 64, 8)  # m=64, 8 bits
+index.train(vectors)
+index.add(vectors)
+index.nprobe = 32
+D, I = index.search(query, 10)</code></pre></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Metadata filtering</h2>
+<div class="section-body"><h3>Problem</h3>
+<p>"Find similar docs, but only docs user has permission to see, language=en, date &gt; X."</p>
+<h3>Filtering strategies</h3>
+<p class="numbered-line">1. Pre-filter then vector search</p>
+<ul><li>good if filter highly selective and supported by index</li></ul>
+<ul><li>may be expensive if many small filtered indexes</li></ul>
+<p class="numbered-line">2. Vector search then post-filter</p>
+<ul><li>simple</li></ul>
+<ul><li>can reduce recall if many top results filtered out</li></ul>
+<p class="numbered-line">3. Hybrid filter-aware ANN</p>
+<ul><li>vector DB-specific optimized strategy</li></ul>
+<h3>Rule</h3>
+<ul><li>If permission filtering is strict, never rely on post-filter after returning to user.</li></ul>
+<ul><li>Apply security filters before response.</li></ul></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Qdrant example</h2>
+<div class="section-body"><pre><code class="language-python">from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchValue
+
+client = QdrantClient("localhost", port=6333)
+
+client.create_collection(
+    collection_name="docs",
+    vectors_config=VectorParams(size=768, distance=Distance.COSINE),
+)
+
+client.upsert(
+    collection_name="docs",
+    points=[
+        PointStruct(
+            id="doc1",
+            vector=[0.1] * 768,
+            payload={"tenant_id": "t1", "language": "en"},
+        )
+    ],
+)
+
+hits = client.search(
+    collection_name="docs",
+    query_vector=[0.1] * 768,
+    query_filter=Filter(
+        must=[
+            FieldCondition(key="tenant_id", match=MatchValue(value="t1")),
+            FieldCondition(key="language", match=MatchValue(value="en")),
+        ]
+    ),
+    limit=10,
+)</code></pre></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Milvus conceptual example</h2>
+<div class="section-body"><pre><code class="language-python"># Pseudocode-style; exact API depends on Milvus client version.
+from pymilvus import MilvusClient
+
+client = MilvusClient(uri="http://localhost:19530")
+
+client.create_collection(
+    collection_name="docs",
+    dimension=768,
+)
+
+client.insert(
+    collection_name="docs",
+    data=[{"id": 1, "vector": [0.1] * 768, "tenant_id": "t1"}],
+)
+
+client.create_index(
+    collection_name="docs",
+    field_name="vector",
+    index_params={
+        "index_type": "HNSW",
+        "metric_type": "COSINE",
+        "params": {"M": 32, "efConstruction": 200},
+    },
+)
+
+res = client.search(
+    collection_name="docs",
+    data=[[0.1] * 768],
+    limit=10,
+    filter="tenant_id == 't1'",
+    search_params={"params": {"ef": 64}},
+)</code></pre></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Hybrid search</h2>
+<div class="section-body"><p>Hybrid combines sparse lexical + dense vector.</p>
+<h3>Options</h3>
+<ul><li>score blending: alpha * vector_score + (1-alpha) * bm25_score</li></ul>
+<ul><li>RRF: combine by ranks, robust to score scale differences</li></ul>
+<ul><li>retrieve separately, merge, rerank with cross-encoder</li></ul>
+<h3>RRF implementation</h3>
+<pre><code class="language-python">def reciprocal_rank_fusion(rank_lists, k=60):
+    scores = {}
+    for results in rank_lists:
+        for rank, doc_id in enumerate(results, 1):
+            scores[doc_id] = scores.get(doc_id, 0.0) + 1.0 / (k + rank)
+    return sorted(scores.items(), key=lambda x: x[1], reverse=True)</code></pre></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Embedding version migration</h2>
+<div class="section-body"><h3>Problem</h3>
+<ul><li>New embedding model changes vector space.</li></ul>
+<ul><li>Cannot mix old and new embeddings in one index.</li></ul>
+<h3>Migration plan</h3>
+<p class="numbered-line">1. Create new embedding_version column.</p>
+<p class="numbered-line">2. Backfill new embeddings to new index.</p>
+<p class="numbered-line">3. Dual-write new updates to old and new index.</p>
+<p class="numbered-line">4. Shadow test new index.</p>
+<p class="numbered-line">5. A/B route small traffic.</p>
+<p class="numbered-line">6. Switch read path.</p>
+<p class="numbered-line">7. Retire old index after safety window.</p>
+<h3>Schema</h3>
+<pre><code class="language-text">doc_id
+embedding
+embedding_model_version
+content_version
+updated_at
+tenant_id
+metadata</code></pre></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Operational checklist</h2>
+<div class="section-body"><ul><li>index build time</li></ul>
+<ul><li>index memory</li></ul>
+<ul><li>recall@k vs exact baseline</li></ul>
+<ul><li>p95/p99 latency</li></ul>
+<ul><li>filtering performance</li></ul>
+<ul><li>update throughput</li></ul>
+<ul><li>compaction/segment merge</li></ul>
+<ul><li>backup/restore</li></ul>
+<ul><li>embedding versioning</li></ul>
+<ul><li>delete/tombstone handling</li></ul>
+<ul><li>access control</li></ul>
+<ul><li>multi-tenant isolation</li></ul></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. Interview quick answers</h2>
+<div class="section-body"><p>Q: HNSW vs IVF?<br/>A: HNSW is graph-based, often high recall/low latency but memory-heavy. IVF clusters vectors and searches selected clusters, good for large datasets with tunable nprobe but requires training/building.</p>
+<p>Q: Why vector search results are bad?<br/>A: Could be embedding model mismatch, query/document preprocessing mismatch, stale index, poor ANN recall, missing metadata filters, or lack of reranking.</p>
+<p>Q: How to measure ANN quality?<br/>A: Compare ANN top-k against exact brute-force top-k on a sampled dataset and compute recall@k/latency/memory tradeoff.</p>
+<p>Q: How handle permissions in vector search?<br/>A: Enforce tenant/security filters in retrieval or before response. Do not trust post-processing alone if there is any chance of leakage.</p></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>14. References / official docs</h2>
+<div class="section-body"><ul><li>Faiss docs: https://faiss.ai/index.html</li></ul>
+<ul><li>Faiss index guidelines: https://github.com/facebookresearch/faiss/wiki/Guidelines-to-choose-an-index</li></ul>
+<ul><li>Milvus index docs: https://milvus.io/docs/index.md</li></ul>
+<ul><li>Milvus index explained: https://milvus.io/docs/index-explained.md</li></ul>
+<ul><li>Qdrant indexing: https://qdrant.tech/documentation/manage-data/indexing/</li></ul>
+<ul><li>Weaviate hybrid search: https://docs.weaviate.io/weaviate/search/hybrid</li></ul>
+<ul><li>Elasticsearch kNN: https://www.elastic.co/docs/solutions/search/vector/knn</li></ul></div>
+</section>
+<section class="section-card" id="sec-16">
+<div class="section-kicker">Section 17</div>
+<h2>RESUME-ALIGNED INTERVIEW DEEP DIVE</h2>
+<div class="section-body"><p>A. Vector DB internals answer<br/>------------------------------------------------------------<br/>Vector search is approximate. I would tune recall, latency, and memory together, then evaluate recall@K against an exact-search baseline on a sampled dataset.</p>
+<p>B. ANN choices<br/>------------------------------------------------------------<br/>HNSW: graph traversal, strong recall/latency, high memory.<br/>IVF: partition vectors into clusters and probe selected clusters.<br/>PQ: compress vectors to reduce memory, with quality tradeoff.<br/>Scalar quantization: reduce numeric precision for memory/speed.<br/>Disk-based ANN: handles huge corpora with SSD tradeoffs.</p>
+<p>C. Production lifecycle<br/>------------------------------------------------------------</p>
+<ul><li>embedding model versioning.</li></ul>
+<ul><li>dual-write or side-by-side index build for migrations.</li></ul>
+<ul><li>backfill and reindex plans.</li></ul>
+<ul><li>segment compaction.</li></ul>
+<ul><li>metadata filtering strategy.</li></ul>
+<ul><li>tombstones/deletes and freshness.</li></ul>
+<ul><li>hybrid search fusion with lexical results.</li></ul>
+<p>D. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: Why can metadata filtering hurt ANN search?<br/>A: If filtering happens after ANN, many nearest candidates may be removed, hurting recall. Better designs push filters into index search or over-retrieve before filtering/reranking.</p>
+<p>Q: How migrate embedding versions?<br/>A: Build a new index side-by-side, backfill vectors, dual-read/compare, canary traffic, monitor recall/latency, then switch and retire old index.</p>
+<p>Q: HNSW parameters?<br/>A: Higher graph degree/search effort improves recall but increases memory/build/query cost. Tune against an exact baseline.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

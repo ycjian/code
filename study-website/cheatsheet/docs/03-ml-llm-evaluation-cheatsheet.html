@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>ML / LLM / RAG Evaluation Cheatsheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Infra Deep Dives / Infra</div>
+<h1>ML / LLM / RAG Evaluation Cheatsheet</h1>
+<p>answer "How do you know the model/system is better?" in deep-dive interviews.</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>ML / LLM / RAG EVALUATION CHEATSHEET<br/>Purpose: answer "How do you know the model/system is better?" in deep-dive interviews.</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model / 中文总览</h2>
+<div class="section-body"><h3>Evaluation has layers</h3>
+<p class="numbered-line">1. Data quality eval</p>
+<p>   missing values, label noise, slice coverage, leakage</p>
+<p class="numbered-line">2. Model offline eval</p>
+<p>   accuracy, F1, AUC, RMSE, NDCG, recall@k</p>
+<p class="numbered-line">3. LLM/RAG component eval</p>
+<p>   retrieval recall, context precision, faithfulness, citation correctness</p>
+<p class="numbered-line">4. Online eval</p>
+<p>   A/B test, interleaving, CTR, conversion, latency, cost, user feedback</p>
+<p class="numbered-line">5. Production monitoring</p>
+<p>   drift, regressions, latency, failure rate, hallucination reports</p>
+<h3>Chinese</h3>
+<ul><li>不要只说 accuracy.</li></ul>
+<ul><li>对 RAG 要把 retrieval quality 和 generation quality 分开看.</li></ul>
+<ul><li>对 search/ranking 要看 offline ranking metrics + online A/B.</li></ul>
+<ul><li>对 LLM 要看 helpfulness, faithfulness, safety, cost, latency.</li></ul>
+<h3>Interview one-liner</h3>
+<p>"I would separate evaluation into retrieval, generation, task success, safety, latency, and cost. I would maintain a golden dataset and slice-based regression tests, then validate changes with online A/B tests before full rollout."</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Classic ML evaluation</h2>
+<div class="section-body"><h3>Classification</h3>
+<pre><code class="language-python">from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score,
+    classification_report, confusion_matrix, roc_auc_score
+)
+
+print("accuracy", accuracy_score(y_true, y_pred))
+print("f1 macro", f1_score(y_true, y_pred, average="macro"))
+print(classification_report(y_true, y_pred))
+print(confusion_matrix(y_true, y_pred))
+
+# binary classification probability metric
+auc = roc_auc_score(y_true, y_prob[:, 1])</code></pre>
+<h3>When to use</h3>
+<ul><li>accuracy: balanced labels, simple overview</li></ul>
+<ul><li>precision: false positives are expensive</li></ul>
+<ul><li>recall: false negatives are expensive</li></ul>
+<ul><li>F1: balance precision/recall</li></ul>
+<ul><li>macro F1: every class equally important</li></ul>
+<ul><li>weighted F1: account for class frequency</li></ul>
+<ul><li>AUC: ranking/separation quality for binary classifier</li></ul>
+<h3>Regression</h3>
+<pre><code class="language-python">from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+mae = mean_absolute_error(y_true, y_pred)
+mse = mean_squared_error(y_true, y_pred)
+rmse = mse ** 0.5
+r2 = r2_score(y_true, y_pred)</code></pre>
+<h3>Ranking/search</h3>
+<ul><li>recall@k: relevant items found in top k</li></ul>
+<ul><li>precision@k: top k relevance density</li></ul>
+<ul><li>MRR: first relevant result rank</li></ul>
+<ul><li>NDCG@k: ranking quality with graded relevance</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Slice-based evaluation</h2>
+<div class="section-body"><p>Average metrics hide failures.</p>
+<h3>Examples of slices</h3>
+<ul><li>language = English vs Chinese</li></ul>
+<ul><li>device = mobile vs desktop</li></ul>
+<ul><li>query length short vs long</li></ul>
+<ul><li>new users vs returning users</li></ul>
+<ul><li>high-value customers</li></ul>
+<ul><li>rare categories</li></ul>
+<ul><li>long-tail documents</li></ul>
+<ul><li>cold-start items</li></ul>
+<h3>Simple slice eval</h3>
+<pre><code class="language-python">import pandas as pd
+from sklearn.metrics import f1_score
+
+df = pd.DataFrame({
+    "y_true": y_true,
+    "y_pred": y_pred,
+    "country": country,
+    "device": device,
+})
+
+for name, group in df.groupby("device"):
+    print(name, f1_score(group.y_true, group.y_pred, average="macro"))</code></pre>
+<h3>Interview phrase</h3>
+<p>"I would never trust only the aggregate metric. I would inspect failure slices and build regression tests from those slices."</p></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. RAG evaluation framework</h2>
+<div class="section-body"><h3>RAG pipeline</h3>
+<p>  query -&gt; query rewrite -&gt; retrieval -&gt; reranking -&gt; context building -&gt; LLM answer -&gt; citations</p>
+<p>Evaluate each component separately.</p>
+<h3>Retrieval metrics</h3>
+<ul><li>recall@k: did we retrieve the supporting docs?</li></ul>
+<ul><li>MRR: how high is the first relevant doc?</li></ul>
+<ul><li>NDCG@k: are more relevant docs ranked higher?</li></ul>
+<ul><li>context precision: are retrieved chunks mostly useful?</li></ul>
+<ul><li>context recall: did we miss necessary chunks?</li></ul>
+<h3>Generation metrics</h3>
+<ul><li>faithfulness: answer supported by retrieved context?</li></ul>
+<ul><li>answer relevance: answer addresses the question?</li></ul>
+<ul><li>correctness: matches known answer?</li></ul>
+<ul><li>citation correctness: cited source supports claim?</li></ul>
+<ul><li>refusal correctness: refuses when context is insufficient?</li></ul>
+<h3>Operational metrics</h3>
+<ul><li>latency by stage</li></ul>
+<ul><li>token cost</li></ul>
+<ul><li>retrieval timeout rate</li></ul>
+<ul><li>empty retrieval rate</li></ul>
+<ul><li>answer fallback rate</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. RAG golden dataset design</h2>
+<div class="section-body"><h3>A good eval set contains</h3>
+<pre><code class="language-text">question
+expected_answer or rubric
+required_doc_ids / required_chunk_ids
+difficulty
+category / slice
+safety flags
+freshness requirement</code></pre>
+<h3>Example row</h3>
+<pre><code class="language-json">{
+  "question": "What is the refund policy for summer camp cancellation?",
+  "expected_answer": "Full refund before X date, minus registration fee.",
+  "required_doc_ids": ["policy_2026.pdf"],
+  "slice": "policy_question",
+  "difficulty": "medium"
+}</code></pre>
+<h3>Build dataset from</h3>
+<ul><li>real user queries</li></ul>
+<ul><li>support tickets</li></ul>
+<ul><li>known failure cases</li></ul>
+<ul><li>synthetic variations reviewed by humans</li></ul>
+<ul><li>edge cases: ambiguous, no-answer, outdated-doc, conflicting-doc</li></ul></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. RAGAS-style evaluation example</h2>
+<div class="section-body"><p>RAGAS evaluates RAG dimensions such as faithfulness, answer relevancy, context precision, and context recall.</p>
+<pre><code class="language-python"># pip install ragas datasets
+from datasets import Dataset
+from ragas import evaluate
+from ragas.metrics import faithfulness, answer_relevancy, context_precision, context_recall
+
+data = {
+    "question": ["What is our PTO policy?"],
+    "answer": ["Employees get 15 days of PTO per year."],
+    "contexts": [["The company provides 15 PTO days per year for full-time employees."]],
+    "ground_truth": ["Full-time employees receive 15 PTO days per year."],
+}
+
+dataset = Dataset.from_dict(data)
+
+result = evaluate(
+    dataset,
+    metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
+)
+print(result)</code></pre>
+<h3>Use with caution</h3>
+<ul><li>LLM-as-judge can be noisy.</li></ul>
+<ul><li>Use consistent judge model and prompt.</li></ul>
+<ul><li>Calibrate judge with human labels.</li></ul>
+<ul><li>Track judge version.</li></ul></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. MLflow evaluation and registry</h2>
+<div class="section-body"><h3>Track experiments</h3>
+<pre><code class="language-python">import mlflow
+from sklearn.metrics import f1_score
+
+with mlflow.start_run():
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    f1 = f1_score(y_test, y_pred, average="macro")
+
+    mlflow.log_param("model_type", "logistic_regression")
+    mlflow.log_metric("f1_macro", f1)
+    mlflow.sklearn.log_model(model, "model")</code></pre>
+<h3>Register model</h3>
+<pre><code class="language-python">model_uri = "runs:/&lt;run_id&gt;/model"
+mlflow.register_model(model_uri, "search-ranking-model")</code></pre>
+<h3>Evaluate model</h3>
+<pre><code class="language-python">import mlflow
+
+result = mlflow.models.evaluate(
+    model="runs:/&lt;run_id&gt;/model",
+    data=eval_df,
+    targets="label",
+    model_type="classifier",
+)
+print(result.metrics)</code></pre>
+<h3>Interview point</h3>
+<p>"I would log parameters, metrics, model artifacts, data version, code commit, and evaluation slices so we can reproduce why a model was promoted."</p></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Online A/B testing</h2>
+<div class="section-body"><p>Offline win does not guarantee online win.</p>
+<h3>A/B test design</h3>
+<ul><li>Randomize by user_id or request_id.</li></ul>
+<ul><li>Keep assignment stable.</li></ul>
+<ul><li>Define primary metric before launch.</li></ul>
+<ul><li>Define guardrail metrics.</li></ul>
+<ul><li>Run long enough for statistical power.</li></ul>
+<h3>Example</h3>
+<pre><code class="language-text">Treatment: new reranker
+Control: old reranker
+Primary: conversion rate / task success / NDCG from human labels
+Guardrails: latency p95, error rate, cost/query, complaint rate</code></pre>
+<h3>Common metrics</h3>
+<ul><li>CTR</li></ul>
+<ul><li>conversion rate</li></ul>
+<ul><li>revenue/session</li></ul>
+<ul><li>retention</li></ul>
+<ul><li>search success rate</li></ul>
+<ul><li>zero-result rate</li></ul>
+<ul><li>reformulation rate</li></ul>
+<ul><li>latency</li></ul>
+<h3>Interleaving</h3>
+<ul><li>Useful for search/ranking.</li></ul>
+<ul><li>Mix results from two rankers and infer preference from clicks.</li></ul>
+<ul><li>Faster sensitivity than full A/B in some ranking systems.</li></ul></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Regression gates for LLM/RAG systems</h2>
+<div class="section-body"><h3>Before deploy, run gates</h3>
+<pre><code class="language-text">1. Unit tests for prompt templates and parsers
+2. Retrieval recall@k must not drop &gt; threshold
+3. Faithfulness must not drop &gt; threshold
+4. Safety eval must pass all critical tests
+5. Latency/cost must stay under budget
+6. Golden failure cases must not regress</code></pre>
+<h3>Example gate code</h3>
+<pre><code class="language-python">assert metrics["retrieval_recall_at_5"] &gt;= 0.92
+assert metrics["faithfulness"] &gt;= 0.85
+assert metrics["p95_latency_ms"] &lt;= 2500
+assert metrics["cost_per_query_usd"] &lt;= 0.01</code></pre></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Human evaluation</h2>
+<div class="section-body"><h3>Human rubric example</h3>
+<pre><code class="language-text">Correctness: 1-5
+Completeness: 1-5
+Faithfulness to sources: 1-5
+Citations support claims: yes/no
+Tone/helpfulness: 1-5
+Safety/privacy issue: yes/no</code></pre>
+<h3>Best practices</h3>
+<ul><li>Use blinded comparison when possible.</li></ul>
+<ul><li>Sample across slices.</li></ul>
+<ul><li>Include no-answer cases.</li></ul>
+<ul><li>Measure inter-rater agreement.</li></ul>
+<ul><li>Convert human-rated failures into golden tests.</li></ul></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Error analysis loop</h2>
+<div class="section-body"><h3>Loop</h3>
+<p class="numbered-line">1. Collect failures.</p>
+<p class="numbered-line">2. Categorize failure type.</p>
+<p class="numbered-line">3. Add slice or golden test.</p>
+<p class="numbered-line">4. Fix data/retrieval/prompt/model.</p>
+<p class="numbered-line">5. Re-run eval.</p>
+<p class="numbered-line">6. Monitor online.</p>
+<h3>Failure taxonomy for RAG</h3>
+<ul><li>Retrieval miss</li></ul>
+<ul><li>Wrong chunk ranking</li></ul>
+<ul><li>Context too long/noisy</li></ul>
+<ul><li>Prompt misunderstood question</li></ul>
+<ul><li>LLM hallucinated beyond context</li></ul>
+<ul><li>Citation unsupported</li></ul>
+<ul><li>Outdated document used</li></ul>
+<ul><li>Permission leakage</li></ul></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Interview quick answers</h2>
+<div class="section-body"><p>Q: Model accuracy improved from 90% to 92%. Ship it?<br/>A: Not immediately. Check confidence intervals, slice metrics, business metrics, latency/cost, and online A/B results.</p>
+<p>Q: RAG answer is wrong. How debug?<br/>A: First check retrieval: did we retrieve required context? Then check context assembly: was it included in prompt? Then generation: did the LLM ignore/misread context? Then evaluate citations.</p>
+<p>Q: How to evaluate no-answer cases?<br/>A: Include questions where answer is not in docs. Metric should reward correct refusal and penalize hallucinated answers.</p>
+<p>Q: How to prevent metric gaming?<br/>A: Keep hidden test sets, slice-based eval, human review, online guardrails, and periodically refresh eval sets from real traffic.</p></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. References / official docs</h2>
+<div class="section-body"><ul><li>MLflow docs: https://mlflow.org/docs/latest/</li></ul>
+<ul><li>MLflow model registry: https://mlflow.org/docs/latest/ml/model-registry/</li></ul>
+<ul><li>MLflow evaluation: https://mlflow.org/docs/latest/ml/evaluation/</li></ul>
+<ul><li>RAGAS metrics: https://docs.ragas.io/en/stable/concepts/metrics/</li></ul>
+<ul><li>RAGAS context precision: https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/</li></ul>
+<ul><li>RAGAS context recall: https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_recall/</li></ul>
+<ul><li>RAGAS faithfulness: https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/</li></ul></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>RESUME-ALIGNED INTERVIEW DEEP DIVE</h2>
+<div class="section-body"><p>A. Evaluation stack for your resume<br/>------------------------------------------------------------<br/>Use this as the answer when interviewers ask: How do you know the model or GenAI system is better?</p>
+<h3>Layered answer</h3>
+<ul><li>Offline ML metrics for classifier/ranker/retriever.</li></ul>
+<ul><li>RAG component metrics: retrieval recall, context precision/recall, faithfulness, answer relevance, citation correctness.</li></ul>
+<ul><li>LLM-as-judge only after calibration against human labels.</li></ul>
+<ul><li>Golden regression dataset for recurring failures.</li></ul>
+<ul><li>Slice metrics for product, modality, language, tenant, content type, long-tail queries.</li></ul>
+<ul><li>Online A/B or interleaving for real user impact.</li></ul>
+<ul><li>Cost/latency/error budget as rollout gates.</li></ul>
+<p>B. RAG debug split<br/>------------------------------------------------------------</p>
+<h3>A bad RAG answer comes from one of four places</h3>
+<p class="numbered-line">1. Query understanding failed.</p>
+<p class="numbered-line">2. Retrieval missed evidence.</p>
+<p class="numbered-line">3. Reranker/context builder selected poor evidence.</p>
+<p class="numbered-line">4. Generator ignored or misused correct evidence.</p>
+<p>Never debug RAG only by looking at final answer text. Trace stage-level evidence.</p>
+<p>C. Ranking/LLM evaluation tools<br/>------------------------------------------------------------<br/>MLflow: experiment tracking, model registry, classic evaluation, and GenAI evaluation APIs.<br/>Weights &amp; Biases / W&amp;B: experiment tracking, artifact/version tracking, sweeps, dashboards, reports, and collaborative experiment review.<br/>Ragas/DeepEval-style libraries: RAG faithfulness, context precision/recall, answer relevance, judge-based metrics.<br/>Evidently-style monitoring: drift, data quality, production monitoring.</p>
+<p>D. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: How do you prevent LLM-as-judge from becoming circular?<br/>A: Calibrate with human labels, use multiple judges for high-risk areas, keep adversarial examples, track judge prompt/model version, and inspect disagreement slices.</p>
+<p>Q: How do you evaluate ranking online?<br/>A: Use A/B tests or interleaving, monitor CTR/task success/reformulation/zero-result rate, and guard against novelty effects and position bias.</p>
+<p>Q: What goes in a golden dataset?<br/>A: High-value queries, historical regressions, hard negatives, permission-sensitive cases, long-context cases, multilingual cases, and product-critical workflows.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

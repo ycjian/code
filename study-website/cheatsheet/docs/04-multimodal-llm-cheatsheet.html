@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Multimodal LLM Cheat Sheet — Images, Text, Audio, Documents</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>Multimodal LLM Cheat Sheet — Images, Text, Audio, Documents</h1>
+<p>interviews + daily design for multimodal AI systems</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>MULTIMODAL LLM CHEAT SHEET — Images, Text, Audio, Documents<br/>Purpose: interviews + daily design for multimodal AI systems</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model</h2>
+<div class="section-body"><h3>Multimodal LLM = model that can consume or produce multiple modalities</h3>
+<ul><li>text</li></ul>
+<ul><li>image</li></ul>
+<ul><li>audio</li></ul>
+<ul><li>video</li></ul>
+<ul><li>documents / charts / screenshots</li></ul>
+<h3>Core pattern</h3>
+<p class="numbered-line">1. Input normalization</p>
+<p class="numbered-line">2. Modality-specific encoding</p>
+<p class="numbered-line">3. Fusion / cross-attention</p>
+<p class="numbered-line">4. Reasoning / generation</p>
+<p class="numbered-line">5. Post-processing and grounding</p>
+<h3>中文</h3>
+<p>image/audio/video are not just files. They must be encoded into tokens/features.<br/>Multimodal quality depends heavily on preprocessing, prompt, resolution, OCR/layout, and evaluation.</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Common use cases</h2>
+<div class="section-body"><h3>Image understanding</h3>
+<ul><li>screenshot QA</li></ul>
+<ul><li>chart/diagram understanding</li></ul>
+<ul><li>product image classification</li></ul>
+<ul><li>defect detection</li></ul>
+<h3>Document understanding</h3>
+<ul><li>PDF parsing</li></ul>
+<ul><li>invoice extraction</li></ul>
+<ul><li>table extraction</li></ul>
+<ul><li>contract QA</li></ul>
+<h3>Audio</h3>
+<ul><li>speech-to-text</li></ul>
+<ul><li>call summarization</li></ul>
+<ul><li>voice agent</li></ul>
+<h3>Video</h3>
+<ul><li>frame sampling</li></ul>
+<ul><li>scene understanding</li></ul>
+<ul><li>event detection</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Prompting vision models</h2>
+<div class="section-body"><h3>Screenshot prompt</h3>
+<pre><code class="language-text">Analyze the screenshot.
+Return:
+1. Main task/question
+2. Important constraints
+3. Step-by-step solution
+4. Edge cases
+If text is unclear, say what is uncertain.</code></pre>
+<h3>Chart prompt</h3>
+<pre><code class="language-text">Read the chart carefully.
+Extract axes, units, trend, outliers, and conclusion.
+Do not invent exact values if the chart does not show them clearly.</code></pre>
+<h3>Document extraction prompt</h3>
+<pre><code class="language-text">Extract the fields as JSON.
+Use null if missing.
+Preserve original wording for legal/financial fields.</code></pre></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. OpenAI-style vision request pattern</h2>
+<div class="section-body"><h3>Pseudo-code</h3>
+<pre><code class="language-python">from openai import OpenAI
+
+client = OpenAI()
+
+response = client.responses.create(
+    model="YOUR_MULTIMODAL_MODEL",
+    input=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "input_text", "text": "What is in this image?"},
+                {"type": "input_image", "image_url": "https://example.com/image.png"},
+            ],
+        }
+    ],
+)
+
+print(response.output_text)</code></pre>
+<h3>Base64 image pattern</h3>
+<pre><code class="language-python">import base64
+from openai import OpenAI
+
+client = OpenAI()
+
+def encode_image(path):
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8")
+
+img_b64 = encode_image("screenshot.png")
+
+response = client.responses.create(
+    model="YOUR_MULTIMODAL_MODEL",
+    input=[{
+        "role": "user",
+        "content": [
+            {"type": "input_text", "text": "Extract the coding question."},
+            {"type": "input_image", "image_url": f"data:image/png;base64,{img_b64}"},
+        ],
+    }],
+)</code></pre>
+<h3>Interview note</h3>
+<p>Most APIs accept image URL or base64 data URL. Keep image size reasonable. Use clear output schema.</p></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Hugging Face multimodal pattern</h2>
+<div class="section-body"><h3>Image classification</h3>
+<pre><code class="language-python">from transformers import pipeline
+clf = pipeline("image-classification", model="google/vit-base-patch16-224")
+print(clf("cat.jpg"))</code></pre>
+<h3>Image captioning</h3>
+<pre><code class="language-python">from transformers import pipeline
+captioner = pipeline("image-to-text", model="Salesforce/blip-image-captioning-base")
+print(captioner("image.jpg"))</code></pre>
+<h3>Visual question answering</h3>
+<pre><code class="language-python">from transformers import pipeline
+vqa = pipeline("visual-question-answering")
+print(vqa(image="invoice.png", question="What is the total amount?"))</code></pre></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. CLIP-style embeddings</h2>
+<div class="section-body"><p>Use CLIP-like models for image search by text, image dedup, recommendation, multimodal retrieval.</p>
+<h3>Concept</h3>
+<pre><code class="language-text">text encoder maps text -&gt; vector
+image encoder maps image -&gt; vector
+similarity(text_vector, image_vector) finds matching images</code></pre>
+<h3>Example</h3>
+<pre><code class="language-python">from sentence_transformers import SentenceTransformer, util
+from PIL import Image
+
+model = SentenceTransformer("clip-ViT-B-32")
+images = [Image.open("dog.jpg"), Image.open("car.jpg")]
+image_emb = model.encode(images, convert_to_tensor=True, normalize_embeddings=True)
+text_emb = model.encode(["a photo of a dog"], convert_to_tensor=True, normalize_embeddings=True)
+scores = util.cos_sim(text_emb, image_emb)
+print(scores)</code></pre></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Document multimodal pipeline</h2>
+<div class="section-body"><h3>For PDF/document QA</h3>
+<pre><code class="language-text">PDF
+ -&gt; page images
+ -&gt; OCR/layout parser
+ -&gt; chunks with metadata:
+      page number, section title, table/caption, coordinates
+ -&gt; embeddings
+ -&gt; vector store
+ -&gt; retrieval
+ -&gt; reranking
+ -&gt; answer with citations</code></pre>
+<h3>Practical libraries</h3>
+<pre><code class="language-text">pypdf / pymupdf: PDF text and page rendering
+unstructured: document parsing
+pytesseract / easyocr: OCR
+layoutparser: layout detection
+camelot / tabula: table extraction
+docling: document conversion/parsing
+LlamaParse: managed document parsing</code></pre>
+<h3>PyMuPDF example</h3>
+<pre><code class="language-python">import fitz  # pymupdf
+
+doc = fitz.open("file.pdf")
+for page_num, page in enumerate(doc):
+    text = page.get_text()
+    print(page_num, text[:500])</code></pre>
+<h3>Render page to image</h3>
+<pre><code class="language-python">pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+pix.save(f"page_{page_num}.png")</code></pre></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. OCR + LLM extraction</h2>
+<div class="section-body"><pre><code class="language-python">import pytesseract
+from PIL import Image
+
+text = pytesseract.image_to_string(Image.open("receipt.png"))</code></pre>
+<h3>Then ask LLM</h3>
+<pre><code class="language-text">Extract:
+- merchant
+- date
+- total
+- tax
+Return JSON only.</code></pre>
+<h3>Good JSON schema</h3>
+<pre><code class="language-json">{
+  "merchant": "string | null",
+  "date": "YYYY-MM-DD | null",
+  "total": "number | null",
+  "currency": "string | null",
+  "line_items": [
+    {"name": "string", "quantity": "number | null", "price": "number | null"}
+  ]
+}</code></pre></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Video understanding pattern</h2>
+<div class="section-body"><p>Do not send every frame. Sample frames.</p>
+<pre><code class="language-python">import cv2
+
+def sample_frames(video_path, every_n_seconds=2):
+    cap = cv2.VideoCapture(video_path)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    step = int(fps * every_n_seconds)
+    frames = []
+    i = 0
+    while True:
+        ok, frame = cap.read()
+        if not ok:
+            break
+        if i % step == 0:
+            frames.append(frame)
+        i += 1
+    cap.release()
+    return frames</code></pre>
+<h3>Pipeline</h3>
+<pre><code class="language-text">video -&gt; sampled frames -&gt; frame captions -&gt; temporal summary -&gt; answer</code></pre></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Audio pipeline</h2>
+<div class="section-body"><h3>Speech-to-text</h3>
+<pre><code class="language-python">from transformers import pipeline
+asr = pipeline("automatic-speech-recognition", model="openai/whisper-small")
+result = asr("call.wav")
+print(result["text"])</code></pre>
+<h3>Meeting/call</h3>
+<pre><code class="language-text">audio -&gt; transcription -&gt; speaker diarization -&gt; chunk by speaker/time -&gt; summarize -&gt; action items</code></pre>
+<h3>Libraries</h3>
+<pre><code class="language-text">Whisper / faster-whisper
+pyannote.audio for diarization
+librosa for audio processing
+pydub for splitting/conversion</code></pre></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Multimodal RAG</h2>
+<div class="section-body"><h3>Use cases</h3>
+<ul><li>search across PDFs, screenshots, images</li></ul>
+<ul><li>answer questions over charts/tables</li></ul>
+<ul><li>product catalog image+text search</li></ul>
+<h3>Architecture</h3>
+<pre><code class="language-text">Ingestion:
+documents/images
+ -&gt; text extraction/OCR/captioning
+ -&gt; embeddings: text embeddings, image embeddings, table embeddings
+ -&gt; vector DB
+
+Query:
+user query
+ -&gt; embed query
+ -&gt; retrieve text/images/tables
+ -&gt; optional rerank
+ -&gt; multimodal LLM answer with citations</code></pre>
+<h3>Index design</h3>
+<pre><code class="language-text">id
+modality: text/image/table/page
+source_file
+page_number
+bbox
+raw_text
+summary
+embedding
+metadata</code></pre></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Evaluation</h2>
+<div class="section-body"><h3>Image understanding</h3>
+<ul><li>accuracy for classification</li></ul>
+<ul><li>field-level exact match for extraction</li></ul>
+<ul><li>human eval for complex reasoning</li></ul>
+<h3>Document QA</h3>
+<ul><li>answer correctness</li></ul>
+<ul><li>citation correctness</li></ul>
+<ul><li>retrieval recall@k</li></ul>
+<ul><li>hallucination rate</li></ul>
+<h3>Multimodal retrieval</h3>
+<ul><li>Recall@k</li></ul>
+<ul><li>MRR</li></ul>
+<ul><li>NDCG</li></ul>
+<ul><li>manual relevance review</li></ul></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Common failure modes</h2>
+<div class="section-body"><p class="numbered-line">1. OCR misses small text</p>
+<p class="numbered-line">2. Chart axes/units misread</p>
+<p class="numbered-line">3. Tables lose structure</p>
+<p class="numbered-line">4. Model invents values not visible</p>
+<p class="numbered-line">5. Long documents exceed context</p>
+<p class="numbered-line">6. Image resolution too low</p>
+<p class="numbered-line">7. Retrieval returns right file but wrong page</p>
+<p class="numbered-line">8. Multimodal model sees image but lacks domain context</p>
+<h3>Mitigation</h3>
+<ul><li>increase render resolution</li></ul>
+<ul><li>ask for uncertainty</li></ul>
+<ul><li>use structured schema</li></ul>
+<ul><li>keep page metadata</li></ul>
+<ul><li>retrieve image+text together</li></ul>
+<ul><li>use citations</li></ul>
+<ul><li>add validators</li></ul></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. Interview answer pattern</h2>
+<div class="section-body"><p>Question: Design a document understanding system.</p>
+<h3>Answer</h3>
+<p>I would split this into ingestion and query-time flows. At ingestion, I parse PDFs into pages, extract text/OCR/tables, preserve metadata like page number and bounding boxes, chunk the text, create embeddings, and store them in a vector database. At query time, I embed the query, retrieve top-k chunks/pages, optionally rerank, and pass the grounded context to a multimodal or text LLM. For evaluation, I measure retrieval recall, answer correctness, and citation accuracy.</p></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. Multimodal LLM mental model<br/>------------------------------------------------------------<br/>A multimodal system aligns text, image, video, audio, documents, layout, and metadata. The engineering problem is model quality plus payload size, latency, routing, privacy, and evaluation.</p>
+<p>B. Architecture patterns<br/>------------------------------------------------------------</p>
+<p class="numbered-line">1. Dual encoder: encode image/text separately into shared space; good for retrieval.</p>
+<p class="numbered-line">2. Cross encoder: jointly attends over modalities; better quality, slower.</p>
+<p class="numbered-line">3. Vision-language adapter: visual encoder feeds tokens/features into LLM.</p>
+<p class="numbered-line">4. Tool-based multimodal agent: LLM calls OCR, detector, retriever, video sampler.</p>
+<p class="numbered-line">5. Cascade: cheap router first, expensive VLM only when needed.</p>
+<p>C. Representation choices<br/>------------------------------------------------------------<br/>Images: resize/crop policy, aspect ratio, perceptual hash, OCR. Video: keyframes, transcript, scene detection, timestamps. Documents: text, layout, tables, images, page regions. Always store metadata that lets the answer cite the original page/frame/region.</p>
+<p>D. Multimodal retrieval<br/>------------------------------------------------------------</p>
+<h3>Use hybrid retrieval</h3>
+<ul><li>BM25/OCR for exact text.</li></ul>
+<ul><li>dense multimodal vectors for semantic/visual match.</li></ul>
+<ul><li>metadata filters for tenant, app, modality, time, permissions.</li></ul>
+<ul><li>reranker to fuse query, asset, thumbnails, captions, and behavior.</li></ul>
+<p>Example: "red logo slide from last week's deck" needs lexical terms, visual color/logo similarity, slide/document metadata, and recency filters.</p>
+<p>E. Serving and latency<br/>------------------------------------------------------------<br/>Large media is expensive. Use presigned uploads, edge/client preprocessing, thumbnails/keyframes, content-hash caching, async jobs for long video/doc tasks, and route only necessary derived artifacts to GPU services.</p>
+<p>F. Evaluation<br/>------------------------------------------------------------</p>
+<ul><li>retrieval: Recall@K, nDCG, MRR.</li></ul>
+<ul><li>captioning/VQA: human preference, accuracy, hallucination rate.</li></ul>
+<ul><li>RAG: groundedness and citation correctness.</li></ul>
+<ul><li>system: p95 latency, payload bytes, GPU cost per request.</li></ul>
+<p>G. Failure modes<br/>------------------------------------------------------------</p>
+<ul><li>modality dominance: metadata overwhelms visual evidence.</li></ul>
+<ul><li>OCR misses or hallucinates text.</li></ul>
+<ul><li>frame sampling misses the key moment.</li></ul>
+<ul><li>dense embeddings fail exact UI text or numbers.</li></ul>
+<ul><li>raw media goes to cloud despite privacy constraints.</li></ul>
+<ul><li>expensive VLM used for every trivial request.</li></ul>
+<p>H. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: How do CLIP-like models enable text-to-image search?<br/>A: They train image and text encoders into a shared vector space so related text/image pairs are close. At query time, encode text and ANN-search image vectors.</p>
+<p>Q: Why keep lexical search in multimodal systems?<br/>A: Exact filenames, OCR text, IDs, and policy metadata are hard for dense embeddings. Hybrid retrieval improves recall and explainability.</p>
+<p>Q: How reduce raw-media transfer?<br/>A: Edge-first preprocessing, presigned upload, content hashes, thumbnails/keyframes, cached embeddings/OCR, and only send necessary derived artifacts.</p>
+<p>Q: How serve long video understanding?<br/>A: Async workflow: transcript/keyframes -&gt; chunk index with timestamps -&gt; retrieve relevant segments -&gt; run VLM on narrowed evidence -&gt; cite timestamps.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

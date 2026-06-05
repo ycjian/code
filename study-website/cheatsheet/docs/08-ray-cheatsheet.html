@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Ray Cheat Sheet — Distributed Python, Data, Train, Serve</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>Ray Cheat Sheet — Distributed Python, Data, Train, Serve</h1>
+<p>distributed computing + ML infra interviews</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>RAY CHEAT SHEET — Distributed Python, Data, Train, Serve<br/>Purpose: distributed computing + ML infra interviews</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Ray mental model</h2>
+<div class="section-body"><p>Ray lets you scale Python from one machine to a cluster.</p>
+<h3>Core abstractions</h3>
+<pre><code class="language-text">Task: stateless remote function
+Actor: stateful remote class/service
+Object store: distributed shared objects
+Ray Data: distributed data processing
+Ray Train: distributed ML training
+Ray Tune: hyperparameter tuning
+Ray Serve: model serving</code></pre>
+<h3>中文</h3>
+<p>task = remote function.<br/>actor = remote object with state.<br/>object ref = future/pointer to result.</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Install and init</h2>
+<div class="section-body"><pre><code class="language-bash">pip install -U "ray[default]"</code></pre>
+<pre><code class="language-python">import ray
+ray.init()</code></pre>
+<h3>Cluster</h3>
+<pre><code class="language-bash">ray start --head --port=6379
+ray status</code></pre></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Remote tasks</h2>
+<div class="section-body"><pre><code class="language-python">import ray
+ray.init()
+
+@ray.remote
+def square(x):
+    return x * x
+
+refs = [square.remote(i) for i in range(10)]
+results = ray.get(refs)
+print(results)</code></pre>
+<h3>Key grammar</h3>
+<ul><li><code>@ray.remote</code> turns function into distributed task.</li></ul>
+<ul><li><code>.remote(...)</code> submits async task.</li></ul>
+<ul><li><code>ray.get(ref)</code> blocks and fetches result.</li></ul></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Object refs</h2>
+<div class="section-body"><pre><code class="language-python">ref = square.remote(5)
+value = ray.get(ref)</code></pre>
+<h3>Put large object into object store</h3>
+<pre><code class="language-python">large_data_ref = ray.put(large_data)</code></pre>
+<h3>Use it</h3>
+<pre><code class="language-python">@ray.remote
+def process(data):
+    return len(data)
+
+process.remote(large_data_ref)</code></pre></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Actors</h2>
+<div class="section-body"><p>Actors are stateful workers.</p>
+<pre><code class="language-python">@ray.remote
+class Counter:
+    def __init__(self):
+        self.value = 0
+
+    def inc(self):
+        self.value += 1
+        return self.value
+
+counter = Counter.remote()
+print(ray.get(counter.inc.remote()))
+print(ray.get(counter.inc.remote()))</code></pre>
+<h3>Use actors for</h3>
+<ul><li>stateful services</li></ul>
+<ul><li>model loaded once per worker</li></ul>
+<ul><li>counters/aggregators</li></ul>
+<ul><li>connection pools</li></ul></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Task vs Actor</h2>
+<div class="section-body"><h3>Task</h3>
+<ul><li>stateless</li></ul>
+<ul><li>good for parallel map jobs</li></ul>
+<ul><li>cheap to scale many calls</li></ul>
+<h3>Actor</h3>
+<ul><li>stateful</li></ul>
+<ul><li>holds model/db connection/cache</li></ul>
+<ul><li>methods run on same worker</li></ul></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Resource requirements</h2>
+<div class="section-body"><pre><code class="language-python">@ray.remote(num_cpus=2, num_gpus=1)
+def train_model(config):
+    ...</code></pre>
+<h3>Actor with GPU</h3>
+<pre><code class="language-python">@ray.remote(num_gpus=1)
+class ModelWorker:
+    def __init__(self):
+        self.model = load_model().cuda()</code></pre>
+<h3>Custom resources</h3>
+<pre><code class="language-python">@ray.remote(resources={"special_hardware": 1})
+def task():
+    ...</code></pre></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Parallel map pattern</h2>
+<div class="section-body"><pre><code class="language-python">@ray.remote
+def process_one(item):
+    return item * 2
+
+refs = [process_one.remote(x) for x in items]
+results = ray.get(refs)</code></pre>
+<h3>Avoid submitting millions of tasks at once</h3>
+<pre><code class="language-python">def bounded_parallel(items, max_in_flight=100):
+    pending = []
+    results = []
+
+    for item in items:
+        pending.append(process_one.remote(item))
+        if len(pending) &gt;= max_in_flight:
+            done, pending = ray.wait(pending, num_returns=1)
+            results.extend(ray.get(done))
+
+    results.extend(ray.get(pending))
+    return results</code></pre></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. ray.wait</h2>
+<div class="section-body"><pre><code class="language-python">ready, remaining = ray.wait(refs, num_returns=5, timeout=1.0)</code></pre>
+<h3>Use for</h3>
+<ul><li>streaming results as tasks finish</li></ul>
+<ul><li>backpressure</li></ul>
+<ul><li>avoid waiting for all tasks</li></ul></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Ray Data</h2>
+<div class="section-body"><pre><code class="language-python">import ray
+
+ds = ray.data.read_csv("s3://bucket/data.csv")
+ds = ds.filter(lambda row: row["score"] &gt; 0.5)
+ds = ds.map_batches(lambda batch: batch)</code></pre>
+<h3>Batch inference</h3>
+<pre><code class="language-python">class Predictor:
+    def __init__(self):
+        self.model = load_model()
+
+    def __call__(self, batch):
+        batch["pred"] = self.model.predict(batch["text"])
+        return batch
+
+predicted = ds.map_batches(
+    Predictor,
+    compute=ray.data.ActorPoolStrategy(size=4),
+    batch_size=64,
+)</code></pre>
+<p>Use for distributed ETL, batch inference, preprocessing for ML training.</p></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Ray Tune</h2>
+<div class="section-body"><pre><code class="language-python">from ray import tune
+
+def train_fn(config):
+    lr = config["lr"]
+    acc = train_and_eval(lr)
+    tune.report({"accuracy": acc})
+
+tuner = tune.Tuner(
+    train_fn,
+    param_space={
+        "lr": tune.loguniform(1e-5, 1e-1),
+        "batch_size": tune.choice([16, 32, 64]),
+    },
+)
+
+results = tuner.fit()</code></pre></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Ray Train mental model</h2>
+<div class="section-body"><h3>Ray Train handles</h3>
+<ul><li>distributed worker setup</li></ul>
+<ul><li>data sharding</li></ul>
+<ul><li>checkpointing</li></ul>
+<ul><li>framework integration</li></ul>
+<h3>PyTorch style</h3>
+<pre><code class="language-python">from ray.train.torch import TorchTrainer
+from ray.train import ScalingConfig
+
+def train_loop_per_worker(config):
+    # create model, dataloader, train
+    pass
+
+trainer = TorchTrainer(
+    train_loop_per_worker=train_loop_per_worker,
+    scaling_config=ScalingConfig(num_workers=4, use_gpu=True),
+)
+
+result = trainer.fit()</code></pre></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Ray Serve</h2>
+<div class="section-body"><p>Ray Serve = scalable model serving.</p>
+<pre><code class="language-python">from ray import serve
+from starlette.requests import Request
+
+@serve.deployment(num_replicas=2)
+class SentimentModel:
+    def __init__(self):
+        self.model = load_model()
+
+    async def __call__(self, request: Request):
+        data = await request.json()
+        text = data["text"]
+        return {"sentiment": self.model.predict(text)}
+
+serve.run(SentimentModel.bind())</code></pre>
+<h3>Call</h3>
+<pre><code class="language-bash">curl -X POST http://localhost:8000/ -d '{"text":"I love it"}'</code></pre></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. Ray Serve composition</h2>
+<div class="section-body"><pre><code class="language-python">@serve.deployment
+class Preprocessor:
+    def __call__(self, text):
+        return text.lower()
+
+@serve.deployment
+class Classifier:
+    def __init__(self, preprocessor):
+        self.preprocessor = preprocessor
+
+    async def __call__(self, request):
+        data = await request.json()
+        text = await self.preprocessor.remote(data["text"])
+        return {"label": classify(text)}
+
+app = Classifier.bind(Preprocessor.bind())
+serve.run(app)</code></pre></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>14. Architecture</h2>
+<div class="section-body"><pre><code class="language-text">Driver -&gt; submits tasks/actors
+Ray Head Node -&gt; cluster coordination
+Worker Nodes -&gt; execute tasks/actors
+Object Store -&gt; share immutable objects
+Dashboard -&gt; monitoring/debugging</code></pre></div>
+</section>
+<section class="section-card" id="sec-16">
+<div class="section-kicker">Section 17</div>
+<h2>15. Performance tips</h2>
+<div class="section-body"><ul><li>Avoid tiny tasks; batch work.</li></ul>
+<ul><li>Use actors for expensive model initialization.</li></ul>
+<ul><li>Use ray.put for large shared objects.</li></ul>
+<ul><li>Use ray.wait for backpressure.</li></ul>
+<ul><li>Specify resource requirements.</li></ul>
+<ul><li>Avoid returning huge objects repeatedly.</li></ul>
+<ul><li>Monitor object store memory.</li></ul></div>
+</section>
+<section class="section-card" id="sec-17">
+<div class="section-kicker">Section 18</div>
+<h2>16. Common failures</h2>
+<div class="section-body"><p class="numbered-line">1. Too many small tasks</p>
+<p class="numbered-line">2. Object store memory full</p>
+<p class="numbered-line">3. Serialization error</p>
+<p class="numbered-line">4. Function/class not importable on workers</p>
+<p class="numbered-line">5. GPU oversubscription</p>
+<p class="numbered-line">6. Actor bottleneck</p>
+<p class="numbered-line">7. No backpressure</p>
+<h3>Fix</h3>
+<ul><li>batching</li></ul>
+<ul><li>ray.wait</li></ul>
+<ul><li>num_cpus/num_gpus</li></ul>
+<ul><li>actor pools</li></ul>
+<ul><li>object spilling</li></ul>
+<ul><li>dashboard</li></ul></div>
+</section>
+<section class="section-card" id="sec-18">
+<div class="section-kicker">Section 19</div>
+<h2>17. Interview answer pattern</h2>
+<div class="section-body"><p>Question: When would you use Ray?</p>
+<h3>Answer</h3>
+<p>I would use Ray when I need to scale Python workloads across cores or machines without rewriting everything into Spark or a lower-level distributed system. For stateless parallel work I would use Ray tasks, for stateful model workers I would use actors, for batch inference I would use Ray Data, and for online serving I would use Ray Serve. I would monitor object store memory, task granularity, GPU scheduling, and backpressure.</p></div>
+</section>
+<section class="section-card" id="sec-19">
+<div class="section-kicker">Section 20</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. Ray system mental model<br/>------------------------------------------------------------<br/>Ray is a distributed runtime for Python tasks and actors. In AI infra interviews, explain when Ray is better than multiprocessing, Spark, Kubernetes Jobs, or a pure model server.</p>
+<p>B. Architecture basics<br/>------------------------------------------------------------</p>
+<ul><li>driver: submits tasks/actors.</li></ul>
+<ul><li>worker: executes tasks.</li></ul>
+<ul><li>raylet: node-level scheduler/resource manager.</li></ul>
+<ul><li>global control store: cluster metadata.</li></ul>
+<ul><li>object store: shared immutable objects.</li></ul>
+<ul><li>autoscaler: adds/removes nodes based on resource demand.</li></ul>
+<p>Ray schedules logical resources like CPU/GPU/custom resources; your code must expose useful parallelism.</p>
+<p>C. Task vs actor<br/>------------------------------------------------------------<br/>Use task for stateless fan-out work. Use actor when model/connection/cache/state should be reused.</p>
+<pre><code class="language-python">@ray.remote(num_gpus=1)
+class Embedder:
+    def __init__(self):
+        self.model = load_model().cuda()
+    def encode(self, batch):
+        return self.model(batch)</code></pre>
+<p>D. Object store and memory<br/>------------------------------------------------------------<br/>Object refs point to immutable distributed objects. Memory issues come from too many pending refs, huge returns, unconsumed results, object spilling, and closures accidentally capturing large objects. Use <code>ray.wait</code> for backpressure.</p>
+<p>E. Ray Serve<br/>------------------------------------------------------------<br/>Serve concepts: application, deployment, replica, ingress deployment. A common AI pattern is HTTP ingress -&gt; CPU router/DAG -&gt; GPU deployment for embeddings/ranking/generation -&gt; async handles for composition.</p>
+<p>F. Ray vs Spark vs Kubernetes<br/>------------------------------------------------------------<br/>Ray: Python-native dynamic task graphs, actors, ML serving/training. Spark: SQL/batch ETL and shuffle-heavy analytics. Kubernetes: container orchestration, not a Python programming model. Use Kubernetes underneath Ray for lifecycle and isolation.</p>
+<p>G. Failure modes<br/>------------------------------------------------------------<br/>Driver dies, actor bottleneck, object-store pressure, too many tiny tasks, GPU actors underutilized by small batches, autoscaler reacts slowly, serialization dominates compute.</p>
+<p>H. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: How prevent millions of tasks overwhelming Ray?<br/>A: Bound in-flight refs with <code>ray.wait</code>, batch small work, use actors to amortize setup, and monitor queue/object-store metrics.</p>
+<p>Q: Why Ray Serve vs FastAPI?<br/>A: FastAPI is HTTP. Ray Serve adds distributed deployments, replicas, resource-aware scheduling, autoscaling, handles, and workflow composition.</p>
+<p>Q: How debug Ray performance?<br/>A: Check dashboard timeline, task duration, queueing, object store memory, serialization, GPU utilization, and task granularity.</p>
+<p>Q: How schedule GPU work?<br/>A: Declare <code>num_gpus</code>; Ray schedules on nodes with logical GPU resources and sets CUDA visibility. Model code still must use GPU correctly.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

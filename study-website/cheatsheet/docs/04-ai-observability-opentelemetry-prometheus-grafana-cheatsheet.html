@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>AI Observability Cheatsheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Infra Deep Dives / Infra</div>
+<h1>AI Observability Cheatsheet</h1>
+<p>debug production AI/RAG/model serving systems like a Staff engineer.</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>AI OBSERVABILITY CHEATSHEET<br/>OpenTelemetry + Prometheus + Grafana + AI-specific tracing<br/>Purpose: debug production AI/RAG/model serving systems like a Staff engineer.</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model / 中文总览</h2>
+<div class="section-body"><h3>Observability = understand system behavior from external outputs</h3>
+<ul><li>logs: what happened</li></ul>
+<ul><li>metrics: numeric time series</li></ul>
+<ul><li>traces: request path across services</li></ul>
+<h3>For AI systems, add</h3>
+<ul><li>model version</li></ul>
+<ul><li>prompt version</li></ul>
+<ul><li>embedding version</li></ul>
+<ul><li>retrieved document ids</li></ul>
+<ul><li>reranker version</li></ul>
+<ul><li>token counts</li></ul>
+<ul><li>latency by stage</li></ul>
+<ul><li>cost</li></ul>
+<ul><li>safety/fallback events</li></ul>
+<ul><li>user feedback</li></ul>
+<h3>ASCII trace</h3>
+<p>request_id=abc<br/>  API Gateway<br/>    -&gt; Auth / permission check<br/>    -&gt; Query rewrite LLM<br/>    -&gt; Embedding service<br/>    -&gt; Vector DB retrieval<br/>    -&gt; Reranker<br/>    -&gt; Context builder<br/>    -&gt; LLM generation<br/>    -&gt; Citation verifier<br/>    -&gt; Response</p>
+<h3>Interview one-liner</h3>
+<p>"I would instrument the AI pipeline with distributed traces and stage-level metrics so we can tell whether a bad answer came from retrieval, reranking, context construction, model generation, permission filtering, or an external dependency."</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Metrics you must know</h2>
+<div class="section-body"><h3>Backend metrics</h3>
+<ul><li>QPS</li></ul>
+<ul><li>error rate</li></ul>
+<ul><li>p50/p95/p99 latency</li></ul>
+<ul><li>saturation</li></ul>
+<ul><li>queue depth</li></ul>
+<ul><li>timeout rate</li></ul>
+<h3>AI-specific metrics</h3>
+<ul><li>retrieval latency</li></ul>
+<ul><li>embedding latency</li></ul>
+<ul><li>rerank latency</li></ul>
+<ul><li>generation latency</li></ul>
+<ul><li>tokens in/out</li></ul>
+<ul><li>cost per request</li></ul>
+<ul><li>GPU utilization</li></ul>
+<ul><li>GPU memory usage</li></ul>
+<ul><li>KV cache usage</li></ul>
+<ul><li>batch size</li></ul>
+<ul><li>queue wait time</li></ul>
+<ul><li>cache hit rate</li></ul>
+<ul><li>fallback rate</li></ul>
+<ul><li>hallucination report rate</li></ul>
+<ul><li>citation failure rate</li></ul>
+<ul><li>empty retrieval rate</li></ul>
+<ul><li>permission-filtered document count</li></ul>
+<h3>Search/RAG metrics</h3>
+<ul><li>recall@k from sampled labeled traffic</li></ul>
+<ul><li>zero-result rate</li></ul>
+<ul><li>no-answer rate</li></ul>
+<ul><li>top source domains/docs</li></ul>
+<ul><li>stale document usage</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Prometheus FastAPI example</h2>
+<div class="section-body"><pre><code class="language-python"># pip install prometheus-client fastapi uvicorn
+from fastapi import FastAPI, Request
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from starlette.responses import Response
+import time
+
+app = FastAPI()
+
+REQUEST_COUNT = Counter(
+    "api_requests_total",
+    "Total API requests",
+    ["path", "method", "status"],
+)
+
+REQUEST_LATENCY = Histogram(
+    "api_request_latency_seconds",
+    "Request latency",
+    ["path", "method"],
+)
+
+LLM_TOKENS = Counter(
+    "llm_tokens_total",
+    "LLM tokens used",
+    ["model", "direction"],  # direction=input/output
+)
+
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    start = time.time()
+    response = await call_next(request)
+    latency = time.time() - start
+
+    REQUEST_COUNT.labels(request.url.path, request.method, response.status_code).inc()
+    REQUEST_LATENCY.labels(request.url.path, request.method).observe(latency)
+    return response
+
+@app.get("/metrics")
+def metrics():
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)</code></pre>
+<h3>Prometheus alert examples</h3>
+<pre><code class="language-yaml">groups:
+- name: ai-serving-alerts
+  rules:
+  - alert: HighLLMLatency
+    expr: histogram_quantile(0.95, rate(api_request_latency_seconds_bucket[5m])) &gt; 3
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      summary: "p95 latency &gt; 3s"
+
+  - alert: HighFallbackRate
+    expr: rate(rag_fallback_total[5m]) / rate(api_requests_total[5m]) &gt; 0.05
+    for: 10m
+    labels:
+      severity: ticket</code></pre></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. OpenTelemetry tracing example</h2>
+<div class="section-body"><pre><code class="language-python"># pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+
+provider = TracerProvider()
+processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://otel-collector:4317"))
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
+
+tracer = trace.get_tracer(__name__)
+
+def answer_question(query: str, user_id: str):
+    with tracer.start_as_current_span("rag_request") as span:
+        span.set_attribute("user_id_hash", hash(user_id))
+        span.set_attribute("query_length", len(query))
+        span.set_attribute("rag.pipeline_version", "2026-05-14")
+
+        with tracer.start_as_current_span("retrieve") as s:
+            docs = retrieve(query)
+            s.set_attribute("retrieved.count", len(docs))
+            s.set_attribute("retrieved.doc_ids", ",".join(d.id for d in docs[:5]))
+
+        with tracer.start_as_current_span("rerank") as s:
+            ranked = rerank(query, docs)
+            s.set_attribute("reranker.version", "bge-reranker-v2")
+
+        with tracer.start_as_current_span("generate") as s:
+            answer, usage = call_llm(query, ranked)
+            s.set_attribute("llm.model", "gpt-x")
+            s.set_attribute("llm.input_tokens", usage.input_tokens)
+            s.set_attribute("llm.output_tokens", usage.output_tokens)
+
+        return answer</code></pre>
+<h3>Important privacy note</h3>
+<ul><li>Do not log raw prompts/documents unless policy allows.</li></ul>
+<ul><li>Prefer hashed user IDs and doc IDs.</li></ul>
+<ul><li>Redact PII.</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Structured logging</h2>
+<div class="section-body"><h3>Bad</h3>
+<pre><code class="language-python">print("failed")</code></pre>
+<h3>Good</h3>
+<pre><code class="language-python">import logging, json, time
+logger = logging.getLogger(__name__)
+
+def log_event(event_type, **kwargs):
+    logger.info(json.dumps({
+        "event_type": event_type,
+        "ts": time.time(),
+        **kwargs,
+    }))
+
+log_event(
+    "rag_generation_completed",
+    request_id="abc",
+    model="gpt-x",
+    prompt_version="v12",
+    retrieved_doc_count=8,
+    latency_ms=1234,
+    input_tokens=1200,
+    output_tokens=300,
+)</code></pre>
+<h3>Use structured logs for</h3>
+<ul><li>request_id</li></ul>
+<ul><li>trace_id</li></ul>
+<ul><li>user hash</li></ul>
+<ul><li>model version</li></ul>
+<ul><li>prompt version</li></ul>
+<ul><li>error category</li></ul>
+<ul><li>retry count</li></ul>
+<ul><li>fallback reason</li></ul></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Grafana dashboard layout</h2>
+<div class="section-body"><p>Dashboard 1: API health</p>
+<ul><li>QPS</li></ul>
+<ul><li>p50/p95/p99 latency</li></ul>
+<ul><li>4xx/5xx error rate</li></ul>
+<ul><li>timeout rate</li></ul>
+<ul><li>dependency errors</li></ul>
+<p>Dashboard 2: RAG pipeline</p>
+<ul><li>retrieval p95 latency</li></ul>
+<ul><li>vector DB latency</li></ul>
+<ul><li>reranker latency</li></ul>
+<ul><li>LLM latency</li></ul>
+<ul><li>empty retrieval rate</li></ul>
+<ul><li>context length distribution</li></ul>
+<ul><li>fallback rate</li></ul>
+<p>Dashboard 3: LLM cost/performance</p>
+<ul><li>input tokens/sec</li></ul>
+<ul><li>output tokens/sec</li></ul>
+<ul><li>cost/request</li></ul>
+<ul><li>model distribution</li></ul>
+<ul><li>prompt version distribution</li></ul>
+<ul><li>cache hit rate</li></ul>
+<p>Dashboard 4: GPU serving</p>
+<ul><li>GPU utilization</li></ul>
+<ul><li>GPU memory</li></ul>
+<ul><li>batch size</li></ul>
+<ul><li>queue wait time</li></ul>
+<ul><li>prefill/decode throughput</li></ul>
+<ul><li>KV cache usage</li></ul>
+<ul><li>OOM count</li></ul>
+<p>Dashboard 5: Quality/safety</p>
+<ul><li>user thumbs up/down</li></ul>
+<ul><li>hallucination reports</li></ul>
+<ul><li>citation verification failures</li></ul>
+<ul><li>policy refusals</li></ul>
+<ul><li>PII redaction events</li></ul></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. SLO examples</h2>
+<div class="section-body"><p>SLO = service level objective.</p>
+<h3>Example RAG API</h3>
+<pre><code class="language-text">Availability: 99.9% successful responses over 30 days
+Latency: 95% of requests under 2.5s
+Freshness: 99% of indexed docs searchable within 5 minutes
+Quality: retrieval recall@5 &gt;= 0.9 on sampled labeled set
+Safety: 0 critical PII leaks</code></pre>
+<h3>Error budget</h3>
+<pre><code class="language-text">If availability target is 99.9%, monthly error budget is ~43.2 minutes.
+If budget is burned too fast, freeze risky launches and focus reliability.</code></pre></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Debug playbooks</h2>
+<div class="section-body"><p>Case A: latency spike</p>
+<p class="numbered-line">1. Check p95 by endpoint.</p>
+<p class="numbered-line">2. Split trace by stage: retrieval/rerank/generate.</p>
+<p class="numbered-line">3. Check dependency latency and timeout.</p>
+<p class="numbered-line">4. Check queue depth and GPU utilization.</p>
+<p class="numbered-line">5. Check recent deployment/model/prompt change.</p>
+<p class="numbered-line">6. Roll back or scale bottleneck.</p>
+<p>Case B: answer quality drop</p>
+<p class="numbered-line">1. Check prompt/model/retriever version change.</p>
+<p class="numbered-line">2. Compare retrieval recall@k.</p>
+<p class="numbered-line">3. Inspect failed traces: retrieved docs? context too noisy?</p>
+<p class="numbered-line">4. Check index freshness and embedding version mismatch.</p>
+<p class="numbered-line">5. Add failures to eval set.</p>
+<p>Case C: high cost</p>
+<p class="numbered-line">1. Token count by route/user/model.</p>
+<p class="numbered-line">2. Long context prompts.</p>
+<p class="numbered-line">3. Cache hit rate.</p>
+<p class="numbered-line">4. Too many tool calls/retries.</p>
+<p class="numbered-line">5. Rerank/context pruning.</p>
+<p class="numbered-line">6. Use smaller model for easy queries.</p></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. AI trace schema suggestion</h2>
+<div class="section-body"><h3>Attributes to capture</h3>
+<pre><code class="language-text">request.id
+user.hash
+tenant.id
+route
+model.name
+model.version
+prompt.version
+embedding.model
+retriever.version
+reranker.version
+index.name
+index.version
+retrieved.doc_ids
+retrieved.count
+context.token_count
+llm.input_tokens
+llm.output_tokens
+cost.usd
+fallback.reason
+safety.policy_action</code></pre>
+<h3>Do not capture without approval</h3>
+<ul><li>raw user prompt</li></ul>
+<ul><li>raw documents</li></ul>
+<ul><li>PII</li></ul>
+<ul><li>secrets</li></ul>
+<ul><li>credentials</li></ul></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Interview quick answers</h2>
+<div class="section-body"><p>Q: How do you monitor RAG in production?<br/>A: I monitor both system health and answer quality. System metrics include latency per stage, error rate, token cost, and dependency failures. Quality metrics include retrieval recall on sampled labeled queries, citation failures, user feedback, and slice-based regression tests.</p>
+<p>Q: How debug hallucination reports?<br/>A: Trace the request, inspect retrieved docs and context. If required docs were missing, fix retrieval/indexing. If docs were present but model ignored them, fix prompt/context formatting or model. If citation unsupported, add citation verification and eval cases.</p>
+<p>Q: What do you log?<br/>A: Structured logs with request_id, trace_id, model/prompt/index versions, stage latencies, token counts, fallback reason, and safe identifiers. Avoid raw PII unless explicitly approved.</p></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. References / official docs</h2>
+<div class="section-body"><ul><li>OpenTelemetry docs: https://opentelemetry.io/docs/</li></ul>
+<ul><li>OpenTelemetry traces: https://opentelemetry.io/docs/concepts/signals/traces/</li></ul>
+<ul><li>OpenTelemetry metrics spec: https://opentelemetry.io/docs/specs/otel/metrics/</li></ul>
+<ul><li>OpenTelemetry logs spec: https://opentelemetry.io/docs/specs/otel/logs/</li></ul>
+<ul><li>Prometheus: https://prometheus.io/docs/introduction/overview/</li></ul>
+<ul><li>Grafana: https://grafana.com/docs/</li></ul></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>RESUME-ALIGNED INTERVIEW DEEP DIVE</h2>
+<div class="section-body"><p>A. AI observability answer shape<br/>------------------------------------------------------------<br/>For Staff-level AI infra interviews, describe observability by request stage, not only by service.</p>
+<h3>Trace fields</h3>
+<ul><li>request_id, tenant_id_hash, user/session hash.</li></ul>
+<ul><li>intent and workflow version.</li></ul>
+<ul><li>retrieval index version, embedding model version, reranker version.</li></ul>
+<ul><li>model/version/prompt/template version.</li></ul>
+<ul><li>token counts, queue time, GPU time, cache hits.</li></ul>
+<ul><li>retrieved doc IDs or hashed IDs, not raw sensitive text.</li></ul>
+<ul><li>fallback and safety decision events.</li></ul>
+<p>B. Dashboard layout<br/>------------------------------------------------------------</p>
+<h3>Golden signals</h3>
+<ul><li>traffic, errors, latency, saturation.</li></ul>
+<h3>AI panels</h3>
+<ul><li>retrieval p95 and empty retrieval rate.</li></ul>
+<ul><li>reranker latency and top-k distribution.</li></ul>
+<ul><li>LLM TTFT, TPOT, output tokens, cost.</li></ul>
+<ul><li>GPU utilization, memory, KV cache usage, batch size.</li></ul>
+<ul><li>cache hit rate and fallback rate.</li></ul>
+<ul><li>quality signals: citation failures, hallucination reports, thumbs down, judge regressions.</li></ul>
+<p>C. SLO thinking<br/>------------------------------------------------------------<br/>Define separate SLOs for synchronous user-facing paths and async workflows. Example: p95 answer latency for short RAG, p99 job completion for video/document processing, and error budget for fallback rate.</p>
+<p>D. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: Why OpenTelemetry?<br/>A: It is vendor-neutral instrumentation for traces, metrics, and logs. It lets us propagate context across gateway, retrieval, reranking, model serving, and external LLM calls.</p>
+<p>Q: How do you debug a latency spike?<br/>A: Break latency into queue time, retrieval time, rerank time, model prefill/decode time, network/downstream time, and cache misses. Then correlate with QPS, token length, and GPU saturation.</p>
+<p>Q: How do you log prompts safely?<br/>A: Prefer prompt/template version and metadata. If raw prompts are needed, redact PII, sample, encrypt, control access, set retention, and avoid logging secrets/tool credentials.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

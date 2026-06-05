@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>AI Agents Cheat Sheet — Tools, Memory, Planning, Multi-Agent</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>AI Agents Cheat Sheet — Tools, Memory, Planning, Multi-Agent</h1>
+<p>interview + daily implementation</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>AI AGENTS CHEAT SHEET — Tools, Memory, Planning, Multi-Agent<br/>Purpose: interview + daily implementation</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. What is an AI agent?</h2>
+<div class="section-body"><h3>An agent is an LLM-powered system that can</h3>
+<p class="numbered-line">1. reason over a goal</p>
+<p class="numbered-line">2. choose actions/tools</p>
+<p class="numbered-line">3. observe results</p>
+<p class="numbered-line">4. update state/memory</p>
+<p class="numbered-line">5. continue until done</p>
+<h3>中文</h3>
+<p>普通 chatbot 主要回答问题。<br/>Agent 可以调用工具、查数据、执行任务、保存状态。</p>
+<h3>Core loop</h3>
+<pre><code class="language-text">User goal -&gt; plan -&gt; choose tool -&gt; execute tool -&gt; observe result -&gt; decide next step -&gt; final answer</code></pre></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Agent building blocks</h2>
+<div class="section-body"><pre><code class="language-text">Model: LLM
+Instructions: role, policy, output format
+Tools: functions/API/search/code/database
+Memory: user preference, history, learned facts
+State: current task variables
+Planner: decide steps
+Executor: run tools
+Guardrails: safety/validation/permissions
+Observability: trace tool calls, latency, errors, cost</code></pre></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Tool calling mental model</h2>
+<div class="section-body"><p>The model does NOT execute code directly. It produces a structured tool call. Your application executes the tool and returns result.</p>
+<h3>Flow</h3>
+<p class="numbered-line">1. App sends user input + tool definitions to model</p>
+<p class="numbered-line">2. Model returns tool call: function name + JSON args</p>
+<p class="numbered-line">3. App validates args</p>
+<p class="numbered-line">4. App executes function/API</p>
+<p class="numbered-line">5. App sends tool result back to model</p>
+<p class="numbered-line">6. Model gives final answer or asks for another tool</p></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Minimal manual tool-calling pattern</h2>
+<div class="section-body"><pre><code class="language-python">import json
+
+def get_weather(city: str) -&gt; dict:
+    return {"city": city, "temp_f": 72, "condition": "sunny"}
+
+tools = {
+    "get_weather": get_weather,
+}
+
+# Pseudo-response from LLM:
+tool_call = {
+    "name": "get_weather",
+    "arguments": {"city": "Mountain View"},
+}
+
+name = tool_call["name"]
+args = tool_call["arguments"]
+
+if name not in tools:
+    raise ValueError("Unknown tool")
+
+result = tools[name](**args)
+print(result)</code></pre>
+<h3>Production concerns</h3>
+<ul><li>validate tool name</li></ul>
+<ul><li>validate JSON schema</li></ul>
+<ul><li>timeout</li></ul>
+<ul><li>retry</li></ul>
+<ul><li>auth</li></ul>
+<ul><li>rate limit</li></ul>
+<ul><li>log every call</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Tool schema</h2>
+<div class="section-body"><pre><code class="language-python">tools = [{
+    "type": "function",
+    "name": "search_docs",
+    "description": "Search internal documents by query.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "query": {"type": "string"},
+            "top_k": {"type": "integer", "default": 5}
+        },
+        "required": ["query"]
+    }
+}]</code></pre>
+<h3>Good tool design</h3>
+<ul><li>small, deterministic, well-named</li></ul>
+<ul><li>clear input/output schema</li></ul>
+<ul><li>avoid too many overlapping tools</li></ul>
+<ul><li>return concise structured data</li></ul>
+<h3>Bad tool</h3>
+<pre><code class="language-text">do_everything(query: str)</code></pre>
+<h3>Good tools</h3>
+<pre><code class="language-text">search_docs(query, top_k)
+read_doc(doc_id)
+create_ticket(title, body, priority)
+get_calendar_availability(date)</code></pre></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Simple agent loop</h2>
+<div class="section-body"><pre><code class="language-python">MAX_STEPS = 5
+
+def run_agent(user_input):
+    messages = [{"role": "user", "content": user_input}]
+
+    for step in range(MAX_STEPS):
+        response = call_llm(messages, tools=tool_schemas)
+
+        if response.type == "final":
+            return response.text
+
+        if response.type == "tool_call":
+            tool_name = response.tool_name
+            args = response.arguments
+
+            validate(tool_name, args)
+            result = execute_tool(tool_name, args)
+
+            messages.append(response.as_message())
+            messages.append({
+                "role": "tool",
+                "tool_call_id": response.tool_call_id,
+                "content": json.dumps(result),
+            })
+
+    return "I could not complete this within the step limit."</code></pre></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Memory types</h2>
+<div class="section-body"><pre><code class="language-text">Short-term memory: current conversation messages, task scratchpad/state
+Long-term memory: user preferences, facts about projects, previous decisions
+Episodic memory: prior conversations/events
+Semantic memory: knowledge base / docs
+Procedural memory: saved workflows / skills</code></pre>
+<h3>When to store memory</h3>
+<ul><li>stable user preference</li></ul>
+<ul><li>reusable project context</li></ul>
+<ul><li>explicit "remember this"</li></ul>
+<h3>When NOT</h3>
+<ul><li>temporary facts</li></ul>
+<ul><li>sensitive attributes unless explicitly requested</li></ul>
+<ul><li>noisy one-off details</li></ul></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. RAG vs memory</h2>
+<div class="section-body"><pre><code class="language-text">RAG:
+- search external docs
+- source-grounded
+- usually large corpus
+
+Memory:
+- small personalized facts/state
+- improves continuity
+- often user/session scoped</code></pre>
+<p>Agent = LLM + tools + state.<br/>RAG = one important knowledge tool.<br/>Memory = state across conversations/tasks.</p></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Planning patterns</h2>
+<div class="section-body"><h3>Plan-and-execute</h3>
+<p class="numbered-line">1. Make plan</p>
+<p class="numbered-line">2. Execute each step</p>
+<p class="numbered-line">3. Replan if result changes situation</p>
+<h3>ReAct</h3>
+<p>Thought -&gt; Action -&gt; Observation -&gt; Thought -&gt; ...</p>
+<h3>Reflection</h3>
+<p>Draft -&gt; critique -&gt; revise</p>
+<h3>Router</h3>
+<p>Classify request -&gt; choose specialist/tool/workflow</p>
+<h3>State machine</h3>
+<p>Explicit states/transitions; best for production reliability.</p></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. State machine concept</h2>
+<div class="section-body"><h3>Use when</h3>
+<ul><li>multi-step workflow</li></ul>
+<ul><li>retries/branches</li></ul>
+<ul><li>human approval</li></ul>
+<ul><li>deterministic control</li></ul>
+<pre><code class="language-python">from typing import TypedDict
+
+class AgentState(TypedDict):
+    query: str
+    documents: list
+    answer: str
+    needs_human: bool
+
+def retrieve(state):
+    state["documents"] = search_docs(state["query"])
+    return state
+
+def generate(state):
+    state["answer"] = llm_answer(state["query"], state["documents"])
+    return state
+
+def validate(state):
+    state["needs_human"] = low_confidence(state["answer"])
+    return state</code></pre>
+<h3>Workflow</h3>
+<pre><code class="language-text">retrieve -&gt; generate -&gt; validate -&gt; final
+                       -&gt; human_review if needed</code></pre></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Multi-agent design</h2>
+<div class="section-body"><h3>Use multi-agent only when specialization helps</h3>
+<ul><li>Researcher -&gt; retrieves facts</li></ul>
+<ul><li>Coder -&gt; writes code</li></ul>
+<ul><li>Reviewer -&gt; checks correctness</li></ul>
+<ul><li>Planner -&gt; decomposes tasks</li></ul>
+<ul><li>Executor -&gt; runs tools</li></ul>
+<p>Do not overuse. More agents = more latency/cost/failure points.<br/>For many production systems, a single agent with good tools is better.</p></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Guardrails</h2>
+<div class="section-body"><h3>Input guardrails</h3>
+<ul><li>reject unsupported tasks</li></ul>
+<ul><li>detect prompt injection</li></ul>
+<ul><li>classify intent</li></ul>
+<ul><li>check permissions</li></ul>
+<h3>Tool guardrails</h3>
+<ul><li>allowlist tools</li></ul>
+<ul><li>validate args</li></ul>
+<ul><li>require confirmation for write actions</li></ul>
+<ul><li>dry-run mode</li></ul>
+<h3>Output guardrails</h3>
+<ul><li>JSON schema validation</li></ul>
+<ul><li>citation required</li></ul>
+<ul><li>no unsupported claims</li></ul>
+<ul><li>PII redaction</li></ul>
+<h3>Pydantic validation</h3>
+<pre><code class="language-python">from pydantic import BaseModel, Field
+
+class TicketInput(BaseModel):
+    title: str = Field(min_length=3, max_length=100)
+    priority: str
+
+args = TicketInput(**raw_args)</code></pre></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Human-in-the-loop</h2>
+<div class="section-body"><h3>Require approval for</h3>
+<ul><li>sending emails</li></ul>
+<ul><li>spending money</li></ul>
+<ul><li>deleting data</li></ul>
+<ul><li>external side effects</li></ul>
+<ul><li>production deployments</li></ul>
+<h3>Pattern</h3>
+<pre><code class="language-text">agent drafts action -&gt; user/admin approves -&gt; executor performs action -&gt; audit log</code></pre></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. Observability</h2>
+<div class="section-body"><h3>Log</h3>
+<ul><li>user request id</li></ul>
+<ul><li>model name/version</li></ul>
+<ul><li>prompt/template version</li></ul>
+<ul><li>retrieved docs</li></ul>
+<ul><li>tool calls and args</li></ul>
+<ul><li>tool results</li></ul>
+<ul><li>latency</li></ul>
+<ul><li>token/cost</li></ul>
+<ul><li>final answer</li></ul>
+<ul><li>feedback</li></ul>
+<h3>Tools/platforms</h3>
+<ul><li>LangSmith</li></ul>
+<ul><li>Langfuse</li></ul>
+<ul><li>Arize Phoenix</li></ul>
+<ul><li>OpenTelemetry</li></ul>
+<ul><li>W&amp;B Weave</li></ul>
+<ul><li>MLflow tracing</li></ul></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>14. Evaluation</h2>
+<div class="section-body"><h3>Agent metrics</h3>
+<ul><li>task success rate</li></ul>
+<ul><li>tool success rate</li></ul>
+<ul><li>number of steps</li></ul>
+<ul><li>latency</li></ul>
+<ul><li>cost</li></ul>
+<ul><li>human escalation rate</li></ul>
+<ul><li>hallucination rate</li></ul>
+<ul><li>user correction rate</li></ul>
+<h3>Golden tests</h3>
+<pre><code class="language-python">test_cases = [
+    {
+        "input": "Find refund policy and summarize",
+        "expected_tools": ["search_docs"],
+        "must_include": ["refund"],
+    }
+]</code></pre></div>
+</section>
+<section class="section-card" id="sec-16">
+<div class="section-kicker">Section 17</div>
+<h2>15. Failure modes and fixes</h2>
+<div class="section-body"><h3>Failures</h3>
+<p class="numbered-line">1. Infinite loop</p>
+<p class="numbered-line">2. Wrong tool selection</p>
+<p class="numbered-line">3. Tool argument hallucination</p>
+<p class="numbered-line">4. Ignoring tool result</p>
+<p class="numbered-line">5. Prompt injection from retrieved docs</p>
+<p class="numbered-line">6. Acting without permission</p>
+<p class="numbered-line">7. Overly broad tools</p>
+<p class="numbered-line">8. No observability</p>
+<h3>Fixes</h3>
+<ul><li>max steps</li></ul>
+<ul><li>schemas</li></ul>
+<ul><li>state machine</li></ul>
+<ul><li>tool allowlists</li></ul>
+<ul><li>confirmation gates</li></ul>
+<ul><li>tests</li></ul>
+<ul><li>tracing</li></ul></div>
+</section>
+<section class="section-card" id="sec-17">
+<div class="section-kicker">Section 18</div>
+<h2>16. Interview answer pattern</h2>
+<div class="section-body"><p>Question: Design an AI agent for customer support.</p>
+<h3>Answer</h3>
+<p>I would build a tool-augmented agent with a controlled workflow. The agent first classifies the intent, retrieves relevant policy docs using RAG, and decides whether it can answer or needs human escalation. For actions such as refund or account changes, it calls backend tools with schema validation and permission checks. I would require human approval for high-impact actions, log every tool call, and evaluate with task success rate, citation accuracy, latency, and escalation rate.</p></div>
+</section>
+<section class="section-card" id="sec-18">
+<div class="section-kicker">Section 19</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. Agent mental model<br/>------------------------------------------------------------<br/>An AI agent is an LLM-driven control loop that observes state, selects/plans actions, calls tools, reads results, and decides whether to continue or answer. Production difficulty is control, safety, latency, and debuggability.</p>
+<p>B. Core components<br/>------------------------------------------------------------</p>
+<ul><li>intent/router: choose workflow/tool set.</li></ul>
+<ul><li>planner: decompose if needed.</li></ul>
+<ul><li>tool registry: typed schemas, auth, rate limits, owners.</li></ul>
+<ul><li>memory/state: conversation, evidence, intermediate results.</li></ul>
+<ul><li>executor: tool calls, retries, timeouts, budgets.</li></ul>
+<ul><li>guardrails: pre/post policy checks.</li></ul>
+<ul><li>evaluator: success, groundedness, safety.</li></ul>
+<p>C. Tool calling design<br/>------------------------------------------------------------<br/>Good tools are narrow, typed, auditable, and permission-aware.</p>
+<pre><code class="language-python">{
+  "name": "search_employee_policy",
+  "description": "Search approved HR policy snippets by query and tenant.",
+  "parameters": {"query": "string", "tenant_id": "string", "top_k": "integer"}
+}</code></pre>
+<p>Avoid vague tools like <code>run_any_sql</code>. Mutating tools need idempotency, approval gates, and audit logs.</p>
+<p>D. Architectures<br/>------------------------------------------------------------</p>
+<ul><li>ReAct loop: flexible, can be slow.</li></ul>
+<ul><li>plan-and-execute: better for long tasks.</li></ul>
+<ul><li>router + specialized agents: good for enterprise domains.</li></ul>
+<ul><li>deterministic workflow with LLM slots: best for reliability.</li></ul>
+<ul><li>human-in-the-loop: required for risky actions.</li></ul>
+<p>Enterprise answer: prefer deterministic workflows around LLM calls. Use autonomous loops only when bounded and low-risk.</p>
+<p>E. Reliability and safety<br/>------------------------------------------------------------<br/>Use tool timeouts, retry only idempotent calls, circuit breakers, max steps/tokens/cost, trace IDs, auth outside the LLM, prompt-injection defenses, and deterministic validation before mutations.</p>
+<p>F. Evaluation<br/>------------------------------------------------------------</p>
+<h3>Measure final answer and trajectory</h3>
+<ul><li>task success rate.</li></ul>
+<ul><li>tool selection accuracy.</li></ul>
+<ul><li>unnecessary tool-call rate.</li></ul>
+<ul><li>hallucinated tool arguments.</li></ul>
+<ul><li>groundedness.</li></ul>
+<ul><li>policy violation rate.</li></ul>
+<ul><li>p95 latency and cost per resolved task.</li></ul>
+<p>G. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: When should an agent not be autonomous?<br/>A: High-risk, irreversible, expensive, or security-sensitive actions need deterministic validation and human approval.</p>
+<p>Q: How prevent prompt injection?<br/>A: Treat retrieved text as untrusted, separate system instructions from data, whitelist tools, validate args, enforce auth outside the LLM, and audit every tool call.</p>
+<p>Q: How debug agent failure?<br/>A: Inspect trace: intent, prompt, retrieved evidence, model output, tool args, tool response, guardrail decisions, and final answer. Classify as retrieval, reasoning, tool, policy, or UX failure.</p>
+<p>Q: Why are agents expensive?<br/>A: Multi-step loops multiply LLM calls, context size, tool latency, and retries. Use routing, caching, smaller models, and strict budgets.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

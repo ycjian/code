@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Moveworks Behavioral Questions</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Moveworks Prep / TEXT</div>
+<h1>Moveworks Behavioral Questions</h1>
+<p>Full notes from moveworks_bq.txt</p>
+</div>
+</header>
+
+<article class="markdown-body"><p>MOVEWORKS BEHAVIORAL PREP — FAILURE, EXPECTATIONS, DEADLINE, CHALLENGE<br/>
+Sources: moveworks_prepare.txt + moveworks.txt (Adobe search / GenAI platform framing)<br/>
+Role lens: ML / Search Platform / GAI — retrieval, orchestration, evaluation, production reliability</p>
+<p>Use STAR: Situation → Task → Action → Result (always end with learning + what you do differently now).<br/>
+Only cite numbers you can defend in follow-ups; qualitative stakes are fine if you tighten the story.</p>
+<p>==================================================<br/>
+Q1 — TALK ABOUT A PROJECT THAT IS A FAILURE (DETAILED)<br/>
+==================================================</p>
+<p>Pick this story: Premature consolidation of retrieval paths (“one unified ranker”) that looked great offline but failed in production slices.</p>
+<p>Why this works for Moveworks:<br/>
+- Shows you understand enterprise search failure modes (exact-match, permissions, freshness), not only aggregate NDCG.<br/>
+- Demonstrates rollback discipline, staged rollout, and observability — same muscles as GAI Search Platform.</p>
+<p>--- Full answer (~2–2.5 min) ---</p>
+<p>Situation:<br/>
+"We were trying to simplify our hybrid search stack. Multiple teams had evolved slightly different retrieval + reranking paths for different surfaces. Leadership wanted fewer moving parts for operational reasons, and we had strong offline lifts from a newer neural reranking stack. I advocated for consolidating around that path and retiring some of the legacy lexical-heavy routing sooner than we probably should have."</p>
+<p>Task:<br/>
+"I owned the technical recommendation and the rollout plan for consolidating retrieval and reranking so we could reduce variability and operational cost. The explicit goal was one primary ranking path with hybrid retrieval underneath, gated by normal offline metrics and a standard canary."</p>
+<p>Action:<br/>
+"We shipped behind feature flags and started ramping traffic. Offline NDCG looked good and aggregate online engagement looked okay at first. Then support and partner teams surfaced repeated complaints on query classes we had under-tested: acronym-heavy IT lookups, ticket-style identifiers, and metadata-heavy admin queries. Slice analysis showed we were silently degrading lexical precision in cases where sparse retrieval and query routing used to carry most of the weight.</p>
+<p>I escalated quickly with evidence — not anecdotes — pulling side-by-side result sets on those slices and comparing failure rates versus our pre-change baseline. The responsible move was to pause the consolidation, roll back traffic on the problematic routing decisions, and restore the hybrid routing behavior for lexical-heavy intents while we reworked the plan.</p>
+<p>After rollback, we rebuilt the plan around explicit query routing and slice-aware evaluation — breaking metrics down by query type instead of trusting headline NDCG — and we required shadow traffic + longer canaries before touching routing again. We also added clearer per-stage instrumentation so ‘ranking regressions’ could not hide inside aggregate dashboards."</p>
+<p>Result:<br/>
+"The project failed in the sense that we did not achieve the consolidation on the original timeline, and we had to absorb the rollback cost and reputational hit with partner teams. The upside is that the platform ended up safer: we kept the quality wins where they were real, avoided baking in a blunt one-size-fits-all ranker story, and I personally changed how I champion architecture simplification — simplicity has to survive worst-case enterprise slices, not average offline scores."</p>
+<p>Learning one-liner:<br/>
+"I learned to treat ‘simplify the stack’ as a hypothesis that needs the same rigorous slice-wise validation as a model change — especially when enterprise users depend on exact tokens and tenant-specific language."</p>
+<p>--- 60-second version ---</p>
+<p>"We tried to consolidate retrieval/ranking paths too aggressively after strong offline lifts. Aggregate metrics looked fine; exact-match and identifier-heavy slices regressed. I pulled slice-level evidence, stopped the rollout, rolled back routing, and rebuilt the plan with query routing, shadow traffic, and evaluation split by query type — not headline NDCG. The consolidation failed on schedule, but we avoided baking in a fragile simplification. I now treat stack simplification like any high-risk ranking change: slice-aware gates and rollback-first discipline."</p>
+<p>==================================================<br/>
+Q2 — TALK ABOUT A TIME YOU DIDN'T MEET EXPECTATIONS (DETAILED)<br/>
+==================================================</p>
+<p>Pick this story: Committed to an aggressive latency / readiness date for an eval-gate milestone (LLM-as-a-judge path) and missed it because tail latency and GPU saturation under real mixed traffic were under-modeled.</p>
+<p>Why this works for Moveworks:<br/>
+- Honest ownership without blaming the model — it’s classic platform capacity + queue dynamics.<br/>
+- Maps to their world: enterprise SLAs, cost, backpressure, autoscaling on real signals (queue lag, not just CPU).</p>
+<p>--- Full answer (~2–2.5 min) ---</p>
+<p>Situation:<br/>
+"We were expanding automated evaluation and safety gating for generative responses — scores had to run as a production gate without blowing the user-facing latency budget. Leadership and product expected a milestone by a fixed date so a dependent release train could advertise stronger automated compliance. I was the tech lead for the serving path on EKS and committed to that date based on our steady-state benchmarking."</p>
+<p>Task:<br/>
+"My job was to deliver the gated eval path within the latency envelope we had advertised internally — essentially making the gate real in production, not only in perf tests — and unblock the downstream release."</p>
+<p>Action:<br/>
+"As we turned on heavier traffic mixes — higher concurrency, bursts aligned with product launches, and competing GPU workloads — tail latency widened in ways our earlier benchmarks didn’t capture. Queueing effects and dynamic batching behavior meant p95 looked acceptable in isolated tests but p99 and failure modes weren’t good enough to call the milestone ‘done’ without risking user-visible stalls.</p>
+<p>I reset expectations with data rather than excuses: showed histograms by stage, demonstrated saturation points, and laid out concrete mitigations — scaling signals tied to queue depth (not naive CPU charts), tighter batching policies, KV-cache style optimizations on fixed judge prefixes where applicable, and temporary scope reduction on the lowest-value eval dimensions until the infra caught up.</p>
+<p>I took ownership publicly: I should have modeled mixed-workload tails earlier and negotiated the milestone as range + gate criteria instead of a calendar date."</p>
+<p>Result:<br/>
+"We missed the original commitment — that’s the honest truth — but we hit a revised gate shortly after with measurable tail improvements and clearer SLO language. Partner teams got a more trustworthy rollout plan, and we avoided shipping a gate that statistically passed benchmarks but failed under real bursts. Personally, I now separate ‘demo-ready’ from ‘launch-ready’ using burst tests and dependency isolation criteria."</p>
+<p>Learning one-liner:<br/>
+"I don’t negotiate reliability milestones on steady-state demos anymore; I negotiate them on tail latency under mixed workloads and explicit rollback criteria."</p>
+<p>--- 60-second version ---</p>
+<p>"I committed to an eval-gate milestone by a launch date based on steady-state benchmarks. Under real mixed GPU traffic and bursts, tail latency blew past what we promised. I escalated with stage-level traces and queue evidence, reset the date with data, and shipped mitigations — better scaling signals, batching fixes, prefix caching for fixed judge prompts, and narrowed scope for the first production gate. I missed the original expectation; we met a revised bar without shipping a flaky gate. Lesson: benchmark burst + mixed workloads before promising cross-team dates."</p>
+<p>==================================================<br/>
+DELIVERY NOTES (FROM YOUR CHEAT SHEET)<br/>
+==================================================</p>
+<ul>
+<li>For Moveworks: thread relevance, latency, cost, safety, multi-tenant isolation, observability where natural.</li>
+<li>Failure story: emphasize slice-wise evaluation + rollback integrity (enterprise search is not average-case).</li>
+<li>Expectations story: emphasize honest recalibration, metrics leadership, and systems ownership — not ‘the model was slow.’</li>
+</ul>
+<p>If they ask "what would you do differently":<br/>
+- Failure project: Earlier shadow + longer canary on routing; query-type stratified dashboards; kill switch by slice.<br/>
+- Expectations / missed deadline (Q2 / Q4): Load model with SLO bands; pre-announce high/medium/low launch criteria; bake burst tests into the plan.<br/>
+- Missed deadline (search rollout story): Lock comms only after slice-green shadow criteria; partial rollout where safe.</p>
+<p>If both <strong>expectations</strong> and <strong>miss deadline</strong> appear in one interview: use <strong>Q2</strong> for one and <strong>Q4 Story B</strong> for the other so you are not repeating verbatim.</p>
+<p>==================================================<br/>
+Q3 — MOST CHALLENGING PROJECT (DETAILED)<br/>
+==================================================</p>
+<p>Pick this story: Production conversational assistant backend — RAG + streaming generation + tool-aware flows + evaluation gates + strict latency and reliability budgets. (Alternate quick option: hybrid search at 50B+ scale with freshness and multi-tenant isolation; use if the interviewer pushes “search fundamentals.”)</p>
+<p>Why this works for Moveworks:<br/>
+- Direct parallel: enterprise retrieval, agentic/tool flows, guardrails, and SLA-driven orchestration — not “call an LLM API.”<br/>
+- Lets you sound senior: DAG-style orchestration, degraded modes, observability, cost, safety.</p>
+<p>--- Full answer (~2–2.5 min) ---</p>
+<p>Situation:<br/>
+"The hardest project I’ve led wasn’t a single algorithm problem — it was turning document-grounded conversational AI into a dependable platform feature. Users expect fast streaming answers, accurate citations, safe behavior when evidence is thin, and predictable behavior when downstream dependencies degrade. At the same time, product wanted richer flows that looked ‘agentic’ — routing, retrieval, optional tool calls — without turning the experience into a fragile chain of prompts."</p>
+<p>Task:<br/>
+"I owned — or co-owned — the backend orchestration: breaking the pipeline into explicit stages, defining contracts between retrieval, context assembly, generation, and evaluation hooks, and making sure we could operate it like infrastructure — metrics, rollbacks, rate limits, caches, circuit breakers — not like a notebook demo."</p>
+<p>Action:<br/>
+"I approached it as a systems problem first. We modeled the workflow as something closer to a DAG than a straight line so we could parallelize where possible — for example, letting early sparse retrieval start while intent classification finished — and so failure could be localized: dense retrieval timeouts could degrade to sparse-only paths instead of failing the whole request.</p>
+<p>The challenging part was the competing constraints. Latency budgets forced aggressive caching — exact match and semantic similarity caching — and tight context assembly. Trust forced grounding rules: confidence thresholds on retrieval, conservative behavior when evidence was weak, and evaluation gates before user-facing delivery. Cost and stability forced rate limiting and circuit breakers around embedding services, rerankers, and LLM endpoints.</p>
+<p>I also pushed hard on observability: per-stage latency histograms and trace tags so when quality regressed we could tell whether it was retrieval, context truncation, model behavior, or eval gating — because ‘the assistant got worse’ is useless without that split."</p>
+<p>Result:<br/>
+"We shipped a foundation that product teams could build on without every feature becoming a bespoke integration. The measurable outcomes were the operational ones that matter for enterprise AI: stable tail latency under load, fewer catastrophic failure modes during dependency incidents, and faster diagnosis when something regressed — because the architecture made the pipeline legible."</p>
+<p>Learning one-liner:<br/>
+"The challenge wasn’t the LLM — it was building the production spine around it so retrieval, safety, latency, and cost stay coupled in every design decision."</p>
+<p>Optional metrics (only if true for you): hybrid scale (50B+ assets), eval volume (e.g., millions of automated eval calls/day), cache hit rates, p95 targets — pick what you can defend.</p>
+<p>--- 60-second version ---</p>
+<p>"My most challenging project was productionizing conversational AI over documents: not wrapping an LLM, but building orchestration — RAG retrieval, streaming, tool loops when needed, caches, circuit breakers, and eval gates — under tight latency and trust requirements. I treated it as a DAG-style pipeline with localized fallback so dense timeouts didn’t tank the whole answer, and I invested in per-stage observability so we could separate retrieval regressions from generation issues. The win was a platform-grade spine teams could extend without turning every launch into an incident."</p>
+<p>--- Alternate one-liner (search-heavy interview) ---</p>
+<p>"If you want search depth instead: hybrid retrieval and ranking at extreme scale plus freshness and tenant isolation — the challenge was keeping lexical precision, semantic coverage, and operational stability aligned as the system evolved."</p>
+<p>==================================================<br/>
+Q3 FOLLOW-UPS YOU MIGHT GET<br/>
+==================================================</p>
+<ul>
+<li>"What was technically hardest?" → Coupling retrieval quality with user-visible latency; localizing failures; eval gating without destroying p95.</li>
+<li>"What would you simplify in hindsight?" → Narrower first scope (specific Q&amp;A + citations) while still designing the orchestration for expansion (your prep already says this).</li>
+<li>"How does this map to Moveworks?" → Same spine: grounded answers, tool execution, enterprise trust, multi-tenant constraints, and action-oriented outcomes — not just ranked links.</li>
+</ul>
+<p>==================================================<br/>
+Q4 — TELL ME ABOUT A TIME YOU MISSED A DEADLINE (DETAILED)<br/>
+==================================================</p>
+<p>Overlap with Q2 ("didn't meet expectations"):<br/>
+- Many interviewers treat these as the <strong>same prompt</strong>. If you already told the <strong>eval-gate / tail latency</strong> story for Q2, do <strong>not</strong> repeat it verbatim — use <strong>Alternate story B</strong> below, or the same facts with a <strong>deadline-first opening</strong> (first sentence names the missed calendar date and who was blocked).</p>
+<p>If this is your <strong>first</strong> time answering a slip / commitment miss in the loop, you can use <strong>Story A</strong> (same core as Q2, deadline-framed).</p>
+<p>--- Story A — Deadline framing (~2 min, same facts as Q2) ---</p>
+<p>Opening line (deadline-first):<br/>
+"We committed to a hard launch-week deadline for turning on an automated eval gate in the production assistant path — downstream teams had collateral and release notes aligned to that date. I signed up to that date based on steady-state perf tests."</p>
+<p>Then use the same Task / Action / Result / Learning as <strong>Q2</strong> — the punchline stays: mixed GPU workloads stretched tails; you reset the date with data; shipped mitigations; revised milestone with SLO bands.</p>
+<p>--- 60-second version (Story A) ---</p>
+<p>"We missed a launch deadline for enabling the production eval gate — I’d committed based on steady-state benchmarks, but real bursts and shared GPU queues blew our tail latency budget. I told leadership early, showed stage-level traces, narrowed first-gate scope, and fixed scaling and batching. We shipped slightly late but didn’t launch a flaky gate. I now tie deadlines to burst-tested SLOs, not demo numbers."</p>
+<p>--- Alternate story B — Search / ranking rollout deadline (use if Q2 already told) ---</p>
+<p>Situation:<br/>
+"A product surface had a public launch date tied to a search quality refresh: new embedding model + reranker bundle, with index backfill and shadow validation. Marketing and PM had already communicated the window, and several partner teams sequenced work assuming that train."</p>
+<p>Task:<br/>
+"I owned the serving rollout and go/no-go for the retrieval + ranking stack — basically whether we could promote the new bundle and ramp traffic safely by the committed date."</p>
+<p>Action:<br/>
+"During shadow traffic the week before the deadline, we saw improvements on aggregate NDCG but regressions on enterprise-sensitive slices — low-frequency internal terms and permission-heavy corpora where retrieval confidence and metadata features interact. It wasn’t a catastrophic bug; it was the kind of slow trust leak that shows up in side-by-side review, not only in averages.</p>
+<p>I could have squeezed the ramp to ‘technically’ hit the date. I instead recommended we <strong>miss the external deadline</strong>, keep feature flags off for the risky surfaces, extend shadow, add golden queries for those slices, and patch routing/thresholds. I worked with PM on a revised comms plan: still ship incremental wins where shadow was green, defer the headline switch until gates passed."</p>
+<p>Result:<br/>
+"We missed the original calendar date — that’s a real deadline miss — but we avoided shipping a relevance regression during a high-visibility launch. After the fix path, promotion was boring: canary, monitor NDCG by slice, widen traffic. Process takeaway: ‘launch dates’ for ranking stack changes now include <strong>slice-green shadow criteria</strong>, not only offline uplift."</p>
+<p>Learning one-liner:<br/>
+"I’d rather absorb a schedule slip than burn user trust on a fixed date — but I’m explicit about that trade early with data so PM isn’t surprised."</p>
+<p>--- 60-second version (Story B) ---</p>
+<p>"We had a launch date tied to a new embedding + rerank rollout. Shadow traffic before cutover showed slice regressions on enterprise-style queries even though averages looked good. I recommended missing the external deadline, expanded golden sets, fixed routing thresholds, then promoted safely. Missed the calendar launch; protected relevance. Lesson: ranking launches need slice-level go/no-go, not just headline metrics."</p>
+<p>==================================================<br/>
+Q4 — FOLLOW-UPS YOU MIGHT GET<br/>
+==================================================</p>
+<ul>
+<li><strong>"Who felt the miss most?"</strong> PM / downstream teams — you gave early warning + revised plan + partial delivery where safe.</li>
+<li><strong>"Could you have cut scope earlier?"</strong> Yes in hindsight — ship wins where shadow green; defer risky surfaces (honest improvement narrative).</li>
+<li><strong>"Did you get pushback?"</strong> Expected — answer with tradeoff: date vs trust/regression risk; show data.</li>
+<li><strong>"How do you set deadlines now?"</strong> Buffer for shadow + burst tests; milestones as ranges; explicit <strong>green criteria</strong> before comms lock.</li>
+</ul>
+<p>==================================================<br/>
+PART 4 — INTERVIEW DEEP DIVE: WHAT THEY PROBE AND WHY<br/>
+==================================================</p>
+<p>Interviewers use behavioral prompts to predict future behavior under stress. For a Senior / Staff-shaped ML platform role they are implicitly scoring:</p>
+<ul>
+<li><strong>Ownership</strong>: Did you own outcomes and mistakes, not just tasks?</li>
+<li><strong>Judgment</strong>: Did you escalate with evidence? Did you avoid heroics vs durable fixes?</li>
+<li><strong>Systems maturity</strong>: Failures framed as retrieval / latency / tenancy / rollout — not “bad model vibes.”</li>
+<li><strong>Collaboration</strong>: Execs + PM + infra + applied ML — can you disagree without freezing?</li>
+<li><strong>Operational taste</strong>: Canary, rollback, SLIs, blast radius reduction, postmortems without blame theater.</li>
+</ul>
+<p>Expect <strong>3–8 follow-ups per story</strong>. They drill until you contradict yourself or until the story feels real. Prepare answers one level deeper than your main STAR.</p>
+<p>==================================================<br/>
+DEEP DIVE — Q1 (FAILED PROJECT): LIKELY FOLLOW-UPS + ANSWER FRAMES<br/>
+==================================================</p>
+<p>Ambiguity checks<br/>
+- <strong>"What exactly failed — product adoption, metrics, timeline, incident?"</strong><br/>
+  Frame: Consolidation timeline + partner trust hit; rollback before worse outcomes. Avoid calling it “the model failed” unless that was true.</p>
+<ul>
+<li><strong>"How much traffic was affected?"</strong><br/>
+  Answer with what you know: percentage canaried / ramp stage, regions, surfaces — or say you partial-ramped and caught it before full blast radius if that matches your truth.</li>
+</ul>
+<p>Causality / hindsight<br/>
+- <strong>"Why didn't offline eval catch it?"</strong><br/>
+  Offline sets skew natural-language / head queries; slices like ticket IDs underrepresented; aggregate NDCG hides lexical regression; train/serving parity issues if relevant.</p>
+<ul>
+<li><strong>"Was this a modeling mistake or an experiment design mistake?"</strong><br/>
+  Prefer: <strong>experiment + rollout design</strong> — wrong weight on aggregate offline metrics and insufficient slice dashboards — plus enterprise reality that lexical tails matter.</li>
+</ul>
+<p>Ownership / blame<br/>
+- <strong>"Who decided to consolidate?"</strong><br/>
+  Collaborative decision; you advocated / owned rollout; you take responsibility for underestimating slice risk.</p>
+<ul>
+<li><strong>"Did anyone disagree with you beforehand?"</strong><br/>
+  Ideal: Someone warned about lexical paths or partner surfaces — you incorporated their concern into <em>post-hoc</em> plan even if not enough <em>pre-ship</em>. Shows learning without invented villains.</li>
+</ul>
+<p>Rollback mechanics<br/>
+- <strong>"Walk me through rollback — feature flag? routing table? dual write?"</strong><br/>
+  Concrete: kill switch on routing (% to new path), restore prior routing for lexical intents, revert config version, preserve observability continuity.</p>
+<p>Follow-on improvements<br/>
+- <strong>"What dashboards did you add?"</strong><br/>
+  Query-type stratification, lexical-heavy slice KPIs, side-by-side cohorts, error budgets per slice.</p>
+<p>Politics / communication<br/>
+- <strong>"How did you tell leadership the project failed?"</strong><br/>
+  Facts first: regression slices, customer impact signals, remediation plan, new timeline — no minimizing.</p>
+<p>Trap / pressure<br/>
+- <strong>"Sounds like you shouldn't have consolidated at all."</strong><br/>
+  Redirect: Consolidation wasn’t wrong; <strong>timing + validation depth</strong> were wrong — simplification still valuable with slice-aware gates.</p>
+<p>==================================================<br/>
+DEEP DIVE — Q2 (DIDN'T MEET EXPECTATIONS): LIKELY FOLLOW-UPS + ANSWER FRAMES<br/>
+==================================================</p>
+<p>Credibility checks<br/>
+- <strong>"What exactly did you promise — date only or latency number?"</strong><br/>
+  Clarify milestone = production gate readiness + latency envelope for combined path; steady-state benchmarks misrepresented tail under mixed GPU queues.</p>
+<p>Technical depth<br/>
+- <strong>"What saturated first — GPU, KV cache, batch queue, network?"</strong><br/>
+  Prepared answer by your reality: GPU batching backlog, insufficient consumer scaling, contention with other GPU jobs, thundering herd after cold start — pick one coherent chain.</p>
+<ul>
+<li><strong>"How did you prove tail latency wasn't 'just the LLM vendor'?"</strong><br/>
+  Stage attribution in traces (queue wait vs inference vs rerank vs network); reproduce with load test isolating GPU pool from batch jobs.</li>
+</ul>
+<p>Process / stakeholder<br/>
+- <strong>"Who were you failing — your manager or product?"</strong><br/>
+  Neutral: dependent release train + leadership visibility — you communicated reset early with revised plan.</p>
+<ul>
+<li><strong>"Could you have parallelized work to still hit the date?"</strong><br/>
+  Possibly partial — scope-cut eval dimensions, async gate for non-blocking paths — show you thought tradeoffs without sounding evasive.</li>
+</ul>
+<p>Growth narrative<br/>
+- <strong>"What process changed after?"</strong><br/>
+  Burst tests, mixed-workload rehearsal, queue-depth autoscaling criteria, milestones as SLO bands not single dates.</p>
+<p>Trap<br/>
+- <strong>"That's not really missing expectations — sounds like infra's fault."</strong><br/>
+  Own: benchmarking methodology and commitment process were yours to get right as tech lead.</p>
+<p>Note on <strong>miss deadline</strong> wording:<br/>
+- If they ask specifically <strong>"miss a deadline,"</strong> lead with <strong>calendar impact</strong> (who was waiting, what slipped) before technical root cause — same substance as Q2 Story A or Q4 Alternate B.</p>
+<p>==================================================<br/>
+DEEP DIVE — Q4 (MISSED DEADLINE): LIKELY FOLLOW-UPS + ANSWER FRAMES<br/>
+==================================================</p>
+<ul>
+<li>
+<p><strong>"Why not ship on time and fix forward?"</strong><br/>
+  Ranking / trust regressions compound under launch attention; rollback cost and partner credibility often exceed a short slip — especially with enterprise search.</p>
+</li>
+<li>
+<p><strong>"Was the deadline arbitrary?"</strong><br/>
+  Acknowledge marketing/partner reality; your job was to surface risk early enough to replan — not surprise PM at the last minute.</p>
+</li>
+<li>
+<p><strong>"What would you ship incrementally?"</strong> (Story B)<br/>
+  Surfaces or tenants where shadow was green; hold back slices still failing golden queries — phased rollout under flags.</p>
+</li>
+<li>
+<p><strong>"How far did you miss the date?"</strong><br/>
+  Have a defensible range or say "slipped one release train / roughly X weeks" only if true.</p>
+</li>
+</ul>
+<p>==================================================<br/>
+DEEP DIVE — Q3 (MOST CHALLENGING PROJECT): LIKELY FOLLOW-UPS + ANSWER FRAMES<br/>
+==================================================</p>
+<p>Architecture probes (common for Moveworks-shaped roles)<br/>
+- <strong>"Draw the pipeline / list stages."</strong><br/>
+  Intent → retrieval (sparse || dense → merge/RRF) → rerank (optional) → context assembly → LLM stream → optional tool loop → eval gate → response; timeouts + fallbacks per hop.</p>
+<ul>
+<li><strong>"Where did you spend engineering time — model or infra?"</strong><br/>
+  Honest split: infra + contracts + observability dominated; model choice was necessary but insufficient.</li>
+</ul>
+<p>Failure modes<br/>
+- <strong>"What broke most often in production?"</strong><br/>
+  Retrieval misses, context truncation, dependency timeouts, eval false positives/negatives — tie to observability split.</p>
+<p>Latency vs quality<br/>
+- <strong>"Give an example where you traded quality for latency."</strong><br/>
+  Smaller rerank pool, skip dense on low-risk intents, shorter context with citation-first behavior, skip secondary judge pass under load.</p>
+<p>Safety / enterprise<br/>
+- <strong>"How did you prevent cross-tenant leakage?"</strong><br/>
+  Tenant filter before ANN / ACL-aware retrieval; partition keys in cache; audit logs — only state what you actually built.</p>
+<p>Tool calling (they may pivot here)<br/>
+- <strong>"How did you prevent runaway tool loops?"</strong><br/>
+  Max iterations, budget tokens, circuit breaker on tool endpoints, idempotency, strict schemas.</p>
+<p>Metrics<br/>
+- <strong>"How did you measure success?"</strong><br/>
+  p95/p99 latency, retrieval confidence distributions, eval pass rates, incident rate, human agreement sample — pick defensible subset.</p>
+<p>==================================================<br/>
+CROSS-CUTTING PROBES (ANY STORY)<br/>
+==================================================</p>
+<p>Prioritization &amp; conflict<br/>
+- "How did you prioritize when everything was on fire?" → Severity × user impact × revert risk; freeze nonessential changes.<br/>
+- "Tell me about a disagreement." → Use hybrid retrieval disagreement from prep OR routing rollback story without duplicating failure narrative.</p>
+<p>Leadership without authority<br/>
+- "How did you get teams to adopt your rollout gates?" → Shared pain from incidents; pilot with one surface; exec dashboards.</p>
+<p>Ambiguity<br/>
+- "Requirements kept changing." → Freeze MVP scope (Q&amp;A + citations); modular DAG so later flows plug in.</p>
+<p>Ethics / trust<br/>
+- "Pressure to ship unsafe AI." → Risk framing + gated launch + documented dissent + safer alternative path.</p>
+<p>==================================================<br/>
+TECHNICAL TANGENTS BEHAVIORAL INTERVIEWERS OPEN (BE READY)<br/>
+==================================================</p>
+<p>If they pivot from “behavioral” into <strong>systems ML</strong>, keep answers short but crisp:</p>
+<ul>
+<li><strong>Why hybrid not dense-only?</strong> Lexical exact match, IDs, enterprise tokens.</li>
+<li><strong>RRF vs score fusion?</strong> Different score scales; rank-based fusion robustness.</li>
+<li><strong>Why LLM judge + deterministic checks?</strong> Judges noisy; regex/schema checks catch hard failures.</li>
+<li><strong>Canary strategy</strong> → offline → shadow → % traffic → automatic rollback on SLO/regression.</li>
+<li><strong>Circuit breaker</strong> → fail fast, degraded answer/cached path, probe half-open.</li>
+</ul>
+<p>Have <strong>one sentence</strong> each — do not lecture unless they ask.</p>
+<p>==================================================<br/>
+TRAP QUESTIONS / HARD MODE<br/>
+==================================================</p>
+<ul>
+<li>
+<p><strong>"Give me a failure where you were clearly wrong morally or professionally."</strong><br/>
+  Don't invent; use weak process (benchmarking, slice eval) framed as professional growth — not HR-risk topics unless you have a safe real story.</p>
+</li>
+<li>
+<p><strong>"Your failure doesn't sound like a failure."</strong><br/>
+  Redefine failure as wrong <strong>business outcome on timeline</strong> or <strong>trust hit</strong> + rollback — failure isn’t only outage.</p>
+</li>
+<li>
+<p><strong>"Tell me another failure."</strong><br/>
+  Backup: missed edge case in eval dataset causing false confidence; fixed with slice expansion + human audit loop — <strong>different</strong> from Q1/Q2.</p>
+</li>
+<li>
+<p><strong>"Would you hire someone who made your mistake?"</strong><br/>
+  Yes — if they show measurable process change and operational judgment; engineering is mistake + learning velocity.</p>
+</li>
+</ul>
+<p>==================================================<br/>
+HOW TO HANDLE "I DON'T KNOW" IN FOLLOW-UPS<br/>
+==================================================</p>
+<p>If they ask details you didn't own (exact GPU SKU, precise % rollback):</p>
+<p>"I didn't own that piece end-to-end — my understanding was X; I'd verify against our capacity planning / incident doc."</p>
+<p>Better than guessing.</p>
+<p>==================================================<br/>
+END STATE: WHAT "DONE" SOUNDS LIKE IN THE ROOM<br/>
+==================================================</p>
+<p>Strong candidate pattern:</p>
+<ol>
+<li>STAR in ~2 min without rambling.</li>
+<li>Survives <strong>two layers</strong> of "why / how / what would you do differently."</li>
+<li>Connects story to <strong>enterprise constraints</strong> (latency, tenancy, evaluation, rollback) without prompting.</li>
+<li>Balances <strong>confidence</strong> with <strong>honesty</strong> — owns miss without self-flagellation.</li>
+</ol>
+<p>When interviewers stop probing, you've passed that story's depth bar.</p></article>
+</main>
+</body>
+</html>

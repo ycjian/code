@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>AI Infra Interview Quick Patterns</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>AI Infra Interview Quick Patterns</h1>
+<p>compact system design answers for MLE/SWE interviews</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>AI INFRA INTERVIEW QUICK PATTERNS<br/>Purpose: compact system design answers for MLE/SWE interviews</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>1. Real-time inference service</h2>
+<div class="section-body"><pre><code class="language-text">Client
+ -&gt; API Gateway/Auth/Rate Limit
+ -&gt; Model Router
+ -&gt; Feature Fetcher / Preprocessor
+ -&gt; Model Server
+ -&gt; Postprocessor
+ -&gt; Response
+ -&gt; Logging/Monitoring</code></pre>
+<h3>Key concerns</h3>
+<ul><li>latency p95/p99</li></ul>
+<ul><li>model versioning</li></ul>
+<ul><li>autoscaling</li></ul>
+<ul><li>batching</li></ul>
+<ul><li>fallback</li></ul>
+<ul><li>canary rollout</li></ul>
+<ul><li>input validation</li></ul>
+<ul><li>observability</li></ul></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>2. Offline training pipeline</h2>
+<div class="section-body"><pre><code class="language-text">Raw events
+ -&gt; Data lake
+ -&gt; ETL / validation
+ -&gt; Feature generation
+ -&gt; Train/val/test split
+ -&gt; Training job
+ -&gt; Evaluation
+ -&gt; Model registry
+ -&gt; Deployment</code></pre>
+<h3>Must mention</h3>
+<ul><li>data versioning</li></ul>
+<ul><li>feature consistency</li></ul>
+<ul><li>leakage prevention</li></ul>
+<ul><li>reproducibility</li></ul>
+<ul><li>experiment tracking</li></ul>
+<ul><li>model registry</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>3. RAG service</h2>
+<div class="section-body"><pre><code class="language-text">Documents
+ -&gt; Parser
+ -&gt; Chunker
+ -&gt; Embedder
+ -&gt; Vector DB
+
+Query
+ -&gt; Query rewrite
+ -&gt; Hybrid retrieve
+ -&gt; Rerank
+ -&gt; Context builder
+ -&gt; LLM
+ -&gt; cited answer</code></pre>
+<h3>Metrics</h3>
+<ul><li>retrieval recall@k</li></ul>
+<ul><li>citation accuracy</li></ul>
+<ul><li>faithfulness</li></ul>
+<ul><li>latency</li></ul>
+<ul><li>cost</li></ul></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>4. LLM serving</h2>
+<div class="section-body"><pre><code class="language-text">Client
+ -&gt; API Gateway
+ -&gt; Request queue/router
+ -&gt; vLLM/TGI replicas on GPU
+ -&gt; Streaming response
+ -&gt; Metrics/logs</code></pre>
+<h3>Metrics</h3>
+<ul><li>TTFT</li></ul>
+<ul><li>tokens/sec</li></ul>
+<ul><li>p95 latency</li></ul>
+<ul><li>GPU memory</li></ul>
+<ul><li>queue time</li></ul>
+<ul><li>error rate</li></ul>
+<ul><li>cost</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>5. Agent platform</h2>
+<div class="section-body"><pre><code class="language-text">User
+ -&gt; Agent Orchestrator
+ -&gt; State Store
+ -&gt; Tool Registry
+ -&gt; RAG/Search
+ -&gt; External APIs
+ -&gt; Guardrails
+ -&gt; Final response</code></pre>
+<h3>Key</h3>
+<ul><li>tools are allowlisted</li></ul>
+<ul><li>write actions need approval</li></ul>
+<ul><li>tool calls are logged</li></ul>
+<ul><li>max steps prevent loops</li></ul>
+<ul><li>retrieved docs are untrusted input</li></ul></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>6. Search/discovery</h2>
+<div class="section-body"><pre><code class="language-text">Query processor
+ -&gt; BM25 candidates
+ -&gt; Dense vector candidates
+ -&gt; Merge/RRF
+ -&gt; Rerank
+ -&gt; Business rules/diversity
+ -&gt; Results</code></pre>
+<h3>Metrics</h3>
+<ul><li>Recall@k</li></ul>
+<ul><li>NDCG</li></ul>
+<ul><li>MRR</li></ul>
+<ul><li>CTR</li></ul>
+<ul><li>zero-result rate</li></ul>
+<ul><li>latency</li></ul></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>7. How to improve accuracy</h2>
+<div class="section-body"><ul><li>better data and labels</li></ul>
+<ul><li>better feature engineering</li></ul>
+<ul><li>handle class imbalance</li></ul>
+<ul><li>hyperparameter tuning</li></ul>
+<ul><li>better model architecture</li></ul>
+<ul><li>ensembling</li></ul>
+<ul><li>reranking</li></ul>
+<ul><li>human feedback</li></ul>
+<ul><li>error analysis by slice</li></ul></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>8. How to improve latency</h2>
+<div class="section-body"><ul><li>caching</li></ul>
+<ul><li>batching</li></ul>
+<ul><li>smaller model</li></ul>
+<ul><li>quantization</li></ul>
+<ul><li>distillation</li></ul>
+<ul><li>autoscaling</li></ul>
+<ul><li>async pipeline</li></ul>
+<ul><li>reduce context length</li></ul>
+<ul><li>precompute embeddings/features</li></ul>
+<ul><li>separate fast/slow paths</li></ul></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>9. How to reduce cost</h2>
+<div class="section-body"><ul><li>route easy queries to smaller model</li></ul>
+<ul><li>cache common responses</li></ul>
+<ul><li>limit max tokens</li></ul>
+<ul><li>batch offline jobs</li></ul>
+<ul><li>quantize</li></ul>
+<ul><li>use spot instances for training</li></ul>
+<ul><li>use RAG instead of long prompts when possible</li></ul>
+<ul><li>use autoscaling and scale-to-zero for low traffic</li></ul></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>10. How to improve reliability</h2>
+<div class="section-body"><ul><li>timeouts</li></ul>
+<ul><li>retries</li></ul>
+<ul><li>fallbacks</li></ul>
+<ul><li>circuit breakers</li></ul>
+<ul><li>health checks</li></ul>
+<ul><li>readiness probes</li></ul>
+<ul><li>rollback</li></ul>
+<ul><li>canary</li></ul>
+<ul><li>monitoring</li></ul>
+<ul><li>alerting</li></ul></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>11. Common tradeoffs</h2>
+<div class="section-body"><pre><code class="language-text">Latency vs accuracy
+Cost vs quality
+Freshness vs indexing cost
+Recall vs precision
+Large context vs hallucination/cost
+Batching throughput vs request latency
+Autonomous agent vs controlled workflow</code></pre></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>12. Strong interview wording</h2>
+<div class="section-body"><h3>Use these sentences</h3>
+<pre><code class="language-text">I would start with a simple baseline and define the metric first.
+I would separate offline evaluation from online A/B testing.
+I would avoid training-serving skew by sharing preprocessing code or using a feature store.
+I would use canary deployment and keep rollback simple.
+I would log enough information to debug bad predictions without storing sensitive data unnecessarily.
+For RAG, I would evaluate retrieval and generation separately.
+For LLM serving, I would monitor TTFT, tokens/sec, GPU memory, queue time, and p95 latency.
+For agents, I would not allow unconstrained autonomy; I would use tools, state, guardrails, and human approval for side effects.</code></pre></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. Cross-stack mental model<br/>------------------------------------------------------------<br/>AI infra interviews test whether you connect product traffic to hardware constraints. Trace the request path: API gateway -&gt; router -&gt; queues/cache -&gt; orchestration -&gt; CPU/GPU serving -&gt; storage/index -&gt; observability -&gt; rollout/evaluation.</p>
+<p>B. Kafka patterns<br/>------------------------------------------------------------<br/>Kafka is for durable event streams: ingestion, index updates, feature events, async jobs, and audit logs.</p>
+<h3>Key points</h3>
+<ul><li>topic is split into partitions.</li></ul>
+<ul><li>ordering is only within a partition.</li></ul>
+<ul><li>consumer group scales consumption; one partition is consumed by one consumer in a group at a time.</li></ul>
+<ul><li>commit offset after durable processing for at-least-once.</li></ul>
+<ul><li>idempotent upsert/merge handles retries.</li></ul>
+<ul><li>exactly-once is practical mainly inside Kafka/Kafka Streams transactions; external sinks still need idempotency.</li></ul>
+<p>Q: How handle duplicate messages?<br/>A: Use event IDs, upsert/merge semantics, dedup windows, and commit offsets only after processing is durable.</p>
+<p>C. Redis patterns<br/>------------------------------------------------------------<br/>Use Redis for low-latency cache, rate limits, counters, feature/session cache, lightweight streams, and request coalescing.</p>
+<h3>Rules</h3>
+<ul><li>TTL every key that can go stale.</li></ul>
+<ul><li>avoid unbounded high-cardinality keys.</li></ul>
+<ul><li>choose eviction policy intentionally.</li></ul>
+<ul><li>prevent cache stampede with single-flight, jittered TTL, stale-while-revalidate, and background refresh.</li></ul>
+<p>D. Triton patterns<br/>------------------------------------------------------------<br/>Triton is strong for tensor inference: embeddings, classifiers, rankers, vision/audio models. It supports dynamic batching, model repository versions, multiple backends, and ensembles. Use Ray/FastAPI around it for complex business DAGs.</p>
+<p>Q: Why Triton for rankers/embeddings?<br/>A: It maximizes GPU throughput with dynamic batching and optimized runtimes while standardizing serving.</p>
+<p>E. Spark/Flink patterns<br/>------------------------------------------------------------<br/>Spark: batch ETL, offline features, backfills, large joins. Flink: true streaming, event-time windows, stateful processing, continuous indexing/features.</p>
+<p>Q: Spark vs Flink?<br/>A: Spark is excellent for batch/micro-batch analytics; Flink is stronger for low-latency streaming and long-running stateful jobs.</p>
+<p>F. Database and storage patterns<br/>------------------------------------------------------------</p>
+<ul><li>object storage: raw media, model artifacts, large docs.</li></ul>
+<ul><li>relational DB: transactional metadata.</li></ul>
+<ul><li>vector DB: ANN retrieval.</li></ul>
+<ul><li>search index: lexical retrieval/filtering.</li></ul>
+<ul><li>feature store: online/offline feature consistency.</li></ul>
+<p>Do not force one storage system to serve every access pattern.</p>
+<p>G. Envoy/API gateway patterns<br/>------------------------------------------------------------<br/>Use gateway/proxy for auth, tenant identity, request IDs, timeouts, retries, circuit breakers, mTLS, and traffic splitting. Caution: retries can amplify overload; use deadlines and retry budgets.</p>
+<p>H. GPU resource patterns<br/>------------------------------------------------------------<br/>Separate CPU orchestration from GPU inference. Batch GPU-friendly tensor work. Keep warm capacity. Use MIG for small isolated workloads. Bin-pack compatible jobs for utilization and spread critical replicas for availability. Monitor GPU memory, utilization, tokens/sec, OOM, and XID errors.</p>
+<p>I. System design answer template<br/>------------------------------------------------------------</p>
+<p class="numbered-line">1. Clarify SLA, scale, sensitivity, workload type.</p>
+<p class="numbered-line">2. Split sync vs async paths.</p>
+<p class="numbered-line">3. Choose retrieval/model/serving stack.</p>
+<p class="numbered-line">4. Define CPU vs GPU routing.</p>
+<p class="numbered-line">5. Add queue/backpressure/admission control.</p>
+<p class="numbered-line">6. Add cache/versioning/rollback.</p>
+<p class="numbered-line">7. Define observability and evaluation.</p>
+<p class="numbered-line">8. Discuss failure modes and tradeoffs.</p>
+<p>J. Stress-test Q&amp;A<br/>------------------------------------------------------------<br/>Q: Traffic spikes 10x and GPUs saturate. What do you do?<br/>A: Admit by priority, degrade to smaller/cached answer, queue async work, scale if capacity exists, shed low-priority traffic, and inspect queue time vs GPU utilization.</p>
+<p>Q: Model quality regresses but service metrics are green. What catches it?<br/>A: Shadow/canary eval, LLM-as-judge/human-labeled slices, output drift, retrieval recall checks, and product metrics.</p>
+<p>Q: Product team wants a new AI feature in two weeks. What helps?<br/>A: Intent registry, standard schemas, model registry, reusable DAG blocks, shared retrieval connectors, guardrails, observability templates, rollout gates.</p>
+<p>Q: CPU vs GPU?<br/>A: CPU for routing, metadata joins, orchestration, small ML. GPU for dense tensor workloads, embeddings, rankers, VLM/LLM inference, and training.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

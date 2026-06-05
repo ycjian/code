@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Recruiter Call Prep 2</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Recruiter and Adjacent Prep / TEXT</div>
+<h1>Recruiter Call Prep 2</h1>
+<p>Interview Prep for Robert Saliba (Director of Engineering, Uber - Delivery Search)</p>
+</div>
+</header>
+<article class="markdown-body"><h1 id="interview-prep-for-robert-saliba-director-of-engineering-uber-delivery-search">Interview Prep for Robert Saliba (Director of Engineering, Uber - Delivery Search)</h1>
+<h2 id="1-context-who-you-are-speaking-with">1. Context: Who You Are Speaking With</h2>
+<p>Robert Saliba is a highly technical <strong>Director of Engineering at Uber</strong>, specifically leading the <strong>Delivery Search</strong> team (Uber Eats, Grocery, Alcohol, etc.). He is a Caltech alum and has built his career around building cutting-edge technical teams that bridge research and scalable product development. </p>
+<p>Since he directs the Delivery Search org, he deeply understands:<br/>
+*   <strong>Hyper-local, Time-Sensitive Search:</strong> Geographic constraints, real-time availability (restaurants closing, delivery times changing).<br/>
+*   <strong>Query Understanding (NLP/NLU):</strong> Intent classification for food/dishes vs. restaurants vs. grocery items.<br/>
+*   <strong>Retrieval &amp; Ranking Architectures:</strong> Dense/sparse models, personalization, two-tower embeddings, latency sensitivity.</p>
+<p>This is a <strong>Director-level interview</strong>. He is evaluating you not just as an individual contributor, but as a Senior/Tech Lead who can own architecture, drive cross-functional alignment (Product, ML, SRE), and mentor teams. Be prepared to talk about <em>trade-offs</em>, <em>system design</em>, and <em>business impact</em>.</p>
+<h2 id="2-your-elevator-pitch-tailored-for-uber-delivery-visual-search-sdks-commerce">2. Your Elevator Pitch (Tailored for Uber Delivery: Visual Search, SDKs, &amp; Commerce)</h2>
+<p>"Hi Robert. I'm currently a Senior AI Platform Engineer and Tech Lead at Adobe, but my core expertise is in building massive-scale multi-modal search engines—specifically in image, video, and 3D domains—and packaging them into production platforms and SDKs. Before leading the AI Platform backend for Acrobat, I architected Adobe’s unified search and discovery platform handling over 50 billion assets. </p>
+<p>What excites me about the delivery search space is its natural overlap with commerce. I’ve built search pipelines that operate in a single embedding space across images and text, which is directly applicable to how users visually browse for food, groceries, or merchant items. Furthermore, I have deep experience in building the SDKs, metadata enrichment pipelines, and on-device capabilities that actually deliver these visual features to edge clients (like Photoshop/Express). The technical challenge of scaling multi-modal visual search—and monetizing it through robust merchant APIs and high-conversion visual commerce—aligns perfectly with the scalable, multi-tenant systems I've already built."</p>
+<h2 id="3-deep-dive-talking-points-mapping-your-experience-to-ubers-domain">3. Deep-Dive Talking Points: Mapping Your Experience to Uber's Domain</h2>
+<h3 id="a-hybrid-retrieval-relevance-the-core-match">A. Hybrid Retrieval &amp; Relevance (The Core Match)</h3>
+<ul>
+<li><strong>The Uber Challenge:</strong> Uber Eats search needs to match exact terms (e.g., "McDonald's") while also understanding semantic intent (e.g., "fast food" or "spicy curry").</li>
+<li><strong>Your Adobe Experience:</strong> Detail your work on <strong>hybrid retrieval</strong>: combining dense retrieval (vector embeddings) and sparse retrieval (classic term-matching) in parallel, merged via <strong>Reciprocal Rank Fusion (RRF)</strong>. Emphasize that you didn't just use an off-the-shelf solution; you integrated semantic similarity, keyword score, <em>freshness</em> (critical for Uber!), engagement, and rights signals into a neural reranker.</li>
+<li><strong>Why it Matters to Him:</strong> It shows you understand that embeddings don't solve everything natively and that balancing precision (sparse) with recall/semantics (dense) is the key to modern e-commerce/delivery search.</li>
+</ul>
+<h3 id="b-query-understanding-bridging-the-void">B. Query Understanding (Bridging the Void)</h3>
+<ul>
+<li><strong>The Uber Challenge:</strong> Disambiguating whether a user wants "Apple" (the store) or "Apples" (the grocery item).</li>
+<li><strong>Your Adobe/Monster Experience:</strong> Bring up your work adding <strong>query understanding pipelines</strong>: intent classification, entity extraction, and synonym expansion. At Monster, you delivered a 15-25% lift in search relevance through NLP pipelines. At Uber, query understanding is the first line of defense before hitting the expensive retrieval tier.</li>
+</ul>
+<h3 id="c-large-scale-infrastructure-freshness">C. Large-Scale Infrastructure &amp; "Freshness"</h3>
+<ul>
+<li><strong>The Uber Challenge:</strong> Restaurants go offline. Menus change. Inventory goes out of stock. The index must be incredibly fresh.</li>
+<li><strong>Your Adobe Experience:</strong> Highlight your implementation of <strong>delta indexing for freshness</strong>. Mention how you managed real-time indexing at scale while ensuring strict p95 latency. </li>
+<li><strong>Your Amazon Sizmek Experience:</strong> You built real-time ad bidding pipelines handling 100B+ daily opportunities. Talk about managing high-throughput, latency-sensitive distributed systems.</li>
+</ul>
+<h3 id="d-visual-commerce-multi-modal-image-video-3d-edgesdk">D. Visual Commerce: Multi-Modal (Image, Video, 3D) &amp; Edge/SDK</h3>
+<ul>
+<li><strong>The Uber Challenge:</strong> Food delivery and grocery shopping are highly visual. Users convert based on high-quality images. Uber also provides merchant endpoints/SDKs for sellers to upload menus and videos.</li>
+<li><strong>Your Adobe Experience:</strong> You built a <strong>unified search platform for 50B+ images, videos, and 3D substances</strong>. This is massive. Talk about how you aligned encoders in a single embedding space for "search-by-image." </li>
+<li><strong>Business Impact (Commerce &amp; SDK):</strong> Emphasize how providing these capabilities via SDKs integrated into localized apps (like Photoshop on-device) parallels providing merchant APIs or SDKs for mobile food vendors. On-device inference and edge processing are crucial for low-latency visual rendering in a consumer app; draw the line directly to mobile commerce conversion rates.</li>
+</ul>
+<h3 id="e-ai-platform-guardrails-the-generative-ai-angle">E. AI Platform &amp; Guardrails (The Generative AI Angle)</h3>
+<ul>
+<li><strong>The Uber Challenge:</strong> Uber is actively integrating LLMs and generative agents into the delivery experience (e.g., conversational ordering, recipe-to-cart). But they need strict guardrails to prevent hallucinations.</li>
+<li><strong>Your Adobe Experience:</strong> You built the backend orchestration for conversational AI (RAG, tool-calling) with stringent rate limits, caching, and circuit breakers. Discuss your work on <strong>LLM-as-a-judge pipelines, safety scoring, and canary runbooks</strong>. This proves you think about GenAI as a <em>production engineering</em> problem, not just a research experiment.</li>
+</ul>
+<h2 id="4-how-to-talk-to-a-strong-hiring-manager-director">4. How to Talk to a "Strong" Hiring Manager / Director</h2>
+<p>Since Robert is highly technical and a Director:<br/>
+*   <strong>Do not get bogged down in the syntax of your code.</strong> Talk about <em>Architecture, Scale, and Trade-offs</em>. <br/>
+*   <strong>Use the "STAR" Method (Situation, Task, Action, Result), but start with the Result.</strong> (e.g., "We maintained sub-300ms latency across 5M+ GenAI evaluations a day. To do that, I architected...")<br/>
+*   <strong>Discuss Failures Confidently:</strong> Strong directors want to know what didn't work and how you pivoted. E.g., "Initially, we tried purely dense retrieval, but found it struggled with exact keyword matching on obscure asset metadata, so we evolved into a hybrid pipeline..."<br/>
+*   <strong>Cross-Functional Leadership:</strong> Emphasize how you aligned with Product and Trust &amp; Safety on SLOs and guardrails. Directors hire Tech Leads who can manage stakeholders, not just write code.</p>
+<h2 id="5-high-impact-questions-for-you-to-ask-robert">5. High-Impact Questions for You to Ask Robert</h2>
+<p>To show you understand the complexity of the Delivery Search domain, ask these questions:<br/>
+1.  <strong>On Visual Commerce &amp; Multi-Modal:</strong> "Food delivery is fundamentally a visual commerce experience. How much is the Uber Search team looking at multi-modal representations—like search-by-image, video dish previews, or even 3D asset generation for merchants—to drive higher conversion?"<br/>
+2.  <strong>On SDKs &amp; Edge Computing:</strong> "When dealing with heavy visual assets or complex ML embeddings in a responsive consumer app, how much of your retrieval or ML processing is pushed to the edge or on-device via SDKs, versus running in the cloud backend?"<br/>
+3.  <strong>On Multi-Domain Search:</strong> "With Uber moving heavily into Grocery and Alcohol alongside restaurant delivery, how is the architecture evolving? Is the team moving toward a unified foundational model across domains, or maintaining specialized retrieval pipelines for each vertical?"<br/>
+4.  <strong>On the GenAI / Traditional Search Overlap:</strong> "I've spent the last couple of years building agentic AI and RAG orchestration on top of traditional retrieval systems. Where do you see conversational AI or agentic search fitting into the Uber Delivery roadmap over the next year?"<br/>
+5.  <strong>On Engineering Culture:</strong> "As a Director mapping out the next 18 months, what is the biggest technical bottleneck you are trying to solve on the platform right now? Is it indexing latency, model deployment speed, or infrastructure costs?"</p></article>
+</main>
+</body>
+</html>

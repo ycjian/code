@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Python NLP Cheat Sheet — Basic To Medium Asap</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>Python NLP Cheat Sheet — Basic To Medium Asap</h1>
+<p>NLP coding, sentiment classification, text search, interviews</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>PYTHON NLP CHEAT SHEET — Basic to Medium ASAP<br/>Purpose: NLP coding, sentiment classification, text search, interviews</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. NLP mental model</h2>
+<div class="section-body"><h3>Raw text cannot go directly into most ML models. You usually need</h3>
+<p class="numbered-line">1. Cleaning / normalization</p>
+<p class="numbered-line">2. Tokenization</p>
+<p class="numbered-line">3. Feature extraction / embeddings</p>
+<p class="numbered-line">4. Model</p>
+<p class="numbered-line">5. Evaluation</p>
+<h3>中文</h3>
+<p>Tokenization = 文本切成 token.<br/>Vocabulary = 所有 token 的集合.<br/>Vectorization = 文本变数字.<br/>Embedding = text/token/sentence dense vector.</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Basic text cleaning</h2>
+<div class="section-body"><pre><code class="language-python">import re
+
+def clean_text(text: str) -&gt; str:
+    text = text.lower()
+    text = re.sub(r"https?://\S+", " URL ", text)
+    text = re.sub(r"@\w+", " USER ", text)
+    text = re.sub(r"[^a-z0-9\s']", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text</code></pre>
+<h3>Regex grammar</h3>
+<ul><li><code>\S+</code> = one or more non-space chars</li></ul>
+<ul><li><code>\s+</code> = one or more whitespace</li></ul>
+<ul><li><code>[^...]</code> = not in this set</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Tokenization</h2>
+<div class="section-body"><h3>Simple</h3>
+<pre><code class="language-python">def tokenize(text):
+    return re.findall(r"[a-z']+", text.lower())</code></pre>
+<h3>spaCy</h3>
+<pre><code class="language-python">import spacy
+nlp = spacy.load("en_core_web_sm")
+doc = nlp("Apple is buying a startup in San Francisco.")
+tokens = [token.text for token in doc]</code></pre>
+<h3>Hugging Face</h3>
+<pre><code class="language-python">from transformers import AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+encoded = tokenizer(
+    ["hello world"],
+    padding=True,
+    truncation=True,
+    return_tensors="pt",
+)</code></pre></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Stop words, stemming, lemmatization</h2>
+<div class="section-body"><h3>Stop words</h3>
+<pre><code class="language-python">from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+words = [w for w in tokenize(text) if w not in ENGLISH_STOP_WORDS]</code></pre>
+<h3>Stemming</h3>
+<pre><code class="language-python">from nltk.stem import PorterStemmer
+stemmer = PorterStemmer()
+stemmer.stem("running")</code></pre>
+<h3>Lemmatization</h3>
+<pre><code class="language-python">doc = nlp("The children are running")
+lemmas = [t.lemma_ for t in doc]</code></pre>
+<h3>Interview note</h3>
+<p>Stemming is crude string chopping. Lemmatization is more linguistically meaningful.</p></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Bag of Words</h2>
+<div class="section-body"><pre><code class="language-python">from sklearn.feature_extraction.text import CountVectorizer
+
+texts = ["good movie", "bad movie", "good food"]
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(texts)
+
+print(vectorizer.vocabulary_)
+print(X.toarray())</code></pre>
+<p>Rows = documents. Columns = words. Values = counts.</p></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. TF-IDF</h2>
+<div class="section-body"><pre><code class="language-python">from sklearn.feature_extraction.text import TfidfVectorizer
+
+vectorizer = TfidfVectorizer(
+    lowercase=True,
+    stop_words="english",
+    ngram_range=(1, 2),
+    min_df=1,
+)
+X = vectorizer.fit_transform(texts)</code></pre>
+<h3>TF-IDF</h3>
+<ul><li>TF = term frequency inside document</li></ul>
+<ul><li>IDF = inverse document frequency across corpus</li></ul>
+<h3>中文</h3>
+<p>常见词权重低;有区分度的词权重高。</p></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Sentiment classifier with sklearn</h2>
+<div class="section-body"><pre><code class="language-python">from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+
+texts = [x[0] for x in data]
+labels = [x[1] for x in data]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    texts, labels, test_size=0.2, random_state=42, stratify=labels
+)
+
+model = Pipeline([
+    ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=1)),
+    ("clf", LogisticRegression(max_iter=1000)),
+])
+
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+print(classification_report(y_test, pred))</code></pre>
+<h3>Interview explanation</h3>
+<p>TF-IDF converts text into sparse features. Logistic Regression learns feature weights for each label.</p></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Naive Bayes for text</h2>
+<div class="section-body"><pre><code class="language-python">from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
+model = Pipeline([
+    ("vec", CountVectorizer()),
+    ("clf", MultinomialNB()),
+])
+model.fit(X_train, y_train)</code></pre>
+<p>Good baseline: fast, simple, strong for small text classification.</p></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Character n-grams</h2>
+<div class="section-body"><p>Useful for typos, product names, multilingual text, short queries.</p>
+<pre><code class="language-python">vectorizer = TfidfVectorizer(
+    analyzer="char",
+    ngram_range=(3, 5),
+)</code></pre></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Sentence embeddings</h2>
+<div class="section-body"><pre><code class="language-python">from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+embeddings = model.encode(
+    ["I love this product", "This item is terrible"],
+    normalize_embeddings=True,
+)</code></pre>
+<h3>Cosine similarity</h3>
+<pre><code class="language-python">sim = embeddings @ embeddings.T</code></pre>
+<h3>Use cases</h3>
+<ul><li>semantic search</li></ul>
+<ul><li>clustering</li></ul>
+<ul><li>dedup</li></ul>
+<ul><li>recommendations</li></ul>
+<ul><li>RAG retrieval</li></ul></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. spaCy for production NLP</h2>
+<div class="section-body"><pre><code class="language-python">import spacy
+nlp = spacy.load("en_core_web_sm")
+
+doc = nlp("Apple bought a startup in San Francisco for $1 billion.")
+for ent in doc.ents:
+    print(ent.text, ent.label_)</code></pre>
+<h3>Common</h3>
+<pre><code class="language-python">[token.text for token in doc]
+[token.lemma_ for token in doc]
+[token.pos_ for token in doc]
+[(ent.text, ent.label_) for ent in doc.ents]</code></pre></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Hugging Face pipeline</h2>
+<div class="section-body"><pre><code class="language-python">from transformers import pipeline
+
+clf = pipeline("sentiment-analysis")
+print(clf("I love this product!"))</code></pre>
+<h3>NER</h3>
+<pre><code class="language-python">ner = pipeline("token-classification", aggregation_strategy="simple")
+print(ner("Yan works at GM in Mountain View."))</code></pre>
+<h3>Question answering</h3>
+<pre><code class="language-python">qa = pipeline("question-answering")
+qa({
+    "question": "Where does Yan work?",
+    "context": "Yan works at GM in Mountain View."
+})</code></pre></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Fine-tuning transformer classifier</h2>
+<div class="section-body"><pre><code class="language-python">from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import Trainer, TrainingArguments
+from datasets import Dataset
+
+model_name = "distilbert-base-uncased"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+def tokenize_batch(batch):
+    return tokenizer(batch["text"], truncation=True, padding="max_length", max_length=128)
+
+train_ds = Dataset.from_dict({"text": train_texts, "label": train_labels})
+val_ds = Dataset.from_dict({"text": val_texts, "label": val_labels})
+train_ds = train_ds.map(tokenize_batch, batched=True)
+val_ds = val_ds.map(tokenize_batch, batched=True)
+
+model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=3)
+
+args = TrainingArguments(
+    output_dir="./out",
+    eval_strategy="epoch",
+    save_strategy="epoch",
+    learning_rate=2e-5,
+    per_device_train_batch_size=16,
+    per_device_eval_batch_size=16,
+    num_train_epochs=3,
+)
+
+trainer = Trainer(model=model, args=args, train_dataset=train_ds, eval_dataset=val_ds)
+trainer.train()</code></pre></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. Semantic search example</h2>
+<div class="section-body"><pre><code class="language-python">from sentence_transformers import SentenceTransformer
+import numpy as np
+
+docs = [
+    "How to reset my password",
+    "Shipping policy and delivery time",
+    "Refund and return instructions",
+]
+encoder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+doc_emb = encoder.encode(docs, normalize_embeddings=True)
+
+def search(query, k=3):
+    q_emb = encoder.encode([query], normalize_embeddings=True)
+    scores = (q_emb @ doc_emb.T)[0]
+    idx = np.argsort(scores)[::-1][:k]
+    return [(docs[i], float(scores[i])) for i in idx]
+
+print(search("I want my money back"))</code></pre></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>14. Evaluation metrics</h2>
+<div class="section-body"><h3>Classification</h3>
+<pre><code class="language-python">from sklearn.metrics import accuracy_score, classification_report</code></pre>
+<h3>Search/Retrieval</h3>
+<ul><li>Precision@k</li></ul>
+<ul><li>Recall@k</li></ul>
+<ul><li>MRR</li></ul>
+<ul><li>NDCG@k</li></ul>
+<h3>Generation</h3>
+<ul><li>BLEU: translation overlap</li></ul>
+<ul><li>ROUGE: summarization overlap</li></ul>
+<ul><li>BERTScore: semantic similarity</li></ul>
+<ul><li>Human eval: often most important</li></ul></div>
+</section>
+<section class="section-card" id="sec-16">
+<div class="section-kicker">Section 17</div>
+<h2>15. Interview Q&amp;A</h2>
+<div class="section-body"><p>Q: Bag-of-words vs embeddings?<br/>A: Bag-of-words/TF-IDF are sparse lexical features. Embeddings are dense semantic vectors.</p>
+<p>Q: Why n-grams?<br/>A: Single words lose phrase meaning. Bigrams capture phrases like "not good".</p>
+<p>Q: What is OOV?<br/>A: Out-of-vocabulary tokens unseen during training. Subword tokenizers reduce OOV.</p>
+<p>Q: Why transformers?<br/>A: Self-attention models contextual relationships between tokens and supports parallel training.</p></div>
+</section>
+<section class="section-card" id="sec-17">
+<div class="section-kicker">Section 18</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. NLP system mental model<br/>------------------------------------------------------------<br/>NLP systems map raw text into normalized tokens, features, embeddings, predictions, and explanations. Modern interviews expect both classic NLP and transformer-based workflows.</p>
+<p>B. Text preprocessing decisions<br/>------------------------------------------------------------<br/>Common steps: Unicode normalization, language detection, sentence splitting, tokenization, optional lowercasing, PII redaction, and metadata extraction. Do not blindly remove punctuation/stopwords; enterprise queries often include ticket IDs, error codes, filenames, and product names.</p>
+<p>C. Tokenization deep dive<br/>------------------------------------------------------------</p>
+<ul><li>whitespace/regex: simple, brittle.</li></ul>
+<ul><li>WordPiece/BPE/SentencePiece: handles rare words via subwords.</li></ul>
+<ul><li>character-level: robust but longer sequences.</li></ul>
+<h3>Transformer pitfalls</h3>
+<ul><li>length is tokens, not words.</li></ul>
+<ul><li>truncation can drop evidence.</li></ul>
+<ul><li>tokenizer must match model training.</li></ul>
+<ul><li>chunking policy strongly affects RAG/search quality.</li></ul>
+<p>D. Embeddings and similarity<br/>------------------------------------------------------------</p>
+<h3>Embedding design questions</h3>
+<ul><li>symmetric or query/document-specific encoders?</li></ul>
+<ul><li>multilingual support?</li></ul>
+<ul><li>domain vocabulary support?</li></ul>
+<ul><li>exact ID/number preservation?</li></ul>
+<ul><li>normalized vectors for cosine similarity?</li></ul>
+<pre><code class="language-python"># Conceptual semantic similarity
+q = normalize(encoder([query])[0])
+d = normalize(encoder(docs))
+scores = d @ q</code></pre>
+<p>E. Classification, NER, ranking<br/>------------------------------------------------------------</p>
+<h3>Task framing</h3>
+<ul><li>classification: intent, toxicity, category.</li></ul>
+<ul><li>NER: people, orgs, products, dates, tickets.</li></ul>
+<ul><li>ranking: query-document relevance.</li></ul>
+<ul><li>generation: grounded answer, usually with retrieval.</li></ul>
+<h3>Reranking pattern</h3>
+<p class="numbered-line">1. retrieve top 100/1000 cheaply.</p>
+<p class="numbered-line">2. cross-encoder or LLM reranks a small candidate set.</p>
+<p class="numbered-line">3. apply freshness, permissions, diversity, and business rules.</p>
+<p>F. Evaluation<br/>------------------------------------------------------------</p>
+<ul><li>classification: precision, recall, F1, ROC-AUC, PR-AUC.</li></ul>
+<ul><li>ranking: MRR, nDCG, Recall@K.</li></ul>
+<ul><li>extraction: entity-level precision/recall/F1.</li></ul>
+<ul><li>generation/RAG: groundedness, answer relevance, citation correctness.</li></ul>
+<p>G. Failure modes<br/>------------------------------------------------------------</p>
+<ul><li>domain shift from web text to enterprise tickets.</li></ul>
+<ul><li>token truncation silently removes evidence.</li></ul>
+<ul><li>dense embeddings miss exact IDs/SKUs.</li></ul>
+<ul><li>data leakage through duplicate docs/users/time.</li></ul>
+<ul><li>multilingual mismatch.</li></ul>
+<ul><li>metric looks good overall but fails critical slices.</li></ul>
+<p>H. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: BM25 vs dense embeddings?<br/>A: BM25 is strong for exact terms, IDs, rare tokens, and explainability. Dense embeddings capture paraphrase and semantic similarity. Production search often uses hybrid retrieval.</p>
+<p>Q: Why cross-encoder reranker?<br/>A: A bi-encoder is fast because document vectors are precomputed. A cross-encoder jointly reads query and document, usually more accurate but too expensive for the full corpus.</p>
+<p>Q: How do you chunk documents for NLP/RAG?<br/>A: Preserve semantic/page/section boundaries, use overlap only when helpful, keep metadata/ACLs, and tune size by retrieval recall and context budget.</p>
+<p>Q: What is data leakage in NLP?<br/>A: Same/near-duplicate documents, users, or time-correlated examples appearing in both train and test inflate metrics without real generalization.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>
