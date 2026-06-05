@@ -1,4 +1,4 @@
-window.MOVEWORKS_MANIFEST = {
+﻿window.MOVEWORKS_MANIFEST = {
   "updated": "2026-05-14",
   "documents": [
     {
@@ -39,7 +39,7 @@ window.MOVEWORKS_MANIFEST = {
     },
     {
       "id": "moveworks-coding-answer",
-      "title": "Moveworks Coding Answers",
+      "title": "MMM Coding Answers",
       "subtitle": "Full notes from moveworks-coding answer.txt",
       "group": "Coding and Implementation",
       "kind": "TEXT",
@@ -55,7 +55,7 @@ window.MOVEWORKS_MANIFEST = {
     },
     {
       "id": "moveworks-coding",
-      "title": "Moveworks Coding Problems",
+      "title": "MMM Coding Problems",
       "subtitle": "Full notes from moveworks-coding.txt",
       "group": "Coding and Implementation",
       "kind": "TEXT",
@@ -75,9 +75,9 @@ window.MOVEWORKS_MANIFEST = {
     },
     {
       "id": "moveworks",
-      "title": "Moveworks Hiring Manager Prep",
-      "subtitle": "Hiring Manager Interview Prep: Praveen Gorthy (ServiceNow / Moveworks)",
-      "group": "Moveworks Prep",
+      "title": "MMM Hiring Manager Prep",
+      "subtitle": "Hiring Manager Interview Prep: Praveen Gorthy (ServiceNow / MMM)",
+      "group": "MMM Prep",
       "kind": "TEXT",
       "tags": [
         "search",
@@ -95,9 +95,9 @@ window.MOVEWORKS_MANIFEST = {
     },
     {
       "id": "moveworks-bq",
-      "title": "Moveworks Behavioral Questions",
+      "title": "MMM Behavioral Questions",
       "subtitle": "Full notes from moveworks_bq.txt",
-      "group": "Moveworks Prep",
+      "group": "MMM Prep",
       "kind": "TEXT",
       "tags": [
         "search",
@@ -115,7 +115,7 @@ window.MOVEWORKS_MANIFEST = {
     },
     {
       "id": "moveworks-code-deepdive",
-      "title": "Moveworks Code Deep Dive",
+      "title": "MMM Code Deep Dive",
       "subtitle": "Full Python implementation logic from moveworks_code_deepdive.py",
       "group": "Implementation Code",
       "kind": "CODE",
@@ -133,8 +133,8 @@ window.MOVEWORKS_MANIFEST = {
     },
     {
       "id": "moveworks-genai-search-playbook",
-      "title": "Moveworks Genai Search Playbook",
-      "subtitle": "Rendered PDF pages with extracted text fallback from Moveworks_GenAI_Search_Playbook.pdf",
+      "title": "MMM Genai Search Playbook",
+      "subtitle": "Rendered PDF pages with extracted text fallback from MMM_GenAI_Search_Playbook.pdf",
       "group": "PDF Playbooks",
       "kind": "PDF",
       "tags": [
@@ -145,12 +145,12 @@ window.MOVEWORKS_MANIFEST = {
       "words": 0,
       "size": "15.3 MB",
       "path": "docs/moveworks-genai-search-playbook.html",
-      "source": "../../moveworks/Moveworks_GenAI_Search_Playbook.pdf",
+      "source": "../../moveworks/MMM_GenAI_Search_Playbook.pdf",
       "priority": 8
     },
     {
       "id": "moveworks-interview",
-      "title": "Moveworks Interview Deep Dive",
+      "title": "MMM Interview Deep Dive",
       "subtitle": "Rendered PDF pages with extracted text fallback from moveworks_interview.pdf",
       "group": "PDF Playbooks",
       "kind": "PDF",
@@ -170,9 +170,9 @@ window.MOVEWORKS_MANIFEST = {
     },
     {
       "id": "moveworks-interview",
-      "title": "Moveworks Interview Deep Dive",
-      "subtitle": "Moveworks Interview Prep: ML Engineer — GAI Search Platform",
-      "group": "Moveworks Prep",
+      "title": "MMM Interview Deep Dive",
+      "subtitle": "MMM Interview Prep: ML Engineer — GAI Search Platform",
+      "group": "MMM Prep",
       "kind": "TEXT",
       "tags": [
         "search",
@@ -190,8 +190,8 @@ window.MOVEWORKS_MANIFEST = {
     },
     {
       "id": "moveworks-interview-blueprint",
-      "title": "Moveworks Interview Blueprint",
-      "subtitle": "Rendered PDF pages with extracted text fallback from Moveworks_Interview_Blueprint.pdf",
+      "title": "MMM Interview Blueprint",
+      "subtitle": "Rendered PDF pages with extracted text fallback from MMM_Interview_Blueprint.pdf",
       "group": "PDF Playbooks",
       "kind": "PDF",
       "tags": [
@@ -201,13 +201,13 @@ window.MOVEWORKS_MANIFEST = {
       "words": 0,
       "size": "12.6 MB",
       "path": "docs/moveworks-interview-blueprint.html",
-      "source": "../../moveworks/Moveworks_Interview_Blueprint.pdf",
+      "source": "../../moveworks/MMM_Interview_Blueprint.pdf",
       "priority": 11
     },
     {
       "id": "moveworks-ml-engineering-playbook",
-      "title": "Moveworks ML Engineering Playbook",
-      "subtitle": "Rendered PDF pages with extracted text fallback from Moveworks_ML_Engineering_Playbook.pdf",
+      "title": "MMM ML Engineering Playbook",
+      "subtitle": "Rendered PDF pages with extracted text fallback from MMM_ML_Engineering_Playbook.pdf",
       "group": "PDF Playbooks",
       "kind": "PDF",
       "tags": [
@@ -217,12 +217,12 @@ window.MOVEWORKS_MANIFEST = {
       "words": 0,
       "size": "13.3 MB",
       "path": "docs/moveworks-ml-engineering-playbook.html",
-      "source": "../../moveworks/Moveworks_ML_Engineering_Playbook.pdf",
+      "source": "../../moveworks/MMM_ML_Engineering_Playbook.pdf",
       "priority": 12
     },
     {
       "id": "moveworks-prepare",
-      "title": "Moveworks Preparation Notes",
+      "title": "MMM Preparation Notes",
       "subtitle": "Rendered PDF pages with extracted text fallback from moveworks_prepare.pdf",
       "group": "PDF Playbooks",
       "kind": "PDF",
@@ -242,9 +242,9 @@ window.MOVEWORKS_MANIFEST = {
     },
     {
       "id": "moveworks-prepare",
-      "title": "Moveworks Preparation Notes",
+      "title": "MMM Preparation Notes",
       "subtitle": "Full notes from moveworks_prepare.txt",
-      "group": "Moveworks Prep",
+      "group": "MMM Prep",
       "kind": "TEXT",
       "tags": [
         "search",
@@ -262,8 +262,8 @@ window.MOVEWORKS_MANIFEST = {
     },
     {
       "id": "moveworks-search-engineering-blueprint",
-      "title": "Moveworks Search Engineering Blueprint",
-      "subtitle": "Rendered PDF pages with extracted text fallback from Moveworks_Search_Engineering_Blueprint.pdf",
+      "title": "MMM Search Engineering Blueprint",
+      "subtitle": "Rendered PDF pages with extracted text fallback from MMM_Search_Engineering_Blueprint.pdf",
       "group": "PDF Playbooks",
       "kind": "PDF",
       "tags": [
@@ -273,7 +273,7 @@ window.MOVEWORKS_MANIFEST = {
       "words": 0,
       "size": "13.4 MB",
       "path": "docs/moveworks-search-engineering-blueprint.html",
-      "source": "../../moveworks/Moveworks_Search_Engineering_Blueprint.pdf",
+      "source": "../../moveworks/MMM_Search_Engineering_Blueprint.pdf",
       "priority": 15
     },
     {
