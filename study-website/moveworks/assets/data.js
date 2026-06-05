@@ -18,26 +18,6 @@
       "priority": 1
     },
     {
-      "id": "interview-guide-for-machine-learning-search-platform-machine-learning-infrastructure",
-      "title": "Interview Guide For Machine Learning Search Platform & Machine Learning Infrastructure",
-      "subtitle": "Rendered PDF pages with extracted text fallback from Interview Guide for Machine Learning - Search Platform & Machine Learning Infrastructure.pdf",
-      "group": "PDF Playbooks",
-      "kind": "PDF",
-      "tags": [
-        "search",
-        "rag",
-        "infra",
-        "coding",
-        "recruiter"
-      ],
-      "sections": 5,
-      "words": 1190,
-      "size": "320 KB",
-      "path": "docs/interview-guide-for-machine-learning-search-platform-machine-learning-infrastructure.html",
-      "source": "../../moveworks/Interview Guide for Machine Learning - Search Platform & Machine Learning Infrastructure.pdf",
-      "priority": 2
-    },
-    {
       "id": "moveworks-coding-answer",
       "title": "MMM Coding Answers",
       "subtitle": "Full notes from moveworks-coding answer.txt",
