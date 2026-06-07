@@ -1,0 +1,791 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Exercise 05: ML Framework Benchmarking Tool</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Exercise 05: ML Framework Benchmarking Tool</h1><p>Module 101: 基础（Foundations） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" open><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Module 01: Foundations of 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-resources-md.html">Module 101 — Foundations of 机器学习基础设施（ML Infrastructure） Resources</a></details><details class="tree-section" open><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lesson 01: Introduction to 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-02-environment-setup-md.html">Lesson 02: Development Environment Setup</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-03-ml-infrastructure-basics-md.html">Lesson 03: 机器学习基础设施（ML Infrastructure） Basics</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-04-ml-frameworks-md.html">Lesson 04: ML Frameworks Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-05-cloud-intro-md.html">Lesson 05: 云计算（Cloud Computing） for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-06-model-serving-basics-md.html">Lesson 06: 模型服务（Model Serving） Basics</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-07-docker-basics-md.html">Lesson 07: Docker 容器（Docker） Basics for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-08-api-development-md.html">Lesson 08: API Development for ML Services</a></details><details class="tree-section" open><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-01-python-dev-environment-md.html">Lab 01: Reproducible Python Dev Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-02-first-docker-container-md.html">Lab 02: Build, Run, and Inspect Your First Docker 容器（Docker） Container</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-03-local-kind-cluster-md.html">Lab 03: Stand Up a Local Kubernetes 容器编排（Kubernetes） Cluster with kind</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-04-serve-sklearn-model-md.html">Lab 04: Serve a Scikit-Learn Model Behind a FastAPI 服务框架（FastAPI） Endpoint</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-05-instrument-with-prometheus-md.html">Lab 05: Add Prometheus 指标监控（Prometheus） Instrumentation to the FastAPI 服务框架（FastAPI） Service</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Module 101 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-01-environment-md.html">Exercise 01: Environment Verification</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-02-docker-md.html">Exercise 02: Docker 容器（Docker） Fundamentals for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-03-kubernetes-md.html">Exercise 03: Kubernetes 容器编排（Kubernetes） 部署（Deployment） for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercise 04: Advanced Python Environment Manager</a><a class="tree-doc active" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md.html">Exercise 05: ML Framework Benchmarking Tool</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-06-fastapi-ml-template-generator-readme-md.html">Exercise 06: FastAPI 服务框架（FastAPI） ML Service Template Generator</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-07-cloud-onboarding-readme-md.html">Exercise 07: Cloud Onboarding for 机器学习基础设施（ML Infrastructure） Engineers</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-08-production-model-serving-readme-md.html">Exercise 08: Production-Grade 模型服务（Model Serving）</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-09-api-integration-tests-readme-md.html">Exercise 09: API Integration &amp; Contract Testing</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-10-end-to-end-mini-project-readme-md.html">Exercise 10: End-to-End Mini-Project (Capstone for Module 101)</a></details><details class="tree-section" open><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Module 01: Foundations of 机器学习基础设施（ML Infrastructure） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Exercise 05: ML Framework Benchmarking Tool</h2><p>Module 101: 基础（Foundations） · Exercises: 课后练习</p><div class="stats"><div class="stat"><strong>13</strong><span>reading order</span></div><div class="stat"><strong>27</strong><span>chapter docs</span></div><div class="stat"><strong>1141</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md" data-title="exercise 05: ml framework benchmarking tool lessons/mod-101-foundations/exercises/exercise-05-ml-framework-benchmark/readme.md exercises: 课后练习"><div class="doc-head"><span class="chip">13/27</span><span class="chip">Exercises</span><span class="path">lessons/mod-101-foundations/exercises/exercise-05-ml-framework-benchmark/README.md</span><span class="path">1141 行</span></div><h2>Exercise 05: ML Framework Benchmarking Tool</h2><p><a class="home" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-101-foundations.html#doc-lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-06-fastapi-ml-template-generator-readme-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-exercis">Exercise 05: ML Framework Benchmarking Tool</h3>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-learnin">Learning Objectives</h4>
+<p>By completing this exercise, you will:</p>
+<ul>
+<li>Compare performance across PyTorch 深度学习框架（PyTorch）, TensorFlow 深度学习框架（TensorFlow）, and JAX</li>
+<li>Benchmark GPU 加速（GPU） vs CPU training performance</li>
+<li>Profile memory usage and optimization</li>
+<li>Understand framework trade-offs for production</li>
+<li>Build automated benchmarking infrastructure</li>
+</ul>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-overvie">概览（Overview）</h4>
+<p>Choosing the right ML framework is critical for AI infrastructure. This exercise builds a comprehensive benchmarking tool that helps teams make data-driven framework decisions based on their specific use cases.</p>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-prerequ">前置要求（Prerequisites）</h4>
+<ul>
+<li>Python 3.11+ with PyTorch 深度学习框架（PyTorch）, TensorFlow 深度学习框架（TensorFlow）, JAX installed</li>
+<li>Understanding of basic neural networks</li>
+<li>GPU 加速（GPU） access (optional but recommended for full benchmarking)</li>
+<li>Knowledge of Python profiling tools</li>
+</ul>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-problem">Problem Statement</h4>
+<p>Build <code>mlbench</code>, a framework benchmarking tool that:</p>
+<ol>
+<li><strong>Trains identical models</strong> across PyTorch 深度学习框架（PyTorch）, TensorFlow 深度学习框架（TensorFlow）, and JAX</li>
+<li><strong>Measures performance metrics</strong>: training time, throughput, memory usage</li>
+<li><strong>Compares GPU 加速（GPU） vs CPU</strong> performance</li>
+<li><strong>Profiles memory</strong> usage and identifies bottlenecks</li>
+<li><strong>Generates comprehensive reports</strong> with visualizations</li>
+</ol>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-require">要求（Requirements）</h4>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-functio">Functional Requirements</h5>
+<h6 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-fr1-mod">FR1: Model Implementations</h6>
+<ul>
+<li>Implement identical models in PyTorch 深度学习框架（PyTorch）, TensorFlow 深度学习框架（TensorFlow）, JAX:</li>
+<li>CNN for image classification (ResNet-18/34)</li>
+<li>Transformer for NLP (BERT-like)</li>
+<li>MLP for tabular data</li>
+<li>Ensure architectural parity across frameworks</li>
+<li>Use same hyperparameters (learning rate, batch size, etc.)</li>
+</ul>
+<h6 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-fr2-ben">FR2: Benchmark Metrics</h6>
+<ul>
+<li>训练（Training） time (per epoch, total)</li>
+<li>Throughput (samples/second)</li>
+<li>GPU 加速（GPU） utilization (%)</li>
+<li>Memory usage (peak, average)</li>
+<li>Model size (parameters, disk size)</li>
+<li>推理（Inference） latency (mean, p50, p95, p99)</li>
+</ul>
+<h6 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-fr3-dev">FR3: Device Comparison</h6>
+<ul>
+<li>CPU vs GPU 加速（GPU） training</li>
+<li>Single GPU 加速（GPU） vs multi-GPU</li>
+<li>Mixed precision (FP32 vs FP16)</li>
+<li>Batch size impact</li>
+</ul>
+<h6 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-fr4-rep">FR4: Reporting</h6>
+<ul>
+<li>Generate JSON/CSV results</li>
+<li>Create visualizations (charts, graphs)</li>
+<li>HTML report with comparisons</li>
+<li>Recommendations based on results</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-non-fun">Non-Functional Requirements</h5>
+<h6 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-nfr1-ac">NFR1: Accuracy</h6>
+<ul>
+<li>Ensure models train to similar accuracy (±2%)</li>
+<li>Validate correctness before benchmarking</li>
+<li>Use fixed random seeds for reproducibility</li>
+</ul>
+<h6 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-nfr2-au">NFR2: Automation</h6>
+<ul>
+<li>Run all benchmarks with single command</li>
+<li>Support partial benchmarks (skip frameworks)</li>
+<li>Resume interrupted benchmarks</li>
+<li>Progress tracking and ETA</li>
+</ul>
+<h6 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-nfr3-ex">NFR3: Extensibility</h6>
+<ul>
+<li>Easy to add new frameworks</li>
+<li>Pluggable model architectures</li>
+<li>Configurable via YAML/JSON</li>
+</ul>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-impleme">Implementation Tasks</h4>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-task-1-">Task 1: Framework Abstraction Layer (4-5 hours)</h5>
+<p>Create a unified interface for all frameworks:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/framework_interface.py
+
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Any, Dict, Tuple
+import time
+
+@dataclass
+class BenchmarkResult:
+    &quot;&quot;&quot;Benchmark results for a single run&quot;&quot;&quot;
+    framework: str
+    model_name: str
+    device: str  # &quot;cpu&quot;, &quot;cuda:0&quot;, &quot;mps&quot;
+    batch_size: int
+    precision: str  # &quot;fp32&quot;, &quot;fp16&quot;
+
+    # Training metrics
+    train_time_per_epoch: float  # seconds
+    total_train_time: float
+    samples_per_second: float
+
+    # Memory metrics
+    peak_memory_mb: float
+    avg_memory_mb: float
+
+    # Accuracy metrics
+    final_train_accuracy: float
+    final_val_accuracy: float
+
+    # Model metrics
+    num_parameters: int
+    model_size_mb: float
+
+    # Inference metrics
+    inference_latency_mean_ms: float
+    inference_latency_p95_ms: float
+    inference_latency_p99_ms: float
+
+class FrameworkInterface(ABC):
+    &quot;&quot;&quot;Abstract interface for ML frameworks&quot;&quot;&quot;
+
+    def __init__(self, device: str = &quot;cpu&quot;):
+        self.device = device
+        self.model = None
+
+    @abstractmethod
+    def build_model(self, model_type: str, **kwargs) -&gt; Any:
+        &quot;&quot;&quot;
+        Build model of specified type
+
+        TODO: Implement for each framework
+        - &quot;cnn&quot;: ResNet-18 for image classification
+        - &quot;transformer&quot;: BERT-like for NLP
+        - &quot;mlp&quot;: Multi-layer perceptron
+
+        Args:
+            model_type: Type of model to build
+            **kwargs: Model-specific parameters
+
+        Returns:
+            Model object
+        &quot;&quot;&quot;
+        pass
+
+    @abstractmethod
+    def train_epoch(
+        self,
+        model: Any,
+        train_loader: Any,
+        optimizer: Any,
+        loss_fn: Any
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        Train for one epoch
+
+        TODO: Implement training loop
+        - Forward pass
+        - Backward pass
+        - Optimizer step
+        - Track metrics
+
+        Returns:
+            {&quot;loss&quot;: float, &quot;accuracy&quot;: float, &quot;time&quot;: float}
+        &quot;&quot;&quot;
+        pass
+
+    @abstractmethod
+    def evaluate(
+        self,
+        model: Any,
+        val_loader: Any,
+        loss_fn: Any
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        Evaluate model
+
+        TODO: Implement evaluation loop
+        Returns: {&quot;loss&quot;: float, &quot;accuracy&quot;: float}
+        &quot;&quot;&quot;
+        pass
+
+    @abstractmethod
+    def benchmark_inference(
+        self,
+        model: Any,
+        input_shape: Tuple,
+        num_runs: int = 1000
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        Benchmark inference latency
+
+        TODO:
+        1. Warmup (10 runs)
+        2. Run inference num_runs times
+        3. Measure latency for each run
+        4. Calculate statistics (mean, p50, p95, p99)
+
+        Returns:
+            {
+                &quot;mean_ms&quot;: float,
+                &quot;p50_ms&quot;: float,
+                &quot;p95_ms&quot;: float,
+                &quot;p99_ms&quot;: float
+            }
+        &quot;&quot;&quot;
+        pass
+
+    @abstractmethod
+    def get_memory_usage(self) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        Get current memory usage
+
+        TODO: Query framework-specific memory stats
+        Returns: {&quot;allocated_mb&quot;: float, &quot;reserved_mb&quot;: float}
+        &quot;&quot;&quot;
+        pass
+
+    @abstractmethod
+    def count_parameters(self, model: Any) -&gt; int:
+        &quot;&quot;&quot;TODO: Count trainable parameters&quot;&quot;&quot;
+        pass
+
+    @abstractmethod
+    def save_model(self, model: Any, path: str) -&gt; None:
+        &quot;&quot;&quot;TODO: Save model to disk&quot;&quot;&quot;
+        pass
+
+    @abstractmethod
+    def load_model(self, path: str) -&gt; Any:
+        &quot;&quot;&quot;TODO: Load model from disk&quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] Abstract interface covers all frameworks</li>
+<li>[ ] Consistent API across implementations</li>
+<li>[ ] Memory tracking works on CPU and GPU 加速（GPU）</li>
+<li>[ ] 推理（Inference） benchmarking is accurate</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-task-2-">Task 2: PyTorch 深度学习框架（PyTorch） Implementation (3-4 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/pytorch_impl.py
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torchvision import models
+import time
+import numpy as np
+from typing import Any, Dict, Tuple
+
+class PyTorchFramework(FrameworkInterface):
+    &quot;&quot;&quot;PyTorch implementation&quot;&quot;&quot;
+
+    def __init__(self, device: str = &quot;cpu&quot;):
+        super().__init__(device)
+        self.torch_device = torch.device(device)
+
+    def build_model(self, model_type: str, **kwargs) -&gt; nn.Module:
+        &quot;&quot;&quot;
+        TODO: Build PyTorch models
+
+        CNN (ResNet-18):</code></pre></div>
+<p>model = models.resnet18(num_classes=kwargs.get(&quot;num_classes&quot;, 10)) model = model.to(self.torch_device) return model</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">
+        Transformer:</code></pre></div>
+<p>from torch.nn import Transformer # Build BERT-like encoder</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">
+        MLP:</code></pre></div>
+<p>class MLP(nn.Module): def __init__(self, input_dim, hidden_dims, output_dim): # Build multi-layer perceptron</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def train_epoch(
+        self,
+        model: nn.Module,
+        train_loader: Any,
+        optimizer: optim.Optimizer,
+        loss_fn: nn.Module
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        TODO: PyTorch training loop</code></pre></div>
+<p>model.train() total_loss = 0 correct = 0 total = 0 start_time = time.time()</p>
+<p>for batch_idx, (data, target) in enumerate(train_loader): data, target = data.to(self.torch_device), target.to(self.torch_device)</p>
+<p>optimizer.zero_grad() output = model(data) loss = loss_fn(output, target) loss.backward() optimizer.step()</p>
+<p>total_loss += loss.item() pred = output.argmax(dim=1) correct += pred.eq(target).sum().item() total += target.size(0)</p>
+<p>epoch_time = time.time() - start_time accuracy = 100.0 * correct / total avg_loss = total_loss / len(train_loader)</p>
+<p>return { &quot;loss&quot;: avg_loss, &quot;accuracy&quot;: accuracy, &quot;time&quot;: epoch_time }</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def evaluate(
+        self,
+        model: nn.Module,
+        val_loader: Any,
+        loss_fn: nn.Module
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;TODO: PyTorch evaluation loop&quot;&quot;&quot;
+        pass
+
+    def benchmark_inference(
+        self,
+        model: nn.Module,
+        input_shape: Tuple,
+        num_runs: int = 1000
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        TODO: Benchmark PyTorch inference</code></pre></div>
+<p>model.eval() dummy_input = torch.randn(1, *input_shape).to(self.torch_device)</p>
+<p># Warmup with torch.no_grad(): for _ in range(10): _ = model(dummy_input)</p>
+<p># Benchmark latencies = [] with torch.no_grad(): for _ in range(num_runs): if self.torch_device.type == 'cuda': torch.cuda.synchronize()</p>
+<p>start = time.perf_counter() _ = model(dummy_input)</p>
+<p>if self.torch_device.type == 'cuda': torch.cuda.synchronize()</p>
+<p>end = time.perf_counter() latencies.append((end - start) * 1000)  # ms</p>
+<p>latencies = np.array(latencies) return { &quot;mean_ms&quot;: np.mean(latencies), &quot;p50_ms&quot;: np.percentile(latencies, 50), &quot;p95_ms&quot;: np.percentile(latencies, 95), &quot;p99_ms&quot;: np.percentile(latencies, 99) }</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def get_memory_usage(self) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        TODO: Get PyTorch memory usage</code></pre></div>
+<p>if self.torch_device.type == 'cuda': allocated = torch.cuda.memory_allocated(self.torch_device) / 1024<strong>2 reserved = torch.cuda.memory_reserved(self.torch_device) / 1024</strong>2 else: # Use psutil for CPU memory import psutil process = psutil.Process() allocated = process.memory_info().rss / 1024**2 reserved = allocated</p>
+<p>return {&quot;allocated_mb&quot;: allocated, &quot;reserved_mb&quot;: reserved}</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def count_parameters(self, model: nn.Module) -&gt; int:
+        &quot;&quot;&quot;
+        TODO: Count PyTorch parameters</code></pre></div>
+<p>return sum(p.numel() for p in model.parameters() if p.requires_grad)</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] All models build correctly</li>
+<li>[ ] 训练（Training） loop works on CPU and GPU 加速（GPU）</li>
+<li>[ ] Memory tracking accurate</li>
+<li>[ ] 推理（Inference） benchmarking reliable</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-task-3-">Task 3: TensorFlow 深度学习框架（TensorFlow） Implementation (3-4 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/tensorflow_impl.py
+
+import tensorflow as tf
+from tensorflow import keras
+import time
+import numpy as np
+from typing import Any, Dict, Tuple
+
+class TensorFlowFramework(FrameworkInterface):
+    &quot;&quot;&quot;TensorFlow implementation&quot;&quot;&quot;
+
+    def __init__(self, device: str = &quot;cpu&quot;):
+        super().__init__(device)
+        # Set device
+        if device == &quot;cpu&quot;:
+            tf.config.set_visible_devices([], 'GPU')
+
+    def build_model(self, model_type: str, **kwargs) -&gt; keras.Model:
+        &quot;&quot;&quot;
+        TODO: Build TensorFlow models
+
+        CNN (ResNet-18):</code></pre></div>
+<p>model = keras.applications.ResNet50( weights=None, input_shape=kwargs.get(&quot;input_shape&quot;, (224, 224, 3)), classes=kwargs.get(&quot;num_classes&quot;, 10) ) return model</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">
+        Transformer:</code></pre></div>
+<p>from tensorflow.keras.layers import ( MultiHeadAttention, LayerNormalization, Dense ) # Build transformer encoder</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">
+        MLP:</code></pre></div>
+<p>model = keras.Sequential([ keras.layers.Dense(hidden_dim, activation='relu'), keras.layers.Dense(hidden_dim, activation='relu'), keras.layers.Dense(output_dim, activation='softmax') ])</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def train_epoch(
+        self,
+        model: keras.Model,
+        train_loader: Any,
+        optimizer: keras.optimizers.Optimizer,
+        loss_fn: keras.losses.Loss
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        TODO: TensorFlow training loop</code></pre></div>
+<p>train_loss = keras.metrics.Mean() train_accuracy = keras.metrics.CategoricalAccuracy()</p>
+<p>start_time = time.time()</p>
+<p>for data, target in train_loader: with tf.GradientTape() as tape: predictions = model(data, training=True) loss = loss_fn(target, predictions)</p>
+<p>gradients = tape.gradient(loss, model.trainable_variables) optimizer.apply_gradients(zip(gradients, model.trainable_variables))</p>
+<p>train_loss(loss) train_accuracy(target, predictions)</p>
+<p>epoch_time = time.time() - start_time</p>
+<p>return { &quot;loss&quot;: float(train_loss.result()), &quot;accuracy&quot;: float(train_accuracy.result() * 100), &quot;time&quot;: epoch_time }</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def evaluate(
+        self,
+        model: keras.Model,
+        val_loader: Any,
+        loss_fn: keras.losses.Loss
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;TODO: TensorFlow evaluation&quot;&quot;&quot;
+        pass
+
+    def benchmark_inference(
+        self,
+        model: keras.Model,
+        input_shape: Tuple,
+        num_runs: int = 1000
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        TODO: Benchmark TensorFlow inference
+
+        Similar to PyTorch but use TensorFlow APIs
+        - Use tf.function for compiled inference
+        - Use tf.timestamp() for accurate timing
+        &quot;&quot;&quot;
+        pass
+
+    def get_memory_usage(self) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        TODO: Get TensorFlow memory usage</code></pre></div>
+<p>if tf.config.list_physical_devices('GPU 加速（GPU）'): # GPU 加速（GPU） memory memory_info = tf.config.experimental.get_memory_info('GPU 加速（GPU）:0') allocated = memory_info['current'] / 1024<strong>2 reserved = memory_info['peak'] / 1024</strong>2 else: # CPU memory import psutil process = psutil.Process() allocated = process.memory_info().rss / 1024**2 reserved = allocated</p>
+<p>return {&quot;allocated_mb&quot;: allocated, &quot;reserved_mb&quot;: reserved}</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def count_parameters(self, model: keras.Model) -&gt; int:
+        &quot;&quot;&quot;
+        TODO: Count TensorFlow parameters</code></pre></div>
+<p>return int(sum([tf.size(w).numpy() for w in model.trainable_weights]))</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] All TensorFlow 深度学习框架（TensorFlow） models build correctly</li>
+<li>[ ] 训练（Training） matches PyTorch 深度学习框架（PyTorch） performance (±5%)</li>
+<li>[ ] Memory tracking works</li>
+<li>[ ] 推理（Inference） benchmarking accurate</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-task-4-">Task 4: JAX Implementation (4-5 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/jax_impl.py
+
+import jax
+import jax.numpy as jnp
+from flax import linen as nn
+import optax
+import time
+import numpy as np
+from typing import Any, Dict, Tuple
+
+class JAXFramework(FrameworkInterface):
+    &quot;&quot;&quot;JAX/Flax implementation&quot;&quot;&quot;
+
+    def __init__(self, device: str = &quot;cpu&quot;):
+        super().__init__(device)
+        # JAX device management
+        if device == &quot;cpu&quot;:
+            jax.config.update('jax_platform_name', 'cpu')
+
+    def build_model(self, model_type: str, **kwargs) -&gt; nn.Module:
+        &quot;&quot;&quot;
+        TODO: Build JAX/Flax models
+
+        CNN:</code></pre></div>
+<p>class ResNet18(nn.Module): num_classes: int = 10</p>
+<p>@nn.compact def __call__(self, x, training: bool = False): # Build ResNet-18 architecture # Use nn.Conv, nn.BatchNorm, nn.relu pass</p>
+<p>return ResNet18(num_classes=kwargs.get(&quot;num_classes&quot;, 10))</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">
+        MLP:</code></pre></div>
+<p>class MLP(nn.Module): hidden_dims: Tuple[int, ...] num_classes: int</p>
+<p>@nn.compact def __call__(self, x): for dim in self.hidden_dims: x = nn.Dense(dim)(x) x = nn.relu(x) x = nn.Dense(self.num_classes)(x) return x</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def train_epoch(
+        self,
+        model: nn.Module,
+        params: Any,
+        train_loader: Any,
+        optimizer_state: Any,
+        tx: optax.GradientTransformation
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        TODO: JAX training loop</code></pre></div>
+<p>@jax.jit def train_step(params, opt_state, batch): def loss_fn(params): logits = model.apply({'params': params}, batch['image']) loss = optax.softmax_cross_entropy_with_integer_labels( logits, batch['label'] ).mean() return loss, logits</p>
+<p>(loss, logits), grads = jax.value_and_grad(loss_fn, has_aux=True)(params) updates, new_opt_state = tx.update(grads, opt_state) new_params = optax.apply_updates(params, updates)</p>
+<p>accuracy = jnp.mean(jnp.argmax(logits, -1) == batch['label'])</p>
+<p>return new_params, new_opt_state, loss, accuracy</p>
+<p>total_loss = 0 total_accuracy = 0 num_batches = 0</p>
+<p>start_time = time.time()</p>
+<p>for batch in train_loader: params, optimizer_state, loss, acc = train_step( params, optimizer_state, batch ) total_loss += float(loss) total_accuracy += float(acc) num_batches += 1</p>
+<p>epoch_time = time.time() - start_time</p>
+<p>return { &quot;loss&quot;: total_loss / num_batches, &quot;accuracy&quot;: (total_accuracy / num_batches) * 100, &quot;time&quot;: epoch_time }</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def benchmark_inference(
+        self,
+        model: nn.Module,
+        params: Any,
+        input_shape: Tuple,
+        num_runs: int = 1000
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        TODO: Benchmark JAX inference</code></pre></div>
+<p># Create JIT-compiled inference function @jax.jit def inference_fn(params, x): return model.apply({'params': params}, x)</p>
+<p>dummy_input = jnp.ones((1, *input_shape))</p>
+<p># Warmup for _ in range(10): _ = inference_fn(params, dummy_input) jax.block_until_ready(_)</p>
+<p># Benchmark latencies = [] for _ in range(num_runs): start = time.perf_counter() output = inference_fn(params, dummy_input) jax.block_until_ready(output) end = time.perf_counter() latencies.append((end - start) * 1000)</p>
+<p>latencies = np.array(latencies) return { &quot;mean_ms&quot;: np.mean(latencies), &quot;p50_ms&quot;: np.percentile(latencies, 50), &quot;p95_ms&quot;: np.percentile(latencies, 95), &quot;p99_ms&quot;: np.percentile(latencies, 99) }</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def get_memory_usage(self) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        TODO: Get JAX memory usage
+
+        JAX doesn't expose memory APIs directly,
+        use nvidia-smi or psutil
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] JAX models build and train</li>
+<li>[ ] JIT compilation works correctly</li>
+<li>[ ] Performance competitive with PyTorch 深度学习框架（PyTorch）</li>
+<li>[ ] 推理（Inference） benchmarking accurate</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-task-5-">Task 5: Benchmarking Orchestrator (5-6 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/benchmark_runner.py
+
+from dataclasses import dataclass, asdict
+from typing import List, Dict, Optional
+from pathlib import Path
+import json
+import yaml
+from rich.console import Console
+from rich.progress import Progress, TaskID
+from rich.table import Table
+
+@dataclass
+class BenchmarkConfig:
+    &quot;&quot;&quot;Benchmark configuration&quot;&quot;&quot;
+    frameworks: List[str]  # [&quot;pytorch&quot;, &quot;tensorflow&quot;, &quot;jax&quot;]
+    models: List[str]  # [&quot;cnn&quot;, &quot;transformer&quot;, &quot;mlp&quot;]
+    devices: List[str]  # [&quot;cpu&quot;, &quot;cuda:0&quot;]
+    batch_sizes: List[int]  # [32, 64, 128]
+    num_epochs: int = 5
+    dataset: str = &quot;cifar10&quot;
+    precision: List[str] = None  # [&quot;fp32&quot;, &quot;fp16&quot;]
+
+    def __post_init__(self):
+        if self.precision is None:
+            self.precision = [&quot;fp32&quot;]
+
+class BenchmarkRunner:
+    &quot;&quot;&quot;Run comprehensive benchmarks&quot;&quot;&quot;
+
+    def __init__(self, config: BenchmarkConfig):
+        self.config = config
+        self.results: List[BenchmarkResult] = []
+        self.console = Console()
+
+    def run_all_benchmarks(self) -&gt; List[BenchmarkResult]:
+        &quot;&quot;&quot;
+        TODO: Run all benchmark combinations</code></pre></div>
+<p>total_benchmarks = ( len(self.config.frameworks) <em> len(self.config.models) </em> len(self.config.devices) <em> len(self.config.batch_sizes) </em> len(self.config.precision) )</p>
+<p>with Progress() as progress: task = progress.add_task( &quot;[green]Running benchmarks...&quot;, total=total_benchmarks )</p>
+<p>for framework in self.config.frameworks: for model in self.config.models: for device in self.config.devices: for batch_size in self.config.batch_sizes: for precision in self.config.precision: result = self.run_single_benchmark( framework, model, device, batch_size, precision ) self.results.append(result) progress.update(task, advance=1)</p>
+<p>return self.results</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def run_single_benchmark(
+        self,
+        framework: str,
+        model: str,
+        device: str,
+        batch_size: int,
+        precision: str
+    ) -&gt; BenchmarkResult:
+        &quot;&quot;&quot;
+        TODO: Run single benchmark
+
+        Steps:
+        1. Initialize framework implementation
+        2. Build model
+        3. Load dataset
+        4. Train for N epochs
+        5. Measure metrics
+        6. Benchmark inference
+        7. Return results
+        &quot;&quot;&quot;
+        pass
+
+    def save_results(self, output_dir: Path) -&gt; None:
+        &quot;&quot;&quot;
+        TODO: Save results to disk
+
+        Save as:
+        - results.json (raw data)
+        - results.csv (table format)
+        - report.html (formatted report)
+        &quot;&quot;&quot;
+        pass
+
+    def print_summary(self) -&gt; None:
+        &quot;&quot;&quot;
+        TODO: Print results summary table</code></pre></div>
+<p>table = Table(title=&quot;Benchmark Results Summary&quot;) table.add_column(&quot;Framework&quot;, style=&quot;cyan&quot;) table.add_column(&quot;Model&quot;, style=&quot;magenta&quot;) table.add_column(&quot;Device&quot;, style=&quot;green&quot;) table.add_column(&quot;Batch Size&quot;, justify=&quot;right&quot;) table.add_column(&quot;Train Time (s)&quot;, justify=&quot;right&quot;) table.add_column(&quot;Throughput (samples/s)&quot;, justify=&quot;right&quot;) table.add_column(&quot;Peak Memory (MB)&quot;, justify=&quot;right&quot;) table.add_column(&quot;推理（Inference） (ms)&quot;, justify=&quot;right&quot;)</p>
+<p>for result in self.results: table.add_row( result.framework, result.model_name, result.device, str(result.batch_size), f&quot;{result.total_train_time:.2f}&quot;, f&quot;{result.samples_per_second:.0f}&quot;, f&quot;{result.peak_memory_mb:.0f}&quot;, f&quot;{result.inference_latency_mean_ms:.2f}&quot; )</p>
+<p>self.console.print(table)</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] Runs all benchmark combinations</li>
+<li>[ ] Tracks progress with rich</li>
+<li>[ ] Saves results in multiple formats</li>
+<li>[ ] Generates summary tables</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-task-6-">Task 6: Visualization and Reporting (4-5 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/visualizer.py
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pathlib import Path
+from typing import List
+import pandas as pd
+
+class BenchmarkVisualizer:
+    &quot;&quot;&quot;Generate visualizations from benchmark results&quot;&quot;&quot;
+
+    def __init__(self, results: List[BenchmarkResult]):
+        self.results = results
+        self.df = pd.DataFrame([asdict(r) for r in results])
+
+    def plot_training_time_comparison(self, output: Path) -&gt; None:
+        &quot;&quot;&quot;
+        TODO: Plot training time comparison</code></pre></div>
+<p>fig, ax = plt.subplots(figsize=(12, 6))</p>
+<p>sns.barplot( data=self.df, x=&quot;model_name&quot;, y=&quot;total_train_time&quot;, hue=&quot;framework&quot;, ax=ax )</p>
+<p>ax.set_title(&quot;训练（Training） Time Comparison&quot;) ax.set_xlabel(&quot;Model&quot;) ax.set_ylabel(&quot;Time (seconds)&quot;) ax.legend(title=&quot;Framework&quot;)</p>
+<p>plt.tight_layout() plt.savefig(output / &quot;training_time.png&quot;, dpi=300) plt.close()</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def plot_throughput_comparison(self, output: Path) -&gt; None:
+        &quot;&quot;&quot;TODO: Plot samples/second comparison&quot;&quot;&quot;
+        pass
+
+    def plot_memory_usage(self, output: Path) -&gt; None:
+        &quot;&quot;&quot;TODO: Plot peak memory usage&quot;&quot;&quot;
+        pass
+
+    def plot_inference_latency(self, output: Path) -&gt; None:
+        &quot;&quot;&quot;TODO: Plot inference latency comparison&quot;&quot;&quot;
+        pass
+
+    def plot_gpu_vs_cpu(self, output: Path) -&gt; None:
+        &quot;&quot;&quot;
+        TODO: Plot GPU vs CPU speedup
+
+        Calculate speedup factor for each framework/model
+        &quot;&quot;&quot;
+        pass
+
+    def plot_batch_size_impact(self, output: Path) -&gt; None:
+        &quot;&quot;&quot;TODO: Plot how batch size affects throughput&quot;&quot;&quot;
+        pass
+
+    def generate_html_report(self, output: Path) -&gt; None:
+        &quot;&quot;&quot;
+        TODO: Generate comprehensive HTML report</code></pre></div>
+<p>html = f''' &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;head&gt; &lt;title&gt;ML Framework Benchmark Report&lt;/title&gt; &lt;style&gt; body {{ font-family: Arial, sans-serif; margin: 40px; }} table {{ border-collapse: collapse; width: 100%; }} th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }} th {{ background-color: #4CAF50; color: white; }} img {{ max-width: 100%; height: auto; margin: 20px 0; }} .recommendation {{ background: #e7f3fe; padding: 15px; margin: 20px 0; }} &lt;/style&gt; &lt;/head&gt; &lt;body&gt; &lt;h1&gt;ML Framework Benchmark Report&lt;/h1&gt;</p>
+<p>&lt;h2&gt;Configuration&lt;/h2&gt; &lt;ul&gt; &lt;li&gt;Frameworks: {&quot;, &quot;.join(self.df['framework'].unique())}&lt;/li&gt; &lt;li&gt;Models: {&quot;, &quot;.join(self.df['model_name'].unique())}&lt;/li&gt; &lt;li&gt;Devices: {&quot;, &quot;.join(self.df['device'].unique())}&lt;/li&gt; &lt;/ul&gt;</p>
+<p>&lt;h2&gt;Results Summary&lt;/h2&gt; {self.df.to_html()}</p>
+<p>&lt;h2&gt;Visualizations&lt;/h2&gt; &lt;img src=&quot;training_time.png&quot; alt=&quot;训练（Training） Time&quot;&gt; &lt;img src=&quot;throughput.png&quot; alt=&quot;Throughput&quot;&gt; &lt;img src=&quot;memory.png&quot; alt=&quot;Memory Usage&quot;&gt; &lt;img src=&quot;inference.png&quot; alt=&quot;推理（Inference） Latency&quot;&gt;</p>
+<p>&lt;h2&gt;Recommendations&lt;/h2&gt; &lt;div class=&quot;recommendation&quot;&gt; {self._generate_recommendations()} &lt;/div&gt; &lt;/body&gt; &lt;/html&gt; '''</p>
+<p>(output / &quot;report.html&quot;).write_text(html)</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def _generate_recommendations(self) -&gt; str:
+        &quot;&quot;&quot;
+        TODO: Generate framework recommendations
+
+        Analyze results and provide guidance:
+        - Best for training speed
+        - Best for inference latency
+        - Most memory efficient
+        - Best GPU utilization
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] All visualizations generate correctly</li>
+<li>[ ] HTML report is comprehensive</li>
+<li>[ ] Recommendations are data-driven</li>
+<li>[ ] Charts are publication-quality</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-deliver">交付物（Deliverables）</h4>
+<ol>
+<li><strong>Source Code</strong> (<code>src/</code>)</li>
+</ol>
+<ul>
+<li><code>framework_interface.py</code></li>
+<li><code>pytorch_impl.py</code></li>
+<li><code>tensorflow_impl.py</code></li>
+<li><code>jax_impl.py</code></li>
+<li><code>benchmark_runner.py</code></li>
+<li><code>visualizer.py</code></li>
+<li><code>cli.py</code></li>
+</ul>
+<ol>
+<li><strong>Configuration</strong> (<code>configs/</code>)</li>
+</ol>
+<ul>
+<li><code>benchmark_config.yaml</code> - Default configuration</li>
+<li><code>quick_test.yaml</code> - Fast benchmark for testing</li>
+<li><code>comprehensive.yaml</code> - Full benchmark suite</li>
+</ul>
+<ol>
+<li><strong>Tests</strong> (<code>tests/</code>)</li>
+</ol>
+<ul>
+<li>Unit tests for each framework</li>
+<li>Integration tests for benchmarking</li>
+<li>Mock tests for expensive operations</li>
+</ul>
+<ol>
+<li><strong>Documentation</strong></li>
+</ol>
+<ul>
+<li>README.md with usage examples</li>
+<li>RESULTS.md with sample benchmark results</li>
+<li>ANALYSIS.md with framework comparison analysis</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-cli-int">CLI Interface</h4>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Run all benchmarks
+mlbench run --config configs/benchmark_config.yaml
+
+# Run specific framework
+mlbench run --frameworks pytorch tensorflow
+
+# Run specific model
+mlbench run --models cnn --devices cuda:0
+
+# Quick test (1 epoch)
+mlbench run --config configs/quick_test.yaml
+
+# Generate report from existing results
+mlbench report --results results/benchmark_results.json --output report/
+
+# Compare two benchmark runs
+mlbench compare results1.json results2.json</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-evaluat">Evaluation Criteria</h4>
+<div class="table-wrap"><table><thead><tr><th>Criterion</th><th>Weight</th><th>Description</th></tr></thead><tbody><tr><td><strong>Correctness</strong></td><td>30%</td><td>Models train to similar accuracy</td></tr><tr><td><strong>Completeness</strong></td><td>25%</td><td>All frameworks implemented</td></tr><tr><td><strong>Benchmarking</strong></td><td>20%</td><td>Accurate, reproducible measurements</td></tr><tr><td><strong>Reporting</strong></td><td>15%</td><td>Clear visualizations and recommendations</td></tr><tr><td><strong>Code Quality</strong></td><td>10%</td><td>Clean, well-tested code</td></tr></tbody></table></div>
+<p><strong>Passing Score</strong>: 70% <strong>Excellence</strong>: 90%+</p>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-resourc">资源（Resources）</h4>
+<ul>
+<li><a href="https://pytorch.org/tutorials/recipes/recipes/benchmark.html">PyTorch 深度学习框架（PyTorch） Benchmarking</a></li>
+<li><a href="https://www.tensorflow.org/guide/profiler">TensorFlow 深度学习框架（TensorFlow） Profiler</a></li>
+<li><a href="https://jax.readthedocs.io/en/latest/async_dispatch.html">JAX Benchmarking</a></li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md-estimat">Estimated Time</h4>
+<ul>
+<li><strong>Task 1</strong> (Interface): 4-5 hours</li>
+<li><strong>Task 2</strong> (PyTorch): 3-4 hours</li>
+<li><strong>Task 3</strong> (TensorFlow): 3-4 hours</li>
+<li><strong>Task 4</strong> (JAX): 4-5 hours</li>
+<li><strong>Task 5</strong> (Orchestrator): 5-6 hours</li>
+<li><strong>Task 6</strong> (Visualization): 4-5 hours</li>
+<li><strong>Testing</strong>: 6-8 hours</li>
+<li><strong>Documentation</strong>: 2-3 hours</li>
+</ul>
+<p><strong>Total</strong>: 31-40 hours</p>
+<hr/>
+<p><strong>This exercise provides hands-on experience with production ML infrastructure decisions and benchmarking methodologies.</strong></p><p><a class="home" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-101-foundations.html#doc-lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-06-fastapi-ml-template-generator-readme-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

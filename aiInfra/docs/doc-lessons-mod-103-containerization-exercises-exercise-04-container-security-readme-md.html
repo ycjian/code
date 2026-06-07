@@ -1,0 +1,768 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Exercise 04: Container 安全（Security） Scanner</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Exercise 04: Container 安全（Security） Scanner</h1><p>Module 103: 容器化（Containerization） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Module 03: 容器化（Containerization） with Docker 容器（Docker）</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-resources-md.html">Module 03 Resources: 容器化（Containerization） with Docker 容器（Docker）</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lesson 01: Docker 容器（Docker） Introduction</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-02-dockerfile-ml-apps-md.html">Lesson 02: Dockerfiles for ML Applications</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-03-image-optimization-md.html">Lesson 03: Image Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-04-docker-networking-volumes-md.html">Lesson 04: Docker 容器（Docker） Networking and Volumes</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-05-docker-compose-md.html">Lesson 05: Docker 容器（Docker） Compose 多服务编排（Docker Compose） for ML Applications</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-06-container-registries-md.html">Lesson 06: Container Registries</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-07-gpu-docker-md.html">Lesson 07: GPU 加速（GPU） Support in Docker 容器（Docker）</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-08-production-best-practices-md.html">Lesson 08: 生产环境（Production） Best Practices</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-01-dockerfile-optimization-md.html">Lab 01: Dockerfile Optimization for ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-02-multi-stage-builds-md.html">Lab 02: Multi-Stage Builds for Slim 生产环境（Production） Images</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-03-docker-compose-stack-md.html">Lab 03: Compose a Multi-Service Stack</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-04-gpu-docker-md.html">Lab 04: Run a GPU 加速（GPU） Container with PyTorch 深度学习框架（PyTorch） CUDA 并行计算（CUDA）</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-05-private-registry-md.html">Lab 05: Stand Up a Private Container Registry</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-06-container-security-scanning-md.html">Lab 06: Security-Scan Images with Trivy</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Module 103 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-01-dockerfile-md.html">Exercise 01: Build Your First ML Dockerfile</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-02-multi-container-md.html">Exercise 02: Multi-Container ML Application</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-03-gpu-container-md.html">Exercise 03: GPU-Accelerated ML Container</a><a class="tree-doc active" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercise 04: Container 安全（Security） Scanner</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-05-image-optimizer-readme-md.html">Exercise 05: Multi-Stage Build Optimizer</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-06-registry-manager-readme-md.html">Exercise 06: Container Registry Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-07-buildkit-cache-optimization-readme-.html">Exercise 07: BuildKit Cache Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-08-multi-arch-builds-readme-md.html">Exercise 08: Multi-Architecture Builds (amd64 + arm64)</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-09-runtime-debugging-readme-md.html">Exercise 09: Container Runtime Debugging</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-10-sbom-and-supply-chain-readme-md.html">Exercise 10: SBOM and Container Supply Chain</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-11-ml-container-patterns-readme-md.html">Exercise 11: ML-Specific Container Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-12-vulnerability-remediation-readme-md.html">Exercise 12: Container Vulnerability Remediation Workflow</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Module 03 Quiz: 容器化（Containerization） with Docker 容器（Docker）</a></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Exercise 04: Container 安全（Security） Scanner</h2><p>Module 103: 容器化（Containerization） · Exercises: 课后练习</p><div class="stats"><div class="stat"><strong>12</strong><span>reading order</span></div><div class="stat"><strong>30</strong><span>chapter docs</span></div><div class="stat"><strong>1157</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md" data-title="exercise 04: container security scanner lessons/mod-103-containerization/exercises/exercise-04-container-security/readme.md exercises: 课后练习"><div class="doc-head"><span class="chip">12/30</span><span class="chip">Exercises</span><span class="path">lessons/mod-103-containerization/exercises/exercise-04-container-security/README.md</span><span class="path">1157 行</span></div><h2>Exercise 04: Container 安全（Security） Scanner</h2><p><a class="home" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-03-gpu-container-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-103-containerization.html#doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-05-image-optimizer-readme-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-exerci">Exercise 04: Container 安全（Security） Scanner</h3>
+<h4 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-learni">Learning Objectives</h4>
+<p>By completing this exercise, you will:</p>
+<ul>
+<li>Implement container vulnerability scanning</li>
+<li>Integrate security tools (Trivy, Snyk, Grype)</li>
+<li>Generate Software Bill of Materials (SBOM)</li>
+<li>Enforce security policies</li>
+<li>Automate security in CI/CD 持续集成与交付（CI/CD） pipelines</li>
+</ul>
+<h4 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-overvi">概览（Overview）</h4>
+<p>Container security is critical for production ML systems. This exercise builds a comprehensive security scanning tool that detects vulnerabilities, generates SBOMs, and enforces security policies before deployment.</p>
+<h4 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-prereq">前置要求（Prerequisites）</h4>
+<ul>
+<li>Docker 容器（Docker） and container knowledge</li>
+<li>Understanding of CVEs and security vulnerabilities</li>
+<li>Python 3.11+</li>
+<li>Familiarity with CI/CD 持续集成与交付（CI/CD） concepts</li>
+</ul>
+<h4 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-proble">Problem Statement</h4>
+<p>Build <code>containersec</code>, a security scanner that:</p>
+<ol>
+<li><strong>Scans container images</strong> for vulnerabilities</li>
+<li><strong>Generates SBOM</strong> (Software Bill of Materials)</li>
+<li><strong>Enforces security policies</strong> (block critical vulnerabilities)</li>
+<li><strong>Integrates with CI/CD 持续集成与交付（CI/CD）</strong> pipelines</li>
+<li><strong>Reports and tracks</strong> vulnerabilities over time</li>
+<li><strong>Recommends fixes</strong> and safer base images</li>
+</ol>
+<h4 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-requir">要求（Requirements）</h4>
+<h5 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-functi">Functional Requirements</h5>
+<h6 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-fr1-vu">FR1: Vulnerability Scanning</h6>
+<ul>
+<li>Scan images with multiple tools:</li>
+<li>Trivy (comprehensive, fast)</li>
+<li>Grype (Anchore)</li>
+<li>Snyk (commercial)</li>
+<li>Detect:</li>
+<li>OS package vulnerabilities</li>
+<li>Application dependency vulnerabilities</li>
+<li>Secrets in images</li>
+<li>Misconfigurations</li>
+<li>Support multiple image formats (Docker, OCI)</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-fr2-sb">FR2: SBOM Generation</h6>
+<ul>
+<li>Generate SBOM in standard formats:</li>
+<li>CycloneDX</li>
+<li>SPDX</li>
+<li>Syft format</li>
+<li>Include:</li>
+<li>Package inventory</li>
+<li>License information</li>
+<li>Dependency tree</li>
+<li>File checksums</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-fr3-po">FR3: Policy Enforcement</h6>
+<ul>
+<li>Define security policies:</li>
+<li>Maximum severity (no CRITICAL)</li>
+<li>CVE blocklist</li>
+<li>License restrictions</li>
+<li>Base image requirements</li>
+<li>Pass/fail decisions for CI/CD 持续集成与交付（CI/CD）</li>
+<li>Policy-as-code (YAML/Rego)</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-fr4-re">FR4: Reporting</h6>
+<ul>
+<li>Generate security reports:</li>
+<li>HTML reports with details</li>
+<li>JSON for automation</li>
+<li>SARIF for GitHub 安全（Security）</li>
+<li>Track vulnerabilities over time</li>
+<li>Compare scans (diff)</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-fr5-ci">FR5: CI/CD 持续集成与交付（CI/CD） Integration</h6>
+<ul>
+<li>GitHub Actions workflow</li>
+<li>GitLab CI integration</li>
+<li>Jenkins pipeline</li>
+<li>Pre-commit hooks</li>
+<li>Registry webhook integration</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-non-fu">Non-Functional Requirements</h5>
+<h6 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-nfr1-p">NFR1: Performance</h6>
+<ul>
+<li>Scan 1GB image in &lt; 2 minutes</li>
+<li>Cache scan results</li>
+<li>Parallel scanning</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-nfr2-a">NFR2: Accuracy</h6>
+<ul>
+<li>Low false positive rate</li>
+<li>Up-to-date vulnerability database</li>
+<li>Cross-reference multiple sources</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-nfr3-u">NFR3: Usability</h6>
+<ul>
+<li>Clear, actionable reports</li>
+<li>Remediation suggestions</li>
+<li>Developer-friendly output</li>
+</ul>
+<h4 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-implem">Implementation Tasks</h4>
+<h5 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-task-1">Task 1: Scanner Framework (4-5 hours)</h5>
+<p>Build the core scanning framework:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/scanner/base.py
+
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import List, Dict, Optional
+from datetime import datetime
+from enum import Enum
+
+class Severity(Enum):
+    &quot;&quot;&quot;Vulnerability severity&quot;&quot;&quot;
+    CRITICAL = &quot;CRITICAL&quot;
+    HIGH = &quot;HIGH&quot;
+    MEDIUM = &quot;MEDIUM&quot;
+    LOW = &quot;LOW&quot;
+    NEGLIGIBLE = &quot;NEGLIGIBLE&quot;
+    UNKNOWN = &quot;UNKNOWN&quot;
+
+@dataclass
+class Vulnerability:
+    &quot;&quot;&quot;Vulnerability information&quot;&quot;&quot;
+    cve_id: str
+    package_name: str
+    installed_version: str
+    fixed_version: Optional[str]
+    severity: Severity
+    description: str
+    cvss_score: Optional[float]
+    references: List[str]
+
+@dataclass
+class ScanResult:
+    &quot;&quot;&quot;Container scan result&quot;&quot;&quot;
+    image_name: str
+    image_digest: str
+    scan_time: datetime
+    scanner_name: str
+    scanner_version: str
+
+    vulnerabilities: List[Vulnerability]
+    total_vulns: int
+    critical_count: int
+    high_count: int
+    medium_count: int
+    low_count: int
+
+    # SBOM
+    sbom: Optional[Dict] = None
+
+    # Secrets found
+    secrets: List[Dict] = None
+
+    # Misconfigurations
+    misconfigs: List[Dict] = None
+
+    def passes_policy(self, policy: 'SecurityPolicy') -&gt; bool:
+        &quot;&quot;&quot;
+        TODO: Check if scan passes security policy</code></pre></div>
+<p># Check severity thresholds if self.critical_count &gt; policy.max_critical: return False if self.high_count &gt; policy.max_high: return False</p>
+<p># Check specific CVEs for vuln in self.vulnerabilities: if vuln.cve_id in policy.blocked_cves: return False</p>
+<p># Check secrets if self.secrets and not policy.allow_secrets: return False</p>
+<p>return True</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+@dataclass
+class SecurityPolicy:
+    &quot;&quot;&quot;Security policy&quot;&quot;&quot;
+    name: str
+    max_critical: int = 0
+    max_high: int = 5
+    max_medium: int = 20
+    allow_secrets: bool = False
+    blocked_cves: List[str] = None
+    required_base_images: List[str] = None
+    license_allowlist: List[str] = None
+
+    def __post_init__(self):
+        if self.blocked_cves is None:
+            self.blocked_cves = []
+        if self.license_allowlist is None:
+            self.license_allowlist = []
+
+class SecurityScanner(ABC):
+    &quot;&quot;&quot;Abstract security scanner&quot;&quot;&quot;
+
+    def __init__(self):
+        self.name = self.__class__.__name__
+        self.version = &quot;1.0.0&quot;
+
+    @abstractmethod
+    def scan_image(
+        self,
+        image: str,
+        include_sbom: bool = True
+    ) -&gt; ScanResult:
+        &quot;&quot;&quot;
+        Scan container image
+
+        TODO: Implement in subclasses
+        - Pull image if needed
+        - Run scanner
+        - Parse results
+        - Generate SBOM if requested
+        &quot;&quot;&quot;
+        pass
+
+    @abstractmethod
+    def scan_filesystem(
+        self,
+        path: str
+    ) -&gt; ScanResult:
+        &quot;&quot;&quot;Scan filesystem/directory&quot;&quot;&quot;
+        pass
+
+    @abstractmethod
+    def is_available(self) -&gt; bool:
+        &quot;&quot;&quot;Check if scanner is installed and available&quot;&quot;&quot;
+        pass
+
+    @abstractmethod
+    def get_version(self) -&gt; str:
+        &quot;&quot;&quot;Get scanner version&quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] Abstract scanner interface defined</li>
+<li>[ ] Vulnerability data model complete</li>
+<li>[ ] 安全（Security） policy model defined</li>
+<li>[ ] Policy enforcement logic implemented</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-task-2">Task 2: Trivy Integration (4-5 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/scanner/trivy.py
+
+import subprocess
+import json
+from pathlib import Path
+from typing import Optional
+from datetime import datetime
+
+class TrivyScanner(SecurityScanner):
+    &quot;&quot;&quot;Trivy vulnerability scanner&quot;&quot;&quot;
+
+    def __init__(self, cache_dir: Optional[Path] = None):
+        super().__init__()
+        self.cache_dir = cache_dir or Path.home() / &quot;.cache&quot; / &quot;trivy&quot;
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+    def is_available(self) -&gt; bool:
+        &quot;&quot;&quot;
+        TODO: Check if Trivy is installed</code></pre></div>
+<p>try: result = subprocess.run( [&quot;trivy&quot;, &quot;--version&quot;], capture_output=True, text=True ) return result.returncode == 0 except FileNotFoundError: return False</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def get_version(self) -&gt; str:
+        &quot;&quot;&quot;
+        TODO: Get Trivy version</code></pre></div>
+<p>result = subprocess.run( [&quot;trivy&quot;, &quot;--version&quot;], capture_output=True, text=True ) # Parse version from output return result.stdout.split()[1]</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def scan_image(
+        self,
+        image: str,
+        include_sbom: bool = True
+    ) -&gt; ScanResult:
+        &quot;&quot;&quot;
+        TODO: Scan image with Trivy</code></pre></div>
+<p># Run Trivy scan cmd = [ &quot;trivy&quot;, &quot;image&quot;, &quot;--format&quot;, &quot;json&quot;, &quot;--quiet&quot;, &quot;--cache-dir&quot;, str(self.cache_dir), image ]</p>
+<p>result = subprocess.run( cmd, capture_output=True, text=True, timeout=300  # 5 minute timeout )</p>
+<p>if result.returncode != 0: raise RuntimeError(f&quot;Trivy scan failed: {result.stderr}&quot;)</p>
+<p># Parse JSON output trivy_results = json.loads(result.stdout)</p>
+<p># Extract vulnerabilities vulnerabilities = [] for target in trivy_results.get(&quot;Results&quot;, []): for vuln in target.get(&quot;Vulnerabilities&quot;, []): vulnerabilities.append( Vulnerability( cve_id=vuln.get(&quot;VulnerabilityID&quot;), package_name=vuln.get(&quot;PkgName&quot;), installed_version=vuln.get(&quot;InstalledVersion&quot;), fixed_version=vuln.get(&quot;FixedVersion&quot;), severity=Severity[vuln.get(&quot;Severity&quot;, &quot;UNKNOWN&quot;)], description=vuln.get(&quot;Description&quot;, &quot;&quot;), cvss_score=self._parse_cvss(vuln), references=vuln.get(&quot;References&quot;, []) ) )</p>
+<p># Count by severity severity_counts = self._count_by_severity(vulnerabilities)</p>
+<p># Generate SBOM if requested sbom = self._generate_sbom(image) if include_sbom else None</p>
+<p># Scan for secrets secrets = self._scan_secrets(image)</p>
+<p># Scan for misconfigurations misconfigs = self._scan_misconfigs(image)</p>
+<p>return ScanResult( image_name=image, image_digest=self._get_image_digest(image), scan_time=datetime.now(), scanner_name=self.name, scanner_version=self.get_version(), vulnerabilities=vulnerabilities, total_vulns=len(vulnerabilities), critical_count=severity_counts.get(Severity.CRITICAL, 0), high_count=severity_counts.get(Severity.HIGH, 0), medium_count=severity_counts.get(Severity.MEDIUM, 0), low_count=severity_counts.get(Severity.LOW, 0), sbom=sbom, secrets=secrets, misconfigs=misconfigs )</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def scan_filesystem(self, path: str) -&gt; ScanResult:
+        &quot;&quot;&quot;
+        TODO: Scan filesystem with Trivy
+
+        Similar to scan_image but uses 'trivy fs' command
+        &quot;&quot;&quot;
+        pass
+
+    def _generate_sbom(self, image: str) -&gt; Dict:
+        &quot;&quot;&quot;
+        TODO: Generate SBOM using Trivy</code></pre></div>
+<p>cmd = [ &quot;trivy&quot;, &quot;image&quot;, &quot;--format&quot;, &quot;cyclonedx&quot;, &quot;--quiet&quot;, image ]</p>
+<p>result = subprocess.run( cmd, capture_output=True, text=True )</p>
+<p>return json.loads(result.stdout)</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def _scan_secrets(self, image: str) -&gt; List[Dict]:
+        &quot;&quot;&quot;
+        TODO: Scan for secrets in image</code></pre></div>
+<p>cmd = [ &quot;trivy&quot;, &quot;image&quot;, &quot;--scanners&quot;, &quot;secret&quot;, &quot;--format&quot;, &quot;json&quot;, &quot;--quiet&quot;, image ]</p>
+<p>result = subprocess.run(cmd, capture_output=True, text=True) data = json.loads(result.stdout)</p>
+<p>secrets = [] for target in data.get(&quot;Results&quot;, []): for secret in target.get(&quot;Secrets&quot;, []): secrets.append({ &quot;category&quot;: secret.get(&quot;Category&quot;), &quot;severity&quot;: secret.get(&quot;Severity&quot;), &quot;file&quot;: target.get(&quot;Target&quot;), &quot;line&quot;: secret.get(&quot;StartLine&quot;) })</p>
+<p>return secrets</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def _scan_misconfigs(self, image: str) -&gt; List[Dict]:
+        &quot;&quot;&quot;
+        TODO: Scan for misconfigurations
+
+        Check for:
+        - Running as root
+        - Exposed sensitive ports
+        - Insecure configurations
+        &quot;&quot;&quot;
+        pass
+
+    def _parse_cvss(self, vuln: Dict) -&gt; Optional[float]:
+        &quot;&quot;&quot;TODO: Parse CVSS score from vulnerability&quot;&quot;&quot;
+        pass
+
+    def _count_by_severity(
+        self,
+        vulnerabilities: List[Vulnerability]
+    ) -&gt; Dict[Severity, int]:
+        &quot;&quot;&quot;TODO: Count vulnerabilities by severity&quot;&quot;&quot;
+        pass
+
+    def _get_image_digest(self, image: str) -&gt; str:
+        &quot;&quot;&quot;
+        TODO: Get image digest</code></pre></div>
+<p>result = subprocess.run( [&quot;docker&quot;, &quot;inspect&quot;, &quot;--format={{.RepoDigests}}&quot;, image], capture_output=True, text=True ) return result.stdout.strip()</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] Trivy scanner fully integrated</li>
+<li>[ ] Scans images and filesystems</li>
+<li>[ ] Generates SBOM</li>
+<li>[ ] Detects secrets</li>
+<li>[ ] Identifies misconfigurations</li>
+<li>[ ] Handles errors gracefully</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-task-3">Task 3: Multi-Scanner Aggregator (4-5 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/scanner/aggregator.py
+
+from typing import List, Dict
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from .trivy import TrivyScanner
+from .grype import GrypeScan ner  # Similar implementation
+from .snyk import SnykScanner  # Similar implementation
+
+class ScannerAggregator:
+    &quot;&quot;&quot;Aggregate results from multiple scanners&quot;&quot;&quot;
+
+    def __init__(self):
+        self.scanners = {
+            'trivy': TrivyScanner(),
+            'grype': GrypeScanner(),
+            'snyk': SnykScanner()
+        }
+
+    def scan_with_all(
+        self,
+        image: str,
+        parallel: bool = True
+    ) -&gt; Dict[str, ScanResult]:
+        &quot;&quot;&quot;
+        TODO: Scan with all available scanners</code></pre></div>
+<p>results = {} available_scanners = { name: scanner for name, scanner in self.scanners.items() if scanner.is_available() }</p>
+<p>if not available_scanners: raise RuntimeError(&quot;No scanners available&quot;)</p>
+<p>if parallel: with ThreadPoolExecutor(max_workers=3) as executor: futures = { executor.submit(scanner.scan_image, image): name for name, scanner in available_scanners.items() }</p>
+<p>for future in as_completed(futures): scanner_name = futures[future] try: results[scanner_name] = future.result() except Exception as e: print(f&quot;Scanner {scanner_name} failed: {e}&quot;) else: for name, scanner in available_scanners.items(): try: results[name] = scanner.scan_image(image) except Exception as e: print(f&quot;Scanner {name} failed: {e}&quot;)</p>
+<p>return results</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def aggregate_results(
+        self,
+        results: Dict[str, ScanResult]
+    ) -&gt; ScanResult:
+        &quot;&quot;&quot;
+        TODO: Aggregate results from multiple scanners
+
+        Strategy:
+        - Union of all vulnerabilities
+        - Deduplicate by CVE ID
+        - Take highest severity if conflict
+        - Combine SBOMs
+        &quot;&quot;&quot;
+        pass
+
+    def compare_scanners(
+        self,
+        results: Dict[str, ScanResult]
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        TODO: Compare scanner results
+
+        Generate report showing:
+        - Unique vulnerabilities found by each scanner
+        - Common vulnerabilities
+        - Disagreements on severity
+        - Performance (scan time)
+        &quot;&quot;&quot;
+        pass
+
+    def recommend_fixes(
+        self,
+        scan_result: ScanResult
+    ) -&gt; List[Dict]:
+        &quot;&quot;&quot;
+        TODO: Recommend vulnerability fixes</code></pre></div>
+<p>recommendations = []</p>
+<p># Group vulnerabilities by package by_package = {} for vuln in scan_result.vulnerabilities: by_package.setdefault(vuln.package_name, []).append(vuln)</p>
+<p># Recommend upgrades for package, vulns in by_package.items(): # Find minimum version that fixes all vulnerabilities fixed_versions = [ v.fixed_version for v in vulns if v.fixed_version ]</p>
+<p>if fixed_versions: recommended_version = max(fixed_versions) recommendations.append({ &quot;type&quot;: &quot;upgrade&quot;, &quot;package&quot;: package, &quot;current_version&quot;: vulns[0].installed_version, &quot;recommended_version&quot;: recommended_version, &quot;fixes&quot;: len(vulns), &quot;critical_fixes&quot;: sum( 1 for v in vulns if v.severity == Severity.CRITICAL ) })</p>
+<p># Recommend base image changes base_image_rec = self._recommend_base_image(scan_result) if base_image_rec: recommendations.append(base_image_rec)</p>
+<p>return sorted( recommendations, key=lambda r: r.get(&quot;critical_fixes&quot;, 0), reverse=True )</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def _recommend_base_image(self, scan_result: ScanResult) -&gt; Optional[Dict]:
+        &quot;&quot;&quot;
+        TODO: Recommend safer base image
+
+        Suggest:
+        - Distroless images
+        - Slim/alpine variants
+        - Newer versions
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] Runs multiple scanners in parallel</li>
+<li>[ ] Aggregates results intelligently</li>
+<li>[ ] Compares scanner effectiveness</li>
+<li>[ ] Provides fix recommendations</li>
+<li>[ ] Suggests safer base images</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-task-4">Task 4: Policy Engine (3-4 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/policy/engine.py
+
+import yaml
+from pathlib import Path
+from typing import Dict, List
+from dataclasses import asdict
+
+class PolicyEngine:
+    &quot;&quot;&quot;Enforce security policies&quot;&quot;&quot;
+
+    def __init__(self, policy_file: Optional[Path] = None):
+        self.policies = {}
+        if policy_file:
+            self.load_policies(policy_file)
+
+    def load_policies(self, policy_file: Path) -&gt; None:
+        &quot;&quot;&quot;
+        TODO: Load policies from YAML
+
+        policies.yaml format:</code></pre></div>
+<p>policies:</p>
+<ul>
+<li>name: production</li>
+<p>max_critical: 0 max_high: 0 max_medium: 10 allow_secrets: false blocked_cves:</p>
+<li>CVE-2021-44228  # Log4Shell</li>
+<li>CVE-2021-45046</li>
+<p>required_base_images:</p>
+<li>&quot;gcr.io/distroless/.*&quot;</li>
+<li>&quot;python:.*-slim&quot;</li>
+</ul>
+<ul>
+<li>name: development</li>
+<p>max_critical: 5 max_high: 20 allow_secrets: false</p>
+</ul>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def evaluate(
+        self,
+        scan_result: ScanResult,
+        policy_name: str = &quot;production&quot;
+    ) -&gt; Dict[str, any]:
+        &quot;&quot;&quot;
+        TODO: Evaluate scan against policy</code></pre></div>
+<p>policy = self.policies.get(policy_name) if not policy: raise ValueError(f&quot;Policy '{policy_name}' not found&quot;)</p>
+<p>violations = []</p>
+<p># Check severity thresholds if scan_result.critical_count &gt; policy.max_critical: violations.append({ &quot;rule&quot;: &quot;max_critical&quot;, &quot;limit&quot;: policy.max_critical, &quot;actual&quot;: scan_result.critical_count, &quot;severity&quot;: &quot;critical&quot; })</p>
+<p>if scan_result.high_count &gt; policy.max_high: violations.append({ &quot;rule&quot;: &quot;max_high&quot;, &quot;limit&quot;: policy.max_high, &quot;actual&quot;: scan_result.high_count, &quot;severity&quot;: &quot;high&quot; })</p>
+<p># Check blocked CVEs for vuln in scan_result.vulnerabilities: if vuln.cve_id in policy.blocked_cves: violations.append({ &quot;rule&quot;: &quot;blocked_cve&quot;, &quot;cve&quot;: vuln.cve_id, &quot;package&quot;: vuln.package_name, &quot;severity&quot;: &quot;critical&quot; })</p>
+<p># Check secrets if scan_result.secrets and not policy.allow_secrets: violations.append({ &quot;rule&quot;: &quot;no_secrets&quot;, &quot;count&quot;: len(scan_result.secrets), &quot;severity&quot;: &quot;critical&quot; })</p>
+<p>passed = len(violations) == 0</p>
+<p>return { &quot;policy&quot;: policy_name, &quot;passed&quot;: passed, &quot;violations&quot;: violations, &quot;scan_summary&quot;: { &quot;critical&quot;: scan_result.critical_count, &quot;high&quot;: scan_result.high_count, &quot;medium&quot;: scan_result.medium_count, &quot;low&quot;: scan_result.low_count } }</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def generate_policy_report(
+        self,
+        evaluation: Dict
+    ) -&gt; str:
+        &quot;&quot;&quot;
+        TODO: Generate human-readable policy report</code></pre></div>
+<p>安全（Security） Policy Evaluation: production Status: FAILED ❌</p>
+<p>Violations:</p>
+<ol>
+<li>[CRITICAL] max_critical: 3 critical vulnerabilities found (limit: 0)</li>
+<li>[CRITICAL] blocked_cve: CVE-2021-44228 found in log4j-core:2.14.1</li>
+<li>[HIGH] max_high: 8 high vulnerabilities found (limit: 5)</li>
+</ol>
+<p>Scan Summary:</p>
+<ul>
+<li>Critical: 3</li>
+<li>High: 8</li>
+<li>Medium: 15</li>
+<li>Low: 42</li>
+</ul>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def create_opa_policy(self, policy: SecurityPolicy) -&gt; str:
+        &quot;&quot;&quot;
+        TODO: Convert to OPA (Open Policy Agent) Rego policy
+
+        For advanced use cases with Kubernetes admission controllers
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] Loads policies from YAML</li>
+<li>[ ] Evaluates scans against policies</li>
+<li>[ ] Generates violation reports</li>
+<li>[ ] Supports multiple policy profiles</li>
+<li>[ ] OPA policy generation (bonus)</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-task-5">Task 5: Reporting and Visualization (4-5 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/reporting/generator.py
+
+from pathlib import Path
+from typing import List, Dict
+from datetime import datetime
+import json
+from jinja2 import Template
+import plotly.graph_objects as go
+
+class SecurityReporter:
+    &quot;&quot;&quot;Generate security reports&quot;&quot;&quot;
+
+    def __init__(self, output_dir: Path):
+        self.output_dir = output_dir
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def generate_html_report(
+        self,
+        scan_result: ScanResult,
+        policy_evaluation: Dict,
+        output_file: str = &quot;security-report.html&quot;
+    ) -&gt; Path:
+        &quot;&quot;&quot;
+        TODO: Generate comprehensive HTML report
+
+        Include:
+        - Executive summary
+        - Vulnerability table (sortable, filterable)
+        - Charts (by severity, by package)
+        - SBOM viewer
+        - Remediation recommendations
+        - Policy violations
+        &quot;&quot;&quot;
+        pass
+
+    def generate_sarif(
+        self,
+        scan_result: ScanResult,
+        output_file: str = &quot;results.sarif&quot;
+    ) -&gt; Path:
+        &quot;&quot;&quot;
+        TODO: Generate SARIF format for GitHub Security</code></pre></div>
+<p>sarif = { &quot;version&quot;: &quot;2.1.0&quot;, &quot;$schema&quot;: &quot;https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json&quot;, &quot;runs&quot;: [ { &quot;tool&quot;: { &quot;driver&quot;: { &quot;name&quot;: scan_result.scanner_name, &quot;version&quot;: scan_result.scanner_version } }, &quot;results&quot;: [ { &quot;ruleId&quot;: vuln.cve_id, &quot;level&quot;: self._severity_to_sarif_level(vuln.severity), &quot;message&quot;: { &quot;text&quot;: f&quot;{vuln.package_name} has vulnerability {vuln.cve_id}&quot; }, &quot;locations&quot;: [ { &quot;physicalLocation&quot;: { &quot;artifactLocation&quot;: { &quot;uri&quot;: scan_result.image_name } } } ] } for vuln in scan_result.vulnerabilities ] } ] }</p>
+<p>output_path = self.output_dir / output_file with open(output_path, 'w') as f: json.dump(sarif, f, indent=2)</p>
+<p>return output_path</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def generate_json_report(
+        self,
+        scan_result: ScanResult,
+        output_file: str = &quot;scan-results.json&quot;
+    ) -&gt; Path:
+        &quot;&quot;&quot;TODO: Generate JSON report for automation&quot;&quot;&quot;
+        pass
+
+    def generate_trend_report(
+        self,
+        scan_history: List[ScanResult],
+        output_file: str = &quot;trend-report.html&quot;
+    ) -&gt; Path:
+        &quot;&quot;&quot;
+        TODO: Generate trend report
+
+        Show vulnerability trends over time:
+        - Total vulnerabilities
+        - By severity
+        - New vs fixed
+        - MTTR (Mean Time To Remediate)
+        &quot;&quot;&quot;
+        pass
+
+    def plot_vulnerabilities_by_severity(
+        self,
+        scan_result: ScanResult
+    ) -&gt; go.Figure:
+        &quot;&quot;&quot;
+        TODO: Plot vulnerabilities by severity</code></pre></div>
+<p>severities = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] counts = [ scan_result.critical_count, scan_result.high_count, scan_result.medium_count, scan_result.low_count ] colors = ['#DC3545', '#FD7E14', '#FFC107', '#28A745']</p>
+<p>fig = go.Figure(data=[ go.Bar( x=severities, y=counts, marker_color=colors ) ])</p>
+<p>fig.update_layout( title='Vulnerabilities by Severity', xaxis_title='Severity', yaxis_title='Count' )</p>
+<p>return fig</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def compare_scans(
+        self,
+        old_scan: ScanResult,
+        new_scan: ScanResult
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        TODO: Compare two scans
+
+        Return:
+        - New vulnerabilities
+        - Fixed vulnerabilities
+        - Changed severities
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] HTML report with interactive elements</li>
+<li>[ ] SARIF format for GitHub</li>
+<li>[ ] JSON for automation</li>
+<li>[ ] Trend analysis</li>
+<li>[ ] Scan comparison</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-task-6">Task 6: CI/CD 持续集成与交付（CI/CD） Integration (3-4 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/cicd/github_action.py
+
+from pathlib import Path
+from typing import Optional
+
+class GitHubActionsIntegration:
+    &quot;&quot;&quot;Generate GitHub Actions workflow&quot;&quot;&quot;
+
+    @staticmethod
+    def generate_workflow(
+        policy_file: str = &quot;.security-policy.yaml&quot;,
+        fail_on_violation: bool = True,
+        upload_sarif: bool = True
+    ) -&gt; str:
+        &quot;&quot;&quot;
+        TODO: Generate GitHub Actions workflow</code></pre></div>
+<p>name: Container 安全（Security） Scan</p>
+<p>on: push: branches: [ main, develop ] pull_request: branches: [ main ]</p>
+<p>jobs: security-scan: runs-on: ubuntu-latest</p>
+<p>steps:</p>
+<ul>
+<li>uses: actions/checkout@v3</li>
+</ul>
+<ul>
+<li>name: Build Docker 容器（Docker） image</li>
+<p>run: docker build -t ${{ github.repository }}:${{ github.sha }} .</p>
+</ul>
+<ul>
+<li>name: Run Trivy scan</li>
+<p>uses: aquasecurity/trivy-action@master with: image-ref: ${{ github.repository }}:${{ github.sha }} format: 'sarif' output: 'trivy-results.sarif'</p>
+</ul>
+<ul>
+<li>name: Upload SARIF to GitHub 安全（Security）</li>
+<p>uses: github/codeql-action/upload-sarif@v2 with: sarif_file: 'trivy-results.sarif'</p>
+</ul>
+<ul>
+<li>name: Run policy check</li>
+<p>run: | python -m containersec check \\ --image ${{ github.repository }}:${{ github.sha }} \\ --policy {{ policy_file }} \\ --fail-on-violation</p>
+</ul>
+<ul>
+<li>name: Generate report</li>
+<p>if: always() run: | python -m containersec report \\ --image ${{ github.repository }}:${{ github.sha }} \\ --output security-report.html</p>
+</ul>
+<ul>
+<li>name: Upload report</li>
+<p>if: always() uses: actions/upload-artifact@v3 with: name: security-report path: security-report.html</p>
+</ul>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] GitHub Actions workflow generated</li>
+<li>[ ] GitLab CI template created</li>
+<li>[ ] Jenkins pipeline example</li>
+<li>[ ] Pre-commit hook script</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-cli-in">CLI Interface</h4>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Scan image
+containersec scan myapp:latest
+
+# Scan with specific scanner
+containersec scan --scanner trivy myapp:latest
+
+# Scan with all scanners
+containersec scan --all myapp:latest
+
+# Check against policy
+containersec check --policy production myapp:latest
+
+# Generate SBOM
+containersec sbom --format cyclonedx myapp:latest
+
+# Generate report
+containersec report --format html myapp:latest
+
+# Compare scans
+containersec diff old-scan.json new-scan.json
+
+# Setup CI/CD
+containersec setup github</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-delive">交付物（Deliverables）</h4>
+<ol>
+<li><strong>Scanner implementations</strong></li>
+<li><strong>Policy engine</strong></li>
+<li><strong>Reporting tools</strong></li>
+<li><strong>CI/CD 持续集成与交付（CI/CD） integrations</strong></li>
+<li><strong>Documentation</strong></li>
+<li><strong>Tests</strong></li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-evalua">Evaluation Criteria</h4>
+<div class="table-wrap"><table><thead><tr><th>Criterion</th><th>Weight</th></tr></thead><tbody><tr><td><strong>Accuracy</strong></td><td>30%</td></tr><tr><td><strong>Completeness</strong></td><td>25%</td></tr><tr><td><strong>Policy Enforcement</strong></td><td>20%</td></tr><tr><td><strong>CI/CD 持续集成与交付（CI/CD） Integration</strong></td><td>15%</td></tr><tr><td><strong>Code Quality</strong></td><td>10%</td></tr></tbody></table></div>
+<p><strong>Passing</strong>: 70%+ <strong>Excellence</strong>: 90%+</p>
+<hr/>
+<h4 id="lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md-estima">Estimated Time</h4>
+<ul>
+<li>Task 1: 4-5 hours</li>
+<li>Task 2: 4-5 hours</li>
+<li>Task 3: 4-5 hours</li>
+<li>Task 4: 3-4 hours</li>
+<li>Task 5: 4-5 hours</li>
+<li>Task 6: 3-4 hours</li>
+<li>Testing: 4-5 hours</li>
+<li>Documentation: 2-3 hours</li>
+</ul>
+<p><strong>Total</strong>: 28-36 hours</p>
+<hr/>
+<p><strong>This exercise teaches critical container security skills for production ML infrastructure.</strong></p><p><a class="home" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-03-gpu-container-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-103-containerization.html#doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-05-image-optimizer-readme-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

@@ -1,0 +1,2206 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 08: 生产环境（Production） 大语言模型（LLM） Best Practices</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 08: 生产环境（Production） 大语言模型（LLM） Best Practices</h1><p>Module 110: LLM 基础设施（LLM Infrastructure） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-resources-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure） - Resources</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lesson 01: Introduction to 大语言模型（LLM） 基础设施（LLM Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-02-vllm-deployment-md.html">Lesson 02: vLLM 推理服务（vLLM） 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-03-rag-systems-md.html">Lesson 03: 检索增强生成（RAG） Systems (Retrieval-Augmented Generation)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-04-vector-databases-md.html">Lesson 04: Vector Databases</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-05-llm-fine-tuning-infrastructure-md.html">Lesson 05: 大语言模型（LLM） Fine-Tuning Infrastructure</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md.html">Lesson 06: 大语言模型（LLM） Serving Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-07-llm-platform-architecture-md.html">Lesson 07: 大语言模型（LLM） Platform Architecture</a><a class="tree-doc active" href="../docs/doc-lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md.html">Lesson 08: 生产环境（Production） 大语言模型（LLM） Best Practices</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-01-vllm-deployment-md.html">Lab 01: Deploy an 大语言模型（LLM） with vLLM 推理服务（vLLM）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-02-rag-pipeline-md.html">Lab 02: Build a 检索增强生成（RAG） Pipeline End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-03-vector-db-qdrant-md.html">Lab 03: Stand Up a 向量数据库（Vector Database） (Qdrant)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-04-lora-finetune-md.html">Lab 04: LoRA Fine-Tune a Small Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-05-streaming-responses-md.html">Lab 05: Streaming Responses to Clients</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-06-cost-monitoring-md.html">Lab 06: Cost Tracking and Budget Alerts</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-07-prompt-injection-defense-md.html">Lab 07: Prompt-Injection Defenses</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-08-multi-model-serving-md.html">Lab 08: Multi-Model Serving with Intelligent Routing</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Module 110 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercise 01: 生产环境（Production） 大语言模型（LLM） Serving Platform (vLLM + Kubernetes 容器编排（Kubernetes）)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md.html">Exercise 02: 生产环境（Production） 检索增强生成（RAG） System (Retrieval-Augmented Generation)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-03-vllm-deep-dive-readme-md.html">Exercise 03: vLLM 推理服务（vLLM） Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-04-vector-db-benchmarking-readme-md.html">Exercise 04: 向量数据库（Vector Database） Benchmarking</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-05-finetuning-at-scale-readme-md.html">Exercise 05: Fine-Tuning at Scale (LoRA + QLoRA + Distributed)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-06-inference-optimization-llm-readme.html">Exercise 06: 大语言模型（LLM） 推理（Inference） Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-07-multi-tenant-llm-platform-readme-.html">Exercise 07: Multi-Tenant 大语言模型（LLM） Platform</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-08-llm-cost-routing-readme-md.html">Exercise 08: Cost-Aware 大语言模型（LLM） Routing</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-09-llm-observability-readme-md.html">Exercise 09: LLM-Specific 可观测性（Observability）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-10-prompt-management-readme-md.html">Exercise 10: Prompt Management and Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-11-llm-guardrails-readme-md.html">Exercise 11: 大语言模型（LLM） Guardrails (Injection, Moderation, Output Filtering)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-12-llm-evaluation-harness-readme-md.html">Exercise 12: 大语言模型（LLM） Evaluation Infrastructure</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-13-semantic-caching-readme-md.html">Exercise 13: Semantic Caching for LLMs</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-14-hybrid-retrieval-reranking-readme.html">Exercise 14: Hybrid Retrieval + Reranking Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-readme-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure） - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 08: 生产环境（Production） 大语言模型（LLM） Best Practices</h2><p>Module 110: LLM 基础设施（LLM Infrastructure） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>8</strong><span>reading order</span></div><div class="stat"><strong>35</strong><span>chapter docs</span></div><div class="stat"><strong>2276</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md" data-title="lesson 08: production llm best practices lessons/mod-110-llm-infrastructure/08-production-llm-best-practices.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">8/35</span><span class="chip">Lectures</span><span class="path">lessons/mod-110-llm-infrastructure/08-production-llm-best-practices.md</span><span class="path">2276 行</span></div><h2>Lesson 08: 生产环境（Production） 大语言模型（LLM） Best Practices</h2><p><a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-07-llm-platform-architecture-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-110-llm-infrastructure.html#doc-lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-lesson-08-productio">Lesson 08: 生产环境（Production） 大语言模型（LLM） Best Practices</h3>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-table-of-contents">Table of Contents</h4>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#production-readiness-checklist">生产环境（Production） Readiness Checklist</a></li>
+<li><a href="#high-availability-and-fault-tolerance">High Availability and Fault Tolerance</a></li>
+<li><a href="#disaster-recovery-strategies">Disaster Recovery Strategies</a></li>
+<li><a href="#blue-green-deployments">Blue-Green Deployments</a></li>
+<li><a href="#canary-deployments">Canary Deployments</a></li>
+<li><a href="#ab-testing-frameworks">A/B 测试（A/B Testing） Frameworks</a></li>
+<li><a href="#prompt-engineering-best-practices">Prompt Engineering Best Practices</a></li>
+<li><a href="#safety-and-content-filtering">Safety and Content Filtering</a></li>
+<li><a href="#pii-detection-and-redaction">PII Detection and Redaction</a></li>
+<li><a href="#gdpr-and-data-privacy">GDPR and Data Privacy</a></li>
+<li><a href="#model-versioning-strategies">Model Versioning Strategies</a></li>
+<li><a href="#incident-response-and-on-call">事故响应（Incident Response） and On-Call</a></li>
+<li><a href="#cost-optimization-in-production">Cost Optimization in 生产环境（Production）</a></li>
+<li><a href="#team-organization">Team Organization</a></li>
+<li><a href="#documentation-standards">Documentation Standards</a></li>
+<li><a href="#lessons-from-production">Lessons from 生产环境（Production）</a></li>
+<li><a href="#summary">Summary</a></li>
+</ol>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-introduction">Introduction</h4>
+<p>Deploying and operating LLMs in production requires careful attention to reliability, safety, cost, and compliance. This lesson provides comprehensive best practices learned from real-world 大语言模型（LLM） deployments.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-learning-objectives">Learning Objectives</h5>
+<p>After completing this lesson, you will be able to:</p>
+<ul>
+<li>Assess production readiness for 大语言模型（LLM） systems</li>
+<li>Implement high availability and disaster recovery</li>
+<li>Deploy models safely with blue-green and canary strategies</li>
+<li>Build A/B testing frameworks for 大语言模型（LLM） improvements</li>
+<li>Apply prompt engineering best practices</li>
+<li>Implement safety guardrails and content filtering</li>
+<li>Detect and redact PII automatically</li>
+<li>Ensure GDPR and privacy compliance</li>
+<li>Manage model versions effectively</li>
+<li>Handle incidents and maintain on-call operations</li>
+<li>Optimize costs in production environments</li>
+<li>Structure teams for 大语言模型（LLM） operations</li>
+<li>Maintain comprehensive documentation</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-production-readines">生产环境（Production） Readiness Checklist</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-comprehensive-readi">Comprehensive Readiness Assessment</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># production_readiness.py - Production readiness checker
+from typing import Dict, List, Optional
+from dataclasses import dataclass
+from enum import Enum
+
+class CheckStatus(Enum):
+    PASS = &quot;✓ PASS&quot;
+    FAIL = &quot;✗ FAIL&quot;
+    WARN = &quot;⚠ WARN&quot;
+    SKIP = &quot;○ SKIP&quot;
+
+@dataclass
+class ReadinessCheck:
+    &quot;&quot;&quot;Single readiness check&quot;&quot;&quot;
+    name: str
+    category: str
+    status: CheckStatus
+    details: str
+    remediation: Optional[str] = None
+
+class ProductionReadinessChecker:
+    &quot;&quot;&quot;
+    Comprehensive production readiness checker for LLM systems
+    &quot;&quot;&quot;
+    def __init__(self):
+        self.checks: List[ReadinessCheck] = []
+        
+    def check_performance(self):
+        &quot;&quot;&quot;Check performance requirements&quot;&quot;&quot;
+        checks = [
+            {
+                'name': 'Latency SLA',
+                'requirement': 'p95 latency &lt; 2 seconds',
+                'test': lambda: self._test_latency()
+            },
+            {
+                'name': 'Throughput',
+                'requirement': 'Handle 100 req/sec',
+                'test': lambda: self._test_throughput()
+            },
+            {
+                'name': 'GPU Utilization',
+                'requirement': '&gt;70% average utilization',
+                'test': lambda: self._test_gpu_utilization()
+            },
+        ]
+        
+        for check in checks:
+            passed, details = check['test']()
+            status = CheckStatus.PASS if passed else CheckStatus.FAIL
+            
+            self.checks.append(ReadinessCheck(
+                name=check['name'],
+                category='Performance',
+                status=status,
+                details=details,
+                remediation=check['requirement'] if not passed else None
+            ))
+    
+    def check_reliability(self):
+        &quot;&quot;&quot;Check reliability requirements&quot;&quot;&quot;
+        checks = [
+            ('High Availability', self._test_ha, 'Deploy multi-AZ'),
+            ('Health Checks', self._test_health_checks, 'Implement health endpoints'),
+            ('Circuit Breakers', self._test_circuit_breakers, 'Add circuit breaker pattern'),
+            ('Retry Logic', self._test_retry_logic, 'Implement exponential backoff'),
+            ('Graceful Degradation', self._test_degradation, 'Add fallback mechanisms'),
+        ]
+        
+        for name, test_func, remediation in checks:
+            passed, details = test_func()
+            status = CheckStatus.PASS if passed else CheckStatus.FAIL
+            
+            self.checks.append(ReadinessCheck(
+                name=name,
+                category='Reliability',
+                status=status,
+                details=details,
+                remediation=remediation if not passed else None
+            ))
+    
+    def check_monitoring(self):
+        &quot;&quot;&quot;Check monitoring and observability&quot;&quot;&quot;
+        checks = [
+            ('Prometheus Metrics', self._test_metrics, 'Set up Prometheus'),
+            ('Grafana Dashboards', self._test_dashboards, 'Create monitoring dashboards'),
+            ('Alerting', self._test_alerting, 'Configure PagerDuty/Opsgenie'),
+            ('Distributed Tracing', self._test_tracing, 'Implement Jaeger/Zipkin'),
+            ('Log Aggregation', self._test_logging, 'Set up ELK stack'),
+            ('Cost Tracking', self._test_cost_tracking, 'Implement cost monitoring'),
+        ]
+        
+        for name, test_func, remediation in checks:
+            passed, details = test_func()
+            status = CheckStatus.PASS if passed else CheckStatus.FAIL
+            
+            self.checks.append(ReadinessCheck(
+                name=name,
+                category='Monitoring',
+                status=status,
+                details=details,
+                remediation=remediation if not passed else None
+            ))
+    
+    def check_security(self):
+        &quot;&quot;&quot;Check security requirements&quot;&quot;&quot;
+        checks = [
+            ('Authentication', self._test_auth, 'Implement JWT/OAuth'),
+            ('Rate Limiting', self._test_rate_limiting, 'Add rate limiting'),
+            ('Input Validation', self._test_input_validation, 'Validate all inputs'),
+            ('PII Detection', self._test_pii_detection, 'Implement PII detection'),
+            ('Encryption at Rest', self._test_encryption_rest, 'Enable encryption'),
+            ('Encryption in Transit', self._test_encryption_transit, 'Use TLS 1.3'),
+            ('Secrets Management', self._test_secrets, 'Use Vault/Secrets Manager'),
+        ]
+        
+        for name, test_func, remediation in checks:
+            passed, details = test_func()
+            status = CheckStatus.PASS if passed else CheckStatus.FAIL
+            
+            self.checks.append(ReadinessCheck(
+                name=name,
+                category='Security',
+                status=status,
+                details=details,
+                remediation=remediation if not passed else None
+            ))
+    
+    def check_safety(self):
+        &quot;&quot;&quot;Check AI safety requirements&quot;&quot;&quot;
+        checks = [
+            ('Content Filtering', self._test_content_filter, 'Implement content moderation'),
+            ('Toxicity Detection', self._test_toxicity, 'Add toxicity classifier'),
+            ('Output Validation', self._test_output_validation, 'Validate model outputs'),
+            ('Prompt Injection Protection', self._test_prompt_injection, 'Add prompt validation'),
+            ('Bias Testing', self._test_bias, 'Run bias evaluation'),
+        ]
+        
+        for name, test_func, remediation in checks:
+            passed, details = test_func()
+            status = CheckStatus.PASS if passed else CheckStatus.WARN
+            
+            self.checks.append(ReadinessCheck(
+                name=name,
+                category='AI Safety',
+                status=status,
+                details=details,
+                remediation=remediation if not passed else None
+            ))
+    
+    def check_compliance(self):
+        &quot;&quot;&quot;Check compliance requirements&quot;&quot;&quot;
+        checks = [
+            ('GDPR Compliance', self._test_gdpr, 'Implement data deletion'),
+            ('Data Retention Policy', self._test_retention, 'Define retention policy'),
+            ('Audit Logging', self._test_audit_logs, 'Enable audit logging'),
+            ('Privacy Policy', self._test_privacy_policy, 'Create privacy policy'),
+            ('Terms of Service', self._test_tos, 'Draft terms of service'),
+        ]
+        
+        for name, test_func, remediation in checks:
+            passed, details = test_func()
+            status = CheckStatus.PASS if passed else CheckStatus.WARN
+            
+            self.checks.append(ReadinessCheck(
+                name=name,
+                category='Compliance',
+                status=status,
+                details=details,
+                remediation=remediation if not passed else None
+            ))
+    
+    def check_operations(self):
+        &quot;&quot;&quot;Check operational requirements&quot;&quot;&quot;
+        checks = [
+            ('Runbook Documentation', self._test_runbooks, 'Write runbooks'),
+            ('On-Call Rotation', self._test_oncall, 'Set up on-call rotation'),
+            ('Incident Response Plan', self._test_incident_plan, 'Create IR plan'),
+            ('Deployment Automation', self._test_deployment, 'Automate deployments'),
+            ('Rollback Capability', self._test_rollback, 'Test rollback procedure'),
+            ('Backup and Restore', self._test_backup, 'Implement backups'),
+        ]
+        
+        for name, test_func, remediation in checks:
+            passed, details = test_func()
+            status = CheckStatus.PASS if passed else CheckStatus.FAIL
+            
+            self.checks.append(ReadinessCheck(
+                name=name,
+                category='Operations',
+                status=status,
+                details=details,
+                remediation=remediation if not passed else None
+            ))
+    
+    # Test implementations (examples)
+    def _test_latency(self):
+        &quot;&quot;&quot;Test latency SLA&quot;&quot;&quot;
+        # Implement actual latency testing
+        # Return (passed, details)
+        return (True, &quot;p95 latency: 1.2s&quot;)
+    
+    def _test_throughput(self):
+        &quot;&quot;&quot;Test throughput capacity&quot;&quot;&quot;
+        return (True, &quot;Sustained 150 req/sec&quot;)
+    
+    def _test_gpu_utilization(self):
+        &quot;&quot;&quot;Test GPU utilization&quot;&quot;&quot;
+        return (True, &quot;Average utilization: 78%&quot;)
+    
+    def _test_ha(self):
+        &quot;&quot;&quot;Test high availability setup&quot;&quot;&quot;
+        return (True, &quot;Multi-AZ deployment configured&quot;)
+    
+    def _test_health_checks(self):
+        &quot;&quot;&quot;Test health check endpoints&quot;&quot;&quot;
+        return (True, &quot;Health endpoints responding&quot;)
+    
+    def _test_circuit_breakers(self):
+        &quot;&quot;&quot;Test circuit breaker implementation&quot;&quot;&quot;
+        return (False, &quot;Circuit breakers not implemented&quot;)
+    
+    def _test_retry_logic(self):
+        &quot;&quot;&quot;Test retry logic&quot;&quot;&quot;
+        return (True, &quot;Exponential backoff implemented&quot;)
+    
+    def _test_degradation(self):
+        &quot;&quot;&quot;Test graceful degradation&quot;&quot;&quot;
+        return (True, &quot;Fallback to cached responses&quot;)
+    
+    def _test_metrics(self):
+        &quot;&quot;&quot;Test metrics collection&quot;&quot;&quot;
+        return (True, &quot;Prometheus scraping active&quot;)
+    
+    def _test_dashboards(self):
+        &quot;&quot;&quot;Test monitoring dashboards&quot;&quot;&quot;
+        return (True, &quot;5 dashboards configured&quot;)
+    
+    def _test_alerting(self):
+        &quot;&quot;&quot;Test alerting setup&quot;&quot;&quot;
+        return (True, &quot;PagerDuty integration active&quot;)
+    
+    def _test_tracing(self):
+        &quot;&quot;&quot;Test distributed tracing&quot;&quot;&quot;
+        return (False, &quot;Tracing not configured&quot;)
+    
+    def _test_logging(self):
+        &quot;&quot;&quot;Test log aggregation&quot;&quot;&quot;
+        return (True, &quot;ELK stack configured&quot;)
+    
+    def _test_cost_tracking(self):
+        &quot;&quot;&quot;Test cost tracking&quot;&quot;&quot;
+        return (True, &quot;Cost tracking implemented&quot;)
+    
+    def _test_auth(self):
+        &quot;&quot;&quot;Test authentication&quot;&quot;&quot;
+        return (True, &quot;JWT authentication active&quot;)
+    
+    def _test_rate_limiting(self):
+        &quot;&quot;&quot;Test rate limiting&quot;&quot;&quot;
+        return (True, &quot;Redis-based rate limiting&quot;)
+    
+    def _test_input_validation(self):
+        &quot;&quot;&quot;Test input validation&quot;&quot;&quot;
+        return (True, &quot;Input sanitization active&quot;)
+    
+    def _test_pii_detection(self):
+        &quot;&quot;&quot;Test PII detection&quot;&quot;&quot;
+        return (True, &quot;PII detection implemented&quot;)
+    
+    def _test_encryption_rest(self):
+        &quot;&quot;&quot;Test encryption at rest&quot;&quot;&quot;
+        return (True, &quot;AES-256 encryption enabled&quot;)
+    
+    def _test_encryption_transit(self):
+        &quot;&quot;&quot;Test encryption in transit&quot;&quot;&quot;
+        return (True, &quot;TLS 1.3 enforced&quot;)
+    
+    def _test_secrets(self):
+        &quot;&quot;&quot;Test secrets management&quot;&quot;&quot;
+        return (True, &quot;AWS Secrets Manager in use&quot;)
+    
+    def _test_content_filter(self):
+        &quot;&quot;&quot;Test content filtering&quot;&quot;&quot;
+        return (True, &quot;Content moderation API integrated&quot;)
+    
+    def _test_toxicity(self):
+        &quot;&quot;&quot;Test toxicity detection&quot;&quot;&quot;
+        return (False, &quot;Toxicity classifier not deployed&quot;)
+    
+    def _test_output_validation(self):
+        &quot;&quot;&quot;Test output validation&quot;&quot;&quot;
+        return (True, &quot;Output validation rules applied&quot;)
+    
+    def _test_prompt_injection(self):
+        &quot;&quot;&quot;Test prompt injection protection&quot;&quot;&quot;
+        return (True, &quot;Prompt validation implemented&quot;)
+    
+    def _test_bias(self):
+        &quot;&quot;&quot;Test bias evaluation&quot;&quot;&quot;
+        return (False, &quot;Bias testing pending&quot;)
+    
+    def _test_gdpr(self):
+        &quot;&quot;&quot;Test GDPR compliance&quot;&quot;&quot;
+        return (True, &quot;Data deletion API implemented&quot;)
+    
+    def _test_retention(self):
+        &quot;&quot;&quot;Test data retention policy&quot;&quot;&quot;
+        return (True, &quot;30-day retention configured&quot;)
+    
+    def _test_audit_logs(self):
+        &quot;&quot;&quot;Test audit logging&quot;&quot;&quot;
+        return (True, &quot;Audit logs enabled&quot;)
+    
+    def _test_privacy_policy(self):
+        &quot;&quot;&quot;Test privacy policy&quot;&quot;&quot;
+        return (True, &quot;Privacy policy published&quot;)
+    
+    def _test_tos(self):
+        &quot;&quot;&quot;Test terms of service&quot;&quot;&quot;
+        return (True, &quot;ToS published&quot;)
+    
+    def _test_runbooks(self):
+        &quot;&quot;&quot;Test runbook documentation&quot;&quot;&quot;
+        return (True, &quot;Runbooks in wiki&quot;)
+    
+    def _test_oncall(self):
+        &quot;&quot;&quot;Test on-call rotation&quot;&quot;&quot;
+        return (True, &quot;24/7 on-call rotation&quot;)
+    
+    def _test_incident_plan(self):
+        &quot;&quot;&quot;Test incident response plan&quot;&quot;&quot;
+        return (True, &quot;IR plan documented&quot;)
+    
+    def _test_deployment(self):
+        &quot;&quot;&quot;Test deployment automation&quot;&quot;&quot;
+        return (True, &quot;GitOps with ArgoCD&quot;)
+    
+    def _test_rollback(self):
+        &quot;&quot;&quot;Test rollback capability&quot;&quot;&quot;
+        return (True, &quot;Rollback tested successfully&quot;)
+    
+    def _test_backup(self):
+        &quot;&quot;&quot;Test backup and restore&quot;&quot;&quot;
+        return (True, &quot;Daily backups configured&quot;)
+    
+    def run_all_checks(self):
+        &quot;&quot;&quot;Run all readiness checks&quot;&quot;&quot;
+        self.check_performance()
+        self.check_reliability()
+        self.check_monitoring()
+        self.check_security()
+        self.check_safety()
+        self.check_compliance()
+        self.check_operations()
+        
+        return self.generate_report()
+    
+    def generate_report(self) -&gt; Dict:
+        &quot;&quot;&quot;Generate readiness report&quot;&quot;&quot;
+        total = len(self.checks)
+        passed = sum(1 for c in self.checks if c.status == CheckStatus.PASS)
+        failed = sum(1 for c in self.checks if c.status == CheckStatus.FAIL)
+        warned = sum(1 for c in self.checks if c.status == CheckStatus.WARN)
+        
+        # Group by category
+        by_category = {}
+        for check in self.checks:
+            if check.category not in by_category:
+                by_category[check.category] = []
+            by_category[check.category].append(check)
+        
+        # Calculate readiness score
+        score = (passed / total) * 100 if total &gt; 0 else 0
+        
+        # Determine readiness level
+        if score &gt;= 95 and failed == 0:
+            readiness = &quot;PRODUCTION READY&quot;
+        elif score &gt;= 80 and failed &lt;= 2:
+            readiness = &quot;READY WITH WARNINGS&quot;
+        elif score &gt;= 60:
+            readiness = &quot;NOT READY - MAJOR ISSUES&quot;
+        else:
+            readiness = &quot;NOT READY - CRITICAL ISSUES&quot;
+        
+        return {
+            'readiness': readiness,
+            'score': round(score, 1),
+            'total_checks': total,
+            'passed': passed,
+            'failed': failed,
+            'warned': warned,
+            'by_category': by_category,
+            'all_checks': self.checks
+        }
+    
+    def print_report(self):
+        &quot;&quot;&quot;Print formatted report&quot;&quot;&quot;
+        report = self.generate_report()
+        
+        print(&quot;=&quot; * 70)
+        print(f&quot;PRODUCTION READINESS REPORT&quot;.center(70))
+        print(&quot;=&quot; * 70)
+        print()
+        print(f&quot;Status: {report['readiness']}&quot;)
+        print(f&quot;Score: {report['score']}%&quot;)
+        print(f&quot;Checks: {report['passed']}/{report['total_checks']} passed, &quot;
+              f&quot;{report['failed']} failed, {report['warned']} warnings&quot;)
+        print()
+        
+        # Print by category
+        for category, checks in report['by_category'].items():
+            print(f&quot;\n{category}:&quot;)
+            print(&quot;-&quot; * 70)
+            
+            for check in checks:
+                print(f&quot;{check.status.value} {check.name}&quot;)
+                print(f&quot;    {check.details}&quot;)
+                if check.remediation:
+                    print(f&quot;    → Remediation: {check.remediation}&quot;)
+        
+        print(&quot;\n&quot; + &quot;=&quot; * 70)
+        
+        # Action items
+        if report['failed'] &gt; 0 or report['warned'] &gt; 0:
+            print(&quot;\nACTION ITEMS:&quot;)
+            print(&quot;-&quot; * 70)
+            
+            for check in report['all_checks']:
+                if check.status in [CheckStatus.FAIL, CheckStatus.WARN]:
+                    print(f&quot;• {check.name}: {check.remediation}&quot;)
+        
+        print()
+
+
+# Usage
+if __name__ == &quot;__main__&quot;:
+    checker = ProductionReadinessChecker()
+    checker.run_all_checks()
+    checker.print_report()</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-high-availability-a">High Availability and Fault Tolerance</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-multi-region-deploy">Multi-Region 部署（Deployment）</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># multi-region-deployment.yaml - High availability setup
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: llm-platform-ha
+
+---
+# Primary region deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-primary
+  namespace: llm-platform-ha
+  labels:
+    region: us-east-1
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: llm-server
+      region: us-east-1
+  template:
+    metadata:
+      labels:
+        app: llm-server
+        region: us-east-1
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - llm-server
+            topologyKey: &quot;kubernetes.io/hostname&quot;
+      containers:
+      - name: vllm
+        image: vllm/vllm-openai:latest
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+          limits:
+            nvidia.com/gpu: 1
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 300
+          periodSeconds: 30
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          failureThreshold: 2
+
+---
+# Secondary region deployment (DR)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-secondary
+  namespace: llm-platform-ha
+  labels:
+    region: us-west-2
+spec:
+  replicas: 3  # Smaller capacity for DR
+  selector:
+    matchLabels:
+      app: llm-server
+      region: us-west-2
+  template:
+    metadata:
+      labels:
+        app: llm-server
+        region: us-west-2
+    spec:
+      containers:
+      - name: vllm
+        image: vllm/vllm-openai:latest
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+          limits:
+            nvidia.com/gpu: 1
+
+---
+# Global load balancer configuration (AWS Global Accelerator example)
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-global-lb
+  namespace: llm-platform-ha
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: &quot;nlb&quot;
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: &quot;true&quot;
+spec:
+  type: LoadBalancer
+  selector:
+    app: llm-server
+  ports:
+  - port: 80
+    targetPort: 8000</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-circuit-breaker-imp">Circuit Breaker Implementation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># circuit_breaker.py - Circuit breaker for LLM calls
+from enum import Enum
+from datetime import datetime, timedelta
+import asyncio
+from typing import Callable, Any
+
+class CircuitState(Enum):
+    CLOSED = &quot;closed&quot;        # Normal operation
+    OPEN = &quot;open&quot;            # Failures detected, reject requests
+    HALF_OPEN = &quot;half_open&quot;  # Testing if service recovered
+
+class CircuitBreaker:
+    &quot;&quot;&quot;
+    Circuit breaker for LLM service calls
+    &quot;&quot;&quot;
+    def __init__(
+        self,
+        failure_threshold: int = 5,
+        success_threshold: int = 2,
+        timeout: int = 60,
+        half_open_timeout: int = 30
+    ):
+        self.failure_threshold = failure_threshold
+        self.success_threshold = success_threshold
+        self.timeout = timeout
+        self.half_open_timeout = half_open_timeout
+        
+        self.state = CircuitState.CLOSED
+        self.failures = 0
+        self.successes = 0
+        self.last_failure_time = None
+        self.last_state_change = datetime.utcnow()
+    
+    async def call(self, func: Callable, *args, **kwargs) -&gt; Any:
+        &quot;&quot;&quot;
+        Execute function with circuit breaker protection
+        &quot;&quot;&quot;
+        # Check if circuit is open
+        if self.state == CircuitState.OPEN:
+            if self._should_attempt_reset():
+                self._transition_to_half_open()
+            else:
+                raise CircuitBreakerOpenError(
+                    f&quot;Circuit breaker is OPEN. &quot;
+                    f&quot;Will retry at {self.last_failure_time + timedelta(seconds=self.timeout)}&quot;
+                )
+        
+        try:
+            # Execute function
+            result = await func(*args, **kwargs) if asyncio.iscoroutinefunction(func) \
+                else func(*args, **kwargs)
+            
+            # Record success
+            self._on_success()
+            return result
+            
+        except Exception as e:
+            # Record failure
+            self._on_failure()
+            raise e
+    
+    def _on_success(self):
+        &quot;&quot;&quot;Handle successful call&quot;&quot;&quot;
+        self.failures = 0
+        
+        if self.state == CircuitState.HALF_OPEN:
+            self.successes += 1
+            if self.successes &gt;= self.success_threshold:
+                self._transition_to_closed()
+    
+    def _on_failure(self):
+        &quot;&quot;&quot;Handle failed call&quot;&quot;&quot;
+        self.failures += 1
+        self.last_failure_time = datetime.utcnow()
+        
+        if self.state == CircuitState.HALF_OPEN:
+            self._transition_to_open()
+        elif self.failures &gt;= self.failure_threshold:
+            self._transition_to_open()
+    
+    def _should_attempt_reset(self) -&gt; bool:
+        &quot;&quot;&quot;Check if enough time has passed to try resetting&quot;&quot;&quot;
+        if self.last_failure_time is None:
+            return False
+        
+        time_since_failure = datetime.utcnow() - self.last_failure_time
+        return time_since_failure.total_seconds() &gt;= self.timeout
+    
+    def _transition_to_closed(self):
+        &quot;&quot;&quot;Transition to CLOSED state&quot;&quot;&quot;
+        self.state = CircuitState.CLOSED
+        self.failures = 0
+        self.successes = 0
+        self.last_state_change = datetime.utcnow()
+        print(f&quot;Circuit breaker: CLOSED&quot;)
+    
+    def _transition_to_open(self):
+        &quot;&quot;&quot;Transition to OPEN state&quot;&quot;&quot;
+        self.state = CircuitState.OPEN
+        self.last_state_change = datetime.utcnow()
+        print(f&quot;Circuit breaker: OPEN (too many failures)&quot;)
+    
+    def _transition_to_half_open(self):
+        &quot;&quot;&quot;Transition to HALF_OPEN state&quot;&quot;&quot;
+        self.state = CircuitState.HALF_OPEN
+        self.successes = 0
+        self.last_state_change = datetime.utcnow()
+        print(f&quot;Circuit breaker: HALF_OPEN (testing recovery)&quot;)
+    
+    def get_state(self) -&gt; dict:
+        &quot;&quot;&quot;Get current circuit breaker state&quot;&quot;&quot;
+        return {
+            'state': self.state.value,
+            'failures': self.failures,
+            'successes': self.successes,
+            'last_state_change': self.last_state_change.isoformat()
+        }
+
+
+class CircuitBreakerOpenError(Exception):
+    &quot;&quot;&quot;Raised when circuit breaker is open&quot;&quot;&quot;
+    pass
+
+
+# Usage with LLM calls
+import httpx
+
+class ResilientLLMClient:
+    &quot;&quot;&quot;
+    LLM client with circuit breaker
+    &quot;&quot;&quot;
+    def __init__(self, endpoint: str):
+        self.endpoint = endpoint
+        self.circuit_breaker = CircuitBreaker(
+            failure_threshold=5,
+            timeout=60
+        )
+    
+    async def generate(self, prompt: str, **kwargs):
+        &quot;&quot;&quot;
+        Generate completion with circuit breaker protection
+        &quot;&quot;&quot;
+        async def llm_call():
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f&quot;{self.endpoint}/v1/completions&quot;,
+                    json={'prompt': prompt, **kwargs}
+                )
+                response.raise_for_status()
+                return response.json()
+        
+        try:
+            return await self.circuit_breaker.call(llm_call)
+        except CircuitBreakerOpenError as e:
+            # Return cached or fallback response
+            return self._get_fallback_response(prompt)
+    
+    def _get_fallback_response(self, prompt: str):
+        &quot;&quot;&quot;Fallback response when circuit is open&quot;&quot;&quot;
+        return {
+            'text': &quot;Service temporarily unavailable. Please try again later.&quot;,
+            'fallback': True
+        }</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-disaster-recovery-s">Disaster Recovery Strategies</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-backup-and-restore-">Backup and Restore Procedures</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># disaster_recovery.py - DR procedures for LLM platform
+import boto3
+from datetime import datetime, timedelta
+import subprocess
+import json
+
+class DisasterRecoveryManager:
+    &quot;&quot;&quot;
+    Manage disaster recovery for LLM platform
+    &quot;&quot;&quot;
+    def __init__(self, config: dict):
+        self.config = config
+        self.s3_client = boto3.client('s3')
+        self.backup_bucket = config['backup_bucket']
+    
+    def backup_model_artifacts(self, model_path: str):
+        &quot;&quot;&quot;
+        Backup model files to S3
+        &quot;&quot;&quot;
+        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        backup_key = f&quot;models/backup_{timestamp}/&quot;
+        
+        print(f&quot;Backing up model from {model_path}&quot;)
+        
+        # Upload to S3 with versioning
+        for root, dirs, files in os.walk(model_path):
+            for file in files:
+                local_path = os.path.join(root, file)
+                s3_path = backup_key + os.path.relpath(local_path, model_path)
+                
+                self.s3_client.upload_file(
+                    local_path,
+                    self.backup_bucket,
+                    s3_path
+                )
+        
+        # Store backup metadata
+        metadata = {
+            'timestamp': timestamp,
+            'model_path': model_path,
+            's3_location': f&quot;s3://{self.backup_bucket}/{backup_key}&quot;,
+            'backup_type': 'full'
+        }
+        
+        self.s3_client.put_object(
+            Bucket=self.backup_bucket,
+            Key=f&quot;{backup_key}metadata.json&quot;,
+            Body=json.dumps(metadata)
+        )
+        
+        return metadata
+    
+    def backup_configuration(self):
+        &quot;&quot;&quot;
+        Backup Kubernetes configurations
+        &quot;&quot;&quot;
+        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        backup_key = f&quot;configs/backup_{timestamp}/&quot;
+        
+        # Export Kubernetes resources
+        namespaces = ['llm-platform', 'llm-platform-ha']
+        
+        for namespace in namespaces:
+            # Export deployments
+            result = subprocess.run(
+                f&quot;kubectl get all -n {namespace} -o yaml&quot;.split(),
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode == 0:
+                self.s3_client.put_object(
+                    Bucket=self.backup_bucket,
+                    Key=f&quot;{backup_key}{namespace}_resources.yaml&quot;,
+                    Body=result.stdout
+                )
+        
+        print(f&quot;Configuration backed up to {backup_key}&quot;)
+        return backup_key
+    
+    def backup_database(self):
+        &quot;&quot;&quot;
+        Backup application databases
+        &quot;&quot;&quot;
+        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        
+        # PostgreSQL backup
+        db_config = self.config['database']
+        dump_file = f&quot;/tmp/db_backup_{timestamp}.sql&quot;
+        
+        subprocess.run([
+            'pg_dump',
+            '-h', db_config['host'],
+            '-U', db_config['user'],
+            '-d', db_config['database'],
+            '-f', dump_file
+        ])
+        
+        # Upload to S3
+        self.s3_client.upload_file(
+            dump_file,
+            self.backup_bucket,
+            f&quot;database/backup_{timestamp}.sql&quot;
+        )
+        
+        # Cleanup
+        os.remove(dump_file)
+        
+        print(f&quot;Database backed up&quot;)
+    
+    def restore_from_backup(self, backup_timestamp: str):
+        &quot;&quot;&quot;
+        Restore from backup
+        &quot;&quot;&quot;
+        print(f&quot;Restoring from backup: {backup_timestamp}&quot;)
+        
+        # Download model
+        model_key = f&quot;models/backup_{backup_timestamp}/&quot;
+        # Implementation details...
+        
+        # Restore configuration
+        config_key = f&quot;configs/backup_{backup_timestamp}/&quot;
+        # Implementation details...
+        
+        # Restore database
+        db_key = f&quot;database/backup_{backup_timestamp}.sql&quot;
+        # Implementation details...
+        
+        print(&quot;Restore complete&quot;)
+    
+    def test_disaster_recovery(self):
+        &quot;&quot;&quot;
+        Test DR procedures
+        &quot;&quot;&quot;
+        print(&quot;Testing disaster recovery procedures...&quot;)
+        
+        # 1. Create backup
+        backup_metadata = self.backup_model_artifacts('/models/llama-2-7b')
+        
+        # 2. Simulate failure
+        # (In testing environment only)
+        
+        # 3. Restore from backup
+        self.restore_from_backup(backup_metadata['timestamp'])
+        
+        # 4. Verify restoration
+        # Check model loads correctly
+        # Check service is operational
+        
+        print(&quot;DR test complete&quot;)
+    
+    def create_recovery_plan(self):
+        &quot;&quot;&quot;
+        Generate recovery plan document
+        &quot;&quot;&quot;
+        plan = {
+            'rpo': '1 hour',  # Recovery Point Objective
+            'rto': '30 minutes',  # Recovery Time Objective
+            'backup_frequency': 'hourly',
+            'backup_retention': '30 days',
+            'procedures': [
+                {
+                    'step': 1,
+                    'action': 'Identify failure scope',
+                    'time_estimate': '5 minutes'
+                },
+                {
+                    'step': 2,
+                    'action': 'Activate DR site',
+                    'time_estimate': '10 minutes'
+                },
+                {
+                    'step': 3,
+                    'action': 'Restore from backup',
+                    'time_estimate': '15 minutes'
+                },
+                {
+                    'step': 4,
+                    'action': 'Validate services',
+                    'time_estimate': '5 minutes'
+                },
+                {
+                    'step': 5,
+                    'action': 'Update DNS/routing',
+                    'time_estimate': '5 minutes'
+                }
+            ]
+        }
+        
+        return plan</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-blue-green-deployme">Blue-Green Deployments</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-blue-green-deployme">Blue-Green 部署（Deployment） Strategy</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># blue_green_deployment.py - Blue-green deployment for LLM models
+from typing import Dict
+import time
+
+class BlueGreenDeployer:
+    &quot;&quot;&quot;
+    Manage blue-green deployments for LLM models
+    &quot;&quot;&quot;
+    def __init__(self, k8s_client):
+        self.k8s = k8s_client
+        self.namespace = 'llm-platform'
+    
+    def deploy_new_version(
+        self,
+        model_name: str,
+        new_version: str,
+        model_path: str
+    ):
+        &quot;&quot;&quot;
+        Deploy new model version using blue-green strategy
+        &quot;&quot;&quot;
+        # Get current active color
+        current_color = self._get_active_color(model_name)
+        new_color = 'green' if current_color == 'blue' else 'blue'
+        
+        print(f&quot;Current active: {current_color}&quot;)
+        print(f&quot;Deploying to: {new_color}&quot;)
+        
+        # 1. Deploy to inactive environment
+        self._deploy_to_environment(
+            model_name=model_name,
+            version=new_version,
+            color=new_color,
+            model_path=model_path
+        )
+        
+        # 2. Wait for deployment to be ready
+        print(&quot;Waiting for new deployment to be ready...&quot;)
+        self._wait_for_ready(model_name, new_color)
+        
+        # 3. Run smoke tests on new deployment
+        print(&quot;Running smoke tests...&quot;)
+        if not self._run_smoke_tests(model_name, new_color):
+            print(&quot;Smoke tests failed! Rolling back...&quot;)
+            self._rollback(model_name, new_color)
+            return False
+        
+        # 4. Switch traffic to new deployment
+        print(f&quot;Switching traffic to {new_color}...&quot;)
+        self._switch_traffic(model_name, new_color)
+        
+        # 5. Monitor for issues
+        print(&quot;Monitoring new deployment...&quot;)
+        time.sleep(300)  # Monitor for 5 minutes
+        
+        if not self._check_health_metrics(model_name, new_color):
+            print(&quot;Health check failed! Rolling back...&quot;)
+            self._switch_traffic(model_name, current_color)
+            return False
+        
+        # 6. Keep old deployment for quick rollback
+        print(f&quot;Deployment successful! {new_color} is now active.&quot;)
+        print(f&quot;Keeping {current_color} for 24 hours for quick rollback.&quot;)
+        
+        return True
+    
+    def _deploy_to_environment(
+        self,
+        model_name: str,
+        version: str,
+        color: str,
+        model_path: str
+    ):
+        &quot;&quot;&quot;Deploy to specific environment (blue or green)&quot;&quot;&quot;
+        deployment_yaml = f&quot;&quot;&quot;
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {model_name}-{color}
+  namespace: {self.namespace}
+  labels:
+    app: {model_name}
+    color: {color}
+    version: {version}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: {model_name}
+      color: {color}
+  template:
+    metadata:
+      labels:
+        app: {model_name}
+        color: {color}
+        version: {version}
+    spec:
+      containers:
+      - name: vllm
+        image: vllm/vllm-openai:latest
+        args:
+        - --model={model_path}
+        - --tensor-parallel-size=1
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+          limits:
+            nvidia.com/gpu: 1
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {model_name}-{color}
+  namespace: {self.namespace}
+spec:
+  selector:
+    app: {model_name}
+    color: {color}
+  ports:
+  - port: 8000
+    targetPort: 8000
+&quot;&quot;&quot;
+        # Apply deployment
+        self.k8s.apply(deployment_yaml)
+    
+    def _switch_traffic(self, model_name: str, target_color: str):
+        &quot;&quot;&quot;Switch traffic to target environment&quot;&quot;&quot;
+        # Update main service to point to target color
+        service_yaml = f&quot;&quot;&quot;
+apiVersion: v1
+kind: Service
+metadata:
+  name: {model_name}
+  namespace: {self.namespace}
+spec:
+  selector:
+    app: {model_name}
+    color: {target_color}
+  ports:
+  - port: 8000
+    targetPort: 8000
+&quot;&quot;&quot;
+        self.k8s.apply(service_yaml)
+    
+    def _wait_for_ready(self, model_name: str, color: str, timeout: int = 600):
+        &quot;&quot;&quot;Wait for deployment to be ready&quot;&quot;&quot;
+        start_time = time.time()
+        
+        while time.time() - start_time &lt; timeout:
+            status = self.k8s.get_deployment_status(
+                f&quot;{model_name}-{color}&quot;,
+                self.namespace
+            )
+            
+            if status['ready_replicas'] == status['desired_replicas']:
+                return True
+            
+            time.sleep(10)
+        
+        return False
+    
+    def _run_smoke_tests(self, model_name: str, color: str) -&gt; bool:
+        &quot;&quot;&quot;Run smoke tests on deployment&quot;&quot;&quot;
+        endpoint = f&quot;http://{model_name}-{color}.{self.namespace}:8000&quot;
+        
+        test_prompts = [
+            &quot;Hello, how are you?&quot;,
+            &quot;What is 2+2?&quot;,
+            &quot;Write a haiku about clouds.&quot;
+        ]
+        
+        for prompt in test_prompts:
+            try:
+                response = requests.post(
+                    f&quot;{endpoint}/v1/completions&quot;,
+                    json={'prompt': prompt, 'max_tokens': 50},
+                    timeout=30
+                )
+                
+                if response.status_code != 200:
+                    return False
+                
+                # Validate response structure
+                data = response.json()
+                if 'text' not in data or not data['text']:
+                    return False
+                    
+            except Exception as e:
+                print(f&quot;Smoke test failed: {e}&quot;)
+                return False
+        
+        return True
+    
+    def _check_health_metrics(self, model_name: str, color: str) -&gt; bool:
+        &quot;&quot;&quot;Check health metrics for deployment&quot;&quot;&quot;
+        # Query Prometheus for error rate, latency, etc.
+        # Return True if metrics are healthy
+        return True
+    
+    def _rollback(self, model_name: str, color: str):
+        &quot;&quot;&quot;Rollback failed deployment&quot;&quot;&quot;
+        # Delete failed deployment
+        self.k8s.delete_deployment(f&quot;{model_name}-{color}&quot;, self.namespace)
+    
+    def _get_active_color(self, model_name: str) -&gt; str:
+        &quot;&quot;&quot;Get currently active color&quot;&quot;&quot;
+        service = self.k8s.get_service(model_name, self.namespace)
+        return service['spec']['selector'].get('color', 'blue')</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-canary-deployments">Canary Deployments</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-gradual-rollout-str">Gradual Rollout Strategy</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># canary_deployment.py - Canary deployment for LLM models
+import time
+from typing import Dict
+
+class CanaryDeployer:
+    &quot;&quot;&quot;
+    Manage canary deployments with gradual traffic shifting
+    &quot;&quot;&quot;
+    def __init__(self, k8s_client, metrics_client):
+        self.k8s = k8s_client
+        self.metrics = metrics_client
+        self.namespace = 'llm-platform'
+    
+    def deploy_canary(
+        self,
+        model_name: str,
+        new_version: str,
+        model_path: str,
+        stages: list = [5, 10, 25, 50, 100]
+    ):
+        &quot;&quot;&quot;
+        Deploy new version with canary strategy
+        
+        Args:
+            stages: Percentage of traffic to route to canary at each stage
+        &quot;&quot;&quot;
+        print(f&quot;Starting canary deployment for {model_name} v{new_version}&quot;)
+        
+        # 1. Deploy canary with 0% traffic
+        self._deploy_canary_version(model_name, new_version, model_path)
+        
+        # 2. Wait for canary to be ready
+        if not self._wait_for_ready(model_name, 'canary'):
+            print(&quot;Canary deployment failed to start&quot;)
+            return False
+        
+        # 3. Gradually increase traffic
+        for stage_percent in stages:
+            print(f&quot;\n=== Stage: {stage_percent}% traffic to canary ===&quot;)
+            
+            # Update traffic split
+            self._update_traffic_split(model_name, stage_percent)
+            
+            # Monitor for duration
+            monitor_duration = 300 if stage_percent &lt; 50 else 600  # 5-10 minutes
+            print(f&quot;Monitoring for {monitor_duration} seconds...&quot;)
+            
+            if not self._monitor_canary(model_name, monitor_duration):
+                print(f&quot;Canary failed at {stage_percent}% stage!&quot;)
+                self._rollback_canary(model_name)
+                return False
+            
+            print(f&quot;Stage {stage_percent}% successful!&quot;)
+        
+        # 4. Promote canary to stable
+        print(&quot;\nPromoting canary to stable...&quot;)
+        self._promote_canary(model_name, new_version)
+        
+        print(&quot;Canary deployment successful!&quot;)
+        return True
+    
+    def _deploy_canary_version(
+        self,
+        model_name: str,
+        version: str,
+        model_path: str
+    ):
+        &quot;&quot;&quot;Deploy canary version&quot;&quot;&quot;
+        deployment_yaml = f&quot;&quot;&quot;
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {model_name}-canary
+  namespace: {self.namespace}
+  labels:
+    app: {model_name}
+    track: canary
+    version: {version}
+spec:
+  replicas: 2  # Start with fewer replicas
+  selector:
+    matchLabels:
+      app: {model_name}
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: {model_name}
+        track: canary
+        version: {version}
+    spec:
+      containers:
+      - name: vllm
+        image: vllm/vllm-openai:latest
+        args:
+        - --model={model_path}
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+          limits:
+            nvidia.com/gpu: 1
+&quot;&quot;&quot;
+        self.k8s.apply(deployment_yaml)
+    
+    def _update_traffic_split(self, model_name: str, canary_percent: int):
+        &quot;&quot;&quot;Update traffic split using Istio VirtualService&quot;&quot;&quot;
+        stable_percent = 100 - canary_percent
+        
+        virtualservice_yaml = f&quot;&quot;&quot;
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {model_name}
+  namespace: {self.namespace}
+spec:
+  hosts:
+  - {model_name}
+  http:
+  - match:
+    - headers:
+        x-canary:
+          exact: &quot;true&quot;
+    route:
+    - destination:
+        host: {model_name}
+        subset: canary
+      weight: 100
+  - route:
+    - destination:
+        host: {model_name}
+        subset: stable
+      weight: {stable_percent}
+    - destination:
+        host: {model_name}
+        subset: canary
+      weight: {canary_percent}
+&quot;&quot;&quot;
+        self.k8s.apply(virtualservice_yaml)
+    
+    def _monitor_canary(self, model_name: str, duration: int) -&gt; bool:
+        &quot;&quot;&quot;
+        Monitor canary deployment for issues
+        
+        Returns False if any critical metric fails
+        &quot;&quot;&quot;
+        start_time = time.time()
+        check_interval = 30  # Check every 30 seconds
+        
+        thresholds = {
+            'error_rate': 0.01,  # 1% error rate
+            'latency_p95': 2000,  # 2 seconds
+            'latency_increase': 1.5  # 50% increase over stable
+        }
+        
+        while time.time() - start_time &lt; duration:
+            # Get metrics for canary and stable
+            canary_metrics = self.metrics.get_metrics(model_name, 'canary')
+            stable_metrics = self.metrics.get_metrics(model_name, 'stable')
+            
+            # Check error rate
+            if canary_metrics['error_rate'] &gt; thresholds['error_rate']:
+                print(f&quot;ERROR: Canary error rate too high: {canary_metrics['error_rate']}&quot;)
+                return False
+            
+            # Check latency
+            if canary_metrics['latency_p95'] &gt; thresholds['latency_p95']:
+                print(f&quot;ERROR: Canary latency too high: {canary_metrics['latency_p95']}ms&quot;)
+                return False
+            
+            # Check latency increase vs stable
+            if stable_metrics['latency_p95'] &gt; 0:
+                latency_ratio = canary_metrics['latency_p95'] / stable_metrics['latency_p95']
+                if latency_ratio &gt; thresholds['latency_increase']:
+                    print(f&quot;ERROR: Canary latency {latency_ratio:.2f}x higher than stable&quot;)
+                    return False
+            
+            # Print status
+            print(f&quot;  Canary metrics: &quot;
+                  f&quot;error_rate={canary_metrics['error_rate']:.4f}, &quot;
+                  f&quot;p95_latency={canary_metrics['latency_p95']:.0f}ms&quot;)
+            
+            time.sleep(check_interval)
+        
+        return True
+    
+    def _rollback_canary(self, model_name: str):
+        &quot;&quot;&quot;Rollback canary deployment&quot;&quot;&quot;
+        print(&quot;Rolling back canary deployment...&quot;)
+        
+        # Set traffic to 0% canary
+        self._update_traffic_split(model_name, 0)
+        
+        # Delete canary deployment
+        self.k8s.delete_deployment(f&quot;{model_name}-canary&quot;, self.namespace)
+    
+    def _promote_canary(self, model_name: str, version: str):
+        &quot;&quot;&quot;Promote canary to stable&quot;&quot;&quot;
+        # Update stable deployment to new version
+        # Delete canary deployment
+        # Set traffic to 100% stable
+        pass</code></pre></div>
+<p>Due to character limits, I'll complete the remaining sections more concisely to finish the lesson.</p>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-a-b-testing-framewo">A/B 测试（A/B Testing） Frameworks</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-a-b-test-implementa">A/B Test Implementation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># ab_testing.py - A/B testing framework for LLMs
+import hashlib
+import random
+from typing import Dict, Optional
+
+class ABTestManager:
+    &quot;&quot;&quot;
+    Manage A/B tests for LLM models and prompts
+    &quot;&quot;&quot;
+    def __init__(self):
+        self.experiments = {}
+        self.results = {}
+    
+    def create_experiment(
+        self,
+        experiment_id: str,
+        variant_a: dict,
+        variant_b: dict,
+        traffic_split: float = 0.5,
+        metrics: list = None
+    ):
+        &quot;&quot;&quot;
+        Create new A/B test experiment
+        
+        Args:
+            experiment_id: Unique identifier
+            variant_a: Control variant configuration
+            variant_b: Treatment variant configuration
+            traffic_split: Percentage to variant B (0.0-1.0)
+            metrics: List of metrics to track
+        &quot;&quot;&quot;
+        self.experiments[experiment_id] = {
+            'variant_a': variant_a,
+            'variant_b': variant_b,
+            'traffic_split': traffic_split,
+            'metrics': metrics or ['latency', 'quality', 'user_satisfaction'],
+            'active': True
+        }
+        
+        self.results[experiment_id] = {
+            'variant_a': {'count': 0, 'metrics': {}},
+            'variant_b': {'count': 0, 'metrics': {}}
+        }
+    
+    def get_variant(self, experiment_id: str, user_id: str) -&gt; str:
+        &quot;&quot;&quot;
+        Determine which variant to show user
+        
+        Uses consistent hashing to ensure same user always gets same variant
+        &quot;&quot;&quot;
+        if experiment_id not in self.experiments:
+            return 'variant_a'  # Default to control
+        
+        experiment = self.experiments[experiment_id]
+        
+        # Hash user_id to determine variant
+        hash_value = int(hashlib.md5(f&quot;{experiment_id}:{user_id}&quot;.encode()).hexdigest(), 16)
+        threshold = experiment['traffic_split']
+        
+        return 'variant_b' if (hash_value % 100) / 100 &lt; threshold else 'variant_a'
+    
+    def track_result(
+        self,
+        experiment_id: str,
+        variant: str,
+        metrics: Dict[str, float]
+    ):
+        &quot;&quot;&quot;Track experiment results&quot;&quot;&quot;
+        if experiment_id not in self.results:
+            return
+        
+        variant_results = self.results[experiment_id][variant]
+        variant_results['count'] += 1
+        
+        for metric_name, value in metrics.items():
+            if metric_name not in variant_results['metrics']:
+                variant_results['metrics'][metric_name] = []
+            variant_results['metrics'][metric_name].append(value)
+    
+    def get_results(self, experiment_id: str) -&gt; Dict:
+        &quot;&quot;&quot;Get experiment results with statistical analysis&quot;&quot;&quot;
+        if experiment_id not in self.results:
+            return {}
+        
+        import numpy as np
+        from scipy import stats
+        
+        results = self.results[experiment_id]
+        analysis = {}
+        
+        for variant in ['variant_a', 'variant_b']:
+            variant_data = results[variant]
+            analysis[variant] = {
+                'sample_size': variant_data['count'],
+                'metrics': {}
+            }
+            
+            for metric_name, values in variant_data['metrics'].items():
+                if values:
+                    analysis[variant]['metrics'][metric_name] = {
+                        'mean': np.mean(values),
+                        'median': np.median(values),
+                        'std': np.std(values),
+                        'p95': np.percentile(values, 95)
+                    }
+        
+        # Statistical significance testing
+        for metric_name in analysis['variant_a']['metrics'].keys():
+            a_values = results['variant_a']['metrics'][metric_name]
+            b_values = results['variant_b']['metrics'][metric_name]
+            
+            if a_values and b_values:
+                t_stat, p_value = stats.ttest_ind(a_values, b_values)
+                
+                analysis['significance'] = analysis.get('significance', {})
+                analysis['significance'][metric_name] = {
+                    't_statistic': t_stat,
+                    'p_value': p_value,
+                    'significant': p_value &lt; 0.05,
+                    'winner': 'variant_b' if np.mean(b_values) &gt; np.mean(a_values) else 'variant_a'
+                }
+        
+        return analysis</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-prompt-engineering-">Prompt Engineering Best Practices</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-systematic-prompt-o">Systematic Prompt Optimization</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># prompt_engineering.py - Best practices for prompt engineering
+from typing import List, Dict
+import re
+
+class PromptOptimizer:
+    &quot;&quot;&quot;
+    Systematic prompt engineering and optimization
+    &quot;&quot;&quot;
+    def __init__(self):
+        self.templates = {}
+        self.test_cases = {}
+    
+    def create_template(
+        self,
+        template_id: str,
+        template: str,
+        variables: List[str]
+    ):
+        &quot;&quot;&quot;
+        Create reusable prompt template
+        
+        Example:
+            template = &quot;You are a {role}. {instruction}\n\nContext: {context}\n\nQuestion: {question}&quot;
+            variables = ['role', 'instruction', 'context', 'question']
+        &quot;&quot;&quot;
+        self.templates[template_id] = {
+            'template': template,
+            'variables': variables
+        }
+    
+    def format_prompt(
+        self,
+        template_id: str,
+        **kwargs
+    ) -&gt; str:
+        &quot;&quot;&quot;Format prompt from template&quot;&quot;&quot;
+        if template_id not in self.templates:
+            raise ValueError(f&quot;Template {template_id} not found&quot;)
+        
+        template = self.templates[template_id]['template']
+        return template.format(**kwargs)
+    
+    def test_prompt(
+        self,
+        template_id: str,
+        test_cases: List[Dict],
+        llm_client
+    ) -&gt; List[Dict]:
+        &quot;&quot;&quot;
+        Test prompt template with multiple cases
+        
+        Args:
+            test_cases: List of {inputs: dict, expected_output: str}
+        &quot;&quot;&quot;
+        results = []
+        
+        for case in test_cases:
+            # Format prompt
+            prompt = self.format_prompt(template_id, **case['inputs'])
+            
+            # Generate output
+            response = llm_client.generate(prompt)
+            
+            # Evaluate
+            result = {
+                'inputs': case['inputs'],
+                'prompt': prompt,
+                'output': response['text'],
+                'expected': case['expected_output'],
+                'score': self._evaluate_output(
+                    response['text'],
+                    case['expected_output']
+                )
+            }
+            results.append(result)
+        
+        return results
+    
+    def _evaluate_output(self, actual: str, expected: str) -&gt; float:
+        &quot;&quot;&quot;
+        Evaluate output quality
+        
+        Returns score from 0.0 to 1.0
+        &quot;&quot;&quot;
+        # Simple similarity check (replace with more sophisticated evaluation)
+        actual_lower = actual.lower().strip()
+        expected_lower = expected.lower().strip()
+        
+        # Check if key phrases are present
+        key_phrases = re.findall(r'\w+', expected_lower)
+        matches = sum(1 for phrase in key_phrases if phrase in actual_lower)
+        
+        return matches / len(key_phrases) if key_phrases else 0.0
+    
+    def optimize_prompt(
+        self,
+        base_prompt: str,
+        test_cases: List[Dict],
+        llm_client,
+        variations: List[str]
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Test multiple prompt variations and find best performer
+        
+        Args:
+            variations: List of prompt variations to test
+        &quot;&quot;&quot;
+        results = {}
+        
+        for i, variation in enumerate(variations):
+            variation_id = f&quot;variation_{i}&quot;
+            self.create_template(variation_id, variation, [])
+            
+            test_results = self.test_prompt(variation_id, test_cases, llm_client)
+            avg_score = sum(r['score'] for r in test_results) / len(test_results)
+            
+            results[variation_id] = {
+                'prompt': variation,
+                'average_score': avg_score,
+                'test_results': test_results
+            }
+        
+        # Find best variation
+        best = max(results.items(), key=lambda x: x[1]['average_score'])
+        
+        return {
+            'best_variation': best[0],
+            'best_score': best[1]['average_score'],
+            'all_results': results
+        }
+
+
+# Best Practices Collection
+PROMPT_BEST_PRACTICES = {
+    'specificity': {
+        'principle': 'Be specific and detailed in instructions',
+        'bad_example': 'Summarize this',
+        'good_example': 'Summarize this article in 3 bullet points, focusing on the main findings',
+    },
+    'context': {
+        'principle': 'Provide relevant context',
+        'bad_example': 'What is it?',
+        'good_example': 'Based on the product description above, what are the key features?',
+    },
+    'format': {
+        'principle': 'Specify desired output format',
+        'bad_example': 'List the items',
+        'good_example': 'List the items in JSON format with keys: name, price, quantity',
+    },
+    'examples': {
+        'principle': 'Include examples (few-shot learning)',
+        'example': '''Task: Extract person names from text
+
+Example 1:
+Text: &quot;John and Mary went to the store&quot;
+Names: [&quot;John&quot;, &quot;Mary&quot;]
+
+Example 2:
+Text: &quot;The CEO Sarah announced new policies&quot;
+Names: [&quot;Sarah&quot;]
+
+Now extract from:
+Text: &quot;{input_text}&quot;
+Names:'''
+    },
+    'role': {
+        'principle': 'Define the AI role/persona',
+        'example': 'You are an expert Python developer. Review this code for potential bugs and security issues.'
+    },
+    'constraints': {
+        'principle': 'Set clear constraints and boundaries',
+        'example': 'Answer in less than 100 words. Do not include personal opinions. Only use information from the provided context.'
+    }
+}</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-safety-and-content-">Safety and Content Filtering</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-content-moderation-">Content Moderation System</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># content_moderation.py - Safety and content filtering
+from typing import Dict, List, Optional
+import re
+
+class ContentModerator:
+    &quot;&quot;&quot;
+    Content moderation and safety filtering for LLM inputs/outputs
+    &quot;&quot;&quot;
+    def __init__(self):
+        # Load toxicity classifier
+        from transformers import pipeline
+        self.toxicity_classifier = pipeline(
+            &quot;text-classification&quot;,
+            model=&quot;unitary/toxic-bert&quot;
+        )
+        
+        # Define content categories
+        self.categories = {
+            'hate_speech': [],
+            'violence': [],
+            'sexual': [],
+            'self_harm': [],
+            'illegal': []
+        }
+        
+        # Load category-specific classifiers
+        self._load_classifiers()
+    
+    def _load_classifiers(self):
+        &quot;&quot;&quot;Load specialized classifiers for each category&quot;&quot;&quot;
+        # Implementation would load actual models
+        pass
+    
+    def moderate_input(self, text: str) -&gt; Dict:
+        &quot;&quot;&quot;
+        Moderate user input before sending to LLM
+        
+        Returns:
+            {
+                'safe': bool,
+                'categories': dict,
+                'filtered_text': str,
+                'reason': str
+            }
+        &quot;&quot;&quot;
+        # Check for banned patterns
+        if self._contains_banned_patterns(text):
+            return {
+                'safe': False,
+                'categories': {'banned_pattern': True},
+                'filtered_text': '[BLOCKED]',
+                'reason': 'Contains prohibited content'
+            }
+        
+        # Run toxicity classification
+        toxicity_result = self.toxicity_classifier(text)[0]
+        
+        if toxicity_result['label'] == 'toxic' and toxicity_result['score'] &gt; 0.7:
+            return {
+                'safe': False,
+                'categories': {'toxicity': toxicity_result['score']},
+                'filtered_text': '[BLOCKED]',
+                'reason': 'High toxicity detected'
+            }
+        
+        # Run category-specific checks
+        categories = self._check_categories(text)
+        
+        if any(score &gt; 0.8 for score in categories.values()):
+            return {
+                'safe': False,
+                'categories': categories,
+                'filtered_text': '[BLOCKED]',
+                'reason': 'Unsafe content category detected'
+            }
+        
+        return {
+            'safe': True,
+            'categories': categories,
+            'filtered_text': text,
+            'reason': None
+        }
+    
+    def moderate_output(self, text: str) -&gt; Dict:
+        &quot;&quot;&quot;
+        Moderate LLM output before returning to user
+        
+        Includes additional checks for:
+        - Hallucinations
+        - PII leakage
+        - Factual errors
+        &quot;&quot;&quot;
+        result = self.moderate_input(text)
+        
+        # Additional output-specific checks
+        if result['safe']:
+            # Check for PII
+            pii_check = self._check_pii(text)
+            if pii_check['found']:
+                result['safe'] = False
+                result['reason'] = 'PII detected in output'
+                result['pii_detected'] = pii_check['types']
+        
+        return result
+    
+    def _contains_banned_patterns(self, text: str) -&gt; bool:
+        &quot;&quot;&quot;Check for explicitly banned patterns&quot;&quot;&quot;
+        banned_patterns = [
+            r'kill yourself',
+            r'how to make explosives',
+            # Add more banned patterns
+        ]
+        
+        text_lower = text.lower()
+        for pattern in banned_patterns:
+            if re.search(pattern, text_lower):
+                return True
+        return False
+    
+    def _check_categories(self, text: str) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;Check content against all categories&quot;&quot;&quot;
+        # Simplified - real implementation would use ML models
+        return {
+            'hate_speech': 0.1,
+            'violence': 0.05,
+            'sexual': 0.02,
+            'self_harm': 0.01,
+            'illegal': 0.03
+        }
+    
+    def _check_pii(self, text: str) -&gt; Dict:
+        &quot;&quot;&quot;Check for PII in text&quot;&quot;&quot;
+        pii_patterns = {
+            'email': r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
+            'phone': r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b',
+            'ssn': r'\b\d{3}-\d{2}-\d{4}\b',
+            'credit_card': r'\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b'
+        }
+        
+        found_types = []
+        for pii_type, pattern in pii_patterns.items():
+            if re.search(pattern, text):
+                found_types.append(pii_type)
+        
+        return {
+            'found': len(found_types) &gt; 0,
+            'types': found_types
+        }</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-pii-detection-and-r">PII Detection and Redaction</h4>
+<p>Already covered in Lesson 07, but here's production implementation:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Advanced PII redaction with named entity recognition
+from presidio_analyzer import AnalyzerEngine
+from presidio_anonymizer import AnonymizerEngine
+
+class ProductionPIIHandler:
+    &quot;&quot;&quot;Production-grade PII detection and anonymization&quot;&quot;&quot;
+    def __init__(self):
+        self.analyzer = AnalyzerEngine()
+        self.anonymizer = AnonymizerEngine()
+    
+    def detect_and_redact(self, text: str) -&gt; Dict:
+        &quot;&quot;&quot;Detect and redact PII&quot;&quot;&quot;
+        # Analyze
+        results = self.analyzer.analyze(
+            text=text,
+            language='en',
+            entities=['PERSON', 'EMAIL_ADDRESS', 'PHONE_NUMBER', 'CREDIT_CARD', 'SSN']
+        )
+        
+        # Anonymize
+        anonymized = self.anonymizer.anonymize(
+            text=text,
+            analyzer_results=results
+        )
+        
+        return {
+            'original': text,
+            'redacted': anonymized.text,
+            'pii_found': [
+                {
+                    'type': result.entity_type,
+                    'start': result.start,
+                    'end': result.end,
+                    'score': result.score
+                }
+                for result in results
+            ]
+        }</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-gdpr-and-data-priva">GDPR and Data Privacy</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-gdpr-compliance-imp">GDPR Compliance Implementation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># gdpr_compliance.py
+from datetime import datetime, timedelta
+from typing import Dict, List
+
+class GDPRComplianceManager:
+    &quot;&quot;&quot;
+    Manage GDPR compliance for LLM platform
+    &quot;&quot;&quot;
+    def __init__(self, db_client):
+        self.db = db_client
+    
+    def handle_data_subject_request(
+        self,
+        request_type: str,
+        user_id: str,
+        email: str
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Handle GDPR data subject requests
+        
+        Types: access, rectification, erasure, portability, restriction
+        &quot;&quot;&quot;
+        if request_type == 'access':
+            return self._handle_access_request(user_id, email)
+        elif request_type == 'erasure':
+            return self._handle_erasure_request(user_id, email)
+        elif request_type == 'portability':
+            return self._handle_portability_request(user_id, email)
+        else:
+            raise ValueError(f&quot;Unknown request type: {request_type}&quot;)
+    
+    def _handle_access_request(self, user_id: str, email: str) -&gt; Dict:
+        &quot;&quot;&quot;Provide all data for user (right to access)&quot;&quot;&quot;
+        # Collect all user data
+        user_data = {
+            'user_profile': self.db.get_user_profile(user_id),
+            'usage_history': self.db.get_usage_history(user_id),
+            'preferences': self.db.get_preferences(user_id),
+            'stored_prompts': self.db.get_prompts(user_id),
+            'api_keys': self.db.get_api_keys(user_id)
+        }
+        
+        # Generate downloadable package
+        package_id = self._generate_data_package(user_data)
+        
+        return {
+            'request_type': 'access',
+            'user_id': user_id,
+            'package_id': package_id,
+            'download_url': f'/api/gdpr/download/{package_id}',
+            'expires_at': (datetime.utcnow() + timedelta(days=30)).isoformat()
+        }
+    
+    def _handle_erasure_request(self, user_id: str, email: str) -&gt; Dict:
+        &quot;&quot;&quot;Delete all user data (right to be forgotten)&quot;&quot;&quot;
+        # Verify no legal obligation to retain
+        if self._must_retain_data(user_id):
+            return {
+                'status': 'rejected',
+                'reason': 'Legal obligation to retain data'
+            }
+        
+        # Delete from all systems
+        deletion_log = []
+        
+        # 1. Delete user profile
+        self.db.delete_user_profile(user_id)
+        deletion_log.append('user_profile')
+        
+        # 2. Anonymize usage logs (keep aggregated stats)
+        self.db.anonymize_usage_logs(user_id)
+        deletion_log.append('usage_logs_anonymized')
+        
+        # 3. Delete API keys
+        self.db.delete_api_keys(user_id)
+        deletion_log.append('api_keys')
+        
+        # 4. Delete cached data
+        self.db.delete_cached_data(user_id)
+        deletion_log.append('cached_data')
+        
+        # 5. Remove from backups (mark for deletion in next cycle)
+        self.db.mark_for_backup_deletion(user_id)
+        deletion_log.append('marked_for_backup_deletion')
+        
+        return {
+            'status': 'completed',
+            'user_id': user_id,
+            'deleted_at': datetime.utcnow().isoformat(),
+            'deleted_items': deletion_log
+        }
+    
+    def _must_retain_data(self, user_id: str) -&gt; bool:
+        &quot;&quot;&quot;Check if legally required to retain data&quot;&quot;&quot;
+        # Check for active legal holds, investigations, etc.
+        return False
+    
+    def _generate_data_package(self, user_data: Dict) -&gt; str:
+        &quot;&quot;&quot;Generate downloadable data package&quot;&quot;&quot;
+        import json
+        import hashlib
+        
+        package_id = hashlib.md5(
+            f&quot;{user_data['user_profile']['user_id']}{datetime.utcnow()}&quot;.encode()
+        ).hexdigest()
+        
+        # Store package
+        self.db.store_data_package(package_id, json.dumps(user_data))
+        
+        return package_id</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-model-versioning-st">Model Versioning Strategies</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-semantic-versioning">Semantic Versioning for Models</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># model_versioning.py
+from typing import Dict, List
+from datetime import datetime
+
+class ModelVersionManager:
+    &quot;&quot;&quot;
+    Manage model versions with semantic versioning
+    
+    Version format: MAJOR.MINOR.PATCH-LABEL
+    - MAJOR: Breaking changes (API changes, different architecture)
+    - MINOR: New features (better performance, new capabilities)
+    - PATCH: Bug fixes, minor improvements
+    - LABEL: dev, beta, rc, stable
+    &quot;&quot;&quot;
+    def __init__(self, registry_client):
+        self.registry = registry_client
+        self.versions = {}
+    
+    def register_version(
+        self,
+        model_name: str,
+        version: str,
+        metadata: Dict
+    ):
+        &quot;&quot;&quot;Register new model version&quot;&quot;&quot;
+        self.versions[f&quot;{model_name}:{version}&quot;] = {
+            'model_name': model_name,
+            'version': version,
+            'registered_at': datetime.utcnow(),
+            'metadata': metadata,
+            'status': 'dev'
+        }
+        
+        # Store in registry
+        self.registry.push_model(model_name, version, metadata)
+    
+    def promote_version(
+        self,
+        model_name: str,
+        version: str,
+        to_status: str
+    ):
+        &quot;&quot;&quot;
+        Promote version through stages: dev -&gt; beta -&gt; rc -&gt; stable
+        &quot;&quot;&quot;
+        key = f&quot;{model_name}:{version}&quot;
+        
+        if key not in self.versions:
+            raise ValueError(f&quot;Version not found: {key}&quot;)
+        
+        valid_statuses = ['dev', 'beta', 'rc', 'stable']
+        if to_status not in valid_statuses:
+            raise ValueError(f&quot;Invalid status: {to_status}&quot;)
+        
+        self.versions[key]['status'] = to_status
+        self.versions[key]['promoted_at'] = datetime.utcnow()
+        
+        # Update registry
+        self.registry.update_version_status(model_name, version, to_status)
+    
+    def get_latest_stable(self, model_name: str) -&gt; str:
+        &quot;&quot;&quot;Get latest stable version&quot;&quot;&quot;
+        stable_versions = [
+            v for k, v in self.versions.items()
+            if v['model_name'] == model_name and v['status'] == 'stable'
+        ]
+        
+        if not stable_versions:
+            return None
+        
+        # Sort by version
+        stable_versions.sort(
+            key=lambda x: self._version_tuple(x['version']),
+            reverse=True
+        )
+        
+        return stable_versions[0]['version']
+    
+    def _version_tuple(self, version: str) -&gt; tuple:
+        &quot;&quot;&quot;Convert version string to tuple for comparison&quot;&quot;&quot;
+        # Remove label
+        version_num = version.split('-')[0]
+        return tuple(map(int, version_num.split('.')))</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-incident-response-a">事故响应（Incident Response） and On-Call</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-incident-response-r">事故响应（Incident Response） Runbook</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># incident_response.py - Incident management system
+from enum import Enum
+from datetime import datetime
+from typing import List, Dict
+
+class IncidentSeverity(Enum):
+    SEV1 = &quot;Critical - Service Down&quot;
+    SEV2 = &quot;Major - Degraded Performance&quot;
+    SEV3 = &quot;Minor - Limited Impact&quot;
+    SEV4 = &quot;Low - No User Impact&quot;
+
+class IncidentManager:
+    &quot;&quot;&quot;
+    Manage incidents for LLM platform
+    &quot;&quot;&quot;
+    def __init__(self, pagerduty_client, slack_client):
+        self.pagerduty = pagerduty_client
+        self.slack = slack_client
+        self.incidents = {}
+    
+    def create_incident(
+        self,
+        title: str,
+        severity: IncidentSeverity,
+        description: str
+    ) -&gt; str:
+        &quot;&quot;&quot;Create new incident&quot;&quot;&quot;
+        incident_id = f&quot;INC-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}&quot;
+        
+        incident = {
+            'id': incident_id,
+            'title': title,
+            'severity': severity,
+            'description': description,
+            'status': 'investigating',
+            'created_at': datetime.utcnow(),
+            'timeline': [],
+            'responders': []
+        }
+        
+        self.incidents[incident_id] = incident
+        
+        # Page on-call for SEV1/SEV2
+        if severity in [IncidentSeverity.SEV1, IncidentSeverity.SEV2]:
+            self.pagerduty.create_incident(incident)
+        
+        # Create Slack channel
+        channel = self.slack.create_channel(f&quot;incident-{incident_id.lower()}&quot;)
+        incident['slack_channel'] = channel
+        
+        # Post runbook
+        self._post_runbook(incident)
+        
+        return incident_id
+    
+    def _post_runbook(self, incident: Dict):
+        &quot;&quot;&quot;Post relevant runbook to incident channel&quot;&quot;&quot;
+        runbooks = {
+            'high_latency': self._get_latency_runbook(),
+            'service_down': self._get_downtime_runbook(),
+            'high_error_rate': self._get_error_runbook(),
+            'oom': self._get_oom_runbook()
+        }
+        
+        # Determine relevant runbook based on incident
+        # Post to Slack
+        pass
+    
+    def _get_latency_runbook(self) -&gt; str:
+        return &quot;&quot;&quot;
+## High Latency Runbook
+
+### 1. Check Current Metrics
+- Grafana Dashboard: https://grafana.company.com/llm-latency
+- Query: `histogram_quantile(0.95, rate(llm_request_duration_seconds_bucket[5m]))`
+
+### 2. Immediate Actions
+- [ ] Check GPU utilization: `kubectl top nodes -l gpu=true`
+- [ ] Check for resource saturation
+- [ ] Review recent deployments (rollback if needed)
+- [ ] Check batch sizes and queue lengths
+
+### 3. Investigation Steps
+- [ ] Review application logs for slow queries
+- [ ] Check database performance
+- [ ] Verify network latency to downstream services
+- [ ] Check for memory pressure
+
+### 4. Mitigation Options
+- [ ] Scale up GPU nodes
+- [ ] Reduce batch size
+- [ ] Enable caching for common requests
+- [ ] Implement request shedding for overload
+
+### 5. Communication
+- Update status page every 15 minutes
+- Post updates to #incidents channel
+&quot;&quot;&quot;</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-summary">Summary</h4>
+<p>This lesson covered production best practices for 大语言模型（LLM） systems:</p>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-key-takeaways">Key Takeaways</h5>
+<ol>
+<li><strong>生产环境（Production） Readiness</strong>: Comprehensive checklist covering performance, reliability, security, safety, compliance, and operations</li>
+<li><strong>High Availability</strong>: Multi-region deployments, circuit breakers, graceful degradation</li>
+<li><strong>Disaster Recovery</strong>: Backup strategies, recovery procedures, RTO/RPO objectives</li>
+<li><strong>Safe Deployments</strong>: Blue-green and canary strategies for risk-free rollouts</li>
+<li><strong>A/B 测试（A/B Testing）</strong>: Data-driven improvements with statistical significance</li>
+<li><strong>Prompt Engineering</strong>: Systematic optimization and testing</li>
+<li><strong>Safety</strong>: Content moderation, toxicity detection, output validation</li>
+<li><strong>Privacy</strong>: PII detection, GDPR compliance, data subject rights</li>
+<li><strong>Versioning</strong>: Semantic versioning, promotion pipelines</li>
+<li><strong>事故响应（Incident Response）</strong>: Runbooks, on-call procedures, escalation paths</li>
+</ol>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-production-checklis">生产环境（Production） Checklist</h5>
+<ul>
+<li>✓ Comprehensive monitoring and alerting</li>
+<li>✓ High availability across regions</li>
+<li>✓ Disaster recovery tested regularly</li>
+<li>✓ Safe deployment strategies (blue-green/canary)</li>
+<li>✓ Content moderation and safety filters</li>
+<li>✓ PII detection and redaction</li>
+<li>✓ GDPR compliance mechanisms</li>
+<li>✓ Model versioning and promotion</li>
+<li>✓ Incident response procedures</li>
+<li>✓ Cost optimization strategies</li>
+<li>✓ Complete documentation</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-lessons-from-produc">Lessons from 生产环境（Production）</h5>
+<ol>
+<li><strong>Start Simple</strong>: Begin with proven patterns, add complexity as needed</li>
+<li><strong>Monitor Everything</strong>: Can't improve what you don't measure</li>
+<li><strong>Automate Safety</strong>: Human review doesn't scale</li>
+<li><strong>Plan for Failures</strong>: Assume everything will fail eventually</li>
+<li><strong>Test Continuously</strong>: Testing in production is inevitable, do it safely</li>
+<li><strong>Document Thoroughly</strong>: Future you will thank present you</li>
+<li><strong>Iterate Based on Data</strong>: Use metrics to guide improvements</li>
+</ol>
+<h5 id="lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md-next-steps">Next Steps</h5>
+<ul>
+<li>Deploy a pilot project using these practices</li>
+<li>Build your incident response playbooks</li>
+<li>Establish baseline metrics for your use case</li>
+<li>Create your specific compliance checklist</li>
+<li>Set up monitoring and alerting</li>
+<li>Train your team on procedures</li>
+<li>Conduct DR drills regularly</li>
+</ul>
+<hr/>
+<p><strong>Congratulations!</strong> You've completed the 大语言模型（LLM） 基础设施（LLM Infrastructure） module. You now have the knowledge to build and operate production-grade 大语言模型（LLM） systems.</p>
+<p><strong>Module Complete</strong>: <a href="#doc-lessons-mod-110-llm-infrastructure-readme-md">10-llm-infrastructure</a></p><p><a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-07-llm-platform-architecture-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-110-llm-infrastructure.html#doc-lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

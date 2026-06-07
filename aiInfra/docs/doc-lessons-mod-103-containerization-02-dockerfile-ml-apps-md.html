@@ -1,0 +1,626 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 02: Dockerfiles for ML Applications</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 02: Dockerfiles for ML Applications</h1><p>Module 103: 容器化（Containerization） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Module 03: 容器化（Containerization） with Docker 容器（Docker）</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-resources-md.html">Module 03 Resources: 容器化（Containerization） with Docker 容器（Docker）</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lesson 01: Docker 容器（Docker） Introduction</a><a class="tree-doc active" href="../docs/doc-lessons-mod-103-containerization-02-dockerfile-ml-apps-md.html">Lesson 02: Dockerfiles for ML Applications</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-03-image-optimization-md.html">Lesson 03: Image Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-04-docker-networking-volumes-md.html">Lesson 04: Docker 容器（Docker） Networking and Volumes</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-05-docker-compose-md.html">Lesson 05: Docker 容器（Docker） Compose 多服务编排（Docker Compose） for ML Applications</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-06-container-registries-md.html">Lesson 06: Container Registries</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-07-gpu-docker-md.html">Lesson 07: GPU 加速（GPU） Support in Docker 容器（Docker）</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-08-production-best-practices-md.html">Lesson 08: 生产环境（Production） Best Practices</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-01-dockerfile-optimization-md.html">Lab 01: Dockerfile Optimization for ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-02-multi-stage-builds-md.html">Lab 02: Multi-Stage Builds for Slim 生产环境（Production） Images</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-03-docker-compose-stack-md.html">Lab 03: Compose a Multi-Service Stack</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-04-gpu-docker-md.html">Lab 04: Run a GPU 加速（GPU） Container with PyTorch 深度学习框架（PyTorch） CUDA 并行计算（CUDA）</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-05-private-registry-md.html">Lab 05: Stand Up a Private Container Registry</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-06-container-security-scanning-md.html">Lab 06: Security-Scan Images with Trivy</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Module 103 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-01-dockerfile-md.html">Exercise 01: Build Your First ML Dockerfile</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-02-multi-container-md.html">Exercise 02: Multi-Container ML Application</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-03-gpu-container-md.html">Exercise 03: GPU-Accelerated ML Container</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercise 04: Container 安全（Security） Scanner</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-05-image-optimizer-readme-md.html">Exercise 05: Multi-Stage Build Optimizer</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-06-registry-manager-readme-md.html">Exercise 06: Container Registry Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-07-buildkit-cache-optimization-readme-.html">Exercise 07: BuildKit Cache Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-08-multi-arch-builds-readme-md.html">Exercise 08: Multi-Architecture Builds (amd64 + arm64)</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-09-runtime-debugging-readme-md.html">Exercise 09: Container Runtime Debugging</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-10-sbom-and-supply-chain-readme-md.html">Exercise 10: SBOM and Container Supply Chain</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-11-ml-container-patterns-readme-md.html">Exercise 11: ML-Specific Container Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-12-vulnerability-remediation-readme-md.html">Exercise 12: Container Vulnerability Remediation Workflow</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Module 03 Quiz: 容器化（Containerization） with Docker 容器（Docker）</a></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 02: Dockerfiles for ML Applications</h2><p>Module 103: 容器化（Containerization） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>2</strong><span>reading order</span></div><div class="stat"><strong>30</strong><span>chapter docs</span></div><div class="stat"><strong>836</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-103-containerization-02-dockerfile-ml-apps-md" data-title="lesson 02: dockerfiles for ml applications lessons/mod-103-containerization/02-dockerfile-ml-apps.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">2/30</span><span class="chip">Lectures</span><span class="path">lessons/mod-103-containerization/02-dockerfile-ml-apps.md</span><span class="path">836 行</span></div><h2>Lesson 02: Dockerfiles for ML Applications</h2><p><a class="home" href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-103-containerization.html#doc-lessons-mod-103-containerization-02-dockerfile-ml-apps-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-103-containerization-03-image-optimization-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-lesson-02-dockerfiles-for-ml-app">Lesson 02: Dockerfiles for ML Applications</h3>
+<p><strong>Duration:</strong> 5 hours <strong>Objectives:</strong> Write production-ready Dockerfiles for machine learning applications</p>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ol>
+<li>Understand Dockerfile syntax and instructions</li>
+<li>Choose appropriate base images for ML workloads</li>
+<li>Install ML frameworks (PyTorch, TensorFlow 深度学习框架（TensorFlow）) in containers</li>
+<li>Copy application code and model files into images</li>
+<li>Configure entry points and commands for ML services</li>
+<li>Handle Python dependencies effectively</li>
+<li>Write your first Dockerfile for a PyTorch 深度学习框架（PyTorch） application</li>
+</ol>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-introduction-to-dockerfiles">Introduction to Dockerfiles</h4>
+<p>A <strong>Dockerfile</strong> is a text file containing instructions to build a Docker 容器（Docker） image. Think of it as a recipe:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Recipe for a Docker image
+FROM python:3.11-slim          # Start with this base
+RUN apt-get update             # Run these commands
+COPY app.py /app/              # Copy these files
+CMD [&quot;python&quot;, &quot;app.py&quot;]       # Run this when container starts</code></pre></div>
+<p>When you run <code>docker build</code>, Docker 容器（Docker） executes each instruction in sequence, creating a new <strong>layer</strong> for each step. These layers are cached, making subsequent builds faster.</p>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-dockerfile-instructions">Dockerfile Instructions</h4>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-from-choose-your-base-image">FROM: Choose Your Base Image</h5>
+<p>Every Dockerfile starts with <code>FROM</code>, which specifies the base image:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Official Python image
+FROM python:3.11-slim
+
+# NVIDIA CUDA image for GPU support
+FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
+
+# Pre-built PyTorch image
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime</code></pre></div>
+<p><strong>Choosing the Right Base:</strong></p>
+<ul>
+<li><strong>python:3.11-slim</strong>: Small Python image (~50MB), good for CPU workloads</li>
+<li><strong>python:3.11</strong>: Full Python image (~300MB), includes more tools</li>
+<li><strong>nvidia/cuda</strong>: CUDA 并行计算（CUDA） support for GPU 加速（GPU） workloads</li>
+<li><strong>pytorch/pytorch</strong>: PyTorch 深度学习框架（PyTorch） pre-installed with CUDA 并行计算（CUDA）</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-run-execute-commands">RUN: Execute Commands</h5>
+<p><code>RUN</code> executes commands during image build:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Install system dependencies
+RUN apt-get update &amp;&amp; apt-get install -y \
+    git \
+    curl \
+    vim \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+# Install Python packages
+RUN pip install --no-cache-dir \
+    torch==2.1.0 \
+    transformers==4.35.0 \
+    fastapi==0.104.1</code></pre></div>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Chain commands with <code>&amp;&amp;</code> to reduce layers</li>
+<li>Clean up package caches (<code>rm -rf /var/lib/apt/lists/*</code>)</li>
+<li>Use <code>--no-cache-dir</code> with pip to save space</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-workdir-set-working-directory">WORKDIR: Set Working Directory</h5>
+<p><code>WORKDIR</code> sets the directory for subsequent instructions:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">WORKDIR /app
+
+# Now all commands run in /app
+COPY model.py .           # Copies to /app/model.py
+RUN python setup.py       # Runs in /app</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-copy-and-add-copy-files">COPY and ADD: Copy Files</h5>
+<p><code>COPY</code> copies files from your machine into the image:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Copy a single file
+COPY requirements.txt /app/
+
+# Copy entire directory
+COPY ./src /app/src
+
+# Copy model weights (be careful with large files!)
+COPY models/resnet50.pth /app/models/</code></pre></div>
+<p><strong>COPY vs ADD:</strong></p>
+<ul>
+<li>Use <code>COPY</code> for simple file copying</li>
+<li><code>ADD</code> can extract tar files and download URLs (usually avoid it)</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-env-set-environment-variables">ENV: Set Environment Variables</h5>
+<p><code>ENV</code> sets environment variables:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    CUDA_VISIBLE_DEVICES=0 \
+    MODEL_PATH=/app/models/model.pth</code></pre></div>
+<p><strong>Common ML Environment Variables:</strong></p>
+<ul>
+<li><code>PYTHONUNBUFFERED=1</code>: See logs in real-time</li>
+<li><code>CUDA_VISIBLE_DEVICES</code>: Control GPU 加速（GPU） access</li>
+<li><code>OMP_NUM_THREADS</code>: Control CPU threading</li>
+<li><code>TOKENIZERS_PARALLELISM=false</code>: Avoid tokenizer warnings</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-expose-document-ports">EXPOSE: Document Ports</h5>
+<p><code>EXPOSE</code> documents which ports the container listens on:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Document that API runs on port 8000
+EXPOSE 8000</code></pre></div>
+<p><strong>Note:</strong> <code>EXPOSE</code> is documentation only. You still need <code>-p</code> when running:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker run -p 8000:8000 my-ml-app</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-cmd-and-entrypoint-container-sta">CMD and ENTRYPOINT: Container Startup</h5>
+<p><strong>CMD</strong> specifies the default command:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Exec form (preferred)
+CMD [&quot;python&quot;, &quot;app.py&quot;]
+
+# Shell form (avoid - doesn't handle signals properly)
+CMD python app.py</code></pre></div>
+<p><strong>ENTRYPOINT</strong> defines the executable:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Container always runs python
+ENTRYPOINT [&quot;python&quot;]
+
+# Default argument (can be overridden)
+CMD [&quot;app.py&quot;]
+
+# Running: docker run my-image train.py
+# Executes: python train.py</code></pre></div>
+<p><strong>Best Practice for ML:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Flexible entry point
+ENTRYPOINT [&quot;python&quot;, &quot;-m&quot;]
+CMD [&quot;serve&quot;]
+
+# docker run my-image serve     → python -m serve
+# docker run my-image train     → python -m train</code></pre></div>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-base-images-for-ml-applications">Base Images for ML Applications</h4>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-python-official-images">Python Official Images</h5>
+<p><strong>python:3.11-slim</strong> (Recommended for CPU)</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">FROM python:3.11-slim
+# Size: ~50MB base, ~500MB with ML packages
+# Pros: Small, fast builds, official
+# Cons: No GPU support, minimal tools</code></pre></div>
+<p><strong>python:3.11</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">FROM python:3.11
+# Size: ~300MB base
+# Pros: More tools included
+# Cons: Larger, unnecessary packages</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-nvidia-cuda-images">NVIDIA CUDA 并行计算（CUDA） Images</h5>
+<p><strong>For GPU 加速（GPU） workloads:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Runtime image (for inference)
+FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
+
+# Devel image (for training/compilation)
+FROM nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04</code></pre></div>
+<p><strong>Understanding CUDA 并行计算（CUDA） image tags:</strong></p>
+<ul>
+<li><code>12.1.0</code>: CUDA 并行计算（CUDA） version</li>
+<li><code>cudnn8</code>: cuDNN version (deep learning primitives)</li>
+<li><code>runtime</code> vs <code>devel</code>: Runtime = smaller, Devel = includes compilers</li>
+<li><code>ubuntu22.04</code>: Base OS</li>
+</ul>
+<p><strong>When to use which:</strong></p>
+<ul>
+<li><strong>runtime</strong>: 推理（Inference）, model serving (smaller)</li>
+<li><strong>devel</strong>: 训练（Training）, building from source (larger but complete)</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-framework-specific-images">Framework-Specific Images</h5>
+<p><strong>PyTorch 深度学习框架（PyTorch） Official Images:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># CPU
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+
+# GPU runtime
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+
+# GPU development
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-devel</code></pre></div>
+<p><strong>TensorFlow 深度学习框架（TensorFlow） Official Images:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># CPU
+FROM tensorflow/tensorflow:2.15.0
+
+# GPU
+FROM tensorflow/tensorflow:2.15.0-gpu</code></pre></div>
+<p><strong>Hugging Face Images:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">FROM huggingface/transformers-pytorch-gpu:latest</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-choosing-your-base-image-decisio">Choosing Your Base Image: Decision Tree</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Do you need GPU?
+├─ No  → python:3.11-slim
+└─ Yes → Do you need to compile code?
+    ├─ No  → nvidia/cuda:12.1-runtime or pytorch/pytorch:*-runtime
+    └─ Yes → nvidia/cuda:12.1-devel or pytorch/pytorch:*-devel</code></pre></div>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-installing-ml-dependencies">Installing ML Dependencies</h4>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-using-requirements-txt">Using requirements.txt</h5>
+<p><strong>Best Practice: Separate requirements file</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Copy only requirements first (for caching)
+COPY requirements.txt /app/
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Then copy code
+COPY . /app/</code></pre></div>
+<p><strong>Why this order matters:</strong></p>
+<ul>
+<li>Docker 容器（Docker） caches layers</li>
+<li>If code changes but requirements don't, Docker 容器（Docker） reuses cached layer</li>
+<li>Fast rebuilds!</li>
+</ul>
+<p><strong>requirements.txt example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>txt</span><span>TXT</span></div><pre><code class="language-txt"># requirements.txt
+torch==2.1.0
+torchvision==0.16.0
+transformers==4.35.0
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+numpy==1.24.3
+pillow==10.1.0</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-using-conda-alternative">Using conda (Alternative)</h5>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">FROM continuumio/miniconda3
+
+# Copy environment file
+COPY environment.yml /tmp/
+
+# Create environment
+RUN conda env create -f /tmp/environment.yml
+
+# Activate environment
+SHELL [&quot;conda&quot;, &quot;run&quot;, &quot;-n&quot;, &quot;myenv&quot;, &quot;/bin/bash&quot;, &quot;-c&quot;]
+
+# Run app in conda environment
+CMD [&quot;conda&quot;, &quot;run&quot;, &quot;-n&quot;, &quot;myenv&quot;, &quot;python&quot;, &quot;app.py&quot;]</code></pre></div>
+<p><strong>When to use conda:</strong></p>
+<ul>
+<li>Need non-Python dependencies (compiled C++ libraries)</li>
+<li>Data science packages with complex dependencies</li>
+<li>Team already uses conda</li>
+</ul>
+<p><strong>When to use pip:</strong></p>
+<ul>
+<li>Simpler dependencies</li>
+<li>Smaller images (conda adds 500MB+)</li>
+<li>Faster builds</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-installing-pytorch">Installing PyTorch 深度学习框架（PyTorch）</h5>
+<p><strong>CPU-only:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">RUN pip install --no-cache-dir \
+    torch==2.1.0 \
+    torchvision==0.16.0 \
+    torchaudio==2.1.0 \
+    --index-url https://download.pytorch.org/whl/cpu</code></pre></div>
+<p><strong>GPU 加速（GPU） (CUDA 12.1):</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">RUN pip install --no-cache-dir \
+    torch==2.1.0 \
+    torchvision==0.16.0 \
+    torchaudio==2.1.0 \
+    --index-url https://download.pytorch.org/whl/cu121</code></pre></div>
+<p><strong>Troubleshooting: Version Matching</strong></p>
+<p>⚠️ <strong>Common Pitfall:</strong> CUDA 并行计算（CUDA） version mismatch</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># WRONG: CUDA 12.1 base image, PyTorch built for CUDA 11.8
+FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+RUN pip install torch  # Defaults to CUDA 11.8!
+
+# CORRECT: Match versions
+FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+RUN pip install torch --index-url https://download.pytorch.org/whl/cu121</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-installing-tensorflow">Installing TensorFlow 深度学习框架（TensorFlow）</h5>
+<p><strong>CPU:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">RUN pip install --no-cache-dir tensorflow==2.15.0</code></pre></div>
+<p><strong>GPU 加速（GPU）:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Use TensorFlow's official GPU image
+FROM tensorflow/tensorflow:2.15.0-gpu
+
+# Or install manually
+FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
+RUN pip install --no-cache-dir tensorflow[and-cuda]==2.15.0</code></pre></div>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-copying-code-and-models">Copying Code and Models</h4>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-copying-application-code">Copying Application Code</h5>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Create app directory
+WORKDIR /app
+
+# Copy source code
+COPY src/ /app/src/
+COPY configs/ /app/configs/
+
+# Copy entry point
+COPY main.py /app/</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-handling-model-files">Handling Model Files</h5>
+<p><strong>Small Models (&lt;100MB):</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Can include in image
+COPY models/resnet50.pth /app/models/</code></pre></div>
+<p><strong>Large Models (&gt;100MB):</strong></p>
+<p>❌ <strong>Don't include in image</strong> - makes images huge and slow to pull</p>
+<p>✅ <strong>Better approaches:</strong></p>
+<ol>
+<li><strong>Download on startup:</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># startup.sh
+#!/bin/bash
+if [ ! -f /app/models/model.pth ]; then
+    echo &quot;Downloading model...&quot;
+    wget https://storage.googleapis.com/my-models/model.pth -O /app/models/model.pth
+fi
+python main.py</code></pre></div>
+<ol>
+<li><strong>Mount as volume:</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker run -v /host/models:/app/models my-image</code></pre></div>
+<ol>
+<li><strong>Use model registry:</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># app.py - download from MLflow or S3
+import mlflow
+model = mlflow.pytorch.load_model(&quot;models:/my-model/production&quot;)</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-using-dockerignore">Using .dockerignore</h5>
+<p>Create <code>.dockerignore</code> to exclude unnecessary files:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text"># .dockerignore
+**/__pycache__
+**/.git
+**/.venv
+**/.pytest_cache
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+.env
+*.log
+notebooks/
+tests/
+docs/
+data/large_dataset/</code></pre></div>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Faster builds (less data to copy)</li>
+<li>Smaller images</li>
+<li>Avoid copying secrets accidentally</li>
+</ul>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-complete-dockerfile-examples">Complete Dockerfile Examples</h4>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-example-1-simple-pytorch-inferen">Example 1: Simple PyTorch 深度学习框架（PyTorch） 推理（Inference） API</h5>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Start with Python 3.11 slim image
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update &amp;&amp; apt-get install -y \
+    curl \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY src/ ./src/
+COPY models/ ./models/
+COPY main.py .
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    MODEL_PATH=/app/models/model.pth
+
+# Expose API port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run the application
+CMD [&quot;uvicorn&quot;, &quot;main:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;]</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-example-2-gpu-accelerated-traini">Example 2: GPU-Accelerated 训练（Training） Container</h5>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># CUDA base image with cuDNN
+FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
+
+# Install Python 3.11
+RUN apt-get update &amp;&amp; apt-get install -y \
+    python3.11 \
+    python3.11-dev \
+    python3-pip \
+    git \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+# Set Python 3.11 as default
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+WORKDIR /workspace
+
+# Install PyTorch with CUDA 12.1 support
+RUN pip install --no-cache-dir \
+    torch==2.1.0 \
+    torchvision==0.16.0 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy training code
+COPY train.py .
+COPY utils/ ./utils/
+COPY configs/ ./configs/
+
+# Set environment variables for GPU
+ENV CUDA_VISIBLE_DEVICES=0 \
+    PYTHONUNBUFFERED=1 \
+    TOKENIZERS_PARALLELISM=false
+
+# Entry point for flexible commands
+ENTRYPOINT [&quot;python&quot;]
+CMD [&quot;train.py&quot;]</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-example-3-hugging-face-transform">Example 3: Hugging Face Transformers Model</h5>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install git (needed for transformers)
+RUN apt-get update &amp;&amp; apt-get install -y \
+    git \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application
+COPY app.py .
+COPY config.json .
+
+# Create cache directory for models
+RUN mkdir -p /app/model_cache
+
+# Environment variables
+ENV TRANSFORMERS_CACHE=/app/model_cache \
+    PYTHONUNBUFFERED=1
+
+EXPOSE 8000
+
+# Download model at build time (optional)
+RUN python -c &quot;from transformers import AutoModel; AutoModel.from_pretrained('bert-base-uncased')&quot;
+
+CMD [&quot;uvicorn&quot;, &quot;app:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;]</code></pre></div>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-building-and-running-images">Building and Running Images</h4>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-building-an-image">Building an Image</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Build with tag
+docker build -t my-ml-app:v1.0 .
+
+# Build with build arguments
+docker build --build-arg CUDA_VERSION=12.1 -t my-ml-app:v1.0 .
+
+# Build and view progress
+docker build --progress=plain -t my-ml-app:v1.0 .</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-running-a-container">Running a Container</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Basic run
+docker run my-ml-app:v1.0
+
+# Run with port mapping
+docker run -p 8000:8000 my-ml-app:v1.0
+
+# Run with GPU
+docker run --gpus all my-ml-app:v1.0
+
+# Run in detached mode
+docker run -d -p 8000:8000 --name ml-api my-ml-app:v1.0
+
+# Run with environment variables
+docker run -e MODEL_NAME=resnet50 -p 8000:8000 my-ml-app:v1.0
+
+# Run with volume mount
+docker run -v $(pwd)/models:/app/models -p 8000:8000 my-ml-app:v1.0</code></pre></div>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-common-pitfalls-and-solutions">Common Pitfalls and Solutions</h4>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-pitfall-1-large-image-sizes">Pitfall 1: Large Image Sizes</h5>
+<p>❌ <strong>Problem:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">FROM python:3.11
+RUN pip install torch torchvision
+# Result: 5GB+ image</code></pre></div>
+<p>✅ <strong>Solution:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">FROM python:3.11-slim
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# Result: ~2GB image (we'll optimize further in next lesson)</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-pitfall-2-cache-invalidation">Pitfall 2: Cache Invalidation</h5>
+<p>❌ <strong>Problem:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">COPY . /app/                    # Copies everything
+RUN pip install -r requirements.txt  # Reinstalls every time code changes</code></pre></div>
+<p>✅ <strong>Solution:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">COPY requirements.txt /app/
+RUN pip install -r requirements.txt  # Cached unless requirements change
+COPY . /app/                          # Code changes don't affect pip layer</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-pitfall-3-running-as-root">Pitfall 3: Running as Root</h5>
+<p>❌ <strong>Problem:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Container runs as root (security risk)
+CMD [&quot;python&quot;, &quot;app.py&quot;]</code></pre></div>
+<p>✅ <strong>Solution:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Create non-root user
+RUN useradd -m -u 1000 appuser &amp;&amp; \
+    chown -R appuser:appuser /app
+
+USER appuser
+
+CMD [&quot;python&quot;, &quot;app.py&quot;]</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-pitfall-4-no-health-checks">Pitfall 4: No Health Checks</h5>
+<p>❌ <strong>Problem:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># No way to know if service is healthy
+CMD [&quot;python&quot;, &quot;app.py&quot;]</code></pre></div>
+<p>✅ <strong>Solution:</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile">HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1</code></pre></div>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-hands-on-exercise-build-your-fir">Hands-On Exercise: Build Your First ML Dockerfile</h4>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-objective">目标（Objective）</h5>
+<p>Create a Dockerfile for a FastAPI 服务框架（FastAPI） application that serves a PyTorch 深度学习框架（PyTorch） image classification model.</p>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-application-structure">Application Structure</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">ml-api/
+├── Dockerfile
+├── requirements.txt
+├── app.py
+├── model.py
+└── models/
+    └── resnet18.pth</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-step-1-create-application-files">Step 1: Create Application Files</h5>
+<p><strong>app.py:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import FastAPI, File, UploadFile
+from PIL import Image
+import torch
+from model import ImageClassifier
+import io
+
+app = FastAPI()
+classifier = ImageClassifier()
+
+@app.get(&quot;/health&quot;)
+def health():
+    return {&quot;status&quot;: &quot;healthy&quot;}
+
+@app.post(&quot;/predict&quot;)
+async def predict(file: UploadFile = File(...)):
+    image = Image.open(io.BytesIO(await file.read()))
+    result = classifier.predict(image)
+    return {&quot;prediction&quot;: result}</code></pre></div>
+<p><strong>requirements.txt:</strong></p>
+<div class="code-shell"><div class="code-title"><span>txt</span><span>TXT</span></div><pre><code class="language-txt">fastapi==0.104.1
+uvicorn[standard]==0.24.0
+torch==2.1.0
+torchvision==0.16.0
+pillow==10.1.0
+python-multipart==0.0.6</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-step-2-write-dockerfile">Step 2: Write Dockerfile</h5>
+<p><strong>TODO: Complete this Dockerfile</strong></p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># TODO: Choose appropriate base image
+
+
+# TODO: Set working directory
+
+
+# TODO: Install system dependencies (if needed)
+
+
+# TODO: Copy and install Python requirements
+
+
+# TODO: Copy application code
+
+
+# TODO: Set environment variables
+
+
+# TODO: Expose port
+
+
+# TODO: Add health check
+
+
+# TODO: Set command to run the application</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-step-3-build-and-test">Step 3: Build and Test</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Build the image
+docker build -t ml-api:v1 .
+
+# Run the container
+docker run -d -p 8000:8000 --name ml-api ml-api:v1
+
+# Test health endpoint
+curl http://localhost:8000/health
+
+# Test prediction (with an image)
+curl -X POST -F &quot;file=@test_image.jpg&quot; http://localhost:8000/predict</code></pre></div>
+<h5 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-success-criteria">Success Criteria</h5>
+<ul>
+<li>[ ] Image builds successfully</li>
+<li>[ ] Container starts without errors</li>
+<li>[ ] Health check returns 200 OK</li>
+<li>[ ] Can make predictions via API</li>
+<li>[ ] Image size &lt; 2GB</li>
+</ul>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<ol>
+<li><strong>Dockerfile Syntax</strong> - FROM, RUN, COPY, CMD, ENTRYPOINT, etc.</li>
+<li><strong>Base Images</strong> - Choosing between Python, CUDA 并行计算（CUDA）, and framework-specific images</li>
+<li><strong>ML Dependencies</strong> - Installing PyTorch 深度学习框架（PyTorch）, TensorFlow 深度学习框架（TensorFlow） with proper versions</li>
+<li><strong>Code Management</strong> - Copying code and handling model files</li>
+<li><strong>Best Practices</strong> - Layer caching, .dockerignore, non-root users</li>
+<li><strong>Building and Running</strong> - docker build and docker run commands</li>
+</ol>
+<p><strong>Key Takeaways:</strong></p>
+<ul>
+<li>Order matters: dependencies before code for caching</li>
+<li>Choose minimal base images when possible</li>
+<li>Use .dockerignore to exclude unnecessary files</li>
+<li>Match CUDA 并行计算（CUDA） versions between base image and packages</li>
+<li>Don't include large models in images</li>
+</ul>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-what-s-next">What's Next?</h4>
+<p>In the next lesson, <strong>03-image-optimization.md</strong>, you'll learn:</p>
+<ul>
+<li>Multi-stage builds to reduce image size by 50-70%</li>
+<li>Advanced layer caching strategies</li>
+<li>Optimizing for both build time and runtime</li>
+<li>安全（Security） scanning and vulnerability management</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li>What's the difference between <code>CMD</code> and <code>ENTRYPOINT</code>?</li>
+<li>Why should you copy <code>requirements.txt</code> before copying application code?</li>
+<li>When would you use <code>nvidia/cuda</code> base image vs <code>pytorch/pytorch</code>?</li>
+<li>How do you install PyTorch 深度学习框架（PyTorch） with CUDA 并行计算（CUDA） 12.1 support?</li>
+<li>Why is running containers as root a security risk?</li>
+</ol>
+<h4 id="lessons-mod-103-containerization-02-dockerfile-ml-apps-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://docs.docker.com/engine/reference/builder/">Dockerfile Reference</a></li>
+<li><a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/">Best Practices for Writing Dockerfiles</a></li>
+<li><a href="https://hub.docker.com/r/pytorch/pytorch">PyTorch 深度学习框架（PyTorch） Docker 容器（Docker） Images</a></li>
+<li><a href="https://catalog.ngc.nvidia.com/">NVIDIA NGC Catalog</a></li>
+</ul>
+<hr/>
+<p><strong>Next:</strong> <a href="#doc-lessons-mod-103-containerization-03-image-optimization-md">03-image-optimization.md</a></p><p><a class="home" href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-103-containerization.html#doc-lessons-mod-103-containerization-02-dockerfile-ml-apps-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-103-containerization-03-image-optimization-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

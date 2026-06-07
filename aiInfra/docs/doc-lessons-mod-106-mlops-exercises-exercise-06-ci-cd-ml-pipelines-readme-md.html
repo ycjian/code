@@ -1,0 +1,906 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Exercise 06: CI/CD 持续集成与交付（CI/CD） for ML Pipelines</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Exercise 06: CI/CD 持续集成与交付（CI/CD） for ML Pipelines</h1><p>Module 106: MLOps 机器学习运维（MLOps） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-resources-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Learning Resources</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lesson 01: Introduction to MLOps 机器学习运维（MLOps）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md.html">Lesson 02: MLflow 实验追踪（MLflow） 实验追踪（Experiment Tracking）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-03-model-registry-versioning-md.html">Lesson 03: 模型注册表（Model Registry） &amp; Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-04-feature-stores-engineering-md.html">Lesson 04: Feature Stores &amp; Feature Engineering</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-05-cicd-ml-models-md.html">Lesson 05: CI/CD 持续集成与交付（CI/CD） for ML Models</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-06-model-deployment-strategies-md.html">Lesson 06: Model 部署（Deployment） Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-07-ab-testing-experimentation-md.html">Lesson 07: A/B 测试（A/B Testing） &amp; Experimentation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-08-best-practices-governance-md.html">Lesson 08: MLOps 机器学习运维（MLOps） Best Practices &amp; 治理（Governance）</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-01-mlflow-tracking-md.html">Lab 01: MLflow 实验追踪（MLflow） Tracking Server End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-02-model-registry-md.html">Lab 02: 模型注册表（Model Registry） and Stage Promotion</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-03-feature-store-md.html">Lab 03: Stand Up a Feast 特征平台（Feature Store）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-04-cicd-models-md.html">Lab 04: CI/CD 持续集成与交付（CI/CD） for Models with GitHub Actions</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-05-canary-deployment-md.html">Lab 05: Canary 部署（Deployment） with Argo Rollouts</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-06-ab-testing-md.html">Lab 06: A/B Test with Traffic Splitting</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-07-drift-monitoring-md.html">Lab 07: Drift 监控（Monitoring） with Evidently</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Module 106 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercise 01: MLOps 机器学习运维（MLOps） Maturity Assessment</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-02-mlflow-tracking-deep-dive-readme-md.html">Exercise 02: MLflow 实验追踪（MLflow） Tracking Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-03-model-registry-promotion-readme-md.html">Exercise 03: 模型注册表（Model Registry） and Promotion Workflow</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md.html">Exercise 04: 实验追踪（Experiment Tracking） and 模型注册表（Model Registry） with MLflow 实验追踪（MLflow）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">Exercise 05: Model 监控（Monitoring） and Drift Detection</a><a class="tree-doc active" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md.html">Exercise 06: CI/CD 持续集成与交付（CI/CD） for ML Pipelines</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-07-feature-store-implementation-readme-md.html">Exercise 07: 特征平台（Feature Store） Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-08-deployment-strategies-readme-md.html">Exercise 08: Model 部署（Deployment） Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-09-ab-testing-infrastructure-readme-md.html">Exercise 09: A/B 测试（A/B Testing） Infrastructure for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-10-model-governance-readme-md.html">Exercise 10: Model 治理（Governance） and Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-11-ml-orchestration-patterns-readme-md.html">Exercise 11: ML Pipeline Orchestration Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-12-model-cost-attribution-readme-md.html">Exercise 12: Per-Model Cost Attribution</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-13-reproducibility-audit-readme-md.html">Exercise 13: ML Reproducibility Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-14-ml-platform-operating-model-readme-md.html">Exercise 14: ML Platform Team Operating Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-readme-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Exercise 06: CI/CD 持续集成与交付（CI/CD） for ML Pipelines</h2><p>Module 106: MLOps 机器学习运维（MLOps） · Exercises: 课后练习</p><div class="stats"><div class="stat"><strong>14</strong><span>reading order</span></div><div class="stat"><strong>34</strong><span>chapter docs</span></div><div class="stat"><strong>958</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md" data-title="exercise 06: ci/cd for ml pipelines lessons/mod-106-mlops/exercises/exercise-06-ci-cd-ml-pipelines/readme.md exercises: 课后练习"><div class="doc-head"><span class="chip">14/34</span><span class="chip">Exercises</span><span class="path">lessons/mod-106-mlops/exercises/exercise-06-ci-cd-ml-pipelines/README.md</span><span class="path">958 行</span></div><h2>Exercise 06: CI/CD 持续集成与交付（CI/CD） for ML Pipelines</h2><p><a class="home" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-106-mlops.html#doc-lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-07-feature-store-implementation-readme-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-exercise-06-ci-cd">Exercise 06: CI/CD 持续集成与交付（CI/CD） for ML Pipelines</h3>
+<p><strong>Estimated Time</strong>: 26-34 hours <strong>Difficulty</strong>: Advanced <strong>Prerequisites</strong>: Python 3.9+, GitHub Actions, Docker 容器（Docker）, pytest, MLflow 实验追踪（MLflow）</p>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-overview">概览（Overview）</h4>
+<p>Build production-grade CI/CD 持续集成与交付（CI/CD） pipelines for ML projects using GitHub Actions. Implement automated testing (unit tests, integration tests, model validation), model training in CI, automated deployment, and rollback mechanisms. This exercise teaches MLOps 机器学习运维（MLOps） best practices for continuous integration and delivery of ML models.</p>
+<p>In production ML platforms, CI/CD 持续集成与交付（CI/CD） is critical for:</p>
+<ul>
+<li><strong>Automated Testing</strong>: Catch bugs before deployment</li>
+<li><strong>Model Validation</strong>: Ensure models meet quality standards</li>
+<li><strong>Reproducibility</strong>: Build/deploy from any commit</li>
+<li><strong>Fast Iteration</strong>: Deploy models in minutes, not days</li>
+<li><strong>Rollback Safety</strong>: Quick rollback on failures</li>
+</ul>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-learning-objectiv">Learning Objectives</h4>
+<p>By completing this exercise, you will:</p>
+<ol>
+<li><strong>Build GitHub Actions workflows</strong> for ML projects</li>
+<li><strong>Implement automated testing</strong> (unit, integration, model tests)</li>
+<li><strong>Create model training pipeline</strong> in CI</li>
+<li><strong>Build Docker 容器（Docker） images</strong> automatically</li>
+<li><strong>Deploy models</strong> to staging/production</li>
+<li><strong>Implement blue-green deployment</strong> for zero-downtime</li>
+<li><strong>Add automated rollback</strong> on deployment failures</li>
+</ol>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-business-context">Business Context</h4>
+<p><strong>Real-World Scenario</strong>: Your data science team deploys models manually:</p>
+<ul>
+<li><strong>Slow deployments</strong>: Takes 2-3 hours to deploy (manual steps)</li>
+<li><strong>Broken deployments</strong>: 30% of deployments fail due to missing dependencies</li>
+<li><strong>No testing</strong>: Models deployed without validation (causes production incidents)</li>
+<li><strong>Can't rollback</strong>: No automated rollback, takes hours to fix failures</li>
+<li><strong>No reproducibility</strong>: Can't rebuild model from 2 weeks ago</li>
+</ul>
+<p>Your task: Build CI/CD 持续集成与交付（CI/CD） pipeline that:</p>
+<ul>
+<li>Runs all tests automatically on every commit</li>
+<li>Trains model in CI and validates performance</li>
+<li>Builds Docker 容器（Docker） image with exact dependencies</li>
+<li>Deploys to staging automatically, production with approval</li>
+<li>Implements blue-green deployment (zero downtime)</li>
+<li>Auto-rollbacks on failures within 5 minutes</li>
+</ul>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-project-structure">Project Structure</h4>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">exercise-06-ci-cd-ml-pipelines/
+├── README.md
+├── requirements.txt
+├── .github/
+│   └── workflows/
+│       ├── test.yml                 # Run tests on PR
+│       ├── train.yml                # Train model in CI
+│       ├── build.yml                # Build Docker image
+│       ├── deploy-staging.yml       # Deploy to staging
+│       └── deploy-production.yml    # Deploy to production
+├── src/
+│   └── ml_project/
+│       ├── __init__.py
+│       ├── data/
+│       │   ├── __init__.py
+│       │   └── loader.py
+│       ├── features/
+│       │   ├── __init__.py
+│       │   └── engineering.py
+│       ├── models/
+│       │   ├── __init__.py
+│       │   ├── trainer.py
+│       │   └── predictor.py
+│       └── utils/
+│           ├── __init__.py
+│           └── validation.py
+├── tests/
+│   ├── unit/
+│   │   ├── test_data_loader.py
+│   │   ├── test_features.py
+│   │   └── test_model.py
+│   ├── integration/
+│   │   └── test_pipeline.py
+│   └── model/
+│       ├── test_model_performance.py
+│       └── test_model_bias.py
+├── scripts/
+│   ├── train.py                     # Training script
+│   ├── validate_model.py            # Model validation
+│   └── deploy.py                    # Deployment script
+├── deployment/
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── kubernetes/
+│       ├── deployment.yaml
+│       └── service.yaml
+├── config/
+│   ├── model_config.yaml
+│   └── deployment_config.yaml
+└── docs/
+    ├── CICD.md
+    └── DEPLOYMENT.md</code></pre></div>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-requirements">要求（Requirements）</h4>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-functional-requir">Functional Requirements</h5>
+<ol>
+<li><strong>Automated Testing</strong>:</li>
+</ol>
+<ul>
+<li>Unit tests for all functions</li>
+<li>Integration tests for pipeline</li>
+<li>Model performance tests (accuracy &gt;threshold)</li>
+<li>Model bias tests (fairness metrics)</li>
+<li>Data quality tests</li>
+</ul>
+<ol>
+<li><strong>Model 训练（Training） in CI</strong>:</li>
+</ol>
+<ul>
+<li>Train model on PR</li>
+<li>Cache training data</li>
+<li>Log metrics to MLflow 实验追踪（MLflow）</li>
+<li>Fail if model performance drops</li>
+</ul>
+<ol>
+<li><strong>Docker 容器（Docker） Image Build</strong>:</li>
+</ol>
+<ul>
+<li>Build on every merge to main</li>
+<li>Tag with git commit SHA</li>
+<li>Push to container registry</li>
+<li>Multi-stage builds for size optimization</li>
+</ul>
+<ol>
+<li><strong>部署（Deployment）</strong>:</li>
+</ol>
+<ul>
+<li>Deploy to staging automatically</li>
+<li>Deploy to production with approval</li>
+<li>Blue-green deployment pattern</li>
+<li>Health checks before traffic switch</li>
+</ul>
+<ol>
+<li><strong>Rollback</strong>:</li>
+</ol>
+<ul>
+<li>Auto-rollback on errors</li>
+<li>Keep last 5 versions deployable</li>
+<li>One-command manual rollback</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-non-functional-re">Non-Functional Requirements</h5>
+<ul>
+<li><strong>Build Time</strong>: &lt;10 minutes for full pipeline</li>
+<li><strong>Test Coverage</strong>: &gt;80%</li>
+<li><strong>部署（Deployment） Time</strong>: &lt;5 minutes</li>
+<li><strong>Rollback Time</strong>: &lt;2 minutes</li>
+</ul>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-implementation-ta">Implementation Tasks</h4>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-task-1-test-workf">Task 1: Test Workflow (5-6 hours)</h5>
+<p>Set up automated testing on pull requests.</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># .github/workflows/test.yml
+
+name: Test ML Pipeline
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install flake8 black mypy
+          pip install -r requirements.txt
+
+      - name: Lint with flake8
+        run: flake8 src/ tests/ --max-line-length=120
+
+      - name: Check formatting with black
+        run: black --check src/ tests/
+
+      - name: Type check with mypy
+        run: mypy src/
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: pytest tests/unit/ -v --cov=src --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: &gt;-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run integration tests
+        run: pytest tests/integration/ -v
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost/test
+
+  model-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download test data
+        run: |
+          # Download sample test dataset
+          mkdir -p data/test
+          # TODO: Download from S3 or artifact storage
+
+      - name: Run model performance tests
+        run: pytest tests/model/test_model_performance.py -v
+
+      - name: Run model bias tests
+        run: pytest tests/model/test_model_bias.py -v</code></pre></div>
+<p><strong>Example model test</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># tests/model/test_model_performance.py
+
+import pytest
+from src.ml_project.models.trainer import train_model
+from src.ml_project.models.predictor import ModelPredictor
+
+def test_model_accuracy_threshold():
+    &quot;&quot;&quot;Test model meets minimum accuracy threshold&quot;&quot;&quot;
+    # Load test data
+    X_test, y_test = load_test_data()
+
+    # Train model (or load pre-trained)
+    model = train_model(X_train, y_train)
+
+    # Predict
+    predictor = ModelPredictor(model)
+    y_pred = predictor.predict(X_test)
+
+    # Calculate accuracy
+    accuracy = (y_pred == y_test).mean()
+
+    # Assert minimum threshold
+    assert accuracy &gt;= 0.85, f&quot;Model accuracy {accuracy} below threshold 0.85&quot;
+
+def test_model_precision_recall():
+    &quot;&quot;&quot;Test precision and recall meet thresholds&quot;&quot;&quot;
+    from sklearn.metrics import precision_score, recall_score
+
+    # Load data and model
+    X_test, y_test = load_test_data()
+    model = load_trained_model()
+
+    # Predict
+    y_pred = model.predict(X_test)
+
+    # Calculate metrics
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+
+    # Assert thresholds
+    assert precision &gt;= 0.80, f&quot;Precision {precision} below 0.80&quot;
+    assert recall &gt;= 0.75, f&quot;Recall {recall} below 0.75&quot;</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Lint, format, type checks pass</li>
+<li>✅ Unit tests run with coverage</li>
+<li>✅ Integration tests with services</li>
+<li>✅ Model performance validated</li>
+<li>✅ Tests run on every PR</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-task-2-model-trai">Task 2: Model 训练（Training） Workflow (6-7 hours)</h5>
+<p>Train model in CI and track with MLflow 实验追踪（MLflow）.</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># .github/workflows/train.yml
+
+name: Train Model
+
+on:
+  workflow_dispatch:  # Manual trigger
+    inputs:
+      experiment_name:
+        description: 'MLflow experiment name'
+        required: true
+        default: 'fraud_detection'
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly on Sunday at 2 AM
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download training data
+        run: |
+          # Download from S3
+          aws s3 cp s3://ml-data/training/latest.parquet data/training.parquet
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Train model
+        run: python scripts/train.py --experiment-name ${{ github.event.inputs.experiment_name }}
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_PASSWORD }}
+
+      - name: Validate model
+        run: python scripts/validate_model.py --min-accuracy 0.85
+
+      - name: Register model
+        if: success()
+        run: |
+          python -c &quot;
+          import mlflow
+          mlflow.set_tracking_uri('${{ secrets.MLFLOW_TRACKING_URI }}')
+
+          # Get best run from experiment
+          experiment = mlflow.get_experiment_by_name('${{ github.event.inputs.experiment_name }}')
+          runs = mlflow.search_runs(experiment_ids=[experiment.experiment_id], order_by=['metrics.accuracy DESC'], max_results=1)
+
+          if len(runs) &gt; 0:
+              run_id = runs.iloc[0]['run_id']
+              # Register model
+              mlflow.register_model(
+                  f'runs:/{run_id}/model',
+                  name='fraud_detection',
+                  tags={'git_sha': '${{ github.sha }}', 'trained_by': 'github_actions'}
+              )
+          &quot;
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: model-artifacts
+          path: |
+            models/
+            metrics/</code></pre></div>
+<p><strong>训练（Training） script</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># scripts/train.py
+
+import argparse
+import mlflow
+import mlflow.sklearn
+from src.ml_project.data.loader import load_data
+from src.ml_project.features.engineering import engineer_features
+from src.ml_project.models.trainer import train_model
+from sklearn.model_selection import train_test_split
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--experiment-name', required=True)
+    args = parser.parse_args()
+
+    # Set MLflow experiment
+    mlflow.set_experiment(args.experiment_name)
+
+    with mlflow.start_run():
+        # Log git commit
+        mlflow.set_tag('git_sha', os.environ.get('GITHUB_SHA', 'local'))
+
+        # Load data
+        df = load_data('data/training.parquet')
+        mlflow.log_param('data_rows', len(df))
+
+        # Engineer features
+        X, y = engineer_features(df)
+
+        # Split data
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Train model
+        model = train_model(X_train, y_train)
+
+        # Evaluate
+        from sklearn.metrics import accuracy_score, precision_score, recall_score
+        y_pred = model.predict(X_test)
+
+        metrics = {
+            'accuracy': accuracy_score(y_test, y_pred),
+            'precision': precision_score(y_test, y_pred),
+            'recall': recall_score(y_test, y_pred)
+        }
+
+        # Log metrics
+        mlflow.log_metrics(metrics)
+
+        # Log model
+        mlflow.sklearn.log_model(model, 'model')
+
+        print(f&quot;Accuracy: {metrics['accuracy']:.4f}&quot;)
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Train model in CI</li>
+<li>✅ Log to MLflow 实验追踪（MLflow）</li>
+<li>✅ Validate performance</li>
+<li>✅ Register model</li>
+<li>✅ Upload artifacts</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-task-3-docker-bui">Task 3: Docker 容器（Docker） Build Workflow (5-6 hours)</h5>
+<p>Build and push Docker 容器（Docker） images automatically.</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># .github/workflows/build.yml
+
+name: Build Docker Image
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=semver,pattern={{version}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: deployment/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run container security scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'</code></pre></div>
+<p><strong>Dockerfile</strong> (multi-stage build):</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># deployment/Dockerfile
+
+# Stage 1: Builder
+FROM python:3.9-slim as builder
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends \
+    gcc g++ make \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# Stage 2: Runtime
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Copy Python packages from builder
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+
+# Copy application code
+COPY src/ ./src/
+COPY scripts/ ./scripts/
+
+# Download model from MLflow (or bake into image)
+# In production, typically download at runtime
+ENV MLFLOW_TRACKING_URI=https://mlflow.example.com
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD python -c &quot;import requests; requests.get('http://localhost:8000/health')&quot;
+
+# Run model server
+EXPOSE 8000
+CMD [&quot;python&quot;, &quot;scripts/serve.py&quot;]</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Multi-stage Docker 容器（Docker） build</li>
+<li>✅ Push to registry with tags</li>
+<li>✅ 安全（Security） scan with Trivy</li>
+<li>✅ Build cache optimization</li>
+<li>✅ Metadata labels</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-task-4-deployment">Task 4: 部署（Deployment） Workflows (6-7 hours)</h5>
+<p>Deploy to staging and production with approval.</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># .github/workflows/deploy-staging.yml
+
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubectl
+        run: |
+          echo &quot;${{ secrets.KUBECONFIG_STAGING }}&quot; | base64 -d &gt; kubeconfig
+          export KUBECONFIG=./kubeconfig
+
+      - name: Update deployment
+        run: |
+          # Update image tag in deployment
+          kubectl set image deployment/model-server \
+            model-server=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ github.sha }} \
+            -n staging
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/model-server -n staging --timeout=5m
+
+      - name: Run smoke tests
+        run: |
+          # Get service URL
+          SERVICE_URL=$(kubectl get svc model-server -n staging -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+          # Test health endpoint
+          curl -f http://$SERVICE_URL/health || exit 1
+
+          # Test prediction endpoint
+          curl -X POST http://$SERVICE_URL/predict \
+            -H 'Content-Type: application/json' \
+            -d '{&quot;features&quot;: [1.0, 2.0, 3.0]}' || exit 1
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          kubectl rollout undo deployment/model-server -n staging</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># .github/workflows/deploy-production.yml
+
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to deploy'
+        required: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production  # Requires approval
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubectl
+        run: |
+          echo &quot;${{ secrets.KUBECONFIG_PROD }}&quot; | base64 -d &gt; kubeconfig
+          export KUBECONFIG=./kubeconfig
+
+      - name: Blue-Green Deployment
+        run: |
+          # Deploy new version (green)
+          kubectl apply -f deployment/kubernetes/deployment-green.yaml
+
+          # Update green deployment image
+          kubectl set image deployment/model-server-green \
+            model-server=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }} \
+            -n production
+
+          # Wait for green deployment
+          kubectl rollout status deployment/model-server-green -n production --timeout=10m
+
+      - name: Run production smoke tests
+        run: |
+          # Test green deployment
+          GREEN_URL=$(kubectl get svc model-server-green -n production -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+          # Health check
+          curl -f http://$GREEN_URL/health || exit 1
+
+          # Prediction test
+          curl -X POST http://$GREEN_URL/predict \
+            -H 'Content-Type: application/json' \
+            -d '{&quot;features&quot;: [1.0, 2.0, 3.0]}' || exit 1
+
+      - name: Switch traffic to green
+        if: success()
+        run: |
+          # Update service selector to point to green
+          kubectl patch service model-server -n production \
+            -p '{&quot;spec&quot;:{&quot;selector&quot;:{&quot;version&quot;:&quot;green&quot;}}}'
+
+          echo &quot;Traffic switched to green deployment&quot;
+
+      - name: Keep blue deployment as rollback
+        run: |
+          # Scale down blue but keep for quick rollback
+          kubectl scale deployment model-server-blue -n production --replicas=1
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          # Delete green deployment
+          kubectl delete deployment model-server-green -n production
+
+          echo &quot;Deployment failed, keeping blue active&quot;</code></pre></div>
+<p><strong>Kubernetes 容器编排（Kubernetes） deployment</strong> (blue-green):</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># deployment/kubernetes/deployment-green.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-server-green
+  namespace: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: model-server
+      version: green
+  template:
+    metadata:
+      labels:
+        app: model-server
+        version: green
+    spec:
+      containers:
+      - name: model-server
+        image: ghcr.io/org/model:placeholder  # Updated by CI
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MLFLOW_TRACKING_URI
+          valueFrom:
+            secretKeyRef:
+              name: mlflow-credentials
+              key: tracking-uri
+        resources:
+          requests:
+            cpu: &quot;1&quot;
+            memory: &quot;2Gi&quot;
+          limits:
+            cpu: &quot;2&quot;
+            memory: &quot;4Gi&quot;
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Deploy to staging automatically</li>
+<li>✅ Deploy to production with approval</li>
+<li>✅ Blue-green deployment pattern</li>
+<li>✅ Smoke tests before traffic switch</li>
+<li>✅ Auto-rollback on failures</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-task-5-rollback-m">Task 5: Rollback Mechanism (4-5 hours)</h5>
+<p>Implement quick rollback capability.</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># .github/workflows/rollback.yml
+
+name: Rollback Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_version:
+        description: 'Version to rollback to (or &quot;previous&quot;)'
+        required: true
+        default: 'previous'
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubectl
+        run: |
+          echo &quot;${{ secrets.KUBECONFIG_PROD }}&quot; | base64 -d &gt; kubeconfig
+          export KUBECONFIG=./kubeconfig
+
+      - name: Rollback deployment
+        run: |
+          if [ &quot;${{ github.event.inputs.target_version }}&quot; == &quot;previous&quot; ]; then
+            # Rollback to previous revision
+            kubectl rollout undo deployment/model-server -n production
+          else
+            # Rollback to specific version
+            # Switch traffic back to blue
+            kubectl patch service model-server -n production \
+              -p '{&quot;spec&quot;:{&quot;selector&quot;:{&quot;version&quot;:&quot;blue&quot;}}}'
+
+            # Scale up blue
+            kubectl scale deployment model-server-blue -n production --replicas=3
+
+            # Delete green
+            kubectl delete deployment model-server-green -n production || true
+          fi
+
+      - name: Wait for rollback
+        run: |
+          kubectl rollout status deployment/model-server -n production --timeout=5m
+
+      - name: Verify rollback
+        run: |
+          SERVICE_URL=$(kubectl get svc model-server -n production -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          curl -f http://$SERVICE_URL/health
+
+      - name: Notify team
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: &quot;Production rollback completed to ${{ github.event.inputs.target_version }}&quot;,
+              username: 'GitHub Actions',
+              icon_emoji: ':warning:'
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ One-click rollback</li>
+<li>✅ Rollback to previous or specific version</li>
+<li>✅ Verification after rollback</li>
+<li>✅ Team notification</li>
+<li>✅ &lt;2 minute rollback time</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-testing-requireme">Testing Requirements</h4>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># tests/integration/test_deployment.py
+
+def test_deployment_health_check():
+    &quot;&quot;&quot;Test deployment responds to health check&quot;&quot;&quot;
+    import requests
+
+    response = requests.get(&quot;http://localhost:8000/health&quot;)
+    assert response.status_code == 200
+    assert response.json()['status'] == 'healthy'
+
+def test_prediction_endpoint():
+    &quot;&quot;&quot;Test prediction endpoint works&quot;&quot;&quot;
+    import requests
+
+    payload = {&quot;features&quot;: [1.0, 2.0, 3.0, 4.0, 5.0]}
+    response = requests.post(&quot;http://localhost:8000/predict&quot;, json=payload)
+
+    assert response.status_code == 200
+    assert 'prediction' in response.json()</code></pre></div>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-expected-results">Expected Results</h4>
+<div class="table-wrap"><table><thead><tr><th>Metric</th><th>Target</th><th>Measured</th></tr></thead><tbody><tr><td><strong>Build Time</strong></td><td>&lt;10min</td><td>________min</td></tr><tr><td><strong>Test Coverage</strong></td><td>&gt;80%</td><td>________%</td></tr><tr><td><strong>部署（Deployment） Time</strong></td><td>&lt;5min</td><td>________min</td></tr><tr><td><strong>Rollback Time</strong></td><td>&lt;2min</td><td>________min</td></tr></tbody></table></div>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-validation">验证清单（Validation）</h4>
+<p>Submit:</p>
+<ol>
+<li>GitHub Actions workflows</li>
+<li>Automated tests (unit, integration, model)</li>
+<li>Docker 容器（Docker） build configuration</li>
+<li>Kubernetes 容器编排（Kubernetes） deployment manifests</li>
+<li>Blue-green deployment implementation</li>
+<li>Rollback workflow</li>
+<li>Documentation</li>
+</ol>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md-resources">资源（Resources）</h4>
+<ul>
+<li><a href="https://docs.github.com/en/actions">GitHub Actions</a></li>
+<li><a href="https://docs.docker.com/develop/dev-best-practices/">Docker 容器（Docker） Best Practices</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">Kubernetes 容器编排（Kubernetes） Deployments</a></li>
+<li><a href="https://martinfowler.com/bliki/BlueGreenDeployment.html">Blue-Green Deployments</a></li>
+</ul>
+<hr/>
+<p><strong>Estimated Completion Time</strong>: 26-34 hours</p>
+<p><strong>Skills Practiced</strong>:</p>
+<ul>
+<li>GitHub Actions workflows</li>
+<li>Automated ML testing</li>
+<li>Docker 容器（Docker） image building</li>
+<li>Kubernetes 容器编排（Kubernetes） deployment</li>
+<li>Blue-green deployment</li>
+<li>CI/CD 持续集成与交付（CI/CD） for ML</li>
+<li>Automated rollback</li>
+</ul><p><a class="home" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-106-mlops.html#doc-lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-07-feature-store-implementation-readme-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

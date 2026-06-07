@@ -1,0 +1,1123 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Hands-On Exercises</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Hands-On Exercises</h1><p>Module 106: MLOps 机器学习运维（MLOps） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-resources-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Learning Resources</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lesson 01: Introduction to MLOps 机器学习运维（MLOps）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md.html">Lesson 02: MLflow 实验追踪（MLflow） 实验追踪（Experiment Tracking）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-03-model-registry-versioning-md.html">Lesson 03: 模型注册表（Model Registry） &amp; Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-04-feature-stores-engineering-md.html">Lesson 04: Feature Stores &amp; Feature Engineering</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-05-cicd-ml-models-md.html">Lesson 05: CI/CD 持续集成与交付（CI/CD） for ML Models</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-06-model-deployment-strategies-md.html">Lesson 06: Model 部署（Deployment） Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-07-ab-testing-experimentation-md.html">Lesson 07: A/B 测试（A/B Testing） &amp; Experimentation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-08-best-practices-governance-md.html">Lesson 08: MLOps 机器学习运维（MLOps） Best Practices &amp; 治理（Governance）</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-01-mlflow-tracking-md.html">Lab 01: MLflow 实验追踪（MLflow） Tracking Server End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-02-model-registry-md.html">Lab 02: 模型注册表（Model Registry） and Stage Promotion</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-03-feature-store-md.html">Lab 03: Stand Up a Feast 特征平台（Feature Store）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-04-cicd-models-md.html">Lab 04: CI/CD 持续集成与交付（CI/CD） for Models with GitHub Actions</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-05-canary-deployment-md.html">Lab 05: Canary 部署（Deployment） with Argo Rollouts</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-06-ab-testing-md.html">Lab 06: A/B Test with Traffic Splitting</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-07-drift-monitoring-md.html">Lab 07: Drift 监控（Monitoring） with Evidently</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Module 106 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercise 01: MLOps 机器学习运维（MLOps） Maturity Assessment</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-02-mlflow-tracking-deep-dive-readme-md.html">Exercise 02: MLflow 实验追踪（MLflow） Tracking Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-03-model-registry-promotion-readme-md.html">Exercise 03: 模型注册表（Model Registry） and Promotion Workflow</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md.html">Exercise 04: 实验追踪（Experiment Tracking） and 模型注册表（Model Registry） with MLflow 实验追踪（MLflow）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">Exercise 05: Model 监控（Monitoring） and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md.html">Exercise 06: CI/CD 持续集成与交付（CI/CD） for ML Pipelines</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-07-feature-store-implementation-readme-md.html">Exercise 07: 特征平台（Feature Store） Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-08-deployment-strategies-readme-md.html">Exercise 08: Model 部署（Deployment） Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-09-ab-testing-infrastructure-readme-md.html">Exercise 09: A/B 测试（A/B Testing） Infrastructure for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-10-model-governance-readme-md.html">Exercise 10: Model 治理（Governance） and Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-11-ml-orchestration-patterns-readme-md.html">Exercise 11: ML Pipeline Orchestration Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-12-model-cost-attribution-readme-md.html">Exercise 12: Per-Model Cost Attribution</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-13-reproducibility-audit-readme-md.html">Exercise 13: ML Reproducibility Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-14-ml-platform-operating-model-readme-md.html">Exercise 14: ML Platform Team Operating Model</a><a class="tree-doc active" href="../docs/doc-lessons-mod-106-mlops-exercises-readme-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Hands-On Exercises</h2><p>Module 106: MLOps 机器学习运维（MLOps） · Exercises: 课后练习</p><div class="stats"><div class="stat"><strong>23</strong><span>reading order</span></div><div class="stat"><strong>34</strong><span>chapter docs</span></div><div class="stat"><strong>1260</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-106-mlops-exercises-readme-md" data-title="module 06: mlops &amp; experiment tracking - hands-on exercises lessons/mod-106-mlops/exercises/readme.md exercises: 课后练习"><div class="doc-head"><span class="chip">23/34</span><span class="chip">Exercises</span><span class="path">lessons/mod-106-mlops/exercises/README.md</span><span class="path">1260 行</span></div><h2>Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Hands-On Exercises</h2><p><a class="home" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-14-ml-platform-operating-model-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-106-mlops.html#doc-lessons-mod-106-mlops-exercises-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-labs-lab-01-mlflow-tracking-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-106-mlops-exercises-readme-md-module-06-mlops-experiment-tracking-hands-on-exe">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Hands-On Exercises</h3>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-overview">概览（Overview）</h4>
+<p>This directory contains 5 comprehensive hands-on labs that will give you practical experience with MLOps 机器学习运维（MLOps） tools and practices. Each lab builds on the previous ones and takes approximately 3-4 hours to complete.</p>
+<p><strong>Total Time:</strong> 15-20 hours <strong>Prerequisites:</strong> Python, basic ML knowledge, Docker 容器（Docker） basics</p>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-lab-setup">Lab Setup</h4>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-prerequisites-installation">Prerequisites Installation</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create virtual environment
+python -m venv mlops-labs
+source mlops-labs/bin/activate  # On Windows: mlops-labs\Scripts\activate
+
+# Install required packages
+pip install mlflow==2.9.2
+pip install feast==0.35.0
+pip install great-expectations==0.18.8
+pip install fastapi==0.109.0
+pip install uvicorn==0.27.0
+pip install scikit-learn==1.4.0
+pip install pandas==2.2.0
+pip install redis==5.0.1
+pip install docker==7.0.0
+
+# Install Docker (if not already installed)
+# Follow instructions at: https://docs.docker.com/get-docker/</code></pre></div>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-project-structure">Project Structure</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">exercises/
+├── README.md (this file)
+├── lab-01-experiment-tracking/
+├── lab-02-feature-store/
+├── lab-03-cicd-pipeline/
+├── lab-04-model-deployment/
+└── lab-05-production-monitoring/</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-lab-01-experiment-tracking-with-mlflow">Lab 01: 实验追踪（Experiment Tracking） with MLflow 实验追踪（MLflow）</h4>
+<p><strong>Duration:</strong> 3-4 hours <strong>Difficulty:</strong> Beginner <strong>Topics:</strong> MLflow 实验追踪（MLflow）, experiment tracking, model registry</p>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-learning-objectives">Learning Objectives</h5>
+<ul>
+<li>Set up MLflow 实验追踪（MLflow） tracking server</li>
+<li>Log experiments, parameters, and metrics</li>
+<li>Compare multiple model runs</li>
+<li>Register and version models</li>
+<li>Load models from registry</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-tasks">Tasks</h5>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-1-1-mlflow-setup-30-minutes">Task 1.1: MLflow 实验追踪（MLflow） Setup (30 minutes)</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Start MLflow tracking server
+mlflow server \
+  --backend-store-uri sqlite:///mlflow.db \
+  --default-artifact-root ./mlruns \
+  --host 0.0.0.0 \
+  --port 5000</code></pre></div>
+<p><strong>TODO:</strong></p>
+<ul>
+<li>Access MLflow 实验追踪（MLflow） UI at http://localhost:5000</li>
+<li>Create a new experiment called &quot;customer-churn-prediction&quot;</li>
+<li>Document the components of MLflow 实验追踪（MLflow） (tracking, projects, models, registry)</li>
+</ul>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-1-2-training-with-experiment-tracking-60-mi">Task 1.2: 训练（Training） with 实验追踪（Experiment Tracking） (60 minutes)</h6>
+<p>Create <code>train.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+import mlflow.sklearn
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import pandas as pd
+import numpy as np
+
+# TODO 1: Set MLflow tracking URI
+mlflow.set_tracking_uri(&quot;http://localhost:5000&quot;)
+
+# TODO 2: Set experiment
+mlflow.set_experiment(&quot;customer-churn-prediction&quot;)
+
+def load_data():
+    &quot;&quot;&quot;Load and preprocess data&quot;&quot;&quot;
+    # TODO 3: Load your dataset
+    # For this exercise, generate synthetic data
+    np.random.seed(42)
+    n_samples = 10000
+
+    data = pd.DataFrame({
+        'age': np.random.randint(18, 80, n_samples),
+        'tenure_months': np.random.randint(1, 72, n_samples),
+        'monthly_charges': np.random.uniform(20, 120, n_samples),
+        'total_charges': np.random.uniform(100, 5000, n_samples),
+        'num_support_tickets': np.random.randint(0, 10, n_samples),
+        'churn': np.random.randint(0, 2, n_samples)
+    })
+
+    X = data.drop('churn', axis=1)
+    y = data['churn']
+
+    return train_test_split(X, y, test_size=0.2, random_state=42)
+
+def train_model(n_estimators, max_depth, min_samples_split):
+    &quot;&quot;&quot;Train model with MLflow tracking&quot;&quot;&quot;
+
+    # TODO 4: Start MLflow run
+    with mlflow.start_run():
+        # Load data
+        X_train, X_test, y_train, y_test = load_data()
+
+        # TODO 5: Log parameters
+        mlflow.log_param(&quot;n_estimators&quot;, n_estimators)
+        mlflow.log_param(&quot;max_depth&quot;, max_depth)
+        mlflow.log_param(&quot;min_samples_split&quot;, min_samples_split)
+        mlflow.log_param(&quot;model_type&quot;, &quot;RandomForest&quot;)
+
+        # Train model
+        model = RandomForestClassifier(
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            min_samples_split=min_samples_split,
+            random_state=42
+        )
+        model.fit(X_train, y_train)
+
+        # Evaluate
+        y_pred = model.predict(X_test)
+
+        # TODO 6: Log metrics
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred)
+        recall = recall_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred)
+
+        mlflow.log_metric(&quot;accuracy&quot;, accuracy)
+        mlflow.log_metric(&quot;precision&quot;, precision)
+        mlflow.log_metric(&quot;recall&quot;, recall)
+        mlflow.log_metric(&quot;f1_score&quot;, f1)
+
+        # TODO 7: Log model
+        mlflow.sklearn.log_model(model, &quot;model&quot;)
+
+        # TODO 8: Log additional artifacts
+        # Create and log feature importance plot
+        import matplotlib.pyplot as plt
+        feature_importance = pd.DataFrame({
+            'feature': X_train.columns,
+            'importance': model.feature_importances_
+        }).sort_values('importance', ascending=False)
+
+        plt.figure(figsize=(10, 6))
+        plt.barh(feature_importance['feature'], feature_importance['importance'])
+        plt.xlabel('Importance')
+        plt.title('Feature Importance')
+        plt.tight_layout()
+        plt.savefig('feature_importance.png')
+        mlflow.log_artifact('feature_importance.png')
+
+        print(f&quot;✅ Model trained with accuracy: {accuracy:.4f}&quot;)
+
+        return mlflow.active_run().info.run_id
+
+if __name__ == &quot;__main__&quot;:
+    # TODO 9: Train multiple models with different hyperparameters
+    configs = [
+        {&quot;n_estimators&quot;: 50, &quot;max_depth&quot;: 5, &quot;min_samples_split&quot;: 2},
+        {&quot;n_estimators&quot;: 100, &quot;max_depth&quot;: 10, &quot;min_samples_split&quot;: 5},
+        {&quot;n_estimators&quot;: 150, &quot;max_depth&quot;: 15, &quot;min_samples_split&quot;: 10},
+    ]
+
+    for config in configs:
+        run_id = train_model(**config)
+        print(f&quot;Run ID: {run_id}&quot;)</code></pre></div>
+<p><strong>TODO:</strong></p>
+<ul>
+<li>Complete all TODO items in the code</li>
+<li>Run training with 3 different hyperparameter sets</li>
+<li>Compare runs in MLflow 实验追踪（MLflow） UI</li>
+<li>Identify the best performing model</li>
+</ul>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-1-3-model-registry-45-minutes">Task 1.3: 模型注册表（Model Registry） (45 minutes)</h6>
+<p>Create <code>register_model.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+from mlflow.tracking import MlflowClient
+
+# TODO 1: Initialize MLflow client
+client = MlflowClient(&quot;http://localhost:5000&quot;)
+
+def register_best_model():
+    &quot;&quot;&quot;Find best model and register it&quot;&quot;&quot;
+
+    # TODO 2: Get experiment
+    experiment = client.get_experiment_by_name(&quot;customer-churn-prediction&quot;)
+
+    # TODO 3: Search for best run
+    runs = client.search_runs(
+        experiment_ids=[experiment.experiment_id],
+        order_by=[&quot;metrics.f1_score DESC&quot;],
+        max_results=1
+    )
+
+    best_run = runs[0]
+
+    print(f&quot;Best run ID: {best_run.info.run_id}&quot;)
+    print(f&quot;F1 Score: {best_run.data.metrics['f1_score']:.4f}&quot;)
+
+    # TODO 4: Register model
+    model_uri = f&quot;runs:/{best_run.info.run_id}/model&quot;
+
+    mlflow.register_model(
+        model_uri=model_uri,
+        name=&quot;churn-prediction-model&quot;
+    )
+
+    print(&quot;✅ Model registered successfully&quot;)
+
+def promote_to_production(model_name, version):
+    &quot;&quot;&quot;Promote model version to production&quot;&quot;&quot;
+
+    # TODO 5: Transition model to production
+    client.transition_model_version_stage(
+        name=model_name,
+        version=version,
+        stage=&quot;Production&quot;,
+        archive_existing_versions=True
+    )
+
+    print(f&quot;✅ Model version {version} promoted to Production&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    register_best_model()
+    # Promote version 1 to production
+    promote_to_production(&quot;churn-prediction-model&quot;, &quot;1&quot;)</code></pre></div>
+<p><strong>Deliverables:</strong></p>
+<ul>
+<li>Screenshot of MLflow 实验追踪（MLflow） UI showing all experiment runs</li>
+<li>Screenshot of registered model in 模型注册表（Model Registry）</li>
+<li>Document comparing the three model configurations</li>
+<li>Best model promoted to &quot;生产环境（Production）&quot; stage</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-lab-02-feature-store-implementation">Lab 02: 特征平台（Feature Store） Implementation</h4>
+<p><strong>Duration:</strong> 4-5 hours <strong>Difficulty:</strong> Intermediate <strong>Topics:</strong> Feast, feature engineering, online/offline serving</p>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-learning-objectives">Learning Objectives</h5>
+<ul>
+<li>Set up Feast feature store</li>
+<li>Define entities and feature views</li>
+<li>Implement feature engineering pipelines</li>
+<li>Serve features for training and inference</li>
+<li>Handle point-in-time correctness</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-tasks">Tasks</h5>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-2-1-feast-setup-45-minutes">Task 2.1: Feast Setup (45 minutes)</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Initialize Feast project
+feast init customer_features
+cd customer_features</code></pre></div>
+<p><strong>TODO:</strong></p>
+<ul>
+<li>Understand Feast project structure</li>
+<li>Configure <code>feature_store.yaml</code> for local development</li>
+<li>Set up Redis for online store (use Docker 容器（Docker）)</li>
+</ul>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Start Redis
+docker run -d -p 6379:6379 redis:latest</code></pre></div>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-2-2-define-features-90-minutes">Task 2.2: Define Features (90 minutes)</h6>
+<p>Edit <code>features.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from feast import Entity, FeatureView, Field, FileSource
+from feast.types import Float32, Int64, String
+from datetime import timedelta
+
+# TODO 1: Define entities
+customer = Entity(
+    name=&quot;customer_id&quot;,
+    value_type=String,
+    description=&quot;Customer unique identifier&quot;
+)
+
+# TODO 2: Create data source
+customer_stats_source = FileSource(
+    path=&quot;data/customer_statistics.parquet&quot;,
+    timestamp_field=&quot;event_timestamp&quot;,
+    created_timestamp_column=&quot;created_timestamp&quot;,
+)
+
+# TODO 3: Define feature view
+customer_features = FeatureView(
+    name=&quot;customer_features&quot;,
+    entities=[customer],
+    ttl=timedelta(days=30),
+    schema=[
+        Field(name=&quot;age&quot;, dtype=Int64),
+        Field(name=&quot;tenure_months&quot;, dtype=Int64),
+        Field(name=&quot;monthly_charges&quot;, dtype=Float32),
+        Field(name=&quot;total_charges&quot;, dtype=Float32),
+        Field(name=&quot;avg_support_tickets_30d&quot;, dtype=Float32),
+        Field(name=&quot;payment_failures_30d&quot;, dtype=Int64),
+    ],
+    source=customer_stats_source,
+    tags={&quot;team&quot;: &quot;data-science&quot;, &quot;version&quot;: &quot;v1&quot;},
+)
+
+# TODO 4: Create on-demand feature view for derived features
+from feast import on_demand_feature_view, RequestSource
+import pandas as pd
+
+request_source = RequestSource(
+    name=&quot;request_data&quot;,
+    schema=[
+        Field(name=&quot;current_month_usage&quot;, dtype=Float32),
+    ]
+)
+
+@on_demand_feature_view(
+    sources=[customer_features, request_source],
+    schema=[
+        Field(name=&quot;usage_vs_avg&quot;, dtype=Float32),
+        Field(name=&quot;high_risk_score&quot;, dtype=Float32),
+    ]
+)
+def customer_derived_features(inputs: pd.DataFrame) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;Calculate derived features on-demand&quot;&quot;&quot;
+    output = pd.DataFrame()
+
+    # TODO 5: Implement derived feature logic
+    output[&quot;usage_vs_avg&quot;] = (
+        inputs[&quot;current_month_usage&quot;] / inputs[&quot;monthly_charges&quot;]
+    )
+
+    output[&quot;high_risk_score&quot;] = (
+        (inputs[&quot;payment_failures_30d&quot;] &gt; 2).astype(float) * 0.3 +
+        (inputs[&quot;avg_support_tickets_30d&quot;] &gt; 3).astype(float) * 0.3 +
+        (output[&quot;usage_vs_avg&quot;] &lt; 0.5).astype(float) * 0.4
+    )
+
+    return output</code></pre></div>
+<p>Create <code>generate_data.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+
+def generate_customer_data(n_customers=1000):
+    &quot;&quot;&quot;Generate synthetic customer data&quot;&quot;&quot;
+
+    # TODO: Generate synthetic data
+    np.random.seed(42)
+
+    dates = pd.date_range(
+        start=datetime.now() - timedelta(days=90),
+        end=datetime.now(),
+        freq='D'
+    )
+
+    data = []
+    for customer_id in range(n_customers):
+        for date in dates:
+            data.append({
+                'customer_id': f&quot;cust_{customer_id:04d}&quot;,
+                'event_timestamp': date,
+                'created_timestamp': datetime.now(),
+                'age': np.random.randint(18, 80),
+                'tenure_months': np.random.randint(1, 72),
+                'monthly_charges': np.random.uniform(20, 120),
+                'total_charges': np.random.uniform(100, 5000),
+                'avg_support_tickets_30d': np.random.uniform(0, 5),
+                'payment_failures_30d': np.random.randint(0, 5),
+            })
+
+    df = pd.DataFrame(data)
+    df.to_parquet('data/customer_statistics.parquet')
+    print(f&quot;✅ Generated {len(df)} rows of customer data&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    generate_customer_data()</code></pre></div>
+<p><strong>TODO:</strong></p>
+<ul>
+<li>Generate synthetic data</li>
+<li>Apply feature definitions: <code>feast apply</code></li>
+<li>Verify features registered: <code>feast feature-views list</code></li>
+</ul>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-2-3-feature-serving-90-minutes">Task 2.3: Feature Serving (90 minutes)</h6>
+<p>Create <code>serve_features.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from feast import FeatureStore
+import pandas as pd
+from datetime import datetime
+
+# TODO 1: Initialize feature store
+fs = FeatureStore(repo_path=&quot;.&quot;)
+
+def get_training_data():
+    &quot;&quot;&quot;Get historical features for training&quot;&quot;&quot;
+
+    # TODO 2: Create entity dataframe with timestamps
+    entity_df = pd.DataFrame({
+        'customer_id': [f&quot;cust_{i:04d}&quot; for i in range(100)],
+        'event_timestamp': [datetime(2024, 1, 15)] * 100
+    })
+
+    # TODO 3: Get historical features
+    training_df = fs.get_historical_features(
+        entity_df=entity_df,
+        features=[
+            &quot;customer_features:age&quot;,
+            &quot;customer_features:tenure_months&quot;,
+            &quot;customer_features:monthly_charges&quot;,
+            &quot;customer_features:avg_support_tickets_30d&quot;,
+            &quot;customer_features:payment_failures_30d&quot;,
+        ],
+    ).to_df()
+
+    print(f&quot;✅ Retrieved {len(training_df)} rows for training&quot;)
+    return training_df
+
+def materialize_features():
+    &quot;&quot;&quot;Materialize features to online store&quot;&quot;&quot;
+
+    # TODO 4: Materialize features
+    from datetime import timedelta
+
+    fs.materialize(
+        start_date=datetime.now() - timedelta(days=7),
+        end_date=datetime.now(),
+        feature_views=[&quot;customer_features&quot;]
+    )
+
+    print(&quot;✅ Features materialized to online store&quot;)
+
+def get_online_features(customer_ids):
+    &quot;&quot;&quot;Get features for real-time inference&quot;&quot;&quot;
+
+    # TODO 5: Get online features
+    online_features = fs.get_online_features(
+        features=[
+            &quot;customer_features:age&quot;,
+            &quot;customer_features:monthly_charges&quot;,
+            &quot;customer_features:payment_failures_30d&quot;,
+        ],
+        entity_rows=[
+            {&quot;customer_id&quot;: cust_id} for cust_id in customer_ids
+        ]
+    ).to_dict()
+
+    print(f&quot;✅ Retrieved online features for {len(customer_ids)} customers&quot;)
+    return online_features
+
+if __name__ == &quot;__main__&quot;:
+    # Get training data
+    training_df = get_training_data()
+    print(training_df.head())
+
+    # Materialize for online serving
+    materialize_features()
+
+    # Get online features
+    online_features = get_online_features([&quot;cust_0001&quot;, &quot;cust_0002&quot;, &quot;cust_0003&quot;])
+    print(online_features)</code></pre></div>
+<p><strong>Deliverables:</strong></p>
+<ul>
+<li>Feast feature definitions in <code>features.py</code></li>
+<li>Generated synthetic data in Parquet format</li>
+<li>Screenshot of successful feature retrieval</li>
+<li>Document explaining offline vs online serving</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-lab-03-ci-cd-pipeline-for-ml-models">Lab 03: CI/CD 持续集成与交付（CI/CD） Pipeline for ML Models</h4>
+<p><strong>Duration:</strong> 3-4 hours <strong>Difficulty:</strong> Intermediate <strong>Topics:</strong> GitHub Actions, automated testing, deployment</p>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-learning-objectives">Learning Objectives</h5>
+<ul>
+<li>Set up CI/CD 持续集成与交付（CI/CD） for ML projects</li>
+<li>Implement automated testing (data, model, code)</li>
+<li>Create deployment pipelines</li>
+<li>Handle model versioning</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-tasks">Tasks</h5>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-3-1-project-setup-30-minutes">Task 3.1: Project Setup (30 minutes)</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create GitHub repository
+git init
+git remote add origin &lt;your-repo-url&gt;
+
+# Create project structure
+mkdir -p .github/workflows
+mkdir -p tests/unit
+mkdir -p tests/integration
+mkdir -p src</code></pre></div>
+<p><strong>TODO:</strong></p>
+<ul>
+<li>Initialize Git repository</li>
+<li>Create <code>.gitignore</code> for Python ML projects</li>
+<li>Set up project structure</li>
+</ul>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-3-2-automated-tests-90-minutes">Task 3.2: Automated Tests (90 minutes)</h6>
+<p>Create <code>tests/unit/test_data_validation.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import pytest
+import pandas as pd
+import great_expectations as ge
+
+def test_data_schema():
+    &quot;&quot;&quot;Test data has expected schema&quot;&quot;&quot;
+    # TODO 1: Load test data
+    df = pd.read_parquet(&quot;data/customer_statistics.parquet&quot;)
+    ge_df = ge.from_pandas(df)
+
+    # TODO 2: Schema validations
+    assert ge_df.expect_column_to_exist(&quot;customer_id&quot;).success
+    assert ge_df.expect_column_to_exist(&quot;age&quot;).success
+    assert ge_df.expect_column_to_exist(&quot;monthly_charges&quot;).success
+
+def test_data_quality():
+    &quot;&quot;&quot;Test data quality&quot;&quot;&quot;
+    df = pd.read_parquet(&quot;data/customer_statistics.parquet&quot;)
+    ge_df = ge.from_pandas(df)
+
+    # TODO 3: Quality checks
+    assert ge_df.expect_column_values_to_not_be_null(&quot;customer_id&quot;).success
+    assert ge_df.expect_column_values_to_be_between(&quot;age&quot;, 18, 100).success
+    assert ge_df.expect_column_values_to_be_between(&quot;monthly_charges&quot;, 0, 500).success
+
+def test_no_data_leakage():
+    &quot;&quot;&quot;Ensure no future data in training set&quot;&quot;&quot;
+    # TODO 4: Implement data leakage test
+    df = pd.read_parquet(&quot;data/customer_statistics.parquet&quot;)
+    # Check timestamps
+    assert df['event_timestamp'].max() &lt;= pd.Timestamp.now()</code></pre></div>
+<p>Create <code>tests/unit/test_model.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import pytest
+from src.train import train_model, load_data
+import mlflow
+
+def test_model_trains_successfully():
+    &quot;&quot;&quot;Test model can be trained&quot;&quot;&quot;
+    # TODO 1: Test model training
+    X_train, X_test, y_train, y_test = load_data()
+    assert len(X_train) &gt; 0
+    assert len(y_train) &gt; 0
+
+def test_model_performance_threshold():
+    &quot;&quot;&quot;Test model meets minimum performance&quot;&quot;&quot;
+    # TODO 2: Train model and check performance
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.metrics import accuracy_score
+
+    X_train, X_test, y_train, y_test = load_data()
+
+    model = RandomForestClassifier(n_estimators=50, random_state=42)
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+
+    # Model must be better than random guessing
+    assert accuracy &gt; 0.6
+
+def test_model_prediction_shape():
+    &quot;&quot;&quot;Test model outputs correct shape&quot;&quot;&quot;
+    # TODO 3: Test prediction shape
+    pass</code></pre></div>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-3-3-ci-cd-pipeline-90-minutes">Task 3.3: CI/CD 持续集成与交付（CI/CD） Pipeline (90 minutes)</h6>
+<p>Create <code>.github/workflows/ml-ci-cd.yml</code>:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">name: ML CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # TODO 1: Add code quality job
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install black flake8 pytest
+          pip install -r requirements.txt
+
+      - name: Code formatting
+        run: black --check src/
+
+      - name: Linting
+        run: flake8 src/ --max-line-length=100
+
+  # TODO 2: Add data validation job
+  data-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run data tests
+        run: pytest tests/unit/test_data_validation.py
+
+  # TODO 3: Add model training job
+  model-training:
+    runs-on: ubuntu-latest
+    needs: [code-quality, data-validation]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Train model
+        run: python src/train.py
+
+      - name: Run model tests
+        run: pytest tests/unit/test_model.py
+
+  # TODO 4: Add deployment job (only on main branch)
+  deploy:
+    runs-on: ubuntu-latest
+    needs: model-training
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy model
+        run: echo &quot;Deploying model...&quot;
+        # Add actual deployment logic here</code></pre></div>
+<p><strong>Deliverables:</strong></p>
+<ul>
+<li>Complete test suite with &gt;80% coverage</li>
+<li>Working CI/CD 持续集成与交付（CI/CD） pipeline</li>
+<li>Screenshot of successful pipeline run</li>
+<li>Document describing each pipeline stage</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-lab-04-model-deployment-serving">Lab 04: Model 部署（Deployment） &amp; Serving</h4>
+<p><strong>Duration:</strong> 3-4 hours <strong>Difficulty:</strong> Intermediate <strong>Topics:</strong> FastAPI 服务框架（FastAPI）, Docker 容器（Docker）, model serving, monitoring</p>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-learning-objectives">Learning Objectives</h5>
+<ul>
+<li>Build REST API for model serving</li>
+<li>Containerize ML application</li>
+<li>Implement health checks and monitoring</li>
+<li>Handle prediction requests</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-tasks">Tasks</h5>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-4-1-fastapi-model-server-120-minutes">Task 4.1: FastAPI 服务框架（FastAPI） Model Server (120 minutes)</h6>
+<p>Create <code>src/serve.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import mlflow.pyfunc
+import pandas as pd
+from typing import Dict, List
+import logging
+
+# TODO 1: Initialize FastAPI app
+app = FastAPI(title=&quot;Churn Prediction API&quot;, version=&quot;1.0.0&quot;)
+
+# TODO 2: Define request/response models
+class PredictionRequest(BaseModel):
+    customer_id: str
+    age: int
+    tenure_months: int
+    monthly_charges: float
+    total_charges: float
+    num_support_tickets: int
+
+class PredictionResponse(BaseModel):
+    customer_id: str
+    churn_probability: float
+    churn_prediction: int
+    model_version: str
+
+# TODO 3: Load model at startup
+model = None
+
+@app.on_event(&quot;startup&quot;)
+async def load_model():
+    &quot;&quot;&quot;Load ML model on startup&quot;&quot;&quot;
+    global model
+    try:
+        # Load from MLflow
+        model_uri = &quot;models:/churn-prediction-model/Production&quot;
+        model = mlflow.pyfunc.load_model(model_uri)
+        logging.info(f&quot;✅ Model loaded from {model_uri}&quot;)
+    except Exception as e:
+        logging.error(f&quot;❌ Failed to load model: {e}&quot;)
+        raise
+
+# TODO 4: Health check endpoint
+@app.get(&quot;/health&quot;)
+async def health_check():
+    &quot;&quot;&quot;Health check endpoint&quot;&quot;&quot;
+    return {
+        &quot;status&quot;: &quot;healthy&quot;,
+        &quot;model_loaded&quot;: model is not None
+    }
+
+# TODO 5: Prediction endpoint
+@app.post(&quot;/predict&quot;, response_model=PredictionResponse)
+async def predict(request: PredictionRequest):
+    &quot;&quot;&quot;Make churn prediction&quot;&quot;&quot;
+    if model is None:
+        raise HTTPException(status_code=503, detail=&quot;Model not loaded&quot;)
+
+    try:
+        # Prepare features
+        features = pd.DataFrame([{
+            'age': request.age,
+            'tenure_months': request.tenure_months,
+            'monthly_charges': request.monthly_charges,
+            'total_charges': request.total_charges,
+            'num_support_tickets': request.num_support_tickets
+        }])
+
+        # Make prediction
+        prediction = model.predict(features)[0]
+        probability = prediction  # Assuming probability output
+
+        return PredictionResponse(
+            customer_id=request.customer_id,
+            churn_probability=float(probability),
+            churn_prediction=int(probability &gt; 0.5),
+            model_version=&quot;1.0&quot;
+        )
+
+    except Exception as e:
+        logging.error(f&quot;Prediction error: {e}&quot;)
+        raise HTTPException(status_code=500, detail=str(e))
+
+# TODO 6: Batch prediction endpoint
+@app.post(&quot;/predict/batch&quot;)
+async def predict_batch(requests: List[PredictionRequest]):
+    &quot;&quot;&quot;Batch prediction endpoint&quot;&quot;&quot;
+    # Implement batch prediction
+    pass
+
+# TODO 7: Model info endpoint
+@app.get(&quot;/model/info&quot;)
+async def model_info():
+    &quot;&quot;&quot;Get model metadata&quot;&quot;&quot;
+    return {
+        &quot;model_name&quot;: &quot;churn-prediction-model&quot;,
+        &quot;version&quot;: &quot;1.0&quot;,
+        &quot;input_features&quot;: [
+            &quot;age&quot;, &quot;tenure_months&quot;, &quot;monthly_charges&quot;,
+            &quot;total_charges&quot;, &quot;num_support_tickets&quot;
+        ]
+    }
+
+if __name__ == &quot;__main__&quot;:
+    import uvicorn
+    uvicorn.run(app, host=&quot;0.0.0.0&quot;, port=8000)</code></pre></div>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-4-2-dockerization-60-minutes">Task 4.2: Dockerization (60 minutes)</h6>
+<p>Create <code>Dockerfile</code>:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># TODO 1: Use appropriate base image
+FROM python:3.11-slim
+
+# TODO 2: Set working directory
+WORKDIR /app
+
+# TODO 3: Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# TODO 4: Copy application code
+COPY src/ ./src/
+COPY models/ ./models/
+
+# TODO 5: Expose port
+EXPOSE 8000
+
+# TODO 6: Health check
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD curl -f http://localhost:8000/health || exit 1
+
+# TODO 7: Run application
+CMD [&quot;uvicorn&quot;, &quot;src.serve:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;]</code></pre></div>
+<p>Create <code>docker-compose.yml</code>:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">version: '3.8'
+
+services:
+  # TODO: Define model serving service
+  ml-api:
+    build: .
+    ports:
+      - &quot;8000:8000&quot;
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      - mlflow
+    restart: unless-stopped
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    ports:
+      - &quot;5000:5000&quot;
+    command: &gt;
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - &quot;6379:6379&quot;
+    restart: unless-stopped</code></pre></div>
+<p><strong>TODO:</strong></p>
+<ul>
+<li>Build Docker 容器（Docker） image: <code>docker build -t churn-prediction-api .</code></li>
+<li>Run container: <code>docker-compose up</code></li>
+<li>Test API endpoints</li>
+<li>Verify health check works</li>
+</ul>
+<p><strong>Deliverables:</strong></p>
+<ul>
+<li>Working FastAPI 服务框架（FastAPI） application</li>
+<li>Dockerfile and docker-compose.yml</li>
+<li>API documentation (auto-generated at /docs)</li>
+<li>Test results from Postman or curl</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-lab-05-production-monitoring-a-b-testing">Lab 05: 生产环境（Production） 监控（Monitoring） &amp; A/B 测试（A/B Testing）</h4>
+<p><strong>Duration:</strong> 4-5 hours <strong>Difficulty:</strong> Advanced <strong>Topics:</strong> 监控（Monitoring）, A/B testing, drift detection</p>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-learning-objectives">Learning Objectives</h5>
+<ul>
+<li>Implement model monitoring</li>
+<li>Set up A/B testing infrastructure</li>
+<li>Detect data and concept drift</li>
+<li>Create alerting system</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-tasks">Tasks</h5>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-5-1-monitoring-setup-120-minutes">Task 5.1: 监控（Monitoring） Setup (120 minutes)</h6>
+<p>Create <code>src/monitoring.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import pandas as pd
+import numpy as np
+from scipy import stats
+from typing import Dict, List
+import json
+from datetime import datetime
+
+class ModelMonitor:
+    &quot;&quot;&quot;Monitor model performance in production&quot;&quot;&quot;
+
+    def __init__(self, baseline_data: pd.DataFrame):
+        self.baseline_data = baseline_data
+        self.baseline_stats = self._calculate_stats(baseline_data)
+
+    def _calculate_stats(self, df: pd.DataFrame) -&gt; Dict:
+        &quot;&quot;&quot;Calculate distribution statistics&quot;&quot;&quot;
+        # TODO 1: Calculate baseline statistics
+        stats = {}
+        for column in df.columns:
+            stats[column] = {
+                'mean': df[column].mean(),
+                'std': df[column].std(),
+                'min': df[column].min(),
+                'max': df[column].max(),
+                'percentiles': df[column].quantile([0.25, 0.50, 0.75]).to_dict()
+            }
+        return stats
+
+    def detect_data_drift(
+        self,
+        new_data: pd.DataFrame,
+        threshold: float = 0.05
+    ) -&gt; Dict:
+        &quot;&quot;&quot;Detect if data distribution has drifted&quot;&quot;&quot;
+        # TODO 2: Implement drift detection using KS test
+        drift_results = {}
+
+        for column in new_data.columns:
+            if column in self.baseline_data.columns:
+                # Kolmogorov-Smirnov test
+                statistic, p_value = stats.ks_2samp(
+                    self.baseline_data[column].dropna(),
+                    new_data[column].dropna()
+                )
+
+                drift_results[column] = {
+                    'ks_statistic': statistic,
+                    'p_value': p_value,
+                    'drifted': p_value &lt; threshold
+                }
+
+        return drift_results
+
+    def monitor_predictions(
+        self,
+        predictions: List[float],
+        actuals: List[int] = None
+    ) -&gt; Dict:
+        &quot;&quot;&quot;Monitor prediction distribution and accuracy&quot;&quot;&quot;
+        # TODO 3: Monitor predictions
+        pred_stats = {
+            'mean_prediction': np.mean(predictions),
+            'prediction_std': np.std(predictions),
+            'prediction_min': np.min(predictions),
+            'prediction_max': np.max(predictions),
+        }
+
+        if actuals:
+            from sklearn.metrics import accuracy_score, roc_auc_score
+            pred_labels = [1 if p &gt; 0.5 else 0 for p in predictions]
+
+            pred_stats.update({
+                'accuracy': accuracy_score(actuals, pred_labels),
+                'auc_roc': roc_auc_score(actuals, predictions)
+            })
+
+        return pred_stats
+
+    def generate_alert(self, drift_results: Dict) -&gt; List[str]:
+        &quot;&quot;&quot;Generate alerts for drifted features&quot;&quot;&quot;
+        # TODO 4: Generate alerts
+        alerts = []
+
+        for feature, result in drift_results.items():
+            if result['drifted']:
+                alerts.append(
+                    f&quot;⚠️ Data drift detected in '{feature}': &quot;
+                    f&quot;KS statistic={result['ks_statistic']:.4f}, &quot;
+                    f&quot;p-value={result['p_value']:.4f}&quot;
+                )
+
+        return alerts
+
+# TODO 5: Integrate monitoring into prediction endpoint</code></pre></div>
+<h6 id="lessons-mod-106-mlops-exercises-readme-md-task-5-2-a-b-testing-120-minutes">Task 5.2: A/B 测试（A/B Testing） (120 minutes)</h6>
+<p>Create <code>src/ab_testing.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import hashlib
+from typing import Dict
+import redis
+from dataclasses import dataclass
+
+@dataclass
+class ABTestConfig:
+    &quot;&quot;&quot;A/B test configuration&quot;&quot;&quot;
+    experiment_id: str
+    control_model: str
+    treatment_model: str
+    traffic_split: float  # % for treatment
+
+class ABTestRouter:
+    &quot;&quot;&quot;Route users to model variants&quot;&quot;&quot;
+
+    def __init__(self, config: ABTestConfig):
+        self.config = config
+        self.redis_client = redis.Redis(host='localhost', port=6379)
+
+    def assign_variant(self, user_id: str) -&gt; str:
+        &quot;&quot;&quot;Assign user to variant using consistent hashing&quot;&quot;&quot;
+        # TODO 1: Implement consistent hashing
+
+        # Check cache
+        cache_key = f&quot;ab_test:{self.config.experiment_id}:{user_id}&quot;
+        cached = self.redis_client.get(cache_key)
+
+        if cached:
+            return cached.decode('utf-8')
+
+        # Hash user_id
+        hash_value = int(hashlib.md5(
+            f&quot;{self.config.experiment_id}:{user_id}&quot;.encode()
+        ).hexdigest(), 16)
+
+        # Determine variant
+        assignment_value = (hash_value % 10000) / 10000.0
+
+        if assignment_value &lt; self.config.traffic_split:
+            variant = self.config.treatment_model
+        else:
+            variant = self.config.control_model
+
+        # Cache assignment
+        self.redis_client.setex(cache_key, 86400 * 30, variant)  # 30 days
+
+        return variant
+
+    def log_event(self, user_id: str, variant: str, prediction: float, outcome: int = None):
+        &quot;&quot;&quot;Log experiment event&quot;&quot;&quot;
+        # TODO 2: Log to analytics system
+        event = {
+            'timestamp': datetime.now().isoformat(),
+            'experiment_id': self.config.experiment_id,
+            'user_id': user_id,
+            'variant': variant,
+            'prediction': prediction,
+            'outcome': outcome
+        }
+
+        # Store in Redis (in practice, send to analytics pipeline)
+        event_key = f&quot;events:{self.config.experiment_id}:{datetime.now().date()}&quot;
+        self.redis_client.rpush(event_key, json.dumps(event))
+
+# TODO 3: Integrate A/B testing into prediction endpoint</code></pre></div>
+<p>Create <code>src/experiment_analysis.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import pandas as pd
+import numpy as np
+from scipy import stats
+
+class ExperimentAnalyzer:
+    &quot;&quot;&quot;Analyze A/B test results&quot;&quot;&quot;
+
+    def proportion_test(
+        self,
+        control_successes: int,
+        control_total: int,
+        treatment_successes: int,
+        treatment_total: int
+    ) -&gt; Dict:
+        &quot;&quot;&quot;Two-proportion z-test&quot;&quot;&quot;
+        # TODO: Implement statistical test
+
+        p1 = control_successes / control_total
+        p2 = treatment_successes / treatment_total
+
+        # Pooled proportion
+        p_pool = (control_successes + treatment_successes) / (control_total + treatment_total)
+
+        # Standard error
+        se = np.sqrt(p_pool * (1 - p_pool) * (1/control_total + 1/treatment_total))
+
+        # Z-score
+        z = (p2 - p1) / se
+
+        # P-value
+        p_value = 2 * (1 - stats.norm.cdf(abs(z)))
+
+        # Confidence interval
+        se_diff = np.sqrt(p1*(1-p1)/control_total + p2*(1-p2)/treatment_total)
+        ci_lower = (p2 - p1) - 1.96 * se_diff
+        ci_upper = (p2 - p1) + 1.96 * se_diff
+
+        return {
+            'control_rate': p1,
+            'treatment_rate': p2,
+            'relative_lift': (p2 - p1) / p1 if p1 &gt; 0 else 0,
+            'z_score': z,
+            'p_value': p_value,
+            'is_significant': p_value &lt; 0.05,
+            'confidence_interval': (ci_lower, ci_upper)
+        }</code></pre></div>
+<p><strong>Deliverables:</strong></p>
+<ul>
+<li>Working monitoring system</li>
+<li>A/B testing infrastructure</li>
+<li>Dashboard showing monitoring metrics</li>
+<li>Document analyzing A/B test results</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-submission-guidelines">Submission Guidelines</h4>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-for-each-lab">For Each Lab</h5>
+<ol>
+<li><strong>Code</strong>: Submit all code files with TODOs completed</li>
+<li><strong>Documentation</strong>: Include README explaining your implementation</li>
+<li><strong>Screenshots</strong>: Capture key results and UIs</li>
+<li><strong>Analysis</strong>: Write brief analysis of findings</li>
+<li><strong>Learnings</strong>: Document what you learned and challenges faced</li>
+</ol>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-submission-format">Submission Format</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">submission/
+├── lab-01/
+│   ├── code/
+│   ├── screenshots/
+│   ├── README.md
+│   └── analysis.md
+├── lab-02/
+│   └── ...
+├── lab-03/
+│   └── ...
+├── lab-04/
+│   └── ...
+└── lab-05/
+    └── ...</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-grading-rubric">Grading Rubric</h4>
+<p>Each lab is graded out of 20 points:</p>
+<ul>
+<li><strong>Functionality (10 points)</strong>: Code runs without errors, all TODOs completed</li>
+<li><strong>Code Quality (4 points)</strong>: Clean, readable, well-commented code</li>
+<li><strong>Documentation (3 points)</strong>: Clear README and analysis</li>
+<li><strong>Innovation (3 points)</strong>: Going beyond requirements, creative solutions</li>
+</ul>
+<p><strong>Total: 100 points</strong> <strong>Passing Score: 70 points</strong></p>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-tips-for-success">Tips for Success</h4>
+<ol>
+<li><strong>Start Early</strong>: Labs build on each other</li>
+<li><strong>Test Often</strong>: Run tests after each section</li>
+<li><strong>Document As You Go</strong>: Don't wait until the end</li>
+<li><strong>Ask Questions</strong>: Use office hours or forums</li>
+<li><strong>Review Lessons</strong>: Refer back to module lessons</li>
+<li><strong>Experiment</strong>: Try variations beyond requirements</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-troubleshooting">故障排查（Troubleshooting）</h4>
+<h5 id="lessons-mod-106-mlops-exercises-readme-md-common-issues">Common Issues</h5>
+<p><strong>MLflow 实验追踪（MLflow） Connection Issues:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Check MLflow server is running
+curl http://localhost:5000/health</code></pre></div>
+<p><strong>Redis Connection Issues:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Test Redis connection
+redis-cli ping</code></pre></div>
+<p><strong>Docker 容器（Docker） Build Failures:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Clean Docker cache
+docker system prune -a</code></pre></div>
+<p><strong>Import Errors:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Verify all packages installed
+pip list</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-readme-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://mlflow.org/docs/latest/index.html">MLflow 实验追踪（MLflow） Documentation</a></li>
+<li><a href="https://docs.feast.dev/">Feast Documentation</a></li>
+<li><a href="https://fastapi.tiangolo.com/">FastAPI 服务框架（FastAPI） Documentation</a></li>
+<li><a href="https://docs.docker.com/">Docker 容器（Docker） Documentation</a></li>
+<li><a href="https://docs.github.com/en/actions">GitHub Actions Documentation</a></li>
+</ul>
+<hr/>
+<p><strong>Happy Learning!</strong> 🚀</p>
+<p>If you complete all 5 labs, you'll have hands-on experience with the entire MLOps 机器学习运维（MLOps） lifecycle!</p><p><a class="home" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-14-ml-platform-operating-model-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-106-mlops.html#doc-lessons-mod-106-mlops-exercises-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-labs-lab-01-mlflow-tracking-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

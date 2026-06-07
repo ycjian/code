@@ -1,0 +1,328 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Module 03 Resources: 容器化（Containerization） with Docker 容器（Docker）</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Module 03 Resources: 容器化（Containerization） with Docker 容器（Docker）</h1><p>Module 103: 容器化（Containerization） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Module 03: 容器化（Containerization） with Docker 容器（Docker）</a><a class="tree-doc active" href="../docs/doc-lessons-mod-103-containerization-resources-md.html">Module 03 Resources: 容器化（Containerization） with Docker 容器（Docker）</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lesson 01: Docker 容器（Docker） Introduction</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-02-dockerfile-ml-apps-md.html">Lesson 02: Dockerfiles for ML Applications</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-03-image-optimization-md.html">Lesson 03: Image Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-04-docker-networking-volumes-md.html">Lesson 04: Docker 容器（Docker） Networking and Volumes</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-05-docker-compose-md.html">Lesson 05: Docker 容器（Docker） Compose 多服务编排（Docker Compose） for ML Applications</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-06-container-registries-md.html">Lesson 06: Container Registries</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-07-gpu-docker-md.html">Lesson 07: GPU 加速（GPU） Support in Docker 容器（Docker）</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-08-production-best-practices-md.html">Lesson 08: 生产环境（Production） Best Practices</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-01-dockerfile-optimization-md.html">Lab 01: Dockerfile Optimization for ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-02-multi-stage-builds-md.html">Lab 02: Multi-Stage Builds for Slim 生产环境（Production） Images</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-03-docker-compose-stack-md.html">Lab 03: Compose a Multi-Service Stack</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-04-gpu-docker-md.html">Lab 04: Run a GPU 加速（GPU） Container with PyTorch 深度学习框架（PyTorch） CUDA 并行计算（CUDA）</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-05-private-registry-md.html">Lab 05: Stand Up a Private Container Registry</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-06-container-security-scanning-md.html">Lab 06: Security-Scan Images with Trivy</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Module 103 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-01-dockerfile-md.html">Exercise 01: Build Your First ML Dockerfile</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-02-multi-container-md.html">Exercise 02: Multi-Container ML Application</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-03-gpu-container-md.html">Exercise 03: GPU-Accelerated ML Container</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercise 04: Container 安全（Security） Scanner</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-05-image-optimizer-readme-md.html">Exercise 05: Multi-Stage Build Optimizer</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-06-registry-manager-readme-md.html">Exercise 06: Container Registry Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-07-buildkit-cache-optimization-readme-.html">Exercise 07: BuildKit Cache Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-08-multi-arch-builds-readme-md.html">Exercise 08: Multi-Architecture Builds (amd64 + arm64)</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-09-runtime-debugging-readme-md.html">Exercise 09: Container Runtime Debugging</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-10-sbom-and-supply-chain-readme-md.html">Exercise 10: SBOM and Container Supply Chain</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-11-ml-container-patterns-readme-md.html">Exercise 11: ML-Specific Container Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-12-vulnerability-remediation-readme-md.html">Exercise 12: Container Vulnerability Remediation Workflow</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Module 03 Quiz: 容器化（Containerization） with Docker 容器（Docker）</a></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Module 03 Resources: 容器化（Containerization） with Docker 容器（Docker）</h2><p>Module 103: 容器化（Containerization） · Chapter Overview: 本章导读</p><div class="stats"><div class="stat"><strong>30</strong><span>reading order</span></div><div class="stat"><strong>30</strong><span>chapter docs</span></div><div class="stat"><strong>310</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-103-containerization-resources-md" data-title="module 03 resources: containerization with docker lessons/mod-103-containerization/resources.md chapter overview: 本章导读"><div class="doc-head"><span class="chip">30/30</span><span class="chip">Chapter Overview</span><span class="path">lessons/mod-103-containerization/resources.md</span><span class="path">310 行</span></div><h2>Module 03 Resources: 容器化（Containerization） with Docker 容器（Docker）</h2><p><a class="home" href="../docs/doc-lessons-mod-103-containerization-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-103-containerization.html#doc-lessons-mod-103-containerization-resources-md">返回本章（Back to chapter）</a> </p><h3 id="lessons-mod-103-containerization-resources-md-module-03-resources-containerization-with-do">Module 03 Resources: 容器化（Containerization） with Docker 容器（Docker）</h3>
+<h4 id="lessons-mod-103-containerization-resources-md-official-documentation">Official Documentation</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-docker-documentation">Docker 容器（Docker） Documentation</h5>
+<ul>
+<li><a href="https://docs.docker.com/">Docker 容器（Docker） Documentation</a> - Complete official docs</li>
+<li><a href="https://docs.docker.com/engine/reference/builder/">Dockerfile Reference</a> - All Dockerfile instructions</li>
+<li><a href="https://docs.docker.com/engine/reference/commandline/cli/">Docker 容器（Docker） CLI Reference</a> - Command-line reference</li>
+<li><a href="https://docs.docker.com/compose/">Docker 容器（Docker） Compose 多服务编排（Docker Compose） Documentation</a> - Multi-container applications</li>
+<li><a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/">Best Practices for Writing Dockerfiles</a></li>
+<li><a href="https://docs.docker.com/engine/security/">Docker 容器（Docker） 安全（Security）</a> - 安全（Security） best practices</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-nvidia-gpu-support">NVIDIA GPU 加速（GPU） Support</h5>
+<ul>
+<li><a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html">NVIDIA Container Toolkit</a></li>
+<li><a href="https://catalog.ngc.nvidia.com/">NVIDIA NGC Catalog</a> - Pre-built GPU 加速（GPU） containers</li>
+<li><a href="https://hub.docker.com/r/nvidia/cuda">CUDA 并行计算（CUDA） Container Images</a></li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-books">Books</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-docker-fundamentals">Docker 容器（Docker） Fundamentals</h5>
+<ol>
+<li><strong>&quot;Docker 容器（Docker） Deep Dive&quot; by Nigel Poulton</strong></li>
+</ol>
+<ul>
+<li>Comprehensive Docker 容器（Docker） guide</li>
+<li>Covers fundamentals to advanced topics</li>
+<li>Updated regularly for new Docker 容器（Docker） features</li>
+</ul>
+<ol>
+<li><strong>&quot;Docker 容器（Docker） in Action&quot; by Jeff Nickoloff and Stephen Kuenzli</strong></li>
+</ol>
+<ul>
+<li>Practical Docker 容器（Docker） patterns</li>
+<li>Real-world examples</li>
+<li>Good for intermediate learners</li>
+</ul>
+<ol>
+<li><strong>&quot;Docker 容器（Docker） for Data Science&quot; by Joshua Cook</strong></li>
+</ol>
+<ul>
+<li>Docker 容器（Docker） specifically for data science and ML</li>
+<li>Jupyter notebooks in Docker 容器（Docker）</li>
+<li>Reproducible research workflows</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-container-best-practices">Container Best Practices</h5>
+<ol>
+<li><strong>&quot;Container 安全（Security）&quot; by Liz Rice</strong></li>
+</ol>
+<ul>
+<li>安全（Security） considerations for containers</li>
+<li>Scanning, runtime security, compliance</li>
+<li>Essential for production deployments</li>
+</ul>
+<ol>
+<li><strong>&quot;Kubernetes 容器编排（Kubernetes） Patterns&quot; by Bilgin Ibryam and Roland Huß</strong></li>
+</ol>
+<ul>
+<li>While focused on K8s, covers container design patterns</li>
+<li>Excellent for understanding cloud-native architecture</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-online-courses">Online Courses</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-docker-basics">Docker 容器（Docker） Basics</h5>
+<ul>
+<li><strong><a href="https://www.youtube.com/watch?v=fqMOX6JJhGo">Docker 容器（Docker） for Beginners</a></strong> (FreeCodeCamp, YouTube, Free)</li>
+<li>2-hour comprehensive intro</li>
+<li>Hands-on examples</li>
+<li>Perfect for beginners</li>
+</ul>
+<ul>
+<li><strong><a href="https://www.udemy.com/course/docker-mastery/">Docker 容器（Docker） Mastery</a></strong> (Udemy, ~$15)</li>
+<li>Bret Fisher's comprehensive course</li>
+<li>Covers Docker 容器（Docker）, Compose, Swarm</li>
+<li>Highly rated, regularly updated</li>
+</ul>
+<ul>
+<li><strong><a href="https://acloudguru.com/course/docker-certified-associate-dca">Docker 容器（Docker） Certified Associate Exam Prep</a></strong> (A Cloud Guru, Subscription)</li>
+<li>Certification preparation</li>
+<li>In-depth Docker 容器（Docker） knowledge</li>
+<li>Hands-on labs</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-ml-specific-docker">ML-Specific Docker 容器（Docker）</h5>
+<ul>
+<li><strong><a href="https://www.coursera.org/learn/mlops-docker-kubernetes">MLOps 机器学习运维（MLOps） with Docker 容器（Docker）</a></strong> (Coursera)</li>
+<li>Docker 容器（Docker） for ML workflows</li>
+<li>Integration with ML tools</li>
+<li>生产环境（Production） deployment patterns</li>
+</ul>
+<ul>
+<li><strong><a href="https://fullstackdeeplearning.com/">Full Stack Deep Learning</a></strong> (Free)</li>
+<li>Module on containerization for ML</li>
+<li>生产环境（Production） ML systems</li>
+<li>Best practices</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-tutorials-and-guides">Tutorials and Guides</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-interactive-tutorials">Interactive Tutorials</h5>
+<ul>
+<li><strong><a href="https://labs.play-with-docker.com/">Play with Docker 容器（Docker）</a></strong> - Free browser-based Docker 容器（Docker） playground</li>
+<li><strong><a href="https://www.katacoda.com/courses/docker">Katacoda Docker 容器（Docker） Scenarios</a></strong> - Interactive Docker 容器（Docker） tutorials</li>
+<li><strong><a href="https://www.docker.com/101-tutorial/">Docker 容器（Docker） 101 Tutorial</a></strong> - Official Docker 容器（Docker） getting started</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-blog-posts-and-articles">Blog Posts and Articles</h5>
+<h6 id="lessons-mod-103-containerization-resources-md-docker-basics">Docker 容器（Docker） Basics</h6>
+<ul>
+<li><a href="https://towardsdatascience.com/docker-for-data-scientists-5732501f0ba4">Intro to Docker 容器（Docker） for Data Scientists</a></li>
+<li><a href="https://dagshub.com/blog/docker-best-practices-for-data-science/">Docker 容器（Docker） Best Practices for Data Science</a></li>
+<li><a href="https://medium.com/@jessgreb01/digging-into-docker-layers-c22f948ed612">Understanding Docker 容器（Docker） Layers</a></li>
+</ul>
+<h6 id="lessons-mod-103-containerization-resources-md-optimization">Optimization</h6>
+<ul>
+<li><a href="https://devopscube.com/reduce-docker-image-size/">Reduce Docker 容器（Docker） Image Size</a></li>
+<li><a href="https://docs.docker.com/build/building/multi-stage/">Multi-Stage Builds Explained</a></li>
+<li><a href="https://testdriven.io/blog/faster-ci-builds-with-docker-cache/">Docker 容器（Docker） Layer Caching in CI/CD 持续集成与交付（CI/CD）</a></li>
+</ul>
+<h6 id="lessons-mod-103-containerization-resources-md-gpu-support">GPU 加速（GPU） Support</h6>
+<ul>
+<li><a href="https://developer.nvidia.com/blog/gpu-accelerated-sql-queries-rapids/">Running GPU-Accelerated Containers</a></li>
+<li><a href="https://blog.paperspace.com/nvidia-docker/">Docker 容器（Docker） and CUDA 并行计算（CUDA）: Getting Started</a></li>
+</ul>
+<h6 id="lessons-mod-103-containerization-resources-md-security">安全（Security）</h6>
+<ul>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html">Docker 容器（Docker） 安全（Security） Cheat Sheet</a></li>
+<li><a href="https://snyk.io/blog/10-docker-image-security-best-practices/">10 Docker 容器（Docker） 安全（Security） Best Practices</a></li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-tools-and-software">Tools and Software</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-docker-desktop-alternatives-free">Docker 容器（Docker） Desktop Alternatives (Free)</h5>
+<ul>
+<li><strong><a href="https://rancherdesktop.io/">Rancher Desktop</a></strong> - Free, open-source Docker 容器（Docker） Desktop alternative</li>
+<li><strong><a href="https://podman.io/">Podman</a></strong> - Daemonless container engine, Docker-compatible</li>
+<li><strong><a href="https://containerd.io/">containerd</a></strong> - Industry-standard container runtime</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-container-registries">Container Registries</h5>
+<ul>
+<li><strong><a href="https://hub.docker.com/">Docker 容器（Docker） Hub</a></strong> - Official registry, free public repos</li>
+<li><strong><a href="https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry">GitHub Container Registry</a></strong> - Free with GitHub</li>
+<li><strong><a href="https://quay.io/">Quay.io</a></strong> - Red Hat container registry</li>
+<li><strong><a href="https://aws.amazon.com/ecr/">AWS 云（AWS） ECR</a></strong> - Amazon Elastic Container Registry</li>
+<li><strong><a href="https://cloud.google.com/artifact-registry">GCP 云（GCP） Artifact Registry</a></strong> - Google Cloud registry</li>
+<li><strong><a href="https://azure.microsoft.com/en-us/services/container-registry/">Azure 云（Azure） ACR</a></strong> - Azure 云（Azure） Container Registry</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-image-scanning-and-security">Image Scanning and 安全（Security）</h5>
+<ul>
+<li><strong><a href="https://github.com/aquasecurity/trivy">Trivy</a></strong> - Vulnerability scanner for containers</li>
+<li><strong><a href="https://snyk.io/product/container-vulnerability-management/">Snyk</a></strong> - Container security platform</li>
+<li><strong><a href="https://github.com/quay/clair">Clair</a></strong> - Open-source vulnerability scanner</li>
+<li><strong><a href="https://anchore.com/">Anchore</a></strong> - Container security and compliance</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-build-tools">Build Tools</h5>
+<ul>
+<li><strong><a href="https://docs.docker.com/buildx/working-with-buildx/">Docker 容器（Docker） Buildx</a></strong> - Extended build capabilities</li>
+<li><strong><a href="https://docs.docker.com/build/buildkit/">BuildKit</a></strong> - Improved build backend</li>
+<li><strong><a href="https://github.com/GoogleContainerTools/kaniko">Kaniko</a></strong> - Build images in Kubernetes 容器编排（Kubernetes）</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-development-tools">Development Tools</h5>
+<ul>
+<li><strong><a href="https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker">VS Code Docker 容器（Docker） Extension</a></strong> - Docker 容器（Docker） support in VS Code</li>
+<li><strong><a href="https://www.portainer.io/">Portainer</a></strong> - Container management UI</li>
+<li><strong><a href="https://github.com/wagoodman/dive">Dive</a></strong> - Tool for exploring Docker 容器（Docker） image layers</li>
+<li><strong><a href="https://github.com/hadolint/hadolint">Hadolint</a></strong> - Dockerfile linter</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-pre-built-ml-container-images">Pre-Built ML Container Images</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-pytorch">PyTorch 深度学习框架（PyTorch）</h5>
+<ul>
+<li><strong><a href="https://hub.docker.com/r/pytorch/pytorch">pytorch/pytorch</a></strong> - Official PyTorch 深度学习框架（PyTorch） images</li>
+<li><strong><a href="https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch">nvidia/pytorch</a></strong> - NVIDIA-optimized PyTorch 深度学习框架（PyTorch）</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-tensorflow">TensorFlow 深度学习框架（TensorFlow）</h5>
+<ul>
+<li><strong><a href="https://hub.docker.com/r/tensorflow/tensorflow">tensorflow/tensorflow</a></strong> - Official TensorFlow 深度学习框架（TensorFlow） images</li>
+<li><strong><a href="https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tensorflow">nvidia/tensorflow</a></strong> - NVIDIA-optimized TensorFlow 深度学习框架（TensorFlow）</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-hugging-face">Hugging Face</h5>
+<ul>
+<li><strong><a href="https://hub.docker.com/r/huggingface/transformers-pytorch-gpu">huggingface/transformers-pytorch-gpu</a></strong> - Transformers with PyTorch 深度学习框架（PyTorch）</li>
+<li><strong><a href="https://hub.docker.com/r/huggingface/transformers-tensorflow-gpu">huggingface/transformers-tensorflow-gpu</a></strong> - Transformers with TensorFlow 深度学习框架（TensorFlow）</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-jupyter">Jupyter</h5>
+<ul>
+<li><strong><a href="https://hub.docker.com/r/jupyter/datascience-notebook">jupyter/datascience-notebook</a></strong> - Jupyter with data science stack</li>
+<li><strong><a href="https://hub.docker.com/r/jupyter/tensorflow-notebook">jupyter/tensorflow-notebook</a></strong> - Jupyter with TensorFlow 深度学习框架（TensorFlow）</li>
+<li><strong><a href="https://hub.docker.com/r/jupyter/pytorch-notebook">jupyter/pytorch-notebook</a></strong> - Jupyter with PyTorch 深度学习框架（PyTorch）</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-nvidia-ngc">NVIDIA NGC</h5>
+<ul>
+<li><a href="https://catalog.ngc.nvidia.com/">NVIDIA GPU 加速（GPU） Cloud Catalog</a> - Curated GPU-optimized containers</li>
+<li>RAPIDS, CUDA 并行计算（CUDA）, cuDNN, TensorRT pre-built images</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-community-and-forums">Community and Forums</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-discussion-forums">Discussion Forums</h5>
+<ul>
+<li><strong><a href="https://forums.docker.com/">Docker 容器（Docker） Community Forums</a></strong> - Official Docker 容器（Docker） discussions</li>
+<li><strong><a href="https://reddit.com/r/docker">r/docker</a></strong> - Docker 容器（Docker） Reddit community</li>
+<li><strong><a href="https://stackoverflow.com/questions/tagged/docker">Stack Overflow - docker</a></strong> - Q&amp;A</li>
+<li><strong><a href="https://dockercommunity.slack.com/">Docker 容器（Docker） Community Slack</a></strong> - Real-time chat</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-social-media">Social Media</h5>
+<ul>
+<li><strong><a href="https://twitter.com/docker">@Docker 容器（Docker）</a></strong> - Official Docker 容器（Docker） Twitter</li>
+<li><strong><a href="https://twitter.com/solomonstre">@solomonstre</a></strong> - Solomon Hykes, Docker 容器（Docker） co-founder</li>
+<li><strong><a href="https://twitter.com/jpetazzo">@jpetazzo</a></strong> - Jérôme Petazzoni, Docker 容器（Docker） expert</li>
+<li><strong><a href="https://twitter.com/bfirsh">@bfirsh</a></strong> - Ben Firshman, Docker 容器（Docker） Compose 多服务编排（Docker Compose） creator</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-cheat-sheets-and-reference">Cheat Sheets and Reference</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-command-cheat-sheets">Command Cheat Sheets</h5>
+<ul>
+<li><a href="https://docs.docker.com/get-started/docker_cheatsheet.pdf">Docker 容器（Docker） CLI Cheat Sheet (PDF)</a></li>
+<li><a href="https://kapeli.com/cheat_sheets/Dockerfile.docset/Contents/Resources/Documents/index">Dockerfile Cheat Sheet</a></li>
+<li><a href="https://devhints.io/docker-compose">Docker 容器（Docker） Compose 多服务编排（Docker Compose） Cheat Sheet</a></li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-dockerfile-examples">Dockerfile Examples</h5>
+<ul>
+<li><a href="https://github.com/jessfraz/dockerfiles">Dockerfile Examples GitHub</a> - Jess Frazelle's collection</li>
+<li><a href="https://github.com/docker-library/official-images">Docker 容器（Docker） Official Images</a> - How official images are built</li>
+<li><a href="https://github.com/veggiemonk/awesome-docker">Awesome Docker 容器（Docker）</a> - Curated Docker 容器（Docker） resources</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-youtube-channels">YouTube Channels</h4>
+<ul>
+<li><strong><a href="https://www.youtube.com/c/DockerInc">Docker 容器（Docker）</a></strong> - Official Docker 容器（Docker） channel</li>
+<li><strong><a href="https://www.youtube.com/c/TechWorldwithNana">TechWorld with Nana</a></strong> - Docker 容器（Docker） and DevOps tutorials</li>
+<li><strong><a href="https://www.youtube.com/c/NetworkChuck">NetworkChuck</a></strong> - Docker 容器（Docker） crash courses</li>
+<li><strong><a href="https://www.youtube.com/c/Freecodecamp">freeCodeCamp.org</a></strong> - Full Docker 容器（Docker） courses</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-podcasts">Podcasts</h4>
+<ul>
+<li><strong><a href="https://thepodlets.io/">The Podlets</a></strong> - Cloud-native and container discussions</li>
+<li><strong><a href="https://softwareengineeringdaily.com/?s=docker">Software Engineering Daily - Docker 容器（Docker） Episodes</a></strong> - Docker 容器（Docker） interviews</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-github-repositories">GitHub Repositories</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-example-projects">Example Projects</h5>
+<ul>
+<li><strong><a href="https://github.com/dockersamples">Docker 容器（Docker） Samples</a></strong> - Official Docker 容器（Docker） sample applications</li>
+<li><strong><a href="https://github.com/docker/awesome-compose">Awesome Compose</a></strong> - Sample Docker 容器（Docker） Compose 多服务编排（Docker Compose） applications</li>
+<li><strong><a href="https://github.com/Azure 云（Azure）/MachineLearningNotebooks/tree/master/how-to-use-azureml/deployment/deploy-to-cloud">ML Docker 容器（Docker） Examples</a></strong> - Azure 云（Azure） ML Docker 容器（Docker） examples</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-tools">Tools</h5>
+<ul>
+<li><strong><a href="https://github.com/wagoodman/dive">Dive</a></strong> - Explore Docker 容器（Docker） image layers</li>
+<li><strong><a href="https://github.com/jwilder/dockerize">Dockerize</a></strong> - Simplify running applications in containers</li>
+<li><strong><a href="https://github.com/docker-slim/docker-slim">Docker 容器（Docker） Slim</a></strong> - Minify Docker 容器（Docker） images</li>
+<li><strong><a href="https://github.com/containrrr/watchtower">Watchtower</a></strong> - Auto-update running containers</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-certifications">Certifications</h4>
+<ul>
+<li><strong><a href="https://training.mirantis.com/dca-certification-exam/">Docker 容器（Docker） Certified Associate (DCA)</a></strong></li>
+<li>Official Docker 容器（Docker） certification</li>
+<li>Validates Docker 容器（Docker） skills</li>
+<li>Good for career advancement</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-best-practices-guides">Best Practices Guides</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-production-best-practices">生产环境（Production） Best Practices</h5>
+<ul>
+<li><a href="https://docs.docker.com/develop/dev-best-practices/">Docker 容器（Docker） 生产环境（Production） Best Practices</a></li>
+<li><a href="https://12factor.net/">12-Factor App Methodology</a> - Principles for containerized apps</li>
+<li><a href="https://www.cncf.io/blog/2022/06/07/introduction-to-cloud-native-security/">CNCF Cloud Native 安全（Security）</a></li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-image-optimization">Image Optimization</h5>
+<ul>
+<li><a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#minimize-the-number-of-layers">Optimizing Docker 容器（Docker） Images</a></li>
+<li><a href="https://www.docker.com/blog/faster-multi-platform-builds-dockerfile-cross-compilation-guide/">Multi-Stage Build Best Practices</a></li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-security">安全（Security）</h5>
+<ul>
+<li><a href="https://www.cisecurity.org/benchmark/docker">CIS Docker 容器（Docker） Benchmark</a> - 安全（Security） configuration benchmark</li>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html">Docker 容器（Docker） 安全（Security） Best Practices</a></li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-troubleshooting-resources">Troubleshooting Resources</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-common-issues">Common Issues</h5>
+<ul>
+<li><a href="https://docs.docker.com/config/daemon/troubleshoot/">Docker 容器（Docker） Troubleshooting Guide</a></li>
+<li><a href="https://stackoverflow.com/questions/tagged/docker">Stack Overflow - docker</a> - Search existing solutions</li>
+<li><a href="https://forums.docker.com/">Docker 容器（Docker） Community Forums</a> - Ask questions</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-resources-md-performance">Performance</h5>
+<ul>
+<li><a href="https://docs.docker.com/config/containers/resource_constraints/">Docker 容器（Docker） Performance Tuning</a></li>
+<li><a href="https://docs.docker.com/config/containers/runmetrics/">监控（Monitoring） Docker 容器（Docker） Containers</a></li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-additional-learning-paths">Additional 学习路径（Learning Path）s</h4>
+<h5 id="lessons-mod-103-containerization-resources-md-after-module-03">After Module 03</h5>
+<p><strong>Next Module:</strong></p>
+<ul>
+<li><strong>Module 04: Kubernetes 容器编排（Kubernetes） Fundamentals</strong> - Orchestrate containers 大规模（at scale）</li>
+</ul>
+<p><strong>Deep Dive Options:</strong></p>
+<ul>
+<li><strong>Advanced Docker 容器（Docker） Networking</strong> - Custom networks, plugins, service mesh</li>
+<li><strong>Docker 容器（Docker） Swarm</strong> - Docker 容器（Docker）'s native orchestration (alternative to Kubernetes 容器编排（Kubernetes）)</li>
+<li><strong>Container 安全（Security）</strong> - Advanced security, scanning, runtime protection</li>
+<li><strong>Docker 容器（Docker） in CI/CD 持续集成与交付（CI/CD）</strong> - Automate builds, tests, deployments</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-practical-exercises-repository">Practical Exercises Repository</h4>
+<p>Create a GitHub repository with:</p>
+<ul>
+<li>Example Dockerfiles for different ML frameworks</li>
+<li>Docker 容器（Docker） Compose 多服务编排（Docker Compose） stacks for common ML architectures</li>
+<li>Optimization examples (before/after image sizes)</li>
+<li>GPU-enabled examples</li>
+<li>CI/CD 持续集成与交付（CI/CD） workflows with Docker 容器（Docker）</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-103-containerization-resources-md-keep-learning">Keep Learning</h4>
+<ul>
+<li><strong>Build containers daily</strong> - Practice is essential</li>
+<li><strong>Optimize every image</strong> - Always aim for smaller, faster builds</li>
+<li><strong>Study layer caching</strong> - This is the #1 performance optimization</li>
+<li><strong>Learn from official images</strong> - Read Dockerfiles of popular images</li>
+<li><strong>Experiment with GPU 加速（GPU） containers</strong> - Even without GPU 加速（GPU） hardware</li>
+<li><strong>Join Docker 容器（Docker） communities</strong> - Learn from practitioners</li>
+<li><strong>Stay updated</strong> - Docker 容器（Docker） evolves rapidly, follow release notes</li>
+</ul>
+<hr/>
+<p><strong>Questions or suggestions for this resource list?</strong> Open an issue on GitHub!</p>
+<p><strong>Want to contribute?</strong> Submit a PR with additional high-quality resources!</p><p><a class="home" href="../docs/doc-lessons-mod-103-containerization-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-103-containerization.html#doc-lessons-mod-103-containerization-resources-md">返回本章（Back to chapter）</a> </p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Project 01: Basic 模型服务（Model Serving） - Architecture Documentation</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Project 01: Basic 模型服务（Model Serving） - Architecture Documentation</h1><p>实战项目（Projects） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" open><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary><a class="tree-doc" href="../docs/doc-projects-project-101-basic-model-serving-docs-api-md.html">API Documentation - ML 模型服务（Model Serving）</a><a class="tree-doc active" href="../docs/doc-projects-project-101-basic-model-serving-docs-architecture-md.html">Project 01: Basic 模型服务（Model Serving） - Architecture Documentation</a><a class="tree-doc" href="../docs/doc-projects-project-101-basic-model-serving-docs-deployment-md.html">部署（Deployment） Guide - Project 01: Basic 模型服务（Model Serving）</a><a class="tree-doc" href="../docs/doc-projects-project-101-basic-model-serving-docs-troubleshooting-md.html">Troubleshooting Guide - ML 模型服务（Model Serving）</a><a class="tree-doc" href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 01: Basic 模型服务（Model Serving） System</a></details><details class="tree-section" open><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary><a class="tree-doc" href="../docs/doc-projects-project-102-mlops-pipeline-docs-architecture-md.html">MLOps 机器学习运维（MLOps） Pipeline Architecture</a><a class="tree-doc" href="../docs/doc-projects-project-102-mlops-pipeline-docs-deployment-md.html">部署（Deployment） Guide</a><a class="tree-doc" href="../docs/doc-projects-project-102-mlops-pipeline-docs-mlflow-md.html">MLflow 实验追踪（MLflow） Setup and Usage Guide</a><a class="tree-doc" href="../docs/doc-projects-project-102-mlops-pipeline-docs-pipeline-md.html">MLOps 机器学习运维（MLOps） Pipeline Workflows</a><a class="tree-doc" href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 02: End-to-End MLOps 机器学习运维（MLOps） Pipeline</a></details><details class="tree-section" open><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-docs-architecture-md.html">大语言模型（LLM） 部署（Deployment） Platform Architecture</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-docs-cost-md.html">Cost Analysis and Optimization</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-docs-deployment-md.html">部署（Deployment） Guide</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-docs-optimization-md.html">Performance Optimization Guide</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-docs-rag-md.html">检索增强生成（RAG） Implementation Guide</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-docs-troubleshooting-md.html">Troubleshooting — Project 103 (LLM 部署（Deployment）)</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Jupyter Notebooks for 大语言模型（LLM） Experimentation</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-prompts-readme-md.html">Prompt Templates — Project 103</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-readme-md.html">Project 03: 大语言模型（LLM） 部署（Deployment） Platform</a></details><details class="tree-section" open><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-projects-readme-md.html">Projects</a></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Project 01: Basic 模型服务（Model Serving） - Architecture Documentation</h2><p>实战项目（Projects） · Project 1: Model Serving</p><div class="stats"><div class="stat"><strong>2</strong><span>reading order</span></div><div class="stat"><strong>20</strong><span>chapter docs</span></div><div class="stat"><strong>373</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-projects-project-101-basic-model-serving-docs-architecture-md" data-title="project 01: basic model serving - architecture documentation projects/project-101-basic-model-serving/docs/architecture.md project 1: model serving"><div class="doc-head"><span class="chip">2/20</span><span class="chip">Project 1</span><span class="path">projects/project-101-basic-model-serving/docs/ARCHITECTURE.md</span><span class="path">373 行</span></div><h2>Project 01: Basic 模型服务（Model Serving） - Architecture Documentation</h2><p><a class="home" href="../docs/doc-projects-project-101-basic-model-serving-docs-api-md.html">← 上一篇（Previous）</a> <a class="home" href="../projects.html#doc-projects-project-101-basic-model-serving-docs-architecture-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-projects-project-101-basic-model-serving-docs-deployment-md.html">下一篇（Next） →</a></p><h3 id="projects-project-101-basic-model-serving-docs-architecture-md-project-01-basic-model-servi">Project 01: Basic 模型服务（Model Serving） - Architecture Documentation</h3>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-overview">概览（Overview）</h4>
+<p>This project implements a production-ready ML model serving system with REST API, containerization, Kubernetes 容器编排（Kubernetes） deployment, and 全面监控（comprehensive monitoring）.</p>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-architecture-diagram">Architecture Diagram</h4>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">                                                    ┌─────────────┐
+                                                    │   Grafana   │
+                                                    │  Dashboard  │
+                                                    └──────┬──────┘
+                                                           │
+                                                           │ queries
+┌──────────┐         ┌──────────────┐         ┌──────────▼──────┐
+│  Client  │────────▶│ Load Balancer│────────▶│   Prometheus    │
+│ (User)   │  HTTP   │  (Service)   │         │   Monitoring    │
+└──────────┘  Req    └──────┬───────┘         └─────────────────┘
+                             │                          │
+                             │                          │ scrapes metrics
+                             ▼                          │
+                   ┌─────────────────┐                  │
+                   │   FastAPI Pod   │◀─────────────────┘
+                   │  (ML Serving)   │
+                   │                 │
+                   │  ┌───────────┐  │
+                   │  │  ML Model │  │
+                   │  │ (ResNet18)│  │
+                   │  └───────────┘  │
+                   │                 │
+                   │  /predict       │
+                   │  /health        │
+                   │  /metrics       │
+                   └─────────────────┘
+                             │
+                             │ autoscale
+                             ▼
+                   ┌─────────────────┐
+                   │ Horizontal Pod  │
+                   │   Autoscaler    │
+                   └─────────────────┘</code></pre></div>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-components">Components</h4>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-1-fastapi-application-src-ap">1. FastAPI 服务框架（FastAPI） Application (<code>src/api.py</code>)</h5>
+<p><strong>Purpose</strong>: REST API for model inference</p>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li><code>/health</code> - Health check endpoint</li>
+<li><code>/metrics</code> - Prometheus 指标监控（Prometheus） metrics</li>
+<li><code>/v1/predict</code> - Image classification endpoint</li>
+<li>Async request handling</li>
+<li>Input validation</li>
+<li>Error handling</li>
+</ul>
+<p><strong>Technology Stack:</strong></p>
+<ul>
+<li>FastAPI 服务框架（FastAPI） (async web framework)</li>
+<li>Pydantic (request validation)</li>
+<li>Prometheus 指标监控（Prometheus） Client (metrics)</li>
+</ul>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-2-model-wrapper-src-model-py">2. Model Wrapper (<code>src/model.py</code>)</h5>
+<p><strong>Purpose</strong>: Load and manage ML model</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Model loading at startup</li>
+<li>推理（Inference） execution</li>
+<li>Device management (CPU/GPU 加速（GPU）)</li>
+<li>Preprocessing and postprocessing</li>
+</ul>
+<p><strong>Model</strong>: ResNet18 (pre-trained on ImageNet)</p>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-3-configuration-src-config-p">3. Configuration (<code>src/config.py</code>)</h5>
+<p><strong>Purpose</strong>: Centralized configuration management</p>
+<p><strong>Configuration Sources:</strong></p>
+<ol>
+<li>Environment variables (.env)</li>
+<li>Config files</li>
+<li>Default values</li>
+</ol>
+<p><strong>Key Settings:</strong></p>
+<ul>
+<li>Model path</li>
+<li>Device (CPU/GPU 加速（GPU）)</li>
+<li>API settings</li>
+<li>Logging level</li>
+</ul>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-4-utilities-src-utils-py">4. Utilities (<code>src/utils.py</code>)</h5>
+<p><strong>Purpose</strong>: Helper functions</p>
+<p><strong>Functions:</strong></p>
+<ul>
+<li>Image download and validation</li>
+<li>Logging setup</li>
+<li>Metrics helpers</li>
+<li>Error handling utilities</li>
+</ul>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-data-flow">Data Flow</h4>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-inference-request-flow">推理（Inference） Request Flow</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">1. Client sends POST /v1/predict with image
+   ↓
+2. FastAPI receives request
+   ↓
+3. Pydantic validates input
+   ↓
+4. Image downloaded/loaded
+   ↓
+5. Image preprocessed (resize, normalize)
+   ↓
+6. Model inference (forward pass)
+   ↓
+7. Postprocessing (softmax, top-k)
+   ↓
+8. Response formatted and sent
+   ↓
+9. Metrics recorded (latency, count)</code></pre></div>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-health-check-flow">Health Check Flow</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">1. Kubernetes sends GET /health
+   ↓
+2. FastAPI checks:
+   - Model loaded
+   - Service healthy
+   ↓
+3. Returns 200 OK or 503 Unavailable</code></pre></div>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-metrics-collection-flow">Metrics Collection Flow</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">1. Prometheus scrapes GET /metrics every 15s
+   ↓
+2. FastAPI returns metrics:
+   - predictions_total (counter)
+   - prediction_duration_seconds (histogram)
+   - http_requests_total (counter)
+   ↓
+3. Prometheus stores time-series data
+   ↓
+4. Grafana visualizes metrics</code></pre></div>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-deployment-architecture">部署（Deployment） Architecture</h4>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-local-development">Local Development</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">docker-compose up
+├── api:8000 (ML serving)
+├── prometheus:9090 (metrics)
+└── grafana:3000 (dashboards)</code></pre></div>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-kubernetes-production">Kubernetes 容器编排（Kubernetes） 生产环境（Production）</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Kubernetes Cluster
+├── Namespace: ml-serving
+├── Deployment: ml-api
+│   ├── Pod 1 (replica)
+│   ├── Pod 2 (replica)
+│   └── Pod N (auto-scaled)
+├── Service: ml-api-service (LoadBalancer)
+├── ConfigMap: ml-api-config
+├── HPA: ml-api-hpa (auto-scaling rules)
+├── Prometheus: monitoring namespace
+└── Grafana: monitoring namespace</code></pre></div>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-scaling-strategy">Scaling Strategy</h4>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-horizontal-pod-autoscaling-h">Horizontal Pod Autoscaling (HPA)</h5>
+<p><strong>Metrics:</strong></p>
+<ul>
+<li>Target CPU: 70%</li>
+<li>Target Memory: 80%</li>
+<li>Custom: requests per second</li>
+</ul>
+<p><strong>Configuration:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">minReplicas: 1
+maxReplicas: 5
+scaleUp: add pod when CPU &gt; 70% for 30s
+scaleDown: remove pod when CPU &lt; 50% for 5min</code></pre></div>
+<p><strong>Scaling Behavior:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Low traffic (&lt; 10 req/sec):  1 pod
+Medium traffic (10-50 req/sec): 2-3 pods
+High traffic (&gt; 50 req/sec): 4-5 pods</code></pre></div>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-performance-characteristics">Performance Characteristics</h4>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-latency">Latency</h5>
+<div class="table-wrap"><table><thead><tr><th>Metric</th><th>Target</th><th>Measured</th></tr></thead><tbody><tr><td>p50 latency</td><td>&lt; 50ms</td><td>TODO: Measure</td></tr><tr><td>p95 latency</td><td>&lt; 100ms</td><td>TODO: Measure</td></tr><tr><td>p99 latency</td><td>&lt; 200ms</td><td>TODO: Measure</td></tr></tbody></table></div>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-throughput">Throughput</h5>
+<div class="table-wrap"><table><thead><tr><th>Metric</th><th>Target</th><th>Measured</th></tr></thead><tbody><tr><td>Requests/sec (single pod)</td><td>20-50</td><td>TODO: Measure</td></tr><tr><td>Requests/sec (5 pods)</td><td>100-250</td><td>TODO: Measure</td></tr></tbody></table></div>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-resource-usage">Resource Usage</h5>
+<div class="table-wrap"><table><thead><tr><th>Resource</th><th>Per Pod</th><th>Notes</th></tr></thead><tbody><tr><td>CPU</td><td>500m-1000m</td><td>0.5-1 CPU core</td></tr><tr><td>Memory</td><td>512Mi-1Gi</td><td>Model + runtime</td></tr><tr><td>Disk</td><td>1Gi</td><td>Model weights</td></tr></tbody></table></div>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-monitoring-and-observability">监控（Monitoring） and 可观测性（Observability）</h4>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-key-metrics">Key Metrics</h5>
+<p><strong>Application Metrics:</strong></p>
+<ul>
+<li><code>predictions_total</code> - Total predictions by status</li>
+<li><code>prediction_duration_seconds</code> - 推理（Inference） latency histogram</li>
+<li><code>http_requests_total</code> - Total HTTP requests</li>
+</ul>
+<p><strong>System Metrics:</strong></p>
+<ul>
+<li>CPU utilization</li>
+<li>Memory usage</li>
+<li>Network I/O</li>
+<li>Disk I/O</li>
+</ul>
+<p><strong>Model Metrics:</strong></p>
+<ul>
+<li>Prediction distribution (class counts)</li>
+<li>Confidence scores (average)</li>
+<li>Error rate</li>
+</ul>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-logging">Logging</h5>
+<p><strong>Log Levels:</strong></p>
+<ul>
+<li>DEBUG: Detailed debugging info</li>
+<li>INFO: General information</li>
+<li>WARNING: Warning messages</li>
+<li>ERROR: Error messages</li>
+<li>CRITICAL: Critical failures</li>
+</ul>
+<p><strong>Log Format (JSON):</strong></p>
+<div class="code-shell"><div class="code-title"><span>json</span><span>JSON</span></div><pre><code class="language-json">{
+  &quot;timestamp&quot;: &quot;2025-10-15T12:00:00Z&quot;,
+  &quot;level&quot;: &quot;INFO&quot;,
+  &quot;message&quot;: &quot;Prediction successful&quot;,
+  &quot;request_id&quot;: &quot;uuid-1234&quot;,
+  &quot;inference_time_ms&quot;: 25,
+  &quot;class&quot;: &quot;cat&quot;,
+  &quot;probability&quot;: 0.95
+}</code></pre></div>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-security-considerations">安全（Security） Considerations</h4>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-current-implementation">Current Implementation</h5>
+<ul>
+<li>✅ Run as non-root user in container</li>
+<li>✅ Input validation (file size, format)</li>
+<li>✅ CORS enabled (configurable)</li>
+<li>✅ Health checks for availability</li>
+</ul>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-todo-production-hardening">TODO: 生产环境（Production） Hardening</h5>
+<ul>
+<li>⬜ API authentication (JWT, API keys)</li>
+<li>⬜ Rate limiting per user/IP</li>
+<li>⬜ HTTPS/TLS encryption</li>
+<li>⬜ Network policies in Kubernetes 容器编排（Kubernetes）</li>
+<li>⬜ Secret management (for model encryption)</li>
+<li>⬜ Input sanitization (prevent adversarial attacks)</li>
+</ul>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-disaster-recovery">Disaster Recovery</h4>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-failure-scenarios">Failure Scenarios</h5>
+<p><strong>Pod Failure:</strong></p>
+<ul>
+<li>Kubernetes 容器编排（Kubernetes） automatically restarts failed pods</li>
+<li>HPA maintains minimum replicas</li>
+<li>Service routes traffic to healthy pods</li>
+</ul>
+<p><strong>Node Failure:</strong></p>
+<ul>
+<li>Pods rescheduled to healthy nodes</li>
+<li>PersistentVolumes (if used) reattached</li>
+</ul>
+<p><strong>Model Corruption:</strong></p>
+<ul>
+<li>Keep multiple model versions</li>
+<li>Implement model validation on load</li>
+<li>Rollback to previous version</li>
+</ul>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-backup-strategy">Backup Strategy</h5>
+<p><strong>Model Artifacts:</strong></p>
+<ul>
+<li>Store in S3/GCS with versioning</li>
+<li>Automated backups every model update</li>
+<li>Retention: 30 days</li>
+</ul>
+<p><strong>Configuration:</strong></p>
+<ul>
+<li>Git repository (version controlled)</li>
+<li>ConfigMaps backed up</li>
+</ul>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-cost-optimization">成本优化（Cost Optimization）</h4>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-current-setup-estimated-mont">Current Setup (Estimated Monthly Costs)</h5>
+<p><strong>Development:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">1 pod (24/7): ~$30/month
+Prometheus: ~$10/month
+Grafana: ~$10/month
+Storage: ~$5/month
+Total: ~$55/month</code></pre></div>
+<p><strong>生产环境（Production） (with 自动扩缩容（auto-scaling）):</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Average 3 pods: ~$90/month
+Monitoring: ~$30/month
+Storage: ~$10/month
+Network: ~$20/month
+Total: ~$150/month</code></pre></div>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-optimization-tips">Optimization Tips</h5>
+<ol>
+<li><strong>Use spot instances</strong> (60% savings)</li>
+<li><strong>Scale to zero</strong> during off-hours (save 50%)</li>
+<li><strong>Model compression</strong> (reduce memory, use smaller instances)</li>
+<li><strong>Caching</strong> (reduce redundant inference)</li>
+<li><strong>Batch processing</strong> (higher throughput per instance)</li>
+</ol>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-future-enhancements">Future Enhancements</h4>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-phase-1-near-term">Phase 1 (Near-term)</h5>
+<ul>
+<li>[ ] Add model versioning and A/B testing</li>
+<li>[ ] Implement request batching</li>
+<li>[ ] Add model warm-up on startup</li>
+<li>[ ] Distributed tracing with Jaeger 链路追踪（Jaeger）</li>
+</ul>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-phase-2-mid-term">Phase 2 (Mid-term)</h5>
+<ul>
+<li>[ ] GPU 加速（GPU） support for faster inference</li>
+<li>[ ] Model compression (quantization, pruning)</li>
+<li>[ ] Multi-model serving</li>
+<li>[ ] Feature store integration</li>
+</ul>
+<h5 id="projects-project-101-basic-model-serving-docs-architecture-md-phase-3-long-term">Phase 3 (Long-term)</h5>
+<ul>
+<li>[ ] Automated model retraining pipeline</li>
+<li>[ ] Drift detection and monitoring</li>
+<li>[ ] Federated learning support</li>
+<li>[ ] Edge deployment (TensorFlow Lite, ONNX)</li>
+</ul>
+<h4 id="projects-project-101-basic-model-serving-docs-architecture-md-references">References</h4>
+<ul>
+<li><a href="https://fastapi.tiangolo.com/">FastAPI 服务框架（FastAPI） Documentation</a></li>
+<li><a href="https://kubernetes.io/docs/">Kubernetes 容器编排（Kubernetes） Documentation</a></li>
+<li><a href="https://prometheus.io/docs/practices/">Prometheus 指标监控（Prometheus） Best Practices</a></li>
+<li><a href="https://cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning">ML Serving Best Practices</a></li>
+</ul><p><a class="home" href="../docs/doc-projects-project-101-basic-model-serving-docs-api-md.html">← 上一篇（Previous）</a> <a class="home" href="../projects.html#doc-projects-project-101-basic-model-serving-docs-architecture-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-projects-project-101-basic-model-serving-docs-deployment-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

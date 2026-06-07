@@ -1,0 +1,772 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 02: AWS 云（AWS） for 机器学习基础设施（ML Infrastructure）</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 02: AWS 云（AWS） for 机器学习基础设施（ML Infrastructure）</h1><p>Module 102: 云计算（Cloud Computing） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" open><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Module 02: 云计算（Cloud Computing） for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-resources-md.html">Module 02 Resources: 云计算（Cloud Computing） for ML</a></details><details class="tree-section" open><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lesson 01: Cloud Architecture for ML</a><a class="tree-doc active" href="../docs/doc-lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md.html">Lesson 02: AWS 云（AWS） for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md.html">Lesson 03: Google Cloud Platform for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-04-azure-ml-infrastructure-md.html">Lesson 04: Azure 云（Azure） for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-05-cloud-storage-md.html">Lesson 05: Cloud Storage for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-06-cloud-networking-md.html">Lesson 06: Cloud Networking for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-07-managed-ml-services-md.html">Lesson 07: Managed ML Services Comparison</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-08-multi-cloud-cost-optimization-md.html">Lesson 08: Multi-Cloud &amp; Cost Optimization</a></details><details class="tree-section" open><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-01-aws-ml-infra-md.html">Lab 01: Provision an ML-Ready AWS 云（AWS） Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-02-gcp-ml-infra-md.html">Lab 02: Provision an ML-Ready GCP 云（GCP） Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-03-azure-ml-infra-md.html">Lab 03: Provision an ML-Ready Azure 云（Azure） Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-04-multi-cloud-deployment-md.html">Lab 04: Multi-Cloud 部署（Deployment） with a Single Tool</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Module 102 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercise 01: Multi-Cloud Cost Analyzer</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-02-cloud-ml-infrastructure-readme-md.html">Exercise 02: Cloud 机器学习基础设施（ML Infrastructure） 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md.html">Exercise 03: Cloud Disaster Recovery System</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-04-cross-region-replication-readme-md.html">Exercise 04: Cross-Region Replication for ML Artifacts</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-05-cloud-networking-for-ml-readme-md.html">Exercise 05: Cloud Networking for ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-06-managed-ml-services-comparison-readm.html">Exercise 06: Managed ML Services Comparison</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-07-multi-account-security-readme-md.html">Exercise 07: Multi-Account / Multi-Project 安全（Security） Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-08-finops-automation-readme-md.html">Exercise 08: FinOps Automation for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-readme-md.html">Module 02 Exercises: 云计算（Cloud Computing） for ML</a></details><details class="tree-section" open><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Module 02: 云计算（Cloud Computing） - Final Quiz</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-mid-module-quiz-md.html">Module 02: 云计算（Cloud Computing） - Mid-Module Quiz</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-module-quiz-md.html">Module 02 Quiz: 云计算（Cloud Computing） for ML</a></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 02: AWS 云（AWS） for 机器学习基础设施（ML Infrastructure）</h2><p>Module 102: 云计算（Cloud Computing） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>2</strong><span>reading order</span></div><div class="stat"><strong>27</strong><span>chapter docs</span></div><div class="stat"><strong>889</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md" data-title="lesson 02: aws for ml infrastructure lessons/mod-102-cloud-computing/02-aws-ml-infrastructure.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">2/27</span><span class="chip">Lectures</span><span class="path">lessons/mod-102-cloud-computing/02-aws-ml-infrastructure.md</span><span class="path">889 行</span></div><h2>Lesson 02: AWS 云（AWS） for 机器学习基础设施（ML Infrastructure）</h2><p><a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-102-cloud-computing.html#doc-lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-lesson-02-aws-for-ml-infrastru">Lesson 02: AWS 云（AWS） for 机器学习基础设施（ML Infrastructure）</h3>
+<p><strong>Duration:</strong> 7 hours <strong>Objectives:</strong> Master AWS 云（AWS） services for building, deploying, and managing ML infrastructure</p>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-introduction">Introduction</h4>
+<p>Amazon Web Services (AWS) is the most widely used cloud platform, offering the broadest set of services for ML infrastructure. This lesson covers the essential AWS 云（AWS） services you need to build production ML systems, from compute and storage to managed ML services.</p>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-aws-ml-services-landscape">AWS 云（AWS） ML Services Landscape</h4>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌──────────────────────────────────────────────────────────────┐
+│                   AWS ML Services Stack                       │
+├──────────────────────────────────────────────────────────────┤
+│                                                               │
+│  Managed ML Services                                          │
+│  ┌────────────┬─────────────┬──────────────┐                │
+│  │ SageMaker  │   Bedrock   │  Rekognition │                │
+│  │ (Training/ │  (Gen AI)   │  (Computer   │                │
+│  │  Serving)  │             │   Vision)    │                │
+│  └────────────┴─────────────┴──────────────┘                │
+│                       ↓                                       │
+│  Compute Layer                                                │
+│  ┌────────────┬─────────────┬──────────────┐                │
+│  │    EC2     │     ECS     │     EKS      │                │
+│  │ (VMs+GPU)  │ (Containers)│ (Kubernetes) │                │
+│  └────────────┴─────────────┴──────────────┘                │
+│                       ↓                                       │
+│  Storage Layer                                                │
+│  ┌────────────┬─────────────┬──────────────┐                │
+│  │     S3     │     EBS     │     EFS      │                │
+│  │  (Object)  │   (Block)   │    (File)    │                │
+│  └────────────┴─────────────┴──────────────┘                │
+│                       ↓                                       │
+│  Foundation Layer                                             │
+│  ┌────────────┬─────────────┬──────────────┐                │
+│  │    VPC     │     IAM     │  CloudWatch  │                │
+│  │ (Network)  │  (Security) │ (Monitoring) │                │
+│  └────────────┴─────────────┴──────────────┘                │
+│                                                               │
+└──────────────────────────────────────────────────────────────┘</code></pre></div>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-part-1-aws-account-setup-and-i">Part 1: AWS 云（AWS） Account Setup and IAM</h4>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-setting-up-your-aws-account">Setting Up Your AWS 云（AWS） Account</h5>
+<p><strong>Step 1: Create AWS 云（AWS） Account</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Sign up at: https://aws.amazon.com/
+# You'll need:
+# - Email address
+# - Credit card (won't be charged for free tier)
+# - Phone number for verification
+
+# Free Tier includes (12 months):
+# - 750 hours/month t2.micro EC2 (1 vCPU, 1 GB RAM)
+# - 5 GB S3 storage
+# - 30 GB EBS storage
+# - 15 GB data transfer out</code></pre></div>
+<p><strong>Step 2: Secure Root Account</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># CRITICAL: Never use root account for daily operations!
+
+# 1. Enable MFA (Multi-Factor Authentication)
+#    Account → Security Credentials → MFA → Activate MFA
+#    Use: Google Authenticator, Authy, or hardware token
+
+# 2. Create billing alarm
+#    CloudWatch → Alarms → Create Alarm → Billing
+#    Alert when: EstimatedCharges &gt; $10</code></pre></div>
+<p><strong>Step 3: Install AWS 云（AWS） CLI</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install AWS CLI v2
+curl &quot;https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip&quot; -o &quot;awscliv2.zip&quot;
+unzip awscliv2.zip
+sudo ./aws/install
+
+# Verify installation
+aws --version
+# Output: aws-cli/2.x.x Python/3.x.x Linux/x.x.x
+
+# Configure AWS CLI
+aws configure
+# AWS Access Key ID: [Your key]
+# AWS Secret Access Key: [Your secret]
+# Default region name: us-east-1
+# Default output format: json
+
+# Test configuration
+aws sts get-caller-identity</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-iam-identity-and-access-manage">IAM (Identity and Access Management)</h5>
+<p><strong>Understand IAM Concepts:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">IAM Components:
+
+1. Users: Individual people
+2. Groups: Collections of users
+3. Roles: Permissions for AWS services
+4. Policies: JSON documents defining permissions
+
+Principle of Least Privilege:
+Grant only the permissions needed for the task</code></pre></div>
+<p><strong>Create IAM User for ML Development:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create user
+aws iam create-user --user-name ml-engineer
+
+# Attach policy for ML development
+aws iam attach-user-policy \
+    --user-name ml-engineer \
+    --policy-arn arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
+
+aws iam attach-user-policy \
+    --user-name ml-engineer \
+    --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
+
+aws iam attach-user-policy \
+    --user-name ml-engineer \
+    --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+# Create access key
+aws iam create-access-key --user-name ml-engineer</code></pre></div>
+<p><strong>Example IAM Policy for ML:</strong></p>
+<div class="code-shell"><div class="code-title"><span>json</span><span>JSON</span></div><pre><code class="language-json">{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [
+    {
+      &quot;Effect&quot;: &quot;Allow&quot;,
+      &quot;Action&quot;: [
+        &quot;sagemaker:*&quot;,
+        &quot;ec2:DescribeInstances&quot;,
+        &quot;ec2:RunInstances&quot;,
+        &quot;ec2:TerminateInstances&quot;,
+        &quot;s3:GetObject&quot;,
+        &quot;s3:PutObject&quot;,
+        &quot;s3:ListBucket&quot;
+      ],
+      &quot;Resource&quot;: &quot;*&quot;,
+      &quot;Condition&quot;: {
+        &quot;StringEquals&quot;: {
+          &quot;aws:RequestedRegion&quot;: &quot;us-east-1&quot;
+        }
+      }
+    }
+  ]
+}</code></pre></div>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-part-2-ec2-for-ml-compute">Part 2: EC2 for ML Compute</h4>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-ec2-instance-types-for-ml">EC2 Instance Types for ML</h5>
+<p><strong>General Purpose (t3, m5):</strong></p>
+<ul>
+<li>Light inference workloads</li>
+<li>Development and testing</li>
+<li>Cost-effective</li>
+</ul>
+<p><strong>Compute Optimized (c5, c6i):</strong></p>
+<ul>
+<li>CPU-based training</li>
+<li>Batch inference</li>
+<li>High-performance computing</li>
+</ul>
+<p><strong>GPU 加速（GPU） Instances:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌──────────────┬─────────────┬──────────┬─────────────┬───────────┐
+│ Instance     │ GPU         │ GPU RAM  │ vCPUs       │ Cost/hour │
+├──────────────┼─────────────┼──────────┼─────────────┼───────────┤
+│ g4dn.xlarge  │ 1x T4       │ 16 GB    │ 4           │ $0.526    │
+│ g4dn.12xl    │ 4x T4       │ 64 GB    │ 48          │ $3.912    │
+│ p3.2xlarge   │ 1x V100     │ 16 GB    │ 8           │ $3.06     │
+│ p3.8xlarge   │ 4x V100     │ 64 GB    │ 32          │ $12.24    │
+│ p4d.24xlarge │ 8x A100     │ 320 GB   │ 96          │ $32.77    │
+│ g5.xlarge    │ 1x A10G     │ 24 GB    │ 4           │ $1.006    │
+│ g5.48xlarge  │ 8x A10G     │ 192 GB   │ 192         │ $16.288   │
+└──────────────┴─────────────┴──────────┴─────────────┴───────────┘
+
+Recommendations:
+- Development: g4dn.xlarge (T4, affordable)
+- Small models: g5.xlarge (A10G, good value)
+- Medium models: p3.2xlarge (V100, proven)
+- Large models: p3.8xlarge or p4d.24xlarge (A100)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-launching-an-ec2-instance-for-">Launching an EC2 Instance for ML</h5>
+<p><strong>Using AWS 云（AWS） Console:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">1. Go to EC2 Dashboard
+2. Click &quot;Launch Instance&quot;
+3. Choose AMI: Deep Learning AMI (Ubuntu)
+   - Pre-installed: PyTorch, TensorFlow, CUDA
+4. Choose Instance Type: g4dn.xlarge
+5. Configure:
+   - Network: Default VPC
+   - Storage: 50 GB gp3
+   - Security Group: Allow SSH (22), HTTP (8000)
+6. Review and Launch
+7. Create/Select Key Pair
+8. Launch</code></pre></div>
+<p><strong>Using AWS 云（AWS） CLI:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Find Deep Learning AMI
+aws ec2 describe-images \
+    --owners amazon \
+    --filters &quot;Name=name,Values=Deep Learning AMI (Ubuntu*&quot; \
+    --query 'Images | sort_by(@, &amp;CreationDate) | [-1].[ImageId,Name]' \
+    --output text
+
+# Create security group
+aws ec2 create-security-group \
+    --group-name ml-training \
+    --description &quot;ML training security group&quot;
+
+# Allow SSH
+aws ec2 authorize-security-group-ingress \
+    --group-name ml-training \
+    --protocol tcp \
+    --port 22 \
+    --cidr 0.0.0.0/0
+
+# Allow custom port for Jupyter/API
+aws ec2 authorize-security-group-ingress \
+    --group-name ml-training \
+    --protocol tcp \
+    --port 8000-8888 \
+    --cidr 0.0.0.0/0
+
+# Launch instance
+aws ec2 run-instances \
+    --image-id ami-xxxxx \
+    --instance-type g4dn.xlarge \
+    --key-name my-key-pair \
+    --security-groups ml-training \
+    --block-device-mappings '[
+        {
+            &quot;DeviceName&quot;: &quot;/dev/sda1&quot;,
+            &quot;Ebs&quot;: {
+                &quot;VolumeSize&quot;: 100,
+                &quot;VolumeType&quot;: &quot;gp3&quot;,
+                &quot;DeleteOnTermination&quot;: true
+            }
+        }
+    ]' \
+    --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ml-training}]'
+
+# Get instance details
+aws ec2 describe-instances \
+    --filters &quot;Name=tag:Name,Values=ml-training&quot; \
+    --query 'Reservations[0].Instances[0].[InstanceId,PublicIpAddress,State.Name]' \
+    --output table</code></pre></div>
+<p><strong>Connect to Instance:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># SSH into instance
+ssh -i my-key-pair.pem ubuntu@&lt;public-ip&gt;
+
+# Verify GPU
+nvidia-smi
+
+# Activate conda environment
+conda activate pytorch
+
+# Test PyTorch with GPU
+python -c &quot;import torch; print(torch.cuda.is_available())&quot;</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-spot-instances-for-cost-saving">Spot Instances for Cost Savings</h5>
+<p><strong>What are Spot Instances?</strong></p>
+<ul>
+<li>Unused EC2 capacity at up to 90% discount</li>
+<li>Can be interrupted with 2-minute warning</li>
+<li>Perfect for training (with checkpointing)</li>
+</ul>
+<p><strong>Launch Spot Instance:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create spot instance request
+aws ec2 request-spot-instances \
+    --spot-price &quot;0.50&quot; \
+    --instance-count 1 \
+    --type &quot;one-time&quot; \
+    --launch-specification '{
+        &quot;ImageId&quot;: &quot;ami-xxxxx&quot;,
+        &quot;InstanceType&quot;: &quot;g4dn.xlarge&quot;,
+        &quot;KeyName&quot;: &quot;my-key-pair&quot;,
+        &quot;SecurityGroups&quot;: [&quot;ml-training&quot;]
+    }'
+
+# Monitor spot price history
+aws ec2 describe-spot-price-history \
+    --instance-types g4dn.xlarge \
+    --start-time $(date -u +%Y-%m-%dT%H:%M:%S) \
+    --product-descriptions &quot;Linux/UNIX&quot; \
+    --query 'SpotPriceHistory[*].[Timestamp,SpotPrice]' \
+    --output table</code></pre></div>
+<p><strong>Best Practices for Spot Instances:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Implement checkpointing in training script
+import torch
+
+def train_with_checkpoints(model, train_loader, epochs=10):
+    checkpoint_dir = &quot;/data/checkpoints&quot;
+
+    # Resume from checkpoint if exists
+    start_epoch = 0
+    if os.path.exists(f&quot;{checkpoint_dir}/latest.pth&quot;):
+        checkpoint = torch.load(f&quot;{checkpoint_dir}/latest.pth&quot;)
+        model.load_state_dict(checkpoint['model_state'])
+        start_epoch = checkpoint['epoch']
+        print(f&quot;Resumed from epoch {start_epoch}&quot;)
+
+    for epoch in range(start_epoch, epochs):
+        # Training loop
+        for batch in train_loader:
+            # ... training code ...
+            pass
+
+        # Save checkpoint after each epoch
+        torch.save({
+            'epoch': epoch + 1,
+            'model_state': model.state_dict(),
+            'optimizer_state': optimizer.state_dict(),
+        }, f&quot;{checkpoint_dir}/latest.pth&quot;)
+
+        print(f&quot;Checkpoint saved at epoch {epoch + 1}&quot;)</code></pre></div>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-part-3-s3-for-data-and-model-s">Part 3: S3 for Data and Model Storage</h4>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-s3-concepts">S3 Concepts</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">S3 Hierarchy:
+
+Bucket (globally unique name)
+  ├─ folder/ (prefix, not real directory)
+  │   ├─ file1.txt (object)
+  │   └─ file2.txt (object)
+  └─ models/
+      ├─ model-v1.pth
+      └─ model-v2.pth
+
+Key Features:
+- Unlimited storage
+- 99.999999999% durability (11 nines)
+- Versioning support
+- Lifecycle policies
+- Access control (IAM, bucket policies)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-creating-and-using-s3-buckets">Creating and Using S3 Buckets</h5>
+<p><strong>Create Bucket:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create bucket
+aws s3 mb s3://my-ml-datasets-12345
+
+# Enable versioning
+aws s3api put-bucket-versioning \
+    --bucket my-ml-datasets-12345 \
+    --versioning-configuration Status=Enabled
+
+# Set lifecycle policy (archive old data)
+aws s3api put-bucket-lifecycle-configuration \
+    --bucket my-ml-datasets-12345 \
+    --lifecycle-configuration file://lifecycle.json</code></pre></div>
+<p><strong>lifecycle.json:</strong></p>
+<div class="code-shell"><div class="code-title"><span>json</span><span>JSON</span></div><pre><code class="language-json">{
+  &quot;Rules&quot;: [
+    {
+      &quot;Id&quot;: &quot;Archive old models&quot;,
+      &quot;Status&quot;: &quot;Enabled&quot;,
+      &quot;Filter&quot;: {
+        &quot;Prefix&quot;: &quot;models/&quot;
+      },
+      &quot;Transitions&quot;: [
+        {
+          &quot;Days&quot;: 30,
+          &quot;StorageClass&quot;: &quot;STANDARD_IA&quot;
+        },
+        {
+          &quot;Days&quot;: 90,
+          &quot;StorageClass&quot;: &quot;GLACIER&quot;
+        }
+      ]
+    }
+  ]
+}</code></pre></div>
+<p><strong>Upload/Download Data:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Upload file
+aws s3 cp model.pth s3://my-ml-datasets-12345/models/model-v1.pth
+
+# Upload directory
+aws s3 cp datasets/ s3://my-ml-datasets-12345/datasets/ --recursive
+
+# Download file
+aws s3 cp s3://my-ml-datasets-12345/models/model-v1.pth ./
+
+# Sync directory (efficient, only changed files)
+aws s3 sync s3://my-ml-datasets-12345/datasets/ ./datasets/
+
+# List objects
+aws s3 ls s3://my-ml-datasets-12345/models/
+
+# Delete object
+aws s3 rm s3://my-ml-datasets-12345/models/old-model.pth</code></pre></div>
+<p><strong>Python SDK (boto3):</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import boto3
+
+# Create S3 client
+s3 = boto3.client('s3')
+
+# Upload file
+s3.upload_file('model.pth', 'my-ml-datasets-12345', 'models/model-v1.pth')
+
+# Download file
+s3.download_file('my-ml-datasets-12345', 'models/model-v1.pth', 'model.pth')
+
+# List objects
+response = s3.list_objects_v2(Bucket='my-ml-datasets-12345', Prefix='models/')
+for obj in response['Contents']:
+    print(obj['Key'], obj['Size'])
+
+# Generate pre-signed URL (temporary access)
+url = s3.generate_presigned_url(
+    'get_object',
+    Params={'Bucket': 'my-ml-datasets-12345', 'Key': 'models/model-v1.pth'},
+    ExpiresIn=3600  # 1 hour
+)
+print(f&quot;Download URL: {url}&quot;)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-s3-storage-classes-and-costs">S3 Storage Classes and Costs</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌────────────────────┬──────────────┬─────────────┬──────────────┐
+│ Storage Class      │ Cost/GB/mo   │ Retrieval   │ Use Case     │
+├────────────────────┼──────────────┼─────────────┼──────────────┤
+│ Standard           │ $0.023       │ Free        │ Active data  │
+│ Intelligent-Tier   │ $0.023-0.015 │ Free        │ Unknown      │
+│ Standard-IA        │ $0.0125      │ $0.01/GB    │ Infrequent   │
+│ One Zone-IA        │ $0.01        │ $0.01/GB    │ Backups      │
+│ Glacier Instant    │ $0.004       │ $0.03/GB    │ Archive      │
+│ Glacier Flexible   │ $0.0036      │ Variable    │ Long-term    │
+│ Glacier Deep       │ $0.00099     │ $0.02/GB    │ Compliance   │
+└────────────────────┴──────────────┴─────────────┴──────────────┘
+
+Recommendations:
+- Training data: Standard (frequent access)
+- Trained models: Standard-IA (occasional access)
+- Old experiments: Glacier (archive)</code></pre></div>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-part-4-eks-for-kubernetes">Part 4: EKS 托管 Kubernetes（EKS） for Kubernetes 容器编排（Kubernetes）</h4>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-amazon-eks-overview">Amazon EKS 托管 Kubernetes（EKS） Overview</h5>
+<p><strong>What is EKS 托管 Kubernetes（EKS）?</strong></p>
+<ul>
+<li>Managed Kubernetes 容器编排（Kubernetes） service</li>
+<li>AWS 云（AWS） handles control plane</li>
+<li>You manage worker nodes</li>
+<li>Integrates with AWS 云（AWS） services</li>
+</ul>
+<p><strong>Why EKS 托管 Kubernetes（EKS） for ML?</strong></p>
+<ul>
+<li>Scalable model serving</li>
+<li>Multi-model deployment</li>
+<li>Resource isolation</li>
+<li>Auto-scaling</li>
+<li>High availability</li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-setting-up-eks-cluster">Setting Up EKS 托管 Kubernetes（EKS） Cluster</h5>
+<p><strong>Prerequisites:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install eksctl
+curl --silent --location &quot;https://github.com/weksctl-io/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz&quot; | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+
+# Install kubectl
+curl -LO &quot;https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl&quot;
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# Verify
+eksctl version
+kubectl version --client</code></pre></div>
+<p><strong>Create EKS 托管 Kubernetes（EKS） Cluster:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create cluster with eksctl (simple)
+eksctl create cluster \
+    --name ml-serving-cluster \
+    --region us-east-1 \
+    --nodegroup-name ml-nodes \
+    --node-type m5.large \
+    --nodes 2 \
+    --nodes-min 1 \
+    --nodes-max 4 \
+    --managed
+
+# This takes ~15 minutes
+# Creates:
+# - EKS control plane
+# - VPC with subnets
+# - Security groups
+# - IAM roles
+# - Node group (EC2 instances)
+
+# Verify cluster
+kubectl get nodes</code></pre></div>
+<p><strong>cluster-config.yaml (Advanced):</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: ml-serving-cluster
+  region: us-east-1
+  version: &quot;1.28&quot;
+
+nodeGroups:
+  - name: cpu-nodes
+    instanceType: m5.xlarge
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 5
+    volumeSize: 50
+    labels:
+      workload: cpu
+    tags:
+      Environment: production
+      Team: ml-infrastructure
+
+  - name: gpu-nodes
+    instanceType: g4dn.xlarge
+    desiredCapacity: 0
+    minSize: 0
+    maxSize: 3
+    volumeSize: 100
+    labels:
+      workload: gpu
+    taints:
+      - key: nvidia.com/gpu
+        value: &quot;true&quot;
+        effect: NoSchedule
+
+# Create with config
+eksctl create cluster -f cluster-config.yaml</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-deploying-ml-models-on-eks">Deploying ML Models on EKS 托管 Kubernetes（EKS）</h5>
+<p><strong>Example: Deploy 模型服务（Model Serving） API:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># ml-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-model-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ml-model
+  template:
+    metadata:
+      labels:
+        app: ml-model
+    spec:
+      containers:
+      - name: model-server
+        image: &lt;your-ecr-repo&gt;/ml-model:v1.0
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MODEL_PATH
+          value: &quot;s3://my-ml-datasets-12345/models/model-v1.pth&quot;
+        - name: AWS_REGION
+          value: &quot;us-east-1&quot;
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-model-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: ml-model
+  ports:
+  - port: 80
+    targetPort: 8000</code></pre></div>
+<p><strong>Deploy:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Apply deployment
+kubectl apply -f ml-deployment.yaml
+
+# Check deployment
+kubectl get deployments
+kubectl get pods
+kubectl get services
+
+# Get service URL
+kubectl get service ml-model-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+
+# Test endpoint
+curl http://&lt;load-balancer-url&gt;/health</code></pre></div>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-part-5-sagemaker-for-managed-m">Part 5: SageMaker 托管 ML（SageMaker） for Managed ML</h4>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-sagemaker-components">SageMaker 托管 ML（SageMaker） Components</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">SageMaker Services:
+
+1. Training Jobs: Managed training infrastructure
+2. Endpoints: Managed model hosting
+3. Feature Store: Centralized feature management
+4. Model Registry: Version control for models
+5. Pipelines: ML workflow orchestration
+6. Studio: IDE for ML development</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-training-with-sagemaker">训练（Training） with SageMaker 托管 ML（SageMaker）</h5>
+<p><strong>Python SDK Example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import sagemaker
+from sagemaker.pytorch import PyTorch
+
+# Get SageMaker session
+sagemaker_session = sagemaker.Session()
+role = sagemaker.get_execution_role()  # IAM role for SageMaker
+
+# Define training job
+pytorch_estimator = PyTorch(
+    entry_point='train.py',
+    source_dir='scripts',
+    role=role,
+    framework_version='2.0.0',
+    py_version='py310',
+    instance_count=1,
+    instance_type='ml.p3.2xlarge',  # 1x V100 GPU
+    hyperparameters={
+        'epochs': 10,
+        'batch-size': 32,
+        'learning-rate': 0.001
+    },
+    output_path='s3://my-ml-datasets-12345/models/',
+    base_job_name='resnet-training'
+)
+
+# Start training
+pytorch_estimator.fit({
+    'training': 's3://my-ml-datasets-12345/datasets/imagenet/',
+    'validation': 's3://my-ml-datasets-12345/datasets/imagenet-val/'
+})
+
+# Training job runs on managed infrastructure
+# Model artifacts saved to S3 automatically</code></pre></div>
+<p><strong>train.py (SageMaker 训练（Training） Script):</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import argparse
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+import os
+
+def train(args):
+    # Training code here
+    model = create_model()
+    train_loader = DataLoader(...)
+
+    for epoch in range(args.epochs):
+        for batch in train_loader:
+            # Training step
+            pass
+
+    # Save model
+    model_path = os.path.join(args.model_dir, 'model.pth')
+    torch.save(model.state_dict(), model_path)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+
+    # SageMaker-specific arguments
+    parser.add_argument('--model-dir', type=str, default=os.environ['SM_MODEL_DIR'])
+    parser.add_argument('--train', type=str, default=os.environ['SM_CHANNEL_TRAINING'])
+    parser.add_argument('--validation', type=str, default=os.environ['SM_CHANNEL_VALIDATION'])
+
+    # Hyperparameters
+    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--batch-size', type=int, default=32)
+    parser.add_argument('--learning-rate', type=float, default=0.001)
+
+    args = parser.parse_args()
+    train(args)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-deploying-models-with-sagemake">Deploying Models with SageMaker 托管 ML（SageMaker）</h5>
+<p><strong>Deploy trained model:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Deploy model to endpoint
+predictor = pytorch_estimator.deploy(
+    initial_instance_count=2,
+    instance_type='ml.m5.xlarge',
+    endpoint_name='resnet-endpoint'
+)
+
+# Make predictions
+import numpy as np
+
+input_data = np.random.rand(1, 3, 224, 224).astype('float32')
+prediction = predictor.predict(input_data)
+
+print(f&quot;Prediction: {prediction}&quot;)
+
+# Update endpoint (rolling deployment)
+predictor.update_endpoint(
+    initial_instance_count=3,
+    instance_type='ml.m5.2xlarge'
+)
+
+# Delete endpoint (important for cost savings!)
+predictor.delete_endpoint()</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-sagemaker-pricing">SageMaker 托管 ML（SageMaker） Pricing</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Training Instances:
+- ml.p3.2xlarge (1x V100):  $3.825/hour
+- ml.p3.8xlarge (4x V100):  $14.688/hour
+- ml.g4dn.xlarge (1x T4):   $0.736/hour
+
+Hosting Instances:
+- ml.t3.medium:             $0.065/hour
+- ml.m5.xlarge:             $0.269/hour
+- ml.c5.2xlarge:            $0.476/hour
+
+Cost Example (ResNet-50 Training):
+- Training: ml.p3.2xlarge × 20 hours = $76.50
+- Hosting: ml.m5.xlarge × 720 hours/month = $193.68/month</code></pre></div>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-part-6-networking-with-vpc">Part 6: Networking with VPC</h4>
+<h5 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-vpc-basics">VPC Basics</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">VPC Architecture:
+
+AWS Cloud
+├─ Region (us-east-1)
+│   ├─ VPC (10.0.0.0/16)
+│   │   ├─ Public Subnet (10.0.1.0/24) [AZ-1]
+│   │   │   ├─ Internet Gateway
+│   │   │   ├─ NAT Gateway
+│   │   │   └─ Load Balancer
+│   │   ├─ Private Subnet (10.0.2.0/24) [AZ-1]
+│   │   │   ├─ EC2 Instances
+│   │   │   └─ EKS Nodes
+│   │   ├─ Public Subnet (10.0.3.0/24) [AZ-2]
+│   │   └─ Private Subnet (10.0.4.0/24) [AZ-2]
+│   └─ Security Groups &amp; NACLs</code></pre></div>
+<p><strong>Create VPC for ML:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create VPC
+aws ec2 create-vpc \
+    --cidr-block 10.0.0.0/16 \
+    --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=ml-vpc}]'
+
+# Create subnets (public and private in each AZ)
+aws ec2 create-subnet \
+    --vpc-id vpc-xxxxx \
+    --cidr-block 10.0.1.0/24 \
+    --availability-zone us-east-1a \
+    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=ml-public-1a}]'
+
+# Create internet gateway
+aws ec2 create-internet-gateway \
+    --tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=ml-igw}]'
+
+# Attach to VPC
+aws ec2 attach-internet-gateway \
+    --vpc-id vpc-xxxxx \
+    --internet-gateway-id igw-xxxxx</code></pre></div>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-key-takeaways">Key Takeaways</h4>
+<ol>
+<li><strong>IAM 安全（Security）</strong>: Use MFA, principle of least privilege, never use root</li>
+<li><strong>EC2 for Compute</strong>: GPU 加速（GPU） instances for training, spot for savings</li>
+<li><strong>S3 for Storage</strong>: Versioning, lifecycle policies, appropriate storage class</li>
+<li><strong>EKS 托管 Kubernetes（EKS） for Orchestration</strong>: Managed Kubernetes 容器编排（Kubernetes） for scalable serving</li>
+<li><strong>SageMaker 托管 ML（SageMaker）</strong>: Fully managed training and deployment</li>
+<li><strong>VPC for Networking</strong>: Isolate resources, use private subnets</li>
+<li><strong>Cost Optimization</strong>: Spot instances, right-sizing, auto-shutdown</li>
+</ol>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-practical-exercise">Practical Exercise</h4>
+<p><strong>Deploy a complete ML system on AWS 云（AWS）:</strong></p>
+<ol>
+<li>Create S3 bucket for datasets and models</li>
+<li>Launch EC2 GPU 加速（GPU） instance with Deep Learning AMI</li>
+<li>Train a simple model, save to S3</li>
+<li>Deploy model to EKS 托管 Kubernetes（EKS） cluster</li>
+<li>Expose via Application Load Balancer</li>
+<li>Set up CloudWatch monitoring</li>
+<li>Calculate monthly cost</li>
+</ol>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li>What are the benefits of using Spot instances for training?</li>
+<li>When would you use SageMaker 托管 ML（SageMaker） vs EC2 for training?</li>
+<li>What S3 storage class would you use for archived experiment data?</li>
+<li>How do you ensure high availability for model serving on EKS 托管 Kubernetes（EKS）?</li>
+<li>What IAM permissions are needed for SageMaker 托管 ML（SageMaker）?</li>
+<li>How do you optimize S3 costs for large datasets?</li>
+<li>What's the difference between public and private subnets?</li>
+</ol>
+<h4 id="lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://aws.amazon.com/machine-learning/">AWS 云（AWS） ML Services Overview</a></li>
+<li><a href="https://docs.aws.amazon.com/sagemaker/">SageMaker 托管 ML（SageMaker） Documentation</a></li>
+<li><a href="https://aws.github.io/aws-eks-best-practices/">EKS 托管 Kubernetes（EKS） Best Practices</a></li>
+<li><a href="https://docs.aws.amazon.com/cli/">AWS 云（AWS） CLI Reference</a></li>
+<li><a href="https://boto3.amazonaws.com/v1/documentation/api/latest/index.html">boto3 Documentation</a></li>
+</ul>
+<hr/>
+<p><strong>Next Lesson:</strong> <a href="#doc-lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md">03-gcp-ml-infrastructure.md</a> - Google Cloud Platform for ML</p><p><a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-102-cloud-computing.html#doc-lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

@@ -1,0 +1,823 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 02: CUDA 并行计算（CUDA） Programming Fundamentals</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 02: CUDA 并行计算（CUDA） Programming Fundamentals</h1><p>Module 107: GPU 计算（GPU Computing） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" open><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training））</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-resources-md.html">Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training）） - Resources</a></details><details class="tree-section" open><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lesson 01: Introduction to GPU 加速（GPU） 计算（GPU Computing） for AI</a><a class="tree-doc active" href="../docs/doc-lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md.html">Lesson 02: CUDA 并行计算（CUDA） Programming Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md.html">Lesson 03: PyTorch 深度学习框架（PyTorch） GPU 加速（GPU） Acceleration</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md.html">Lesson 04: 分布式训练（Distributed 训练（Training）） Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-05-multi-gpu-training-strategies-md.html">Lesson 05: Multi-GPU 训练（Training） Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-06-model-pipeline-parallelism-md.html">Lesson 06: Model and Pipeline Parallelism</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-07-gpu-memory-management-md.html">Lesson 07: GPU 加速（GPU） Memory Management &amp; Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-08-advanced-gpu-optimization-md.html">Lesson 08: Advanced GPU 加速（GPU） Optimization</a></details><details class="tree-section" open><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-01-cuda-hello-world-md.html">Lab 01: CUDA 并行计算（CUDA） Hello-World and Device Introspection</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-02-pytorch-gpu-inference-md.html">Lab 02: PyTorch 深度学习框架（PyTorch） GPU 加速（GPU） 推理（Inference） and Benchmarking</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-03-multi-gpu-training-md.html">Lab 03: Multi-GPU 训练（Training） with DistributedDataParallel</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-04-gpu-cluster-on-k8s-md.html">Lab 04: Run a GPU 加速（GPU） Pod on Kubernetes 容器编排（Kubernetes）</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-05-mixed-precision-md.html">Lab 05: Mixed-Precision 训练（Training） with `torch.amp`</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-06-memory-profiling-md.html">Lab 06: GPU 加速（GPU） Memory Profiling and OOM Diagnosis</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Module 107 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercise 01: GPU 加速（GPU） Introspection and First CUDA 并行计算（CUDA） Op</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-02-cuda-kernel-readme-md.html">Exercise 02: Write Your First CUDA 并行计算（CUDA） Kernel</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-03-pytorch-gpu-pipeline-readme-md.html">Exercise 03: End-to-End PyTorch 深度学习框架（PyTorch） GPU 加速（GPU） Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-04-gpu-cluster-management-readme-md.html">Exercise 04: GPU 加速（GPU） Cluster Management and Scheduling</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-05-gpu-performance-optimization-readme-md.html">Exercise 05: GPU 加速（GPU） Performance Optimization and Profiling</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-06-distributed-gpu-training-readme-md.html">Exercise 06: Distributed GPU 加速（GPU） 训练（Training） at Scale</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-07-gpu-memory-profiling-readme-md.html">Exercise 07: GPU 加速（GPU） Memory Profiling and OOM Diagnosis</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-08-mixed-precision-readme-md.html">Exercise 08: Mixed Precision 训练（Training） Benchmarks</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-09-inference-optimization-readme-md.html">Exercise 09: GPU 加速（GPU） 推理（Inference） Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-10-gpu-sharing-strategies-readme-md.html">Exercise 10: GPU 加速（GPU） Sharing Strategies (MIG, MPS, Time-Slicing)</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-11-gpu-cost-optimization-readme-md.html">Exercise 11: GPU 加速（GPU） Cost Optimization Playbook</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-readme-md.html">Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training）） - Hands-on Exercises</a></details><details class="tree-section" open><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training）） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 02: CUDA 并行计算（CUDA） Programming Fundamentals</h2><p>Module 107: GPU 计算（GPU Computing） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>2</strong><span>reading order</span></div><div class="stat"><strong>30</strong><span>chapter docs</span></div><div class="stat"><strong>937</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md" data-title="lesson 02: cuda programming fundamentals lessons/mod-107-gpu-computing/02-cuda-programming-fundamentals.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">2/30</span><span class="chip">Lectures</span><span class="path">lessons/mod-107-gpu-computing/02-cuda-programming-fundamentals.md</span><span class="path">937 行</span></div><h2>Lesson 02: CUDA 并行计算（CUDA） Programming Fundamentals</h2><p><a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-107-gpu-computing.html#doc-lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-lesson-02-cuda-programmi">Lesson 02: CUDA 并行计算（CUDA） Programming Fundamentals</h3>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ol>
+<li>Understand the CUDA 并行计算（CUDA） programming model and execution hierarchy</li>
+<li>Explain thread organization (grids, blocks, warps, threads)</li>
+<li>Manage memory transfers between host (CPU) and device (GPU)</li>
+<li>Write basic CUDA 并行计算（CUDA） kernels for simple operations</li>
+<li>Understand how PyTorch 深度学习框架（PyTorch） leverages CUDA 并行计算（CUDA） under the hood</li>
+<li>Debug common CUDA 并行计算（CUDA） programming issues</li>
+</ol>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-introduction">Introduction</h4>
+<p>While frameworks like PyTorch 深度学习框架（PyTorch） abstract away most CUDA 并行计算（CUDA） programming, understanding CUDA 并行计算（CUDA） fundamentals helps you:</p>
+<ul>
+<li>Write custom GPU 加速（GPU） operations when needed</li>
+<li>Optimize PyTorch 深度学习框架（PyTorch） code</li>
+<li>Debug GPU-related issues</li>
+<li>Understand performance characteristics</li>
+</ul>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-cuda-programming-model">CUDA 并行计算（CUDA） Programming Model</h4>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-host-vs-device">Host vs Device</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌─────────────────────┐         ┌─────────────────────┐
+│      Host (CPU)     │  PCIe   │    Device (GPU)     │
+│                     │◄───────►│                     │
+│  - Program control  │         │  - Parallel compute │
+│  - Serial code      │         │  - Kernel execution │
+│  - CPU memory (RAM) │         │  - GPU memory (VRAM)│
+└─────────────────────┘         └─────────────────────┘
+
+Host:   Runs main program, launches kernels
+Device: Executes kernels in parallel</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-cuda-c-basics">CUDA 并行计算（CUDA） C++ Basics</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// CUDA program structure
+#include &lt;cuda_runtime.h&gt;
+
+// Kernel definition (runs on GPU)
+__global__ void myKernel(float* data, int n) {
+    // GPU code here
+}
+
+int main() {
+    // Host code (CPU)
+
+    // 1. Allocate GPU memory
+    float* d_data;
+    cudaMalloc(&amp;d_data, n * sizeof(float));
+
+    // 2. Copy data to GPU
+    cudaMemcpy(d_data, h_data, n * sizeof(float), cudaMemcpyHostToDevice);
+
+    // 3. Launch kernel
+    myKernel&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(d_data, n);
+
+    // 4. Copy results back
+    cudaMemcpy(h_result, d_data, n * sizeof(float), cudaMemcpyDeviceToHost);
+
+    // 5. Free GPU memory
+    cudaFree(d_data);
+
+    return 0;
+}</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-cuda-function-qualifiers">CUDA 并行计算（CUDA） Function Qualifiers</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// __global__: Kernel function (called from host, runs on device)
+__global__ void kernelFunc() {
+    // Executed on GPU
+    // Called from CPU
+}
+
+// __device__: Device function (called from device, runs on device)
+__device__ float deviceFunc(float x) {
+    // Helper function executed on GPU
+    // Called from GPU code only
+    return x * x;
+}
+
+// __host__: Host function (default for regular C++ functions)
+__host__ void hostFunc() {
+    // Executed on CPU
+}
+
+// Can combine __host__ and __device__
+__host__ __device__ float bothFunc(float x) {
+    // Compiled for both CPU and GPU
+    return x + 1.0f;
+}</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-thread-hierarchy">Thread Hierarchy</h4>
+<p>CUDA 并行计算（CUDA） organizes threads in a 3-level hierarchy:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌─────────────────────────────────────────────────────┐
+│                       Grid                          │
+│  ┌────────────────┐  ┌────────────────┐            │
+│  │  Block (0,0)   │  │  Block (1,0)   │  ...       │
+│  │ ┌──┐┌──┐┌──┐  │  │ ┌──┐┌──┐┌──┐  │            │
+│  │ │T0││T1││T2│  │  │ │T0││T1││T2│  │            │
+│  │ └──┘└──┘└──┘  │  │ └──┘└──┘└──┘  │            │
+│  │ ┌──┐┌──┐┌──┐  │  │ ┌──┐┌──┐┌──┐  │            │
+│  │ │T3││T4││T5│  │  │ │T3││T4││T5│  │            │
+│  │ └──┘└──┘└──┘  │  │ └──┘└──┘└──┘  │            │
+│  └────────────────┘  └────────────────┘            │
+│  ┌────────────────┐  ┌────────────────┐            │
+│  │  Block (0,1)   │  │  Block (1,1)   │  ...       │
+│  │ ┌──┐┌──┐┌──┐  │  │ ┌──┐┌──┐┌──┐  │            │
+│  │ │T0││T1││T2│  │  │ │T0││T1││T2│  │            │
+│  │ └──┘└──┘└──┘  │  │ └──┘└──┘└──┘  │            │
+│  │ ┌──┐┌──┐┌──┐  │  │ ┌──┐┌──┐┌──┐  │            │
+│  │ │T3││T4││T5│  │  │ │T3││T4││T5│  │            │
+│  │ └──┘└──┘└──┘  │  │ └──┘└──┘└──┘  │            │
+│  └────────────────┘  └────────────────┘            │
+└─────────────────────────────────────────────────────┘
+
+Grid:   Collection of blocks
+Block:  Collection of threads (up to 1024 threads)
+Thread: Individual execution unit</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-built-in-variables">Built-in Variables</h5>
+<p>CUDA 并行计算（CUDA） provides built-in variables to identify threads:</p>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">__global__ void kernel() {
+    // Thread indices within block
+    int tx = threadIdx.x;  // Thread X index (0 to blockDim.x-1)
+    int ty = threadIdx.y;  // Thread Y index
+    int tz = threadIdx.z;  // Thread Z index
+
+    // Block indices within grid
+    int bx = blockIdx.x;   // Block X index
+    int by = blockIdx.y;   // Block Y index
+    int bz = blockIdx.z;   // Block Z index
+
+    // Block dimensions
+    int bdx = blockDim.x;  // Block size in X dimension
+    int bdy = blockDim.y;  // Block size in Y dimension
+    int bdz = blockDim.z;  // Block size in Z dimension
+
+    // Grid dimensions
+    int gdx = gridDim.x;   // Grid size in X dimension
+    int gdy = gridDim.y;   // Grid size in Y dimension
+    int gdz = gridDim.z;   // Grid size in Z dimension
+
+    // Calculate global thread ID
+    int global_idx = blockIdx.x * blockDim.x + threadIdx.x;
+}</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-example-1d-thread-indexi">Example: 1D Thread Indexing</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// Add two arrays: c[i] = a[i] + b[i]
+__global__ void vectorAdd(float* a, float* b, float* c, int n) {
+    // Calculate global thread index
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Check bounds
+    if (i &lt; n) {
+        c[i] = a[i] + b[i];
+    }
+}
+
+// Launch configuration
+int n = 1000000;  // 1 million elements
+int threadsPerBlock = 256;
+int blocksPerGrid = (n + threadsPerBlock - 1) / threadsPerBlock;
+
+// Launch kernel
+vectorAdd&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_a, d_b, d_c, n);
+
+/*
+Execution breakdown:
+- blocksPerGrid = (1,000,000 + 255) / 256 = 3907 blocks
+- Each block has 256 threads
+- Total threads = 3907 * 256 = 1,000,192 threads
+- Thread 0 processes element 0
+- Thread 1 processes element 1
+- ...
+- Thread 999,999 processes element 999,999
+- Threads 1,000,000 to 1,000,191 do nothing (i &gt;= n check)
+*/</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-example-2d-thread-indexi">Example: 2D Thread Indexing</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// Matrix addition: C = A + B
+__global__ void matrixAdd(float* A, float* B, float* C, int width, int height) {
+    // Calculate 2D indices
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+
+    // Calculate 1D index (row-major order)
+    int idx = row * width + col;
+
+    // Check bounds
+    if (row &lt; height &amp;&amp; col &lt; width) {
+        C[idx] = A[idx] + B[idx];
+    }
+}
+
+// Launch configuration (2D)
+dim3 threadsPerBlock(16, 16);  // 16x16 = 256 threads per block
+dim3 blocksPerGrid(
+    (width + 15) / 16,   // X dimension
+    (height + 15) / 16   // Y dimension
+);
+
+// Launch kernel
+matrixAdd&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_A, d_B, d_C, width, height);</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-warps-and-simt-execution">Warps and SIMT Execution</h4>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-what-is-a-warp">What is a Warp?</h5>
+<p>A <strong>warp</strong> is a group of 32 threads that execute together:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Block (256 threads) = 8 Warps
+┌────────────────────────────────┐
+│ Warp 0:  Threads 0-31          │ Execute together
+├────────────────────────────────┤
+│ Warp 1:  Threads 32-63         │ Execute together
+├────────────────────────────────┤
+│ Warp 2:  Threads 64-95         │ Execute together
+├────────────────────────────────┤
+│ ...                            │
+├────────────────────────────────┤
+│ Warp 7:  Threads 224-255       │ Execute together
+└────────────────────────────────┘
+
+All threads in a warp execute the same instruction
+at the same time (SIMT - Single Instruction, Multiple Threads)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-warp-divergence">Warp Divergence</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">__global__ void divergenceExample(int* data, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (i &lt; n) {
+        // WARP DIVERGENCE: Some threads in warp take if, some take else
+        if (data[i] &gt; 0) {
+            data[i] = data[i] * 2;      // Some threads execute this
+        } else {
+            data[i] = data[i] * 3;      // Other threads execute this
+        }
+    }
+}
+
+/*
+When warp divergence occurs:
+1. Threads that take 'if' branch execute, others wait
+2. Then threads that take 'else' branch execute, others wait
+3. Execution time = sum of both branches
+4. Performance penalty!
+
+Best practice: Minimize divergence within warps
+*/</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-avoiding-warp-divergence">Avoiding Warp Divergence</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// GOOD: All threads in warp take same path
+__global__ void noDivergence(int* data, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (i &lt; n) {
+        // Process data uniformly
+        data[i] = data[i] * 2;
+    }
+}
+
+// GOOD: Divergence happens across warps, not within
+__global__ void goodDivergence(int* data, int n, int threshold) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Entire warps take same branch (if threshold aligned with warp size)
+    if (i &lt; threshold) {
+        data[i] *= 2;
+    } else if (i &lt; n) {
+        data[i] *= 3;
+    }
+}</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-memory-management">Memory Management</h4>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-memory-types">Memory Types</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// Global Memory (VRAM) - largest, slowest
+__global__ void kernel(float* globalMem) {
+    // Accessible by all threads
+    // Persists across kernel launches
+    // ~400 cycle latency
+    float value = globalMem[0];
+}
+
+// Shared Memory - fast, limited size
+__global__ void sharedMemKernel() {
+    // Declare shared memory (per-block)
+    __shared__ float sharedMem[256];
+
+    // Accessible by all threads in block
+    // ~10 cycle latency
+    // Limited to ~48KB per block
+    sharedMem[threadIdx.x] = threadIdx.x;
+    __syncthreads();  // Synchronize block threads
+}
+
+// Registers - fastest, very limited
+__global__ void registerKernel() {
+    // Local variables stored in registers
+    // Per-thread, private
+    // ~1 cycle latency
+    float reg1 = 1.0f;
+    float reg2 = 2.0f;
+}
+
+// Constant Memory - read-only, cached
+__constant__ float constMem[256];
+
+__global__ void constKernel() {
+    // Fast reads, cached
+    // Must be read-only
+    float value = constMem[0];
+}</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-host-device-memory-trans">Host-Device Memory Transfers</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">#include &lt;cuda_runtime.h&gt;
+
+int main() {
+    int n = 1000;
+    size_t bytes = n * sizeof(float);
+
+    // 1. Allocate host (CPU) memory
+    float* h_data = (float*)malloc(bytes);
+
+    // 2. Allocate device (GPU) memory
+    float* d_data;
+    cudaMalloc(&amp;d_data, bytes);
+
+    // 3. Initialize host data
+    for (int i = 0; i &lt; n; i++) {
+        h_data[i] = i;
+    }
+
+    // 4. Copy host → device
+    cudaMemcpy(d_data, h_data, bytes, cudaMemcpyHostToDevice);
+
+    // 5. Launch kernel
+    // kernel&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(d_data);
+
+    // 6. Copy device → host
+    cudaMemcpy(h_data, d_data, bytes, cudaMemcpyDeviceToHost);
+
+    // 7. Free memory
+    cudaFree(d_data);
+    free(h_data);
+
+    return 0;
+}</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-pinned-memory-page-locke">Pinned Memory (Page-Locked)</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// Regular pageable memory (slow transfers)
+float* h_data = (float*)malloc(bytes);
+
+// Pinned (page-locked) memory (2-3x faster transfers)
+float* h_pinned;
+cudaMallocHost(&amp;h_pinned, bytes);  // or cudaHostAlloc()
+
+// Transfer is faster because:
+// - Memory cannot be paged out
+// - DMA (Direct Memory Access) can be used
+// - Asynchronous transfers possible
+
+// Copy with pinned memory
+cudaMemcpy(d_data, h_pinned, bytes, cudaMemcpyHostToDevice);
+
+// Free pinned memory
+cudaFreeHost(h_pinned);
+
+/*
+Trade-off:
++ Faster transfers
+- Limited resource (pins physical RAM)
+- Can impact system performance if overused
+*/</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-unified-memory">Unified Memory</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// Unified Memory: Single pointer for CPU and GPU
+float* unified_data;
+cudaMallocManaged(&amp;unified_data, bytes);
+
+// Can access from CPU
+for (int i = 0; i &lt; n; i++) {
+    unified_data[i] = i;
+}
+
+// Can access from GPU
+kernel&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(unified_data);
+
+// Can access from CPU again (automatic migration!)
+cudaDeviceSynchronize();  // Wait for GPU
+float result = unified_data[0];
+
+// Free
+cudaFree(unified_data);
+
+/*
+Benefits:
++ Simplified code (no explicit transfers)
++ Automatic migration
++ Page faulting handles oversubscription
+
+Drawbacks:
+- Performance overhead (page faults)
+- Less control over transfers
+- Best for prototyping, not production
+*/</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-writing-cuda-kernels">Writing CUDA 并行计算（CUDA） Kernels</h4>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-example-1-vector-additio">Example 1: Vector Addition</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// Kernel: Add two vectors
+__global__ void vectorAdd(const float* a, const float* b, float* c, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (i &lt; n) {
+        c[i] = a[i] + b[i];
+    }
+}
+
+// Host code
+void runVectorAdd(int n) {
+    size_t bytes = n * sizeof(float);
+
+    // Allocate and initialize host memory
+    float *h_a, *h_b, *h_c;
+    h_a = (float*)malloc(bytes);
+    h_b = (float*)malloc(bytes);
+    h_c = (float*)malloc(bytes);
+
+    // Initialize
+    for (int i = 0; i &lt; n; i++) {
+        h_a[i] = i;
+        h_b[i] = i * 2;
+    }
+
+    // Allocate device memory
+    float *d_a, *d_b, *d_c;
+    cudaMalloc(&amp;d_a, bytes);
+    cudaMalloc(&amp;d_b, bytes);
+    cudaMalloc(&amp;d_c, bytes);
+
+    // Copy to device
+    cudaMemcpy(d_a, h_a, bytes, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, h_b, bytes, cudaMemcpyHostToDevice);
+
+    // Launch kernel
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (n + threadsPerBlock - 1) / threadsPerBlock;
+    vectorAdd&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_a, d_b, d_c, n);
+
+    // Copy result back
+    cudaMemcpy(h_c, d_c, bytes, cudaMemcpyDeviceToHost);
+
+    // Verify result
+    for (int i = 0; i &lt; 10; i++) {
+        printf(&quot;c[%d] = %.2f\n&quot;, i, h_c[i]);
+    }
+
+    // Cleanup
+    cudaFree(d_a); cudaFree(d_b); cudaFree(d_c);
+    free(h_a); free(h_b); free(h_c);
+}</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-example-2-matrix-multipl">Example 2: Matrix Multiplication (Naive)</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// Naive matrix multiplication: C = A * B
+// A: M x K, B: K x N, C: M x N
+__global__ void matMulNaive(
+    const float* A,
+    const float* B,
+    float* C,
+    int M, int K, int N
+) {
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (row &lt; M &amp;&amp; col &lt; N) {
+        float sum = 0.0f;
+
+        // Dot product of row and column
+        for (int k = 0; k &lt; K; k++) {
+            sum += A[row * K + k] * B[k * N + col];
+        }
+
+        C[row * N + col] = sum;
+    }
+}
+
+// Launch
+dim3 threadsPerBlock(16, 16);
+dim3 blocksPerGrid(
+    (N + 15) / 16,
+    (M + 15) / 16
+);
+matMulNaive&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_A, d_B, d_C, M, K, N);</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-example-3-optimized-with">Example 3: Optimized with Shared Memory</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// Tiled matrix multiplication using shared memory
+__global__ void matMulShared(
+    const float* A,
+    const float* B,
+    float* C,
+    int M, int K, int N
+) {
+    // Tile size = blockDim.x = blockDim.y
+    const int TILE_SIZE = 16;
+
+    // Shared memory for tiles
+    __shared__ float As[TILE_SIZE][TILE_SIZE];
+    __shared__ float Bs[TILE_SIZE][TILE_SIZE];
+
+    int row = blockIdx.y * TILE_SIZE + threadIdx.y;
+    int col = blockIdx.x * TILE_SIZE + threadIdx.x;
+
+    float sum = 0.0f;
+
+    // Loop over tiles
+    for (int t = 0; t &lt; (K + TILE_SIZE - 1) / TILE_SIZE; t++) {
+        // Load tiles into shared memory
+        if (row &lt; M &amp;&amp; t * TILE_SIZE + threadIdx.x &lt; K) {
+            As[threadIdx.y][threadIdx.x] = A[row * K + t * TILE_SIZE + threadIdx.x];
+        } else {
+            As[threadIdx.y][threadIdx.x] = 0.0f;
+        }
+
+        if (col &lt; N &amp;&amp; t * TILE_SIZE + threadIdx.y &lt; K) {
+            Bs[threadIdx.y][threadIdx.x] = B[(t * TILE_SIZE + threadIdx.y) * N + col];
+        } else {
+            Bs[threadIdx.y][threadIdx.x] = 0.0f;
+        }
+
+        __syncthreads();  // Wait for all threads to load
+
+        // Compute partial dot product using shared memory
+        for (int k = 0; k &lt; TILE_SIZE; k++) {
+            sum += As[threadIdx.y][k] * Bs[k][threadIdx.x];
+        }
+
+        __syncthreads();  // Wait before loading next tile
+    }
+
+    // Write result
+    if (row &lt; M &amp;&amp; col &lt; N) {
+        C[row * N + col] = sum;
+    }
+}
+
+/*
+Performance improvement:
+- Naive: Each thread reads from global memory K times
+- Shared: Each thread reads from global memory ~K/TILE_SIZE times,
+          rest from fast shared memory
+- Speedup: ~10-15x for large matrices!
+*/</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-error-checking">Error Checking</h4>
+<p>Always check for CUDA 并行计算（CUDA） errors:</p>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// Macro for checking CUDA errors
+#define CUDA_CHECK(call) \
+    do { \
+        cudaError_t err = call; \
+        if (err != cudaSuccess) { \
+            fprintf(stderr, &quot;CUDA error in %s:%d: %s\n&quot;, \
+                    __FILE__, __LINE__, cudaGetErrorString(err)); \
+            exit(EXIT_FAILURE); \
+        } \
+    } while(0)
+
+// Usage
+CUDA_CHECK(cudaMalloc(&amp;d_data, bytes));
+CUDA_CHECK(cudaMemcpy(d_data, h_data, bytes, cudaMemcpyHostToDevice));
+
+// Check kernel launch
+kernel&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(d_data);
+CUDA_CHECK(cudaGetLastError());  // Check for launch errors
+CUDA_CHECK(cudaDeviceSynchronize());  // Wait and check for execution errors</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-cuda-in-pytorch">CUDA 并行计算（CUDA） in PyTorch 深度学习框架（PyTorch）</h4>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-how-pytorch-uses-cuda">How PyTorch 深度学习框架（PyTorch） Uses CUDA 并行计算（CUDA）</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch
+
+# PyTorch provides high-level CUDA interface
+x = torch.randn(1000, 1000)
+
+# Move to GPU
+x_gpu = x.cuda()  # or x.to('cuda')
+
+# PyTorch automatically:
+# 1. Allocates GPU memory
+# 2. Copies data to GPU
+# 3. Uses optimized CUDA kernels for operations
+# 4. Manages memory lifecycle
+
+# Operations run on GPU
+y = x_gpu + 1.0
+z = torch.mm(x_gpu, x_gpu)  # Matrix multiplication
+
+# Check where tensor lives
+print(x_gpu.device)  # cuda:0
+print(x_gpu.is_cuda)  # True</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-custom-cuda-kernels-in-p">Custom CUDA 并行计算（CUDA） Kernels in PyTorch 深度学习框架（PyTorch）</h5>
+<p>You can write custom CUDA 并行计算（CUDA） operations:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from torch.utils.cpp_extension import load_inline
+
+# CUDA kernel code
+cuda_source = '''
+__global__ void add_kernel(const float* a, const float* b, float* c, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i &lt; n) {
+        c[i] = a[i] + b[i];
+    }
+}
+
+torch::Tensor add_cuda(torch::Tensor a, torch::Tensor b) {
+    auto c = torch::empty_like(a);
+    int n = a.numel();
+    int threads = 256;
+    int blocks = (n + threads - 1) / threads;
+
+    add_kernel&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(
+        a.data_ptr&lt;float&gt;(),
+        b.data_ptr&lt;float&gt;(),
+        c.data_ptr&lt;float&gt;(),
+        n
+    );
+
+    return c;
+}
+'''
+
+cpp_source = &quot;torch::Tensor add_cuda(torch::Tensor a, torch::Tensor b);&quot;
+
+# Compile and load
+module = load_inline(
+    name='custom_add',
+    cpp_sources=cpp_source,
+    cuda_sources=cuda_source,
+    functions=['add_cuda'],
+    verbose=True
+)
+
+# Use custom kernel
+a = torch.randn(1000).cuda()
+b = torch.randn(1000).cuda()
+c = module.add_cuda(a, b)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-common-cuda-patterns">Common CUDA 并行计算（CUDA） Patterns</h4>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-reduction-sum">Reduction (Sum)</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">__global__ void reduceSum(float* input, float* output, int n) {
+    __shared__ float sdata[256];
+
+    int tid = threadIdx.x;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Load data into shared memory
+    sdata[tid] = (i &lt; n) ? input[i] : 0.0f;
+    __syncthreads();
+
+    // Reduction in shared memory
+    for (int s = blockDim.x / 2; s &gt; 0; s &gt;&gt;= 1) {
+        if (tid &lt; s) {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+
+    // Write result for this block
+    if (tid == 0) {
+        output[blockIdx.x] = sdata[0];
+    }
+}</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-scan-prefix-sum">Scan (Prefix Sum)</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">__global__ void scanInclusive(float* input, float* output, int n) {
+    __shared__ float temp[256];
+
+    int tid = threadIdx.x;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Load input
+    temp[tid] = (i &lt; n) ? input[i] : 0.0f;
+    __syncthreads();
+
+    // Up-sweep (reduce)
+    for (int stride = 1; stride &lt; blockDim.x; stride *= 2) {
+        int index = (tid + 1) * stride * 2 - 1;
+        if (index &lt; blockDim.x) {
+            temp[index] += temp[index - stride];
+        }
+        __syncthreads();
+    }
+
+    // Down-sweep
+    for (int stride = blockDim.x / 2; stride &gt; 0; stride /= 2) {
+        int index = (tid + 1) * stride * 2 - 1;
+        if (index + stride &lt; blockDim.x) {
+            temp[index + stride] += temp[index];
+        }
+        __syncthreads();
+    }
+
+    // Write output
+    if (i &lt; n) {
+        output[i] = temp[tid];
+    }
+}</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-debugging-cuda-code">Debugging CUDA 并行计算（CUDA） Code</h4>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-using-printf-in-kernels">Using printf in Kernels</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">__global__ void debugKernel(float* data, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (i &lt; 10) {  // Limit output
+        printf(&quot;Thread %d: data[%d] = %.2f\n&quot;, i, i, data[i]);
+    }
+
+    if (i &lt; n) {
+        data[i] *= 2.0f;
+    }
+}</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-cuda-memcheck">CUDA-MEMCHECK</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Check for memory errors
+cuda-memcheck ./my_program
+
+# Common errors detected:
+# - Out of bounds access
+# - Uninitialized memory
+# - Race conditions
+# - Memory leaks</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-compute-sanitizer-newer">Compute-Sanitizer (newer)</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Memory checker
+compute-sanitizer --tool memcheck ./program
+
+# Race condition detector
+compute-sanitizer --tool racecheck ./program
+
+# Initialization checker
+compute-sanitizer --tool initcheck ./program</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-performance-tips">Performance Tips</h4>
+<ol>
+<li><strong>Minimize Host-Device Transfers</strong></li>
+</ol>
+<ul>
+<li>Transfers are slow (PCIe bottleneck)</li>
+<li>Keep data on GPU 加速（GPU） when possible</li>
+</ul>
+<ol>
+<li><strong>Coalesce Memory Access</strong></li>
+</ol>
+<ul>
+<li>Adjacent threads should access adjacent memory</li>
+<li>Allows efficient memory transactions</li>
+</ul>
+<ol>
+<li><strong>Avoid Warp Divergence</strong></li>
+</ol>
+<ul>
+<li>Keep threads in same warp on same code path</li>
+<li>Arrange data to minimize branching</li>
+</ul>
+<ol>
+<li><strong>Use Shared Memory</strong></li>
+</ol>
+<ul>
+<li>10-100x faster than global memory</li>
+<li>Reduce global memory accesses</li>
+</ul>
+<ol>
+<li><strong>Occupancy</strong></li>
+</ol>
+<ul>
+<li>Keep GPU 加速（GPU） busy with enough blocks/threads</li>
+<li>Balance registers, shared memory, and occupancy</li>
+</ul>
+<ol>
+<li><strong>Asynchronous Execution</strong></li>
+</ol>
+<ul>
+<li>Overlap transfers with computation</li>
+<li>Use CUDA 并行计算（CUDA） streams</li>
+</ul>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-practical-exercises">Practical Exercises</h4>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-exercise-1-vector-scalin">Exercise 1: Vector Scaling</h5>
+<p>Implement a kernel th大规模（at scale）s a vector by a constant:</p>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// TODO: Implement kernel
+__global__ void vectorScale(float* data, float scale, int n) {
+    // Your code here
+    // Multiply each element by scale
+}
+
+// Test
+int n = 1000000;
+float scale = 2.5f;
+
+// TODO: Allocate memory
+// TODO: Initialize data
+// TODO: Copy to device
+// TODO: Launch kernel
+vectorScale&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(d_data, scale, n);
+// TODO: Copy back and verify</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-exercise-2-matrix-transp">Exercise 2: Matrix Transpose</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// TODO: Implement matrix transpose
+__global__ void matrixTranspose(
+    const float* input,
+    float* output,
+    int rows,
+    int cols
+) {
+    // Your code here
+    // output[col * rows + row] = input[row * cols + col]
+}</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-exercise-3-dot-product">Exercise 3: Dot Product</h5>
+<div class="code-shell"><div class="code-title"><span>cpp</span><span>CPP</span></div><pre><code class="language-cpp">// TODO: Implement dot product with reduction
+__global__ void dotProduct(
+    const float* a,
+    const float* b,
+    float* partial_sums,
+    int n
+) {
+    // Your code here
+    // Use shared memory for reduction
+}</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<ol>
+<li><strong>CUDA 并行计算（CUDA） Programming Model</strong>: Host-device execution, kernel launches</li>
+<li><strong>Thread Hierarchy</strong>: Grids, blocks, warps, threads</li>
+<li><strong>Memory Management</strong>: Host-device transfers, memory types</li>
+<li><strong>Writing Kernels</strong>: Basic kernel patterns and optimizations</li>
+<li><strong>CUDA 并行计算（CUDA） in PyTorch 深度学习框架（PyTorch）</strong>: How frameworks leverage CUDA 并行计算（CUDA）</li>
+<li><strong>Debugging</strong>: Tools and techniques for CUDA 并行计算（CUDA） development</li>
+</ol>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-key-takeaways">Key Takeaways</h4>
+<ul>
+<li><strong>Warps execute together</strong> - avoid divergence within warps</li>
+<li><strong>Memory hierarchy matters</strong> - use shared memory for performance</li>
+<li><strong>Coalesced access is critical</strong> - ensure adjacent threads access adjacent memory</li>
+<li><strong>PyTorch 深度学习框架（PyTorch） abstracts CUDA 并行计算（CUDA）</strong> - but understanding helps optimization</li>
+<li><strong>Always check errors</strong> - CUDA 并行计算（CUDA） errors can be silent</li>
+</ul>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-further-reading">Further Reading</h4>
+<ul>
+<li><a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/">CUDA 并行计算（CUDA） C++ Programming Guide</a></li>
+<li><a href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/">CUDA 并行计算（CUDA） Best Practices Guide</a></li>
+<li><a href="https://pytorch.org/tutorials/advanced/cpp_extension.html">PyTorch 深度学习框架（PyTorch） CUDA 并行计算（CUDA） Extension</a></li>
+<li><a href="https://www.oreilly.com/library/view/professional-cuda-c/9781118739310/">Professional CUDA 并行计算（CUDA） C Programming</a></li>
+</ul>
+<h4 id="lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md-next-steps">Next Steps</h4>
+<p>In the next lesson, <strong>PyTorch 深度学习框架（PyTorch） GPU 加速（GPU） Acceleration</strong>, we'll explore how to effectively use GPUs in PyTorch 深度学习框架（PyTorch） for training and inference, including mixed precision training and memory optimization.</p>
+<hr/>
+<p><strong>Ready to accelerate PyTorch 深度学习框架（PyTorch） models? Let's dive into GPU 加速（GPU） optimization!</strong></p><p><a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-107-gpu-computing.html#doc-lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

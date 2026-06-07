@@ -1,0 +1,1121 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Exercise 05: Service Mesh 可观测性（Observability） with Istio</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Exercise 05: Service Mesh 可观测性（Observability） with Istio</h1><p>Module 104: Kubernetes 容器编排（Kubernetes） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-module-completion-status-md.html">Module 04: Kubernetes 容器编排（Kubernetes） Fundamentals - Completion Status</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Module 04: Kubernetes 容器编排（Kubernetes） Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-resources-md.html">Module 04 Resources: Kubernetes 容器编排（Kubernetes） Fundamentals</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lesson 01: Kubernetes 容器编排（Kubernetes） Introduction</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-02-k8s-architecture-md.html">Lesson 02: Kubernetes 容器编排（Kubernetes） Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-03-core-resources-md.html">Lesson 03: Core Kubernetes 容器编排（Kubernetes） Resources</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-04-deployments-services-md.html">Lesson 04: Deployments and Services Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-05-networking-ingress-md.html">Lesson 05: Kubernetes 容器编排（Kubernetes） Networking and Ingress</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-06-storage-persistence-md.html">Lesson 06: Storage and Persistence in Kubernetes 容器编排（Kubernetes）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-07-helm-package-manager-md.html">Lesson 07: Helm 包管理（Helm） Package Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-08-gpu-scheduling-md.html">Lesson 08: GPU 加速（GPU） Scheduling in Kubernetes 容器编排（Kubernetes）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-09-monitoring-troubleshooting-md.html">Lesson 09: 监控（Monitoring） and Troubleshooting Kubernetes 容器编排（Kubernetes）</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-01-pod-deployment-md.html">Lab 01: Your First Pod and 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-02-service-discovery-md.html">Lab 02: Service Discovery — ClusterIP, NodePort, LoadBalancer</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-03-configmaps-secrets-md.html">Lab 03: ConfigMaps and Secrets</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-04-persistent-volumes-md.html">Lab 04: Persistent Volumes for Stateful Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-05-helm-chart-md.html">Lab 05: Package an App with Helm 包管理（Helm）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-06-hpa-md.html">Lab 06: Horizontal Pod Autoscaler under Load</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-07-network-policies-md.html">Lab 07: NetworkPolicies for East-West Isolation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-08-debugging-md.html">Lab 08: Debug a Broken 部署（Deployment） from Scratch</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Module 104 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercise 01: Kubernetes 容器编排（Kubernetes） Fundamentals — Build a Working Service</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-02-control-plane-tour-readme-md.html">Exercise 02: Control Plane Tour</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-03-core-resources-mastery-readme-md.html">Exercise 03: Core Resources Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-04-k8s-cluster-autoscaler-readme-md.html">Exercise 04: Kubernetes 容器编排（Kubernetes） Cluster Autoscaler with Custom Metrics</a><a class="tree-doc active" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md.html">Exercise 05: Service Mesh 可观测性（Observability） with Istio</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-06-k8s-operator-framework-readme-md.html">Exercise 06: Kubernetes 容器编排（Kubernetes） Operator for ML Model Lifecycle</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-07-helm-chart-authoring-readme-md.html">Exercise 07: Author a Production-Grade Helm 包管理（Helm） Chart</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-08-gpu-scheduling-readme-md.html">Exercise 08: GPU 加速（GPU） Scheduling Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-09-monitoring-troubleshooting-readme-md.html">Exercise 09: Kubernetes 容器编排（Kubernetes） 监控（Monitoring） and Troubleshooting Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-10-multi-cluster-federation-readme-md.html">Exercise 10: Multi-Cluster Federation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-11-custom-operator-readme-md.html">Exercise 11: Build a Custom Kubernetes 容器编排（Kubernetes） Operator</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-12-stateful-postgres-readme-md.html">Exercise 12: Stateful Postgres on Kubernetes 容器编排（Kubernetes）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-13-cluster-upgrade-readme-md.html">Exercise 13: Cluster Upgrade Procedure</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-14-resource-quotas-multitenancy-readme-md.html">Exercise 14: Resource Quotas and Multi-Tenancy</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-15-cluster-cost-optimization-readme-md.html">Exercise 15: Kubernetes 容器编排（Kubernetes） Cluster Cost Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-readme-md.html">Module 04: Kubernetes 容器编排（Kubernetes） - Exercises</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Module 04 Quiz: Kubernetes 容器编排（Kubernetes） Fundamentals</a></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Exercise 05: Service Mesh 可观测性（Observability） with Istio</h2><p>Module 104: Kubernetes 容器编排（Kubernetes） · Exercises: 课后练习</p><div class="stats"><div class="stat"><strong>14</strong><span>reading order</span></div><div class="stat"><strong>38</strong><span>chapter docs</span></div><div class="stat"><strong>1170</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md" data-title="exercise 05: service mesh observability with istio lessons/mod-104-kubernetes/exercises/exercise-05-service-mesh-observability/readme.md exercises: 课后练习"><div class="doc-head"><span class="chip">14/38</span><span class="chip">Exercises</span><span class="path">lessons/mod-104-kubernetes/exercises/exercise-05-service-mesh-observability/README.md</span><span class="path">1170 行</span></div><h2>Exercise 05: Service Mesh 可观测性（Observability） with Istio</h2><p><a class="home" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-04-k8s-cluster-autoscaler-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-104-kubernetes.html#doc-lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-06-k8s-operator-framework-readme-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-exer">Exercise 05: Service Mesh 可观测性（Observability） with Istio</h3>
+<p><strong>Estimated Time</strong>: 30-38 hours <strong>Difficulty</strong>: Advanced <strong>Prerequisites</strong>: Kubernetes 容器编排（Kubernetes）, Istio, Python 3.9+, Prometheus 指标监控（Prometheus）, Grafana 可视化（Grafana）, Jaeger 链路追踪（Jaeger）</p>
+<h4 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-over">概览（Overview）</h4>
+<p>Build a comprehensive observability platform for microservices using Istio service mesh. Implement distributed tracing, traffic monitoring, 服务水平指标（SLI）/服务水平目标（SLO） tracking, and automated canary deployments with rollback based on error rates. This exercise teaches production-grade service mesh patterns essential for operating complex ML inference pipelines 大规模（at scale）.</p>
+<p>In production ML infrastructure, service mesh observability is critical for:</p>
+<ul>
+<li><strong>Distributed Tracing</strong>: Track requests across 10+ microservices</li>
+<li><strong>Traffic Management</strong>: Canary deployments, A/B testing for model versions</li>
+<li><strong>服务水平目标（SLO） 监控（Monitoring）</strong>: Ensure 99.9% availability, &lt;100ms p95 latency</li>
+<li><strong>安全（Security）</strong>: mTLS, authorization policies, audit logs</li>
+<li><strong>Chaos Engineering</strong>: Inject faults to test resilience</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-lear">Learning Objectives</h4>
+<p>By completing this exercise, you will:</p>
+<ol>
+<li><strong>Deploy Istio service mesh</strong> with production configuration</li>
+<li><strong>Implement distributed tracing</strong> with Jaeger 链路追踪（Jaeger）/Zipkin</li>
+<li><strong>Create 服务水平指标（SLI）/服务水平目标（SLO） dashboards</strong> in Grafana 可视化（Grafana）</li>
+<li><strong>Build automated canary deployment</strong> system</li>
+<li><strong>Implement fault injection</strong> for chaos engineering</li>
+<li><strong>Monitor golden signals</strong> (latency, traffic, errors, saturation)</li>
+<li><strong>Configure mTLS</strong> and authorization policies</li>
+</ol>
+<h4 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-busi">Business Context</h4>
+<p><strong>Real-World Scenario</strong>: Your ML platform serves 20 models through a microservices architecture (API gateway → feature service → model inference → post-processing → response). Current challenges:</p>
+<ul>
+<li><strong>Debug complexity</strong>: Request failures span 5+ services, no visibility into where errors occur</li>
+<li><strong>Slow rollouts</strong>: New model deployments are all-or-nothing (risky)</li>
+<li><strong>No 服务水平目标（SLO） tracking</strong>: Can't prove you meet 99.9% availability 服务水平协议（SLA）</li>
+<li><strong>安全（Security） gaps</strong>: Inter-service communication not encrypted</li>
+<li><strong>Performance issues</strong>: Can't identify which service adds latency</li>
+</ul>
+<p>Your task: Build observability platform that:</p>
+<ul>
+<li>Traces every request 端到端（end-to-end） with &lt;5ms overhead</li>
+<li>Deploys models via canary (5% → 25% → 50% → 100%) with auto-rollback</li>
+<li>Tracks error budget consumption (0.1% errors allowed per month)</li>
+<li>Enforces mTLS between all services</li>
+<li>Provides flame graphs showing request latency breakdown</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-proj">Project Structure</h4>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">exercise-05-service-mesh-observability/
+├── README.md
+├── requirements.txt
+├── istio/
+│   ├── install.yaml                  # Istio installation config
+│   ├── telemetry.yaml                # Telemetry configuration
+│   └── mesh-config.yaml              # Mesh-wide settings
+├── kubernetes/
+│   ├── apps/
+│   │   ├── api-gateway.yaml          # Frontend API
+│   │   ├── feature-service.yaml      # Feature engineering
+│   │   ├── model-inference.yaml      # ML model serving
+│   │   └── post-processor.yaml       # Result processing
+│   ├── virtual-services/
+│   │   ├── canary-deployment.yaml    # Canary routing rules
+│   │   └── fault-injection.yaml      # Chaos engineering
+│   ├── destination-rules/
+│   │   ├── circuit-breaker.yaml      # Circuit breaker config
+│   │   └── load-balancing.yaml       # Load balancing policy
+│   └── security/
+│       ├── peer-authentication.yaml  # mTLS enforcement
+│       └── authorization-policy.yaml # AuthZ rules
+├── src/
+│   └── observability/
+│       ├── __init__.py
+│       ├── slo_tracker.py            # SLO/SLI monitoring
+│       ├── canary_controller.py      # Automated canary deployments
+│       ├── trace_analyzer.py         # Distributed trace analysis
+│       ├── error_budget.py           # Error budget calculator
+│       ├── alert_manager.py          # Alert routing
+│       └── cli.py                    # CLI tools
+├── dashboards/
+│   ├── golden-signals.json           # Grafana dashboard
+│   ├── slo-dashboard.json            # SLO tracking
+│   └── trace-analysis.json           # Trace visualization
+├── tests/
+│   ├── test_slo_tracker.py
+│   ├── test_canary_controller.py
+│   └── test_trace_analyzer.py
+├── examples/
+│   ├── deploy_canary.sh
+│   ├── inject_faults.sh
+│   └── analyze_traces.py
+└── docs/
+    ├── DESIGN.md
+    ├── SLO_DEFINITIONS.md
+    └── RUNBOOK.md</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-requ">要求（Requirements）</h4>
+<h5 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-func">Functional Requirements</h5>
+<ol>
+<li><strong>Distributed Tracing</strong>:</li>
+</ol>
+<ul>
+<li>Trace 100% of requests with sampling (configurable)</li>
+<li>Correlate traces across all services</li>
+<li>Extract latency per service</li>
+<li>Identify error sources</li>
+</ul>
+<ol>
+<li><strong>服务水平目标（SLO） 监控（Monitoring）</strong>:</li>
+</ol>
+<ul>
+<li>Define SLIs (availability, latency, throughput)</li>
+<li>Track error budget consumption</li>
+<li>Alert when error budget depleting quickly</li>
+<li>Generate 服务水平目标（SLO） compliance reports</li>
+</ul>
+<ol>
+<li><strong>Canary Deployments</strong>:</li>
+</ol>
+<ul>
+<li>Gradual traffic shift (5% → 25% → 50% → 100%)</li>
+<li>Auto-promote if error rate &lt;0.5%</li>
+<li>Auto-rollback if error rate &gt;2%</li>
+<li>Manual approval gates</li>
+</ul>
+<ol>
+<li><strong>Traffic Management</strong>:</li>
+</ol>
+<ul>
+<li>Route by header (A/B testing)</li>
+<li>Circuit breakers (open after 5 consecutive failures)</li>
+<li>Retry policies (3 retries with exponential backoff)</li>
+<li>Timeouts (5s default)</li>
+</ul>
+<ol>
+<li><strong>安全（Security）</strong>:</li>
+</ol>
+<ul>
+<li>Enforce mTLS cluster-wide</li>
+<li>Namespace isolation</li>
+<li>Service-to-service authorization</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-non-">Non-Functional Requirements</h5>
+<ul>
+<li><strong>Tracing Overhead</strong>: &lt;5ms per request</li>
+<li><strong>Canary Promotion Time</strong>: 15 minutes (5min per stage)</li>
+<li><strong>Alert Latency</strong>: &lt;30 seconds from 服务水平目标（SLO） breach</li>
+<li><strong>Dashboard Load Time</strong>: &lt;2 seconds</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-impl">Implementation Tasks</h4>
+<h5 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-task">Task 1: Istio Installation and Configuration (5-6 hours)</h5>
+<p>Install Istio with production settings.</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># istio/install.yaml
+
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: production-istio
+spec:
+  profile: production
+
+  # Enable telemetry
+  meshConfig:
+    enableTracing: true
+    defaultConfig:
+      tracing:
+        sampling: 100.0  # Sample 100% of requests
+        zipkin:
+          address: jaeger-collector.istio-system:9411
+
+    # Enable access logging
+    accessLogFile: /dev/stdout
+    accessLogFormat: |
+      [%START_TIME%] &quot;%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%&quot;
+      %RESPONSE_CODE% %RESPONSE_FLAGS% %BYTES_RECEIVED% %BYTES_SENT%
+      %DURATION% &quot;%REQ(X-FORWARDED-FOR)%&quot; &quot;%REQ(USER-AGENT)%&quot;
+      &quot;%REQ(X-REQUEST-ID)%&quot; &quot;%REQ(:AUTHORITY)%&quot; &quot;%UPSTREAM_HOST%&quot;
+
+  components:
+    pilot:
+      k8s:
+        resources:
+          requests:
+            cpu: 500m
+            memory: 2Gi
+
+    ingressGateways:
+    - name: istio-ingressgateway
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 1Gi
+        hpaSpec:
+          minReplicas: 2
+          maxReplicas: 10
+
+    egressGateways:
+    - name: istio-egressgateway
+      enabled: true
+
+  # Addons
+  addonComponents:
+    prometheus:
+      enabled: true
+    grafana:
+      enabled: true
+    tracing:
+      enabled: true
+    kiali:
+      enabled: true</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Installation script
+#!/bin/bash
+
+# Install Istio
+istioctl install -f istio/install.yaml -y
+
+# Label namespace for automatic sidecar injection
+kubectl label namespace default istio-injection=enabled
+
+# Deploy Jaeger for tracing
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/jaeger.yaml
+
+# Deploy Prometheus
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml
+
+# Deploy Grafana
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/grafana.yaml
+
+# Deploy Kiali (service mesh visualization)
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/kiali.yaml
+
+echo &quot;✅ Istio installed successfully&quot;</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Istio control plane healthy</li>
+<li>✅ Sidecars auto-injected in labeled namespaces</li>
+<li>✅ Telemetry addons accessible</li>
+<li>✅ mTLS enforced cluster-wide</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-task">Task 2: 服务水平目标（SLO） Tracker (7-8 hours)</h5>
+<p>Implement 服务水平目标（SLO）/服务水平指标（SLI） monitoring system.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/observability/slo_tracker.py
+
+from dataclasses import dataclass
+from typing import List, Dict, Optional
+from datetime import datetime, timedelta
+from enum import Enum
+
+class SLIType(Enum):
+    &quot;&quot;&quot;Types of Service Level Indicators&quot;&quot;&quot;
+    AVAILABILITY = &quot;availability&quot;  # % of successful requests
+    LATENCY = &quot;latency&quot;  # % of requests &lt; threshold
+    THROUGHPUT = &quot;throughput&quot;  # requests per second
+
+@dataclass
+class SLI:
+    &quot;&quot;&quot;Service Level Indicator definition&quot;&quot;&quot;
+    name: str
+    type: SLIType
+    query: str  # PromQL query
+    threshold: float  # For latency: 100ms, for availability: N/A
+
+@dataclass
+class SLO:
+    &quot;&quot;&quot;Service Level Objective&quot;&quot;&quot;
+    name: str
+    service: str
+    sli: SLI
+    target: float  # e.g., 99.9% (0.999)
+    window: timedelta  # Rolling window (30 days)
+
+@dataclass
+class ErrorBudget:
+    &quot;&quot;&quot;Remaining error budget for SLO&quot;&quot;&quot;
+    slo: SLO
+    budget_total: float  # Total allowed errors (0.1% = 0.001)
+    budget_consumed: float  # Errors consumed so far
+    budget_remaining: float  # Remaining budget
+    burn_rate: float  # Rate of consumption (errors per hour)
+    time_to_exhaustion: Optional[timedelta]  # When budget runs out
+
+class SLOTracker:
+    &quot;&quot;&quot;Track SLOs and error budgets&quot;&quot;&quot;
+
+    def __init__(self, prometheus_url: str):
+        self.prometheus_url = prometheus_url
+
+    def check_slo(self, slo: SLO, now: Optional[datetime] = None) -&gt; ErrorBudget:
+        &quot;&quot;&quot;
+        Check SLO compliance and calculate error budget
+
+        Args:
+            slo: SLO to check
+            now: Current time (defaults to datetime.now())
+
+        Returns:
+            ErrorBudget with current status
+        &quot;&quot;&quot;
+        now = now or datetime.now()
+
+        # TODO: Query Prometheus for SLI metric
+        if slo.sli.type == SLIType.AVAILABILITY:
+            # Query: (sum(rate(requests_total{service=&quot;X&quot;,status=~&quot;2..&quot;}[window])) /
+            #         sum(rate(requests_total{service=&quot;X&quot;}[window])))
+            current_availability = self._query_availability(slo)
+            budget_total = 1.0 - slo.target  # e.g., 0.001 for 99.9%
+            budget_consumed = 1.0 - current_availability
+
+        elif slo.sli.type == SLIType.LATENCY:
+            # Query: histogram_quantile(0.95, rate(request_duration_bucket[window])) &lt; threshold
+            current_latency_compliance = self._query_latency(slo)
+            budget_total = 1.0 - slo.target
+            budget_consumed = 1.0 - current_latency_compliance
+
+        else:
+            raise ValueError(f&quot;Unsupported SLI type: {slo.sli.type}&quot;)
+
+        budget_remaining = budget_total - budget_consumed
+
+        # TODO: Calculate burn rate (errors per hour)
+        burn_rate = self._calculate_burn_rate(slo, window=timedelta(hours=1))
+
+        # TODO: Estimate time to exhaustion
+        if burn_rate &gt; 0 and budget_remaining &gt; 0:
+            time_to_exhaustion = timedelta(hours=budget_remaining / burn_rate)
+        else:
+            time_to_exhaustion = None
+
+        return ErrorBudget(
+            slo=slo,
+            budget_total=budget_total,
+            budget_consumed=budget_consumed,
+            budget_remaining=budget_remaining,
+            burn_rate=burn_rate,
+            time_to_exhaustion=time_to_exhaustion
+        )
+
+    def _query_availability(self, slo: SLO) -&gt; float:
+        &quot;&quot;&quot;
+        Query availability SLI from Prometheus
+
+        Returns availability as decimal (0.999 = 99.9%)
+        &quot;&quot;&quot;
+        import requests
+
+        # Build PromQL query
+        window_str = f&quot;{int(slo.window.total_seconds())}s&quot;
+        query = f&quot;&quot;&quot;
+        sum(rate(istio_requests_total{{
+            destination_service=~&quot;{slo.service}.*&quot;,
+            response_code=~&quot;2..&quot;
+        }}[{window_str}]))
+        /
+        sum(rate(istio_requests_total{{
+            destination_service=~&quot;{slo.service}.*&quot;
+        }}[{window_str}]))
+        &quot;&quot;&quot;
+
+        # TODO: Execute query
+        response = requests.post(
+            f&quot;{self.prometheus_url}/api/v1/query&quot;,
+            data={&quot;query&quot;: query}
+        )
+
+        # TODO: Parse result
+        if response.status_code == 200:
+            data = response.json()
+            if data.get(&quot;data&quot;, {}).get(&quot;result&quot;):
+                return float(data[&quot;data&quot;][&quot;result&quot;][0][&quot;value&quot;][1])
+
+        return 0.0
+
+    def _query_latency(self, slo: SLO) -&gt; float:
+        &quot;&quot;&quot;
+        Query latency SLI from Prometheus
+
+        Returns % of requests meeting latency threshold
+        &quot;&quot;&quot;
+        # TODO: Query histogram_quantile for p95/p99
+        # TODO: Compare to threshold
+        # TODO: Return compliance percentage
+        raise NotImplementedError
+
+    def _calculate_burn_rate(self, slo: SLO, window: timedelta) -&gt; float:
+        &quot;&quot;&quot;
+        Calculate rate of error budget consumption
+
+        Returns errors per hour
+        &quot;&quot;&quot;
+        # TODO: Query error rate over recent window
+        # TODO: Calculate hourly burn rate
+        raise NotImplementedError
+
+    def generate_report(self, slos: List[SLO]) -&gt; Dict:
+        &quot;&quot;&quot;
+        Generate SLO compliance report
+
+        Returns:
+            {
+                &quot;report_time&quot;: &quot;2024-01-25T10:00:00Z&quot;,
+                &quot;slos&quot;: [
+                    {
+                        &quot;name&quot;: &quot;api-availability&quot;,
+                        &quot;compliant&quot;: True,
+                        &quot;current&quot;: 99.95,
+                        &quot;target&quot;: 99.9,
+                        &quot;error_budget_remaining&quot;: 0.05
+                    }
+                ],
+                &quot;summary&quot;: {
+                    &quot;total_slos&quot;: 5,
+                    &quot;compliant&quot;: 4,
+                    &quot;non_compliant&quot;: 1,
+                    &quot;at_risk&quot;: 1  # Burning budget quickly
+                }
+            }
+        &quot;&quot;&quot;
+        # TODO: Check all SLOs
+        # TODO: Aggregate results
+        # TODO: Return structured report
+        raise NotImplementedError</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Track availability 服务水平目标（SLO） (99.9%)</li>
+<li>✅ Track latency 服务水平目标（SLO） (p95 &lt;100ms)</li>
+<li>✅ Calculate error budgets accurately</li>
+<li>✅ Estimate time to budget exhaustion</li>
+<li>✅ Generate compliance reports</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-task">Task 3: Canary Controller (7-9 hours)</h5>
+<p>Build automated canary deployment system.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/observability/canary_controller.py
+
+from dataclasses import dataclass
+from typing import List, Optional
+from datetime import datetime, timedelta
+from enum import Enum
+from kubernetes import client, config
+import time
+
+class CanaryStage(Enum):
+    &quot;&quot;&quot;Canary deployment stages&quot;&quot;&quot;
+    STAGE_0 = 0    # Baseline (0% canary)
+    STAGE_1 = 5    # 5% canary traffic
+    STAGE_2 = 25   # 25% canary traffic
+    STAGE_3 = 50   # 50% canary traffic
+    STAGE_4 = 100  # 100% canary (promote complete)
+
+class CanaryStatus(Enum):
+    &quot;&quot;&quot;Canary deployment status&quot;&quot;&quot;
+    IN_PROGRESS = &quot;in_progress&quot;
+    SUCCEEDED = &quot;succeeded&quot;
+    FAILED = &quot;failed&quot;
+    ROLLED_BACK = &quot;rolled_back&quot;
+
+@dataclass
+class CanaryConfig:
+    &quot;&quot;&quot;Configuration for canary deployment&quot;&quot;&quot;
+    namespace: str
+    service_name: str
+    baseline_version: str  # v1
+    canary_version: str  # v2
+
+    # Traffic shifting stages
+    stages: List[int] = None  # [5, 25, 50, 100]
+    stage_duration: timedelta = timedelta(minutes=5)
+
+    # Success criteria
+    max_error_rate: float = 0.02  # 2%
+    max_latency_p95: float = 100.0  # ms
+
+    # Rollback criteria
+    rollback_error_rate: float = 0.05  # 5%
+    rollback_latency_p95: float = 200.0  # ms
+
+@dataclass
+class CanaryMetrics:
+    &quot;&quot;&quot;Metrics for canary analysis&quot;&quot;&quot;
+    error_rate: float
+    latency_p50: float
+    latency_p95: float
+    latency_p99: float
+    requests_per_second: float
+
+class CanaryController:
+    &quot;&quot;&quot;Manage automated canary deployments&quot;&quot;&quot;
+
+    def __init__(self, prometheus_url: str):
+        self.prometheus_url = prometheus_url
+        config.load_kube_config()
+        self.k8s_networking = client.NetworkingV1Api()
+        self.k8s_custom = client.CustomObjectsApi()
+
+    def deploy_canary(self, config: CanaryConfig) -&gt; CanaryStatus:
+        &quot;&quot;&quot;
+        Execute canary deployment with automated promotion/rollback
+
+        Workflow:
+        1. Start at 0% canary (baseline only)
+        2. For each stage (5%, 25%, 50%, 100%):
+           a. Update VirtualService to shift traffic
+           b. Wait for stage_duration
+           c. Analyze metrics (error rate, latency)
+           d. If metrics good: promote to next stage
+           e. If metrics bad: rollback to baseline
+        3. If reach 100%: complete deployment
+        &quot;&quot;&quot;
+        print(f&quot;Starting canary deployment: {config.baseline_version} → {config.canary_version}&quot;)
+
+        stages = config.stages or [5, 25, 50, 100]
+
+        for stage_pct in stages:
+            print(f&quot;\n📊 Stage: {stage_pct}% canary traffic&quot;)
+
+            # TODO: Update VirtualService traffic split
+            self._update_traffic_split(
+                namespace=config.namespace,
+                service=config.service_name,
+                baseline_weight=100 - stage_pct,
+                canary_weight=stage_pct
+            )
+
+            # TODO: Wait for traffic to stabilize
+            print(f&quot;Waiting {config.stage_duration.total_seconds()}s for metrics...&quot;)
+            time.sleep(config.stage_duration.total_seconds())
+
+            # TODO: Collect metrics for canary version
+            canary_metrics = self._get_metrics(
+                config.namespace,
+                config.service_name,
+                config.canary_version
+            )
+
+            baseline_metrics = self._get_metrics(
+                config.namespace,
+                config.service_name,
+                config.baseline_version
+            )
+
+            print(f&quot;Canary metrics: error_rate={canary_metrics.error_rate:.2%}, &quot;
+                  f&quot;p95={canary_metrics.latency_p95:.1f}ms&quot;)
+            print(f&quot;Baseline metrics: error_rate={baseline_metrics.error_rate:.2%}, &quot;
+                  f&quot;p95={baseline_metrics.latency_p95:.1f}ms&quot;)
+
+            # TODO: Decide: promote, rollback, or continue
+            decision = self._analyze_metrics(canary_metrics, baseline_metrics, config)
+
+            if decision == &quot;rollback&quot;:
+                print(&quot;❌ Metrics failed! Rolling back...&quot;)
+                self._rollback(config.namespace, config.service_name, config.baseline_version)
+                return CanaryStatus.ROLLED_BACK
+
+            elif decision == &quot;promote&quot;:
+                print(f&quot;✅ Metrics pass! Promoting to {stage_pct}%&quot;)
+                continue
+
+            else:
+                print(&quot;⚠️  Metrics inconclusive, continuing...&quot;)
+
+        # Reached 100%, deployment successful
+        print(&quot;\n🎉 Canary deployment completed successfully!&quot;)
+        return CanaryStatus.SUCCEEDED
+
+    def _update_traffic_split(
+        self,
+        namespace: str,
+        service: str,
+        baseline_weight: int,
+        canary_weight: int
+    ) -&gt; None:
+        &quot;&quot;&quot;
+        Update Istio VirtualService to split traffic
+
+        Example VirtualService:</code></pre></div>
+<p>apiVersion: networking.istio.io/v1beta1 kind: VirtualService metadata: name: model-inference spec: hosts:</p>
+<ul>
+<li>model-inference</li>
+<p>http:</p>
+<li>route:</li>
+<li>destination:</li>
+<p>host: model-inference subset: v1  # baseline weight: 95</p>
+<li>destination:</li>
+<p>host: model-inference subset: v2  # canary weight: 5</p>
+</ul>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        # TODO: Get current VirtualService
+        vs = self.k8s_custom.get_namespaced_custom_object(
+            group=&quot;networking.istio.io&quot;,
+            version=&quot;v1beta1&quot;,
+            namespace=namespace,
+            plural=&quot;virtualservices&quot;,
+            name=service
+        )
+
+        # TODO: Update weights
+        vs[&quot;spec&quot;][&quot;http&quot;][0][&quot;route&quot;][0][&quot;weight&quot;] = baseline_weight
+        vs[&quot;spec&quot;][&quot;http&quot;][0][&quot;route&quot;][1][&quot;weight&quot;] = canary_weight
+
+        # TODO: Apply updated VirtualService
+        self.k8s_custom.patch_namespaced_custom_object(
+            group=&quot;networking.istio.io&quot;,
+            version=&quot;v1beta1&quot;,
+            namespace=namespace,
+            plural=&quot;virtualservices&quot;,
+            name=service,
+            body=vs
+        )
+
+    def _get_metrics(
+        self,
+        namespace: str,
+        service: str,
+        version: str
+    ) -&gt; CanaryMetrics:
+        &quot;&quot;&quot;
+        Get metrics for specific service version
+
+        Queries Prometheus for:
+        - Error rate: rate(istio_requests_total{destination_version=&quot;v2&quot;, response_code=~&quot;5..&quot;}[1m])
+        - Latency: histogram_quantile(0.95, rate(istio_request_duration_milliseconds_bucket[1m]))
+        &quot;&quot;&quot;
+        import requests
+
+        # TODO: Query error rate
+        error_query = f&quot;&quot;&quot;
+        sum(rate(istio_requests_total{{
+            destination_service=~&quot;{service}.*&quot;,
+            destination_version=&quot;{version}&quot;,
+            response_code=~&quot;5..&quot;
+        }}[1m]))
+        /
+        sum(rate(istio_requests_total{{
+            destination_service=~&quot;{service}.*&quot;,
+            destination_version=&quot;{version}&quot;
+        }}[1m]))
+        &quot;&quot;&quot;
+
+        # TODO: Query latency percentiles
+        latency_p95_query = f&quot;&quot;&quot;
+        histogram_quantile(0.95,
+          rate(istio_request_duration_milliseconds_bucket{{
+            destination_service=~&quot;{service}.*&quot;,
+            destination_version=&quot;{version}&quot;
+          }}[1m])
+        )
+        &quot;&quot;&quot;
+
+        # TODO: Execute queries and parse results
+        error_rate = self._query_prometheus(error_query) or 0.0
+        latency_p95 = self._query_prometheus(latency_p95_query) or 0.0
+
+        return CanaryMetrics(
+            error_rate=error_rate,
+            latency_p50=0.0,  # TODO: Query p50
+            latency_p95=latency_p95,
+            latency_p99=0.0,  # TODO: Query p99
+            requests_per_second=0.0  # TODO: Query RPS
+        )
+
+    def _analyze_metrics(
+        self,
+        canary: CanaryMetrics,
+        baseline: CanaryMetrics,
+        config: CanaryConfig
+    ) -&gt; str:
+        &quot;&quot;&quot;
+        Analyze metrics to decide: promote, rollback, or continue
+
+        Returns: &quot;promote&quot;, &quot;rollback&quot;, or &quot;continue&quot;
+        &quot;&quot;&quot;
+        # TODO: Check if canary exceeds rollback thresholds
+        if canary.error_rate &gt; config.rollback_error_rate:
+            return &quot;rollback&quot;
+        if canary.latency_p95 &gt; config.rollback_latency_p95:
+            return &quot;rollback&quot;
+
+        # TODO: Check if canary meets success criteria
+        # Compare canary to baseline (canary should not be significantly worse)
+        if canary.error_rate &gt; baseline.error_rate * 2:  # 2x worse
+            return &quot;rollback&quot;
+        if canary.latency_p95 &gt; baseline.latency_p95 * 1.5:  # 50% worse
+            return &quot;rollback&quot;
+
+        # Metrics acceptable
+        return &quot;promote&quot;
+
+    def _rollback(self, namespace: str, service: str, baseline_version: str) -&gt; None:
+        &quot;&quot;&quot;Rollback to 100% baseline traffic&quot;&quot;&quot;
+        self._update_traffic_split(namespace, service, 100, 0)
+        print(f&quot;Rolled back to {baseline_version}&quot;)
+
+    def _query_prometheus(self, query: str) -&gt; Optional[float]:
+        &quot;&quot;&quot;Execute Prometheus query&quot;&quot;&quot;
+        import requests
+        response = requests.post(
+            f&quot;{self.prometheus_url}/api/v1/query&quot;,
+            data={&quot;query&quot;: query}
+        )
+        if response.status_code == 200:
+            data = response.json()
+            if data.get(&quot;data&quot;, {}).get(&quot;result&quot;):
+                return float(data[&quot;data&quot;][&quot;result&quot;][0][&quot;value&quot;][1])
+        return None</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Deploy canary in stages (5% → 100%)</li>
+<li>✅ Auto-promote if metrics good</li>
+<li>✅ Auto-rollback if metrics bad</li>
+<li>✅ Compare canary vs baseline metrics</li>
+<li>✅ Update Istio VirtualService correctly</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-task">Task 4: Trace Analyzer (5-6 hours)</h5>
+<p>Analyze distributed traces to identify latency sources.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/observability/trace_analyzer.py
+
+from dataclasses import dataclass
+from typing import List, Dict, Optional
+from datetime import datetime, timedelta
+import requests
+
+@dataclass
+class Span:
+    &quot;&quot;&quot;Represents a single span in distributed trace&quot;&quot;&quot;
+    trace_id: str
+    span_id: str
+    parent_span_id: Optional[str]
+    service_name: str
+    operation_name: str
+    start_time: datetime
+    duration_ms: float
+    tags: Dict[str, str]
+    logs: List[Dict]
+
+@dataclass
+class Trace:
+    &quot;&quot;&quot;Complete distributed trace&quot;&quot;&quot;
+    trace_id: str
+    spans: List[Span]
+
+    @property
+    def total_duration_ms(self) -&gt; float:
+        &quot;&quot;&quot;Total request duration&quot;&quot;&quot;
+        if not self.spans:
+            return 0.0
+        return max(span.start_time.timestamp() * 1000 + span.duration_ms for span in self.spans) - \
+               min(span.start_time.timestamp() * 1000 for span in self.spans)
+
+    @property
+    def critical_path(self) -&gt; List[Span]:
+        &quot;&quot;&quot;Find critical path (longest sequential chain)&quot;&quot;&quot;
+        # TODO: Build span tree, find longest path
+        raise NotImplementedError
+
+@dataclass
+class LatencyBreakdown:
+    &quot;&quot;&quot;Latency contribution by service&quot;&quot;&quot;
+    service_name: str
+    total_duration_ms: float
+    percentage: float
+
+class TraceAnalyzer:
+    &quot;&quot;&quot;Analyze distributed traces from Jaeger&quot;&quot;&quot;
+
+    def __init__(self, jaeger_url: str):
+        self.jaeger_url = jaeger_url
+
+    def get_traces(
+        self,
+        service: str,
+        start: datetime,
+        end: datetime,
+        limit: int = 100
+    ) -&gt; List[Trace]:
+        &quot;&quot;&quot;
+        Fetch traces from Jaeger
+
+        Uses Jaeger HTTP API:
+        GET /api/traces?service=X&amp;start=...&amp;end=...&amp;limit=100
+        &quot;&quot;&quot;
+        # TODO: Build query parameters
+        params = {
+            &quot;service&quot;: service,
+            &quot;start&quot;: int(start.timestamp() * 1000000),  # microseconds
+            &quot;end&quot;: int(end.timestamp() * 1000000),
+            &quot;limit&quot;: limit
+        }
+
+        # TODO: Fetch from Jaeger API
+        response = requests.get(f&quot;{self.jaeger_url}/api/traces&quot;, params=params)
+
+        # TODO: Parse JSON response into Trace objects
+        if response.status_code == 200:
+            data = response.json()
+            traces = []
+            for trace_data in data.get(&quot;data&quot;, []):
+                spans = self._parse_spans(trace_data)
+                traces.append(Trace(
+                    trace_id=trace_data[&quot;traceID&quot;],
+                    spans=spans
+                ))
+            return traces
+
+        return []
+
+    def analyze_latency(self, trace: Trace) -&gt; List[LatencyBreakdown]:
+        &quot;&quot;&quot;
+        Break down latency by service
+
+        Returns:
+            [
+                LatencyBreakdown(&quot;api-gateway&quot;, 15.2, 10%),
+                LatencyBreakdown(&quot;feature-service&quot;, 45.8, 30%),
+                LatencyBreakdown(&quot;model-inference&quot;, 82.5, 55%),
+                LatencyBreakdown(&quot;post-processor&quot;, 7.5, 5%)
+            ]
+        &quot;&quot;&quot;
+        # TODO: Group spans by service
+        service_durations = {}
+        for span in trace.spans:
+            if span.service_name not in service_durations:
+                service_durations[span.service_name] = 0.0
+            service_durations[span.service_name] += span.duration_ms
+
+        # TODO: Calculate percentages
+        total = trace.total_duration_ms
+        breakdowns = []
+        for service, duration in service_durations.items():
+            breakdowns.append(LatencyBreakdown(
+                service_name=service,
+                total_duration_ms=duration,
+                percentage=(duration / total * 100) if total &gt; 0 else 0
+            ))
+
+        # Sort by duration (descending)
+        breakdowns.sort(key=lambda b: b.total_duration_ms, reverse=True)
+        return breakdowns
+
+    def find_slow_traces(
+        self,
+        service: str,
+        threshold_ms: float = 100.0,
+        window: timedelta = timedelta(hours=1)
+    ) -&gt; List[Trace]:
+        &quot;&quot;&quot;
+        Find traces exceeding latency threshold
+
+        Useful for identifying performance regressions
+        &quot;&quot;&quot;
+        end = datetime.now()
+        start = end - window
+
+        # TODO: Fetch traces
+        traces = self.get_traces(service, start, end, limit=1000)
+
+        # TODO: Filter by duration
+        slow_traces = [t for t in traces if t.total_duration_ms &gt; threshold_ms]
+
+        return slow_traces
+
+    def find_errors(
+        self,
+        service: str,
+        window: timedelta = timedelta(hours=1)
+    ) -&gt; List[Trace]:
+        &quot;&quot;&quot;Find traces with errors&quot;&quot;&quot;
+        end = datetime.now()
+        start = end - window
+
+        traces = self.get_traces(service, start, end)
+
+        # TODO: Filter traces with error tags
+        error_traces = []
+        for trace in traces:
+            for span in trace.spans:
+                if span.tags.get(&quot;error&quot;) == &quot;true&quot; or span.tags.get(&quot;http.status_code&quot;, &quot;&quot;).startswith(&quot;5&quot;):
+                    error_traces.append(trace)
+                    break
+
+        return error_traces
+
+    def _parse_spans(self, trace_data: Dict) -&gt; List[Span]:
+        &quot;&quot;&quot;Parse Jaeger trace JSON into Span objects&quot;&quot;&quot;
+        # TODO: Extract spans from trace data
+        # TODO: Handle nested structure
+        raise NotImplementedError</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Fetch traces from Jaeger 链路追踪（Jaeger）</li>
+<li>✅ Calculate latency breakdown by service</li>
+<li>✅ Find slow traces (&gt;threshold)</li>
+<li>✅ Find error traces</li>
+<li>✅ Identify critical path in traces</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-task">Task 5: Alert Manager (3-4 hours)</h5>
+<p>Implement alert routing based on 服务水平目标（SLO） violations.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/observability/alert_manager.py
+
+from dataclasses import dataclass
+from typing import List, Optional
+from enum import Enum
+from .slo_tracker import ErrorBudget, SLO
+
+class AlertSeverity(Enum):
+    &quot;&quot;&quot;Alert severity levels&quot;&quot;&quot;
+    CRITICAL = &quot;critical&quot;  # Page on-call
+    WARNING = &quot;warning&quot;  # Notify team
+    INFO = &quot;info&quot;  # Log only
+
+@dataclass
+class Alert:
+    &quot;&quot;&quot;Alert definition&quot;&quot;&quot;
+    title: str
+    description: str
+    severity: AlertSeverity
+    slo: Optional[SLO] = None
+    error_budget: Optional[ErrorBudget] = None
+    runbook_url: Optional[str] = None
+
+class AlertManager:
+    &quot;&quot;&quot;Generate and route alerts&quot;&quot;&quot;
+
+    def __init__(self, webhook_url: Optional[str] = None):
+        self.webhook_url = webhook_url
+
+    def check_error_budget(self, budget: ErrorBudget) -&gt; Optional[Alert]:
+        &quot;&quot;&quot;
+        Generate alert if error budget critical
+
+        Alert if:
+        - Budget &lt;10% remaining (WARNING)
+        - Budget exhausted (CRITICAL)
+        - Burn rate &gt;5x (will exhaust in &lt;6 hours) (CRITICAL)
+        &quot;&quot;&quot;
+        # TODO: Check remaining budget
+        if budget.budget_remaining &lt;= 0:
+            return Alert(
+                title=f&quot;SLO Violated: {budget.slo.name}&quot;,
+                description=f&quot;Error budget exhausted! Current: {budget.budget_consumed:.2%}&quot;,
+                severity=AlertSeverity.CRITICAL,
+                slo=budget.slo,
+                error_budget=budget
+            )
+
+        # TODO: Check burn rate
+        if budget.time_to_exhaustion and budget.time_to_exhaustion &lt; timedelta(hours=6):
+            return Alert(
+                title=f&quot;High Error Budget Burn Rate: {budget.slo.name}&quot;,
+                description=f&quot;Budget will exhaust in {budget.time_to_exhaustion}&quot;,
+                severity=AlertSeverity.CRITICAL,
+                slo=budget.slo,
+                error_budget=budget
+            )
+
+        # TODO: Check low budget
+        budget_pct = budget.budget_remaining / budget.budget_total if budget.budget_total &gt; 0 else 1.0
+        if budget_pct &lt; 0.1:  # &lt;10% remaining
+            return Alert(
+                title=f&quot;Low Error Budget: {budget.slo.name}&quot;,
+                description=f&quot;Only {budget_pct:.1%} budget remaining&quot;,
+                severity=AlertSeverity.WARNING,
+                slo=budget.slo,
+                error_budget=budget
+            )
+
+        return None
+
+    def send_alert(self, alert: Alert) -&gt; None:
+        &quot;&quot;&quot;
+        Send alert to webhook (Slack, PagerDuty, etc.)
+
+        Payload:
+        {
+            &quot;title&quot;: &quot;SLO Violated: api-availability&quot;,
+            &quot;severity&quot;: &quot;critical&quot;,
+            &quot;description&quot;: &quot;...&quot;,
+            &quot;timestamp&quot;: &quot;2024-01-25T10:00:00Z&quot;
+        }
+        &quot;&quot;&quot;
+        import requests
+        from datetime import datetime
+
+        if not self.webhook_url:
+            print(f&quot;[{alert.severity.value.upper()}] {alert.title}: {alert.description}&quot;)
+            return
+
+        # TODO: Format payload
+        payload = {
+            &quot;title&quot;: alert.title,
+            &quot;description&quot;: alert.description,
+            &quot;severity&quot;: alert.severity.value,
+            &quot;timestamp&quot;: datetime.now().isoformat()
+        }
+
+        # TODO: Send to webhook
+        requests.post(self.webhook_url, json=payload)</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Generate alerts for 服务水平目标（SLO） violations</li>
+<li>✅ Alert on high burn rate</li>
+<li>✅ Send to webhook (Slack/PagerDuty)</li>
+<li>✅ Include runbook links</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-task">Task 6: CLI and Integration (3-4 hours)</h5>
+<p>Build CLI and integrate all components.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/observability/cli.py
+
+import click
+from .slo_tracker import SLOTracker, SLO, SLI, SLIType
+from .canary_controller import CanaryController, CanaryConfig
+from .trace_analyzer import TraceAnalyzer
+from datetime import timedelta
+
+@click.group()
+def cli():
+    &quot;&quot;&quot;Service Mesh Observability Tools&quot;&quot;&quot;
+    pass
+
+@cli.command()
+@click.option('--service', required=True)
+@click.option('--prometheus-url', default='http://prometheus:9090')
+def check_slo(service: str, prometheus_url: str):
+    &quot;&quot;&quot;Check SLO compliance&quot;&quot;&quot;
+    # TODO: Define SLOs
+    # TODO: Check compliance
+    # TODO: Display results
+    pass
+
+@cli.command()
+@click.option('--namespace', default='default')
+@click.option('--service', required=True)
+@click.option('--baseline', required=True, help='Baseline version (e.g., v1)')
+@click.option('--canary', required=True, help='Canary version (e.g., v2)')
+@click.option('--prometheus-url', default='http://prometheus:9090')
+def deploy_canary(namespace: str, service: str, baseline: str, canary: str, prometheus_url: str):
+    &quot;&quot;&quot;Deploy canary with automated promotion/rollback&quot;&quot;&quot;
+    controller = CanaryController(prometheus_url)
+
+    config = CanaryConfig(
+        namespace=namespace,
+        service_name=service,
+        baseline_version=baseline,
+        canary_version=canary
+    )
+
+    status = controller.deploy_canary(config)
+    click.echo(f&quot;Deployment status: {status.value}&quot;)
+
+@cli.command()
+@click.option('--service', required=True)
+@click.option('--jaeger-url', default='http://jaeger:16686')
+@click.option('--threshold-ms', type=float, default=100.0)
+def analyze_traces(service: str, jaeger_url: str, threshold_ms: float):
+    &quot;&quot;&quot;Analyze slow traces&quot;&quot;&quot;
+    analyzer = TraceAnalyzer(jaeger_url)
+
+    slow_traces = analyzer.find_slow_traces(service, threshold_ms)
+
+    click.echo(f&quot;Found {len(slow_traces)} slow traces (&gt;{threshold_ms}ms)&quot;)
+    for trace in slow_traces[:10]:
+        breakdown = analyzer.analyze_latency(trace)
+        click.echo(f&quot;\nTrace {trace.trace_id}: {trace.total_duration_ms:.1f}ms&quot;)
+        for b in breakdown:
+            click.echo(f&quot;  {b.service_name}: {b.total_duration_ms:.1f}ms ({b.percentage:.1f}%)&quot;)
+
+if __name__ == '__main__':
+    cli()</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ CLI commands work 端到端（end-to-end）</li>
+<li>✅ Integration with Prometheus 指标监控（Prometheus）/Jaeger 链路追踪（Jaeger）</li>
+<li>✅ Canary deployment automation</li>
+<li>✅ Trace analysis</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-test">Testing Requirements</h4>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def test_slo_tracker():
+    &quot;&quot;&quot;Test SLO tracking&quot;&quot;&quot;
+    # Mock Prometheus responses
+    # Test availability calculation
+    # Test error budget math
+
+def test_canary_controller():
+    &quot;&quot;&quot;Test canary deployment&quot;&quot;&quot;
+    # Mock Kubernetes API
+    # Test traffic splitting
+    # Test rollback logic
+
+def test_trace_analyzer():
+    &quot;&quot;&quot;Test trace analysis&quot;&quot;&quot;
+    # Mock Jaeger responses
+    # Test latency breakdown
+    # Test slow trace detection</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-expe">Expected Results</h4>
+<div class="table-wrap"><table><thead><tr><th>Metric</th><th>Target</th><th>Measured</th></tr></thead><tbody><tr><td><strong>Tracing Overhead</strong></td><td>&lt;5ms</td><td>________ms</td></tr><tr><td><strong>Canary Duration</strong></td><td>15min</td><td>________min</td></tr><tr><td><strong>Alert Latency</strong></td><td>&lt;30s</td><td>________s</td></tr></tbody></table></div>
+<h4 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-vali">验证清单（Validation）</h4>
+<p>Submit:</p>
+<ol>
+<li>Complete implementation</li>
+<li>Grafana 可视化（Grafana） dashboards (golden signals, 服务水平目标（SLO）)</li>
+<li>Canary deployment demo</li>
+<li>Trace analysis examples</li>
+<li>Documentation</li>
+</ol>
+<h4 id="lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md-reso">资源（Resources）</h4>
+<ul>
+<li><a href="https://istio.io/latest/docs/">Istio Documentation</a></li>
+<li><a href="https://www.jaegertracing.io/">Jaeger 链路追踪（Jaeger） Tracing</a></li>
+<li><a href="https://sre.google/workbook/implementing-slos/">服务水平目标（SLO） Workshop</a></li>
+<li><a href="https://flagger.app/">Flagger (Canary Tool)</a></li>
+</ul>
+<hr/>
+<p><strong>Estimated Completion Time</strong>: 30-38 hours</p>
+<p><strong>Skills Practiced</strong>:</p>
+<ul>
+<li>Istio service mesh</li>
+<li>Distributed tracing</li>
+<li>服务水平目标（SLO）/服务水平指标（SLI） monitoring</li>
+<li>Canary deployments</li>
+<li>Traffic management</li>
+</ul><p><a class="home" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-04-k8s-cluster-autoscaler-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-104-kubernetes.html#doc-lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-06-k8s-operator-framework-readme-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

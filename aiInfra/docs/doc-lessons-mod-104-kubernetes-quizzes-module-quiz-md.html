@@ -1,0 +1,307 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Module 04 Quiz: Kubernetes 容器编排（Kubernetes） Fundamentals</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Module 04 Quiz: Kubernetes 容器编排（Kubernetes） Fundamentals</h1><p>Module 104: Kubernetes 容器编排（Kubernetes） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-module-completion-status-md.html">Module 04: Kubernetes 容器编排（Kubernetes） Fundamentals - Completion Status</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Module 04: Kubernetes 容器编排（Kubernetes） Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-resources-md.html">Module 04 Resources: Kubernetes 容器编排（Kubernetes） Fundamentals</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lesson 01: Kubernetes 容器编排（Kubernetes） Introduction</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-02-k8s-architecture-md.html">Lesson 02: Kubernetes 容器编排（Kubernetes） Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-03-core-resources-md.html">Lesson 03: Core Kubernetes 容器编排（Kubernetes） Resources</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-04-deployments-services-md.html">Lesson 04: Deployments and Services Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-05-networking-ingress-md.html">Lesson 05: Kubernetes 容器编排（Kubernetes） Networking and Ingress</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-06-storage-persistence-md.html">Lesson 06: Storage and Persistence in Kubernetes 容器编排（Kubernetes）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-07-helm-package-manager-md.html">Lesson 07: Helm 包管理（Helm） Package Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-08-gpu-scheduling-md.html">Lesson 08: GPU 加速（GPU） Scheduling in Kubernetes 容器编排（Kubernetes）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-09-monitoring-troubleshooting-md.html">Lesson 09: 监控（Monitoring） and Troubleshooting Kubernetes 容器编排（Kubernetes）</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-01-pod-deployment-md.html">Lab 01: Your First Pod and 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-02-service-discovery-md.html">Lab 02: Service Discovery — ClusterIP, NodePort, LoadBalancer</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-03-configmaps-secrets-md.html">Lab 03: ConfigMaps and Secrets</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-04-persistent-volumes-md.html">Lab 04: Persistent Volumes for Stateful Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-05-helm-chart-md.html">Lab 05: Package an App with Helm 包管理（Helm）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-06-hpa-md.html">Lab 06: Horizontal Pod Autoscaler under Load</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-07-network-policies-md.html">Lab 07: NetworkPolicies for East-West Isolation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-08-debugging-md.html">Lab 08: Debug a Broken 部署（Deployment） from Scratch</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Module 104 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercise 01: Kubernetes 容器编排（Kubernetes） Fundamentals — Build a Working Service</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-02-control-plane-tour-readme-md.html">Exercise 02: Control Plane Tour</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-03-core-resources-mastery-readme-md.html">Exercise 03: Core Resources Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-04-k8s-cluster-autoscaler-readme-md.html">Exercise 04: Kubernetes 容器编排（Kubernetes） Cluster Autoscaler with Custom Metrics</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md.html">Exercise 05: Service Mesh 可观测性（Observability） with Istio</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-06-k8s-operator-framework-readme-md.html">Exercise 06: Kubernetes 容器编排（Kubernetes） Operator for ML Model Lifecycle</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-07-helm-chart-authoring-readme-md.html">Exercise 07: Author a Production-Grade Helm 包管理（Helm） Chart</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-08-gpu-scheduling-readme-md.html">Exercise 08: GPU 加速（GPU） Scheduling Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-09-monitoring-troubleshooting-readme-md.html">Exercise 09: Kubernetes 容器编排（Kubernetes） 监控（Monitoring） and Troubleshooting Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-10-multi-cluster-federation-readme-md.html">Exercise 10: Multi-Cluster Federation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-11-custom-operator-readme-md.html">Exercise 11: Build a Custom Kubernetes 容器编排（Kubernetes） Operator</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-12-stateful-postgres-readme-md.html">Exercise 12: Stateful Postgres on Kubernetes 容器编排（Kubernetes）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-13-cluster-upgrade-readme-md.html">Exercise 13: Cluster Upgrade Procedure</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-14-resource-quotas-multitenancy-readme-md.html">Exercise 14: Resource Quotas and Multi-Tenancy</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-15-cluster-cost-optimization-readme-md.html">Exercise 15: Kubernetes 容器编排（Kubernetes） Cluster Cost Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-readme-md.html">Module 04: Kubernetes 容器编排（Kubernetes） - Exercises</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc active" href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Module 04 Quiz: Kubernetes 容器编排（Kubernetes） Fundamentals</a></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Module 04 Quiz: Kubernetes 容器编排（Kubernetes） Fundamentals</h2><p>Module 104: Kubernetes 容器编排（Kubernetes） · Assessment: 测验与答案</p><div class="stats"><div class="stat"><strong>36</strong><span>reading order</span></div><div class="stat"><strong>38</strong><span>chapter docs</span></div><div class="stat"><strong>544</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md" data-title="module 04 quiz: kubernetes fundamentals lessons/mod-104-kubernetes/quizzes/module-quiz.md assessment: 测验与答案"><div class="doc-head"><span class="chip">36/38</span><span class="chip">Assessment</span><span class="path">lessons/mod-104-kubernetes/quizzes/module-quiz.md</span><span class="path">544 行</span></div><h2>Module 04 Quiz: Kubernetes 容器编排（Kubernetes） Fundamentals</h2><p><a class="home" href="../docs/doc-lessons-mod-104-kubernetes-module-completion-status-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-104-kubernetes.html#doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-module-04-quiz-kubernetes-fundamentals">Module 04 Quiz: Kubernetes 容器编排（Kubernetes） Fundamentals</h3>
+<p><strong>Total Questions:</strong> 25 <strong>Passing Score:</strong> 70% (18/25 correct) <strong>Time Limit:</strong> 50 minutes <strong>Type:</strong> Mixed (Multiple Choice, True/False, Short Answer)</p>
+<hr/>
+<h4 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-section-1-kubernetes-architecture-questi">Section 1: Kubernetes 容器编排（Kubernetes） Architecture (Questions 1-6)</h4>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-1">Question 1</h5>
+<p><strong>Which component of the Kubernetes 容器编排（Kubernetes） control plane stores the cluster state?</strong></p>
+<p>A) API Server B) etcd C) Scheduler D) Controller Manager</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; B) etcd - A distributed key-value store that stores all cluster data, including configuration and state &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-2">Question 2</h5>
+<p><strong>What is the smallest deployable unit in Kubernetes 容器编排（Kubernetes）?</strong></p>
+<p>A) Container B) 部署（Deployment） C) Pod D) Node</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; C) Pod - A pod can contain one or more containers that share network and storage &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-3">Question 3</h5>
+<p><strong>Which component on each worker node is responsible for communicating with the API server?</strong></p>
+<p>A) kube-proxy B) kubelet C) Container runtime D) etcd</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; B) kubelet - The node agent that ensures containers are running in pods as specified &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-4">Question 4</h5>
+<p><strong>True or False: The kube-scheduler is responsible for deciding which node a pod runs on.</strong></p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; True - The scheduler watches for newly created pods with no assigned node and selects a node for them to run on based on resource requirements and constraints. &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-5">Question 5</h5>
+<p><strong>What tool is used to interact with the Kubernetes 容器编排（Kubernetes） API server from the command line?</strong></p>
+<p>A) kubeadm B) kubectl C) kubelet D) helm</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; B) kubectl - The Kubernetes 容器编排（Kubernetes） command-line tool for running commands against Kubernetes 容器编排（Kubernetes） clusters &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-6">Question 6</h5>
+<p><strong>Which control plane component runs controller processes like ReplicaSet controller and 部署（Deployment） controller?</strong></p>
+<p>A) API Server B) Scheduler C) Controller Manager D) kubelet</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; C) Controller Manager (kube-controller-manager) - Runs various controllers that regulate the state of the cluster &lt;/details&gt;</p>
+<hr/>
+<h4 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-section-2-core-resources-questions-7-12">Section 2: Core Resources (Questions 7-12)</h4>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-7">Question 7</h5>
+<p><strong>What is the primary purpose of a 部署（Deployment） in Kubernetes 容器编排（Kubernetes）?</strong></p>
+<p>A) Store configuration data B) Manage stateful applications C) Provide declarative updates for Pods and ReplicaSets D) Expose services to external traffic</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; C) Provide declarative updates for Pods and ReplicaSets - Deployments manage the desired state of pods and enable rolling updates and rollbacks &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-8">Question 8</h5>
+<p><strong>Which resource type would you use to ensure exactly one pod runs on each node in the cluster?</strong></p>
+<p>A) 部署（Deployment） B) StatefulSet C) DaemonSet D) ReplicaSet</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; C) DaemonSet - Ensures a copy of a pod runs on all (or some) nodes, commonly used for logging agents and monitoring &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-9">Question 9</h5>
+<p><strong>What is the difference between a ConfigMap and a Secret?</strong></p>
+<p>A) ConfigMaps are for configuration; Secrets are for sensitive data (base64 encoded) B) ConfigMaps are larger than Secrets C) Secrets are faster to access D) There is no difference</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; A) ConfigMaps are for configuration; Secrets are for sensitive data (base64 encoded) - Secrets are designed to hold sensitive information and are handled more carefully by Kubernetes 容器编排（Kubernetes） &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-10">Question 10</h5>
+<p><strong>True or False: Labels are key-value pairs attached to Kubernetes 容器编排（Kubernetes） objects used for organizing and selecting resources.</strong></p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; True - Labels enable users to map organizational structures onto system objects and are used by selectors to identify groups of objects &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-11">Question 11</h5>
+<p><strong>Which field in a pod spec defines the minimum resources (CPU, memory) a container needs?</strong></p>
+<p>A) resources.limits B) resources.requests C) resources.minimum D) resources.required</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; B) resources.requests - Requests define the minimum guaranteed resources; limits define the maximum &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-12">Question 12</h5>
+<p><strong>What is the purpose of namespaces in Kubernetes 容器编排（Kubernetes）?</strong></p>
+<p>A) To organize network policies B) To provide logical isolation and scope for resources C) To control pod scheduling D) To manage storage classes</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; B) To provide logical isolation and scope for resources - Namespaces allow dividing cluster resources between multiple users/teams &lt;/details&gt;</p>
+<hr/>
+<h4 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-section-3-networking-and-services-questi">Section 3: Networking and Services (Questions 13-18)</h4>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-13">Question 13</h5>
+<p><strong>Which Service type exposes the service on each node's IP at a static port?</strong></p>
+<p>A) ClusterIP B) NodePort C) LoadBalancer D) ExternalName</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; B) NodePort - Makes the service accessible from outside the cluster using &lt;NodeIP&gt;:&lt;NodePort&gt; &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-14">Question 14</h5>
+<p><strong>What is the default Service type in Kubernetes 容器编排（Kubernetes）?</strong></p>
+<p>A) NodePort B) LoadBalancer C) ClusterIP D) ExternalName</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; C) ClusterIP - Exposes the service on a cluster-internal IP, making it only reachable from within the cluster &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-15">Question 15</h5>
+<p><strong>True or False: An Ingress controller is required for Ingress resources to function.</strong></p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; True - Ingress resources define routing rules, but an Ingress controller (like Nginx, Traefik) is needed to implement those rules &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-16">Question 16</h5>
+<p><strong>How do Kubernetes 容器编排（Kubernetes） services discover which pods to route traffic to?</strong></p>
+<p>A) By pod name B) By pod IP address C) By label selectors matching pod labels D) By namespace only</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; C) By label selectors matching pod labels - Services use selectors to dynamically find pods with matching labels &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-17">Question 17</h5>
+<p><strong>What Kubernetes 容器编排（Kubernetes） resource would you use to expose an HTTP/HTTPS route from outside the cluster to services within?</strong></p>
+<p>A) Service B) Ingress C) NetworkPolicy D) Endpoint</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; B) Ingress - Manages external access to services, typically HTTP/HTTPS, and can provide SSL termination, name-based virtual hosting, etc. &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-18">Question 18</h5>
+<p><strong>Short Answer: Explain the difference between a Service of type LoadBalancer and an Ingress.</strong></p>
+<p>&lt;details&gt; &lt;summary&gt;Sample Answer&lt;/summary&gt;</p>
+<p><strong>LoadBalancer Service:</strong></p>
+<ul>
+<li>Creates a cloud load balancer (AWS ELB, GCP 云（GCP） Load Balancer, etc.)</li>
+<li>One load balancer per service (costly if you have many services)</li>
+<li>Works at L4 (TCP/UDP level)</li>
+<li>Simple, straightforward for single service exposure</li>
+</ul>
+<p><strong>Ingress:</strong></p>
+<ul>
+<li>Single entry point for multiple services (HTTP/HTTPS routing)</li>
+<li>Works at L7 (application level)</li>
+<li>One load balancer for many services (cost-effective)</li>
+<li>Supports path-based routing, host-based routing, TLS termination</li>
+<li>Requires Ingress controller to be installed</li>
+</ul>
+<p><strong>Use Case:</strong></p>
+<ul>
+<li>LoadBalancer: Single service needing external access, non-HTTP protocols</li>
+<li>Ingress: Multiple HTTP/HTTPS services, need path-based routing or SSL termination</li>
+</ul>
+<p>(Core differences acceptable) &lt;/details&gt;</p>
+<hr/>
+<h4 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-section-4-storage-and-configuration-ques">Section 4: Storage and Configuration (Questions 19-22)</h4>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-19">Question 19</h5>
+<p><strong>What is the relationship between PersistentVolume (PV) and PersistentVolumeClaim (PVC)?</strong></p>
+<p>A) They are the same thing B) PV is a request for storage; PVC is the actual storage C) PV is cluster storage; PVC is a user's request for that storage D) PV is cloud storage; PVC is local storage</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; C) PV is cluster storage (provisioned by admin); PVC is a user's request for that storage - PVCs bind to PVs based on storage requirements &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-20">Question 20</h5>
+<p><strong>Which Kubernetes 容器编排（Kubernetes） resource enables dynamic provisioning of PersistentVolumes?</strong></p>
+<p>A) StorageClass B) VolumeClass C) PersistentVolume D) VolumeProvisioner</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; A) StorageClass - Defines classes of storage with different properties (e.g., SSD vs HDD, different performance tiers) &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-21">Question 21</h5>
+<p><strong>True or False: ConfigMaps can be mounted as volumes or exposed as environment variables in pods.</strong></p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; True - ConfigMaps can be consumed in both ways, providing flexibility in how configuration is provided to applications &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-22">Question 22</h5>
+<p><strong>Which Kubernetes 容器编排（Kubernetes） resource is designed for deploying stateful applications that require stable network identities and persistent storage?</strong></p>
+<p>A) 部署（Deployment） B) StatefulSet C) DaemonSet D) Job</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; B) StatefulSet - Manages stateful applications with unique network identifiers, stable persistent storage, and ordered deployment/scaling &lt;/details&gt;</p>
+<hr/>
+<h4 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-section-5-gpu-and-advanced-topics-questi">Section 5: GPU 加速（GPU） and Advanced Topics (Questions 23-25)</h4>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-23">Question 23</h5>
+<p><strong>How do you request GPU 加速（GPU） resources in a Kubernetes 容器编排（Kubernetes） pod specification?</strong></p>
+<p>A) Add <code>nvidia.com/gpu: 1</code> to resources.requests B) Add <code>gpu: 1</code> to resources.requests C) Add <code>cuda: 1</code> to resources.requests D) GPUs are allocated automatically</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; A) Add <code>nvidia.com/gpu: 1</code> to resources.requests (or limits) - Example:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">resources:
+  limits:
+    nvidia.com/gpu: 1</code></pre></div>
+<p>&lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-24">Question 24</h5>
+<p><strong>What is Helm 包管理（Helm） in the Kubernetes 容器编排（Kubernetes） ecosystem?</strong></p>
+<p>A) A monitoring tool B) A package manager for Kubernetes 容器编排（Kubernetes） applications C) A container runtime D) A networking plugin</p>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt; B) A package manager for Kubernetes 容器编排（Kubernetes） applications - Helm 包管理（Helm） helps you define, install, and upgrade Kubernetes 容器编排（Kubernetes） applications using Charts &lt;/details&gt;</p>
+<hr/>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-question-25">Question 25</h5>
+<p><strong>Short Answer: What is the Horizontal Pod Autoscaler (HPA) and when would you use it for ML workloads?</strong></p>
+<p>&lt;details&gt; &lt;summary&gt;Sample Answer&lt;/summary&gt;</p>
+<p><strong>Horizontal Pod Autoscaler (HPA):</strong></p>
+<ul>
+<li>Automatically scales the number of pods in a 部署（Deployment）/ReplicaSet based on observed metrics</li>
+<li>Monitors CPU utilization, memory, or custom metrics</li>
+<li>Increases/decreases pod replicas to match demand</li>
+</ul>
+<p><strong>For ML Workloads:</strong></p>
+<p><strong>Use Cases:</strong></p>
+<ol>
+<li><strong>推理（Inference） Services:</strong> Scale model serving pods based on request rate or latency</li>
+<li><strong>Variable Traffic:</strong> Handle traffic spikes automatically (e.g., 10 pods during peak, 2 pods off-peak)</li>
+<li><strong>Cost Optimization:</strong> Reduce pods during low-demand periods to save costs</li>
+</ol>
+<p><strong>Example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ml-model-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ml-model
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70</code></pre></div>
+<p><strong>When NOT to use for ML:</strong></p>
+<ul>
+<li>训练（Training） jobs (use fixed replicas or Job resources)</li>
+<li>Stateful applications requiring stable pod identities</li>
+</ul>
+<p>(Core concept + example use case acceptable) &lt;/details&gt;</p>
+<hr/>
+<h4 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-scoring-guide">Scoring Guide</h4>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-grading-rubric">Grading Rubric</h5>
+<ul>
+<li><strong>23-25 correct (92-100%):</strong> Excellent - You have mastered Kubernetes 容器编排（Kubernetes） fundamentals</li>
+<li><strong>20-22 correct (80-88%):</strong> Very Good - Strong understanding with minor gaps</li>
+<li><strong>18-19 correct (72-76%):</strong> Passing - Adequate knowledge, review areas where you struggled</li>
+<li><strong>Below 18 (&lt; 72%):</strong> Not Passing - Review module material and retake quiz</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-what-to-do-next">What to Do Next</h5>
+<p><strong>If you passed (≥ 70%):</strong></p>
+<ol>
+<li>Review any questions you got wrong</li>
+<li>Complete the Module 04 practical exercises</li>
+<li>Work on the practical assessment (production K8s deployment)</li>
+<li>Proceed to Module 05: Data Pipelines and Orchestration</li>
+</ol>
+<p><strong>If you didn't pass (&lt; 70%):</strong></p>
+<ol>
+<li>Review lessons corresponding to questions you missed</li>
+<li>Practice with kubectl and local cluster</li>
+<li>Deploy sample applications and troubleshoot issues</li>
+<li>Retake quiz after additional study</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-answer-key-summary">Answer Key Summary</h4>
+<ol>
+<li>B (etcd)</li>
+<li>C (Pod)</li>
+<li>B (kubelet)</li>
+<li>True</li>
+<li>B (kubectl)</li>
+<li>C (Controller Manager)</li>
+<li>C (Declarative updates)</li>
+<li>C (DaemonSet)</li>
+<li>A (ConfigMaps for config, Secrets for sensitive)</li>
+<li>True</li>
+<li>B (resources.requests)</li>
+<li>B (Logical isolation)</li>
+<li>B (NodePort)</li>
+<li>C (ClusterIP)</li>
+<li>True</li>
+<li>C (Label selectors)</li>
+<li>B (Ingress)</li>
+<li>Short Answer (see details)</li>
+<li>C (PV is storage, PVC is request)</li>
+<li>A (StorageClass)</li>
+<li>True</li>
+<li>B (StatefulSet)</li>
+<li>A (nvidia.com/gpu in requests)</li>
+<li>B (Package manager)</li>
+<li>Short Answer (see details)</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-key-concepts-to-review">Key Concepts to Review</h4>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-if-you-struggled-with-section-1-architec">If you struggled with Section 1 (Architecture):</h5>
+<ul>
+<li>Review Lesson 02: Kubernetes 容器编排（Kubernetes） Architecture</li>
+<li>Explore your cluster: <code>kubectl get nodes</code>, <code>kubectl get componentstatuses</code></li>
+<li>Understand: Control plane, worker nodes, etcd, scheduler, controller manager</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-if-you-struggled-with-section-2-core-res">If you struggled with Section 2 (Core Resources):</h5>
+<ul>
+<li>Review Lesson 03: Core Resources</li>
+<li>Review Lesson 04: Deployments and Services</li>
+<li>Practice: Create Deployments, scale replicas, use ConfigMaps/Secrets</li>
+<li>Understand: Pod lifecycle, labels and selectors, resource requests/limits</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-if-you-struggled-with-section-3-networki">If you struggled with Section 3 (Networking):</h5>
+<ul>
+<li>Review Lesson 05: Networking and Ingress</li>
+<li>Practice: Create Services (ClusterIP, NodePort), set up Ingress</li>
+<li>Understand: Service types, selectors, Ingress routing, DNS</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-if-you-struggled-with-section-4-storage">If you struggled with Section 4 (Storage):</h5>
+<ul>
+<li>Review Lesson 06: Storage and Persistence</li>
+<li>Practice: Create PVCs, use volumes in pods, deploy StatefulSets</li>
+<li>Understand: PV/PVC binding, StorageClasses, volume types</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-if-you-struggled-with-section-5-advanced">If you struggled with Section 5 (Advanced):</h5>
+<ul>
+<li>Review Lesson 08: Helm 包管理（Helm） Package Manager</li>
+<li>Review Lesson 09: GPU 加速（GPU） Scheduling</li>
+<li>Review Lesson 10: 监控（Monitoring） and 可观测性（Observability）</li>
+<li>Practice: Install Helm 包管理（Helm） charts, request GPU 加速（GPU） resources, set up HPA</li>
+<li>Understand: Helm 包管理（Helm） charts, GPU 加速（GPU） device plugins, 自动扩缩容（auto-scaling）</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-practical-application">Practical Application</h4>
+<p>After passing the quiz, demonstrate skills by:</p>
+<ol>
+<li><strong>Deploy multi-tier ML application</strong> (frontend, model server, database)</li>
+<li><strong>Configure 自动扩缩容（auto-scaling）</strong> with HPA based on CPU/memory</li>
+<li><strong>Set up Ingress</strong> with SSL/TLS for external access</li>
+<li><strong>Use Helm 包管理（Helm）</strong> to package and deploy your application</li>
+<li><strong>Request GPU 加速（GPU） resources</strong> and deploy GPU-accelerated workload</li>
+<li><strong>Implement monitoring</strong> with kubectl top and basic Prometheus 指标监控（Prometheus）</li>
+<li><strong>Document</strong> your deployment in README with troubleshooting guide</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-additional-practice">Additional Practice</h4>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-hands-on-labs">Hands-On Labs</h5>
+<ul>
+<li><a href="https://kubernetes.io/docs/tutorials/kubernetes-basics/">Kubernetes 容器编排（Kubernetes） Basics Tutorial</a></li>
+<li><a href="https://labs.play-with-k8s.com/">Play with Kubernetes 容器编排（Kubernetes）</a> - Free browser-based K8s playground</li>
+<li><a href="https://www.katacoda.com/courses/kubernetes">Katacoda Kubernetes 容器编排（Kubernetes） Scenarios</a> - Interactive tutorials</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-quizzes-module-quiz-md-certification-prep">Certification Prep</h5>
+<ul>
+<li><a href="https://www.cncf.io/certification/ckad/">Certified Kubernetes 容器编排（Kubernetes） Application Developer (CKAD)</a> - Application deployment focus</li>
+<li><a href="https://www.cncf.io/certification/cka/">Certified Kubernetes 容器编排（Kubernetes） Administrator (CKA)</a> - Cluster administration focus</li>
+</ul>
+<hr/>
+<p><strong>Time to Review:</strong> 30-40 minutes to review answers and understand mistakes</p>
+<p><strong>Ready for Module 05?</strong> If you scored ≥ 70% and completed exercises, you're ready for data pipelines!</p><p><a class="home" href="../docs/doc-lessons-mod-104-kubernetes-module-completion-status-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-104-kubernetes.html#doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

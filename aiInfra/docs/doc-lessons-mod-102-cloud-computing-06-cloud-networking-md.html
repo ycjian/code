@@ -1,0 +1,1339 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 06: Cloud Networking for ML</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 06: Cloud Networking for ML</h1><p>Module 102: 云计算（Cloud Computing） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" open><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Module 02: 云计算（Cloud Computing） for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-resources-md.html">Module 02 Resources: 云计算（Cloud Computing） for ML</a></details><details class="tree-section" open><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lesson 01: Cloud Architecture for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md.html">Lesson 02: AWS 云（AWS） for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md.html">Lesson 03: Google Cloud Platform for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-04-azure-ml-infrastructure-md.html">Lesson 04: Azure 云（Azure） for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-05-cloud-storage-md.html">Lesson 05: Cloud Storage for ML</a><a class="tree-doc active" href="../docs/doc-lessons-mod-102-cloud-computing-06-cloud-networking-md.html">Lesson 06: Cloud Networking for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-07-managed-ml-services-md.html">Lesson 07: Managed ML Services Comparison</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-08-multi-cloud-cost-optimization-md.html">Lesson 08: Multi-Cloud &amp; Cost Optimization</a></details><details class="tree-section" open><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-01-aws-ml-infra-md.html">Lab 01: Provision an ML-Ready AWS 云（AWS） Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-02-gcp-ml-infra-md.html">Lab 02: Provision an ML-Ready GCP 云（GCP） Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-03-azure-ml-infra-md.html">Lab 03: Provision an ML-Ready Azure 云（Azure） Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-04-multi-cloud-deployment-md.html">Lab 04: Multi-Cloud 部署（Deployment） with a Single Tool</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Module 102 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercise 01: Multi-Cloud Cost Analyzer</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-02-cloud-ml-infrastructure-readme-md.html">Exercise 02: Cloud 机器学习基础设施（ML Infrastructure） 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md.html">Exercise 03: Cloud Disaster Recovery System</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-04-cross-region-replication-readme-md.html">Exercise 04: Cross-Region Replication for ML Artifacts</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-05-cloud-networking-for-ml-readme-md.html">Exercise 05: Cloud Networking for ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-06-managed-ml-services-comparison-readm.html">Exercise 06: Managed ML Services Comparison</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-07-multi-account-security-readme-md.html">Exercise 07: Multi-Account / Multi-Project 安全（Security） Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-08-finops-automation-readme-md.html">Exercise 08: FinOps Automation for 机器学习基础设施（ML Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-readme-md.html">Module 02 Exercises: 云计算（Cloud Computing） for ML</a></details><details class="tree-section" open><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Module 02: 云计算（Cloud Computing） - Final Quiz</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-mid-module-quiz-md.html">Module 02: 云计算（Cloud Computing） - Mid-Module Quiz</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-module-quiz-md.html">Module 02 Quiz: 云计算（Cloud Computing） for ML</a></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 06: Cloud Networking for ML</h2><p>Module 102: 云计算（Cloud Computing） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>6</strong><span>reading order</span></div><div class="stat"><strong>27</strong><span>chapter docs</span></div><div class="stat"><strong>1470</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-102-cloud-computing-06-cloud-networking-md" data-title="lesson 06: cloud networking for ml lessons/mod-102-cloud-computing/06-cloud-networking.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">6/27</span><span class="chip">Lectures</span><span class="path">lessons/mod-102-cloud-computing/06-cloud-networking.md</span><span class="path">1470 行</span></div><h2>Lesson 06: Cloud Networking for ML</h2><p><a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-05-cloud-storage-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-102-cloud-computing.html#doc-lessons-mod-102-cloud-computing-06-cloud-networking-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-07-managed-ml-services-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-lesson-06-cloud-networking-for-ml">Lesson 06: Cloud Networking for ML</h3>
+<p><strong>Duration:</strong> 6 hours <strong>Difficulty:</strong> Intermediate <strong>Prerequisites:</strong> Lessons 01-05 (Cloud providers and storage)</p>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ol>
+<li><strong>Design VPC networks</strong> for ML infrastructure</li>
+<li><strong>Configure load balancers</strong> for model serving 大规模（at scale）</li>
+<li><strong>Implement CDN</strong> for global model delivery</li>
+<li><strong>Secure ML systems</strong> with firewalls and security groups</li>
+<li><strong>Set up VPN and hybrid connectivity</strong> for on-premises integration</li>
+<li><strong>Optimize network performance</strong> for training and inference</li>
+<li><strong>Implement service mesh</strong> for microservices architecture</li>
+<li><strong>Monitor and troubleshoot</strong> network issues</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-table-of-contents">Table of Contents</h4>
+<ol>
+<li><a href="#networking-fundamentals-for-ml">Networking Fundamentals for ML</a></li>
+<li><a href="#virtual-private-cloud-vpc">Virtual Private Cloud (VPC)</a></li>
+<li><a href="#load-balancing">Load Balancing</a></li>
+<li><a href="#content-delivery-network-cdn">Content Delivery Network (CDN)</a></li>
+<li><a href="#network-security">Network 安全（Security）</a></li>
+<li><a href="#hybrid-and-multi-cloud-networking">Hybrid and Multi-Cloud Networking</a></li>
+<li><a href="#service-mesh">Service Mesh</a></li>
+<li><a href="#network-performance-optimization">Network Performance Optimization</a></li>
+<li><a href="#monitoring-and-troubleshooting">监控（Monitoring） and Troubleshooting</a></li>
+<li><a href="#hands-on-exercise">Hands-on Exercise</a></li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-networking-fundamentals-for-ml">Networking Fundamentals for ML</h4>
+<p>ML workloads have unique networking requirements compared to traditional applications.</p>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-ml-network-traffic-patterns">ML Network Traffic Patterns</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌────────────────────────────────────────────────────────────────┐
+│                    ML Network Architecture                     │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  Training Phase                                                │
+│  ──────────────                                                │
+│  Data Storage (S3)  ──→  Training Cluster  ──→  Model Storage │
+│     1-10 GB/s             (GPU instances)         100 MB/s    │
+│     High bandwidth        Low latency             Medium       │
+│                                                                │
+│  Inference Phase                                               │
+│  ───────────────                                               │
+│  User Request  ──→  Load Balancer  ──→  Model Server ──→ DB  │
+│     1-10 KB          100K+ requests     &lt;50ms latency   &lt;10ms │
+│     Low bandwidth    High availability   Low latency   Cache  │
+│                                                                │
+│  Distributed Training                                          │
+│  ────────────────────                                          │
+│  Node 1  ←─────→  Node 2  ←─────→  Node 3  ←─────→  Node 4  │
+│    ↓                ↓                ↓                ↓       │
+│  All-reduce communication (parameter synchronization)         │
+│  Requirement: Low latency (&lt;10ms), High bandwidth (25+ Gbps)  │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-network-requirements-by-workload">Network Requirements by Workload</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌──────────────────────┬──────────────┬──────────────┬─────────────┐
+│ Workload             │ Bandwidth    │ Latency      │ Reliability │
+├──────────────────────┼──────────────┼──────────────┼─────────────┤
+│ Data Loading         │ Very High    │ Medium       │ Medium      │
+│ (Training)           │ 1-10 GB/s    │ 100-500ms    │ 99%         │
+│                      │              │              │             │
+│ Model Inference      │ Low          │ Very Low     │ Very High   │
+│ (Real-time)          │ 1-10 KB      │ &lt;50ms        │ 99.99%      │
+│                      │              │              │             │
+│ Batch Inference      │ High         │ Medium       │ High        │
+│                      │ 100 MB-1GB/s │ &lt;1s          │ 99.9%       │
+│                      │              │              │             │
+│ Distributed Training │ Very High    │ Very Low     │ High        │
+│ (Multi-GPU)          │ 10-100 GB/s  │ &lt;10ms        │ 99.9%       │
+│                      │              │              │             │
+│ Model Upload/Download│ Medium       │ Low          │ Medium      │
+│                      │ 10-100 MB/s  │ &lt;5s          │ 99%         │
+└──────────────────────┴──────────────┴──────────────┴─────────────┘</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-virtual-private-cloud-vpc">Virtual Private Cloud (VPC)</h4>
+<p>VPC provides isolated network environments for ML infrastructure.</p>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-vpc-design-patterns-for-ml">VPC Design Patterns for ML</h5>
+<h6 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-pattern-1-simple-vpc-development">Pattern 1: Simple VPC (Development)</h6>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌─────────────────────────────────────────────────────────┐
+│              VPC: 10.0.0.0/16                           │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  Public Subnet: 10.0.1.0/24                             │
+│  ├── Bastion Host (SSH gateway)                         │
+│  ├── NAT Gateway                                        │
+│  └── Load Balancer                                      │
+│                                                         │
+│  Private Subnet: 10.0.2.0/24                            │
+│  ├── ML Training VMs (GPU instances)                    │
+│  ├── Jupyter Notebooks                                  │
+│  └── Development servers                                │
+│                                                         │
+└─────────────────────────────────────────────────────────┘</code></pre></div>
+<h6 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-pattern-2-multi-tier-vpc-production">Pattern 2: Multi-Tier VPC (Production)</h6>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌──────────────────────────────────────────────────────────────┐
+│              VPC: 10.0.0.0/16 (Multi-AZ)                     │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Availability Zone 1           Availability Zone 2          │
+│  ────────────────────           ────────────────────        │
+│                                                              │
+│  Public Subnet A: 10.0.1.0/24   Public Subnet B: 10.0.2.0/24│
+│  ├── Load Balancer              ├── Load Balancer           │
+│  └── NAT Gateway                └── NAT Gateway             │
+│                                                              │
+│  App Subnet A: 10.0.11.0/24     App Subnet B: 10.0.12.0/24 │
+│  ├── Model Servers (AKS)        ├── Model Servers (AKS)    │
+│  └── API Gateway                └── API Gateway            │
+│                                                              │
+│  Data Subnet A: 10.0.21.0/24    Data Subnet B: 10.0.22.0/24│
+│  ├── Redis Cache                ├── Redis Cache            │
+│  ├── Database                   ├── Database (replica)     │
+│  └── Feature Store              └── Feature Store          │
+│                                                              │
+│  Training Subnet: 10.0.31.0/24  (Single AZ - cost savings) │
+│  ├── GPU Training Instances                                 │
+│  ├── Distributed Training Cluster                           │
+│  └── Data Processing Pipeline                               │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-creating-vpc-for-ml-aws">Creating VPC for ML (AWS)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import boto3
+
+ec2_client = boto3.client('ec2')
+
+def create_ml_vpc():
+    &quot;&quot;&quot;
+    Create VPC for ML infrastructure
+
+    Returns:
+        VPC ID and subnet IDs
+    &quot;&quot;&quot;
+    # Create VPC
+    vpc_response = ec2_client.create_vpc(
+        CidrBlock='10.0.0.0/16',
+        TagSpecifications=[
+            {
+                'ResourceType': 'vpc',
+                'Tags': [
+                    {'Key': 'Name', 'Value': 'ml-vpc'},
+                    {'Key': 'Environment', 'Value': 'production'}
+                ]
+            }
+        ]
+    )
+    vpc_id = vpc_response['Vpc']['VpcId']
+    print(f&quot;Created VPC: {vpc_id}&quot;)
+
+    # Enable DNS hostnames
+    ec2_client.modify_vpc_attribute(
+        VpcId=vpc_id,
+        EnableDnsHostnames={'Value': True}
+    )
+
+    # Create Internet Gateway
+    igw_response = ec2_client.create_internet_gateway(
+        TagSpecifications=[
+            {
+                'ResourceType': 'internet-gateway',
+                'Tags': [{'Key': 'Name', 'Value': 'ml-igw'}]
+            }
+        ]
+    )
+    igw_id = igw_response['InternetGateway']['InternetGatewayId']
+
+    # Attach IGW to VPC
+    ec2_client.attach_internet_gateway(
+        InternetGatewayId=igw_id,
+        VpcId=vpc_id
+    )
+
+    # Create Public Subnet (for load balancers, NAT)
+    public_subnet_response = ec2_client.create_subnet(
+        VpcId=vpc_id,
+        CidrBlock='10.0.1.0/24',
+        AvailabilityZone='us-east-1a',
+        TagSpecifications=[
+            {
+                'ResourceType': 'subnet',
+                'Tags': [
+                    {'Key': 'Name', 'Value': 'ml-public-subnet'},
+                    {'Key': 'Type', 'Value': 'public'}
+                ]
+            }
+        ]
+    )
+    public_subnet_id = public_subnet_response['Subnet']['SubnetId']
+
+    # Create Private Subnet (for training instances)
+    private_subnet_response = ec2_client.create_subnet(
+        VpcId=vpc_id,
+        CidrBlock='10.0.2.0/24',
+        AvailabilityZone='us-east-1a',
+        TagSpecifications=[
+            {
+                'ResourceType': 'subnet',
+                'Tags': [
+                    {'Key': 'Name', 'Value': 'ml-training-subnet'},
+                    {'Key': 'Type', 'Value': 'private'}
+                ]
+            }
+        ]
+    )
+    private_subnet_id = private_subnet_response['Subnet']['SubnetId']
+
+    # Create App Subnet (for model servers)
+    app_subnet_response = ec2_client.create_subnet(
+        VpcId=vpc_id,
+        CidrBlock='10.0.11.0/24',
+        AvailabilityZone='us-east-1a',
+        TagSpecifications=[
+            {
+                'ResourceType': 'subnet',
+                'Tags': [
+                    {'Key': 'Name', 'Value': 'ml-app-subnet'},
+                    {'Key': 'Type', 'Value': 'private'}
+                ]
+            }
+        ]
+    )
+    app_subnet_id = app_subnet_response['Subnet']['SubnetId']
+
+    # Create NAT Gateway for private subnets
+    # First, allocate Elastic IP
+    eip_response = ec2_client.allocate_address(Domain='vpc')
+    eip_allocation_id = eip_response['AllocationId']
+
+    nat_response = ec2_client.create_nat_gateway(
+        SubnetId=public_subnet_id,
+        AllocationId=eip_allocation_id,
+        TagSpecifications=[
+            {
+                'ResourceType': 'natgateway',
+                'Tags': [{'Key': 'Name', 'Value': 'ml-nat-gateway'}]
+            }
+        ]
+    )
+    nat_gateway_id = nat_response['NatGateway']['NatGatewayId']
+
+    # Wait for NAT Gateway to be available
+    waiter = ec2_client.get_waiter('nat_gateway_available')
+    waiter.wait(NatGatewayIds=[nat_gateway_id])
+
+    # Create Route Tables
+    # Public route table
+    public_rt_response = ec2_client.create_route_table(
+        VpcId=vpc_id,
+        TagSpecifications=[
+            {
+                'ResourceType': 'route-table',
+                'Tags': [{'Key': 'Name', 'Value': 'ml-public-rt'}]
+            }
+        ]
+    )
+    public_rt_id = public_rt_response['RouteTable']['RouteTableId']
+
+    # Add route to IGW
+    ec2_client.create_route(
+        RouteTableId=public_rt_id,
+        DestinationCidrBlock='0.0.0.0/0',
+        GatewayId=igw_id
+    )
+
+    # Associate public subnet with public route table
+    ec2_client.associate_route_table(
+        SubnetId=public_subnet_id,
+        RouteTableId=public_rt_id
+    )
+
+    # Private route table
+    private_rt_response = ec2_client.create_route_table(
+        VpcId=vpc_id,
+        TagSpecifications=[
+            {
+                'ResourceType': 'route-table',
+                'Tags': [{'Key': 'Name', 'Value': 'ml-private-rt'}]
+            }
+        ]
+    )
+    private_rt_id = private_rt_response['RouteTable']['RouteTableId']
+
+    # Add route to NAT Gateway
+    ec2_client.create_route(
+        RouteTableId=private_rt_id,
+        DestinationCidrBlock='0.0.0.0/0',
+        NatGatewayId=nat_gateway_id
+    )
+
+    # Associate private subnets with private route table
+    ec2_client.associate_route_table(
+        SubnetId=private_subnet_id,
+        RouteTableId=private_rt_id
+    )
+    ec2_client.associate_route_table(
+        SubnetId=app_subnet_id,
+        RouteTableId=private_rt_id
+    )
+
+    print(f&quot;VPC setup complete!&quot;)
+    return {
+        'vpc_id': vpc_id,
+        'public_subnet_id': public_subnet_id,
+        'private_subnet_id': private_subnet_id,
+        'app_subnet_id': app_subnet_id,
+        'nat_gateway_id': nat_gateway_id
+    }
+
+# Create ML VPC
+vpc_config = create_ml_vpc()
+print(vpc_config)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-vpc-peering-for-multi-region-traini">VPC Peering for Multi-Region 训练（Training）</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def create_vpc_peering(vpc_id_1, vpc_id_2, region_1='us-east-1', region_2='us-west-2'):
+    &quot;&quot;&quot;
+    Create VPC peering connection between regions
+
+    Use case: Distributed training across regions
+    &quot;&quot;&quot;
+    ec2_client_1 = boto3.client('ec2', region_name=region_1)
+    ec2_client_2 = boto3.client('ec2', region_name=region_2)
+
+    # Create peering connection
+    response = ec2_client_1.create_vpc_peering_connection(
+        VpcId=vpc_id_1,
+        PeerVpcId=vpc_id_2,
+        PeerRegion=region_2,
+        TagSpecifications=[
+            {
+                'ResourceType': 'vpc-peering-connection',
+                'Tags': [{'Key': 'Name', 'Value': 'ml-multi-region-peering'}]
+            }
+        ]
+    )
+
+    peering_id = response['VpcPeeringConnection']['VpcPeeringConnectionId']
+    print(f&quot;Created VPC peering: {peering_id}&quot;)
+
+    # Accept peering connection in peer region
+    ec2_client_2.accept_vpc_peering_connection(
+        VpcPeeringConnectionId=peering_id
+    )
+
+    print(f&quot;VPC peering accepted&quot;)
+    return peering_id</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-load-balancing">Load Balancing</h4>
+<p>Load balancers distribute traffic across multiple model servers for scalability and reliability.</p>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-load-balancer-types">Load Balancer Types</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌──────────────────────┬───────────────────┬─────────────────────┐
+│ Type                 │ Use Case          │ Performance         │
+├──────────────────────┼───────────────────┼─────────────────────┤
+│ Application LB (L7)  │ HTTP/HTTPS APIs   │ 100K requests/sec   │
+│ - Path-based routing │ Model serving     │ &lt;100ms latency      │
+│ - WebSocket support  │ A/B testing       │                     │
+│                      │                   │                     │
+│ Network LB (L4)      │ TCP/UDP traffic   │ Millions req/sec    │
+│ - Ultra-low latency  │ gRPC inference    │ &lt;10ms latency       │
+│ - Static IP          │ Batch processing  │                     │
+│                      │                   │                     │
+│ Gateway LB           │ Security/Firewall │ High throughput     │
+│ - Inline inspection  │ Traffic analysis  │                     │
+└──────────────────────┴───────────────────┴─────────────────────┘</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-application-load-balancer-for-ml-ap">Application Load Balancer for ML APIs</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import boto3
+
+elbv2_client = boto3.client('elbv2')
+ec2_client = boto3.client('ec2')
+
+def create_ml_load_balancer(vpc_id, public_subnet_ids):
+    &quot;&quot;&quot;
+    Create Application Load Balancer for ML model serving
+
+    Args:
+        vpc_id: VPC ID
+        public_subnet_ids: List of public subnet IDs
+
+    Returns:
+        Load balancer ARN
+    &quot;&quot;&quot;
+    # Create security group for load balancer
+    sg_response = ec2_client.create_security_group(
+        GroupName='ml-alb-sg',
+        Description='Security group for ML ALB',
+        VpcId=vpc_id
+    )
+    sg_id = sg_response['GroupId']
+
+    # Allow HTTP/HTTPS from internet
+    ec2_client.authorize_security_group_ingress(
+        GroupId=sg_id,
+        IpPermissions=[
+            {
+                'IpProtocol': 'tcp',
+                'FromPort': 80,
+                'ToPort': 80,
+                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+            },
+            {
+                'IpProtocol': 'tcp',
+                'FromPort': 443,
+                'ToPort': 443,
+                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+            }
+        ]
+    )
+
+    # Create load balancer
+    lb_response = elbv2_client.create_load_balancer(
+        Name='ml-model-alb',
+        Subnets=public_subnet_ids,
+        SecurityGroups=[sg_id],
+        Scheme='internet-facing',
+        Type='application',
+        IpAddressType='ipv4',
+        Tags=[
+            {'Key': 'Name', 'Value': 'ml-model-alb'},
+            {'Key': 'Environment', 'Value': 'production'}
+        ]
+    )
+
+    lb_arn = lb_response['LoadBalancers'][0]['LoadBalancerArn']
+    lb_dns = lb_response['LoadBalancers'][0]['DNSName']
+    print(f&quot;Created ALB: {lb_dns}&quot;)
+
+    # Create target group
+    tg_response = elbv2_client.create_target_group(
+        Name='ml-model-tg',
+        Protocol='HTTP',
+        Port=8000,
+        VpcId=vpc_id,
+        HealthCheckEnabled=True,
+        HealthCheckProtocol='HTTP',
+        HealthCheckPath='/health',
+        HealthCheckIntervalSeconds=30,
+        HealthCheckTimeoutSeconds=5,
+        HealthyThresholdCount=2,
+        UnhealthyThresholdCount=3,
+        Matcher={'HttpCode': '200'},
+        TargetType='instance'
+    )
+
+    tg_arn = tg_response['TargetGroups'][0]['TargetGroupArn']
+    print(f&quot;Created target group: {tg_arn}&quot;)
+
+    # Create listener
+    listener_response = elbv2_client.create_listener(
+        LoadBalancerArn=lb_arn,
+        Protocol='HTTP',
+        Port=80,
+        DefaultActions=[
+            {
+                'Type': 'forward',
+                'TargetGroupArn': tg_arn
+            }
+        ]
+    )
+
+    listener_arn = listener_response['Listeners'][0]['ListenerArn']
+    print(f&quot;Created listener: {listener_arn}&quot;)
+
+    return {
+        'lb_arn': lb_arn,
+        'lb_dns': lb_dns,
+        'tg_arn': tg_arn,
+        'listener_arn': listener_arn
+    }
+
+# Usage
+lb_config = create_ml_load_balancer(
+    vpc_id='vpc-12345678',
+    public_subnet_ids=['subnet-1234', 'subnet-5678']
+)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-advanced-routing-for-a-b-testing">Advanced Routing for A/B 测试（A/B Testing）</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def configure_ab_testing(listener_arn, model_v1_tg_arn, model_v2_tg_arn):
+    &quot;&quot;&quot;
+    Configure A/B testing with weighted target groups
+
+    90% traffic to v1 (stable)
+    10% traffic to v2 (canary)
+    &quot;&quot;&quot;
+    elbv2_client = boto3.client('elbv2')
+
+    # Modify listener to use weighted routing
+    elbv2_client.modify_listener(
+        ListenerArn=listener_arn,
+        DefaultActions=[
+            {
+                'Type': 'forward',
+                'ForwardConfig': {
+                    'TargetGroups': [
+                        {
+                            'TargetGroupArn': model_v1_tg_arn,
+                            'Weight': 90
+                        },
+                        {
+                            'TargetGroupArn': model_v2_tg_arn,
+                            'Weight': 10
+                        }
+                    ],
+                    'TargetGroupStickinessConfig': {
+                        'Enabled': True,
+                        'DurationSeconds': 3600  # Sticky for 1 hour
+                    }
+                }
+            }
+        ]
+    )
+
+    print(&quot;Configured A/B testing: 90% v1, 10% v2&quot;)
+
+# Gradually shift traffic
+def shift_traffic(listener_arn, model_v1_tg_arn, model_v2_tg_arn, v2_percentage):
+    &quot;&quot;&quot;
+    Gradually shift traffic to new model version
+    &quot;&quot;&quot;
+    elbv2_client = boto3.client('elbv2')
+
+    v1_percentage = 100 - v2_percentage
+
+    elbv2_client.modify_listener(
+        ListenerArn=listener_arn,
+        DefaultActions=[
+            {
+                'Type': 'forward',
+                'ForwardConfig': {
+                    'TargetGroups': [
+                        {
+                            'TargetGroupArn': model_v1_tg_arn,
+                            'Weight': v1_percentage
+                        },
+                        {
+                            'TargetGroupArn': model_v2_tg_arn,
+                            'Weight': v2_percentage
+                        }
+                    ]
+                }
+            }
+        ]
+    )
+
+    print(f&quot;Traffic split: {v1_percentage}% v1, {v2_percentage}% v2&quot;)
+
+# Canary deployment example
+# Day 1: 10% traffic to v2
+shift_traffic(listener_arn, tg_v1, tg_v2, v2_percentage=10)
+
+# Day 2: If metrics look good, 50%
+shift_traffic(listener_arn, tg_v1, tg_v2, v2_percentage=50)
+
+# Day 3: Full rollout
+shift_traffic(listener_arn, tg_v1, tg_v2, v2_percentage=100)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-content-delivery-network-cdn">Content Delivery Network (CDN)</h4>
+<p>CDN caches model responses and assets globally for low-latency delivery.</p>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-cdn-architecture-for-ml">CDN Architecture for ML</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌────────────────────────────────────────────────────────────┐
+│                    CDN for ML Serving                      │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  User (US)         User (Europe)       User (Asia)        │
+│     ↓                  ↓                   ↓              │
+│  Edge Location     Edge Location     Edge Location        │
+│  (California)      (Frankfurt)       (Singapore)          │
+│     ↓                  ↓                   ↓              │
+│     └──────────────────┴───────────────────┘              │
+│                        ↓                                   │
+│                  Origin Server                             │
+│              (Load Balancer + Model Servers)               │
+│                                                            │
+│  Benefits:                                                 │
+│  - Latency: 200ms → 50ms (75% reduction)                  │
+│  - Origin load: Reduced by 80% (caching)                  │
+│  - Availability: 99.99% (distributed)                     │
+│  - Cost: Reduced bandwidth costs                          │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-cloudfront-setup-for-ml-apis">CloudFront Setup for ML APIs</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import boto3
+
+cloudfront_client = boto3.client('cloudfront')
+
+def create_ml_cdn(origin_domain, origin_path='/predict'):
+    &quot;&quot;&quot;
+    Create CloudFront distribution for ML model serving
+
+    Args:
+        origin_domain: Load balancer DNS name
+        origin_path: API endpoint path
+
+    Returns:
+        CloudFront domain name
+    &quot;&quot;&quot;
+    import uuid
+
+    # Create distribution configuration
+    config = {
+        'CallerReference': str(uuid.uuid4()),
+        'Comment': 'CDN for ML model serving',
+        'Enabled': True,
+        'Origins': {
+            'Quantity': 1,
+            'Items': [
+                {
+                    'Id': 'ml-origin',
+                    'DomainName': origin_domain,
+                    'CustomOriginConfig': {
+                        'HTTPPort': 80,
+                        'HTTPSPort': 443,
+                        'OriginProtocolPolicy': 'http-only',
+                        'OriginSslProtocols': {
+                            'Quantity': 1,
+                            'Items': ['TLSv1.2']
+                        },
+                        'OriginReadTimeout': 30,
+                        'OriginKeepaliveTimeout': 5
+                    }
+                }
+            ]
+        },
+        'DefaultCacheBehavior': {
+            'TargetOriginId': 'ml-origin',
+            'ViewerProtocolPolicy': 'redirect-to-https',
+            'AllowedMethods': {
+                'Quantity': 7,
+                'Items': ['GET', 'HEAD', 'OPTIONS', 'PUT', 'POST', 'PATCH', 'DELETE'],
+                'CachedMethods': {
+                    'Quantity': 2,
+                    'Items': ['GET', 'HEAD']
+                }
+            },
+            'CachePolicyId': '4135ea2d-6df8-44a3-9df3-4b5a84be39ad',  # CachingDisabled (for POST requests)
+            'Compress': True,
+            'MinTTL': 0,
+            'DefaultTTL': 0,
+            'MaxTTL': 0
+        },
+        'CacheBehaviors': {
+            'Quantity': 1,
+            'Items': [
+                {
+                    'PathPattern': '/predict',
+                    'TargetOriginId': 'ml-origin',
+                    'ViewerProtocolPolicy': 'https-only',
+                    'AllowedMethods': {
+                        'Quantity': 3,
+                        'Items': ['GET', 'HEAD', 'POST'],
+                        'CachedMethods': {
+                            'Quantity': 2,
+                            'Items': ['GET', 'HEAD']
+                        }
+                    },
+                    'CachePolicyId': '4135ea2d-6df8-44a3-9df3-4b5a84be39ad',
+                    'Compress': True,
+                    'MinTTL': 0
+                }
+            ]
+        },
+        'PriceClass': 'PriceClass_All',  # All edge locations
+        'ViewerCertificate': {
+            'CloudFrontDefaultCertificate': True
+        }
+    }
+
+    # Create distribution
+    response = cloudfront_client.create_distribution(
+        DistributionConfig=config
+    )
+
+    distribution_id = response['Distribution']['Id']
+    domain_name = response['Distribution']['DomainName']
+
+    print(f&quot;Created CloudFront distribution: {domain_name}&quot;)
+    print(f&quot;Distribution ID: {distribution_id}&quot;)
+
+    return {
+        'distribution_id': distribution_id,
+        'domain_name': domain_name
+    }
+
+# Usage
+cdn_config = create_ml_cdn('ml-alb-123456.us-east-1.elb.amazonaws.com')
+print(f&quot;Access your model at: https://{cdn_config['domain_name']}/predict&quot;)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-cdn-caching-strategy-for-ml">CDN Caching Strategy for ML</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">&quot;&quot;&quot;
+CDN Caching Strategy for Different ML Use Cases
+&quot;&quot;&quot;
+
+# Use Case 1: Static Model Metadata (Cache aggressively)
+model_info_cache = {
+    'path': '/models/info',
+    'cache_ttl': 86400,  # 24 hours
+    'cache_key': 'model_id',
+    'rationale': 'Model metadata rarely changes'
+}
+
+# Use Case 2: Feature Embeddings (Cache for logged-in users)
+embeddings_cache = {
+    'path': '/embeddings/*',
+    'cache_ttl': 3600,  # 1 hour
+    'cache_key': 'user_id + resource_id',
+    'rationale': 'Embeddings are expensive to compute, safe to cache per user'
+}
+
+# Use Case 3: Real-time Predictions (No caching)
+prediction_no_cache = {
+    'path': '/predict',
+    'cache_ttl': 0,  # No caching
+    'rationale': 'Predictions must be fresh for each request'
+}
+
+# Use Case 4: Batch Inference Results (Short cache)
+batch_results_cache = {
+    'path': '/batch/results/*',
+    'cache_ttl': 300,  # 5 minutes
+    'cache_key': 'batch_id',
+    'rationale': 'Results don\'t change, safe to cache briefly'
+}</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-network-security">Network 安全（Security）</h4>
+<p>Securing ML infrastructure requires multiple layers of network security.</p>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-security-group-architecture">安全（Security） Group Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌────────────────────────────────────────────────────────────┐
+│                  Security Group Layers                     │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  Layer 1: Load Balancer SG                                 │
+│  ──────────────────────                                    │
+│  Inbound:  0.0.0.0/0:80,443 (Public internet)             │
+│  Outbound: App Server SG:8000                              │
+│                                                            │
+│  Layer 2: Application Server SG                            │
+│  ───────────────────────────                               │
+│  Inbound:  Load Balancer SG:8000                           │
+│  Outbound: Database SG:5432, Redis SG:6379, S3 endpoint   │
+│                                                            │
+│  Layer 3: Database SG                                      │
+│  ─────────────────────                                     │
+│  Inbound:  App Server SG:5432                              │
+│  Outbound: None (no outbound required)                     │
+│                                                            │
+│  Layer 4: Training Instance SG                             │
+│  ──────────────────────────                                │
+│  Inbound:  Bastion SG:22 (SSH)                             │
+│  Outbound: S3 endpoint, ECR (pull images), Internet (pip) │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-creating-security-groups">Creating 安全（Security） Groups</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import boto3
+
+ec2_client = boto3.client('ec2')
+
+def create_ml_security_groups(vpc_id):
+    &quot;&quot;&quot;
+    Create layered security groups for ML infrastructure
+
+    Returns:
+        Dictionary of security group IDs
+    &quot;&quot;&quot;
+    # 1. Bastion SG (SSH access)
+    bastion_sg = ec2_client.create_security_group(
+        GroupName='ml-bastion-sg',
+        Description='Bastion host security group',
+        VpcId=vpc_id
+    )
+    bastion_sg_id = bastion_sg['GroupId']
+
+    # Allow SSH from specific IP (your office/home)
+    ec2_client.authorize_security_group_ingress(
+        GroupId=bastion_sg_id,
+        IpPermissions=[
+            {
+                'IpProtocol': 'tcp',
+                'FromPort': 22,
+                'ToPort': 22,
+                'IpRanges': [{'CidrIp': '1.2.3.4/32', 'Description': 'Office IP'}]
+            }
+        ]
+    )
+
+    # 2. Load Balancer SG
+    lb_sg = ec2_client.create_security_group(
+        GroupName='ml-lb-sg',
+        Description='Load balancer security group',
+        VpcId=vpc_id
+    )
+    lb_sg_id = lb_sg['GroupId']
+
+    # Allow HTTP/HTTPS from internet
+    ec2_client.authorize_security_group_ingress(
+        GroupId=lb_sg_id,
+        IpPermissions=[
+            {
+                'IpProtocol': 'tcp',
+                'FromPort': 80,
+                'ToPort': 80,
+                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+            },
+            {
+                'IpProtocol': 'tcp',
+                'FromPort': 443,
+                'ToPort': 443,
+                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+            }
+        ]
+    )
+
+    # 3. Application Server SG
+    app_sg = ec2_client.create_security_group(
+        GroupName='ml-app-sg',
+        Description='ML application server security group',
+        VpcId=vpc_id
+    )
+    app_sg_id = app_sg['GroupId']
+
+    # Allow traffic from load balancer
+    ec2_client.authorize_security_group_ingress(
+        GroupId=app_sg_id,
+        IpPermissions=[
+            {
+                'IpProtocol': 'tcp',
+                'FromPort': 8000,
+                'ToPort': 8000,
+                'UserIdGroupPairs': [{'GroupId': lb_sg_id}]
+            }
+        ]
+    )
+
+    # 4. Database SG
+    db_sg = ec2_client.create_security_group(
+        GroupName='ml-db-sg',
+        Description='Database security group',
+        VpcId=vpc_id
+    )
+    db_sg_id = db_sg['GroupId']
+
+    # Allow traffic from app servers
+    ec2_client.authorize_security_group_ingress(
+        GroupId=db_sg_id,
+        IpPermissions=[
+            {
+                'IpProtocol': 'tcp',
+                'FromPort': 5432,
+                'ToPort': 5432,
+                'UserIdGroupPairs': [{'GroupId': app_sg_id}]
+            }
+        ]
+    )
+
+    # 5. Training Instance SG
+    training_sg = ec2_client.create_security_group(
+        GroupName='ml-training-sg',
+        Description='ML training instance security group',
+        VpcId=vpc_id
+    )
+    training_sg_id = training_sg['GroupId']
+
+    # Allow SSH from bastion
+    ec2_client.authorize_security_group_ingress(
+        GroupId=training_sg_id,
+        IpPermissions=[
+            {
+                'IpProtocol': 'tcp',
+                'FromPort': 22,
+                'ToPort': 22,
+                'UserIdGroupPairs': [{'GroupId': bastion_sg_id}]
+            }
+        ]
+    )
+
+    # Allow outbound HTTPS (for pip, downloads)
+    ec2_client.authorize_security_group_egress(
+        GroupId=training_sg_id,
+        IpPermissions=[
+            {
+                'IpProtocol': 'tcp',
+                'FromPort': 443,
+                'ToPort': 443,
+                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+            }
+        ]
+    )
+
+    print(&quot;Created all security groups&quot;)
+
+    return {
+        'bastion_sg_id': bastion_sg_id,
+        'lb_sg_id': lb_sg_id,
+        'app_sg_id': app_sg_id,
+        'db_sg_id': db_sg_id,
+        'training_sg_id': training_sg_id
+    }
+
+# Usage
+sg_config = create_ml_security_groups('vpc-12345678')</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-network-acls-additional-layer">Network ACLs (Additional Layer)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def create_network_acl(vpc_id, subnet_id):
+    &quot;&quot;&quot;
+    Create Network ACL for additional subnet-level security
+
+    Use case: Block specific IP ranges, DDoS protection
+    &quot;&quot;&quot;
+    ec2_client = boto3.client('ec2')
+
+    # Create NACL
+    nacl_response = ec2_client.create_network_acl(
+        VpcId=vpc_id,
+        TagSpecifications=[
+            {
+                'ResourceType': 'network-acl',
+                'Tags': [{'Key': 'Name', 'Value': 'ml-subnet-nacl'}]
+            }
+        ]
+    )
+    nacl_id = nacl_response['NetworkAcl']['NetworkAclId']
+
+    # Allow inbound HTTP/HTTPS
+    ec2_client.create_network_acl_entry(
+        NetworkAclId=nacl_id,
+        RuleNumber=100,
+        Protocol='6',  # TCP
+        RuleAction='allow',
+        Egress=False,
+        CidrBlock='0.0.0.0/0',
+        PortRange={'From': 80, 'To': 80}
+    )
+
+    ec2_client.create_network_acl_entry(
+        NetworkAclId=nacl_id,
+        RuleNumber=110,
+        Protocol='6',
+        RuleAction='allow',
+        Egress=False,
+        CidrBlock='0.0.0.0/0',
+        PortRange={'From': 443, 'To': 443}
+    )
+
+    # Deny specific IP range (example: block malicious traffic)
+    ec2_client.create_network_acl_entry(
+        NetworkAclId=nacl_id,
+        RuleNumber=50,
+        Protocol='-1',  # All protocols
+        RuleAction='deny',
+        Egress=False,
+        CidrBlock='192.0.2.0/24'  # Example blocked range
+    )
+
+    # Allow all outbound
+    ec2_client.create_network_acl_entry(
+        NetworkAclId=nacl_id,
+        RuleNumber=100,
+        Protocol='-1',
+        RuleAction='allow',
+        Egress=True,
+        CidrBlock='0.0.0.0/0'
+    )
+
+    # Associate with subnet
+    ec2_client.replace_network_acl_association(
+        AssociationId=subnet_id,
+        NetworkAclId=nacl_id
+    )
+
+    print(f&quot;Created NACL: {nacl_id}&quot;)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-hybrid-and-multi-cloud-networking">Hybrid and Multi-Cloud Networking</h4>
+<p>Connect on-premises infrastructure with cloud for hybrid ML workflows.</p>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-vpn-setup-for-secure-access">VPN Setup for Secure Access</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import boto3
+
+ec2_client = boto3.client('ec2')
+
+def create_vpn_connection(vpc_id, customer_gateway_ip):
+    &quot;&quot;&quot;
+    Create VPN connection to on-premises datacenter
+
+    Args:
+        vpc_id: VPC ID
+        customer_gateway_ip: Public IP of on-premises VPN device
+
+    Returns:
+        VPN connection ID
+    &quot;&quot;&quot;
+    # Create Virtual Private Gateway
+    vpg_response = ec2_client.create_vpn_gateway(
+        Type='ipsec.1',
+        TagSpecifications=[
+            {
+                'ResourceType': 'vpn-gateway',
+                'Tags': [{'Key': 'Name', 'Value': 'ml-vpn-gateway'}]
+            }
+        ]
+    )
+    vpg_id = vpg_response['VpnGateway']['VpnGatewayId']
+
+    # Attach to VPC
+    ec2_client.attach_vpn_gateway(
+        VpcId=vpc_id,
+        VpnGatewayId=vpg_id
+    )
+
+    # Create Customer Gateway
+    cgw_response = ec2_client.create_customer_gateway(
+        Type='ipsec.1',
+        PublicIp=customer_gateway_ip,
+        BgpAsn=65000,
+        TagSpecifications=[
+            {
+                'ResourceType': 'customer-gateway',
+                'Tags': [{'Key': 'Name', 'Value': 'onprem-gateway'}]
+            }
+        ]
+    )
+    cgw_id = cgw_response['CustomerGateway']['CustomerGatewayId']
+
+    # Create VPN Connection
+    vpn_response = ec2_client.create_vpn_connection(
+        Type='ipsec.1',
+        CustomerGatewayId=cgw_id,
+        VpnGatewayId=vpg_id,
+        Options={
+            'StaticRoutesOnly': False,  # Use BGP
+            'TunnelOptions': [
+                {
+                    'TunnelInsideCidr': '169.254.10.0/30',
+                    'PreSharedKey': 'your-pre-shared-key-here'
+                },
+                {
+                    'TunnelInsideCidr': '169.254.11.0/30',
+                    'PreSharedKey': 'your-pre-shared-key-here'
+                }
+            ]
+        },
+        TagSpecifications=[
+            {
+                'ResourceType': 'vpn-connection',
+                'Tags': [{'Key': 'Name', 'Value': 'ml-vpn'}]
+            }
+        ]
+    )
+
+    vpn_id = vpn_response['VpnConnection']['VpnConnectionId']
+
+    print(f&quot;Created VPN connection: {vpn_id}&quot;)
+    print(f&quot;Configure your on-premises device with the provided config&quot;)
+
+    return {
+        'vpn_id': vpn_id,
+        'vpg_id': vpg_id,
+        'cgw_id': cgw_id
+    }</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-aws-direct-connect-for-high-bandwid">AWS 云（AWS） Direct Connect for High Bandwidth</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">&quot;&quot;&quot;
+AWS Direct Connect for ML Workloads
+
+Use cases:
+- High-bandwidth data transfer (1-100 Gbps)
+- Low-latency training data access from on-prem storage
+- Hybrid training (on-prem + cloud)
+
+Benefits:
+- Consistent network performance
+- Reduced bandwidth costs
+- Private connectivity (not over internet)
+
+Setup:
+1. Order Direct Connect connection (AWS Console)
+2. Configure Virtual Interface
+3. Set up BGP routing
+4. Connect to your datacenter
+
+Cost:
+- Port hour: $0.30/hour (1 Gbps) to $2.25/hour (10 Gbps)
+- Data transfer: $0.02/GB (outbound)
+&quot;&quot;&quot;</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-service-mesh">Service Mesh</h4>
+<p>Service mesh provides advanced traffic management for microservices-based ML systems.</p>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-istio-for-ml-microservices">Istio for ML Microservices</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># ML Inference Service Mesh with Istio
+
+# Virtual Service for Traffic Management
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ml-model-service
+spec:
+  hosts:
+  - ml-model.prod.svc.cluster.local
+  http:
+  - match:
+    - headers:
+        version:
+          exact: v2
+    route:
+    - destination:
+        host: ml-model.prod.svc.cluster.local
+        subset: v2
+  - route:  # Default route
+    - destination:
+        host: ml-model.prod.svc.cluster.local
+        subset: v1
+      weight: 90
+    - destination:
+        host: ml-model.prod.svc.cluster.local
+        subset: v2
+      weight: 10
+---
+# Destination Rule
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ml-model-dest-rule
+spec:
+  host: ml-model.prod.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 50
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 2
+    outlierDetection:
+      consecutiveErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-network-performance-optimization">Network Performance Optimization</h4>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-placement-groups-for-distributed-tr">Placement Groups for 分布式训练（Distributed 训练（Training））</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def create_cluster_placement_group(name='ml-training-cluster'):
+    &quot;&quot;&quot;
+    Create placement group for low-latency distributed training
+
+    Use case: Multi-GPU training with AllReduce
+    &quot;&quot;&quot;
+    ec2_client = boto3.client('ec2')
+
+    response = ec2_client.create_placement_group(
+        GroupName=name,
+        Strategy='cluster',  # Low-latency, high-bandwidth
+        TagSpecifications=[
+            {
+                'ResourceType': 'placement-group',
+                'Tags': [{'Key': 'Purpose', 'Value': 'distributed-training'}]
+            }
+        ]
+    )
+
+    print(f&quot;Created placement group: {name}&quot;)
+    print(&quot;Launch instances with: --placement-group {name}&quot;)
+    return name
+
+# Launch instances in placement group
+def launch_training_cluster(placement_group, num_instances=4):
+    &quot;&quot;&quot;Launch GPU instances in placement group&quot;&quot;&quot;
+    ec2_client = boto3.client('ec2')
+
+    response = ec2_client.run_instances(
+        ImageId='ami-12345678',
+        InstanceType='p3.8xlarge',  # 4x V100 GPUs
+        MinCount=num_instances,
+        MaxCount=num_instances,
+        Placement={
+            'GroupName': placement_group
+        },
+        NetworkInterfaces=[
+            {
+                'DeviceIndex': 0,
+                'AssociatePublicIpAddress': False,
+                'SubnetId': 'subnet-12345678',
+                'Groups': ['sg-training']
+            }
+        ]
+    )
+
+    instance_ids = [i['InstanceId'] for i in response['Instances']]
+    print(f&quot;Launched {num_instances} instances in placement group&quot;)
+    return instance_ids</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-enhanced-networking-ena">Enhanced Networking (ENA)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">&quot;&quot;&quot;
+Enhanced Networking for ML Workloads
+
+Benefits:
+- Higher bandwidth (up to 100 Gbps)
+- Higher packet per second (PPS) performance
+- Lower latency
+- Lower jitter
+
+Supported instances:
+- GPU: p3, p4, g4, g5
+- Compute: c5, c6i, m5, m6i
+
+Enable ENA:
+- Automatically enabled on supported instances
+- Verify: ethtool -i eth0 | grep ena
+
+Performance:
+- Standard: 5-10 Gbps
+- ENA: 25-100 Gbps
+&quot;&quot;&quot;</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-monitoring-and-troubleshooting">监控（Monitoring） and Troubleshooting</h4>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-network-monitoring-with-cloudwatch">Network 监控（Monitoring） with CloudWatch</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import boto3
+from datetime import datetime, timedelta
+
+cloudwatch = boto3.client('cloudwatch')
+
+def get_network_metrics(instance_id, hours=1):
+    &quot;&quot;&quot;
+    Get network performance metrics for instance
+
+    Returns:
+        Network statistics
+    &quot;&quot;&quot;
+    end_time = datetime.utcnow()
+    start_time = end_time - timedelta(hours=hours)
+
+    # Network In
+    network_in = cloudwatch.get_metric_statistics(
+        Namespace='AWS/EC2',
+        MetricName='NetworkIn',
+        Dimensions=[{'Name': 'InstanceId', 'Value': instance_id}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=300,  # 5 minutes
+        Statistics=['Average', 'Maximum']
+    )
+
+    # Network Out
+    network_out = cloudwatch.get_metric_statistics(
+        Namespace='AWS/EC2',
+        MetricName='NetworkOut',
+        Dimensions=[{'Name': 'InstanceId', 'Value': instance_id}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=300,
+        Statistics=['Average', 'Maximum']
+    )
+
+    avg_in = sum(d['Average'] for d in network_in['Datapoints']) / len(network_in['Datapoints']) if network_in['Datapoints'] else 0
+    avg_out = sum(d['Average'] for d in network_out['Datapoints']) / len(network_out['Datapoints']) if network_out['Datapoints'] else 0
+
+    return {
+        'avg_network_in_mbps': avg_in / 1024 / 1024 * 8,
+        'avg_network_out_mbps': avg_out / 1024 / 1024 * 8,
+        'max_network_in_mbps': max((d['Maximum'] for d in network_in['Datapoints']), default=0) / 1024 / 1024 * 8,
+        'max_network_out_mbps': max((d['Maximum'] for d in network_out['Datapoints']), default=0) / 1024 / 1024 * 8
+    }
+
+# Usage
+metrics = get_network_metrics('i-1234567890abcdef0')
+print(f&quot;Average network in: {metrics['avg_network_in_mbps']:.2f} Mbps&quot;)
+print(f&quot;Average network out: {metrics['avg_network_out_mbps']:.2f} Mbps&quot;)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-troubleshooting-network-issues">Troubleshooting Network Issues</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">&quot;&quot;&quot;
+Common Network Issues and Solutions
+
+1. High Latency (&gt;100ms)
+   - Check: Placement groups, instance type, region
+   - Solution: Use placement groups, enable ENA, choose closer region
+
+2. Low Bandwidth (&lt;1 Gbps)
+   - Check: Instance type bandwidth limits, security groups
+   - Solution: Upgrade instance type, check for throttling
+
+3. Connection Timeouts
+   - Check: Security groups, NACLs, route tables
+   - Solution: Verify SG rules, check NAT gateway, validate routes
+
+4. Intermittent Failures
+   - Check: Load balancer health checks, target health
+   - Solution: Adjust health check settings, increase timeout
+
+5. Cross-Region Latency
+   - Check: Inter-region latency (50-200ms is normal)
+   - Solution: Use CloudFront/CDN, consider data locality
+&quot;&quot;&quot;</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-hands-on-exercise">Hands-on Exercise</h4>
+<h5 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-exercise-build-secure-multi-tier-ml">Exercise: Build Secure Multi-Tier ML Network</h5>
+<p><strong>Objective</strong>: Deploy a production-grade ML system with:</p>
+<ul>
+<li>Multi-AZ VPC</li>
+<li>Layered security groups</li>
+<li>Application Load Balancer</li>
+<li>NAT Gateway</li>
+<li>VPN access for training instances</li>
+<li>CloudWatch monitoring</li>
+</ul>
+<p><strong>Requirements</strong>:</p>
+<ol>
+<li>High availability (99.9%+)</li>
+<li>Secure access (no direct internet to training)</li>
+<li>Load balanced inference API</li>
+<li>&lt;100ms API latency</li>
+<li>&lt;$500/month cost</li>
+</ol>
+<p><strong>Expected Architecture</strong>:</p>
+<ul>
+<li>2 Availability Zones</li>
+<li>6 Subnets (public, app, training per AZ)</li>
+<li>5 安全（Security） Groups</li>
+<li>1 Application Load Balancer</li>
+<li>2 NAT Gateways (HA)</li>
+<li>3 Model Servers (自动扩缩容（auto-scaling）)</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-06-cloud-networking-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<p>✅ Design VPCs for ML infrastructure ✅ Configure load balancers for model serving ✅ Implement CDN for global delivery ✅ Secure networks with layered security groups ✅ Set up VPN and Direct Connect ✅ Optimize network performance (ENA, placement groups) ✅ Implement service mesh for microservices ✅ Monitor and troubleshoot network issues</p>
+<p><strong>Key Takeaways</strong>:</p>
+<ul>
+<li>VPC design impacts security, performance, and cost</li>
+<li>Load balancers enable A/B testing and gradual rollouts</li>
+<li>CDN reduces latency by 75% for global users</li>
+<li>Layered security (SG + NACL) provides defense in depth</li>
+<li>Placement groups reduce training time by 30%</li>
+</ul>
+<p><strong>Next Steps</strong>:</p>
+<ul>
+<li>Complete hands-on exercise</li>
+<li>Implement VPC for your project</li>
+<li>Configure load balancer with A/B testing</li>
+<li>Proceed to Lesson 07: Managed ML Services</li>
+</ul>
+<hr/>
+<p><strong>Estimated Time to Complete</strong>: 6 hours (including hands-on exercise) <strong>Difficulty</strong>: Intermediate <strong>Next Lesson</strong>: <a href="#doc-lessons-mod-102-cloud-computing-07-managed-ml-services-md">07-managed-ml-services.md</a></p><p><a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-05-cloud-storage-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-102-cloud-computing.html#doc-lessons-mod-102-cloud-computing-06-cloud-networking-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-07-managed-ml-services-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

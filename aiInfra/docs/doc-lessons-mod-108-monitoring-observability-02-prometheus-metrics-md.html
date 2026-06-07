@@ -1,0 +1,1133 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 02: Prometheus 指标监控（Prometheus） for Metrics Collection</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 02: Prometheus 指标监控（Prometheus） for Metrics Collection</h1><p>Module 108: 监控与可观测性（Monitoring &amp; Observability） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" open><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Module 08: 监控（Monitoring） &amp; 可观测性（Observability）</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-resources-md.html">Module 08: 监控（Monitoring） &amp; 可观测性（Observability） - Resources</a></details><details class="tree-section" open><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lesson 01: Introduction to 可观测性（Observability）</a><a class="tree-doc active" href="../docs/doc-lessons-mod-108-monitoring-observability-02-prometheus-metrics-md.html">Lesson 02: Prometheus 指标监控（Prometheus） for Metrics Collection</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-03-grafana-visualization-md.html">Lesson 03: Grafana 可视化（Grafana） for Visualization</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-04-logging-elk-loki-md.html">Lesson 04: Logging with ELK Stack and Loki</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-05-distributed-tracing-md.html">Lesson 05: Distributed Tracing with Jaeger 链路追踪（Jaeger） and Tempo</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-06-alerting-strategies-md.html">Lesson 06: 告警（Alerting） Strategies and Alert Management</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-07-ml-model-observability-md.html">Lesson 07: ML-Specific 监控（Monitoring） and Model 可观测性（Observability）</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-08-best-practices-culture-md.html">Lesson 08: Best Practices and 可观测性（Observability） Culture</a></details><details class="tree-section" open><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-01-prometheus-instrumentation-md.html">Lab 01: Instrument a Python Service with Prometheus 指标监控（Prometheus）</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-02-grafana-dashboards-md.html">Lab 02: Build a Grafana 可视化（Grafana） Dashboard from Scratch</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-03-loki-logging-md.html">Lab 03: Send Logs to Loki</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-04-distributed-tracing-md.html">Lab 04: Distributed Tracing with OpenTelemetry 可观测性（OpenTelemetry） + Jaeger 链路追踪（Jaeger）</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-05-alerting-rules-md.html">Lab 05: Author Alert Rules with Multi-Window Burn Rates</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Module 108 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercise 01: 生产环境（Production） 可观测性（Observability） Stack (Prometheus + Grafana 可视化（Grafana） + Loki)</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-02-ml-model-monitoring-readme-.html">Exercise 02: ML Model 监控（Monitoring） and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-03-promql-deep-dive-readme-md.html">Exercise 03: PromQL Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-04-dashboards-as-code-readme-m.html">Exercise 04: Grafana 可视化（Grafana） Dashboards as Code</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-05-log-pipeline-readme-md.html">Exercise 05: Structured Log Pipeline (Loki + Vector)</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-06-distributed-tracing-otel-re.html">Exercise 06: Distributed Tracing with OpenTelemetry 可观测性（OpenTelemetry）</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-07-alertmanager-routing-readme.html">Exercise 07: Alertmanager Routing and Notification Strategy</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-08-slo-and-error-budgets-readm.html">Exercise 08: 服务水平指标（SLI） / 服务水平目标（SLO） / Error Budget Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-09-incident-response-gameday-r.html">Exercise 09: 事故响应（Incident Response） Game Day</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-10-observability-cost-control-.html">Exercise 10: 可观测性（Observability） Cost Control</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-readme-md.html">Module 08: 监控（Monitoring） &amp; 可观测性（Observability） - Exercises</a></details><details class="tree-section" open><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Module 08: 监控（Monitoring） &amp; 可观测性（Observability） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 02: Prometheus 指标监控（Prometheus） for Metrics Collection</h2><p>Module 108: 监控与可观测性（Monitoring &amp; Observability） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>2</strong><span>reading order</span></div><div class="stat"><strong>28</strong><span>chapter docs</span></div><div class="stat"><strong>1298</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-108-monitoring-observability-02-prometheus-metrics-md" data-title="lesson 02: prometheus for metrics collection lessons/mod-108-monitoring-observability/02-prometheus-metrics.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">2/28</span><span class="chip">Lectures</span><span class="path">lessons/mod-108-monitoring-observability/02-prometheus-metrics.md</span><span class="path">1298 行</span></div><h2>Lesson 02: Prometheus 指标监控（Prometheus） for Metrics Collection</h2><p><a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-108-monitoring-observability.html#doc-lessons-mod-108-monitoring-observability-02-prometheus-metrics-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-03-grafana-visualization-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-lesson-02-prometheus-for">Lesson 02: Prometheus 指标监控（Prometheus） for Metrics Collection</h3>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+<li>Understand Prometheus 指标监控（Prometheus） architecture and data model</li>
+<li>Install and configure Prometheus 指标监控（Prometheus） for AI infrastructure</li>
+<li>Write PromQL queries to analyze metrics</li>
+<li>Instrument Python applications with Prometheus 指标监控（Prometheus） client libraries</li>
+<li>Configure service discovery and scraping</li>
+<li>Design effective metric collection strategies for ML systems</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-prerequisites">前置要求（Prerequisites）</h4>
+<ul>
+<li>Completion of Lesson 01 (Introduction to 可观测性（Observability）)</li>
+<li>Basic understanding of HTTP and time-series data</li>
+<li>Familiarity with YAML configuration</li>
+<li>Python programming experience</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-introduction">Introduction</h4>
+<p>Prometheus 指标监控（Prometheus） is an open-source monitoring and alerting system originally built at SoundCloud. It has become the de facto standard for metrics collection in cloud-native environments, particularly in Kubernetes 容器编排（Kubernetes） ecosystems. For AI infrastructure engineers, Prometheus 指标监控（Prometheus） is essential for monitoring ML workloads, GPU 加速（GPU） utilization, model serving latency, and infrastructure health.</p>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-why-prometheus-for-ai-in">Why Prometheus 指标监控（Prometheus） for AI 基础设施（AI Infrastructure）?</h5>
+<ol>
+<li><strong>Pull-based architecture</strong>: Prometheus 指标监控（Prometheus） scrapes metrics from targets, reducing complexity in dynamic ML environments</li>
+<li><strong>Multi-dimensional data model</strong>: Labels allow slicing metrics by model, version, GPU 加速（GPU）, node, etc.</li>
+<li><strong>Powerful query language (PromQL)</strong>: Analyze and aggregate metrics across dimensions</li>
+<li><strong>Integration with Kubernetes 容器编排（Kubernetes）</strong>: Automatic service discovery for ML workloads</li>
+<li><strong>告警（Alerting） capabilities</strong>: Proactive detection of performance degradation</li>
+<li><strong>Ecosystem integration</strong>: Works seamlessly with Grafana 可视化（Grafana）, AlertManager, and exporters</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-1-prometheus-architectur">1. Prometheus 指标监控（Prometheus） Architecture</h4>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-core-components">Core Components</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌─────────────────────────────────────────────────────────────┐
+│                     Prometheus Server                        │
+│                                                              │
+│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐  │
+│  │   Retrieval  │  │   Storage    │  │   HTTP Server   │  │
+│  │   (Scraper)  │─&gt;│   (TSDB)     │&lt;─│   (PromQL API)  │  │
+│  └──────────────┘  └──────────────┘  └─────────────────┘  │
+│         │                                      │            │
+└─────────│──────────────────────────────────────│────────────┘
+          │                                      │
+          │ scrape                               │ query
+          ↓                                      ↓
+   ┌──────────────┐                      ┌──────────────┐
+   │   Targets    │                      │   Grafana    │
+   │              │                      │  AlertManager│
+   │ • ML Models  │                      │   Clients    │
+   │ • GPUs       │                      └──────────────┘
+   │ • Services   │
+   └──────────────┘</code></pre></div>
+<p><strong>Components:</strong></p>
+<ol>
+<li><strong>Prometheus 指标监控（Prometheus） Server</strong>: Scrapes and stores time-series data</li>
+<li><strong>Time-Series Database (TSDB)</strong>: Efficient storage for metrics</li>
+<li><strong>Retrieval System</strong>: Discovers and scrapes targets</li>
+<li><strong>PromQL Engine</strong>: Query language processor</li>
+<li><strong>Alertmanager</strong>: Handles alerts from Prometheus 指标监控（Prometheus） rules</li>
+<li><strong>Exporters</strong>: Expose metrics from third-party systems</li>
+<li><strong>Pushgateway</strong>: For ephemeral jobs (batch ML training)</li>
+</ol>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-data-model">Data Model</h5>
+<p>Prometheus 指标监控（Prometheus） stores all data as <strong>time series</strong> - streams of timestamped values belonging to the same metric and set of labeled dimensions.</p>
+<p><strong>Metric Structure:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">&lt;metric_name&gt;{&lt;label_name&gt;=&lt;label_value&gt;, ...} value timestamp</code></pre></div>
+<p><strong>Example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql">gpu_utilization{gpu_id=&quot;0&quot;, node=&quot;ml-node-1&quot;, model=&quot;bert-base&quot;} 87.5 1634567890</code></pre></div>
+<p><strong>Metric Types:</strong></p>
+<ol>
+<li><strong>Counter</strong>: Monotonically increasing value (e.g., requests processed)</li>
+<li><strong>Gauge</strong>: Value that can go up or down (e.g., GPU 加速（GPU） memory usage)</li>
+<li><strong>Histogram</strong>: Observations in configurable buckets (e.g., request latency)</li>
+<li><strong>Summary</strong>: Similar to histogram, with client-side quantiles</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-2-installing-prometheus">2. Installing Prometheus 指标监控（Prometheus）</h4>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-docker-installation">Docker 容器（Docker） Installation</h5>
+<p><strong>docker-compose.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: prometheus
+    ports:
+      - &quot;9090:9090&quot;
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+volumes:
+  prometheus_data:
+
+networks:
+  monitoring:
+    driver: bridge</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-kubernetes-installation-">Kubernetes 容器编排（Kubernetes） Installation with Helm 包管理（Helm）</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Add Prometheus community Helm repository
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+# Install Prometheus stack (includes Grafana, AlertManager)
+helm install prometheus prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace \
+  --set prometheus.prometheusSpec.retention=30d \
+  --set prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage=50Gi</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-basic-configuration">Basic Configuration</h5>
+<p><strong>prometheus.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">global:
+  scrape_interval: 15s      # How often to scrape targets
+  evaluation_interval: 15s  # How often to evaluate rules
+  external_labels:
+    cluster: 'ml-production'
+    environment: 'prod'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - &quot;alerts/*.yml&quot;
+  - &quot;recording_rules/*.yml&quot;
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # GPU metrics exporter
+  - job_name: 'nvidia-gpu'
+    static_configs:
+      - targets: ['gpu-node-1:9835', 'gpu-node-2:9835']
+        labels:
+          node_type: 'gpu'
+
+  # ML model serving
+  - job_name: 'ml-models'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - ml-serving
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-3-prometheus-query-langu">3. Prometheus 指标监控（Prometheus） Query Language (PromQL)</h4>
+<p>PromQL is a powerful functional query language for selecting and aggregating time-series data.</p>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-basic-queries">Basic Queries</h5>
+<p><strong>Instant Vector Queries:</strong></p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql"># Current GPU utilization
+gpu_utilization
+
+# GPU utilization for specific GPU
+gpu_utilization{gpu_id=&quot;0&quot;}
+
+# GPU utilization &gt; 80%
+gpu_utilization &gt; 80
+
+# Multiple label selectors
+model_inference_latency{model=&quot;bert&quot;, version=&quot;v2&quot;, env=&quot;prod&quot;}</code></pre></div>
+<p><strong>Range Vector Queries:</strong></p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql"># GPU utilization over last 5 minutes
+gpu_utilization[5m]
+
+# HTTP request rate over last hour
+http_requests_total[1h]</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-operators-and-functions">Operators and Functions</h5>
+<p><strong>Mathematical Operators:</strong></p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql"># GPU memory usage percentage
+(gpu_memory_used / gpu_memory_total) * 100
+
+# Request rate per second
+rate(http_requests_total[5m])
+
+# Average inference latency increase
+delta(model_inference_latency_sum[1h]) / delta(model_inference_latency_count[1h])</code></pre></div>
+<p><strong>Aggregation Functions:</strong></p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql"># Average GPU utilization across all GPUs
+avg(gpu_utilization)
+
+# Maximum GPU temperature by node
+max(gpu_temperature) by (node)
+
+# Total requests per model
+sum(rate(model_requests_total[5m])) by (model_name)
+
+# 95th percentile inference latency
+histogram_quantile(0.95, rate(model_inference_duration_bucket[5m]))</code></pre></div>
+<p><strong>Common Functions:</strong></p>
+<div class="table-wrap"><table><thead><tr><th>Function</th><th>Purpose</th><th>Example</th></tr></thead><tbody><tr><td><code>rate()</code></td><td>Per-second rate over time window</td><td><code>rate(requests_total[5m])</code></td></tr><tr><td><code>irate()</code></td><td>Instant rate (last 2 points)</td><td><code>irate(requests_total[1m])</code></td></tr><tr><td><code>increase()</code></td><td>Total increase over time window</td><td><code>increase(errors_total[1h])</code></td></tr><tr><td><code>avg_over_time()</code></td><td>Average over time window</td><td><code>avg_over_time(cpu_usage[10m])</code></td></tr><tr><td><code>predict_linear()</code></td><td>Linear prediction</td><td><code>predict_linear(disk_usage[1h], 3600)</code></td></tr></tbody></table></div>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-ai-infrastructure-query-">AI 基础设施（AI Infrastructure） Query Examples</h5>
+<p><strong>GPU 加速（GPU） 监控（Monitoring）:</strong></p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql"># GPU utilization by model
+avg(gpu_utilization) by (model_name, gpu_id)
+
+# GPU memory saturation
+(avg(gpu_memory_used) by (node) / avg(gpu_memory_total) by (node)) * 100
+
+# GPUs running hot
+gpu_temperature &gt; 80</code></pre></div>
+<p><strong>模型服务（Model Serving）:</strong></p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql"># Request rate per model
+sum(rate(model_requests_total[5m])) by (model_name, version)
+
+# P99 latency per endpoint
+histogram_quantile(0.99,
+  sum(rate(http_request_duration_seconds_bucket[5m])) by (endpoint, le)
+)
+
+# Error rate percentage
+(sum(rate(http_requests_total{status=~&quot;5..&quot;}[5m])) /
+ sum(rate(http_requests_total[5m]))) * 100
+
+# Model prediction throughput
+sum(rate(model_predictions_total[1m])) by (model_name)</code></pre></div>
+<p><strong>训练（Training） Jobs:</strong></p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql"># Training loss over time
+avg(training_loss) by (job_name, epoch)
+
+# Training GPU efficiency
+rate(training_samples_processed[5m]) * on(node) group_left gpu_utilization
+
+# Batch processing rate
+rate(batch_processed_total[5m])</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-4-instrumenting-python-a">4. Instrumenting Python Applications</h4>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-installing-prometheus-cl">Installing Prometheus 指标监控（Prometheus） Client</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">pip install prometheus-client==0.17.1</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-basic-instrumentation">Basic Instrumentation</h5>
+<p><strong>Example: ML 模型服务（Model Serving） with FastAPI 服务框架（FastAPI）</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import FastAPI
+from prometheus_client import Counter, Histogram, Gauge, generate_latest, REGISTRY
+from prometheus_client import multiprocess, CollectorRegistry
+import time
+import logging
+
+# Create FastAPI app
+app = FastAPI(title=&quot;ML Model Serving&quot;)
+
+# Define metrics
+REQUEST_COUNT = Counter(
+    'model_requests_total',
+    'Total number of inference requests',
+    ['model_name', 'version', 'status']
+)
+
+REQUEST_LATENCY = Histogram(
+    'model_inference_duration_seconds',
+    'Time spent processing inference request',
+    ['model_name', 'version'],
+    buckets=[0.01, 0.05, 0.1, 0.5, 1.0, 2.5, 5.0, 10.0]
+)
+
+GPU_UTILIZATION = Gauge(
+    'gpu_utilization_percent',
+    'Current GPU utilization percentage',
+    ['gpu_id', 'model_name']
+)
+
+GPU_MEMORY = Gauge(
+    'gpu_memory_used_bytes',
+    'GPU memory currently in use',
+    ['gpu_id']
+)
+
+MODEL_LOADED = Gauge(
+    'model_loaded',
+    'Whether model is currently loaded (1) or not (0)',
+    ['model_name', 'version']
+)
+
+BATCH_SIZE = Histogram(
+    'inference_batch_size',
+    'Batch size for inference requests',
+    ['model_name'],
+    buckets=[1, 2, 4, 8, 16, 32, 64, 128]
+)
+
+# Inference endpoint
+@app.post(&quot;/predict&quot;)
+async def predict(request: PredictRequest):
+    model_name = request.model_name
+    version = request.version
+
+    # Track request
+    start_time = time.time()
+
+    try:
+        # Perform inference
+        predictions = await model_inference(request.data, model_name, version)
+
+        # Record metrics
+        REQUEST_COUNT.labels(
+            model_name=model_name,
+            version=version,
+            status=&quot;success&quot;
+        ).inc()
+
+        BATCH_SIZE.labels(model_name=model_name).observe(len(request.data))
+
+        # Update GPU metrics (example)
+        update_gpu_metrics(model_name)
+
+        return {&quot;predictions&quot;: predictions}
+
+    except Exception as e:
+        REQUEST_COUNT.labels(
+            model_name=model_name,
+            version=version,
+            status=&quot;error&quot;
+        ).inc()
+        raise
+
+    finally:
+        # Record latency
+        duration = time.time() - start_time
+        REQUEST_LATENCY.labels(
+            model_name=model_name,
+            version=version
+        ).observe(duration)
+
+# Metrics endpoint
+@app.get(&quot;/metrics&quot;)
+async def metrics():
+    return Response(
+        content=generate_latest(REGISTRY),
+        media_type=&quot;text/plain&quot;
+    )
+
+def update_gpu_metrics(model_name: str):
+    &quot;&quot;&quot;Update GPU utilization and memory metrics&quot;&quot;&quot;
+    try:
+        import pynvml
+        pynvml.nvmlInit()
+
+        device_count = pynvml.nvmlDeviceGetCount()
+        for i in range(device_count):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+
+            # GPU utilization
+            util = pynvml.nvmlDeviceGetUtilizationRates(handle)
+            GPU_UTILIZATION.labels(
+                gpu_id=str(i),
+                model_name=model_name
+            ).set(util.gpu)
+
+            # GPU memory
+            mem_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
+            GPU_MEMORY.labels(gpu_id=str(i)).set(mem_info.used)
+
+    except Exception as e:
+        logging.error(f&quot;Failed to update GPU metrics: {e}&quot;)</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-advanced-instrumentation">Advanced Instrumentation Patterns</h5>
+<p><strong>1. Decorators for Automatic Instrumentation:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from functools import wraps
+from prometheus_client import Counter, Histogram
+import time
+
+# Metrics
+FUNCTION_CALLS = Counter(
+    'function_calls_total',
+    'Total function calls',
+    ['function_name', 'status']
+)
+
+FUNCTION_DURATION = Histogram(
+    'function_duration_seconds',
+    'Function execution time',
+    ['function_name']
+)
+
+def monitor_performance(func):
+    &quot;&quot;&quot;Decorator to automatically monitor function performance&quot;&quot;&quot;
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        function_name = func.__name__
+
+        try:
+            result = func(*args, **kwargs)
+            FUNCTION_CALLS.labels(
+                function_name=function_name,
+                status='success'
+            ).inc()
+            return result
+
+        except Exception as e:
+            FUNCTION_CALLS.labels(
+                function_name=function_name,
+                status='error'
+            ).inc()
+            raise
+
+        finally:
+            duration = time.time() - start_time
+            FUNCTION_DURATION.labels(
+                function_name=function_name
+            ).observe(duration)
+
+    return wrapper
+
+# Usage
+@monitor_performance
+def preprocess_data(data):
+    # Data preprocessing logic
+    pass
+
+@monitor_performance
+def run_inference(model, inputs):
+    return model.predict(inputs)</code></pre></div>
+<p><strong>2. Context Managers for Resource Tracking:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from contextlib import contextmanager
+from prometheus_client import Gauge
+import psutil
+
+MEMORY_USAGE = Gauge(
+    'process_memory_bytes',
+    'Process memory usage',
+    ['phase']
+)
+
+CPU_USAGE = Gauge(
+    'process_cpu_percent',
+    'Process CPU usage',
+    ['phase']
+)
+
+@contextmanager
+def track_resources(phase_name: str):
+    &quot;&quot;&quot;Context manager to track resource usage during a phase&quot;&quot;&quot;
+    process = psutil.Process()
+
+    # Capture initial state
+    initial_memory = process.memory_info().rss
+
+    try:
+        yield
+    finally:
+        # Capture final state
+        final_memory = process.memory_info().rss
+        cpu_percent = process.cpu_percent()
+
+        MEMORY_USAGE.labels(phase=phase_name).set(final_memory)
+        CPU_USAGE.labels(phase=phase_name).set(cpu_percent)
+
+# Usage
+with track_resources(&quot;data_loading&quot;):
+    data = load_large_dataset()
+
+with track_resources(&quot;model_training&quot;):
+    model.fit(data)</code></pre></div>
+<p><strong>3. Custom Collectors for Complex Metrics:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from prometheus_client.core import GaugeMetricFamily
+from prometheus_client.registry import Collector
+import pynvml
+
+class GPUCollector(Collector):
+    &quot;&quot;&quot;Custom collector for detailed GPU metrics&quot;&quot;&quot;
+
+    def __init__(self):
+        pynvml.nvmlInit()
+
+    def collect(self):
+        # GPU utilization metric family
+        gpu_util = GaugeMetricFamily(
+            'gpu_utilization_percent',
+            'GPU utilization percentage',
+            labels=['gpu_id', 'gpu_name', 'uuid']
+        )
+
+        # GPU memory metric family
+        gpu_mem = GaugeMetricFamily(
+            'gpu_memory_used_bytes',
+            'GPU memory used in bytes',
+            labels=['gpu_id', 'gpu_name', 'uuid', 'memory_type']
+        )
+
+        # GPU temperature metric family
+        gpu_temp = GaugeMetricFamily(
+            'gpu_temperature_celsius',
+            'GPU temperature in Celsius',
+            labels=['gpu_id', 'gpu_name', 'uuid']
+        )
+
+        device_count = pynvml.nvmlDeviceGetCount()
+        for i in range(device_count):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+
+            # Device info
+            name = pynvml.nvmlDeviceGetName(handle)
+            uuid = pynvml.nvmlDeviceGetUUID(handle)
+
+            # Utilization
+            util = pynvml.nvmlDeviceGetUtilizationRates(handle)
+            gpu_util.add_metric(
+                [str(i), name, uuid],
+                util.gpu
+            )
+
+            # Memory
+            mem_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
+            gpu_mem.add_metric(
+                [str(i), name, uuid, 'used'],
+                mem_info.used
+            )
+            gpu_mem.add_metric(
+                [str(i), name, uuid, 'total'],
+                mem_info.total
+            )
+
+            # Temperature
+            temp = pynvml.nvmlDeviceGetTemperature(
+                handle,
+                pynvml.NVML_TEMPERATURE_GPU
+            )
+            gpu_temp.add_metric(
+                [str(i), name, uuid],
+                temp
+            )
+
+        yield gpu_util
+        yield gpu_mem
+        yield gpu_temp
+
+# Register custom collector
+from prometheus_client import REGISTRY
+REGISTRY.register(GPUCollector())</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-5-exporters-and-service-">5. Exporters and Service Discovery</h4>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-common-exporters-for-ai-">Common Exporters for AI 基础设施（AI Infrastructure）</h5>
+<p><strong>1. Node Exporter (System Metrics):</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># docker-compose.yml
+services:
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - &quot;9100:9100&quot;
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped</code></pre></div>
+<p><strong>2. NVIDIA GPU 加速（GPU） Exporter:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">services:
+  nvidia-gpu-exporter:
+    image: nvidia/dcgm-exporter:latest
+    container_name: gpu-exporter
+    ports:
+      - &quot;9400:9400&quot;
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped</code></pre></div>
+<p><strong>3. Kubernetes 容器编排（Kubernetes） State Metrics:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm install kube-state-metrics prometheus-community/kube-state-metrics \
+  --namespace monitoring</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-kubernetes-service-disco">Kubernetes 容器编排（Kubernetes） Service Discovery</h5>
+<p>Prometheus 指标监控（Prometheus） can automatically discover targets in Kubernetes 容器编排（Kubernetes）:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">scrape_configs:
+  # Discover pods with prometheus.io/scrape annotation
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+
+    relabel_configs:
+      # Only scrape pods with annotation prometheus.io/scrape=true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+
+      # Use custom metrics path if specified
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+
+      # Use custom port if specified
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+
+      # Add pod labels as metric labels
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+
+      # Add namespace label
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+
+      # Add pod name label
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name</code></pre></div>
+<p><strong>Kubernetes 容器编排（Kubernetes） 部署（Deployment） with Annotations:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bert-model-serving
+  namespace: ml-serving
+spec:
+  replicas: 3
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: &quot;true&quot;
+        prometheus.io/port: &quot;8000&quot;
+        prometheus.io/path: &quot;/metrics&quot;
+      labels:
+        app: bert-serving
+        model: bert-base
+        version: v1.2
+    spec:
+      containers:
+        - name: model-server
+          image: ml-registry/bert-serving:v1.2
+          ports:
+            - containerPort: 8000
+              name: http</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-6-recording-rules-and-ag">6. Recording Rules and Aggregation</h4>
+<p>Recording rules allow you to precompute expensive queries and store results as new time series.</p>
+<p><strong>recording_rules.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">groups:
+  - name: ml_infrastructure_rules
+    interval: 30s
+    rules:
+      # GPU utilization aggregations
+      - record: node:gpu_utilization:avg
+        expr: avg(gpu_utilization) by (node)
+
+      - record: model:gpu_utilization:avg
+        expr: avg(gpu_utilization) by (model_name)
+
+      # Request rate aggregations
+      - record: model:requests:rate5m
+        expr: sum(rate(model_requests_total[5m])) by (model_name, version)
+
+      - record: model:errors:rate5m
+        expr: sum(rate(model_requests_total{status=&quot;error&quot;}[5m])) by (model_name)
+
+      # Latency percentiles
+      - record: model:latency:p50
+        expr: |
+          histogram_quantile(0.50,
+            sum(rate(model_inference_duration_bucket[5m])) by (model_name, le)
+          )
+
+      - record: model:latency:p95
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(model_inference_duration_bucket[5m])) by (model_name, le)
+          )
+
+      - record: model:latency:p99
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(model_inference_duration_bucket[5m])) by (model_name, le)
+          )
+
+      # GPU memory saturation
+      - record: node:gpu_memory_saturation:ratio
+        expr: |
+          sum(gpu_memory_used_bytes) by (node) /
+          sum(gpu_memory_total_bytes) by (node)
+
+      # Batch processing efficiency
+      - record: job:batch_processing_rate:5m
+        expr: rate(batch_processed_total[5m])
+
+      # Model prediction throughput
+      - record: model:predictions_per_second:5m
+        expr: sum(rate(model_predictions_total[5m])) by (model_name, version)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-7-best-practices">7. Best Practices</h4>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-metric-naming-convention">Metric Naming Conventions</h5>
+<p>Follow Prometheus 指标监控（Prometheus） conventions:</p>
+<ul>
+<li>Use <code>snake_case</code></li>
+<li>Include unit suffix: <code>_bytes</code>, <code>_seconds</code>, <code>_total</code>, <code>_ratio</code></li>
+<li>Format: <code>&lt;namespace&gt;_&lt;name&gt;_&lt;unit&gt;</code></li>
+</ul>
+<p><strong>Good Examples:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">model_inference_duration_seconds
+gpu_memory_used_bytes
+http_requests_total
+cache_hit_ratio</code></pre></div>
+<p><strong>Bad Examples:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">ModelLatency  (not snake_case)
+memory  (no unit)
+requests  (should be requests_total for counter)</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-label-design">Label Design</h5>
+<p><strong>Do:</strong></p>
+<ul>
+<li>Use labels for dimensions you want to aggregate/filter by</li>
+<li>Keep cardinality reasonable (&lt; 1000 unique combinations per metric)</li>
+<li>Use consistent label names across metrics</li>
+</ul>
+<p><strong>Don't:</strong></p>
+<ul>
+<li>Use high-cardinality labels (user IDs, timestamps, UUIDs)</li>
+<li>Use labels for values that change frequently</li>
+<li>Create too many label dimensions</li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Good: Reasonable cardinality
+REQUEST_COUNT.labels(
+    model_name=&quot;bert&quot;,      # ~10 models
+    version=&quot;v1.2&quot;,         # ~5 versions per model
+    status=&quot;success&quot;        # 2-3 statuses
+)  # Total: ~150 combinations
+
+# Bad: High cardinality
+REQUEST_COUNT.labels(
+    user_id=&quot;abc123&quot;,       # Millions of users
+    request_id=&quot;xyz789&quot;     # Unique per request
+)  # Total: Billions of combinations!</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-performance-optimization">Performance Optimization</h5>
+<ol>
+<li><strong>Scrape Interval:</strong> Balance freshness vs. load</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">   scrape_interval: 15s  # Default
+   scrape_interval: 30s  # For stable metrics
+   scrape_interval: 5s   # For critical, fast-changing metrics</code></pre></div>
+<ol>
+<li><strong>Retention:</strong> Configure based on storage and needs</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">   --storage.tsdb.retention.time=30d
+   --storage.tsdb.retention.size=50GB</code></pre></div>
+<ol>
+<li><strong>Recording Rules:</strong> Precompute expensive queries</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">   - record: expensive:aggregation:5m
+     expr: sum(rate(metric[5m])) by (dimension)</code></pre></div>
+<ol>
+<li><strong>Metric Relabeling:</strong> Drop unnecessary metrics/labels</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">   metric_relabel_configs:
+     - source_labels: [__name__]
+       regex: 'go_.*'  # Drop Go runtime metrics
+       action: drop</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-security">安全（Security）</h5>
+<ol>
+<li><strong>Authentication:</strong> Use basic auth or OAuth proxy</li>
+<li><strong>TLS:</strong> Enable HTTPS for metrics endpoints</li>
+<li><strong>Network Policies:</strong> Restrict scrape access in Kubernetes 容器编排（Kubernetes）</li>
+<li><strong>Sensitive Data:</strong> Never expose secrets in metrics/labels</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-8-hands-on-example-compl">8. Hands-On Example: Complete ML Serving 监控（Monitoring）</h4>
+<p><strong>complete_monitoring_example.py:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import FastAPI, HTTPException
+from prometheus_client import (
+    Counter, Histogram, Gauge, Summary,
+    generate_latest, REGISTRY, CollectorRegistry
+)
+from pydantic import BaseModel
+import time
+import numpy as np
+from typing import List
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# FastAPI app
+app = FastAPI(title=&quot;ML Model Serving with Monitoring&quot;)
+
+# ============================================================================
+# METRICS DEFINITIONS
+# ============================================================================
+
+# Request metrics
+HTTP_REQUESTS = Counter(
+    'http_requests_total',
+    'Total HTTP requests',
+    ['method', 'endpoint', 'status']
+)
+
+REQUEST_DURATION = Histogram(
+    'http_request_duration_seconds',
+    'HTTP request latency',
+    ['method', 'endpoint'],
+    buckets=[0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]
+)
+
+# Model inference metrics
+PREDICTIONS_TOTAL = Counter(
+    'model_predictions_total',
+    'Total predictions made',
+    ['model_name', 'model_version']
+)
+
+PREDICTION_LATENCY = Histogram(
+    'model_prediction_duration_seconds',
+    'Model prediction latency',
+    ['model_name', 'model_version'],
+    buckets=[0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, 5.0]
+)
+
+BATCH_SIZE = Histogram(
+    'model_batch_size',
+    'Batch size for predictions',
+    ['model_name'],
+    buckets=[1, 2, 4, 8, 16, 32, 64, 128, 256]
+)
+
+PREDICTION_ERRORS = Counter(
+    'model_prediction_errors_total',
+    'Total prediction errors',
+    ['model_name', 'error_type']
+)
+
+# Model state metrics
+MODEL_LOADED = Gauge(
+    'model_loaded_info',
+    'Model load status (1=loaded, 0=not loaded)',
+    ['model_name', 'model_version', 'model_type']
+)
+
+MODEL_LOAD_TIME = Gauge(
+    'model_load_time_seconds',
+    'Time taken to load model',
+    ['model_name', 'model_version']
+)
+
+# Resource metrics
+ACTIVE_REQUESTS = Gauge(
+    'active_requests',
+    'Number of requests currently being processed',
+    ['model_name']
+)
+
+INPUT_SIZE = Summary(
+    'model_input_size_bytes',
+    'Size of model input data',
+    ['model_name']
+)
+
+OUTPUT_SIZE = Summary(
+    'model_output_size_bytes',
+    'Size of model output data',
+    ['model_name']
+)
+
+# ============================================================================
+# REQUEST MODELS
+# ============================================================================
+
+class PredictRequest(BaseModel):
+    model_name: str = &quot;bert-base&quot;
+    model_version: str = &quot;v1.0&quot;
+    inputs: List[List[float]]
+
+class PredictResponse(BaseModel):
+    predictions: List[float]
+    latency_ms: float
+    model_version: str
+
+# ============================================================================
+# MIDDLEWARE
+# ============================================================================
+
+@app.middleware(&quot;http&quot;)
+async def monitor_requests(request, call_next):
+    &quot;&quot;&quot;Middleware to monitor all HTTP requests&quot;&quot;&quot;
+    start_time = time.time()
+    method = request.method
+    endpoint = request.url.path
+
+    # Process request
+    response = await call_next(request)
+
+    # Record metrics
+    duration = time.time() - start_time
+    status = response.status_code
+
+    HTTP_REQUESTS.labels(
+        method=method,
+        endpoint=endpoint,
+        status=status
+    ).inc()
+
+    REQUEST_DURATION.labels(
+        method=method,
+        endpoint=endpoint
+    ).observe(duration)
+
+    return response
+
+# ============================================================================
+# MOCK MODEL (Replace with real model)
+# ============================================================================
+
+class MockModel:
+    &quot;&quot;&quot;Mock model for demonstration&quot;&quot;&quot;
+
+    def __init__(self, name: str, version: str):
+        self.name = name
+        self.version = version
+        self.loaded = False
+
+    def load(self):
+        &quot;&quot;&quot;Simulate model loading&quot;&quot;&quot;
+        start_time = time.time()
+        time.sleep(0.1)  # Simulate load time
+        self.loaded = True
+
+        load_time = time.time() - start_time
+        MODEL_LOAD_TIME.labels(
+            model_name=self.name,
+            model_version=self.version
+        ).set(load_time)
+
+        MODEL_LOADED.labels(
+            model_name=self.name,
+            model_version=self.version,
+            model_type=&quot;classifier&quot;
+        ).set(1)
+
+        logger.info(f&quot;Model {self.name} v{self.version} loaded in {load_time:.3f}s&quot;)
+
+    def predict(self, inputs: np.ndarray) -&gt; np.ndarray:
+        &quot;&quot;&quot;Simulate prediction&quot;&quot;&quot;
+        if not self.loaded:
+            raise RuntimeError(&quot;Model not loaded&quot;)
+
+        # Simulate inference time based on batch size
+        time.sleep(0.001 * len(inputs))
+
+        # Return mock predictions
+        return np.random.random(len(inputs))
+
+# Global model registry
+MODELS = {
+    &quot;bert-base&quot;: MockModel(&quot;bert-base&quot;, &quot;v1.0&quot;),
+    &quot;resnet-50&quot;: MockModel(&quot;resnet-50&quot;, &quot;v2.1&quot;)
+}
+
+# ============================================================================
+# API ENDPOINTS
+# ============================================================================
+
+@app.on_event(&quot;startup&quot;)
+async def startup_event():
+    &quot;&quot;&quot;Load models on startup&quot;&quot;&quot;
+    for model in MODELS.values():
+        model.load()
+
+@app.post(&quot;/predict&quot;, response_model=PredictResponse)
+async def predict(request: PredictRequest):
+    &quot;&quot;&quot;
+    Perform model inference
+
+    Example:</code></pre></div>
+<p>curl -X POST http://localhost:8000/predict \ -H &quot;Content-Type: application/json&quot; \ -d '{ &quot;model_name&quot;: &quot;bert-base&quot;, &quot;model_version&quot;: &quot;v1.0&quot;, &quot;inputs&quot;: [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]] }'</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">    &quot;&quot;&quot;
+    model_name = request.model_name
+    model_version = request.model_version
+
+    # Get model
+    if model_name not in MODELS:
+        PREDICTION_ERRORS.labels(
+            model_name=model_name,
+            error_type=&quot;model_not_found&quot;
+        ).inc()
+        raise HTTPException(status_code=404, detail=f&quot;Model {model_name} not found&quot;)
+
+    model = MODELS[model_name]
+
+    # Track active requests
+    ACTIVE_REQUESTS.labels(model_name=model_name).inc()
+
+    start_time = time.time()
+
+    try:
+        # Convert to numpy array
+        inputs_array = np.array(request.inputs)
+
+        # Track input size
+        input_bytes = inputs_array.nbytes
+        INPUT_SIZE.labels(model_name=model_name).observe(input_bytes)
+
+        # Track batch size
+        batch_size = len(inputs_array)
+        BATCH_SIZE.labels(model_name=model_name).observe(batch_size)
+
+        # Perform prediction
+        predictions = model.predict(inputs_array)
+
+        # Track output size
+        output_bytes = predictions.nbytes
+        OUTPUT_SIZE.labels(model_name=model_name).observe(output_bytes)
+
+        # Record success metrics
+        PREDICTIONS_TOTAL.labels(
+            model_name=model_name,
+            model_version=model_version
+        ).inc(batch_size)
+
+        latency = time.time() - start_time
+        PREDICTION_LATENCY.labels(
+            model_name=model_name,
+            model_version=model_version
+        ).observe(latency)
+
+        return PredictResponse(
+            predictions=predictions.tolist(),
+            latency_ms=latency * 1000,
+            model_version=model_version
+        )
+
+    except Exception as e:
+        PREDICTION_ERRORS.labels(
+            model_name=model_name,
+            error_type=type(e).__name__
+        ).inc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        ACTIVE_REQUESTS.labels(model_name=model_name).dec()
+
+@app.get(&quot;/health&quot;)
+async def health():
+    &quot;&quot;&quot;Health check endpoint&quot;&quot;&quot;
+    return {
+        &quot;status&quot;: &quot;healthy&quot;,
+        &quot;models_loaded&quot;: sum(1 for m in MODELS.values() if m.loaded)
+    }
+
+@app.get(&quot;/metrics&quot;)
+async def metrics():
+    &quot;&quot;&quot;Prometheus metrics endpoint&quot;&quot;&quot;
+    from starlette.responses import Response
+    return Response(
+        content=generate_latest(REGISTRY),
+        media_type=&quot;text/plain&quot;
+    )
+
+# ============================================================================
+# RUN APPLICATION
+# ============================================================================
+
+if __name__ == &quot;__main__&quot;:
+    import uvicorn
+    uvicorn.run(app, host=&quot;0.0.0.0&quot;, port=8000)</code></pre></div>
+<p><strong>Prometheus 指标监控（Prometheus） configuration for this service:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">scrape_configs:
+  - job_name: 'ml-serving'
+    static_configs:
+      - targets: ['localhost:8000']
+        labels:
+          service: 'ml-model-serving'
+          env: 'dev'</code></pre></div>
+<p><strong>Example queries for this service:</strong></p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql"># Request rate
+rate(http_requests_total[5m])
+
+# P95 prediction latency by model
+histogram_quantile(0.95,
+  sum(rate(model_prediction_duration_seconds_bucket[5m])) by (model_name, le)
+)
+
+# Error rate percentage
+(sum(rate(http_requests_total{status=~&quot;5..&quot;}[5m])) /
+ sum(rate(http_requests_total[5m]))) * 100
+
+# Average batch size
+avg(model_batch_size) by (model_name)
+
+# Predictions per second
+sum(rate(model_predictions_total[1m])) by (model_name)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<p>✅ Prometheus 指标监控（Prometheus） architecture and components for AI infrastructure ✅ Installing and configuring Prometheus 指标监控（Prometheus） in Docker 容器（Docker） and Kubernetes 容器编排（Kubernetes） ✅ Writing PromQL queries for metrics analysis ✅ Instrumenting Python applications with prometheus-client ✅ Using exporters and service discovery ✅ Creating recording rules for performance ✅ Best practices for metric design and labeling ✅ Complete example of ML model serving with monitoring</p>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-next-steps">Next Steps</h4>
+<ul>
+<li><strong>Lesson 03</strong>: Learn to visualize Prometheus 指标监控（Prometheus） metrics with Grafana 可视化（Grafana）</li>
+<li><strong>Practice</strong>: Instrument your own ML applications with Prometheus 指标监控（Prometheus）</li>
+<li><strong>Exercise</strong>: Set up Prometheus 指标监控（Prometheus） for a multi-model serving system</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-02-prometheus-metrics-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://prometheus.io/docs/">Prometheus 指标监控（Prometheus） Documentation</a></li>
+<li><a href="https://prometheus.io/docs/practices/">Prometheus 指标监控（Prometheus） Best Practices</a></li>
+<li><a href="https://prometheus.io/docs/prometheus/latest/querying/basics/">PromQL Basics</a></li>
+<li><a href="https://github.com/prometheus/client_python">Python Client Library</a></li>
+<li><a href="https://docs.nvidia.com/datacenter/cloud-native/gpu-telemetry/dcgm-exporter.html">GPU 加速（GPU） Metrics with DCGM</a></li>
+</ul>
+<hr/>
+<p><strong>Estimated Time:</strong> 4-6 hours <strong>Difficulty:</strong> Intermediate <strong>Prerequisites:</strong> Lesson 01, Python, Basic DevOps knowledge</p><p><a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-108-monitoring-observability.html#doc-lessons-mod-108-monitoring-observability-02-prometheus-metrics-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-03-grafana-visualization-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

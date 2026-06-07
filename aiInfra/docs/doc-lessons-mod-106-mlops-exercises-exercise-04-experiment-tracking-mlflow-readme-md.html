@@ -1,0 +1,1396 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Exercise 04: 实验追踪（Experiment Tracking） and 模型注册表（Model Registry） with MLflow 实验追踪（MLflow）</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Exercise 04: 实验追踪（Experiment Tracking） and 模型注册表（Model Registry） with MLflow 实验追踪（MLflow）</h1><p>Module 106: MLOps 机器学习运维（MLOps） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-resources-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Learning Resources</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lesson 01: Introduction to MLOps 机器学习运维（MLOps）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md.html">Lesson 02: MLflow 实验追踪（MLflow） 实验追踪（Experiment Tracking）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-03-model-registry-versioning-md.html">Lesson 03: 模型注册表（Model Registry） &amp; Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-04-feature-stores-engineering-md.html">Lesson 04: Feature Stores &amp; Feature Engineering</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-05-cicd-ml-models-md.html">Lesson 05: CI/CD 持续集成与交付（CI/CD） for ML Models</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-06-model-deployment-strategies-md.html">Lesson 06: Model 部署（Deployment） Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-07-ab-testing-experimentation-md.html">Lesson 07: A/B 测试（A/B Testing） &amp; Experimentation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-08-best-practices-governance-md.html">Lesson 08: MLOps 机器学习运维（MLOps） Best Practices &amp; 治理（Governance）</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-01-mlflow-tracking-md.html">Lab 01: MLflow 实验追踪（MLflow） Tracking Server End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-02-model-registry-md.html">Lab 02: 模型注册表（Model Registry） and Stage Promotion</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-03-feature-store-md.html">Lab 03: Stand Up a Feast 特征平台（Feature Store）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-04-cicd-models-md.html">Lab 04: CI/CD 持续集成与交付（CI/CD） for Models with GitHub Actions</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-05-canary-deployment-md.html">Lab 05: Canary 部署（Deployment） with Argo Rollouts</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-06-ab-testing-md.html">Lab 06: A/B Test with Traffic Splitting</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-07-drift-monitoring-md.html">Lab 07: Drift 监控（Monitoring） with Evidently</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Module 106 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercise 01: MLOps 机器学习运维（MLOps） Maturity Assessment</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-02-mlflow-tracking-deep-dive-readme-md.html">Exercise 02: MLflow 实验追踪（MLflow） Tracking Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-03-model-registry-promotion-readme-md.html">Exercise 03: 模型注册表（Model Registry） and Promotion Workflow</a><a class="tree-doc active" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md.html">Exercise 04: 实验追踪（Experiment Tracking） and 模型注册表（Model Registry） with MLflow 实验追踪（MLflow）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">Exercise 05: Model 监控（Monitoring） and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md.html">Exercise 06: CI/CD 持续集成与交付（CI/CD） for ML Pipelines</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-07-feature-store-implementation-readme-md.html">Exercise 07: 特征平台（Feature Store） Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-08-deployment-strategies-readme-md.html">Exercise 08: Model 部署（Deployment） Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-09-ab-testing-infrastructure-readme-md.html">Exercise 09: A/B 测试（A/B Testing） Infrastructure for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-10-model-governance-readme-md.html">Exercise 10: Model 治理（Governance） and Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-11-ml-orchestration-patterns-readme-md.html">Exercise 11: ML Pipeline Orchestration Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-12-model-cost-attribution-readme-md.html">Exercise 12: Per-Model Cost Attribution</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-13-reproducibility-audit-readme-md.html">Exercise 13: ML Reproducibility Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-14-ml-platform-operating-model-readme-md.html">Exercise 14: ML Platform Team Operating Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-readme-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Exercise 04: 实验追踪（Experiment Tracking） and 模型注册表（Model Registry） with MLflow 实验追踪（MLflow）</h2><p>Module 106: MLOps 机器学习运维（MLOps） · Exercises: 课后练习</p><div class="stats"><div class="stat"><strong>12</strong><span>reading order</span></div><div class="stat"><strong>34</strong><span>chapter docs</span></div><div class="stat"><strong>1445</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md" data-title="exercise 04: experiment tracking and model registry with mlflow lessons/mod-106-mlops/exercises/exercise-04-experiment-tracking-mlflow/readme.md exercises: 课后练习"><div class="doc-head"><span class="chip">12/34</span><span class="chip">Exercises</span><span class="path">lessons/mod-106-mlops/exercises/exercise-04-experiment-tracking-mlflow/README.md</span><span class="path">1445 行</span></div><h2>Exercise 04: 实验追踪（Experiment Tracking） and 模型注册表（Model Registry） with MLflow 实验追踪（MLflow）</h2><p><a class="home" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-03-model-registry-promotion-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-106-mlops.html#doc-lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-exercise-">Exercise 04: 实验追踪（Experiment Tracking） and 模型注册表（Model Registry） with MLflow 实验追踪（MLflow）</h3>
+<p><strong>Estimated Time</strong>: 30-38 hours <strong>Difficulty</strong>: Advanced <strong>Prerequisites</strong>: Python 3.9+, MLflow 实验追踪（MLflow）, PostgreSQL, S3/MinIO, Docker 容器（Docker）</p>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-overview">概览（Overview）</h4>
+<p>Build a production-grade ML experiment tracking and model registry system using MLflow 实验追踪（MLflow）. Implement centralized experiment tracking, model versioning, A/B testing framework, model performance monitoring, and automated model lifecycle management (staging → production → archived). This exercise teaches MLOps 机器学习运维（MLOps） best practices for managing the complete ML model lifecycle.</p>
+<p>In production ML platforms, experiment tracking and model registry are critical for:</p>
+<ul>
+<li><strong>Reproducibility</strong>: Recreate any model from any experiment</li>
+<li><strong>Collaboration</strong>: Share experiments across data science teams</li>
+<li><strong>治理（Governance）</strong>: Track who deployed which model when</li>
+<li><strong>Comparison</strong>: Compare 100+ experiments to find best model</li>
+<li><strong>Lifecycle Management</strong>: Promote models through stages safely</li>
+</ul>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-learning-">Learning Objectives</h4>
+<p>By completing this exercise, you will:</p>
+<ol>
+<li><strong>Set up MLflow 实验追踪（MLflow） tracking server</strong> with PostgreSQL backend and S3 artifact storage</li>
+<li><strong>Implement experiment tracking</strong> for model training runs</li>
+<li><strong>Build model registry</strong> with versioning and stage transitions</li>
+<li><strong>Create A/B testing framework</strong> for model comparison</li>
+<li><strong>Implement automated model promotion</strong> based on metrics</li>
+<li><strong>Build model serving</strong> with version management</li>
+<li><strong>Monitor model performance</strong> with drift detection</li>
+</ol>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-business-">Business Context</h4>
+<p><strong>Real-World Scenario</strong>: Your data science team runs 500+ ML experiments per month across 10 models. Current problems:</p>
+<ul>
+<li><strong>Lost experiments</strong>: No tracking, can't reproduce model from 2 months ago</li>
+<li><strong>Scattered artifacts</strong>: Models saved to laptops, S3, random servers</li>
+<li><strong>Manual promotion</strong>: Data scientists manually copy models to production</li>
+<li><strong>No comparison</strong>: Can't easily compare experiment results</li>
+<li><strong>Version conflicts</strong>: Multiple versions in production, confusion about which is active</li>
+<li><strong>No rollback</strong>: Can't quickly rollback to previous model version</li>
+</ul>
+<p>Your task: Build MLflow-based system that:</p>
+<ul>
+<li>Tracks all experiments with parameters, metrics, artifacts</li>
+<li>Stores models in centralized registry with versioning</li>
+<li>Automates promotion: challenger models automatically promoted if metrics better</li>
+<li>Provides A/B testing framework for comparing model versions</li>
+<li>Enables one-click rollback to previous version</li>
+<li>Tracks model lineage (data, code, hyperparameters used)</li>
+</ul>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-project-s">Project Structure</h4>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">exercise-04-experiment-tracking-mlflow/
+├── README.md
+├── requirements.txt
+├── docker-compose.yaml              # MLflow server, Postgres, MinIO
+├── config/
+│   ├── mlflow-server.conf
+│   └── model-configs.yaml
+├── src/
+│   └── mlflow_platform/
+│       ├── __init__.py
+│       ├── tracking/
+│       │   ├── __init__.py
+│       │   ├── experiment_tracker.py    # Experiment tracking wrapper
+│       │   └── auto_logger.py           # Automatic logging decorators
+│       ├── registry/
+│       │   ├── __init__.py
+│       │   ├── model_registry.py        # Model registry operations
+│       │   ├── version_manager.py       # Version lifecycle management
+│       │   └── promotion_policy.py      # Auto-promotion logic
+│       ├── serving/
+│       │   ├── __init__.py
+│       │   ├── model_server.py          # FastAPI model serving
+│       │   └── ab_testing.py            # A/B testing framework
+│       ├── monitoring/
+│       │   ├── __init__.py
+│       │   ├── performance_tracker.py   # Track model metrics
+│       │   └── drift_detector.py        # Detect data/concept drift
+│       └── cli/
+│           ├── __init__.py
+│           └── mlflow_cli.py            # CLI for model operations
+├── examples/
+│   ├── training/
+│   │   ├── train_sklearn_model.py
+│   │   ├── train_pytorch_model.py
+│   │   └── train_with_hyperopt.py
+│   ├── serving/
+│   │   ├── serve_model.py
+│   │   └── ab_test_models.py
+│   └── monitoring/
+│       └── track_production_metrics.py
+├── tests/
+│   ├── test_tracking.py
+│   ├── test_registry.py
+│   ├── test_serving.py
+│   └── test_promotion.py
+└── docs/
+    ├── DESIGN.md
+    ├── MODEL_LIFECYCLE.md
+    └── API_REFERENCE.md</code></pre></div>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-requireme">要求（Requirements）</h4>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-functiona">Functional Requirements</h5>
+<ol>
+<li><strong>实验追踪（Experiment Tracking）</strong>:</li>
+</ol>
+<ul>
+<li>Log parameters, metrics, tags</li>
+<li>Store artifacts (models, plots, data samples)</li>
+<li>Track code version (Git commit hash)</li>
+<li>Support nested runs (hyperparameter tuning)</li>
+</ul>
+<ol>
+<li><strong>模型注册表（Model Registry）</strong>:</li>
+</ol>
+<ul>
+<li>Register models with versions</li>
+<li>Stage management (None → Staging → 生产环境（Production） → Archived)</li>
+<li>Model metadata (description, tags, performance metrics)</li>
+<li>Model lineage (which experiment produced this model)</li>
+</ul>
+<ol>
+<li><strong>模型服务（Model Serving）</strong>:</li>
+</ol>
+<ul>
+<li>Load models by name and version/stage</li>
+<li>A/B testing between versions</li>
+<li>Traffic splitting (90% v1, 10% v2)</li>
+<li>Fallback to previous version on errors</li>
+</ul>
+<ol>
+<li><strong>Automated Promotion</strong>:</li>
+</ol>
+<ul>
+<li>Compare challenger vs champion metrics</li>
+<li>Auto-promote if challenger better by &gt;5%</li>
+<li>Require manual approval for production</li>
+<li>Rollback on production errors</li>
+</ul>
+<ol>
+<li><strong>监控（Monitoring）</strong>:</li>
+</ol>
+<ul>
+<li>Track prediction latency</li>
+<li>Monitor prediction distribution (drift detection)</li>
+<li>Alert on performance degradation</li>
+<li>Compare production metrics vs training metrics</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-non-funct">Non-Functional Requirements</h5>
+<ul>
+<li><strong>可扩展性（Scalability）</strong>: Support 1000+ experiments, 100+ models</li>
+<li><strong>Performance</strong>: Model loading &lt;2s, inference &lt;100ms</li>
+<li><strong>可靠性（Reliability）</strong>: Model registry 99.9% available</li>
+<li><strong>Auditability</strong>: Full audit trail of model changes</li>
+</ul>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-implement">Implementation Tasks</h4>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-task-1-ml">Task 1: MLflow 实验追踪（MLflow） Server Setup (5-6 hours)</h5>
+<p>Set up MLflow 实验追踪（MLflow） tracking server with backend storage.</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># docker-compose.yaml
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: mlflow
+      POSTGRES_USER: mlflow
+      POSTGRES_PASSWORD: mlflow123
+    ports:
+      - &quot;5432:5432&quot;
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address &quot;:9001&quot;
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - &quot;9000:9000&quot;
+      - &quot;9001:9001&quot;
+    volumes:
+      - minio_data:/data
+
+  mlflow-server:
+    image: python:3.9-slim
+    command: &gt;
+      bash -c &quot;pip install mlflow boto3 psycopg2-binary &amp;&amp;
+               mlflow server
+               --backend-store-uri postgresql://mlflow:mlflow123@postgres/mlflow
+               --default-artifact-root s3://mlflow/artifacts
+               --host 0.0.0.0
+               --port 5000&quot;
+    environment:
+      AWS_ACCESS_KEY_ID: minio
+      AWS_SECRET_ACCESS_KEY: minio123
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    ports:
+      - &quot;5000:5000&quot;
+    depends_on:
+      - postgres
+      - minio
+
+volumes:
+  postgres_data:
+  minio_data:</code></pre></div>
+<p><strong>Startup script</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">#!/bin/bash
+# setup.sh
+
+set -e
+
+echo &quot;Starting MLflow infrastructure...&quot;
+docker-compose up -d
+
+echo &quot;Waiting for services to be ready...&quot;
+sleep 10
+
+echo &quot;Creating MinIO bucket...&quot;
+docker-compose exec -T minio mc alias set myminio http://localhost:9000 minio minio123
+docker-compose exec -T minio mc mb myminio/mlflow
+
+echo &quot;✅ MLflow server ready at http://localhost:5000&quot;
+echo &quot;✅ MinIO console at http://localhost:9001 (minio/minio123)&quot;</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ MLflow 实验追踪（MLflow） server accessible at http://localhost:5000</li>
+<li>✅ PostgreSQL backend for metadata</li>
+<li>✅ S3 (MinIO) for artifacts</li>
+<li>✅ UI shows experiments and models</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-task-2-ex">Task 2: 实验追踪（Experiment Tracking） Wrapper (6-8 hours)</h5>
+<p>Build high-level experiment tracking wrapper.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/mlflow_platform/tracking/experiment_tracker.py
+
+import mlflow
+from mlflow.tracking import MlflowClient
+from typing import Dict, Any, Optional, List
+import os
+import json
+from datetime import datetime
+from pathlib import Path
+
+class ExperimentTracker:
+    &quot;&quot;&quot;
+    High-level wrapper for MLflow experiment tracking
+
+    Simplifies common tracking operations and enforces best practices
+    &quot;&quot;&quot;
+
+    def __init__(
+        self,
+        tracking_uri: str = &quot;http://localhost:5000&quot;,
+        experiment_name: str = &quot;default&quot;
+    ):
+        mlflow.set_tracking_uri(tracking_uri)
+        self.client = MlflowClient(tracking_uri=tracking_uri)
+        self.experiment_name = experiment_name
+
+        # Create experiment if doesn't exist
+        try:
+            self.experiment = self.client.get_experiment_by_name(experiment_name)
+            self.experiment_id = self.experiment.experiment_id
+        except:
+            self.experiment_id = self.client.create_experiment(experiment_name)
+
+    def start_run(
+        self,
+        run_name: Optional[str] = None,
+        tags: Optional[Dict[str, str]] = None,
+        description: Optional[str] = None
+    ) -&gt; str:
+        &quot;&quot;&quot;
+        Start MLflow run
+
+        Auto-logs:
+        - Git commit hash
+        - User
+        - Timestamp
+        - Python version
+
+        Args:
+            run_name: Human-readable run name
+            tags: Additional tags
+            description: Run description
+
+        Returns:
+            Run ID
+        &quot;&quot;&quot;
+        # TODO: Auto-detect git commit
+        git_commit = self._get_git_commit()
+
+        # TODO: Build default tags
+        default_tags = {
+            &quot;mlflow.user&quot;: os.environ.get(&quot;USER&quot;, &quot;unknown&quot;),
+            &quot;mlflow.source.git.commit&quot;: git_commit,
+            &quot;timestamp&quot;: datetime.utcnow().isoformat(),
+            &quot;python_version&quot;: f&quot;{os.sys.version_info.major}.{os.sys.version_info.minor}&quot;
+        }
+
+        if tags:
+            default_tags.update(tags)
+
+        # TODO: Start run
+        run = self.client.create_run(
+            experiment_id=self.experiment_id,
+            run_name=run_name,
+            tags=default_tags
+        )
+
+        if description:
+            self.client.set_tag(run.info.run_id, &quot;mlflow.note.content&quot;, description)
+
+        return run.info.run_id
+
+    def log_params(self, run_id: str, params: Dict[str, Any]):
+        &quot;&quot;&quot;
+        Log parameters
+
+        Handles nested dicts by flattening
+        &quot;&quot;&quot;
+        # TODO: Flatten nested params
+        flat_params = self._flatten_dict(params)
+
+        # TODO: Log to MLflow
+        for key, value in flat_params.items():
+            self.client.log_param(run_id, key, value)
+
+    def log_metrics(
+        self,
+        run_id: str,
+        metrics: Dict[str, float],
+        step: Optional[int] = None
+    ):
+        &quot;&quot;&quot;
+        Log metrics
+
+        Args:
+            metrics: {&quot;accuracy&quot;: 0.95, &quot;loss&quot;: 0.1}
+            step: Training step/epoch (for time-series metrics)
+        &quot;&quot;&quot;
+        for key, value in metrics.items():
+            self.client.log_metric(run_id, key, value, step=step)
+
+    def log_artifact(
+        self,
+        run_id: str,
+        local_path: str,
+        artifact_path: Optional[str] = None
+    ):
+        &quot;&quot;&quot;
+        Log artifact (file or directory)
+
+        Args:
+            local_path: Path to local file/directory
+            artifact_path: Path in artifact store (optional)
+        &quot;&quot;&quot;
+        self.client.log_artifact(run_id, local_path, artifact_path)
+
+    def log_model(
+        self,
+        run_id: str,
+        model: Any,
+        artifact_path: str = &quot;model&quot;,
+        registered_model_name: Optional[str] = None,
+        conda_env: Optional[Dict] = None,
+        signature: Optional[Any] = None
+    ):
+        &quot;&quot;&quot;
+        Log model artifact
+
+        Args:
+            model: Model object (sklearn, pytorch, etc.)
+            registered_model_name: Register to model registry with this name
+            conda_env: Conda environment for model
+            signature: Model signature (input/output schema)
+        &quot;&quot;&quot;
+        # TODO: Detect model type and use appropriate log function
+        if hasattr(model, 'predict'):  # sklearn-like
+            mlflow.sklearn.log_model(
+                model,
+                artifact_path,
+                registered_model_name=registered_model_name,
+                conda_env=conda_env,
+                signature=signature
+            )
+        # Add support for PyTorch, TensorFlow, etc.
+
+    def log_figure(self, run_id: str, figure, artifact_file: str):
+        &quot;&quot;&quot;
+        Log matplotlib/plotly figure
+
+        Args:
+            figure: Matplotlib Figure or Plotly Figure
+            artifact_file: Filename (e.g., &quot;confusion_matrix.png&quot;)
+        &quot;&quot;&quot;
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / artifact_file
+            figure.savefig(filepath)
+            self.log_artifact(run_id, str(filepath))
+
+    def end_run(self, run_id: str, status: str = &quot;FINISHED&quot;):
+        &quot;&quot;&quot;
+        End run
+
+        Args:
+            status: FINISHED, FAILED, KILLED
+        &quot;&quot;&quot;
+        self.client.set_terminated(run_id, status)
+
+    def compare_runs(
+        self,
+        run_ids: List[str],
+        metric_keys: Optional[List[str]] = None
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Compare multiple runs
+
+        Returns:
+            {
+                &quot;run_1&quot;: {&quot;accuracy&quot;: 0.95, &quot;f1&quot;: 0.92},
+                &quot;run_2&quot;: {&quot;accuracy&quot;: 0.93, &quot;f1&quot;: 0.90}
+            }
+        &quot;&quot;&quot;
+        comparison = {}
+
+        for run_id in run_ids:
+            run = self.client.get_run(run_id)
+            metrics = run.data.metrics
+
+            if metric_keys:
+                metrics = {k: v for k, v in metrics.items() if k in metric_keys}
+
+            comparison[run_id] = metrics
+
+        return comparison
+
+    def get_best_run(
+        self,
+        metric_name: str,
+        order_by: str = &quot;DESC&quot;,
+        filter_string: Optional[str] = None
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Get best run based on metric
+
+        Args:
+            metric_name: Metric to optimize (e.g., &quot;accuracy&quot;)
+            order_by: DESC (maximize) or ASC (minimize)
+            filter_string: MLflow filter query
+
+        Returns:
+            Best run info and metrics
+        &quot;&quot;&quot;
+        runs = self.client.search_runs(
+            experiment_ids=[self.experiment_id],
+            filter_string=filter_string,
+            order_by=[f&quot;metrics.{metric_name} {order_by}&quot;],
+            max_results=1
+        )
+
+        if runs:
+            run = runs[0]
+            return {
+                &quot;run_id&quot;: run.info.run_id,
+                &quot;metrics&quot;: run.data.metrics,
+                &quot;params&quot;: run.data.params,
+                &quot;tags&quot;: run.data.tags
+            }
+        return None
+
+    def _get_git_commit(self) -&gt; str:
+        &quot;&quot;&quot;Get current git commit hash&quot;&quot;&quot;
+        import subprocess
+        try:
+            commit = subprocess.check_output(
+                ['git', 'rev-parse', 'HEAD'],
+                stderr=subprocess.DEVNULL
+            ).decode('utf-8').strip()
+            return commit
+        except:
+            return &quot;unknown&quot;
+
+    def _flatten_dict(
+        self,
+        d: Dict,
+        parent_key: str = '',
+        sep: str = '.'
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Flatten nested dictionary
+
+        {&quot;model&quot;: {&quot;lr&quot;: 0.01}} → {&quot;model.lr&quot;: 0.01}
+        &quot;&quot;&quot;
+        items = []
+        for k, v in d.items():
+            new_key = f&quot;{parent_key}{sep}{k}&quot; if parent_key else k
+            if isinstance(v, dict):
+                items.extend(self._flatten_dict(v, new_key, sep=sep).items())
+            else:
+                items.append((new_key, v))
+        return dict(items)</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/mlflow_platform/tracking/auto_logger.py
+
+from functools import wraps
+import mlflow
+from typing import Callable, Dict, Any
+
+def mlflow_track(
+    experiment_name: str,
+    log_params: bool = True,
+    log_metrics: bool = True,
+    log_model: bool = False
+):
+    &quot;&quot;&quot;
+    Decorator to automatically track function as MLflow run
+
+    Usage:
+        @mlflow_track(experiment_name=&quot;fraud_detection&quot;)
+        def train_model(X, y, lr=0.01, epochs=10):
+            model = train(X, y, lr, epochs)
+            metrics = {&quot;accuracy&quot;: 0.95}
+            return model, metrics
+    &quot;&quot;&quot;
+    def decorator(func: Callable):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # TODO: Start run
+            with mlflow.start_run(run_name=func.__name__):
+                mlflow.set_experiment(experiment_name)
+
+                # TODO: Log function parameters as params
+                if log_params:
+                    mlflow.log_params(kwargs)
+
+                # TODO: Execute function
+                result = func(*args, **kwargs)
+
+                # TODO: Auto-log metrics if result is tuple (model, metrics)
+                if log_metrics and isinstance(result, tuple) and len(result) == 2:
+                    model, metrics = result
+                    if isinstance(metrics, dict):
+                        mlflow.log_metrics(metrics)
+
+                    if log_model:
+                        mlflow.sklearn.log_model(model, &quot;model&quot;)
+
+                return result
+
+        return wrapper
+    return decorator</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Start/end runs with auto-logging</li>
+<li>✅ Log params, metrics, artifacts</li>
+<li>✅ Compare multiple runs</li>
+<li>✅ Find best run by metric</li>
+<li>✅ Auto-track git commit</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-task-3-mo">Task 3: 模型注册表（Model Registry） (7-9 hours)</h5>
+<p>Implement model registry with version management.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/mlflow_platform/registry/model_registry.py
+
+from mlflow.tracking import MlflowClient
+from typing import Dict, List, Optional
+from datetime import datetime
+from enum import Enum
+
+class ModelStage(Enum):
+    &quot;&quot;&quot;Model lifecycle stages&quot;&quot;&quot;
+    NONE = &quot;None&quot;
+    STAGING = &quot;Staging&quot;
+    PRODUCTION = &quot;Production&quot;
+    ARCHIVED = &quot;Archived&quot;
+
+class ModelRegistry:
+    &quot;&quot;&quot;
+    High-level wrapper for MLflow Model Registry
+
+    Manages model versioning and lifecycle
+    &quot;&quot;&quot;
+
+    def __init__(self, tracking_uri: str = &quot;http://localhost:5000&quot;):
+        self.client = MlflowClient(tracking_uri=tracking_uri)
+
+    def register_model(
+        self,
+        model_uri: str,
+        model_name: str,
+        description: Optional[str] = None,
+        tags: Optional[Dict[str, str]] = None
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Register model from run
+
+        Args:
+            model_uri: URI to model artifact (runs:/&lt;run_id&gt;/model)
+            model_name: Name in registry
+            description: Model description
+            tags: Additional tags
+
+        Returns:
+            Model version info
+        &quot;&quot;&quot;
+        # TODO: Create registered model if doesn't exist
+        try:
+            self.client.get_registered_model(model_name)
+        except:
+            self.client.create_registered_model(
+                model_name,
+                description=description,
+                tags=tags
+            )
+
+        # TODO: Create model version
+        model_version = self.client.create_model_version(
+            name=model_name,
+            source=model_uri,
+            run_id=self._extract_run_id(model_uri),
+            tags=tags or {}
+        )
+
+        # TODO: Update description
+        if description:
+            self.client.update_model_version(
+                name=model_name,
+                version=model_version.version,
+                description=description
+            )
+
+        return {
+            &quot;name&quot;: model_name,
+            &quot;version&quot;: model_version.version,
+            &quot;run_id&quot;: model_version.run_id,
+            &quot;status&quot;: model_version.status
+        }
+
+    def transition_stage(
+        self,
+        model_name: str,
+        version: str,
+        stage: ModelStage,
+        archive_existing_versions: bool = True
+    ):
+        &quot;&quot;&quot;
+        Transition model version to new stage
+
+        Args:
+            archive_existing_versions: Archive old versions in target stage
+        &quot;&quot;&quot;
+        # TODO: Archive existing versions in target stage
+        if archive_existing_versions and stage != ModelStage.ARCHIVED:
+            current_versions = self.client.get_latest_versions(
+                model_name,
+                stages=[stage.value]
+            )
+            for v in current_versions:
+                self.client.transition_model_version_stage(
+                    model_name,
+                    v.version,
+                    ModelStage.ARCHIVED.value
+                )
+
+        # TODO: Transition to new stage
+        self.client.transition_model_version_stage(
+            model_name,
+            version,
+            stage.value
+        )
+
+    def get_model_version(
+        self,
+        model_name: str,
+        version: Optional[str] = None,
+        stage: Optional[ModelStage] = None
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Get specific model version or latest in stage
+
+        Args:
+            version: Specific version number
+            stage: Get latest version in this stage
+
+        Returns:
+            Model version metadata
+        &quot;&quot;&quot;
+        if version:
+            # Get specific version
+            mv = self.client.get_model_version(model_name, version)
+        elif stage:
+            # Get latest version in stage
+            versions = self.client.get_latest_versions(
+                model_name,
+                stages=[stage.value]
+            )
+            if not versions:
+                raise ValueError(f&quot;No model in {stage.value} stage&quot;)
+            mv = versions[0]
+        else:
+            raise ValueError(&quot;Must specify version or stage&quot;)
+
+        return {
+            &quot;name&quot;: mv.name,
+            &quot;version&quot;: mv.version,
+            &quot;stage&quot;: mv.current_stage,
+            &quot;run_id&quot;: mv.run_id,
+            &quot;source&quot;: mv.source,
+            &quot;status&quot;: mv.status,
+            &quot;description&quot;: mv.description,
+            &quot;tags&quot;: mv.tags
+        }
+
+    def list_model_versions(
+        self,
+        model_name: str,
+        stage: Optional[ModelStage] = None
+    ) -&gt; List[Dict]:
+        &quot;&quot;&quot;List all versions of model&quot;&quot;&quot;
+        filter_string = None
+        if stage:
+            filter_string = f&quot;current_stage='{stage.value}'&quot;
+
+        versions = self.client.search_model_versions(
+            filter_string=f&quot;name='{model_name}'&quot; +
+                         (f&quot; AND {filter_string}&quot; if filter_string else &quot;&quot;)
+        )
+
+        return [
+            {
+                &quot;version&quot;: v.version,
+                &quot;stage&quot;: v.current_stage,
+                &quot;run_id&quot;: v.run_id,
+                &quot;created_at&quot;: datetime.fromtimestamp(v.creation_timestamp / 1000)
+            }
+            for v in versions
+        ]
+
+    def delete_model_version(self, model_name: str, version: str):
+        &quot;&quot;&quot;Delete specific model version&quot;&quot;&quot;
+        self.client.delete_model_version(model_name, version)
+
+    def set_model_version_tag(
+        self,
+        model_name: str,
+        version: str,
+        key: str,
+        value: str
+    ):
+        &quot;&quot;&quot;Set tag on model version&quot;&quot;&quot;
+        self.client.set_model_version_tag(model_name, version, key, value)
+
+    def _extract_run_id(self, model_uri: str) -&gt; str:
+        &quot;&quot;&quot;Extract run ID from model URI&quot;&quot;&quot;
+        # URI format: runs:/&lt;run_id&gt;/model
+        if model_uri.startswith(&quot;runs:/&quot;):
+            return model_uri.split(&quot;/&quot;)[1]
+        return None</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Register models from runs</li>
+<li>✅ Transition between stages</li>
+<li>✅ Get model by version or stage</li>
+<li>✅ List all versions</li>
+<li>✅ Archive old versions</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-task-4-au">Task 4: Automated Model Promotion (6-7 hours)</h5>
+<p>Build automated promotion logic.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/mlflow_platform/registry/promotion_policy.py
+
+from dataclasses import dataclass
+from typing import Dict, Optional, List
+from .model_registry import ModelRegistry, ModelStage
+import logging
+
+logger = logging.getLogger(__name__)
+
+@dataclass
+class PromotionCriteria:
+    &quot;&quot;&quot;Criteria for auto-promotion&quot;&quot;&quot;
+    metric_name: str
+    min_value: Optional[float] = None  # Minimum metric value
+    improvement_threshold: float = 0.05  # Must be 5% better than champion
+    max_latency_ms: Optional[float] = None  # Max inference latency
+    require_approval: bool = False  # Require manual approval
+
+class ModelPromoter:
+    &quot;&quot;&quot;
+    Automate model promotion based on policies
+
+    Workflow:
+    1. New model registered → goes to &quot;None&quot; stage
+    2. If passes criteria → promote to &quot;Staging&quot;
+    3. Manual/auto validation in staging
+    4. If better than production → promote to &quot;Production&quot;
+    5. Old production → &quot;Archived&quot;
+    &quot;&quot;&quot;
+
+    def __init__(
+        self,
+        registry: ModelRegistry,
+        promotion_criteria: Dict[str, PromotionCriteria]
+    ):
+        self.registry = registry
+        self.criteria = promotion_criteria
+
+    def evaluate_promotion(
+        self,
+        model_name: str,
+        challenger_version: str,
+        metrics: Dict[str, float]
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Evaluate if challenger should be promoted
+
+        Args:
+            challenger_version: New model version
+            metrics: Performance metrics from validation
+
+        Returns:
+            {
+                &quot;should_promote&quot;: True/False,
+                &quot;target_stage&quot;: &quot;Staging&quot;/&quot;Production&quot;,
+                &quot;reason&quot;: &quot;...&quot;,
+                &quot;comparison&quot;: {...}
+            }
+        &quot;&quot;&quot;
+        criteria = self.criteria.get(model_name)
+        if not criteria:
+            return {
+                &quot;should_promote&quot;: False,
+                &quot;reason&quot;: &quot;No promotion criteria defined&quot;
+            }
+
+        # TODO: Check minimum metric value
+        metric_value = metrics.get(criteria.metric_name)
+        if metric_value is None:
+            return {
+                &quot;should_promote&quot;: False,
+                &quot;reason&quot;: f&quot;Metric {criteria.metric_name} not found&quot;
+            }
+
+        if criteria.min_value and metric_value &lt; criteria.min_value:
+            return {
+                &quot;should_promote&quot;: False,
+                &quot;reason&quot;: f&quot;{criteria.metric_name} {metric_value} &lt; {criteria.min_value}&quot;
+            }
+
+        # TODO: Compare to current production model
+        try:
+            production_model = self.registry.get_model_version(
+                model_name,
+                stage=ModelStage.PRODUCTION
+            )
+
+            # Get production metrics (from model tags/run)
+            production_metrics = self._get_model_metrics(
+                model_name,
+                production_model['version']
+            )
+
+            production_value = production_metrics.get(criteria.metric_name)
+
+            if production_value:
+                # Calculate improvement
+                improvement = (metric_value - production_value) / production_value
+
+                if improvement &lt; criteria.improvement_threshold:
+                    return {
+                        &quot;should_promote&quot;: False,
+                        &quot;reason&quot;: f&quot;Improvement {improvement:.2%} &lt; {criteria.improvement_threshold:.2%}&quot;,
+                        &quot;comparison&quot;: {
+                            &quot;challenger&quot;: metric_value,
+                            &quot;champion&quot;: production_value,
+                            &quot;improvement&quot;: improvement
+                        }
+                    }
+
+        except ValueError:
+            # No production model yet
+            pass
+
+        # TODO: Check latency
+        if criteria.max_latency_ms:
+            latency = metrics.get('latency_ms')
+            if latency and latency &gt; criteria.max_latency_ms:
+                return {
+                    &quot;should_promote&quot;: False,
+                    &quot;reason&quot;: f&quot;Latency {latency}ms &gt; {criteria.max_latency_ms}ms&quot;
+                }
+
+        # TODO: Determine target stage
+        target_stage = ModelStage.PRODUCTION
+        if criteria.require_approval:
+            target_stage = ModelStage.STAGING
+
+        return {
+            &quot;should_promote&quot;: True,
+            &quot;target_stage&quot;: target_stage.value,
+            &quot;reason&quot;: f&quot;{criteria.metric_name} meets criteria&quot;,
+            &quot;metrics&quot;: metrics
+        }
+
+    def promote_if_better(
+        self,
+        model_name: str,
+        challenger_version: str,
+        metrics: Dict[str, float],
+        dry_run: bool = False
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Promote challenger if better than champion
+
+        Args:
+            dry_run: Only evaluate, don't actually promote
+
+        Returns:
+            Promotion result
+        &quot;&quot;&quot;
+        # TODO: Evaluate promotion
+        evaluation = self.evaluate_promotion(model_name, challenger_version, metrics)
+
+        if not evaluation['should_promote']:
+            logger.info(f&quot;Not promoting {model_name} v{challenger_version}: {evaluation['reason']}&quot;)
+            return evaluation
+
+        # TODO: Promote if not dry run
+        if not dry_run:
+            target_stage = ModelStage[evaluation['target_stage'].upper()]
+            self.registry.transition_stage(
+                model_name,
+                challenger_version,
+                target_stage,
+                archive_existing_versions=True
+            )
+
+            # Tag with promotion info
+            self.registry.set_model_version_tag(
+                model_name,
+                challenger_version,
+                &quot;promoted_at&quot;,
+                datetime.utcnow().isoformat()
+            )
+
+            logger.info(f&quot;✅ Promoted {model_name} v{challenger_version} to {target_stage.value}&quot;)
+
+        evaluation['promoted'] = not dry_run
+        return evaluation
+
+    def _get_model_metrics(self, model_name: str, version: str) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;Get metrics for model version from run&quot;&quot;&quot;
+        model_version = self.registry.get_model_version(model_name, version=version)
+        run_id = model_version['run_id']
+
+        # Get run metrics
+        run = self.registry.client.get_run(run_id)
+        return run.data.metrics</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Define promotion criteria</li>
+<li>✅ Compare challenger vs champion</li>
+<li>✅ Auto-promote if better</li>
+<li>✅ Require approval for production</li>
+<li>✅ Archive old versions</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-task-5-mo">Task 5: 模型服务（Model Serving） with A/B 测试（A/B Testing） (5-6 hours)</h5>
+<p>Build model serving API with A/B testing.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/mlflow_platform/serving/model_server.py
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List, Dict, Optional
+import mlflow
+from mlflow.tracking import MlflowClient
+import numpy as np
+import time
+from ..registry.model_registry import ModelRegistry, ModelStage
+from ..monitoring.performance_tracker import PerformanceTracker
+
+app = FastAPI(title=&quot;MLflow Model Server&quot;)
+
+# Initialize components
+registry = ModelRegistry()
+performance_tracker = PerformanceTracker()
+
+# Model cache
+loaded_models = {}
+
+class PredictionRequest(BaseModel):
+    &quot;&quot;&quot;Request for model prediction&quot;&quot;&quot;
+    features: List[float]
+    model_name: str
+    version: Optional[str] = None  # If None, uses production version
+    ab_test_variant: Optional[str] = None  # For A/B testing
+
+class PredictionResponse(BaseModel):
+    &quot;&quot;&quot;Response from model&quot;&quot;&quot;
+    prediction: float
+    model_name: str
+    model_version: str
+    latency_ms: float
+    variant: Optional[str] = None
+
+@app.post(&quot;/predict&quot;, response_model=PredictionResponse)
+def predict(request: PredictionRequest):
+    &quot;&quot;&quot;
+    Make prediction
+
+    If version not specified, uses production version
+    &quot;&quot;&quot;
+    start_time = time.time()
+
+    try:
+        # TODO: Load model
+        if request.version:
+            model_version = request.version
+        else:
+            # Get production version
+            model_info = registry.get_model_version(
+                request.model_name,
+                stage=ModelStage.PRODUCTION
+            )
+            model_version = model_info['version']
+
+        # TODO: Get model from cache or load
+        model_key = f&quot;{request.model_name}:{model_version}&quot;
+        if model_key not in loaded_models:
+            model_uri = f&quot;models:/{request.model_name}/{model_version}&quot;
+            model = mlflow.pyfunc.load_model(model_uri)
+            loaded_models[model_key] = model
+        else:
+            model = loaded_models[model_key]
+
+        # TODO: Make prediction
+        features_array = np.array([request.features])
+        prediction = model.predict(features_array)[0]
+
+        # TODO: Track metrics
+        latency_ms = (time.time() - start_time) * 1000
+        performance_tracker.track_prediction(
+            model_name=request.model_name,
+            model_version=model_version,
+            latency_ms=latency_ms,
+            prediction=prediction,
+            features=request.features
+        )
+
+        return PredictionResponse(
+            prediction=float(prediction),
+            model_name=request.model_name,
+            model_version=model_version,
+            latency_ms=latency_ms,
+            variant=request.ab_test_variant
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post(&quot;/predict/ab_test&quot;)
+def predict_ab_test(request: PredictionRequest, traffic_split: Dict[str, float]):
+    &quot;&quot;&quot;
+    A/B test between model versions
+
+    Args:
+        traffic_split: {&quot;v1&quot;: 0.9, &quot;v2&quot;: 0.1}
+    &quot;&quot;&quot;
+    import random
+
+    # TODO: Select version based on traffic split
+    rand = random.random()
+    cumulative = 0
+    selected_version = None
+
+    for version, weight in traffic_split.items():
+        cumulative += weight
+        if rand &lt; cumulative:
+            selected_version = version
+            break
+
+    # TODO: Make prediction with selected version
+    request.version = selected_version
+    request.ab_test_variant = selected_version
+    return predict(request)
+
+@app.get(&quot;/models/{model_name}/versions&quot;)
+def list_model_versions(model_name: str):
+    &quot;&quot;&quot;List all versions of model&quot;&quot;&quot;
+    return registry.list_model_versions(model_name)
+
+@app.post(&quot;/models/{model_name}/promote/{version}&quot;)
+def promote_model(model_name: str, version: str, stage: str):
+    &quot;&quot;&quot;Promote model to stage&quot;&quot;&quot;
+    stage_enum = ModelStage[stage.upper()]
+    registry.transition_stage(model_name, version, stage_enum)
+    return {&quot;status&quot;: &quot;success&quot;}
+
+@app.get(&quot;/health&quot;)
+def health():
+    &quot;&quot;&quot;Health check&quot;&quot;&quot;
+    return {&quot;status&quot;: &quot;healthy&quot;, &quot;loaded_models&quot;: len(loaded_models)}</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Serve models by version/stage</li>
+<li>✅ A/B testing with traffic splits</li>
+<li>✅ Track prediction metrics</li>
+<li>✅ Model caching for performance</li>
+<li>✅ Health check endpoint</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-task-6-mo">Task 6: Model Performance 监控（Monitoring） (4-5 hours)</h5>
+<p>Monitor model performance in production.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/mlflow_platform/monitoring/performance_tracker.py
+
+from typing import List, Dict
+from datetime import datetime, timedelta
+import numpy as np
+from dataclasses import dataclass
+import json
+
+@dataclass
+class PredictionLog:
+    &quot;&quot;&quot;Log entry for prediction&quot;&quot;&quot;
+    timestamp: datetime
+    model_name: str
+    model_version: str
+    features: List[float]
+    prediction: float
+    latency_ms: float
+    actual: float = None  # Ground truth (if available)
+
+class PerformanceTracker:
+    &quot;&quot;&quot;
+    Track model performance metrics
+
+    Metrics:
+    - Prediction latency (p50, p95, p99)
+    - Prediction distribution (detect drift)
+    - Accuracy (if ground truth available)
+    - Throughput (predictions per second)
+    &quot;&quot;&quot;
+
+    def __init__(self):
+        self.predictions: List[PredictionLog] = []
+
+    def track_prediction(
+        self,
+        model_name: str,
+        model_version: str,
+        latency_ms: float,
+        prediction: float,
+        features: List[float],
+        actual: float = None
+    ):
+        &quot;&quot;&quot;Log prediction&quot;&quot;&quot;
+        log = PredictionLog(
+            timestamp=datetime.utcnow(),
+            model_name=model_name,
+            model_version=model_version,
+            features=features,
+            prediction=prediction,
+            latency_ms=latency_ms,
+            actual=actual
+        )
+        self.predictions.append(log)
+
+        # TODO: Write to persistent storage (database/file)
+        # For production, use time-series database like InfluxDB
+
+    def get_metrics(
+        self,
+        model_name: str,
+        model_version: Optional[str] = None,
+        window: timedelta = timedelta(hours=1)
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Get metrics for time window
+
+        Returns:
+            {
+                &quot;latency_p50&quot;: 45.2,
+                &quot;latency_p95&quot;: 98.5,
+                &quot;latency_p99&quot;: 145.3,
+                &quot;throughput&quot;: 100.5,  # predictions/sec
+                &quot;prediction_mean&quot;: 0.25,
+                &quot;prediction_std&quot;: 0.15,
+                &quot;accuracy&quot;: 0.87  # if ground truth available
+            }
+        &quot;&quot;&quot;
+        # TODO: Filter predictions
+        cutoff = datetime.utcnow() - window
+        filtered = [
+            p for p in self.predictions
+            if p.timestamp &gt;= cutoff
+            and p.model_name == model_name
+            and (model_version is None or p.model_version == model_version)
+        ]
+
+        if not filtered:
+            return {}
+
+        # TODO: Calculate latency percentiles
+        latencies = [p.latency_ms for p in filtered]
+        metrics = {
+            &quot;latency_p50&quot;: np.percentile(latencies, 50),
+            &quot;latency_p95&quot;: np.percentile(latencies, 95),
+            &quot;latency_p99&quot;: np.percentile(latencies, 99),
+        }
+
+        # TODO: Calculate throughput
+        duration_seconds = window.total_seconds()
+        metrics[&quot;throughput&quot;] = len(filtered) / duration_seconds
+
+        # TODO: Prediction distribution
+        predictions = [p.prediction for p in filtered]
+        metrics[&quot;prediction_mean&quot;] = np.mean(predictions)
+        metrics[&quot;prediction_std&quot;] = np.std(predictions)
+
+        # TODO: Accuracy (if ground truth available)
+        with_actual = [p for p in filtered if p.actual is not None]
+        if with_actual:
+            errors = [abs(p.prediction - p.actual) for p in with_actual]
+            metrics[&quot;mae&quot;] = np.mean(errors)
+
+        return metrics
+
+    def compare_versions(
+        self,
+        model_name: str,
+        version_a: str,
+        version_b: str,
+        window: timedelta = timedelta(hours=1)
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Compare metrics between two versions (for A/B testing)
+
+        Returns:
+            {
+                &quot;version_a&quot;: {...metrics...},
+                &quot;version_b&quot;: {...metrics...},
+                &quot;winner&quot;: &quot;version_a&quot;,
+                &quot;confidence&quot;: 0.95
+            }
+        &quot;&quot;&quot;
+        metrics_a = self.get_metrics(model_name, version_a, window)
+        metrics_b = self.get_metrics(model_name, version_b, window)
+
+        # TODO: Statistical test to determine winner
+        # For now, simple comparison
+        winner = None
+        if metrics_a.get('latency_p95', float('inf')) &lt; metrics_b.get('latency_p95', float('inf')):
+            winner = version_a
+        else:
+            winner = version_b
+
+        return {
+            &quot;version_a&quot;: metrics_a,
+            &quot;version_b&quot;: metrics_b,
+            &quot;winner&quot;: winner
+        }</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ Track predictions with metrics</li>
+<li>✅ Calculate latency percentiles</li>
+<li>✅ Monitor prediction distribution</li>
+<li>✅ Compare A/B test versions</li>
+<li>✅ Detect performance degradation</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-task-7-cl">Task 7: CLI Tool (3-4 hours)</h5>
+<p>Build CLI for common operations.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/mlflow_platform/cli/mlflow_cli.py
+
+import click
+from ..registry.model_registry import ModelRegistry, ModelStage
+from ..registry.promotion_policy import ModelPromoter, PromotionCriteria
+
+registry = ModelRegistry()
+
+@click.group()
+def cli():
+    &quot;&quot;&quot;MLflow Platform CLI&quot;&quot;&quot;
+    pass
+
+@cli.command()
+@click.argument('model_name')
+def list_versions(model_name: str):
+    &quot;&quot;&quot;List all versions of model&quot;&quot;&quot;
+    versions = registry.list_model_versions(model_name)
+    for v in versions:
+        click.echo(f&quot;Version {v['version']}: {v['stage']} (created {v['created_at']})&quot;)
+
+@cli.command()
+@click.argument('model_name')
+@click.argument('version')
+@click.argument('stage', type=click.Choice(['Staging', 'Production', 'Archived']))
+def promote(model_name: str, version: str, stage: str):
+    &quot;&quot;&quot;Promote model to stage&quot;&quot;&quot;
+    stage_enum = ModelStage[stage.upper()]
+    registry.transition_stage(model_name, version, stage_enum)
+    click.echo(f&quot;✅ Promoted {model_name} v{version} to {stage}&quot;)
+
+@cli.command()
+@click.argument('model_name')
+@click.option('--stage', default='Production')
+def get_model(model_name: str, stage: str):
+    &quot;&quot;&quot;Get model info&quot;&quot;&quot;
+    stage_enum = ModelStage[stage.upper()]
+    model = registry.get_model_version(model_name, stage=stage_enum)
+    click.echo(json.dumps(model, indent=2))
+
+@cli.command()
+@click.argument('model_name')
+@click.argument('version')
+@click.option('--metric', required=True)
+@click.option('--value', type=float, required=True)
+def auto_promote(model_name: str, version: str, metric: str, value: float):
+    &quot;&quot;&quot;Auto-promote model if meets criteria&quot;&quot;&quot;
+    criteria = PromotionCriteria(
+        metric_name=metric,
+        min_value=value,
+        improvement_threshold=0.05
+    )
+
+    promoter = ModelPromoter(registry, {model_name: criteria})
+    result = promoter.promote_if_better(
+        model_name,
+        version,
+        {metric: value}
+    )
+
+    if result['should_promote']:
+        click.echo(f&quot;✅ {result['reason']}&quot;)
+    else:
+        click.echo(f&quot;❌ {result['reason']}&quot;)
+
+if __name__ == '__main__':
+    cli()</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>✅ List model versions</li>
+<li>✅ Promote models</li>
+<li>✅ Get model info</li>
+<li>✅ Auto-promote based on criteria</li>
+<li>✅ User-friendly output</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-testing-r">Testing Requirements</h4>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def test_experiment_tracking():
+    &quot;&quot;&quot;Test experiment tracking&quot;&quot;&quot;
+    tracker = ExperimentTracker(experiment_name=&quot;test&quot;)
+
+    run_id = tracker.start_run(&quot;test_run&quot;)
+    tracker.log_params(run_id, {&quot;lr&quot;: 0.01})
+    tracker.log_metrics(run_id, {&quot;accuracy&quot;: 0.95})
+    tracker.end_run(run_id)
+
+    # Verify run exists
+    run = tracker.client.get_run(run_id)
+    assert run.data.params['lr'] == '0.01'
+    assert run.data.metrics['accuracy'] == 0.95
+
+def test_model_promotion():
+    &quot;&quot;&quot;Test automated promotion&quot;&quot;&quot;
+    # Register model
+    # Promote if meets criteria
+    # Verify stage transition
+    pass</code></pre></div>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-expected-">Expected Results</h4>
+<div class="table-wrap"><table><thead><tr><th>Metric</th><th>Target</th><th>Measured</th></tr></thead><tbody><tr><td><strong>Model Load Time</strong></td><td>&lt;2s</td><td>________s</td></tr><tr><td><strong>推理（Inference） Latency (P95)</strong></td><td>&lt;100ms</td><td>________ms</td></tr><tr><td><strong>Registry Availability</strong></td><td>99.9%</td><td>________%</td></tr></tbody></table></div>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-validatio">验证清单（Validation）</h4>
+<p>Submit:</p>
+<ol>
+<li>MLflow 实验追踪（MLflow） server setup</li>
+<li>Experiment tracking implementation</li>
+<li>Model registry with promotion</li>
+<li>A/B testing framework</li>
+<li>监控（Monitoring） system</li>
+<li>CLI tool</li>
+<li>Documentation</li>
+</ol>
+<h4 id="lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md-resources">资源（Resources）</h4>
+<ul>
+<li><a href="https://mlflow.org/docs/latest/index.html">MLflow 实验追踪（MLflow） Documentation</a></li>
+<li><a href="https://mlflow.org/docs/latest/model-registry.html">MLflow 实验追踪（MLflow） 模型注册表（Model Registry）</a></li>
+<li><a href="https://mlflow.org/docs/latest/tracking.html">MLflow 实验追踪（MLflow） Tracking</a></li>
+</ul>
+<hr/>
+<p><strong>Estimated Completion Time</strong>: 30-38 hours</p>
+<p><strong>Skills Practiced</strong>:</p>
+<ul>
+<li>MLflow 实验追踪（MLflow） experiment tracking</li>
+<li>Model registry and versioning</li>
+<li>Automated model promotion</li>
+<li>A/B testing</li>
+<li>Model monitoring</li>
+<li>MLOps 机器学习运维（MLOps） best practices</li>
+</ul><p><a class="home" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-03-model-registry-promotion-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-106-mlops.html#doc-lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

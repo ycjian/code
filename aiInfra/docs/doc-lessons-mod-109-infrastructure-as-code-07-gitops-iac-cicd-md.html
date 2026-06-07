@@ -1,0 +1,967 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 07: GitOps 交付模式（GitOps） and IaC CI/CD 持续集成与交付（CI/CD）</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 07: GitOps 交付模式（GitOps） and IaC CI/CD 持续集成与交付（CI/CD）</h1><p>Module 109: 基础设施即代码（Infrastructure as Code） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Module 09: 基础设施即代码（Infrastructure as Code） (IaC)</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-resources-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Resources</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lesson 01: Introduction to 基础设施即代码（Infrastructure as Code）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md.html">Lesson 02: Terraform 基础设施编排（Terraform） Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-03-terraform-state-management-md.html">Lesson 03: Terraform 基础设施编排（Terraform） State Management</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md.html">Lesson 04: Building AI 基础设施（AI Infrastructure） with Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-05-pulumi-infrastructure-as-software-md.html">Lesson 05: Pulumi 多语言 IaC（Pulumi） - Infrastructure as Software</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md.html">Lesson 06: Advanced IaC Patterns</a><a class="tree-doc active" href="../docs/doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md.html">Lesson 07: GitOps 交付模式（GitOps） and IaC CI/CD 持续集成与交付（CI/CD）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-08-security-best-practices-md.html">Lesson 08: 安全（Security） Best Practices for IaC</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-01-terraform-aws-vpc-md.html">Lab 01: Terraform 基础设施编排（Terraform） AWS 云（AWS） VPC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-02-terraform-eks-md.html">Lab 02: Terraform 基础设施编排（Terraform） EKS 托管 Kubernetes（EKS） Cluster</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-03-terraform-state-backend-md.html">Lab 03: Remote State Backend with S3 + DynamoDB Locking</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-04-pulumi-multicloud-md.html">Lab 04: Pulumi 多语言 IaC（Pulumi） Multi-Cloud 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-05-iac-cicd-md.html">Lab 05: IaC in CI/CD 持续集成与交付（CI/CD） with PR-Based Plan</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-06-secret-management-md.html">Lab 06: Secret Management with Vault + Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-07-policy-as-code-md.html">Lab 07: Policy as Code with OPA Conftest</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Module 109 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercise 01: 生产环境（Production） 机器学习基础设施（ML Infrastructure） with Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-02-pulumi-multicloud-ml-readme-m.html">Exercise 02: Multi-Cloud 机器学习基础设施（ML Infrastructure） with Pulumi 多语言 IaC（Pulumi）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-03-terraform-module-library-read.html">Exercise 03: Build a Reusable Terraform 基础设施编排（Terraform） Module Library</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-04-state-management-at-scale-rea.html">Exercise 04: Terraform 基础设施编排（Terraform） State Management at Scale</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-05-pulumi-advanced-patterns-read.html">Exercise 05: Pulumi 多语言 IaC（Pulumi） Advanced Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-06-gitops-argocd-readme-md.html">Exercise 06: GitOps 交付模式（GitOps） with ArgoCD GitOps 部署（ArgoCD）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-07-secret-management-readme-md.html">Exercise 07: Secret Management Across IaC + Runtime</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-08-policy-as-code-readme-md.html">Exercise 08: Policy as Code (OPA + Sentinel)</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-09-drift-detection-readme-md.html">Exercise 09: Drift Detection and Remediation</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-10-multi-environment-promotion-r.html">Exercise 10: Multi-Environment Promotion Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-11-cost-aware-iac-readme-md.html">Exercise 11: Cost-Aware IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-12-disaster-recovery-iac-readme-.html">Exercise 12: Disaster Recovery via IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-13-iac-for-ml-workloads-readme-m.html">Exercise 13: IaC for AI/ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-readme-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 07: GitOps 交付模式（GitOps） and IaC CI/CD 持续集成与交付（CI/CD）</h2><p>Module 109: 基础设施即代码（Infrastructure as Code） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>7</strong><span>reading order</span></div><div class="stat"><strong>33</strong><span>chapter docs</span></div><div class="stat"><strong>1130</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md" data-title="lesson 07: gitops and iac ci/cd lessons/mod-109-infrastructure-as-code/07-gitops-iac-cicd.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">7/33</span><span class="chip">Lectures</span><span class="path">lessons/mod-109-infrastructure-as-code/07-gitops-iac-cicd.md</span><span class="path">1130 行</span></div><h2>Lesson 07: GitOps 交付模式（GitOps） and IaC CI/CD 持续集成与交付（CI/CD）</h2><p><a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-109-infrastructure-as-code.html#doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-08-security-best-practices-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-lesson-07-gitops-and-iac-ci-c">Lesson 07: GitOps 交付模式（GitOps） and IaC CI/CD 持续集成与交付（CI/CD）</h3>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will:</p>
+<ul>
+<li>Understand GitOps 交付模式（GitOps） principles for infrastructure management</li>
+<li>Implement pull request workflows for infrastructure changes</li>
+<li>Set up automated testing for IaC (terraform validate, fmt, tflint)</li>
+<li>Create CI/CD 持续集成与交付（CI/CD） pipelines with GitHub Actions for Terraform 基础设施编排（Terraform）</li>
+<li>Use Atlantis for automated Terraform 基础设施编排（Terraform） workflows</li>
+<li>Apply Policy as Code (Sentinel, OPA/Open Policy Agent)</li>
+<li>Implement drift detection and automated remediation</li>
+<li>Set up security scanning in CI/CD 持续集成与交付（CI/CD） (tfsec, Checkov)</li>
+<li>Build complete infrastructure automation pipelines</li>
+</ul>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-gitops-principles">GitOps 交付模式（GitOps） Principles</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-what-is-gitops">What is GitOps 交付模式（GitOps）?</h5>
+<p><strong>GitOps 交付模式（GitOps）</strong> is an operational framework that uses Git as the single source of truth for infrastructure and application deployments.</p>
+<p><strong>Core Principles:</strong></p>
+<ol>
+<li><strong>Declarative</strong>: Infrastructure defined declaratively (Terraform, Pulumi 多语言 IaC（Pulumi）)</li>
+<li><strong>Versioned</strong>: All changes tracked in Git</li>
+<li><strong>Immutable</strong>: Infrastructure changes create new versions, not modifications</li>
+<li><strong>Pulled</strong>: Changes pulled from Git automatically</li>
+<li><strong>Continuous Reconciliation</strong>: Actual state continuously reconciled with desired state</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Traditional:                    GitOps:
+Developer → AWS Console         Developer → Git → PR → Approval → CI/CD → AWS
+(manual, no history)            (automated, full history, review)</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-gitops-for-infrastructure">GitOps 交付模式（GitOps） for Infrastructure</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Git Repository (Source of Truth)
+    ↓
+Pull Request (Review &amp; Approve)
+    ↓
+CI/CD Pipeline (Automated Tests)
+    ↓
+Terraform Apply (Deploy)
+    ↓
+Production Infrastructure
+    ↓
+Drift Detection (Monitor)
+    ↓
+Alert if Drift Detected</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-pull-request-workflow">Pull Request Workflow</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-basic-pr-workflow">Basic PR Workflow</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">1. Developer creates feature branch
+   git checkout -b add-gpu-cluster
+
+2. Make infrastructure changes
+   Edit terraform files
+
+3. Commit and push
+   git add .
+   git commit -m &quot;Add GPU training cluster&quot;
+   git push origin add-gpu-cluster
+
+4. Create Pull Request on GitHub
+
+5. CI/CD runs automatically:
+   - terraform fmt -check
+   - terraform validate
+   - terraform plan
+   - tflint
+   - tfsec
+   - checkov
+
+6. Reviewers examine:
+   - Code changes
+   - Terraform plan output
+   - Security scan results
+   - Cost estimates
+
+7. Approve and merge
+
+8. CD pipeline runs:
+   - terraform apply (automatic or manual approval)
+
+9. Infrastructure updated</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-branch-strategy">Branch Strategy</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">main (production)
+├── develop (staging)
+│   ├── feature/gpu-cluster
+│   ├── feature/add-monitoring
+│   └── feature/upgrade-eks
+└── hotfix/security-patch</code></pre></div>
+<p><strong>Workflow:</strong></p>
+<ul>
+<li><code>feature/*</code> → <code>develop</code> → test in staging</li>
+<li><code>develop</code> → <code>main</code> → deploy to production</li>
+<li><code>hotfix/*</code> → <code>main</code> → emergency fixes</li>
+</ul>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-automated-testing-for-iac">Automated Testing for IaC</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-test-pyramid-for-infrastructu">Test Pyramid for Infrastructure</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        ┌──────────────┐
+        │  Manual      │  Manual review, smoke tests
+        │  Testing     │
+        ├──────────────┤
+        │  Integration │  Full terraform apply in test environment
+        │  Tests       │
+        ├──────────────┤
+        │  Static      │  tflint, tfsec, checkov, OPA policies
+        │  Analysis    │
+        ├──────────────┤
+        │  Syntax      │  terraform fmt, terraform validate
+        │  Checks      │
+        └──────────────┘</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-terraform-fmt">terraform fmt</h5>
+<p>Format code to canonical style:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Check formatting (CI)
+terraform fmt -check -recursive
+
+# Exit code 0 = formatted
+# Exit code 3 = needs formatting
+
+# Auto-format (local)
+terraform fmt -recursive</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-terraform-validate">terraform validate</h5>
+<p>Validate syntax and configuration:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">terraform init -backend=false
+terraform validate
+
+# Output:
+# Success! The configuration is valid.
+
+# Or if errors:
+# Error: Unsupported argument
+#   on main.tf line 5, in resource &quot;aws_instance&quot; &quot;server&quot;:
+#   5:   invalid_argument = &quot;value&quot;</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-tflint">TFLint</h5>
+<p>Advanced linting for Terraform 基础设施编排（Terraform）:</p>
+<p><strong>Install:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># macOS
+brew install tflint
+
+# Linux
+curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+# Verify
+tflint --version</code></pre></div>
+<p><strong>.tflint.hcl:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">plugin &quot;terraform&quot; {
+  enabled = true
+  preset  = &quot;recommended&quot;
+}
+
+plugin &quot;aws&quot; {
+  enabled = true
+  version = &quot;0.27.0&quot;
+  source  = &quot;github.com/terraform-linters/tflint-ruleset-aws&quot;
+}
+
+rule &quot;terraform_deprecated_index&quot; {
+  enabled = true
+}
+
+rule &quot;terraform_unused_declarations&quot; {
+  enabled = true
+}
+
+rule &quot;terraform_naming_convention&quot; {
+  enabled = true
+}
+
+rule &quot;aws_instance_invalid_type&quot; {
+  enabled = true
+}
+
+rule &quot;aws_instance_previous_type&quot; {
+  enabled = true
+}</code></pre></div>
+<p><strong>Run TFLint:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Initialize plugins
+tflint --init
+
+# Run linting
+tflint
+
+# Output with issues:
+# 3 issue(s) found:
+#
+# Warning: `aws_instance_previous_type` - instance type &quot;t2.micro&quot; is previous generation (main.tf:10)
+# Error: `terraform_unused_declarations` - variable &quot;unused_var&quot; is declared but not used (variables.tf:5)</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-tfsec">tfsec</h5>
+<p>安全（Security） scanner for Terraform 基础设施编排（Terraform）:</p>
+<p><strong>Install:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># macOS
+brew install tfsec
+
+# Linux
+curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+# Verify
+tfsec --version</code></pre></div>
+<p><strong>Run tfsec:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Scan current directory
+tfsec .
+
+# Output:
+# Result #1 HIGH S3 Bucket does not have encryption enabled
+# ─────────────────────────────────────────────────────────────
+#   s3.tf:5-10
+# ─────────────────────────────────────────────────────────────
+#   5    resource &quot;aws_s3_bucket&quot; &quot;data&quot; {
+#   6      bucket = &quot;my-ml-bucket&quot;
+#   7      
+#   8      # Missing encryption!
+#   9    }
+# ─────────────────────────────────────────────────────────────
+
+# Scan with specific format
+tfsec . --format json
+tfsec . --format junit
+
+# Ignore specific issues
+tfsec . --exclude aws-s3-enable-bucket-encryption
+
+# Soft fail (don't exit with error)
+tfsec . --soft-fail</code></pre></div>
+<p><strong>Inline ignores:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">resource &quot;aws_s3_bucket&quot; &quot;public_site&quot; {
+  bucket = &quot;my-public-website&quot;
+
+  #tfsec:ignore:aws-s3-enable-bucket-encryption
+  # Public website bucket, encryption not required
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-checkov">Checkov</h5>
+<p>Policy-as-code security scanner:</p>
+<p><strong>Install:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">pip install checkov
+
+# Verify
+checkov --version</code></pre></div>
+<p><strong>Run Checkov:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Scan Terraform
+checkov -d .
+
+# Scan specific file
+checkov -f main.tf
+
+# Skip specific checks
+checkov -d . --skip-check CKV_AWS_19,CKV_AWS_20
+
+# Output format
+checkov -d . -o json
+checkov -d . -o junit
+
+# Only show failed checks
+checkov -d . --compact</code></pre></div>
+<p><strong>.checkov.yaml (config file):</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">branch: main
+download-external-modules: true
+evaluate-variables: true
+external-modules-download-path: .external_modules
+framework:
+  - terraform
+output: cli
+quiet: false
+soft-fail: false
+skip-check:
+  - CKV_AWS_19  # Ensure S3 bucket has server-side encryption
+  - CKV_AWS_21  # Ensure S3 bucket has versioning enabled</code></pre></div>
+<p><strong>Inline suppression:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">resource &quot;aws_s3_bucket&quot; &quot;logs&quot; {
+  bucket = &quot;application-logs&quot;
+
+  #checkov:skip=CKV_AWS_18:Log bucket doesn't need logging
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-github-actions-ci-cd-pipeline">GitHub Actions CI/CD 持续集成与交付（CI/CD） Pipeline</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-complete-terraform-ci-cd-work">Complete Terraform 基础设施编排（Terraform） CI/CD 持续集成与交付（CI/CD） Workflow</h5>
+<p><strong>.github/workflows/terraform.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">name: Terraform CI/CD
+
+on:
+  pull_request:
+    paths:
+      - 'infrastructure/**'
+      - '.github/workflows/terraform.yml'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'infrastructure/**'
+
+env:
+  TF_VERSION: '1.6.0'
+  AWS_REGION: 'us-west-2'
+
+jobs:
+  terraform-checks:
+    name: Terraform Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v3
+
+      - name: TFLint Init
+        run: tflint --init
+
+      - name: Run TFLint
+        id: tflint
+        run: tflint -f compact
+        continue-on-error: true
+
+      - name: Setup tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working_directory: infrastructure
+          soft_fail: true
+
+      - name: Run Checkov
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infrastructure
+          soft_fail: true
+          framework: terraform
+
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            &lt;details&gt;&lt;summary&gt;Validation Output&lt;/summary&gt;
+
+            \`\`\`
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+
+            &lt;/details&gt;
+
+            #### TFLint 🔍\`${{ steps.tflint.outcome }}\`
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    needs: terraform-checks
+    if: github.event_name == 'pull_request'
+    defaults:
+      run:
+        working-directory: infrastructure
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -out=tfplan
+        continue-on-error: true
+
+      - name: Upload Plan
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-plan
+          path: infrastructure/tfplan
+
+      - name: Comment Plan
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+            &lt;details&gt;&lt;summary&gt;Show Plan&lt;/summary&gt;
+
+            \`\`\`terraform
+            ${{ steps.plan.outputs.stdout }}
+            \`\`\`
+
+            &lt;/details&gt;
+
+            *Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+  terraform-apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: terraform-plan
+    if: github.ref == 'refs/heads/main' &amp;&amp; github.event_name == 'push'
+    defaults:
+      run:
+        working-directory: infrastructure
+    environment:
+      name: production
+      url: https://console.aws.amazon.com/
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+      - name: Notify on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Terraform apply failed!'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-cost-estimation-with-infracos">Cost Estimation with Infracost</h5>
+<p><strong>Add to workflow:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Generate Infracost JSON
+        run: infracost breakdown --path=. --format=json --out-file=/tmp/infracost.json
+
+      - name: Post Infracost comment
+        uses: infracost/actions/comment@v1
+        with:
+          path: /tmp/infracost.json
+          behavior: update</code></pre></div>
+<p><strong>Output:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Monthly cost estimate: $2,450 → $3,680 (+$1,230/month, +50%)
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Project: infrastructure                                                      ┃
+┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+┃ + aws_instance.gpu_cluster[0-9]                                             ┃
+┃   +$1,230  10 x p3.8xlarge (on-demand)                                      ┃
+┃                                                                              ┃
+┃ ~ aws_s3_bucket.datasets                                                     ┃
+┃   ~ Storage (first 50TB)                                                     ┃
+┃     +50TB  1,000GB → 51,000GB                                               ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-atlantis-for-terraform-automa">Atlantis for Terraform 基础设施编排（Terraform） Automation</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-what-is-atlantis">What is Atlantis?</h5>
+<p>Atlantis is a bot that runs Terraform 基础设施编排（Terraform） in response to pull request events.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Runs <code>terraform plan</code> on PR creation</li>
+<li>Runs <code>terraform apply</code> on PR approval</li>
+<li>Locks environments during changes</li>
+<li>Comments plan output on PR</li>
+<li>Supports multiple environments</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-atlantis-setup">Atlantis Setup</h5>
+<p><strong>atlantis.yaml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">version: 3
+automerge: false
+delete_source_branch_on_merge: true
+
+projects:
+  - name: production
+    dir: environments/production
+    workspace: default
+    terraform_version: v1.6.0
+    autoplan:
+      when_modified: [&quot;*.tf&quot;, &quot;*.tfvars&quot;]
+      enabled: true
+    apply_requirements: [&quot;approved&quot;, &quot;mergeable&quot;]
+    workflow: production
+
+  - name: staging
+    dir: environments/staging
+    workspace: default
+    terraform_version: v1.6.0
+    autoplan:
+      when_modified: [&quot;*.tf&quot;, &quot;*.tfvars&quot;]
+      enabled: true
+    apply_requirements: [&quot;approved&quot;]
+    workflow: default
+
+workflows:
+  production:
+    plan:
+      steps:
+        - init
+        - plan:
+            extra_args: [&quot;-lock=false&quot;]
+    apply:
+      steps:
+        - run: echo &quot;Applying production changes&quot;
+        - apply
+
+  default:
+    plan:
+      steps:
+        - init
+        - plan
+    apply:
+      steps:
+        - apply</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-atlantis-commands">Atlantis Commands</h5>
+<p>Comment these on pull requests:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">atlantis plan                    # Run terraform plan
+atlantis plan -p production      # Plan specific project
+atlantis apply                   # Run terraform apply
+atlantis apply -p production     # Apply specific project
+atlantis unlock                  # Unlock if stuck</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-atlantis-deployment">Atlantis 部署（Deployment）</h5>
+<p><strong>Docker 容器（Docker） Compose 多服务编排（Docker Compose）:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">version: '3'
+services:
+  atlantis:
+    image: ghcr.io/runatlantis/atlantis:latest
+    ports:
+      - &quot;4141:4141&quot;
+    environment:
+      ATLANTIS_REPO_ALLOWLIST: github.com/myorg/ml-infrastructure
+      ATLANTIS_GH_USER: atlantis-bot
+      ATLANTIS_GH_TOKEN: ${GITHUB_TOKEN}
+      ATLANTIS_GH_WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_DEFAULT_REGION: us-west-2
+    volumes:
+      - ~/.aws:/root/.aws:ro
+      - ./atlantis-data:/atlantis-data
+    command: server</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-policy-as-code">Policy as Code</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-open-policy-agent-opa">Open Policy Agent (OPA)</h5>
+<p><strong>Install:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">brew install opa</code></pre></div>
+<p><strong>policy/deny_public_s3.rego:</strong></p>
+<div class="code-shell"><div class="code-title"><span>rego</span><span>REGO</span></div><pre><code class="language-rego">package terraform
+
+deny[msg] {
+  resource := input.resource_changes[_]
+  resource.type == &quot;aws_s3_bucket&quot;
+  
+  not resource.change.after.acl == &quot;private&quot;
+  
+  msg := sprintf(
+    &quot;S3 bucket '%s' must have private ACL (found: %s)&quot;,
+    [resource.address, resource.change.after.acl]
+  )
+}
+
+deny[msg] {
+  resource := input.resource_changes[_]
+  resource.type == &quot;aws_s3_bucket_public_access_block&quot;
+  
+  resource.change.after.block_public_acls == false
+  
+  msg := sprintf(
+    &quot;S3 bucket '%s' must block public ACLs&quot;,
+    [resource.address]
+  )
+}</code></pre></div>
+<p><strong>policy/require_tags.rego:</strong></p>
+<div class="code-shell"><div class="code-title"><span>rego</span><span>REGO</span></div><pre><code class="language-rego">package terraform
+
+required_tags := [&quot;Environment&quot;, &quot;Project&quot;, &quot;ManagedBy&quot;]
+
+deny[msg] {
+  resource := input.resource_changes[_]
+  resource.mode == &quot;managed&quot;
+  
+  # Check if tags exist
+  not resource.change.after.tags
+  
+  msg := sprintf(
+    &quot;Resource '%s' is missing tags&quot;,
+    [resource.address]
+  )
+}
+
+deny[msg] {
+  resource := input.resource_changes[_]
+  resource.mode == &quot;managed&quot;
+  
+  # Check each required tag
+  tag := required_tags[_]
+  not resource.change.after.tags[tag]
+  
+  msg := sprintf(
+    &quot;Resource '%s' is missing required tag: %s&quot;,
+    [resource.address, tag]
+  )
+}</code></pre></div>
+<p><strong>Run OPA:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Generate plan JSON
+terraform plan -out=tfplan
+terraform show -json tfplan &gt; tfplan.json
+
+# Test policy
+opa eval -i tfplan.json -d policy/ &quot;data.terraform.deny&quot;
+
+# Output (if violations):
+# [
+#   &quot;S3 bucket 'aws_s3_bucket.data' must have private ACL (found: public-read)&quot;,
+#   &quot;Resource 'aws_instance.web' is missing required tag: Environment&quot;
+# ]</code></pre></div>
+<p><strong>GitHub Actions with OPA:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">      - name: OPA Policy Check
+        run: |
+          terraform plan -out=tfplan
+          terraform show -json tfplan &gt; tfplan.json
+          
+          # Run OPA
+          violations=$(opa eval -i tfplan.json -d policy/ &quot;data.terraform.deny&quot; --format raw)
+          
+          if [ &quot;$violations&quot; != &quot;[]&quot; ]; then
+            echo &quot;Policy violations found:&quot;
+            echo &quot;$violations&quot;
+            exit 1
+          fi</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-sentinel-hashicorp">Sentinel (HashiCorp)</h5>
+<p>Sentinel is HashiCorp's policy-as-code framework (requires Terraform 基础设施编排（Terraform） Cloud/Enterprise).</p>
+<p><strong>sentinel.hcl:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">policy &quot;require-tags&quot; {
+  source            = &quot;./require-tags.sentinel&quot;
+  enforcement_level = &quot;hard-mandatory&quot;
+}
+
+policy &quot;restrict-instance-types&quot; {
+  source            = &quot;./restrict-instance-types.sentinel&quot;
+  enforcement_level = &quot;soft-mandatory&quot;
+}
+
+policy &quot;cost-limit&quot; {
+  source            = &quot;./cost-limit.sentinel&quot;
+  enforcement_level = &quot;advisory&quot;
+}</code></pre></div>
+<p><strong>require-tags.sentinel:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import &quot;tfplan/v2&quot; as tfplan
+
+required_tags = [&quot;Environment&quot;, &quot;Project&quot;, &quot;Owner&quot;]
+
+resources_without_tags = filter tfplan.resource_changes as address, rc {
+  rc.mode is &quot;managed&quot; and
+  rc.change.actions is not [&quot;delete&quot;] and
+  any required_tags as tag {
+    rc.change.after.tags[tag] else null is null
+  }
+}
+
+main = rule {
+  length(resources_without_tags) is 0
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-drift-detection">Drift Detection</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-drift-detection-script">Drift Detection Script</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">#!/bin/bash
+# drift-detection.sh
+
+set -e
+
+echo &quot;Running drift detection...&quot;
+
+# Initialize
+terraform init
+
+# Refresh state
+terraform refresh
+
+# Plan with detailed diff
+terraform plan -detailed-exitcode -out=drift.tfplan
+
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -eq 0 ]; then
+  echo &quot;✓ No drift detected&quot;
+  exit 0
+elif [ $EXIT_CODE -eq 1 ]; then
+  echo &quot;✗ Terraform command error&quot;
+  exit 1
+elif [ $EXIT_CODE -eq 2 ]; then
+  echo &quot;⚠ Drift detected!&quot;
+  
+  # Show drift
+  terraform show drift.tfplan
+  
+  # Send alert (Slack, email, PagerDuty, etc.)
+  curl -X POST -H 'Content-type: application/json' \
+    --data '{&quot;text&quot;:&quot;🚨 Infrastructure drift detected in production!&quot;}' \
+    $SLACK_WEBHOOK_URL
+  
+  exit 2
+fi</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-scheduled-drift-detection-git">Scheduled Drift Detection (GitHub Actions)</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">name: Drift Detection
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+
+jobs:
+  detect-drift:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      
+      - name: Terraform Init
+        run: terraform init
+      
+      - name: Detect Drift
+        id: drift
+        run: |
+          terraform plan -detailed-exitcode -no-color
+        continue-on-error: true
+      
+      - name: Alert on Drift
+        if: steps.drift.outcome == 'failure'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: &quot;🚨 Infrastructure drift detected!&quot;,
+              attachments: [{
+                color: 'danger',
+                text: 'Drift detected in production infrastructure. Please investigate.'
+              }]
+            }
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-automated-remediation">Automated Remediation</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">      - name: Auto-Remediate Drift
+        if: steps.drift.outcome == 'failure' &amp;&amp; github.event_name == 'schedule'
+        run: |
+          # Only auto-remediate specific resources
+          terraform apply -auto-approve -target=aws_security_group_rule.ssh</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-complete-ml-infrastructure-ci">Complete 机器学习基础设施（ML Infrastructure） CI/CD 持续集成与交付（CI/CD）</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-multi-environment-pipeline">Multi-Environment Pipeline</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">name: ML Infrastructure CI/CD
+
+on:
+  pull_request:
+    paths:
+      - 'infrastructure/**'
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  validate:
+    name: Validate &amp; Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+      
+      - name: Terraform Init
+        run: terraform init -backend=false
+      
+      - name: Terraform Validate
+        run: terraform validate
+      
+      - name: TFLint
+        uses: terraform-linters/setup-tflint@v3
+      - run: tflint --init &amp;&amp; tflint
+      
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
+      
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@master
+
+  plan-staging:
+    name: Plan (Staging)
+    needs: validate
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure/environments/staging
+    
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      
+      - run: terraform init
+      - run: terraform plan -out=tfplan
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: staging-plan
+          path: infrastructure/environments/staging/tfplan
+
+  apply-staging:
+    name: Apply (Staging)
+    needs: plan-staging
+    if: github.ref == 'refs/heads/develop' &amp;&amp; github.event_name == 'push'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure/environments/staging
+    environment:
+      name: staging
+    
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      
+      - run: terraform init
+      - run: terraform apply -auto-approve
+
+  plan-production:
+    name: Plan (Production)
+    needs: validate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure/environments/production
+    
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      
+      - run: terraform init
+      - run: terraform plan -out=tfplan
+      
+      - name: Infracost
+        uses: infracost/actions/setup@v2
+      - run: infracost breakdown --path=. --format=json --out-file=/tmp/infracost.json
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: production-plan
+          path: infrastructure/environments/production/tfplan
+
+  apply-production:
+    name: Apply (Production)
+    needs: plan-production
+    if: github.ref == 'refs/heads/main' &amp;&amp; github.event_name == 'push'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure/environments/production
+    environment:
+      name: production
+      url: https://console.aws.amazon.com/
+    
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      
+      - run: terraform init
+      - run: terraform apply -auto-approve
+      
+      - name: Notify Success
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: 'Production infrastructure updated successfully'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-best-practices">最佳实践（Best Practices）</h4>
+<p>✅ <strong>Use GitOps 交付模式（GitOps）</strong>: Git as single source of truth ✅ <strong>Automate testing</strong>: Run checks on every PR ✅ <strong>Require reviews</strong>: Never merge infrastructure changes without review ✅ <strong>Cost estimation</strong>: Show cost impact in PRs ✅ <strong>安全（Security） scanning</strong>: tfsec, Checkov, OPA policies ✅ <strong>Drift detection</strong>: Schedule regular drift checks ✅ <strong>Environment protection</strong>: Require approvals for production ✅ <strong>Notifications</strong>: Alert on failures and drift ✅ <strong>State locking</strong>: Prevent concurrent modifications ✅ <strong>Rollback plans</strong>: Know how to revert changes</p>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-key-takeaways">Key Takeaways</h4>
+<p>✅ GitOps 交付模式（GitOps） provides version control and review for infrastructure ✅ Automated testing catches errors early ✅ GitHub Actions enables complete CI/CD 持续集成与交付（CI/CD） for Terraform 基础设施编排（Terraform） ✅ Atlantis automates Terraform 基础设施编排（Terraform） in pull requests ✅ Policy as Code enforces standards (OPA, Sentinel) ✅ Drift detection prevents manual changes ✅ 安全（Security） scanning is essential (tfsec, Checkov) ✅ Multi-environment pipelines isolate changes ✅ Cost estimation informs infrastructure decisions</p>
+<h4 id="lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md-next-steps">Next Steps</h4>
+<p>Now that you've mastered GitOps 交付模式（GitOps） and CI/CD 持续集成与交付（CI/CD）, explore:</p>
+<ul>
+<li><strong>Lesson 08</strong>: 安全（Security） best practices and compliance</li>
+</ul>
+<hr/>
+<p><strong>Next Lesson</strong>: <a href="#doc-lessons-mod-109-infrastructure-as-code-08-security-best-practices-md">08-security-best-practices.md</a></p><p><a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-109-infrastructure-as-code.html#doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-08-security-best-practices-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

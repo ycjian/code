@@ -1,0 +1,352 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Troubleshooting — Project 103 (LLM 部署（Deployment）)</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Troubleshooting — Project 103 (LLM 部署（Deployment）)</h1><p>实战项目（Projects） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" open><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary><a class="tree-doc" href="../docs/doc-projects-project-101-basic-model-serving-docs-api-md.html">API Documentation - ML 模型服务（Model Serving）</a><a class="tree-doc" href="../docs/doc-projects-project-101-basic-model-serving-docs-architecture-md.html">Project 01: Basic 模型服务（Model Serving） - Architecture Documentation</a><a class="tree-doc" href="../docs/doc-projects-project-101-basic-model-serving-docs-deployment-md.html">部署（Deployment） Guide - Project 01: Basic 模型服务（Model Serving）</a><a class="tree-doc" href="../docs/doc-projects-project-101-basic-model-serving-docs-troubleshooting-md.html">Troubleshooting Guide - ML 模型服务（Model Serving）</a><a class="tree-doc" href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 01: Basic 模型服务（Model Serving） System</a></details><details class="tree-section" open><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary><a class="tree-doc" href="../docs/doc-projects-project-102-mlops-pipeline-docs-architecture-md.html">MLOps 机器学习运维（MLOps） Pipeline Architecture</a><a class="tree-doc" href="../docs/doc-projects-project-102-mlops-pipeline-docs-deployment-md.html">部署（Deployment） Guide</a><a class="tree-doc" href="../docs/doc-projects-project-102-mlops-pipeline-docs-mlflow-md.html">MLflow 实验追踪（MLflow） Setup and Usage Guide</a><a class="tree-doc" href="../docs/doc-projects-project-102-mlops-pipeline-docs-pipeline-md.html">MLOps 机器学习运维（MLOps） Pipeline Workflows</a><a class="tree-doc" href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 02: End-to-End MLOps 机器学习运维（MLOps） Pipeline</a></details><details class="tree-section" open><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-docs-architecture-md.html">大语言模型（LLM） 部署（Deployment） Platform Architecture</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-docs-cost-md.html">Cost Analysis and Optimization</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-docs-deployment-md.html">部署（Deployment） Guide</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-docs-optimization-md.html">Performance Optimization Guide</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-docs-rag-md.html">检索增强生成（RAG） Implementation Guide</a><a class="tree-doc active" href="../docs/doc-projects-project-103-llm-deployment-docs-troubleshooting-md.html">Troubleshooting — Project 103 (LLM 部署（Deployment）)</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Jupyter Notebooks for 大语言模型（LLM） Experimentation</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-prompts-readme-md.html">Prompt Templates — Project 103</a><a class="tree-doc" href="../docs/doc-projects-project-103-llm-deployment-readme-md.html">Project 03: 大语言模型（LLM） 部署（Deployment） Platform</a></details><details class="tree-section" open><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-projects-readme-md.html">Projects</a></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Troubleshooting — Project 103 (LLM 部署（Deployment）)</h2><p>实战项目（Projects） · Project 3: LLM Deployment</p><div class="stats"><div class="stat"><strong>16</strong><span>reading order</span></div><div class="stat"><strong>20</strong><span>chapter docs</span></div><div class="stat"><strong>320</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-projects-project-103-llm-deployment-docs-troubleshooting-md" data-title="troubleshooting — project 103 (llm deployment) projects/project-103-llm-deployment/docs/troubleshooting.md project 3: llm deployment"><div class="doc-head"><span class="chip">16/20</span><span class="chip">Project 3</span><span class="path">projects/project-103-llm-deployment/docs/TROUBLESHOOTING.md</span><span class="path">320 行</span></div><h2>Troubleshooting — Project 103 (LLM 部署（Deployment）)</h2><p><a class="home" href="../docs/doc-projects-project-103-llm-deployment-docs-rag-md.html">← 上一篇（Previous）</a> <a class="home" href="../projects.html#doc-projects-project-103-llm-deployment-docs-troubleshooting-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">下一篇（Next） →</a></p><h3 id="projects-project-103-llm-deployment-docs-troubleshooting-md-troubleshooting-project-103-ll">Troubleshooting — Project 103 (LLM 部署（Deployment）)</h3>
+<p>Top failure modes for the 大语言模型（LLM） deployment project. Each entry: symptom → diagnosis → remediation → prevention.</p>
+<blockquote><strong>Tip:</strong> Before opening any of these runbooks, capture the current state with <code>kubectl describe pod &lt;llm-serving-pod&gt;</code>, <code>kubectl logs &lt;pod&gt; --tail=200</code>, and <code>nvidia-smi --query-gpu=memory.used,memory.total,utilization.gpu --format=csv</code>. Most issues become obvious once you have that snapshot.</blockquote>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-1-out-of-memory-oom-at-model-l">1. Out-of-Memory (OOM) at model load</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>Pod crashes during startup with <code>torch.cuda.OutOfMemoryError</code>, <code>CUDA out of memory</code>, or container exits with code 137.</li>
+<li><code>nvidia-smi</code> shows GPU 加速（GPU） memory pegged near 100% before the crash.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ol>
+<li>Compute required memory: <code>params × bytes_per_param + activations + KV cache + overhead</code>.</li>
+</ol>
+<ul>
+<li>Llama-3.1-8B in fp16 ≈ 16 GB just for weights.</li>
+<li>KV cache per sequence: <code>2 × n_layers × n_heads × head_dim × seq_len × bytes</code>. For Llama-3.1-8B at 4k context: ~0.5 GB/seq.</li>
+</ul>
+<ol>
+<li>Compare against GPU 加速（GPU） memory (<code>nvidia-smi --query-gpu=memory.total</code>).</li>
+<li>Check <code>max_num_seqs</code>, <code>max_model_len</code>, <code>gpu_memory_utilization</code> in vLLM 推理服务（vLLM） config.</li>
+</ol>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Lower <code>gpu_memory_utilization</code> from default 0.9 → 0.85 to leave headroom.</li>
+<li>Reduce <code>max_model_len</code> to actual usage (don't reserve KV for context you never use).</li>
+<li>Reduce <code>max_num_seqs</code> (parallel sequences).</li>
+<li>Quantize weights (AWQ, GPTQ, or FP8 with Transformer Engine on H100/L40S).</li>
+<li>Use a larger GPU 加速（GPU） (A10G 24 GB → A100 40/80 GB → H100 80 GB).</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Always compute the memory budget before deploy. Document it in the Helm 包管理（Helm） values.</li>
+<li>Add an alert on <code>nvidia_gpu_memory_used_bytes / total &gt; 0.95</code>.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-2-slow-time-to-first-token-ttf">2. Slow time-to-first-token (TTFT)</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>First token after a <code>/generate</code> request takes 2-10+ seconds. P95 TTFT &gt; 1 s under load.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ol>
+<li>Distinguish prefill vs decode latency. vLLM 推理服务（vLLM） exposes <code>vllm:time_to_first_token_seconds_bucket</code>.</li>
+<li>Check queue depth (<code>vllm:num_requests_waiting</code>) — high values mean the scheduler isn't admitting your request.</li>
+<li>Check prompt length distribution — a single 32k-token prompt can dominate prefill.</li>
+</ol>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Enable prefix caching if many requests share a common prefix (system prompt, few-shot examples).</li>
+<li>Increase <code>max_num_batched_tokens</code> if GPU 加速（GPU） is under-utilized during prefill.</li>
+<li>For very long prompts, evaluate chunked prefill (vLLM 0.6+).</li>
+<li>Add speculative decoding (vLLM <code>--speculative-model</code>) for short outputs.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Set an 服务水平目标（SLO） on TTFT P95 (e.g., &lt; 500 ms for prompts ≤ 2k tokens).</li>
+<li>Alert when <code>vllm:num_requests_waiting</code> &gt; 0 for &gt; 60 s.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-3-throughput-plateau-tokens-se">3. Throughput plateau (tokens/sec stops scaling)</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>Adding GPUs or replicas doesn't increase aggregate tokens/sec.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ol>
+<li>Check per-GPU utilization: <code>nvidia-smi dmon -s u</code>. If GPU 加速（GPU） sits at 50%, the bottleneck is elsewhere.</li>
+<li>Check CPU utilization — tokenization, sampling, JSON serialization can be CPU-bound.</li>
+<li>Check network: in tensor-parallel mode, NCCL all-reduce latency grows with GPU 加速（GPU） count; nccl-tests can quantify.</li>
+</ol>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Pin tokenizer to a worker pool; avoid running it on the request-handling thread.</li>
+<li>Switch to <code>--enforce-eager false</code> so vLLM 推理服务（vLLM） uses CUDA 并行计算（CUDA） graphs for fixed batch sizes.</li>
+<li>For multi-GPU, prefer NVLink-connected GPUs over PCIe (NVLink is ~10x faster).</li>
+<li>If quantizing, ensure your framework can fuse quantization into the kernel (avoid dequant→matmul→requant).</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Add a roofline analysis to the project deliverables. Knowing your compute-bound vs memory-bound regime guides every subsequent decision.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-4-nccl-hangs-in-multi-gpu-tens">4. NCCL hangs in multi-GPU tensor parallelism</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>Pod logs show <code>NCCL WARN Cuda failure</code> or stays silent for minutes.</li>
+<li><code>nvidia-smi</code> shows GPUs at 0% utilization.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ol>
+<li>Set <code>NCCL_DEBUG=INFO</code> and inspect the all-reduce ring formation.</li>
+<li>Check that all GPUs see each other: <code>nvidia-smi topo -m</code> should show NV# (NVLink) or PIX (PCIe) between TP-grouped GPUs.</li>
+<li>Verify <code>CUDA_VISIBLE_DEVICES</code> matches the topology you expect.</li>
+</ol>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Force a specific NIC: <code>NCCL_SOCKET_IFNAME=eth0</code> (or whatever your pod's NIC is).</li>
+<li>If the cluster has IB but you're not using it, set <code>NCCL_IB_DISABLE=1</code> to fall back cleanly to TCP.</li>
+<li>Restart pods with <code>kubectl rollout restart</code>. Stale NCCL state can survive process restarts when init containers leave shared memory dirty.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Run <code>nccl-tests</code> as a pre-flight job in every new cluster to catch interconnect issues before your model load attempts.</li>
+<li>Pin NCCL versions in the container image. NCCL bugs are real and version-specific.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-5-kv-cache-eviction-churn-high">5. KV cache eviction churn (high tail latency under load)</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>P99 latency 10x higher than P50. Throughput drops as concurrent requests increase.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ul>
+<li>Check <code>vllm:gpu_cache_usage_perc</code> — if it sits at &gt; 95% during load, the scheduler is constantly evicting and re-prefilling.</li>
+<li>Check <code>vllm:num_preempted_requests_total</code> — &gt; 0 means preemption is happening.</li>
+</ul>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Reduce <code>max_num_seqs</code> so fewer sequences compete for KV blocks.</li>
+<li>Increase GPU 加速（GPU） (more total cache).</li>
+<li>For chat applications, enable prefix caching to dedupe system prompts across sessions.</li>
+<li>Consider PagedAttention's <code>swap_space</code> to bleed off pressure to CPU memory (slower but bounded).</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Treat KV cache as a first-class capacity dimension in your load model. The standard &quot;requests per second&quot; framing under-specifies 大语言模型（LLM） serving.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-6-streaming-sse-connections-dr">6. Streaming SSE connections drop mid-generation</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>Clients receive partial output then <code>connection closed</code>.</li>
+<li>Server logs show no errors.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ol>
+<li>Check ingress/load-balancer idle timeout (most defaults are 30-60 s; long generations exceed that).</li>
+<li>Check <code>kubectl describe ingress</code> for <code>proxy-read-timeout</code> and <code>proxy-send-timeout</code> annotations.</li>
+<li>Confirm the client is actually consuming the stream (some clients buffer SSE).</li>
+</ol>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Set ingress annotations: <code>nginx.ingress.kubernetes.io/proxy-read-timeout: &quot;600&quot;</code> and <code>proxy-send-timeout: &quot;600&quot;</code>.</li>
+<li>Send periodic <code>: keep-alive</code> comments every 15-20 s in your SSE stream so intermediaries don't time out.</li>
+<li>For very long generations, consider splitting into chunks with separate requests.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Include long-generation tests in your CI suite (generate ≥ 2,000 output tokens).</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-7-model-loads-slowly-5-minutes">7. Model loads slowly (5+ minutes)</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>Pod stays in <code>Running</code> but not <code>Ready</code> for several minutes after start.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ol>
+<li>Check whether the model is being downloaded from the Hub on every pod start (look for HuggingFace download log lines).</li>
+<li>Check the <code>readinessProbe</code> — if it polls a <code>/ready</code> endpoint that only flips when the model is fully loaded, the wait time is the actual load time.</li>
+</ol>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Pre-bake the model into the container image (or use a model PVC that's pre-populated).</li>
+<li>Use a higher-bandwidth storage class (e.g., <code>gp3</code> 1 GiB/s instead of <code>gp2</code>).</li>
+<li>For sharded models, prefetch shards in parallel.</li>
+<li>Increase <code>readinessProbe.initialDelaySeconds</code> so K8s doesn't restart the pod while it's still loading.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Pre-pull container images on nodes via DaemonSet.</li>
+<li>Document expected cold-start time per (model, hardware) combo in the project README.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-8-fp8-numerical-drift-quantize">8. FP8 numerical drift (quantized output diverges from baseline)</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>FP8/AWQ/GPTQ quantized model produces qualitatively worse output than the fp16 baseline (e.g., longer outputs, more hallucinations, broken JSON).</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ol>
+<li>Compare evaluation metrics on a held-out set (perplexity, accuracy, instruction-following score).</li>
+<li>Check if your calibration data matches inference distribution. Calibrating on Wikitext but serving chat will hurt.</li>
+<li>Check whether activation scaling is per-tensor (FP8) or per-channel (AWQ); the wrong scale strategy degrades quality.</li>
+</ol>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Re-calibrate AWQ/GPTQ with a sample that matches your serving distribution.</li>
+<li>For FP8 with Transformer Engine, ensure <code>fp8_recipe</code> is set correctly (DelayedScaling vs Current).</li>
+<li>Try a different quantization scheme; AWQ generally preserves quality better than GPTQ for chat.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Always evaluate quantized variants on your actual evaluation set before promoting to production. The &quot;1.5pp&quot; threshold from the project spec is conservative for a reason.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-9-hpa-never-scales-up-or-never">9. HPA never scales up (or never scales down)</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>Replica count stuck at min (or max) despite changing load.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ol>
+<li><code>kubectl describe hpa &lt;name&gt;</code> — look at the conditions and target/current values.</li>
+<li>Confirm metrics are reaching Prometheus 指标监控（Prometheus） and the HPA's metric source (Prometheus Adapter, KEDA).</li>
+<li>For GPU 加速（GPU） workloads, CPU metrics don't reflect actual load — make sure your HPA is using a request-based metric (queue depth, RPS, GPU 加速（GPU） utilization).</li>
+</ol>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Switch HPA to a custom metric: <code>vllm:num_requests_waiting</code> is an excellent signal.</li>
+<li>Use KEDA's <code>prometheus</code> scaler if Prometheus 指标监控（Prometheus） Adapter is flaky.</li>
+<li>Set <code>behavior.scaleDown.stabilizationWindowSeconds: 300</code> to avoid flapping.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Load-test the HPA explicitly. Run a step-load test and verify the scale-up and scale-down both happen as expected.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-10-queue-saturation-under-burs">10. Queue saturation under burst load</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>Burst of requests causes a backlog; new requests sit in the queue for seconds-to-minutes.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ul>
+<li><code>vllm:num_requests_waiting</code> spikes.</li>
+<li>Per-tenant tracking shows one tenant consuming all capacity.</li>
+</ul>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Add per-tenant rate limiting at the API layer (e.g., a <code>RateLimitMiddleware</code> in FastAPI 服务框架（FastAPI） keyed by API key).</li>
+<li>Shed load by returning HTTP 429 when <code>num_requests_waiting &gt; N</code>.</li>
+<li>Provision more replicas (HPA on queue depth, see #9).</li>
+<li>For mixed workloads, consider tier-aware routing — small models for cheap/fast, big models for premium.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Always model for burst, not just steady-state. P99 throughput matters more than mean.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-11-cost-surprise-after-deploy">11. Cost surprise after deploy</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>Monthly cloud bill includes a much higher GPU 加速（GPU） spend than projected.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ol>
+<li>Check actual GPU-hours: <code>(replicas × hours_running × on_demand_rate)</code>.</li>
+<li>Compare against your project's COST.md analysis.</li>
+<li>Look for: zombie pods (a deployment scaled to 10 that never scaled down), spot interruptions causing re-launches, inefficient batching (low GPU 加速（GPU） utilization but full provisioning).</li>
+</ol>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Right-size: if GPU 加速（GPU） utilization is &lt; 40% steady-state, you have too many replicas.</li>
+<li>Use spot instances for batch / non-critical paths.</li>
+<li>Add a Prometheus 指标监控（Prometheus） query for <code>nvidia_gpu_utilization</code> and alert when low utilization persists.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Include a weekly cost review in your runbook. Costs drift; what was right last quarter may be wrong this quarter.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-12-tokenization-mismatch-cause">12. Tokenization mismatch causes garbage output</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>Output is incoherent, character-for-character. May contain BPE artifacts (<code>Ġthe</code> instead of <code> the</code>).</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ol>
+<li>Check that the tokenizer version matches the model version. Llama-3 vs Llama-3.1 use different tokenizers.</li>
+<li>Compare <code>tokenizer.encode(&quot;hello world&quot;)</code> between training-time and serving-time.</li>
+</ol>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Pin the tokenizer version (and model version) in the container image.</li>
+<li>Add a startup self-check: encode + decode a canary string, compare to expected output.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Bake the tokenizer into the model artifact. Never download &quot;the latest&quot; tokenizer at runtime.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-13-image-build-fails-with-cuda">13. Image build fails with CUDA 并行计算（CUDA） mismatch</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li><code>docker build</code> succeeds but the container crashes with <code>CUDA driver version is insufficient</code> on a GPU 加速（GPU） node.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ul>
+<li>Container CUDA 并行计算（CUDA） version &gt; host driver's max-supported CUDA 并行计算（CUDA） version.</li>
+<li><code>nvidia-smi</code> on host shows the driver version (e.g., <code>535.x</code> supports CUDA 并行计算（CUDA） up to 12.2).</li>
+</ul>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Match the container's CUDA 并行计算（CUDA） version to the host driver: use <code>nvcr.io/nvidia/cuda:12.2.2-runtime-ubuntu22.04</code> (or whatever matches).</li>
+<li>Upgrade the host driver if you genuinely need a newer CUDA 并行计算（CUDA）.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Standardize on a (driver, CUDA 并行计算（CUDA）) pair across your cluster. Document in cluster setup notes.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-14-prometheus-scraping-causes-">14. Prometheus 指标监控（Prometheus） scraping causes high CPU on the server pod</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>Serving pod CPU spikes every 15 s coinciding with Prometheus 指标监控（Prometheus） scrapes.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ul>
+<li>Check <code>vllm</code> metrics cardinality. Per-request labels can explode cardinality.</li>
+</ul>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Drop high-cardinality labels via Prometheus 指标监控（Prometheus） relabel config.</li>
+<li>Reduce metric collection interval if 15 s overhead is meaningful.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Audit metrics cardinality before deploy. Use <code>prometheus_tsdb_head_series</code> to verify.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-15-pod-evicted-mid-generation-">15. Pod evicted mid-generation by spot interruption</h4>
+<p><strong>Symptom</strong></p>
+<ul>
+<li>In-flight requests fail with connection reset; pod restarts on a new node 30-60 s later.</li>
+</ul>
+<p><strong>Diagnosis</strong></p>
+<ul>
+<li>Check node events: <code>kubectl describe node &lt;node&gt;</code> — look for <code>SpotInterruption</code> or <code>Preempted</code>.</li>
+</ul>
+<p><strong>Remediation</strong></p>
+<ul>
+<li>Add a <code>PreStop</code> hook with <code>terminationGracePeriodSeconds: 120</code> so the pod can drain in-flight requests.</li>
+<li>Use a service like AWS 云（AWS）'s Spot Interrupt Notice handler (2-minute warning) to gracefully shed load.</li>
+<li>For latency-critical paths, prefer on-demand or reserved instances.</li>
+</ul>
+<p><strong>Prevention</strong></p>
+<ul>
+<li>Plan for interruption. Spot is great for cost, but only with the right architecture.</li>
+</ul>
+<hr/>
+<h4 id="projects-project-103-llm-deployment-docs-troubleshooting-md-see-also">See also</h4>
+<ul>
+<li><code>docs/ARCHITECTURE.md</code> — system design and component overview</li>
+<li><code>docs/DEPLOYMENT.md</code> — production deployment guide</li>
+<li><code>docs/OPTIMIZATION.md</code> — performance tuning playbook</li>
+<li><code>docs/COST.md</code> — cost analysis and optimization</li>
+<li><code>docs/RAG.md</code> — retrieval-augmented generation patterns (if applicable to your variant)</li>
+</ul><p><a class="home" href="../docs/doc-projects-project-103-llm-deployment-docs-rag-md.html">← 上一篇（Previous）</a> <a class="home" href="../projects.html#doc-projects-project-103-llm-deployment-docs-troubleshooting-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

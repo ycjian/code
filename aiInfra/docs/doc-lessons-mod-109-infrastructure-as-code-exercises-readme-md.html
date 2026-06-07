@@ -1,0 +1,1257 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Module 09: 基础设施即代码（Infrastructure as Code） - Hands-On Exercises</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Module 09: 基础设施即代码（Infrastructure as Code） - Hands-On Exercises</h1><p>Module 109: 基础设施即代码（Infrastructure as Code） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Module 09: 基础设施即代码（Infrastructure as Code） (IaC)</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-resources-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Resources</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lesson 01: Introduction to 基础设施即代码（Infrastructure as Code）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md.html">Lesson 02: Terraform 基础设施编排（Terraform） Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-03-terraform-state-management-md.html">Lesson 03: Terraform 基础设施编排（Terraform） State Management</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md.html">Lesson 04: Building AI 基础设施（AI Infrastructure） with Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-05-pulumi-infrastructure-as-software-md.html">Lesson 05: Pulumi 多语言 IaC（Pulumi） - Infrastructure as Software</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md.html">Lesson 06: Advanced IaC Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md.html">Lesson 07: GitOps 交付模式（GitOps） and IaC CI/CD 持续集成与交付（CI/CD）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-08-security-best-practices-md.html">Lesson 08: 安全（Security） Best Practices for IaC</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-01-terraform-aws-vpc-md.html">Lab 01: Terraform 基础设施编排（Terraform） AWS 云（AWS） VPC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-02-terraform-eks-md.html">Lab 02: Terraform 基础设施编排（Terraform） EKS 托管 Kubernetes（EKS） Cluster</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-03-terraform-state-backend-md.html">Lab 03: Remote State Backend with S3 + DynamoDB Locking</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-04-pulumi-multicloud-md.html">Lab 04: Pulumi 多语言 IaC（Pulumi） Multi-Cloud 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-05-iac-cicd-md.html">Lab 05: IaC in CI/CD 持续集成与交付（CI/CD） with PR-Based Plan</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-06-secret-management-md.html">Lab 06: Secret Management with Vault + Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-07-policy-as-code-md.html">Lab 07: Policy as Code with OPA Conftest</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Module 109 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercise 01: 生产环境（Production） 机器学习基础设施（ML Infrastructure） with Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-02-pulumi-multicloud-ml-readme-m.html">Exercise 02: Multi-Cloud 机器学习基础设施（ML Infrastructure） with Pulumi 多语言 IaC（Pulumi）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-03-terraform-module-library-read.html">Exercise 03: Build a Reusable Terraform 基础设施编排（Terraform） Module Library</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-04-state-management-at-scale-rea.html">Exercise 04: Terraform 基础设施编排（Terraform） State Management at Scale</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-05-pulumi-advanced-patterns-read.html">Exercise 05: Pulumi 多语言 IaC（Pulumi） Advanced Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-06-gitops-argocd-readme-md.html">Exercise 06: GitOps 交付模式（GitOps） with ArgoCD GitOps 部署（ArgoCD）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-07-secret-management-readme-md.html">Exercise 07: Secret Management Across IaC + Runtime</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-08-policy-as-code-readme-md.html">Exercise 08: Policy as Code (OPA + Sentinel)</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-09-drift-detection-readme-md.html">Exercise 09: Drift Detection and Remediation</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-10-multi-environment-promotion-r.html">Exercise 10: Multi-Environment Promotion Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-11-cost-aware-iac-readme-md.html">Exercise 11: Cost-Aware IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-12-disaster-recovery-iac-readme-.html">Exercise 12: Disaster Recovery via IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-13-iac-for-ml-workloads-readme-m.html">Exercise 13: IaC for AI/ML Workloads</a><a class="tree-doc active" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-readme-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Module 09: 基础设施即代码（Infrastructure as Code） - Hands-On Exercises</h2><p>Module 109: 基础设施即代码（Infrastructure as Code） · Exercises: 课后练习</p><div class="stats"><div class="stat"><strong>22</strong><span>reading order</span></div><div class="stat"><strong>33</strong><span>chapter docs</span></div><div class="stat"><strong>1410</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-109-infrastructure-as-code-exercises-readme-md" data-title="module 09: infrastructure as code - hands-on exercises lessons/mod-109-infrastructure-as-code/exercises/readme.md exercises: 课后练习"><div class="doc-head"><span class="chip">22/33</span><span class="chip">Exercises</span><span class="path">lessons/mod-109-infrastructure-as-code/exercises/README.md</span><span class="path">1410 行</span></div><h2>Module 09: 基础设施即代码（Infrastructure as Code） - Hands-On Exercises</h2><p><a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-13-iac-for-ml-workloads-readme-m.html">← 上一篇（Previous）</a> <a class="home" href="../mod-109-infrastructure-as-code.html#doc-lessons-mod-109-infrastructure-as-code-exercises-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-01-terraform-aws-vpc-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-module-09-infrastructure-as-cod">Module 09: 基础设施即代码（Infrastructure as Code） - Hands-On Exercises</h3>
+<p>Practical exercises to reinforce 基础设施即代码（Infrastructure as Code） concepts and build real-world ML infrastructure skills.</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-exercise-overview">Exercise Overview</h4>
+<div class="table-wrap"><table><thead><tr><th>Exercise</th><th>Topic</th><th>Difficulty</th><th>Time</th><th>前置要求（Prerequisites）</th></tr></thead><tbody><tr><td>01</td><td>Deploy EC2 Instance</td><td>Beginner</td><td>1-2 hours</td><td>AWS 云（AWS） account, Terraform 基础设施编排（Terraform） installed</td></tr><tr><td>02</td><td>S3 Buckets for ML Data</td><td>Beginner</td><td>1 hour</td><td>Exercise 01</td></tr><tr><td>03</td><td>GPU 加速（GPU） Cluster with Terraform 基础设施编排（Terraform）</td><td>Intermediate</td><td>2-3 hours</td><td>Exercise 01-02</td></tr><tr><td>04</td><td>Reusable Terraform 基础设施编排（Terraform） Modules</td><td>Intermediate</td><td>2-3 hours</td><td>Exercise 01-03</td></tr><tr><td>05</td><td>Remote State with S3 Backend</td><td>Intermediate</td><td>1-2 hours</td><td>Exercise 01-04</td></tr><tr><td>06</td><td>机器学习基础设施（ML Infrastructure） with Pulumi 多语言 IaC（Pulumi）</td><td>Intermediate</td><td>2-3 hours</td><td>Python, Pulumi 多语言 IaC（Pulumi） installed</td></tr><tr><td>07</td><td>GitOps 交付模式（GitOps） Workflow with GitHub Actions</td><td>Advanced</td><td>3-4 hours</td><td>GitHub account, Git knowledge</td></tr><tr><td>08</td><td>Secrets Management</td><td>Advanced</td><td>2-3 hours</td><td>AWS 云（AWS） Secrets Manager knowledge</td></tr></tbody></table></div>
+<p><strong>Total estimated time</strong>: 15-21 hours</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-prerequisites">前置要求（Prerequisites）</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-required-accounts">Required Accounts</h5>
+<ul>
+<li><strong>AWS 云（AWS） Account</strong> - Free tier eligible (sign up at https://aws.amazon.com/free/)</li>
+<li><strong>GitHub Account</strong> - For Exercise 07 (free at https://github.com/)</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-required-tools">Required Tools</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Terraform
+brew install terraform  # macOS
+# or download from https://www.terraform.io/downloads
+
+# AWS CLI
+brew install awscli  # macOS
+# or download from https://aws.amazon.com/cli/
+
+# Git
+brew install git  # macOS
+
+# (Optional) Pulumi for Exercise 06
+brew install pulumi  # macOS
+# or download from https://www.pulumi.com/docs/install/
+
+# (Optional) Pre-commit for Exercise 08
+pip install pre-commit</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-aws-configuration">AWS 云（AWS） Configuration</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Configure AWS credentials
+aws configure
+
+# Enter your:
+# - AWS Access Key ID
+# - AWS Secret Access Key
+# - Default region (e.g., us-west-2)
+# - Output format (json)
+
+# Verify
+aws sts get-caller-identity</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-exercise-01-deploy-your-first-e">Exercise 01: Deploy Your First EC2 Instance</h4>
+<p><strong>Objective</strong>: Create a basic EC2 instance using Terraform 基础设施编排（Terraform） to understand the core workflow.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-learning-goals">Learning Goals</h5>
+<ul>
+<li>Understand Terraform 基础设施编排（Terraform） project structure</li>
+<li>Write basic HCL configuration</li>
+<li>Use terraform init, plan, apply, destroy</li>
+<li>Reference data sources</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-steps">步骤（Steps）</h5>
+<ol>
+<li><strong>Create project directory</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   mkdir exercise-01-ec2
+   cd exercise-01-ec2</code></pre></div>
+<ol>
+<li><strong>Create versions.tf</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   terraform {
+     required_version = &quot;&gt;= 1.0&quot;
+
+     required_providers {
+       aws = {
+         source  = &quot;hashicorp/aws&quot;
+         version = &quot;~&gt; 5.0&quot;
+       }
+     }
+   }</code></pre></div>
+<ol>
+<li><strong>Create main.tf</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   provider &quot;aws&quot; {
+     region = &quot;us-west-2&quot;
+   }
+
+   # Data source: Latest Amazon Linux 2 AMI
+   data &quot;aws_ami&quot; &quot;amazon_linux&quot; {
+     most_recent = true
+     owners      = [&quot;amazon&quot;]
+
+     filter {
+       name   = &quot;name&quot;
+       values = [&quot;amzn2-ami-hvm-*-x86_64-gp2&quot;]
+     }
+   }
+
+   # Security group
+   resource &quot;aws_security_group&quot; &quot;allow_ssh&quot; {
+     name        = &quot;allow-ssh&quot;
+     description = &quot;Allow SSH inbound traffic&quot;
+
+     ingress {
+       description = &quot;SSH from anywhere&quot;
+       from_port   = 22
+       to_port     = 22
+       protocol    = &quot;tcp&quot;
+       cidr_blocks = [&quot;0.0.0.0/0&quot;]  # TODO: Restrict this in production!
+     }
+
+     egress {
+       from_port   = 0
+       to_port     = 0
+       protocol    = &quot;-1&quot;
+       cidr_blocks = [&quot;0.0.0.0/0&quot;]
+     }
+
+     tags = {
+       Name = &quot;allow-ssh&quot;
+     }
+   }
+
+   # EC2 instance
+   resource &quot;aws_instance&quot; &quot;web&quot; {
+     ami           = data.aws_ami.amazon_linux.id
+     instance_type = &quot;t3.micro&quot;  # Free tier eligible
+
+     vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+
+     tags = {
+       Name = &quot;Exercise-01-Instance&quot;
+     }
+   }</code></pre></div>
+<ol>
+<li><strong>Create outputs.tf</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   output &quot;instance_id&quot; {
+     description = &quot;ID of the EC2 instance&quot;
+     value       = aws_instance.web.id
+   }
+
+   output &quot;instance_public_ip&quot; {
+     description = &quot;Public IP address of the EC2 instance&quot;
+     value       = aws_instance.web.public_ip
+   }
+
+   output &quot;ssh_command&quot; {
+     description = &quot;SSH command to connect to instance&quot;
+     value       = &quot;ssh ec2-user@${aws_instance.web.public_ip}&quot;
+   }</code></pre></div>
+<ol>
+<li><strong>Create .gitignore</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">   .terraform/
+   *.tfstate
+   *.tfstate.backup
+   .terraform.lock.hcl</code></pre></div>
+<ol>
+<li><strong>Deploy</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   # Initialize Terraform
+   terraform init
+
+   # Format code
+   terraform fmt
+
+   # Validate syntax
+   terraform validate
+
+   # Preview changes
+   terraform plan
+
+   # Apply changes
+   terraform apply
+   # Type 'yes' when prompted
+
+   # View outputs
+   terraform output
+
+   # SSH to instance (if you have a key pair configured)
+   ssh ec2-user@$(terraform output -raw instance_public_ip)
+
+   # Destroy when done
+   terraform destroy
+   # Type 'yes' to confirm</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-challenge-tasks">Challenge Tasks</h5>
+<ul>
+<li>[ ] Add a key pair to enable SSH access</li>
+<li>[ ] Change instance type to t3.small and re-apply</li>
+<li>[ ] Add user data to install nginx on boot</li>
+<li>[ ] Add multiple security group rules (HTTP, HTTPS)</li>
+<li>[ ] Tag resources with your name and date</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-expected-results">Expected Results</h5>
+<p>✅ EC2 instance created successfully ✅ 安全（Security） group attached ✅ Public IP address outputted ✅ Instance can be SSH'd into (if key configured) ✅ Terraform 基础设施编排（Terraform） state file created locally</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-exercise-02-s3-buckets-for-ml-d">Exercise 02: S3 Buckets for ML Data</h4>
+<p><strong>Objective</strong>: Create S3 buckets with proper configuration for ML datasets and models.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-learning-goals">Learning Goals</h5>
+<ul>
+<li>Configure S3 buckets with lifecycle policies</li>
+<li>Enable versioning for model storage</li>
+<li>Set up bucket encryption</li>
+<li>Use variables for configuration</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-steps">步骤（Steps）</h5>
+<ol>
+<li><strong>Create project directory</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   mkdir exercise-02-s3
+   cd exercise-02-s3</code></pre></div>
+<ol>
+<li><strong>Create variables.tf</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   variable &quot;project_name&quot; {
+     description = &quot;Name of the ML project&quot;
+     type        = string
+     default     = &quot;ml-project&quot;
+   }
+
+   variable &quot;environment&quot; {
+     description = &quot;Environment (dev, staging, prod)&quot;
+     type        = string
+     default     = &quot;dev&quot;
+   }</code></pre></div>
+<ol>
+<li><strong>Create main.tf</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   provider &quot;aws&quot; {
+     region = &quot;us-west-2&quot;
+   }
+
+   data &quot;aws_caller_identity&quot; &quot;current&quot; {}
+
+   locals {
+     account_id = data.aws_caller_identity.current.account_id
+   }
+
+   # Bucket for raw datasets
+   resource &quot;aws_s3_bucket&quot; &quot;datasets&quot; {
+     bucket = &quot;${var.project_name}-datasets-${local.account_id}&quot;
+
+     tags = {
+       Name        = &quot;ML Datasets&quot;
+       Environment = var.environment
+       Purpose     = &quot;raw-data&quot;
+     }
+   }
+
+   # Enable versioning for datasets
+   resource &quot;aws_s3_bucket_versioning&quot; &quot;datasets&quot; {
+     bucket = aws_s3_bucket.datasets.id
+
+     versioning_configuration {
+       status = &quot;Enabled&quot;
+     }
+   }
+
+   # Lifecycle policy for datasets
+   resource &quot;aws_s3_bucket_lifecycle_configuration&quot; &quot;datasets&quot; {
+     bucket = aws_s3_bucket.datasets.id
+
+     rule {
+       id     = &quot;archive-old-data&quot;
+       status = &quot;Enabled&quot;
+
+       transition {
+         days          = 30
+         storage_class = &quot;STANDARD_IA&quot;  # Infrequent Access
+       }
+
+       transition {
+         days          = 90
+         storage_class = &quot;GLACIER&quot;
+       }
+     }
+   }
+
+   # Bucket for trained models
+   resource &quot;aws_s3_bucket&quot; &quot;models&quot; {
+     bucket = &quot;${var.project_name}-models-${local.account_id}&quot;
+
+     tags = {
+       Name        = &quot;ML Models&quot;
+       Environment = var.environment
+       Purpose     = &quot;model-artifacts&quot;
+     }
+   }
+
+   # Enable versioning for models (critical!)
+   resource &quot;aws_s3_bucket_versioning&quot; &quot;models&quot; {
+     bucket = aws_s3_bucket.models.id
+
+     versioning_configuration {
+       status = &quot;Enabled&quot;
+     }
+   }
+
+   # Server-side encryption
+   resource &quot;aws_s3_bucket_server_side_encryption_configuration&quot; &quot;models&quot; {
+     bucket = aws_s3_bucket.models.id
+
+     rule {
+       apply_server_side_encryption_by_default {
+         sse_algorithm = &quot;AES256&quot;
+       }
+     }
+   }
+
+   # Block public access
+   resource &quot;aws_s3_bucket_public_access_block&quot; &quot;models&quot; {
+     bucket = aws_s3_bucket.models.id
+
+     block_public_acls       = true
+     block_public_policy     = true
+     ignore_public_acls      = true
+     restrict_public_buckets = true
+   }</code></pre></div>
+<ol>
+<li><strong>Create outputs.tf</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   output &quot;datasets_bucket_name&quot; {
+     description = &quot;Name of the datasets S3 bucket&quot;
+     value       = aws_s3_bucket.datasets.bucket
+   }
+
+   output &quot;models_bucket_name&quot; {
+     description = &quot;Name of the models S3 bucket&quot;
+     value       = aws_s3_bucket.models.bucket
+   }
+
+   output &quot;datasets_bucket_arn&quot; {
+     value = aws_s3_bucket.datasets.arn
+   }
+
+   output &quot;models_bucket_arn&quot; {
+     value = aws_s3_bucket.models.arn
+   }</code></pre></div>
+<ol>
+<li><strong>Deploy</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   terraform init
+   terraform plan
+   terraform apply
+
+   # Test bucket access
+   echo &quot;test data&quot; &gt; test.txt
+   aws s3 cp test.txt s3://$(terraform output -raw datasets_bucket_name)/
+
+   # List objects
+   aws s3 ls s3://$(terraform output -raw datasets_bucket_name)/
+
+   # Cleanup
+   aws s3 rm s3://$(terraform output -raw datasets_bucket_name)/test.txt
+   terraform destroy</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-challenge-tasks">Challenge Tasks</h5>
+<ul>
+<li>[ ] Add a third bucket for processed/features data</li>
+<li>[ ] Implement S3 bucket logging</li>
+<li>[ ] Add CORS configuration for web access</li>
+<li>[ ] Create IAM policy document for bucket access</li>
+<li>[ ] Add lifecycle rule to delete old model versions after 180 days</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-expected-results">Expected Results</h5>
+<p>✅ Two S3 buckets created (datasets, models) ✅ Versioning enabled on both buckets ✅ Encryption enabled on models bucket ✅ Lifecycle policies applied ✅ Public access blocked</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-exercise-03-gpu-cluster-with-te">Exercise 03: GPU 加速（GPU） Cluster with Terraform 基础设施编排（Terraform）</h4>
+<p><strong>Objective</strong>: Provision a small GPU 加速（GPU） cluster for ML training with proper networking and IAM.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-learning-goals">Learning Goals</h5>
+<ul>
+<li>Configure VPC and subnets</li>
+<li>Create GPU 加速（GPU） instances (p3 family)</li>
+<li>Set up IAM roles and instance profiles</li>
+<li>Use count for multiple instances</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-steps">步骤（Steps）</h5>
+<ol>
+<li><strong>Create project directory</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   mkdir exercise-03-gpu-cluster
+   cd exercise-03-gpu-cluster</code></pre></div>
+<ol>
+<li><strong>Create variables.tf</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   variable &quot;region&quot; {
+     type    = string
+     default = &quot;us-west-2&quot;  # p3 instances available
+   }
+
+   variable &quot;cluster_size&quot; {
+     description = &quot;Number of GPU instances&quot;
+     type        = number
+     default     = 2
+   }
+
+   variable &quot;instance_type&quot; {
+     description = &quot;GPU instance type&quot;
+     type        = string
+     default     = &quot;p3.2xlarge&quot;  # 1x V100 GPU
+   }</code></pre></div>
+<ol>
+<li><strong>Create main.tf</strong> (partial - complete in exercise)</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   provider &quot;aws&quot; {
+     region = var.region
+   }
+
+   # Get latest Deep Learning AMI
+   data &quot;aws_ami&quot; &quot;deep_learning&quot; {
+     most_recent = true
+     owners      = [&quot;amazon&quot;]
+
+     filter {
+       name   = &quot;name&quot;
+       values = [&quot;Deep Learning AMI GPU PyTorch*&quot;]
+     }
+   }
+
+   # VPC
+   resource &quot;aws_vpc&quot; &quot;ml_vpc&quot; {
+     cidr_block           = &quot;10.0.0.0/16&quot;
+     enable_dns_hostnames = true
+
+     tags = {
+       Name = &quot;ml-training-vpc&quot;
+     }
+   }
+
+   # TODO: Add subnet, internet gateway, route table
+   # TODO: Add security group
+   # TODO: Add IAM role for S3 access
+   # TODO: Add GPU instances with count
+
+   # GPU instances
+   resource &quot;aws_instance&quot; &quot;gpu_cluster&quot; {
+     count = var.cluster_size
+
+     ami           = data.aws_ami.deep_learning.id
+     instance_type = var.instance_type
+
+     # TODO: Add subnet_id, security_groups, iam_instance_profile
+
+     tags = {
+       Name = &quot;GPU-Cluster-${count.index + 1}&quot;
+     }
+   }</code></pre></div>
+<ol>
+<li><strong>Complete the implementation</strong></li>
+</ol>
+<ul>
+<li>Add subnet creation</li>
+<li>Add internet gateway and routing</li>
+<li>Create security group (SSH, inter-cluster communication)</li>
+<li>Create IAM role with S3 access</li>
+<li>Attach IAM instance profile to instances</li>
+</ul>
+<ol>
+<li><strong>Deploy and test</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   terraform init
+   terraform plan
+   terraform apply
+
+   # SSH to first instance
+   ssh -i your-key.pem ubuntu@$(terraform output -raw cluster_ips | jq -r '.[0]')
+
+   # Test GPU
+   nvidia-smi
+
+   # Destroy (expensive resources!)
+   terraform destroy</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-challenge-tasks">Challenge Tasks</h5>
+<ul>
+<li>[ ] Use spot instances to reduce cost</li>
+<li>[ ] Add EFS for shared storage between cluster nodes</li>
+<li>[ ] Configure instances to auto-shutdown after 2 hours</li>
+<li>[ ] Add CloudWatch alarms for GPU 加速（GPU） utilization</li>
+<li>[ ] Create a bastion host for secure SSH access</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-expected-results">Expected Results</h5>
+<p>✅ VPC and networking created ✅ 2 GPU 加速（GPU） instances running ✅ IAM roles attached ✅ Instances can communicate with each other ✅ SSH access configured</p>
+<p><strong>⚠️ Cost Warning</strong>: p3.2xlarge costs ~$3.06/hour. Remember to destroy resources!</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-exercise-04-reusable-terraform-">Exercise 04: Reusable Terraform 基础设施编排（Terraform） Modules</h4>
+<p><strong>Objective</strong>: Create reusable modules for common ML infrastructure patterns.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-learning-goals">Learning Goals</h5>
+<ul>
+<li>Understand module structure</li>
+<li>Create module inputs and outputs</li>
+<li>Compose modules in root configuration</li>
+<li>Version and document modules</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-steps">步骤（Steps）</h5>
+<ol>
+<li><strong>Create project structure</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   mkdir -p exercise-04-modules/{modules/{s3-ml-bucket,gpu-instance},environments/{dev,prod}}
+   cd exercise-04-modules</code></pre></div>
+<ol>
+<li><strong>Create S3 module</strong> (<code>modules/s3-ml-bucket/main.tf</code>)</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   variable &quot;bucket_name&quot; {
+     type = string
+   }
+
+   variable &quot;versioning_enabled&quot; {
+     type    = bool
+     default = true
+   }
+
+   variable &quot;lifecycle_days_ia&quot; {
+     type    = number
+     default = 30
+   }
+
+   variable &quot;tags&quot; {
+     type    = map(string)
+     default = {}
+   }
+
+   resource &quot;aws_s3_bucket&quot; &quot;this&quot; {
+     bucket = var.bucket_name
+     tags   = var.tags
+   }
+
+   resource &quot;aws_s3_bucket_versioning&quot; &quot;this&quot; {
+     bucket = aws_s3_bucket.this.id
+
+     versioning_configuration {
+       status = var.versioning_enabled ? &quot;Enabled&quot; : &quot;Suspended&quot;
+     }
+   }
+
+   # TODO: Add lifecycle, encryption, public access block
+
+   output &quot;bucket_name&quot; {
+     value = aws_s3_bucket.this.bucket
+   }
+
+   output &quot;bucket_arn&quot; {
+     value = aws_s3_bucket.this.arn
+   }</code></pre></div>
+<ol>
+<li><strong>Create GPU 加速（GPU） instance module</strong> (<code>modules/gpu-instance/main.tf</code>)</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   variable &quot;instance_type&quot; {
+     type = string
+   }
+
+   variable &quot;instance_name&quot; {
+     type = string
+   }
+
+   # TODO: Add more variables
+
+   data &quot;aws_ami&quot; &quot;deep_learning&quot; {
+     most_recent = true
+     owners      = [&quot;amazon&quot;]
+     # ...
+   }
+
+   resource &quot;aws_instance&quot; &quot;gpu&quot; {
+     ami           = data.aws_ami.deep_learning.id
+     instance_type = var.instance_type
+     # ...
+   }
+
+   output &quot;instance_id&quot; {
+     value = aws_instance.gpu.id
+   }
+
+   output &quot;public_ip&quot; {
+     value = aws_instance.gpu.public_ip
+   }</code></pre></div>
+<ol>
+<li><strong>Use modules in environments</strong></li>
+</ol>
+<p><strong>environments/dev/main.tf</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   provider &quot;aws&quot; {
+     region = &quot;us-west-2&quot;
+   }
+
+   module &quot;datasets_bucket&quot; {
+     source = &quot;../../modules/s3-ml-bucket&quot;
+
+     bucket_name         = &quot;ml-datasets-dev-${data.aws_caller_identity.current.account_id}&quot;
+     versioning_enabled  = true
+     lifecycle_days_ia   = 30
+
+     tags = {
+       Environment = &quot;dev&quot;
+       Purpose     = &quot;datasets&quot;
+     }
+   }
+
+   module &quot;gpu_server&quot; {
+     source = &quot;../../modules/gpu-instance&quot;
+
+     instance_type = &quot;t3.micro&quot;  # Cheap for dev
+     instance_name = &quot;dev-ml-server&quot;
+   }
+
+   data &quot;aws_caller_identity&quot; &quot;current&quot; {}</code></pre></div>
+<p><strong>environments/prod/main.tf</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   provider &quot;aws&quot; {
+     region = &quot;us-west-2&quot;
+   }
+
+   module &quot;datasets_bucket&quot; {
+     source = &quot;../../modules/s3-ml-bucket&quot;
+
+     bucket_name        = &quot;ml-datasets-prod-${data.aws_caller_identity.current.account_id}&quot;
+     versioning_enabled = true
+     lifecycle_days_ia  = 90  # Keep longer in prod
+
+     tags = {
+       Environment = &quot;prod&quot;
+       Purpose     = &quot;datasets&quot;
+     }
+   }
+
+   module &quot;gpu_server&quot; {
+     source = &quot;../../modules/gpu-instance&quot;
+
+     instance_type = &quot;p3.8xlarge&quot;  # Powerful for prod
+     instance_name = &quot;prod-ml-server&quot;
+   }
+
+   data &quot;aws_caller_identity&quot; &quot;current&quot; {}</code></pre></div>
+<ol>
+<li><strong>Deploy</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   # Dev environment
+   cd environments/dev
+   terraform init
+   terraform apply
+
+   # Prod environment
+   cd ../prod
+   terraform init
+   terraform apply
+
+   # Destroy both
+   cd ../dev &amp;&amp; terraform destroy
+   cd ../prod &amp;&amp; terraform destroy</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-challenge-tasks">Challenge Tasks</h5>
+<ul>
+<li>[ ] Add module versioning with Git tags</li>
+<li>[ ] Create README.md for each module with usage examples</li>
+<li>[ ] Publish modules to private Terraform 基础设施编排（Terraform） Registry</li>
+<li>[ ] Add validation for module inputs</li>
+<li>[ ] Create module for complete ML platform (VPC + GPU 加速（GPU） + S3)</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-expected-results">Expected Results</h5>
+<p>✅ Two reusable modules created ✅ Modules used in multiple environments ✅ Different configurations per environment ✅ DRY principle applied</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-exercise-05-remote-state-with-s">Exercise 05: Remote State with S3 Backend</h4>
+<p><strong>Objective</strong>: Configure remote state storage for team collaboration.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-learning-goals">Learning Goals</h5>
+<ul>
+<li>Set up S3 backend for state storage</li>
+<li>Configure state locking with DynamoDB</li>
+<li>Enable state encryption</li>
+<li>Migrate from local to remote state</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-steps">步骤（Steps）</h5>
+<ol>
+<li><strong>Create state backend infrastructure</strong></li>
+</ol>
+<p><strong>backend-setup/main.tf</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   provider &quot;aws&quot; {
+     region = &quot;us-west-2&quot;
+   }
+
+   # S3 bucket for state
+   resource &quot;aws_s3_bucket&quot; &quot;terraform_state&quot; {
+     bucket = &quot;my-terraform-state-${data.aws_caller_identity.current.account_id}&quot;
+
+     tags = {
+       Name    = &quot;Terraform State&quot;
+       Purpose = &quot;terraform-state&quot;
+     }
+   }
+
+   # Enable versioning
+   resource &quot;aws_s3_bucket_versioning&quot; &quot;terraform_state&quot; {
+     bucket = aws_s3_bucket.terraform_state.id
+
+     versioning_configuration {
+       status = &quot;Enabled&quot;
+     }
+   }
+
+   # Enable encryption
+   resource &quot;aws_s3_bucket_server_side_encryption_configuration&quot; &quot;terraform_state&quot; {
+     bucket = aws_s3_bucket.terraform_state.id
+
+     rule {
+       apply_server_side_encryption_by_default {
+         sse_algorithm = &quot;AES256&quot;
+       }
+     }
+   }
+
+   # Block public access
+   resource &quot;aws_s3_bucket_public_access_block&quot; &quot;terraform_state&quot; {
+     bucket = aws_s3_bucket.terraform_state.id
+
+     block_public_acls       = true
+     block_public_policy     = true
+     ignore_public_acls      = true
+     restrict_public_buckets = true
+   }
+
+   # DynamoDB table for state locking
+   resource &quot;aws_dynamodb_table&quot; &quot;terraform_locks&quot; {
+     name         = &quot;terraform-state-locks&quot;
+     billing_mode = &quot;PAY_PER_REQUEST&quot;
+     hash_key     = &quot;LockID&quot;
+
+     attribute {
+       name = &quot;LockID&quot;
+       type = &quot;S&quot;
+     }
+
+     tags = {
+       Name    = &quot;Terraform State Locks&quot;
+       Purpose = &quot;terraform-state-locking&quot;
+     }
+   }
+
+   data &quot;aws_caller_identity&quot; &quot;current&quot; {}
+
+   output &quot;state_bucket&quot; {
+     value = aws_s3_bucket.terraform_state.bucket
+   }
+
+   output &quot;dynamodb_table&quot; {
+     value = aws_dynamodb_table.terraform_locks.name
+   }</code></pre></div>
+<ol>
+<li><strong>Deploy backend infrastructure</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   cd backend-setup
+   terraform init
+   terraform apply
+   # Note the output values</code></pre></div>
+<ol>
+<li><strong>Create project using remote state</strong></li>
+</ol>
+<p><strong>project/backend.tf</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   terraform {
+     backend &quot;s3&quot; {
+       bucket         = &quot;my-terraform-state-ACCOUNT_ID&quot;  # Replace with your bucket
+       key            = &quot;ml-project/terraform.tfstate&quot;
+       region         = &quot;us-west-2&quot;
+       dynamodb_table = &quot;terraform-state-locks&quot;
+       encrypt        = true
+     }
+   }</code></pre></div>
+<p><strong>project/main.tf</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   provider &quot;aws&quot; {
+     region = &quot;us-west-2&quot;
+   }
+
+   resource &quot;aws_s3_bucket&quot; &quot;example&quot; {
+     bucket = &quot;example-bucket-${data.aws_caller_identity.current.account_id}&quot;
+   }
+
+   data &quot;aws_caller_identity&quot; &quot;current&quot; {}</code></pre></div>
+<ol>
+<li><strong>Initialize and test</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   cd project
+   terraform init  # Will configure S3 backend
+   terraform apply
+
+   # Verify state is in S3
+   aws s3 ls s3://my-terraform-state-ACCOUNT_ID/ml-project/
+
+   # Test state locking by running apply in two terminals simultaneously
+   # Second terminal should wait for lock</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-challenge-tasks">Challenge Tasks</h5>
+<ul>
+<li>[ ] Migrate existing local state to remote backend</li>
+<li>[ ] Set up backend for multiple environments (dev, staging, prod)</li>
+<li>[ ] Configure workspaces with remote state</li>
+<li>[ ] Add S3 bucket lifecycle policy for old state versions</li>
+<li>[ ] Create IAM policy for least-privilege state access</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-expected-results">Expected Results</h5>
+<p>✅ S3 bucket created for state storage ✅ DynamoDB table created for locking ✅ State encryption enabled ✅ State stored remotely ✅ State locking prevents concurrent modifications</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-exercise-06-ml-infrastructure-w">Exercise 06: 机器学习基础设施（ML Infrastructure） with Pulumi 多语言 IaC（Pulumi） (Python)</h4>
+<p><strong>Objective</strong>: Build the same ML infrastructure using Pulumi 多语言 IaC（Pulumi） with Python instead of Terraform 基础设施编排（Terraform）.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-learning-goals">Learning Goals</h5>
+<ul>
+<li>Install and configure Pulumi 多语言 IaC（Pulumi）</li>
+<li>Write infrastructure as Python code</li>
+<li>Compare Pulumi 多语言 IaC（Pulumi） vs Terraform 基础设施编排（Terraform） workflow</li>
+<li>Use Python language features (loops, functions)</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-steps">步骤（Steps）</h5>
+<ol>
+<li><strong>Install Pulumi 多语言 IaC（Pulumi）</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   brew install pulumi  # macOS
+   # or: curl -fsSL https://get.pulumi.com | sh
+
+   # Login to Pulumi (free tier)
+   pulumi login</code></pre></div>
+<ol>
+<li><strong>Create new Pulumi 多语言 IaC（Pulumi） project</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   mkdir exercise-06-pulumi
+   cd exercise-06-pulumi
+
+   pulumi new aws-python
+   # Follow prompts:
+   # - project name: ml-infrastructure
+   # - description: ML infrastructure with Pulumi
+   # - stack name: dev
+   # - aws:region: us-west-2</code></pre></div>
+<ol>
+<li><strong>Edit <code>__main__.py</code></strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">   import pulumi
+   import pulumi_aws as aws
+
+   # Get latest Deep Learning AMI
+   deep_learning_ami = aws.ec2.get_ami(
+       most_recent=True,
+       owners=[&quot;amazon&quot;],
+       filters=[aws.ec2.GetAmiFilterArgs(
+           name=&quot;name&quot;,
+           values=[&quot;Deep Learning AMI GPU PyTorch*&quot;]
+       )]
+   )
+
+   # S3 bucket for datasets
+   datasets_bucket = aws.s3.Bucket(
+       &quot;ml-datasets&quot;,
+       bucket=f&quot;ml-datasets-{aws.get_caller_identity().account_id}&quot;,
+       versioning=aws.s3.BucketVersioningArgs(
+           enabled=True
+       ),
+       server_side_encryption_configuration=aws.s3.BucketServerSideEncryptionConfigurationArgs(
+           rule=aws.s3.BucketServerSideEncryptionConfigurationRuleArgs(
+               apply_server_side_encryption_by_default=aws.s3.BucketServerSideEncryptionConfigurationRuleApplyServerSideEncryptionByDefaultArgs(
+                   sse_algorithm=&quot;AES256&quot;
+               )
+           )
+       ),
+       tags={
+           &quot;Name&quot;: &quot;ML Datasets&quot;,
+           &quot;Purpose&quot;: &quot;datasets&quot;
+       }
+   )
+
+   # Security group
+   ml_security_group = aws.ec2.SecurityGroup(
+       &quot;ml-sg&quot;,
+       description=&quot;Security group for ML training&quot;,
+       ingress=[
+           aws.ec2.SecurityGroupIngressArgs(
+               protocol=&quot;tcp&quot;,
+               from_port=22,
+               to_port=22,
+               cidr_blocks=[&quot;0.0.0.0/0&quot;]
+           )
+       ],
+       egress=[
+           aws.ec2.SecurityGroupEgressArgs(
+               protocol=&quot;-1&quot;,
+               from_port=0,
+               to_port=0,
+               cidr_blocks=[&quot;0.0.0.0/0&quot;]
+           )
+       ]
+   )
+
+   # Create multiple GPU instances using Python loop
+   gpu_instances = []
+   for i in range(2):  # Python loop!
+       instance = aws.ec2.Instance(
+           f&quot;gpu-instance-{i}&quot;,
+           ami=deep_learning_ami.id,
+           instance_type=&quot;t3.micro&quot;,  # Use t3.micro for testing
+           vpc_security_group_ids=[ml_security_group.id],
+           tags={
+               &quot;Name&quot;: f&quot;GPU-Instance-{i+1}&quot;,
+               &quot;ManagedBy&quot;: &quot;Pulumi&quot;
+           }
+       )
+       gpu_instances.append(instance)
+
+   # Exports
+   pulumi.export(&quot;bucket_name&quot;, datasets_bucket.bucket)
+   pulumi.export(&quot;instance_ips&quot;, [inst.public_ip for inst in gpu_instances])</code></pre></div>
+<ol>
+<li><strong>Deploy</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   # Preview changes
+   pulumi preview
+
+   # Deploy
+   pulumi up
+   # Select 'yes'
+
+   # View outputs
+   pulumi stack output
+
+   # Destroy
+   pulumi destroy</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-challenge-tasks">Challenge Tasks</h5>
+<ul>
+<li>[ ] Add IAM role using Pulumi 多语言 IaC（Pulumi）</li>
+<li>[ ] Create a Python function to generate tags</li>
+<li>[ ] Use Python dictionary to configure multiple environments</li>
+<li>[ ] Compare Pulumi 多语言 IaC（Pulumi） state management vs Terraform 基础设施编排（Terraform）</li>
+<li>[ ] Convert Exercise 03 (GPU cluster) to Pulumi 多语言 IaC（Pulumi）</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-expected-results">Expected Results</h5>
+<p>✅ Pulumi 多语言 IaC（Pulumi） project created ✅ Infrastructure defined in Python ✅ S3 bucket and EC2 instances created ✅ Pulumi 多语言 IaC（Pulumi） state stored in Pulumi 多语言 IaC（Pulumi） Service ✅ Comparison of Pulumi 多语言 IaC（Pulumi） vs Terraform 基础设施编排（Terraform） workflow</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-exercise-07-gitops-workflow-wit">Exercise 07: GitOps 交付模式（GitOps） Workflow with GitHub Actions</h4>
+<p><strong>Objective</strong>: Implement automated Terraform 基础设施编排（Terraform） workflow with GitHub Actions for infrastructure CI/CD 持续集成与交付（CI/CD）.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-learning-goals">Learning Goals</h5>
+<ul>
+<li>Set up GitHub Actions for Terraform 基础设施编排（Terraform）</li>
+<li>Implement automated plan on PRs</li>
+<li>Add security scanning (tfsec)</li>
+<li>Automate apply on merge to main</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-steps">步骤（Steps）</h5>
+<ol>
+<li><strong>Create GitHub repository</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   mkdir exercise-07-gitops
+   cd exercise-07-gitops
+   git init
+   gh repo create exercise-07-gitops --private</code></pre></div>
+<ol>
+<li><strong>Add Terraform 基础设施编排（Terraform） code</strong> (reuse Exercise 02)</li>
+</ol>
+<ol>
+<li><strong>Create GitHub Actions workflow</strong></li>
+</ol>
+<p><strong>.github/workflows/terraform.yml</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">   name: Terraform CI/CD
+
+   on:
+     push:
+       branches: [main]
+     pull_request:
+       branches: [main]
+
+   env:
+     AWS_REGION: us-west-2
+
+   jobs:
+     terraform:
+       name: Terraform
+       runs-on: ubuntu-latest
+
+       permissions:
+         pull-requests: write
+         contents: read
+
+       steps:
+         - name: Checkout
+           uses: actions/checkout@v3
+
+         - name: Setup Terraform
+           uses: hashicorp/setup-terraform@v2
+           with:
+             terraform_version: 1.6.0
+
+         - name: Configure AWS Credentials
+           uses: aws-actions/configure-aws-credentials@v2
+           with:
+             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+             aws-region: ${{ env.AWS_REGION }}
+
+         - name: Terraform Format
+           id: fmt
+           run: terraform fmt -check
+           continue-on-error: true
+
+         - name: Terraform Init
+           id: init
+           run: terraform init
+
+         - name: Terraform Validate
+           id: validate
+           run: terraform validate -no-color
+
+         - name: tfsec Security Scan
+           uses: aquasecurity/tfsec-action@v1.0.0
+           with:
+             soft_fail: true
+
+         - name: Terraform Plan
+           id: plan
+           if: github.event_name == 'pull_request'
+           run: terraform plan -no-color
+           continue-on-error: true
+
+         - name: Comment PR with Plan
+           uses: actions/github-script@v6
+           if: github.event_name == 'pull_request'
+           with:
+             github-token: ${{ secrets.GITHUB_TOKEN }}
+             script: |
+               const output = `#### Terraform Format 📝\`${{ steps.fmt.outcome }}\`
+               #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+               #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+               &lt;details&gt;&lt;summary&gt;Show Plan&lt;/summary&gt;
+
+               \`\`\`terraform
+               ${{ steps.plan.outputs.stdout }}
+               \`\`\`
+
+               &lt;/details&gt;
+
+               *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+               github.rest.issues.createComment({
+                 issue_number: context.issue.number,
+                 owner: context.repo.owner,
+                 repo: context.repo.repo,
+                 body: output
+               })
+
+         - name: Terraform Apply
+           if: github.ref == 'refs/heads/main' &amp;&amp; github.event_name == 'push'
+           run: terraform apply -auto-approve</code></pre></div>
+<ol>
+<li><strong>Add AWS 云（AWS） credentials to GitHub Secrets</strong></li>
+</ol>
+<ul>
+<li>Go to repository Settings → Secrets → Actions</li>
+<li>Add <code>AWS_ACCESS_KEY_ID</code></li>
+<li>Add <code>AWS_SECRET_ACCESS_KEY</code></li>
+</ul>
+<ol>
+<li><strong>Test workflow</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   # Create feature branch
+   git checkout -b add-bucket
+
+   # Make change to main.tf
+   # Add a new S3 bucket
+
+   # Commit and push
+   git add .
+   git commit -m &quot;Add new S3 bucket&quot;
+   git push origin add-bucket
+
+   # Create PR
+   gh pr create --title &quot;Add new S3 bucket&quot; --body &quot;Adds bucket for feature data&quot;
+
+   # Check Actions tab - should see terraform plan in PR comments
+
+   # Merge PR
+   gh pr merge --squash
+
+   # Check Actions tab - should see terraform apply on main</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-challenge-tasks">Challenge Tasks</h5>
+<ul>
+<li>[ ] Add Infracost to show cost estimates in PRs</li>
+<li>[ ] Add Checkov for additional security scanning</li>
+<li>[ ] Implement approval requirement for production deployments</li>
+<li>[ ] Add drift detection scheduled workflow</li>
+<li>[ ] Create separate workflows for multiple environments</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-expected-results">Expected Results</h5>
+<p>✅ GitHub Actions workflow created ✅ Terraform 基础设施编排（Terraform） plan runs on PRs ✅ Plan output commented on PR ✅ 安全（Security） scanning with tfsec ✅ Terraform 基础设施编排（Terraform） apply runs on merge to main</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-exercise-08-secrets-management-">Exercise 08: Secrets Management with AWS 云（AWS） Secrets Manager</h4>
+<p><strong>Objective</strong>: Securely manage secrets in Terraform 基础设施编排（Terraform） using AWS 云（AWS） Secrets Manager and IAM roles.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-steps">步骤（Steps）</h5>
+<ol>
+<li><strong>Create project</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   mkdir exercise-08-secrets
+   cd exercise-08-secrets</code></pre></div>
+<ol>
+<li><strong>Create main.tf with secrets</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">   provider &quot;aws&quot; {
+     region = &quot;us-west-2&quot;
+   }
+
+   # Generate random password for database
+   resource &quot;random_password&quot; &quot;db_password&quot; {
+     length  = 32
+     special = true
+   }
+
+   # Store in Secrets Manager
+   resource &quot;aws_secretsmanager_secret&quot; &quot;db_password&quot; {
+     name        = &quot;ml-db-password&quot;
+     description = &quot;Database password for ML application&quot;
+   }
+
+   resource &quot;aws_secretsmanager_secret_version&quot; &quot;db_password&quot; {
+     secret_id     = aws_secretsmanager_secret.db_password.id
+     secret_string = random_password.db_password.result
+   }
+
+   # IAM role for EC2 to read secrets
+   resource &quot;aws_iam_role&quot; &quot;ml_app&quot; {
+     name = &quot;ml-app-role&quot;
+
+     assume_role_policy = jsonencode({
+       Version = &quot;2012-10-17&quot;
+       Statement = [{
+         Action = &quot;sts:AssumeRole&quot;
+         Effect = &quot;Allow&quot;
+         Principal = {
+           Service = &quot;ec2.amazonaws.com&quot;
+         }
+       }]
+     })
+   }
+
+   # Policy to read specific secret
+   resource &quot;aws_iam_role_policy&quot; &quot;read_secret&quot; {
+     role = aws_iam_role.ml_app.id
+
+     policy = jsonencode({
+       Version = &quot;2012-10-17&quot;
+       Statement = [{
+         Action   = &quot;secretsmanager:GetSecretValue&quot;
+         Effect   = &quot;Allow&quot;
+         Resource = aws_secretsmanager_secret.db_password.arn
+       }]
+     })
+   }
+
+   # Instance profile
+   resource &quot;aws_iam_instance_profile&quot; &quot;ml_app&quot; {
+     name = &quot;ml-app-profile&quot;
+     role = aws_iam_role.ml_app.name
+   }
+
+   # EC2 instance with IAM role
+   resource &quot;aws_instance&quot; &quot;ml_app&quot; {
+     ami                  = data.aws_ami.amazon_linux.id
+     instance_type        = &quot;t3.micro&quot;
+     iam_instance_profile = aws_iam_instance_profile.ml_app.name
+
+     user_data = &lt;&lt;-EOF
+       #!/bin/bash
+       # Install AWS CLI
+       yum install -y aws-cli
+
+       # Retrieve secret at runtime
+       DB_PASSWORD=$(aws secretsmanager get-secret-value \
+         --secret-id ${aws_secretsmanager_secret.db_password.id} \
+         --query SecretString \
+         --output text \
+         --region us-west-2)
+
+       # Use password in application
+       echo &quot;export DB_PASSWORD='$DB_PASSWORD'&quot; &gt;&gt; /etc/environment
+     EOF
+
+     tags = {
+       Name = &quot;ML-App-Server&quot;
+     }
+   }
+
+   data &quot;aws_ami&quot; &quot;amazon_linux&quot; {
+     most_recent = true
+     owners      = [&quot;amazon&quot;]
+     filter {
+       name   = &quot;name&quot;
+       values = [&quot;amzn2-ami-hvm-*-x86_64-gp2&quot;]
+     }
+   }
+
+   output &quot;secret_arn&quot; {
+     description = &quot;ARN of the secret&quot;
+     value       = aws_secretsmanager_secret.db_password.arn
+   }</code></pre></div>
+<ol>
+<li><strong>Add pre-commit hook to prevent secret commits</strong></li>
+</ol>
+<p><strong>.pre-commit-config.yaml</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">   repos:
+     - repo: https://github.com/pre-commit/pre-commit-hooks
+       rev: v4.4.0
+       hooks:
+         - id: detect-aws-credentials
+         - id: detect-private-key
+
+     - repo: https://github.com/gitleaks/gitleaks
+       rev: v8.16.1
+       hooks:
+         - id: gitleaks</code></pre></div>
+<p>Install and test:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   pre-commit install
+   pre-commit run --all-files</code></pre></div>
+<ol>
+<li><strong>Deploy and test</strong></li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   terraform init
+   terraform apply
+
+   # Verify secret exists
+   aws secretsmanager get-secret-value \
+     --secret-id ml-db-password \
+     --query SecretString \
+     --output text
+
+   # SSH to instance and verify secret is accessible
+   # (Instance should be able to retrieve secret via IAM role)</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-challenge-tasks">Challenge Tasks</h5>
+<ul>
+<li>[ ] Rotate secrets automatically with Lambda</li>
+<li>[ ] Use HashiCorp Vault instead of AWS 云（AWS） Secrets Manager</li>
+<li>[ ] Implement secret versioning strategy</li>
+<li>[ ] Add monitoring for secret access</li>
+<li>[ ] Create secrets for multi-environment setup</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-expected-results">Expected Results</h5>
+<p>✅ Secrets created in AWS 云（AWS） Secrets Manager ✅ IAM role grants least-privilege access ✅ Secrets never hardcoded in Terraform 基础设施编排（Terraform） ✅ Pre-commit hooks prevent secret commits ✅ Application retrieves secrets at runtime</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-final-project-complete-ml-platf">Final Project: Complete ML Platform</h4>
+<p><strong>Objective</strong>: Combine all exercises into a production-ready ML platform.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-requirements">要求（Requirements）</h5>
+<ul>
+<li>[ ] Multi-environment setup (dev, staging, prod)</li>
+<li>[ ] GPU 加速（GPU） training cluster with 自动扩缩容（auto-scaling）</li>
+<li>[ ] S3 buckets for data, models, logs</li>
+<li>[ ] Proper VPC, subnets, security groups</li>
+<li>[ ] IAM roles with least privilege</li>
+<li>[ ] Secrets management</li>
+<li>[ ] Remote state with locking</li>
+<li>[ ] Reusable modules</li>
+<li>[ ] GitOps 交付模式（GitOps） workflow with GitHub Actions</li>
+<li>[ ] 安全（Security） scanning (tfsec, Checkov)</li>
+<li>[ ] Cost estimation (Infracost)</li>
+<li>[ ] 监控（Monitoring） and logging</li>
+<li>[ ] Documentation</li>
+</ul>
+<p><strong>Estimated time</strong>: 10-15 hours</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-exercises-readme-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://www.terraform.io/docs">Terraform 基础设施编排（Terraform） Documentation</a></li>
+<li><a href="https://www.pulumi.com/docs/">Pulumi 多语言 IaC（Pulumi） Documentation</a></li>
+<li><a href="https://aws.amazon.com/free/">AWS 云（AWS） Free Tier</a></li>
+<li><a href="https://www.terraform-best-practices.com/">Terraform 基础设施编排（Terraform） Best Practices</a></li>
+</ul>
+<hr/>
+<p><strong>Congratulations on completing the 基础设施即代码（Infrastructure as Code） exercises!</strong></p>
+<p>Return to <a href="#doc-lessons-mod-109-infrastructure-as-code-readme-md">Module README</a> for the quiz and next steps.</p><p><a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-13-iac-for-ml-workloads-readme-m.html">← 上一篇（Previous）</a> <a class="home" href="../mod-109-infrastructure-as-code.html#doc-lessons-mod-109-infrastructure-as-code-exercises-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-01-terraform-aws-vpc-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training）） - Hands-on Exercises</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training）） - Hands-on Exercises</h1><p>Module 107: GPU 计算（GPU Computing） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" open><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training））</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-resources-md.html">Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training）） - Resources</a></details><details class="tree-section" open><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lesson 01: Introduction to GPU 加速（GPU） 计算（GPU Computing） for AI</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md.html">Lesson 02: CUDA 并行计算（CUDA） Programming Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md.html">Lesson 03: PyTorch 深度学习框架（PyTorch） GPU 加速（GPU） Acceleration</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md.html">Lesson 04: 分布式训练（Distributed 训练（Training）） Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-05-multi-gpu-training-strategies-md.html">Lesson 05: Multi-GPU 训练（Training） Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-06-model-pipeline-parallelism-md.html">Lesson 06: Model and Pipeline Parallelism</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-07-gpu-memory-management-md.html">Lesson 07: GPU 加速（GPU） Memory Management &amp; Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-08-advanced-gpu-optimization-md.html">Lesson 08: Advanced GPU 加速（GPU） Optimization</a></details><details class="tree-section" open><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-01-cuda-hello-world-md.html">Lab 01: CUDA 并行计算（CUDA） Hello-World and Device Introspection</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-02-pytorch-gpu-inference-md.html">Lab 02: PyTorch 深度学习框架（PyTorch） GPU 加速（GPU） 推理（Inference） and Benchmarking</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-03-multi-gpu-training-md.html">Lab 03: Multi-GPU 训练（Training） with DistributedDataParallel</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-04-gpu-cluster-on-k8s-md.html">Lab 04: Run a GPU 加速（GPU） Pod on Kubernetes 容器编排（Kubernetes）</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-05-mixed-precision-md.html">Lab 05: Mixed-Precision 训练（Training） with `torch.amp`</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-06-memory-profiling-md.html">Lab 06: GPU 加速（GPU） Memory Profiling and OOM Diagnosis</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Module 107 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercise 01: GPU 加速（GPU） Introspection and First CUDA 并行计算（CUDA） Op</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-02-cuda-kernel-readme-md.html">Exercise 02: Write Your First CUDA 并行计算（CUDA） Kernel</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-03-pytorch-gpu-pipeline-readme-md.html">Exercise 03: End-to-End PyTorch 深度学习框架（PyTorch） GPU 加速（GPU） Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-04-gpu-cluster-management-readme-md.html">Exercise 04: GPU 加速（GPU） Cluster Management and Scheduling</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-05-gpu-performance-optimization-readme-md.html">Exercise 05: GPU 加速（GPU） Performance Optimization and Profiling</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-06-distributed-gpu-training-readme-md.html">Exercise 06: Distributed GPU 加速（GPU） 训练（Training） at Scale</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-07-gpu-memory-profiling-readme-md.html">Exercise 07: GPU 加速（GPU） Memory Profiling and OOM Diagnosis</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-08-mixed-precision-readme-md.html">Exercise 08: Mixed Precision 训练（Training） Benchmarks</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-09-inference-optimization-readme-md.html">Exercise 09: GPU 加速（GPU） 推理（Inference） Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-10-gpu-sharing-strategies-readme-md.html">Exercise 10: GPU 加速（GPU） Sharing Strategies (MIG, MPS, Time-Slicing)</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-11-gpu-cost-optimization-readme-md.html">Exercise 11: GPU 加速（GPU） Cost Optimization Playbook</a><a class="tree-doc active" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-readme-md.html">Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training）） - Hands-on Exercises</a></details><details class="tree-section" open><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training）） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training）） - Hands-on Exercises</h2><p>Module 107: GPU 计算（GPU Computing） · Exercises: 课后练习</p><div class="stats"><div class="stat"><strong>20</strong><span>reading order</span></div><div class="stat"><strong>30</strong><span>chapter docs</span></div><div class="stat"><strong>529</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-107-gpu-computing-exercises-readme-md" data-title="module 07: gpu computing &amp; distributed training - hands-on exercises lessons/mod-107-gpu-computing/exercises/readme.md exercises: 课后练习"><div class="doc-head"><span class="chip">20/30</span><span class="chip">Exercises</span><span class="path">lessons/mod-107-gpu-computing/exercises/README.md</span><span class="path">529 行</span></div><h2>Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training）） - Hands-on Exercises</h2><p><a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-11-gpu-cost-optimization-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-107-gpu-computing.html#doc-lessons-mod-107-gpu-computing-exercises-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-01-cuda-hello-world-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-107-gpu-computing-exercises-readme-md-module-07-gpu-computing-distributed-trai">Module 07: GPU 加速（GPU） 计算（GPU Computing） &amp; 分布式训练（Distributed 训练（Training）） - Hands-on Exercises</h3>
+<h4 id="lessons-mod-107-gpu-computing-exercises-readme-md-overview">概览（Overview）</h4>
+<p>This module contains 5 hands-on labs that progressively build your GPU 加速（GPU） computing and distributed training skills. Each lab includes starter code, detailed instructions, and solution hints.</p>
+<p><strong>Total Time</strong>: 15-20 hours <strong>Prerequisites</strong>: Completed Module 07 lessons, GPU 加速（GPU） access (cloud or local)</p>
+<hr/>
+<h4 id="lessons-mod-107-gpu-computing-exercises-readme-md-lab-1-gpu-basics-profiling-3-4-hours">Lab 1: GPU 加速（GPU） Basics &amp; Profiling (3-4 hours)</h4>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-objectives">目标（Objectives）</h5>
+<ul>
+<li>Set up GPU 加速（GPU） development environment</li>
+<li>Profile GPU 加速（GPU） vs CPU performance</li>
+<li>Understand GPU 加速（GPU） memory management</li>
+<li>Use PyTorch 深度学习框架（PyTorch） Profiler</li>
+</ul>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-tasks">Tasks</h5>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-1-1-environment-setup">Task 1.1: Environment Setup</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Verify CUDA installation
+nvidia-smi
+nvcc --version
+
+# Install PyTorch with CUDA support
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+
+# Install profiling tools
+pip install nvidia-ml-py3 torch-tb-profiler</code></pre></div>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-1-2-gpu-vs-cpu-benchmark">Task 1.2: GPU 加速（GPU） vs CPU Benchmark</h6>
+<p>Create a script that:</p>
+<ol>
+<li>Compares matrix multiplication performance (CPU vs GPU 加速（GPU）)</li>
+<li>Tests different matrix sizes: 128, 512, 1024, 2048, 4096</li>
+<li>Plots speedup vs matrix size</li>
+<li>Calculates achieved TFLOPS</li>
+</ol>
+<p><strong>Starter Code</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch
+import time
+import matplotlib.pyplot as plt
+
+def benchmark_matmul(device, size, iterations=100):
+    &quot;&quot;&quot;Benchmark matrix multiplication&quot;&quot;&quot;
+    # TODO: Implement benchmark
+    # - Create random matrices
+    # - Warmup runs
+    # - Timed runs with synchronization
+    # - Calculate TFLOPS
+    pass
+
+# Test different sizes
+sizes = [128, 512, 1024, 2048, 4096]
+# TODO: Run benchmarks and plot results</code></pre></div>
+<p><strong>Deliverables</strong>:</p>
+<ul>
+<li>Benchmark script</li>
+<li>Performance plot (speedup vs matrix size)</li>
+<li>Report analyzing results</li>
+</ul>
+<hr/>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-1-3-memory-profiling">Task 1.3: Memory Profiling</h6>
+<p>Profile memory usage during model training:</p>
+<ol>
+<li>Track memory at each training stage</li>
+<li>Identify memory bottlenecks</li>
+<li>Compare FP32 vs FP16 memory usage</li>
+</ol>
+<p><strong>Starter Code</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def profile_training_memory():
+    &quot;&quot;&quot;Profile GPU memory during training&quot;&quot;&quot;
+    model = create_model().cuda()
+    optimizer = torch.optim.Adam(model.parameters())
+
+    # TODO: Implement memory profiling
+    # - Track memory before/after each stage
+    # - Create visualization
+    # - Test with different precisions
+    pass</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-107-gpu-computing-exercises-readme-md-lab-2-mixed-precision-training-3-4-hours">Lab 2: Mixed Precision 训练（Training） (3-4 hours)</h4>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-objectives">目标（Objectives）</h5>
+<ul>
+<li>Implement Automatic Mixed Precision (AMP)</li>
+<li>Compare training speed and memory usage</li>
+<li>Handle numerical stability issues</li>
+<li>Validate accuracy with FP16</li>
+</ul>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-tasks">Tasks</h5>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-2-1-amp-implementation">Task 2.1: AMP Implementation</h6>
+<p>Convert a training loop to use mixed precision:</p>
+<p><strong>Starter Code</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from torch.cuda.amp import autocast, GradScaler
+
+def train_with_amp(model, train_loader, epochs=10):
+    &quot;&quot;&quot;Implement AMP training&quot;&quot;&quot;
+    scaler = GradScaler()
+
+    for epoch in range(epochs):
+        for data, target in train_loader:
+            # TODO: Implement AMP training loop
+            # - Forward pass with autocast
+            # - Loss computation
+            # - Backward with scaling
+            # - Optimizer step
+            pass
+
+# TODO: Compare FP32 vs FP16:
+# - Training speed
+# - Memory usage
+# - Final accuracy</code></pre></div>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-2-2-numerical-stability">Task 2.2: Numerical Stability</h6>
+<p>Test and fix numerical stability issues:</p>
+<ol>
+<li>Train a model that's prone to instability</li>
+<li>Detect NaN/Inf values</li>
+<li>Implement loss scaling adjustments</li>
+<li>Compare FP16 vs BF16</li>
+</ol>
+<p><strong>Expected Findings</strong>:</p>
+<ul>
+<li>~2x speedup with FP16 on Tensor Core GPUs</li>
+<li>~50% memory reduction</li>
+<li>&lt;1% accuracy difference</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-107-gpu-computing-exercises-readme-md-lab-3-distributed-data-parallel-4-5-hour">Lab 3: Distributed Data Parallel (4-5 hours)</h4>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-objectives">目标（Objectives）</h5>
+<ul>
+<li>Implement DistributedDataParallel (DDP)</li>
+<li>Set up multi-GPU training</li>
+<li>Measure scaling efficiency</li>
+<li>Debug common DDP 分布式数据并行（DDP） issues</li>
+</ul>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-tasks">Tasks</h5>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-3-1-single-node-multi-gpu-setup">Task 3.1: Single-Node Multi-GPU Setup</h6>
+<p>Implement DDP 分布式数据并行（DDP） training on a single machine:</p>
+<p><strong>Starter Code</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data.distributed import DistributedSampler
+
+def setup(rank, world_size):
+    &quot;&quot;&quot;Initialize distributed environment&quot;&quot;&quot;
+    # TODO: Implement setup
+    pass
+
+def cleanup():
+    &quot;&quot;&quot;Cleanup distributed environment&quot;&quot;&quot;
+    # TODO: Implement cleanup
+    pass
+
+def train(rank, world_size):
+    &quot;&quot;&quot;Main training function&quot;&quot;&quot;
+    print(f&quot;Running on rank {rank}&quot;)
+    setup(rank, world_size)
+
+    # TODO: Implement DDP training
+    # - Create model and wrap with DDP
+    # - Create DistributedSampler
+    # - Training loop
+    # - Save checkpoints (rank 0 only)
+
+    cleanup()
+
+if __name__ == '__main__':
+    world_size = torch.cuda.device_count()
+    torch.multiprocessing.spawn(
+        train,
+        args=(world_size,),
+        nprocs=world_size,
+        join=True
+    )</code></pre></div>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-3-2-scaling-efficiency-analysis">Task 3.2: Scaling Efficiency Analysis</h6>
+<p>Measure and analyze scaling efficiency:</p>
+<ol>
+<li>Train with 1, 2, 4 GPUs (if available)</li>
+<li>Measure training time and throughput</li>
+<li>Calculate speedup and efficiency</li>
+<li>Identify communication bottlenecks</li>
+</ol>
+<p><strong>Deliverables</strong>:</p>
+<ul>
+<li>DDP 分布式数据并行（DDP） training script</li>
+<li>Scaling efficiency plot</li>
+<li>Analysis of bottlenecks</li>
+</ul>
+<hr/>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-3-3-gradient-accumulation">Task 3.3: Gradient Accumulation</h6>
+<p>Implement gradient accumulation with DDP 分布式数据并行（DDP）:</p>
+<p><strong>Starter Code</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def train_with_accumulation(model, train_loader, accumulation_steps=4):
+    &quot;&quot;&quot;DDP training with gradient accumulation&quot;&quot;&quot;
+    # TODO: Implement
+    # - Use model.no_sync() for intermediate steps
+    # - Synchronize on final step
+    # - Track effective batch size
+    pass</code></pre></div>
+<p><strong>Test</strong>: Verify that accumulation_steps=4 with batch_size=8 gives same results as batch_size=32.</p>
+<hr/>
+<h4 id="lessons-mod-107-gpu-computing-exercises-readme-md-lab-4-memory-optimization-3-4-hours">Lab 4: Memory Optimization (3-4 hours)</h4>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-objectives">目标（Objectives）</h5>
+<ul>
+<li>Implement gradient checkpointing</li>
+<li>Optimize large model training</li>
+<li>Use Flash Attention</li>
+<li>Debug OOM errors</li>
+</ul>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-tasks">Tasks</h5>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-4-1-gradient-checkpointing">Task 4.1: Gradient Checkpointing</h6>
+<p>Add checkpointing to reduce memory:</p>
+<p><strong>Starter Code</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from torch.utils.checkpoint import checkpoint
+
+class CheckpointedTransformer(nn.Module):
+    &quot;&quot;&quot;Transformer with gradient checkpointing&quot;&quot;&quot;
+    def __init__(self, num_layers=12):
+        super().__init__()
+        self.layers = nn.ModuleList([
+            TransformerLayer() for _ in range(num_layers)
+        ])
+
+    def forward(self, x):
+        # TODO: Implement forward with checkpointing
+        # - Checkpoint every N layers
+        # - Measure memory savings
+        pass</code></pre></div>
+<p><strong>Compare</strong>:</p>
+<ul>
+<li>Peak memory: with vs without checkpointing</li>
+<li>训练（Training） speed: overhead from recomputation</li>
+<li>Find optimal checkpoint frequency</li>
+</ul>
+<hr/>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-4-2-flash-attention-integration">Task 4.2: Flash Attention Integration</h6>
+<p>Replace standard attention with Flash Attention:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Before: Standard attention (O(N²) memory)
+def standard_attention(Q, K, V):
+    scores = torch.matmul(Q, K.transpose(-2, -1))
+    attn_weights = torch.softmax(scores / np.sqrt(d_k), dim=-1)
+    return torch.matmul(attn_weights, V)
+
+# TODO: Implement Flash Attention
+# - Install: pip install flash-attn
+# - Replace standard attention
+# - Benchmark memory and speed</code></pre></div>
+<p><strong>Expected Results</strong>:</p>
+<ul>
+<li>10-20x memory reduction for long sequences</li>
+<li>2-4x speedup</li>
+<li>Exact same outputs</li>
+</ul>
+<hr/>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-4-3-oom-debugging">Task 4.3: OOM Debugging</h6>
+<p>Debug and fix an OOM-prone training script:</p>
+<p><strong>Intentionally Broken Code</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># This code will OOM - fix it!
+def train_large_model():
+    model = VeryLargeModel(num_layers=48, hidden_size=4096).cuda()
+    optimizer = torch.optim.Adam(model.parameters())
+
+    for epoch in range(100):
+        for batch in large_dataloader:  # batch_size=64
+            data, target = batch
+            data, target = data.cuda(), target.cuda()
+
+            output = model(data)
+            loss = criterion(output, target)
+
+            # Accumulate losses (MEMORY LEAK!)
+            all_losses.append(loss)
+
+            loss.backward()
+            optimizer.step()
+
+# TODO: Fix all OOM issues:
+# - Reduce batch size
+# - Add gradient accumulation
+# - Enable mixed precision
+# - Add gradient checkpointing
+# - Fix memory leaks
+# - Use torch.no_grad() for validation</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-107-gpu-computing-exercises-readme-md-lab-5-production-gpu-pipeline-4-5-hours">Lab 5: 生产环境（Production） GPU 加速（GPU） Pipeline (4-5 hours)</h4>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-objectives">目标（Objectives）</h5>
+<ul>
+<li>Build production-ready training pipeline</li>
+<li>Implement monitoring and logging</li>
+<li>Add checkpointing and resuming</li>
+<li>Optimize 端到端（end-to-end） performance</li>
+</ul>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-tasks">Tasks</h5>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-5-1-complete-training-pipeline">Task 5.1: Complete 训练（Training） Pipeline</h6>
+<p>Build a production pipeline with:</p>
+<ul>
+<li>DDP 分布式数据并行（DDP） multi-GPU training</li>
+<li>Mixed precision (AMP)</li>
+<li>Gradient accumulation</li>
+<li>Learning rate scheduling</li>
+<li>Checkpointing</li>
+<li>TensorBoard logging</li>
+<li>GPU 加速（GPU） metrics monitoring</li>
+</ul>
+<p><strong>Template Structure</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class ProductionTrainer:
+    def __init__(self, model, train_loader, val_loader, config):
+        # TODO: Initialize all components
+        # - DDP setup
+        # - AMP scaler
+        # - Optimizers
+        # - Schedulers
+        # - Loggers
+        pass
+
+    def train_epoch(self, epoch):
+        # TODO: Training loop with all optimizations
+        pass
+
+    def validate(self):
+        # TODO: Validation with torch.no_grad()
+        pass
+
+    def save_checkpoint(self, epoch):
+        # TODO: Save model, optimizer, scheduler states
+        pass
+
+    def load_checkpoint(self, path):
+        # TODO: Resume from checkpoint
+        pass</code></pre></div>
+<hr/>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-5-2-performance-profiling">Task 5.2: Performance Profiling</h6>
+<p>Profile the complete pipeline:</p>
+<ol>
+<li>Use PyTorch 深度学习框架（PyTorch） Profiler to identify bottlenecks</li>
+<li>Optimize data loading</li>
+<li>Tune batch size</li>
+<li>Achieve &gt;80% GPU 加速（GPU） utilization</li>
+</ol>
+<p><strong>Profiling Script</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from torch.profiler import profile, record_function, ProfilerActivity
+
+with profile(
+    activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+    profile_memory=True,
+    record_shapes=True,
+    with_stack=True,
+) as prof:
+    # TODO: Run training for 100 steps
+    # - Add record_function markers
+    # - Export to TensorBoard
+    # - Analyze results
+    pass
+
+# TODO: Create optimization report</code></pre></div>
+<hr/>
+<h6 id="lessons-mod-107-gpu-computing-exercises-readme-md-task-5-3-monitoring-dashboard">Task 5.3: 监控（Monitoring） Dashboard</h6>
+<p>Create a real-time monitoring dashboard:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class GPUMonitor:
+    &quot;&quot;&quot;Real-time GPU monitoring&quot;&quot;&quot;
+    def __init__(self):
+        # TODO: Initialize monitoring
+        # - Setup Prometheus metrics
+        # - TensorBoard writers
+        # - nvidia-ml-py
+        pass
+
+    def log_metrics(self, step, metrics):
+        # TODO: Log all metrics
+        # - Training loss/accuracy
+        # - GPU utilization
+        # - GPU memory
+        # - Temperature
+        # - Throughput
+        pass
+
+# TODO: Integrate with training loop
+# - Log every N steps
+# - Create visualizations
+# - Set up alerts for issues</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-107-gpu-computing-exercises-readme-md-evaluation-criteria">Evaluation Criteria</h4>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-lab-1-gpu-basics-20-points">Lab 1: GPU 加速（GPU） Basics (20 points)</h5>
+<ul>
+<li>[5] Correct benchmark implementation</li>
+<li>[5] Accurate performance measurements</li>
+<li>[5] Memory profiling completeness</li>
+<li>[5] Quality of analysis/report</li>
+</ul>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-lab-2-mixed-precision-20-points">Lab 2: Mixed Precision (20 points)</h5>
+<ul>
+<li>[5] Correct AMP implementation</li>
+<li>[5] Proper gradient scaling</li>
+<li>[5] Numerical stability handling</li>
+<li>[5] Performance comparison</li>
+</ul>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-lab-3-distributed-training-25-points">Lab 3: 分布式训练（Distributed 训练（Training）） (25 points)</h5>
+<ul>
+<li>[8] Correct DDP 分布式数据并行（DDP） setup</li>
+<li>[7] Scaling efficiency analysis</li>
+<li>[5] Gradient accumulation</li>
+<li>[5] Checkpointing implementation</li>
+</ul>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-lab-4-memory-optimization-20-points">Lab 4: Memory Optimization (20 points)</h5>
+<ul>
+<li>[5] Gradient checkpointing</li>
+<li>[5] Flash Attention integration</li>
+<li>[5] OOM fixes</li>
+<li>[5] Memory analysis</li>
+</ul>
+<h5 id="lessons-mod-107-gpu-computing-exercises-readme-md-lab-5-production-pipeline-15-points">Lab 5: 生产环境（Production） Pipeline (15 points)</h5>
+<ul>
+<li>[5] Complete pipeline implementation</li>
+<li>[5] Performance profiling</li>
+<li>[5] 监控（Monitoring） dashboard</li>
+</ul>
+<p><strong>Total: 100 points</strong> <strong>Passing: 70 points</strong></p>
+<hr/>
+<h4 id="lessons-mod-107-gpu-computing-exercises-readme-md-submission">Submission</h4>
+<p>Create a Git repository with:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">gpu-computing-labs/
+├── lab1-gpu-basics/
+│   ├── benchmark.py
+│   ├── memory_profiling.py
+│   ├── results/
+│   └── REPORT.md
+├── lab2-mixed-precision/
+│   ├── amp_training.py
+│   ├── stability_tests.py
+│   └── REPORT.md
+├── lab3-distributed/
+│   ├── ddp_training.py
+│   ├── scaling_analysis.py
+│   └── REPORT.md
+├── lab4-memory/
+│   ├── gradient_checkpointing.py
+│   ├── flash_attention.py
+│   ├── oom_fixes.py
+│   └── REPORT.md
+├── lab5-production/
+│   ├── trainer.py
+│   ├── monitor.py
+│   ├── profiling.py
+│   └── REPORT.md
+└── README.md</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-exercises-readme-md-resources">资源（Resources）</h4>
+<ul>
+<li>Sample datasets: Use CIFAR-10 or MNIST for quick testing</li>
+<li>Cloud GPUs: Google Colab, Kaggle, AWS 云（AWS）, GCP 云（GCP）</li>
+<li>Reference implementations: See <code>solutions/</code> directory (available after submission deadline)</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-107-gpu-computing-exercises-readme-md-getting-help">Getting Help</h4>
+<ul>
+<li><strong>Office Hours</strong>: Tuesdays 2-4 PM</li>
+<li><strong>Discussion Forum</strong>: [Link]</li>
+<li><strong>Slack Channel</strong>: #gpu-computing-labs</li>
+<li><strong>TA Email</strong>: gpu-labs@example.com</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-107-gpu-computing-exercises-readme-md-tips-for-success">Tips for Success</h4>
+<ol>
+<li><strong>Start Early</strong>: These labs take time</li>
+<li><strong>Test Incrementally</strong>: Don't write everything at once</li>
+<li><strong>Use Profilers</strong>: Measure before optimizing</li>
+<li><strong>Read Error Messages</strong>: They're helpful!</li>
+<li><strong>Ask Questions</strong>: Use office hours and forums</li>
+<li><strong>Document</strong>: Write clear reports</li>
+<li><strong>Save Checkpoints</strong>: Don't lose hours of training</li>
+</ol>
+<hr/>
+<p><strong>Ready to become a GPU 加速（GPU） expert? Let's get started!</strong></p><p><a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-11-gpu-cost-optimization-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-107-gpu-computing.html#doc-lessons-mod-107-gpu-computing-exercises-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-01-cuda-hello-world-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

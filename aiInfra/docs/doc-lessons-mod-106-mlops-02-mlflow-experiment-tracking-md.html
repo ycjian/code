@@ -1,0 +1,653 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 02: MLflow 实验追踪（MLflow） 实验追踪（Experiment Tracking）</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 02: MLflow 实验追踪（MLflow） 实验追踪（Experiment Tracking）</h1><p>Module 106: MLOps 机器学习运维（MLOps） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-resources-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Learning Resources</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lesson 01: Introduction to MLOps 机器学习运维（MLOps）</a><a class="tree-doc active" href="../docs/doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md.html">Lesson 02: MLflow 实验追踪（MLflow） 实验追踪（Experiment Tracking）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-03-model-registry-versioning-md.html">Lesson 03: 模型注册表（Model Registry） &amp; Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-04-feature-stores-engineering-md.html">Lesson 04: Feature Stores &amp; Feature Engineering</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-05-cicd-ml-models-md.html">Lesson 05: CI/CD 持续集成与交付（CI/CD） for ML Models</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-06-model-deployment-strategies-md.html">Lesson 06: Model 部署（Deployment） Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-07-ab-testing-experimentation-md.html">Lesson 07: A/B 测试（A/B Testing） &amp; Experimentation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-08-best-practices-governance-md.html">Lesson 08: MLOps 机器学习运维（MLOps） Best Practices &amp; 治理（Governance）</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-01-mlflow-tracking-md.html">Lab 01: MLflow 实验追踪（MLflow） Tracking Server End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-02-model-registry-md.html">Lab 02: 模型注册表（Model Registry） and Stage Promotion</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-03-feature-store-md.html">Lab 03: Stand Up a Feast 特征平台（Feature Store）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-04-cicd-models-md.html">Lab 04: CI/CD 持续集成与交付（CI/CD） for Models with GitHub Actions</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-05-canary-deployment-md.html">Lab 05: Canary 部署（Deployment） with Argo Rollouts</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-06-ab-testing-md.html">Lab 06: A/B Test with Traffic Splitting</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-07-drift-monitoring-md.html">Lab 07: Drift 监控（Monitoring） with Evidently</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Module 106 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercise 01: MLOps 机器学习运维（MLOps） Maturity Assessment</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-02-mlflow-tracking-deep-dive-readme-md.html">Exercise 02: MLflow 实验追踪（MLflow） Tracking Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-03-model-registry-promotion-readme-md.html">Exercise 03: 模型注册表（Model Registry） and Promotion Workflow</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md.html">Exercise 04: 实验追踪（Experiment Tracking） and 模型注册表（Model Registry） with MLflow 实验追踪（MLflow）</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">Exercise 05: Model 监控（Monitoring） and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md.html">Exercise 06: CI/CD 持续集成与交付（CI/CD） for ML Pipelines</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-07-feature-store-implementation-readme-md.html">Exercise 07: 特征平台（Feature Store） Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-08-deployment-strategies-readme-md.html">Exercise 08: Model 部署（Deployment） Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-09-ab-testing-infrastructure-readme-md.html">Exercise 09: A/B 测试（A/B Testing） Infrastructure for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-10-model-governance-readme-md.html">Exercise 10: Model 治理（Governance） and Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-11-ml-orchestration-patterns-readme-md.html">Exercise 11: ML Pipeline Orchestration Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-12-model-cost-attribution-readme-md.html">Exercise 12: Per-Model Cost Attribution</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-13-reproducibility-audit-readme-md.html">Exercise 13: ML Reproducibility Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-14-ml-platform-operating-model-readme-md.html">Exercise 14: ML Platform Team Operating Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-readme-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Module 06: MLOps 机器学习运维（MLOps） &amp; 实验追踪（Experiment Tracking） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 02: MLflow 实验追踪（MLflow） 实验追踪（Experiment Tracking）</h2><p>Module 106: MLOps 机器学习运维（MLOps） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>2</strong><span>reading order</span></div><div class="stat"><strong>34</strong><span>chapter docs</span></div><div class="stat"><strong>749</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md" data-title="lesson 02: mlflow experiment tracking lessons/mod-106-mlops/02-mlflow-experiment-tracking.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">2/34</span><span class="chip">Lectures</span><span class="path">lessons/mod-106-mlops/02-mlflow-experiment-tracking.md</span><span class="path">749 行</span></div><h2>Lesson 02: MLflow 实验追踪（MLflow） 实验追踪（Experiment Tracking）</h2><p><a class="home" href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-106-mlops.html#doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-03-model-registry-versioning-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-lesson-02-mlflow-experiment-trackin">Lesson 02: MLflow 实验追踪（MLflow） 实验追踪（Experiment Tracking）</h3>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-overview">概览（Overview）</h4>
+<p>MLflow 实验追踪（MLflow） is an open-source platform for managing the 端到端（end-to-end） machine learning lifecycle. This lesson focuses on MLflow 实验追踪（MLflow） Tracking, which enables you to log parameters, metrics, and artifacts from your ML experiments, making them reproducible and comparable.</p>
+<p><strong>Duration:</strong> 6-7 hours <strong>Difficulty:</strong> Intermediate <strong>Prerequisites:</strong> Python, basic ML knowledge, understanding of ML lifecycle</p>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+<li>Set up and configure MLflow 实验追踪（MLflow） Tracking</li>
+<li>Log experiments, parameters, and metrics</li>
+<li>Track models and artifacts</li>
+<li>Query and compare experiments</li>
+<li>Use MLflow 实验追踪（MLflow） UI for visualization</li>
+<li>Integrate MLflow 实验追踪（MLflow） with popular frameworks</li>
+<li>Implement best practices for experiment tracking</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-1-mlflow-architecture">1. MLflow 实验追踪（MLflow） Architecture</h4>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-1-1-mlflow-components">1.1 MLflow 实验追踪（MLflow） Components</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌─────────────────────────────────────────────────────┐
+│                 MLflow Platform                      │
+├─────────────────────────────────────────────────────┤
+│                                                      │
+│  ┌──────────────┐  ┌──────────────┐               │
+│  │   Tracking   │  │    Models    │               │
+│  │  • Params    │  │  • Packaging │               │
+│  │  • Metrics   │  │  • Serving   │               │
+│  │  • Artifacts │  │  • Registry  │               │
+│  └──────────────┘  └──────────────┘               │
+│                                                      │
+│  ┌──────────────┐  ┌──────────────┐               │
+│  │   Projects   │  │   Plugins    │               │
+│  │  • Packaging │  │  • Custom    │               │
+│  │  • Repro     │  │  • Extensions│               │
+│  └──────────────┘  └──────────────┘               │
+│                                                      │
+└─────────────────────────────────────────────────────┘</code></pre></div>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-1-2-mlflow-tracking-server-architec">1.2 MLflow 实验追踪（MLflow） Tracking Server Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌──────────────┐         ┌──────────────────┐
+│  ML Scripts  │────────▶│ Tracking Server  │
+│  (Training)  │         │  • REST API      │
+└──────────────┘         │  • File Store    │
+                         └──────────────────┘
+                                │
+                    ┌───────────┼───────────┐
+                    │                       │
+              ┌─────▼─────┐         ┌──────▼────┐
+              │  Backend  │         │  Artifact │
+              │   Store   │         │   Store   │
+              │(PostgreSQL│         │    (S3)   │
+              │  /SQLite) │         └───────────┘
+              └───────────┘</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-2-setting-up-mlflow">2. Setting Up MLflow 实验追踪（MLflow）</h4>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-2-1-installation">2.1 Installation</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Basic installation
+pip install mlflow==2.9.0
+
+# With extras
+pip install mlflow[extras]  # includes sklearn, tensorflow integrations
+
+# Verify installation
+mlflow --version</code></pre></div>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-2-2-local-tracking">2.2 Local Tracking</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+import mlflow.sklearn
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, f1_score
+import pandas as pd
+
+# Set tracking URI (local file store)
+mlflow.set_tracking_uri(&quot;file:./mlruns&quot;)
+
+# Set experiment name
+mlflow.set_experiment(&quot;fraud_detection&quot;)
+
+# Start a run
+with mlflow.start_run(run_name=&quot;baseline_rf&quot;):
+    # Log parameters
+    n_estimators = 100
+    max_depth = 10
+    mlflow.log_param(&quot;n_estimators&quot;, n_estimators)
+    mlflow.log_param(&quot;max_depth&quot;, max_depth)
+    mlflow.log_param(&quot;model_type&quot;, &quot;random_forest&quot;)
+
+    # Train model
+    X_train, X_test, y_train, y_test = load_and_split_data()
+
+    model = RandomForestClassifier(
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        random_state=42
+    )
+    model.fit(X_train, y_train)
+
+    # Make predictions
+    y_pred = model.predict(X_test)
+
+    # Log metrics
+    accuracy = accuracy_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+
+    mlflow.log_metric(&quot;accuracy&quot;, accuracy)
+    mlflow.log_metric(&quot;f1_score&quot;, f1)
+
+    # Log model
+    mlflow.sklearn.log_model(model, &quot;model&quot;)
+
+    print(f&quot;Accuracy: {accuracy:.4f}&quot;)
+    print(f&quot;F1 Score: {f1:.4f}&quot;)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-2-3-remote-tracking-server">2.3 Remote Tracking Server</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Start tracking server with PostgreSQL backend and S3 artifacts
+mlflow server \
+    --backend-store-uri postgresql://user:password@localhost/mlflow \
+    --default-artifact-root s3://mlflow-artifacts \
+    --host 0.0.0.0 \
+    --port 5000
+
+# Or with SQLite and local artifacts (development)
+mlflow server \
+    --backend-store-uri sqlite:///mlflow.db \
+    --default-artifact-root ./mlruns \
+    --host 0.0.0.0 \
+    --port 5000</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Connect to remote server
+import mlflow
+
+mlflow.set_tracking_uri(&quot;http://mlflow-server:5000&quot;)
+mlflow.set_experiment(&quot;my_experiment&quot;)
+
+# Everything else stays the same
+with mlflow.start_run():
+    mlflow.log_param(&quot;alpha&quot;, 0.5)
+    mlflow.log_metric(&quot;rmse&quot;, 0.8)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-3-logging-experiments">3. Logging Experiments</h4>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-3-1-parameters-metrics-and-tags">3.1 Parameters, Metrics, and Tags</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+import numpy as np
+
+with mlflow.start_run(run_name=&quot;experiment_001&quot;):
+    # Log single values
+    mlflow.log_param(&quot;learning_rate&quot;, 0.01)
+    mlflow.log_param(&quot;batch_size&quot;, 32)
+    mlflow.log_metric(&quot;loss&quot;, 0.5)
+
+    # Log multiple parameters at once
+    params = {
+        &quot;optimizer&quot;: &quot;adam&quot;,
+        &quot;dropout_rate&quot;: 0.2,
+        &quot;hidden_units&quot;: 128
+    }
+    mlflow.log_params(params)
+
+    # Log multiple metrics
+    metrics = {
+        &quot;train_accuracy&quot;: 0.95,
+        &quot;val_accuracy&quot;: 0.92,
+        &quot;test_accuracy&quot;: 0.91
+    }
+    mlflow.log_metrics(metrics)
+
+    # Log metrics at multiple steps (for training curves)
+    for epoch in range(10):
+        train_loss = np.random.random()
+        val_loss = np.random.random()
+
+        mlflow.log_metrics({
+            &quot;train_loss&quot;: train_loss,
+            &quot;val_loss&quot;: val_loss
+        }, step=epoch)
+
+    # Log tags for organization
+    mlflow.set_tag(&quot;model_family&quot;, &quot;neural_network&quot;)
+    mlflow.set_tag(&quot;dataset_version&quot;, &quot;v1.2.0&quot;)
+    mlflow.set_tag(&quot;engineer&quot;, &quot;alice@example.com&quot;)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-3-2-logging-artifacts">3.2 Logging Artifacts</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+import matplotlib.pyplot as plt
+import json
+import pandas as pd
+
+with mlflow.start_run():
+    # Log a file
+    with open(&quot;config.json&quot;, &quot;w&quot;) as f:
+        json.dump({&quot;param1&quot;: &quot;value1&quot;}, f)
+    mlflow.log_artifact(&quot;config.json&quot;)
+
+    # Log a directory
+    mlflow.log_artifacts(&quot;output_dir&quot;, artifact_path=&quot;outputs&quot;)
+
+    # Log a figure
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], [4, 5, 6])
+    plt.savefig(&quot;plot.png&quot;)
+    mlflow.log_artifact(&quot;plot.png&quot;)
+    plt.close()
+
+    # Log a DataFrame as CSV
+    df = pd.DataFrame({&quot;a&quot;: [1, 2, 3], &quot;b&quot;: [4, 5, 6]})
+    df.to_csv(&quot;data.csv&quot;, index=False)
+    mlflow.log_artifact(&quot;data.csv&quot;)
+
+    # Log text content directly
+    mlflow.log_text(&quot;Model training completed successfully&quot;, &quot;status.txt&quot;)
+
+    # Log dictionary as JSON
+    metadata = {&quot;model_version&quot;: &quot;1.0&quot;, &quot;framework&quot;: &quot;sklearn&quot;}
+    mlflow.log_dict(metadata, &quot;metadata.json&quot;)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-3-3-logging-models">3.3 Logging Models</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+import mlflow.sklearn
+import mlflow.pytorch
+import mlflow.tensorflow
+
+# Scikit-learn model
+with mlflow.start_run():
+    model = train_sklearn_model()
+
+    # Log model with signature
+    from mlflow.models.signature import infer_signature
+    signature = infer_signature(X_train, model.predict(X_train))
+
+    mlflow.sklearn.log_model(
+        model,
+        &quot;model&quot;,
+        signature=signature,
+        input_example=X_train[:5]
+    )
+
+# PyTorch model
+with mlflow.start_run():
+    model = train_pytorch_model()
+
+    mlflow.pytorch.log_model(
+        model,
+        &quot;model&quot;,
+        conda_env=&quot;conda.yaml&quot;,
+        code_paths=[&quot;model_code.py&quot;]
+    )
+
+# Custom Python model
+class CustomModel(mlflow.pyfunc.PythonModel):
+    def __init__(self, model):
+        self.model = model
+
+    def predict(self, context, model_input):
+        # Custom prediction logic
+        return self.model.predict(model_input)
+
+with mlflow.start_run():
+    custom_model = CustomModel(sklearn_model)
+    mlflow.pyfunc.log_model(
+        artifact_path=&quot;custom_model&quot;,
+        python_model=custom_model
+    )</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-4-organizing-experiments">4. Organizing Experiments</h4>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-4-1-hierarchical-organization">4.1 Hierarchical Organization</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+
+# Create experiments programmatically
+experiment_id = mlflow.create_experiment(
+    &quot;deep_learning_experiments&quot;,
+    artifact_location=&quot;s3://my-bucket/experiments&quot;,
+    tags={&quot;team&quot;: &quot;ml-research&quot;, &quot;project&quot;: &quot;vision&quot;}
+)
+
+# Use nested runs for hyperparameter sweeps
+with mlflow.start_run(run_name=&quot;grid_search&quot;) as parent_run:
+    mlflow.log_param(&quot;search_type&quot;, &quot;grid&quot;)
+
+    for lr in [0.001, 0.01, 0.1]:
+        for batch_size in [16, 32, 64]:
+            with mlflow.start_run(nested=True) as child_run:
+                mlflow.log_param(&quot;learning_rate&quot;, lr)
+                mlflow.log_param(&quot;batch_size&quot;, batch_size)
+
+                # Train model
+                metrics = train_model(lr, batch_size)
+                mlflow.log_metrics(metrics)
+
+# Query parent run's children
+from mlflow.tracking import MlflowClient
+
+client = MlflowClient()
+child_runs = client.search_runs(
+    experiment_ids=[experiment_id],
+    filter_string=f&quot;tags.mlflow.parentRunId = '{parent_run.info.run_id}'&quot;
+)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-4-2-tagging-strategy">4.2 Tagging Strategy</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+from datetime import datetime
+
+def log_training_run(model, data_version, experiment_type):
+    &quot;&quot;&quot;Standardized training run with consistent tagging&quot;&quot;&quot;
+
+    with mlflow.start_run():
+        # Standard tags
+        mlflow.set_tag(&quot;mlflow.runName&quot;, f&quot;run_{datetime.now().strftime('%Y%m%d_%H%M%S')}&quot;)
+        mlflow.set_tag(&quot;data_version&quot;, data_version)
+        mlflow.set_tag(&quot;experiment_type&quot;, experiment_type)  # baseline, tuning, production
+        mlflow.set_tag(&quot;model_architecture&quot;, model.__class__.__name__)
+        mlflow.set_tag(&quot;git_commit&quot;, get_git_commit())
+        mlflow.set_tag(&quot;engineer&quot;, get_current_user())
+
+        # Environment tags
+        mlflow.set_tag(&quot;environment&quot;, &quot;development&quot;)
+        mlflow.set_tag(&quot;python_version&quot;, sys.version)
+
+        # Business tags
+        mlflow.set_tag(&quot;use_case&quot;, &quot;fraud_detection&quot;)
+        mlflow.set_tag(&quot;priority&quot;, &quot;high&quot;)
+
+        # Train and log model
+        # ... training code ...</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-5-querying-and-comparing-runs">5. Querying and Comparing Runs</h4>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-5-1-searching-runs">5.1 Searching Runs</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from mlflow.tracking import MlflowClient
+import pandas as pd
+
+client = MlflowClient()
+
+# Get experiment by name
+experiment = client.get_experiment_by_name(&quot;fraud_detection&quot;)
+
+# Search runs with filters
+runs = client.search_runs(
+    experiment_ids=[experiment.experiment_id],
+    filter_string=&quot;metrics.accuracy &gt; 0.9 and params.model_type = 'random_forest'&quot;,
+    order_by=[&quot;metrics.accuracy DESC&quot;],
+    max_results=10
+)
+
+# Convert to DataFrame
+runs_df = pd.DataFrame([{
+    &quot;run_id&quot;: run.info.run_id,
+    &quot;accuracy&quot;: run.data.metrics.get(&quot;accuracy&quot;),
+    &quot;f1_score&quot;: run.data.metrics.get(&quot;f1_score&quot;),
+    &quot;n_estimators&quot;: run.data.params.get(&quot;n_estimators&quot;),
+    &quot;start_time&quot;: run.info.start_time
+} for run in runs])
+
+print(runs_df)
+
+# Get best run
+best_run = runs[0]
+print(f&quot;Best run ID: {best_run.info.run_id}&quot;)
+print(f&quot;Best accuracy: {best_run.data.metrics['accuracy']}&quot;)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-5-2-comparing-runs">5.2 Comparing Runs</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def compare_runs(run_ids: list) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;Compare multiple runs&quot;&quot;&quot;
+    client = MlflowClient()
+
+    comparison = []
+    for run_id in run_ids:
+        run = client.get_run(run_id)
+
+        comparison.append({
+            &quot;run_id&quot;: run_id[:8],
+            &quot;run_name&quot;: run.data.tags.get(&quot;mlflow.runName&quot;, &quot;&quot;),
+            **run.data.params,
+            **run.data.metrics
+        })
+
+    return pd.DataFrame(comparison)
+
+# Usage
+run_ids = [&quot;abc123&quot;, &quot;def456&quot;, &quot;ghi789&quot;]
+comparison_df = compare_runs(run_ids)
+print(comparison_df)
+
+# Find runs with similar parameters
+def find_similar_runs(reference_run_id, param_names):
+    &quot;&quot;&quot;Find runs with similar parameter values&quot;&quot;&quot;
+    client = MlflowClient()
+
+    ref_run = client.get_run(reference_run_id)
+    ref_params = {p: ref_run.data.params[p] for p in param_names}
+
+    # Build filter string
+    filters = [f&quot;params.{k} = '{v}'&quot; for k, v in ref_params.items()]
+    filter_string = &quot; and &quot;.join(filters)
+
+    similar_runs = client.search_runs(
+        experiment_ids=[ref_run.info.experiment_id],
+        filter_string=filter_string
+    )
+
+    return similar_runs</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-6-mlflow-ui">6. MLflow 实验追踪（MLflow） UI</h4>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-6-1-starting-the-ui">6.1 Starting the UI</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Start UI pointing to tracking server
+mlflow ui --backend-store-uri sqlite:///mlflow.db
+
+# Or if using remote tracking server
+mlflow ui --backend-store-uri postgresql://user:pass@host/db
+
+# Custom port
+mlflow ui --port 5001</code></pre></div>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-6-2-ui-features">6.2 UI Features</h5>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li>Compare runs side-by-side</li>
+<li>Visualize metrics over time</li>
+<li>Download artifacts</li>
+<li>Register models</li>
+<li>Search and filter runs</li>
+<li>View experiment hierarchy</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-7-framework-integrations">7. Framework Integrations</h4>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-7-1-auto-logging">7.1 Auto-logging</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+
+# TensorFlow/Keras auto-logging
+mlflow.tensorflow.autolog()
+
+import tensorflow as tf
+model = tf.keras.Sequential([...])
+model.compile(optimizer='adam', loss='mse')
+model.fit(X_train, y_train, epochs=10)  # Automatically logged!
+
+# Scikit-learn auto-logging
+mlflow.sklearn.autolog()
+
+from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier()
+model.fit(X_train, y_train)  # Automatically logged!
+
+# PyTorch Lightning auto-logging
+import mlflow.pytorch
+mlflow.pytorch.autolog()
+
+import pytorch_lightning as pl
+trainer = pl.Trainer(max_epochs=10)
+trainer.fit(model, train_dataloader)  # Automatically logged!
+
+# XGBoost auto-logging
+mlflow.xgboost.autolog()
+
+import xgboost as xgb
+model = xgb.XGBClassifier()
+model.fit(X_train, y_train)  # Automatically logged!</code></pre></div>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-7-2-custom-integration">7.2 Custom Integration</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class MLflowCallback:
+    &quot;&quot;&quot;Custom callback for logging during training&quot;&quot;&quot;
+
+    def __init__(self):
+        self.run = None
+
+    def on_train_begin(self, config):
+        &quot;&quot;&quot;Start MLflow run&quot;&quot;&quot;
+        self.run = mlflow.start_run()
+        mlflow.log_params(config)
+
+    def on_epoch_end(self, epoch, metrics):
+        &quot;&quot;&quot;Log metrics after each epoch&quot;&quot;&quot;
+        mlflow.log_metrics(metrics, step=epoch)
+
+    def on_train_end(self, model):
+        &quot;&quot;&quot;Log model and end run&quot;&quot;&quot;
+        mlflow.pytorch.log_model(model, &quot;model&quot;)
+        mlflow.end_run()
+
+# Usage
+callback = MLflowCallback()
+train_model(callbacks=[callback])</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-8-production-patterns">8. 生产环境（Production） Patterns</h4>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-8-1-experiment-tracking-wrapper">8.1 实验追踪（Experiment Tracking） Wrapper</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+from functools import wraps
+import traceback
+
+def track_experiment(experiment_name: str):
+    &quot;&quot;&quot;Decorator for automatic experiment tracking&quot;&quot;&quot;
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            mlflow.set_experiment(experiment_name)
+
+            with mlflow.start_run():
+                try:
+                    # Log function arguments
+                    mlflow.log_params({
+                        f&quot;arg_{i}&quot;: str(arg)
+                        for i, arg in enumerate(args)
+                    })
+                    mlflow.log_params(kwargs)
+
+                    # Execute function
+                    result = func(*args, **kwargs)
+
+                    # Log success
+                    mlflow.set_tag(&quot;status&quot;, &quot;success&quot;)
+
+                    return result
+
+                except Exception as e:
+                    # Log failure
+                    mlflow.set_tag(&quot;status&quot;, &quot;failed&quot;)
+                    mlflow.log_text(traceback.format_exc(), &quot;error.txt&quot;)
+                    raise
+
+        return wrapper
+    return decorator
+
+# Usage
+@track_experiment(&quot;model_training&quot;)
+def train_model(learning_rate, batch_size):
+    # Training code
+    model = ...
+    metrics = {&quot;accuracy&quot;: 0.95}
+    mlflow.log_metrics(metrics)
+    return model</code></pre></div>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-8-2-model-lineage-tracking">8.2 Model Lineage Tracking</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class ModelLineageTracker:
+    &quot;&quot;&quot;Track complete model lineage&quot;&quot;&quot;
+
+    def __init__(self):
+        self.client = MlflowClient()
+
+    def log_data_lineage(self, data_sources: dict):
+        &quot;&quot;&quot;Log data sources and versions&quot;&quot;&quot;
+        for source, version in data_sources.items():
+            mlflow.log_param(f&quot;data_source_{source}&quot;, version)
+            mlflow.set_tag(f&quot;data_{source}_hash&quot;, compute_hash(version))
+
+    def log_code_version(self):
+        &quot;&quot;&quot;Log code version information&quot;&quot;&quot;
+        import subprocess
+
+        # Git information
+        try:
+            commit = subprocess.check_output(
+                [&quot;git&quot;, &quot;rev-parse&quot;, &quot;HEAD&quot;]
+            ).decode().strip()
+            mlflow.set_tag(&quot;git_commit&quot;, commit)
+
+            branch = subprocess.check_output(
+                [&quot;git&quot;, &quot;rev-parse&quot;, &quot;--abbrev-ref&quot;, &quot;HEAD&quot;]
+            ).decode().strip()
+            mlflow.set_tag(&quot;git_branch&quot;, branch)
+        except:
+            pass
+
+    def log_dependencies(self):
+        &quot;&quot;&quot;Log Python package versions&quot;&quot;&quot;
+        import pkg_resources
+
+        dependencies = {
+            pkg.key: pkg.version
+            for pkg in pkg_resources.working_set
+        }
+        mlflow.log_dict(dependencies, &quot;dependencies.json&quot;)
+
+    def log_model_lineage(self, parent_model_uri: str = None):
+        &quot;&quot;&quot;Log parent model if retraining&quot;&quot;&quot;
+        if parent_model_uri:
+            mlflow.set_tag(&quot;parent_model&quot;, parent_model_uri)
+
+    def track_complete_lineage(self, data_sources, parent_model=None):
+        &quot;&quot;&quot;Track all lineage information&quot;&quot;&quot;
+        self.log_data_lineage(data_sources)
+        self.log_code_version()
+        self.log_dependencies()
+        if parent_model:
+            self.log_model_lineage(parent_model)
+
+# Usage
+tracker = ModelLineageTracker()
+
+with mlflow.start_run():
+    tracker.track_complete_lineage(
+        data_sources={
+            &quot;training_data&quot;: &quot;v2.1.0&quot;,
+            &quot;validation_data&quot;: &quot;v2.1.0&quot;
+        },
+        parent_model=&quot;models:/fraud_model/3&quot;
+    )
+
+    # Train model...</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-9-best-practices">9. Best Practices</h4>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-9-1-experiment-organization">9.1 Experiment Organization</h5>
+<p>✅ <strong>DO:</strong></p>
+<ul>
+<li>Use descriptive experiment names</li>
+<li>Create separate experiments for different projects</li>
+<li>Use consistent naming conventions</li>
+<li>Tag runs with metadata</li>
+<li>Use nested runs for hyperparameter sweeps</li>
+<li>Clean up old experiments periodically</li>
+</ul>
+<p>❌ <strong>DON'T:</strong></p>
+<ul>
+<li>Mix different projects in one experiment</li>
+<li>Use generic names like &quot;experiment1&quot;</li>
+<li>Log sensitive data</li>
+<li>Leave experiments running indefinitely</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-9-2-what-to-log">9.2 What to Log</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Comprehensive logging example
+with mlflow.start_run():
+    # 1. Configuration
+    mlflow.log_params(config)
+    mlflow.log_dict(full_config, &quot;config.json&quot;)
+
+    # 2. Data information
+    mlflow.log_param(&quot;train_size&quot;, len(X_train))
+    mlflow.log_param(&quot;test_size&quot;, len(X_test))
+    mlflow.log_param(&quot;num_features&quot;, X_train.shape[1])
+
+    # 3. Model architecture
+    mlflow.log_param(&quot;model_type&quot;, &quot;RandomForest&quot;)
+    mlflow.log_params(model.get_params())
+
+    # 4. Training metrics
+    for epoch in range(epochs):
+        mlflow.log_metrics(epoch_metrics, step=epoch)
+
+    # 5. Final metrics
+    mlflow.log_metrics(final_metrics)
+
+    # 6. Model artifacts
+    mlflow.sklearn.log_model(model, &quot;model&quot;)
+
+    # 7. Visualizations
+    mlflow.log_figure(confusion_matrix_plot, &quot;confusion_matrix.png&quot;)
+    mlflow.log_figure(roc_curve_plot, &quot;roc_curve.png&quot;)
+
+    # 8. Additional artifacts
+    mlflow.log_artifact(&quot;feature_importance.csv&quot;)
+    mlflow.log_text(model_summary, &quot;model_summary.txt&quot;)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-02-mlflow-experiment-tracking-md-10-summary">10. Summary</h4>
+<p>Key takeaways:</p>
+<ul>
+<li>✅ MLflow 实验追踪（MLflow） Tracking enables reproducible experiments</li>
+<li>✅ Log parameters, metrics, models, and artifacts</li>
+<li>✅ Use tags for organization and searchability</li>
+<li>✅ Leverage auto-logging for quick setup</li>
+<li>✅ Query and compare runs programmatically</li>
+<li>✅ Track complete model lineage</li>
+<li>✅ Follow consistent naming and tagging conventions</li>
+</ul>
+<p><strong>Next Lesson:</strong> <a href="#doc-lessons-mod-106-mlops-03-model-registry-versioning-md">03 - 模型注册表（Model Registry） &amp; Versioning</a></p><p><a class="home" href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-106-mlops.html#doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-03-model-registry-versioning-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

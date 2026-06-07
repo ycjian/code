@@ -1,0 +1,767 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Module 09: 基础设施即代码（Infrastructure as Code） - Resources</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Module 09: 基础设施即代码（Infrastructure as Code） - Resources</h1><p>Module 109: 基础设施即代码（Infrastructure as Code） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Module 09: 基础设施即代码（Infrastructure as Code） (IaC)</a><a class="tree-doc active" href="../docs/doc-lessons-mod-109-infrastructure-as-code-resources-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Resources</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lesson 01: Introduction to 基础设施即代码（Infrastructure as Code）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md.html">Lesson 02: Terraform 基础设施编排（Terraform） Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-03-terraform-state-management-md.html">Lesson 03: Terraform 基础设施编排（Terraform） State Management</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md.html">Lesson 04: Building AI 基础设施（AI Infrastructure） with Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-05-pulumi-infrastructure-as-software-md.html">Lesson 05: Pulumi 多语言 IaC（Pulumi） - Infrastructure as Software</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md.html">Lesson 06: Advanced IaC Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md.html">Lesson 07: GitOps 交付模式（GitOps） and IaC CI/CD 持续集成与交付（CI/CD）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-08-security-best-practices-md.html">Lesson 08: 安全（Security） Best Practices for IaC</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-01-terraform-aws-vpc-md.html">Lab 01: Terraform 基础设施编排（Terraform） AWS 云（AWS） VPC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-02-terraform-eks-md.html">Lab 02: Terraform 基础设施编排（Terraform） EKS 托管 Kubernetes（EKS） Cluster</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-03-terraform-state-backend-md.html">Lab 03: Remote State Backend with S3 + DynamoDB Locking</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-04-pulumi-multicloud-md.html">Lab 04: Pulumi 多语言 IaC（Pulumi） Multi-Cloud 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-05-iac-cicd-md.html">Lab 05: IaC in CI/CD 持续集成与交付（CI/CD） with PR-Based Plan</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-06-secret-management-md.html">Lab 06: Secret Management with Vault + Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-07-policy-as-code-md.html">Lab 07: Policy as Code with OPA Conftest</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Module 109 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercise 01: 生产环境（Production） 机器学习基础设施（ML Infrastructure） with Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-02-pulumi-multicloud-ml-readme-m.html">Exercise 02: Multi-Cloud 机器学习基础设施（ML Infrastructure） with Pulumi 多语言 IaC（Pulumi）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-03-terraform-module-library-read.html">Exercise 03: Build a Reusable Terraform 基础设施编排（Terraform） Module Library</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-04-state-management-at-scale-rea.html">Exercise 04: Terraform 基础设施编排（Terraform） State Management at Scale</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-05-pulumi-advanced-patterns-read.html">Exercise 05: Pulumi 多语言 IaC（Pulumi） Advanced Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-06-gitops-argocd-readme-md.html">Exercise 06: GitOps 交付模式（GitOps） with ArgoCD GitOps 部署（ArgoCD）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-07-secret-management-readme-md.html">Exercise 07: Secret Management Across IaC + Runtime</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-08-policy-as-code-readme-md.html">Exercise 08: Policy as Code (OPA + Sentinel)</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-09-drift-detection-readme-md.html">Exercise 09: Drift Detection and Remediation</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-10-multi-environment-promotion-r.html">Exercise 10: Multi-Environment Promotion Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-11-cost-aware-iac-readme-md.html">Exercise 11: Cost-Aware IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-12-disaster-recovery-iac-readme-.html">Exercise 12: Disaster Recovery via IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-13-iac-for-ml-workloads-readme-m.html">Exercise 13: IaC for AI/ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-readme-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Module 09: 基础设施即代码（Infrastructure as Code） - Resources</h2><p>Module 109: 基础设施即代码（Infrastructure as Code） · Chapter Overview: 本章导读</p><div class="stats"><div class="stat"><strong>33</strong><span>reading order</span></div><div class="stat"><strong>33</strong><span>chapter docs</span></div><div class="stat"><strong>607</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-109-infrastructure-as-code-resources-md" data-title="module 09: infrastructure as code - resources lessons/mod-109-infrastructure-as-code/resources.md chapter overview: 本章导读"><div class="doc-head"><span class="chip">33/33</span><span class="chip">Chapter Overview</span><span class="path">lessons/mod-109-infrastructure-as-code/resources.md</span><span class="path">607 行</span></div><h2>Module 09: 基础设施即代码（Infrastructure as Code） - Resources</h2><p><a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-109-infrastructure-as-code.html#doc-lessons-mod-109-infrastructure-as-code-resources-md">返回本章（Back to chapter）</a> </p><h3 id="lessons-mod-109-infrastructure-as-code-resources-md-module-09-infrastructure-as-code-resou">Module 09: 基础设施即代码（Infrastructure as Code） - Resources</h3>
+<p>Comprehensive collection of resources for learning 基础设施即代码（Infrastructure as Code）, Terraform 基础设施编排（Terraform）, Pulumi 多语言 IaC（Pulumi）, and IaC best practices for AI/ML infrastructure.</p>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-official-documentation">Official Documentation</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-terraform">Terraform 基础设施编排（Terraform）</h5>
+<ul>
+<li><strong><a href="https://www.terraform.io/docs">Terraform 基础设施编排（Terraform） Documentation</a></strong> - Official Terraform 基础设施编排（Terraform） docs</li>
+<li><strong><a href="https://registry.terraform.io/">Terraform 基础设施编排（Terraform） Registry</a></strong> - Browse providers and modules</li>
+<li><strong><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs">Terraform 基础设施编排（Terraform） AWS 云（AWS） Provider</a></strong> - AWS 云（AWS） provider documentation</li>
+<li><strong><a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs">Terraform 基础设施编排（Terraform） GCP 云（GCP） Provider</a></strong> - Google Cloud provider</li>
+<li><strong><a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs">Terraform 基础设施编排（Terraform） Azure 云（Azure） Provider</a></strong> - Azure 云（Azure） provider</li>
+<li><strong><a href="https://www.terraform.io/language/syntax/configuration">HCL Syntax</a></strong> - HashiCorp Configuration Language guide</li>
+<li><strong><a href="https://www.terraform.io/cli/commands">Terraform 基础设施编排（Terraform） CLI Commands</a></strong> - Complete CLI reference</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-pulumi">Pulumi 多语言 IaC（Pulumi）</h5>
+<ul>
+<li><strong><a href="https://www.pulumi.com/docs/">Pulumi 多语言 IaC（Pulumi） Documentation</a></strong> - Official Pulumi 多语言 IaC（Pulumi） docs</li>
+<li><strong><a href="https://www.pulumi.com/docs/languages-sdks/python/">Pulumi 多语言 IaC（Pulumi） Python SDK</a></strong> - Python-specific documentation</li>
+<li><strong><a href="https://www.pulumi.com/registry/packages/aws/">Pulumi 多语言 IaC（Pulumi） AWS 云（AWS） Package</a></strong> - AWS 云（AWS） resources in Python</li>
+<li><strong><a href="https://github.com/pulumi/examples">Pulumi 多语言 IaC（Pulumi） Examples</a></strong> - 500+ example programs</li>
+<li><strong><a href="https://www.pulumi.com/docs/concepts/vs/terraform/">Pulumi 多语言 IaC（Pulumi） vs Terraform 基础设施编排（Terraform）</a></strong> - Official comparison</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-aws">AWS 云（AWS）</h5>
+<ul>
+<li><strong><a href="https://aws.amazon.com/architecture/well-architected/">AWS 云（AWS） Well-Architected Framework</a></strong> - Best practices</li>
+<li><strong><a href="https://aws.amazon.com/ec2/instance-types/">AWS 云（AWS） EC2 Instance Types</a></strong> - Choose right instance for ML</li>
+<li><strong><a href="https://aws.amazon.com/machine-learning/amis/">AWS 云（AWS） Deep Learning AMIs</a></strong> - Pre-configured ML environments</li>
+<li><strong><a href="https://docs.aws.amazon.com/eks/">AWS 云（AWS） EKS 托管 Kubernetes（EKS） Documentation</a></strong> - Kubernetes 容器编排（Kubernetes） on AWS 云（AWS）</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-google-cloud">Google Cloud</h5>
+<ul>
+<li><strong><a href="https://cloud.google.com/docs/terraform/best-practices-for-terraform">GCP 云（GCP） Best Practices</a></strong> - GCP 云（GCP） Terraform 基础设施编排（Terraform） guide</li>
+<li><strong><a href="https://cloud.google.com/kubernetes-engine/docs">GKE 托管 Kubernetes（GKE） Documentation</a></strong> - Google Kubernetes 容器编排（Kubernetes） Engine</li>
+<li><strong><a href="https://cloud.google.com/compute/docs/gpus">GCP 云（GCP） GPU 加速（GPU） Instances</a></strong> - GPU 加速（GPU） configuration</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-books">Books</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-infrastructure-as-code">基础设施即代码（Infrastructure as Code）</h5>
+<ol>
+<li><strong>&quot;Terraform 基础设施编排（Terraform）: Up &amp; Running&quot; by Yevgeniy Brikman</strong></li>
+</ol>
+<ul>
+<li>Publisher: O'Reilly Media</li>
+<li>Best comprehensive Terraform 基础设施编排（Terraform） book</li>
+<li>Covers basics to advanced patterns</li>
+<li>Includes team collaboration strategies</li>
+<li><a href="https://www.amazon.com/Terraform-Running-Writing-Infrastructure-Code/dp/1098116747">Amazon Link</a></li>
+</ul>
+<ol>
+<li><strong>&quot;基础设施即代码（Infrastructure as Code）&quot; by Kief Morris</strong></li>
+</ol>
+<ul>
+<li>Publisher: O'Reilly Media</li>
+<li>Language-agnostic IaC principles</li>
+<li>Patterns and anti-patterns</li>
+<li>DevOps best practices</li>
+<li><a href="https://www.amazon.com/Infrastructure-Code-Dynamic-Systems-Cloud/dp/1098114671">Amazon Link</a></li>
+</ul>
+<ol>
+<li><strong>&quot;The Terraform 基础设施编排（Terraform） Book&quot; by James Turnbull</strong></li>
+</ol>
+<ul>
+<li>Practical, hands-on approach</li>
+<li>Beginner-friendly</li>
+<li>Step-by-step tutorials</li>
+<li><a href="https://terraformbook.com/">Amazon Link</a></li>
+</ul>
+<ol>
+<li><strong>&quot;Pulumi 多语言 IaC（Pulumi） in Action&quot; (Manning - Early Access)</strong></li>
+</ol>
+<ul>
+<li>Comprehensive Pulumi 多语言 IaC（Pulumi） guide</li>
+<li>Multi-cloud infrastructure</li>
+<li>Real-world examples</li>
+<li><a href="https://www.manning.com/books/pulumi-in-action">Manning Link</a></li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-cloud-devops">Cloud &amp; DevOps</h5>
+<ol>
+<li><strong>&quot;Cloud Native DevOps with Kubernetes 容器编排（Kubernetes）&quot; by John Arundel &amp; Justin Domingus</strong></li>
+</ol>
+<ul>
+<li>O'Reilly Media</li>
+<li>Kubernetes 容器编排（Kubernetes） infrastructure patterns</li>
+<li>Great complement to IaC</li>
+<li><a href="https://www.amazon.com/Cloud-Native-DevOps-Kubernetes-Applications/dp/1492040762">Amazon Link</a></li>
+</ul>
+<ol>
+<li><strong>&quot;Site 可靠性（Reliability） Engineering&quot; by Google</strong></li>
+</ol>
+<ul>
+<li>Free online at <a href="https://sre.google/books/">sre.google</a></li>
+<li>Infrastructure automation 大规模（at scale）</li>
+<li>Google's production practices</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-online-courses">Online Courses</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-free-courses">Free Courses</h5>
+<ol>
+<li><strong>HashiCorp Learn - Terraform 基础设施编排（Terraform）</strong></li>
+</ol>
+<ul>
+<li>URL: https://learn.hashicorp.com/terraform</li>
+<li>Official HashiCorp tutorials</li>
+<li>Beginner to advanced</li>
+<li>Hands-on labs</li>
+<li><strong>Topics</strong>: AWS 云（AWS）, Azure 云（Azure）, GCP 云（GCP）, Kubernetes 容器编排（Kubernetes）, Cloud Development Kit</li>
+</ul>
+<ol>
+<li><strong>Pulumi 多语言 IaC（Pulumi） Getting Started</strong></li>
+</ol>
+<ul>
+<li>URL: https://www.pulumi.com/docs/get-started/</li>
+<li>Interactive tutorials</li>
+<li>Multiple languages (Python, TypeScript, Go)</li>
+<li>Cloud provider walkthroughs</li>
+</ul>
+<ol>
+<li><strong>A Cloud Guru - Terraform 基础设施编排（Terraform） Free Content</strong></li>
+</ol>
+<ul>
+<li>URL: https://acloudguru.com/</li>
+<li>Monthly free courses</li>
+<li>Hands-on labs in sandbox environments</li>
+</ul>
+<ol>
+<li><strong>freeCodeCamp - Terraform 基础设施编排（Terraform） Course (YouTube)</strong></li>
+</ol>
+<ul>
+<li>URL: https://www.youtube.com/watch?v=SLB_c_ayRMo</li>
+<li>2+ hour comprehensive course</li>
+<li>Beginner-friendly</li>
+<li>AWS-focused</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-paid-courses">Paid Courses</h5>
+<ol>
+<li><strong>&quot;Learn DevOps: Infrastructure Automation With Terraform 基础设施编排（Terraform）&quot;</strong></li>
+</ol>
+<ul>
+<li>Platform: Udemy</li>
+<li>Instructor: Edward Viaene</li>
+<li>8+ hours of content</li>
+<li>Hands-on projects</li>
+<li>~$20-50 (frequent sales)</li>
+</ul>
+<ol>
+<li><strong>&quot;Terraform 基础设施编排（Terraform） on AWS 云（AWS） with SRE &amp; IaC DevOps&quot;</strong></li>
+</ol>
+<ul>
+<li>Platform: Udemy</li>
+<li>Instructor: Kalyan Reddy</li>
+<li>Complete AWS 云（AWS） + Terraform 基础设施编排（Terraform） bootcamp</li>
+<li>20+ hours</li>
+<li>Includes EKS 托管 Kubernetes（EKS）, VPC, IAM</li>
+</ul>
+<ol>
+<li><strong>&quot;Advanced Terraform 基础设施编排（Terraform）&quot;</strong></li>
+</ol>
+<ul>
+<li>Platform: Pluralsight</li>
+<li>Instructor: Ned Bellavance</li>
+<li>Advanced patterns and practices</li>
+<li>Enterprise-focused</li>
+<li>Subscription required (~$29/month)</li>
+</ul>
+<ol>
+<li><strong>&quot;Pulumi 多语言 IaC（Pulumi）: 基础设施即代码（Infrastructure as Code）&quot;</strong></li>
+</ol>
+<ul>
+<li>Platform: Pluralsight</li>
+<li>Python, TypeScript, Go coverage</li>
+<li>Multi-cloud examples</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-interactive-learning-labs">Interactive Learning &amp; Labs</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-terraform">Terraform 基础设施编排（Terraform）</h5>
+<ol>
+<li><strong>Terraform 基础设施编排（Terraform） Katacoda</strong></li>
+</ol>
+<ul>
+<li>URL: https://www.katacoda.com/terraform</li>
+<li>Browser-based interactive labs</li>
+<li>No setup required</li>
+<li>Free</li>
+</ul>
+<ol>
+<li><strong>Instruqt - HashiCorp Tracks</strong></li>
+</ol>
+<ul>
+<li>URL: https://play.instruqt.com/hashicorp</li>
+<li>Interactive Terraform 基础设施编排（Terraform） tutorials</li>
+<li>Real cloud environments</li>
+<li>Free tier available</li>
+</ul>
+<ol>
+<li><strong>killercoda - Terraform 基础设施编排（Terraform） Playground</strong></li>
+</ol>
+<ul>
+<li>URL: https://killercoda.com/terraform</li>
+<li>Practice environment</li>
+<li>Pre-configured scenarios</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-cloud-sandboxes">Cloud Sandboxes</h5>
+<ol>
+<li><strong>AWS 云（AWS） Free Tier</strong></li>
+</ol>
+<ul>
+<li>URL: https://aws.amazon.com/free/</li>
+<li>12 months free tier</li>
+<li>Practice Terraform 基础设施编排（Terraform） on real AWS 云（AWS）</li>
+<li>750 hours/month of EC2 t2.micro</li>
+</ul>
+<ol>
+<li><strong>GCP 云（GCP） Free Tier</strong></li>
+</ol>
+<ul>
+<li>URL: https://cloud.google.com/free</li>
+<li>$300 credit for 90 days</li>
+<li>Always-free tier afterwards</li>
+<li>Good for Terraform 基础设施编排（Terraform） practice</li>
+</ul>
+<ol>
+<li><strong>Azure 云（Azure） Free Tier</strong></li>
+</ol>
+<ul>
+<li>URL: https://azure.microsoft.com/free/</li>
+<li>$200 credit for 30 days</li>
+<li>Free services for 12 months</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-tools-utilities">Tools &amp; Utilities</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-terraform-tools">Terraform 基础设施编排（Terraform） Tools</h5>
+<ol>
+<li><strong>tfenv</strong> - Terraform 基础设施编排（Terraform） version manager</li>
+</ol>
+<ul>
+<li>URL: https://github.com/tfutils/tfenv</li>
+<li>Manage multiple Terraform 基础设施编排（Terraform） versions</li>
+<li>Similar to pyenv, nvm</li>
+</ul>
+<ol>
+<li><strong>tflint</strong> - Terraform 基础设施编排（Terraform） linter</li>
+</ol>
+<ul>
+<li>URL: https://github.com/terraform-linters/tflint</li>
+<li>Find errors and enforce conventions</li>
+<li>Plugin system for cloud providers</li>
+</ul>
+<ol>
+<li><strong>terraform-docs</strong> - Documentation generator</li>
+</ol>
+<ul>
+<li>URL: https://github.com/terraform-docs/terraform-docs</li>
+<li>Auto-generate module documentation</li>
+<li>Markdown, JSON, YAML outputs</li>
+</ul>
+<ol>
+<li><strong>tfsec</strong> - 安全（Security） scanner</li>
+</ol>
+<ul>
+<li>URL: https://github.com/aquasecurity/tfsec</li>
+<li>Static analysis for security issues</li>
+<li>Hundreds of security checks</li>
+<li>CI/CD 持续集成与交付（CI/CD） integration</li>
+</ul>
+<ol>
+<li><strong>Checkov</strong> - Policy as Code scanner</li>
+</ol>
+<ul>
+<li>URL: https://github.com/bridgecrewio/checkov</li>
+<li>1000+ built-in policies</li>
+<li>AWS 云（AWS）, Azure 云（Azure）, GCP 云（GCP）, Kubernetes 容器编排（Kubernetes）</li>
+<li>Terraform 基础设施编排（Terraform）, CloudFormation AWS 云（AWS） IaC（CloudFormation）, Kubernetes 容器编排（Kubernetes）</li>
+</ul>
+<ol>
+<li><strong>Terrascan</strong> - 安全（Security） scanner</li>
+</ol>
+<ul>
+<li>URL: https://github.com/tenable/terrascan</li>
+<li>500+ policies</li>
+<li>Compliance frameworks (PCI-DSS, HIPAA)</li>
+</ul>
+<ol>
+<li><strong>Infracost</strong> - Cost estimation</li>
+</ol>
+<ul>
+<li>URL: https://www.infracost.io/</li>
+<li>Estimate infrastructure costs</li>
+<li>GitHub integration</li>
+<li>Free for individuals</li>
+</ul>
+<ol>
+<li><strong>Atlantis</strong> - Terraform 基础设施编排（Terraform） automation</li>
+</ol>
+<ul>
+<li>URL: https://www.runatlantis.io/</li>
+<li>GitOps 交付模式（GitOps） for Terraform 基础设施编排（Terraform）</li>
+<li>Automated plan/apply via PRs</li>
+<li>Self-hosted</li>
+</ul>
+<ol>
+<li><strong>env0</strong> - Terraform 基础设施编排（Terraform） Cloud alternative</li>
+</ol>
+<ul>
+<li>URL: https://www.env0.com/</li>
+<li>Managed Terraform 基础设施编排（Terraform） platform</li>
+<li>Cost tracking</li>
+<li>Policy enforcement</li>
+</ul>
+<ol>
+<li><strong>Spacelift</strong> - Advanced IaC platform</li>
+</ol>
+<ul>
+<li>URL: https://spacelift.io/</li>
+<li>Multi-tool support (Terraform, Pulumi 多语言 IaC（Pulumi）, etc.)</li>
+<li>Advanced workflows</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-pulumi-tools">Pulumi 多语言 IaC（Pulumi） Tools</h5>
+<ol>
+<li><strong>Pulumi 多语言 IaC（Pulumi） CLI</strong></li>
+</ol>
+<ul>
+<li>URL: https://www.pulumi.com/docs/install/</li>
+<li>Core Pulumi 多语言 IaC（Pulumi） command-line tool</li>
+</ul>
+<ol>
+<li><strong>Pulumi 多语言 IaC（Pulumi） Service</strong></li>
+</ol>
+<ul>
+<li>URL: https://app.pulumi.com/</li>
+<li>State management</li>
+<li>Team collaboration</li>
+<li>Free tier available</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-vs-code-extensions">VS Code Extensions</h5>
+<ol>
+<li><strong>HashiCorp Terraform 基础设施编排（Terraform）</strong></li>
+</ol>
+<ul>
+<li>Syntax highlighting</li>
+<li>Auto-completion</li>
+<li>Formatting support</li>
+<li>验证清单（Validation）</li>
+</ul>
+<ol>
+<li><strong>Terraform 基础设施编排（Terraform） Autocomplete</strong></li>
+</ol>
+<ul>
+<li>Advanced auto-completion</li>
+<li>Resource documentation lookup</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-github-repositories-examples">GitHub Repositories &amp; Examples</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-terraform-examples">Terraform 基础设施编排（Terraform） Examples</h5>
+<ol>
+<li><strong>terraform-aws-modules</strong></li>
+</ol>
+<ul>
+<li>URL: https://github.com/terraform-aws-modules</li>
+<li>Comprehensive AWS 云（AWS） module collection</li>
+<li>Production-ready modules</li>
+<li>VPC, EKS 托管 Kubernetes（EKS）, RDS, S3, and more</li>
+</ul>
+<ol>
+<li><strong>terraform-best-practices</strong></li>
+</ol>
+<ul>
+<li>URL: https://github.com/antonbabenko/terraform-best-practices</li>
+<li>Best practices guide</li>
+<li>Naming conventions</li>
+<li>Code structure</li>
+</ul>
+<ol>
+<li><strong>awesome-terraform</strong></li>
+</ol>
+<ul>
+<li>URL: https://github.com/shuaibiyy/awesome-terraform</li>
+<li>Curated list of Terraform 基础设施编排（Terraform） resources</li>
+<li>Tools, modules, tutorials</li>
+</ul>
+<ol>
+<li><strong>terraform-google-modules</strong></li>
+</ol>
+<ul>
+<li>URL: https://github.com/terraform-google-modules</li>
+<li>Official GCP 云（GCP） modules</li>
+<li>GKE 托管 Kubernetes（GKE）, VPC, IAM, etc.</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-ml-infrastructure-examples">机器学习基础设施（ML Infrastructure） Examples</h5>
+<ol>
+<li><strong>terraform-aws-eks</strong></li>
+</ol>
+<ul>
+<li>URL: https://github.com/terraform-aws-modules/terraform-aws-eks</li>
+<li>Production-grade EKS 托管 Kubernetes（EKS） clusters</li>
+<li>GPU 加速（GPU） node groups support</li>
+<li>10k+ stars</li>
+</ul>
+<ol>
+<li><strong>kubeflow-terraform</strong></li>
+</ol>
+<ul>
+<li>URL: https://github.com/kubeflow/terraform</li>
+<li>Deploy Kubeflow with Terraform 基础设施编排（Terraform）</li>
+<li>ML platform infrastructure</li>
+</ul>
+<ol>
+<li><strong>mlops-terraform</strong></li>
+</ol>
+<ul>
+<li>URL: https://github.com/GoogleCloudPlatform/mlops-on-gcp</li>
+<li>ML infrastructure patterns on GCP 云（GCP）</li>
+<li>Vertex AI 托管 ML（Vertex AI） integration</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-pulumi-examples">Pulumi 多语言 IaC（Pulumi） Examples</h5>
+<ol>
+<li><strong>pulumi/examples</strong></li>
+</ol>
+<ul>
+<li>URL: https://github.com/pulumi/examples</li>
+<li>500+ example programs</li>
+<li>All major clouds</li>
+<li>Multiple languages</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-blogs-articles">Blogs &amp; Articles</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-hashicorp-blog">HashiCorp Blog</h5>
+<ul>
+<li><strong><a href="https://www.hashicorp.com/blog">HashiCorp Blog</a></strong> - Official updates and guides</li>
+<li><strong><a href="https://www.terraform-best-practices.com/">Terraform 基础设施编排（Terraform） Best Practices</a></strong> - Community guide</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-cloud-provider-blogs">Cloud Provider Blogs</h5>
+<ul>
+<li><strong><a href="https://aws.amazon.com/blogs/apn/tag/terraform/">AWS 云（AWS） Terraform 基础设施编排（Terraform） Blog Posts</a></strong> - AWS 云（AWS） + Terraform 基础设施编排（Terraform）</li>
+<li><strong><a href="https://cloud.google.com/docs/terraform">GCP 云（GCP） Terraform 基础设施编排（Terraform） Guides</a></strong> - Google Cloud Terraform 基础设施编排（Terraform）</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-community-blogs">Community Blogs</h5>
+<ul>
+<li><strong><a href="https://blog.gruntwork.io/">Gruntwork Blog</a></strong> - Terraform 基础设施编排（Terraform） expertise</li>
+<li><strong><a href="https://spacelift.io/blog">Spacelift Blog</a></strong> - IaC best practices</li>
+<li><strong><a href="https://www.env0.com/blog">env0 Blog</a></strong> - Terraform 基础设施编排（Terraform） workflows</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-youtube-channels">YouTube Channels</h4>
+<ol>
+<li><strong>HashiCorp</strong></li>
+</ol>
+<ul>
+<li>URL: https://www.youtube.com/c/HashiCorp</li>
+<li>Official tutorials</li>
+<li>HashiConf talks</li>
+<li>Product updates</li>
+</ul>
+<ol>
+<li><strong>Pulumi 多语言 IaC（Pulumi）</strong></li>
+</ol>
+<ul>
+<li>URL: https://www.youtube.com/c/PulumiTV</li>
+<li>Pulumi 多语言 IaC（Pulumi） workshops</li>
+<li>Cloud engineering patterns</li>
+</ul>
+<ol>
+<li><strong>TechWorld with Nana</strong></li>
+</ol>
+<ul>
+<li>URL: https://www.youtube.com/c/TechWorldwithNana</li>
+<li>Excellent Terraform 基础设施编排（Terraform） tutorials</li>
+<li>DevOps content</li>
+</ul>
+<ol>
+<li><strong>freeCodeCamp.org</strong></li>
+</ol>
+<ul>
+<li>Long-form Terraform 基础设施编排（Terraform） courses</li>
+<li>Beginner-friendly</li>
+</ul>
+<ol>
+<li><strong>AWS 云（AWS） Online Tech Talks</strong></li>
+</ol>
+<ul>
+<li>AWS 云（AWS） infrastructure automation</li>
+<li>Terraform 基础设施编排（Terraform） on AWS 云（AWS）</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-podcasts">Podcasts</h4>
+<ol>
+<li><strong>Screaming in the Cloud</strong></li>
+</ol>
+<ul>
+<li>Host: Corey Quinn</li>
+<li>Cloud economics and IaC</li>
+</ul>
+<ol>
+<li><strong>Arrested DevOps</strong></li>
+</ol>
+<ul>
+<li>DevOps practices</li>
+<li>Infrastructure automation</li>
+</ul>
+<ol>
+<li><strong>The Cloudcast</strong></li>
+</ol>
+<ul>
+<li>Cloud infrastructure topics</li>
+<li>Industry trends</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-certification-career">Certification &amp; Career</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-terraform-certifications">Terraform 基础设施编排（Terraform） Certifications</h5>
+<ol>
+<li><strong>HashiCorp Certified: Terraform 基础设施编排（Terraform） Associate</strong></li>
+</ol>
+<ul>
+<li>URL: https://www.hashicorp.com/certification/terraform-associate</li>
+<li>Official Terraform 基础设施编排（Terraform） certification</li>
+<li>Multiple choice exam (57 questions, 60 minutes)</li>
+<li>$70.50 USD</li>
+<li>Valid for 2 years</li>
+<li><strong>Study Guide</strong>: https://learn.hashicorp.com/terraform/certification/terraform-associate</li>
+</ul>
+<ol>
+<li><strong>Terraform 基础设施编排（Terraform） Associate Exam Prep (Udemy)</strong></li>
+</ol>
+<ul>
+<li>Practice exams</li>
+<li>~$20-50</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-cloud-certifications-complement-iac-sk">Cloud Certifications (Complement IaC Skills)</h5>
+<ol>
+<li><strong>AWS 云（AWS） Certified Solutions Architect - Associate</strong></li>
+</ol>
+<ul>
+<li>Includes infrastructure design</li>
+<li>Terraform 基础设施编排（Terraform） knowledge helpful</li>
+</ul>
+<ol>
+<li><strong>Google Cloud Professional Cloud Architect</strong></li>
+</ol>
+<ul>
+<li>Infrastructure design patterns</li>
+<li>IaC best practices</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-community-support">Community &amp; Support</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-forums-communities">Forums &amp; Communities</h5>
+<ol>
+<li><strong>HashiCorp Discuss</strong></li>
+</ol>
+<ul>
+<li>URL: https://discuss.hashicorp.com/</li>
+<li>Official Terraform 基础设施编排（Terraform） forum</li>
+<li>Get help from experts</li>
+</ul>
+<ol>
+<li><strong>Terraform 基础设施编排（Terraform） on Reddit</strong></li>
+</ol>
+<ul>
+<li>URL: https://www.reddit.com/r/Terraform 基础设施编排（Terraform）/</li>
+<li>Community discussions</li>
+<li>50k+ members</li>
+</ul>
+<ol>
+<li><strong>Pulumi 多语言 IaC（Pulumi） Community Slack</strong></li>
+</ol>
+<ul>
+<li>URL: https://slack.pulumi.com/</li>
+<li>Real-time help</li>
+<li>Community support</li>
+</ul>
+<ol>
+<li><strong>Stack Overflow</strong></li>
+</ol>
+<ul>
+<li>Tag: [terraform]</li>
+<li>Tag: [pulumi]</li>
+<li>80k+ Terraform 基础设施编排（Terraform） questions</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-meetups-events">Meetups &amp; Events</h5>
+<ol>
+<li><strong>HashiConf</strong></li>
+</ol>
+<ul>
+<li>Annual HashiCorp conference</li>
+<li>Terraform 基础设施编排（Terraform） talks and workshops</li>
+<li>Virtual and in-person</li>
+</ul>
+<ol>
+<li><strong>Local HashiCorp User Groups</strong></li>
+</ol>
+<ul>
+<li>URL: https://www.meetup.com/pro/hugs/</li>
+<li>Meetups worldwide</li>
+</ul>
+<ol>
+<li><strong>PulumiUP</strong></li>
+</ol>
+<ul>
+<li>Annual Pulumi 多语言 IaC（Pulumi） conference</li>
+<li>Cloud engineering content</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-practice-projects-for-ml-ai-infrastruc">Practice Projects for ML/AI 基础设施（AI Infrastructure）</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-beginner-projects">Beginner Projects</h5>
+<ol>
+<li><strong>Single GPU 加速（GPU） 训练（Training） Server</strong></li>
+</ol>
+<ul>
+<li>1x EC2 p3.2xlarge instance</li>
+<li>S3 bucket for datasets</li>
+<li>安全（Security） group configuration</li>
+<li>IAM role for S3 access</li>
+</ul>
+<ol>
+<li><strong>Multi-Environment Setup</strong></li>
+</ol>
+<ul>
+<li>Dev, staging, prod environments</li>
+<li>Use workspaces or directories</li>
+<li>Environment-specific instance types</li>
+</ul>
+<ol>
+<li><strong>Auto-Scaling 推理（Inference） Cluster</strong></li>
+</ol>
+<ul>
+<li>Auto Scaling Group</li>
+<li>Load balancer</li>
+<li>CloudWatch alarms</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-intermediate-projects">Intermediate Projects</h5>
+<ol>
+<li><strong>Complete ML 训练（Training） Platform</strong></li>
+</ol>
+<ul>
+<li>EKS 托管 Kubernetes（EKS） cluster with GPU 加速（GPU） nodes</li>
+<li>S3 for data/models</li>
+<li>ECR for Docker 容器（Docker） images</li>
+<li>VPC with public/private subnets</li>
+<li>监控（Monitoring） with Prometheus 指标监控（Prometheus）/Grafana 可视化（Grafana）</li>
+</ul>
+<ol>
+<li><strong>Multi-Cloud 部署（Deployment）</strong></li>
+</ol>
+<ul>
+<li>Same ML workload on AWS 云（AWS） and GCP 云（GCP）</li>
+<li>Use Terraform 基础设施编排（Terraform） or Pulumi 多语言 IaC（Pulumi）</li>
+<li>Cloud-agnostic module design</li>
+</ul>
+<ol>
+<li><strong>GitOps 交付模式（GitOps） Workflow</strong></li>
+</ol>
+<ul>
+<li>GitHub Actions for Terraform 基础设施编排（Terraform）</li>
+<li>Automated plan on PR</li>
+<li>Automated apply on merge</li>
+<li>tfsec security scanning</li>
+<li>Infracost integration</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-advanced-projects">Advanced Projects</h5>
+<ol>
+<li><strong>Enterprise ML Platform</strong></li>
+</ol>
+<ul>
+<li>Multi-account AWS 云（AWS） setup</li>
+<li>Network hub-and-spoke design</li>
+<li>Centralized logging/monitoring</li>
+<li>Cost allocation tags</li>
+<li>Compliance policies (OPA)</li>
+</ul>
+<ol>
+<li><strong>Kubernetes-Native 机器学习基础设施（ML Infrastructure）</strong></li>
+</ol>
+<ul>
+<li>EKS 托管 Kubernetes（EKS） with Kubeflow</li>
+<li>GPU 加速（GPU） node pools</li>
+<li>Autoscaling</li>
+<li>Service mesh (Istio)</li>
+<li>GitOps 交付模式（GitOps） with ArgoCD GitOps 部署（ArgoCD）</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-terraform-module-registry">Terraform 基础设施编排（Terraform） Module Registry</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-aws-modules">AWS 云（AWS） Modules</h5>
+<ul>
+<li><strong><a href="https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/">terraform-aws-vpc</a></strong> - VPC creation</li>
+<li><strong><a href="https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/">terraform-aws-eks</a></strong> - EKS 托管 Kubernetes（EKS） clusters</li>
+<li><strong><a href="https://registry.terraform.io/modules/terraform-aws-modules/rds/aws/">terraform-aws-rds</a></strong> - RDS databases</li>
+<li><strong><a href="https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/">terraform-aws-s3-bucket</a></strong> - S3 buckets</li>
+<li><strong><a href="https://registry.terraform.io/modules/terraform-aws-modules/iam/aws/">terraform-aws-iam</a></strong> - IAM resources</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-gcp-modules">GCP 云（GCP） Modules</h5>
+<ul>
+<li><strong><a href="https://registry.terraform.io/modules/terraform-google-modules/network/google/">terraform-google-network</a></strong> - VPC</li>
+<li><strong><a href="https://registry.terraform.io/modules/terraform-google-modules/kubernetes-engine/google/">terraform-google-kubernetes-engine</a></strong> - GKE 托管 Kubernetes（GKE）</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-azure-modules">Azure 云（Azure） Modules</h5>
+<ul>
+<li><strong><a href="https://registry.terraform.io/modules/Azure 云（Azure）/aks/azurerm/">terraform-azurerm-aks</a></strong> - AKS 托管 Kubernetes（AKS） clusters</li>
+<li><strong><a href="https://registry.terraform.io/modules/Azure 云（Azure）/vnet/azurerm/">terraform-azurerm-vnet</a></strong> - Virtual networks</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-security-resources">安全（Security） Resources</h4>
+<ol>
+<li><strong><a href="https://aquasecurity.github.io/tfsec/">tfsec Documentation</a></strong> - 安全（Security） checks</li>
+<li><strong><a href="https://www.checkov.io/5.Policy%20Index/terraform.html">Checkov Policies</a></strong> - Policy index</li>
+<li><strong><a href="https://docs.aws.amazon.com/security/">AWS 云（AWS） 安全（Security） Best Practices</a></strong> - AWS 云（AWS） security</li>
+<li><strong><a href="https://blog.gitguardian.com/terraform-security/">Terraform 基础设施编排（Terraform） 安全（Security） Best Practices</a></strong> - GitGuardian guide</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-cheat-sheets-quick-references">Cheat Sheets &amp; Quick References</h4>
+<ol>
+<li><strong><a href="https://blog.gruntwork.io/a-comprehensive-guide-to-terraform-b3d32832baca">Terraform 基础设施编排（Terraform） Cheat Sheet by Gruntwork</a></strong></li>
+<li><strong><a href="https://www.terraform.io/language/syntax">HCL Syntax Quick Reference</a></strong></li>
+<li><strong><a href="https://www.terraform.io/cli/commands">Terraform 基础设施编排（Terraform） CLI Commands</a></strong></li>
+<li><strong><a href="https://instances.vantage.sh/">AWS 云（AWS） Instance Types Cheat Sheet</a></strong> - Compare prices</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-staying-updated">Staying Updated</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-newsletters">Newsletters</h5>
+<ol>
+<li><strong><a href="https://weekly.tf/">Terraform 基础设施编排（Terraform） Weekly</a></strong> - Weekly Terraform 基础设施编排（Terraform） news</li>
+<li><strong><a href="https://www.lastweekinaws.com/">Last Week in AWS 云（AWS）</a></strong> - Cloud news</li>
+</ol>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-release-notes">Release Notes</h5>
+<ol>
+<li><strong><a href="https://github.com/hashicorp/terraform/releases">Terraform 基础设施编排（Terraform） Releases</a></strong> - Latest versions</li>
+<li><strong><a href="https://github.com/hashicorp/terraform-provider-aws/releases">AWS 云（AWS） Provider Releases</a></strong></li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-109-infrastructure-as-code-resources-md-recommended-learning-path">Recommended 学习路径（Learning Path）</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-week-1-2-foundations">Week 1-2: Foundations</h5>
+<ul>
+<li>Read Lessons 01-02</li>
+<li>Complete HashiCorp Learn intro tutorials</li>
+<li>Deploy first resources (S3, EC2)</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-week-3-4-terraform-deep-dive">Week 3-4: Terraform 基础设施编排（Terraform） Deep Dive</h5>
+<ul>
+<li>Read Lessons 03-04</li>
+<li>Practice state management</li>
+<li>Build complete ML infrastructure</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-week-5-pulumi">Week 5: Pulumi 多语言 IaC（Pulumi）</h5>
+<ul>
+<li>Read Lesson 05</li>
+<li>Try Python-based infrastructure</li>
+<li>Compare with Terraform 基础设施编排（Terraform）</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-week-6-advanced-patterns">Week 6: Advanced Patterns</h5>
+<ul>
+<li>Read Lessons 06-07</li>
+<li>Create reusable modules</li>
+<li>Set up GitOps 交付模式（GitOps） workflow</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-week-7-security-production">Week 7: 安全（Security） &amp; 生产环境（Production）</h5>
+<ul>
+<li>Read Lesson 08</li>
+<li>Implement security scanning</li>
+<li>Practice disaster recovery</li>
+</ul>
+<h5 id="lessons-mod-109-infrastructure-as-code-resources-md-week-8-certification-prep">Week 8: Certification Prep</h5>
+<ul>
+<li>Review all lessons</li>
+<li>Take practice exams</li>
+<li>Consider HashiCorp Terraform 基础设施编排（Terraform） Associate cert</li>
+</ul>
+<hr/>
+<p><strong>Continue your learning journey with Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure）!</strong></p><p><a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-109-infrastructure-as-code.html#doc-lessons-mod-109-infrastructure-as-code-resources-md">返回本章（Back to chapter）</a> </p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

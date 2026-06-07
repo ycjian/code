@@ -1,0 +1,2097 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 06: 大语言模型（LLM） Serving Optimization</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 06: 大语言模型（LLM） Serving Optimization</h1><p>Module 110: LLM 基础设施（LLM Infrastructure） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-resources-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure） - Resources</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lesson 01: Introduction to 大语言模型（LLM） 基础设施（LLM Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-02-vllm-deployment-md.html">Lesson 02: vLLM 推理服务（vLLM） 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-03-rag-systems-md.html">Lesson 03: 检索增强生成（RAG） Systems (Retrieval-Augmented Generation)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-04-vector-databases-md.html">Lesson 04: Vector Databases</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-05-llm-fine-tuning-infrastructure-md.html">Lesson 05: 大语言模型（LLM） Fine-Tuning Infrastructure</a><a class="tree-doc active" href="../docs/doc-lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md.html">Lesson 06: 大语言模型（LLM） Serving Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-07-llm-platform-architecture-md.html">Lesson 07: 大语言模型（LLM） Platform Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md.html">Lesson 08: 生产环境（Production） 大语言模型（LLM） Best Practices</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-01-vllm-deployment-md.html">Lab 01: Deploy an 大语言模型（LLM） with vLLM 推理服务（vLLM）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-02-rag-pipeline-md.html">Lab 02: Build a 检索增强生成（RAG） Pipeline End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-03-vector-db-qdrant-md.html">Lab 03: Stand Up a 向量数据库（Vector Database） (Qdrant)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-04-lora-finetune-md.html">Lab 04: LoRA Fine-Tune a Small Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-05-streaming-responses-md.html">Lab 05: Streaming Responses to Clients</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-06-cost-monitoring-md.html">Lab 06: Cost Tracking and Budget Alerts</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-07-prompt-injection-defense-md.html">Lab 07: Prompt-Injection Defenses</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-08-multi-model-serving-md.html">Lab 08: Multi-Model Serving with Intelligent Routing</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Module 110 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercise 01: 生产环境（Production） 大语言模型（LLM） Serving Platform (vLLM + Kubernetes 容器编排（Kubernetes）)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md.html">Exercise 02: 生产环境（Production） 检索增强生成（RAG） System (Retrieval-Augmented Generation)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-03-vllm-deep-dive-readme-md.html">Exercise 03: vLLM 推理服务（vLLM） Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-04-vector-db-benchmarking-readme-md.html">Exercise 04: 向量数据库（Vector Database） Benchmarking</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-05-finetuning-at-scale-readme-md.html">Exercise 05: Fine-Tuning at Scale (LoRA + QLoRA + Distributed)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-06-inference-optimization-llm-readme.html">Exercise 06: 大语言模型（LLM） 推理（Inference） Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-07-multi-tenant-llm-platform-readme-.html">Exercise 07: Multi-Tenant 大语言模型（LLM） Platform</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-08-llm-cost-routing-readme-md.html">Exercise 08: Cost-Aware 大语言模型（LLM） Routing</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-09-llm-observability-readme-md.html">Exercise 09: LLM-Specific 可观测性（Observability）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-10-prompt-management-readme-md.html">Exercise 10: Prompt Management and Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-11-llm-guardrails-readme-md.html">Exercise 11: 大语言模型（LLM） Guardrails (Injection, Moderation, Output Filtering)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-12-llm-evaluation-harness-readme-md.html">Exercise 12: 大语言模型（LLM） Evaluation Infrastructure</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-13-semantic-caching-readme-md.html">Exercise 13: Semantic Caching for LLMs</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-14-hybrid-retrieval-reranking-readme.html">Exercise 14: Hybrid Retrieval + Reranking Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-readme-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure） - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 06: 大语言模型（LLM） Serving Optimization</h2><p>Module 110: LLM 基础设施（LLM Infrastructure） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>6</strong><span>reading order</span></div><div class="stat"><strong>35</strong><span>chapter docs</span></div><div class="stat"><strong>2224</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md" data-title="lesson 06: llm serving optimization lessons/mod-110-llm-infrastructure/06-llm-serving-optimization.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">6/35</span><span class="chip">Lectures</span><span class="path">lessons/mod-110-llm-infrastructure/06-llm-serving-optimization.md</span><span class="path">2224 行</span></div><h2>Lesson 06: 大语言模型（LLM） Serving Optimization</h2><p><a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-05-llm-fine-tuning-infrastructure-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-110-llm-infrastructure.html#doc-lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-07-llm-platform-architecture-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-lesson-06-llm-serving-op">Lesson 06: 大语言模型（LLM） Serving Optimization</h3>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-table-of-contents">Table of Contents</h4>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#model-quantization-techniques">Model Quantization Techniques</a></li>
+<li><a href="#flash-attention-2">Flash Attention 2</a></li>
+<li><a href="#continuous-batching">Continuous Batching</a></li>
+<li><a href="#dynamic-batching-strategies">Dynamic Batching Strategies</a></li>
+<li><a href="#multi-gpu-inference">Multi-GPU 推理（Inference）</a></li>
+<li><a href="#pipeline-parallelism">Pipeline Parallelism</a></li>
+<li><a href="#kv-cache-management">KV Cache Management</a></li>
+<li><a href="#prompt-caching">Prompt Caching</a></li>
+<li><a href="#speculative-decoding">Speculative Decoding</a></li>
+<li><a href="#benchmarking-llm-inference">Benchmarking 大语言模型（LLM） 推理（Inference）</a></li>
+<li><a href="#cost-vs-performance-trade-offs">Cost vs Performance Trade-offs</a></li>
+<li><a href="#production-optimization-checklist">生产环境（Production） Optimization Checklist</a></li>
+<li><a href="#summary">Summary</a></li>
+</ol>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-introduction">Introduction</h4>
+<p>Optimizing 大语言模型（LLM） serving is critical for both cost efficiency and user experience. This lesson covers advanced techniques to maximize throughput, minimize latency, and reduce infrastructure costs for 大语言模型（LLM） inference.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-learning-objectives">Learning Objectives</h5>
+<p>After completing this lesson, you will be able to:</p>
+<ul>
+<li>Implement various quantization techniques (GPTQ, AWQ, GGUF, bitsandbytes)</li>
+<li>Use Flash Attention 2 for faster inference</li>
+<li>Implement continuous and dynamic batching</li>
+<li>Configure multi-GPU inference with tensor and pipeline parallelism</li>
+<li>Optimize KV cache management</li>
+<li>Implement prompt caching strategies</li>
+<li>Use speculative decoding for faster generation</li>
+<li>Benchmark and analyze 大语言模型（LLM） performance</li>
+<li>Make informed cost vs performance trade-off decisions</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-model-quantization-techn">Model Quantization Techniques</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-understanding-quantizati">Understanding Quantization</h5>
+<p>Quantization reduces the precision of model weights and activations, trading minimal accuracy for significant memory and compute savings.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Quantization precision comparison
+quantization_comparison = {
+    'FP32': {
+        'bits_per_param': 32,
+        'memory_factor': 1.0,
+        'speed_factor': 1.0,
+        'accuracy': 'Baseline',
+        'use_case': 'Research, maximum accuracy'
+    },
+    'FP16': {
+        'bits_per_param': 16,
+        'memory_factor': 0.5,
+        'speed_factor': 1.5,
+        'accuracy': '~100% of FP32',
+        'use_case': 'Standard production deployment'
+    },
+    'INT8': {
+        'bits_per_param': 8,
+        'memory_factor': 0.25,
+        'speed_factor': 2.0,
+        'accuracy': '98-99% of FP32',
+        'use_case': 'Memory-constrained deployments'
+    },
+    'INT4': {
+        'bits_per_param': 4,
+        'memory_factor': 0.125,
+        'speed_factor': 2.5,
+        'accuracy': '95-98% of FP32',
+        'use_case': 'Edge devices, maximum throughput'
+    }
+}
+
+
+def calculate_quantization_savings(model_size_b: float, from_precision: str, to_precision: str):
+    &quot;&quot;&quot;
+    Calculate memory and cost savings from quantization
+    &quot;&quot;&quot;
+    precision_bytes = {
+        'FP32': 4,
+        'FP16': 2,
+        'BF16': 2,
+        'INT8': 1,
+        'INT4': 0.5
+    }
+
+    original_memory_gb = model_size_b * precision_bytes[from_precision]
+    quantized_memory_gb = model_size_b * precision_bytes[to_precision]
+
+    memory_reduction = original_memory_gb / quantized_memory_gb
+    memory_saved_gb = original_memory_gb - quantized_memory_gb
+
+    return {
+        'original_memory_gb': round(original_memory_gb, 2),
+        'quantized_memory_gb': round(quantized_memory_gb, 2),
+        'memory_saved_gb': round(memory_saved_gb, 2),
+        'reduction_factor': f&quot;{memory_reduction:.1f}x&quot;,
+        'percentage_saved': f&quot;{(memory_saved_gb / original_memory_gb) * 100:.1f}%&quot;
+    }
+
+
+# Example: Llama 2 70B
+print(&quot;Llama 2 70B: FP16 → INT4&quot;)
+print(calculate_quantization_savings(70, 'FP16', 'INT4'))
+# Can fit 70B model in 35GB instead of 140GB!</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-gptq-generative-pre-trai">GPTQ (Generative Pre-trained Transformer Quantization)</h5>
+<p>GPTQ is a post-training quantization method optimized for generative models.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Install dependencies
+# pip install auto-gptq optimum
+
+from transformers import AutoModelForCausalLM, AutoTokenizer, GPTQConfig
+
+# GPTQ quantization configuration
+gptq_config = GPTQConfig(
+    bits=4,                          # Quantization bits
+    dataset=&quot;c4&quot;,                    # Calibration dataset
+    tokenizer=None,                  # Will be set below
+    group_size=128,                  # Group size for quantization
+    damp_percent=0.01,               # Damping percentage
+    desc_act=False,                  # Activate descending order
+    sym=True,                        # Symmetric quantization
+    true_sequential=True,            # Sequential quantization
+    use_cuda_fp16=True,              # Use CUDA FP16
+    model_seqlen=2048,              # Model sequence length
+)
+
+# Load and quantize model
+model_name = &quot;meta-llama/Llama-2-7b-hf&quot;
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+gptq_config.tokenizer = tokenizer
+
+# Quantize (this takes time - run once, save the result)
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    quantization_config=gptq_config,
+    device_map=&quot;auto&quot;
+)
+
+# Save quantized model
+model.save_pretrained(&quot;./llama-2-7b-gptq-4bit&quot;)
+tokenizer.save_pretrained(&quot;./llama-2-7b-gptq-4bit&quot;)
+
+# Later, load the quantized model (fast)
+quantized_model = AutoModelForCausalLM.from_pretrained(
+    &quot;./llama-2-7b-gptq-4bit&quot;,
+    device_map=&quot;auto&quot;
+)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-awq-activation-aware-wei">AWQ (Activation-aware Weight Quantization)</h5>
+<p>AWQ protects important weights based on activation statistics, achieving better accuracy than GPTQ.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Install dependencies
+# pip install autoawq
+
+from awq import AutoAWQForCausalLM
+from transformers import AutoTokenizer
+
+model_name = &quot;meta-llama/Llama-2-7b-hf&quot;
+quant_path = &quot;llama-2-7b-awq-4bit&quot;
+
+# Load model
+model = AutoAWQForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+# Quantization configuration
+quant_config = {
+    &quot;zero_point&quot;: True,
+    &quot;q_group_size&quot;: 128,
+    &quot;w_bit&quot;: 4,
+    &quot;version&quot;: &quot;GEMM&quot;
+}
+
+# Quantize (using calibration data)
+model.quantize(tokenizer, quant_config=quant_config)
+
+# Save quantized model
+model.save_quantized(quant_path)
+tokenizer.save_pretrained(quant_path)
+
+# Load for inference
+model = AutoAWQForCausalLM.from_quantized(
+    quant_path,
+    fuse_layers=True,  # Fuse layers for faster inference
+    device_map=&quot;auto&quot;
+)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-gguf-gpt-generated-unifi">GGUF (GPT-Generated Unified Format)</h5>
+<p>GGUF is used primarily with llama.cpp for CPU and edge deployment.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Convert model to GGUF format
+# Install llama.cpp
+git clone https://github.com/ggerganov/llama.cpp
+cd llama.cpp
+make
+
+# Convert Hugging Face model to GGUF
+python convert.py /path/to/llama-2-7b --outtype q4_0 --outfile llama-2-7b-q4_0.gguf
+
+# Quantization types:
+# q4_0: 4-bit (smallest, fastest)
+# q4_1: 4-bit (better quality)
+# q5_0: 5-bit
+# q5_1: 5-bit (better quality)
+# q8_0: 8-bit (best quality)
+
+# Run inference
+./main -m llama-2-7b-q4_0.gguf -p &quot;Once upon a time&quot; -n 128</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-bitsandbytes-quantizatio">bitsandbytes Quantization</h5>
+<p>bitsandbytes provides easy-to-use quantization for Hugging Face models.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from transformers import AutoModelForCausalLM, BitsAndBytesConfig
+import torch
+
+# 8-bit quantization
+bnb_config_8bit = BitsAndBytesConfig(
+    load_in_8bit=True,
+    llm_int8_threshold=6.0,           # Outlier threshold
+    llm_int8_has_fp16_weight=False,   # Use INT8 for all
+)
+
+model_8bit = AutoModelForCausalLM.from_pretrained(
+    &quot;meta-llama/Llama-2-7b-hf&quot;,
+    quantization_config=bnb_config_8bit,
+    device_map=&quot;auto&quot;
+)
+
+# 4-bit quantization (NF4)
+bnb_config_4bit = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.bfloat16,
+    bnb_4bit_quant_type=&quot;nf4&quot;,        # NormalFloat4
+    bnb_4bit_use_double_quant=True,   # Double quantization
+)
+
+model_4bit = AutoModelForCausalLM.from_pretrained(
+    &quot;meta-llama/Llama-2-7b-hf&quot;,
+    quantization_config=bnb_config_4bit,
+    device_map=&quot;auto&quot;
+)
+
+# Memory usage comparison
+print(f&quot;8-bit model memory: {model_8bit.get_memory_footprint() / 1e9:.2f} GB&quot;)
+print(f&quot;4-bit model memory: {model_4bit.get_memory_footprint() / 1e9:.2f} GB&quot;)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-quantization-comparison">Quantization Comparison</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Comprehensive quantization benchmark
+class QuantizationBenchmark:
+    &quot;&quot;&quot;
+    Compare different quantization methods
+    &quot;&quot;&quot;
+    def __init__(self, model_name: str):
+        self.model_name = model_name
+        self.results = {}
+
+    def benchmark_method(self, method: str, config: dict):
+        &quot;&quot;&quot;
+        Benchmark a specific quantization method
+        &quot;&quot;&quot;
+        import time
+        import torch
+
+        # Load model based on method
+        start_time = time.time()
+
+        if method == 'fp16':
+            model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                torch_dtype=torch.float16,
+                device_map=&quot;auto&quot;
+            )
+        elif method == 'gptq':
+            model = AutoModelForCausalLM.from_pretrained(
+                config['model_path'],
+                device_map=&quot;auto&quot;
+            )
+        elif method == 'awq':
+            from awq import AutoAWQForCausalLM
+            model = AutoAWQForCausalLM.from_quantized(
+                config['model_path'],
+                fuse_layers=True,
+                device_map=&quot;auto&quot;
+            )
+        elif method == 'bnb_8bit':
+            bnb_config = BitsAndBytesConfig(load_in_8bit=True)
+            model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                quantization_config=bnb_config,
+                device_map=&quot;auto&quot;
+            )
+        elif method == 'bnb_4bit':
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.bfloat16,
+                bnb_4bit_quant_type=&quot;nf4&quot;
+            )
+            model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                quantization_config=bnb_config,
+                device_map=&quot;auto&quot;
+            )
+
+        load_time = time.time() - start_time
+
+        # Get memory usage
+        memory_gb = model.get_memory_footprint() / 1e9
+
+        # Benchmark inference
+        tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        prompt = &quot;Once upon a time&quot;
+        inputs = tokenizer(prompt, return_tensors=&quot;pt&quot;).to(model.device)
+
+        # Warmup
+        for _ in range(3):
+            with torch.no_grad():
+                _ = model.generate(**inputs, max_new_tokens=10)
+
+        # Measure
+        num_runs = 10
+        start_time = time.time()
+        for _ in range(num_runs):
+            with torch.no_grad():
+                outputs = model.generate(**inputs, max_new_tokens=50)
+        inference_time = (time.time() - start_time) / num_runs
+
+        # Calculate tokens per second
+        tokens_generated = 50
+        tokens_per_sec = tokens_generated / inference_time
+
+        self.results[method] = {
+            'load_time_sec': round(load_time, 2),
+            'memory_gb': round(memory_gb, 2),
+            'inference_time_sec': round(inference_time, 3),
+            'tokens_per_sec': round(tokens_per_sec, 2)
+        }
+
+        return self.results[method]
+
+    def compare_all(self):
+        &quot;&quot;&quot;
+        Compare all available quantization methods
+        &quot;&quot;&quot;
+        methods = ['fp16', 'bnb_8bit', 'bnb_4bit']
+
+        for method in methods:
+            print(f&quot;\nBenchmarking {method}...&quot;)
+            try:
+                result = self.benchmark_method(method, {})
+                print(f&quot;Results: {result}&quot;)
+            except Exception as e:
+                print(f&quot;Failed: {e}&quot;)
+
+        return self.results
+
+
+# Usage
+benchmark = QuantizationBenchmark(&quot;meta-llama/Llama-2-7b-hf&quot;)
+results = benchmark.compare_all()</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-flash-attention-2">Flash Attention 2</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-what-is-flash-attention">What is Flash Attention?</h5>
+<p>Flash Attention is an optimized attention algorithm that reduces memory usage and improves speed without changing the output.</p>
+<p><strong>Key benefits:</strong></p>
+<ul>
+<li>2-4x faster attention computation</li>
+<li>Reduced memory usage (enables longer contexts)</li>
+<li>Mathematically equivalent to standard attention</li>
+</ul>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Using Flash Attention 2 with vLLM
+from vllm import LLM, SamplingParams
+
+# Flash Attention 2 is enabled by default in vLLM
+llm = LLM(
+    model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    tensor_parallel_size=1,
+    gpu_memory_utilization=0.95,
+    max_model_len=4096,
+    # Flash Attention 2 automatically used if available
+)
+
+# For Hugging Face Transformers
+from transformers import AutoModelForCausalLM
+import torch
+
+model = AutoModelForCausalLM.from_pretrained(
+    &quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    torch_dtype=torch.float16,
+    device_map=&quot;auto&quot;,
+    attn_implementation=&quot;flash_attention_2&quot;  # Enable Flash Attention 2
+)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-flash-attention-performa">Flash Attention Performance Impact</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Flash Attention benchmark comparison
+class FlashAttentionBenchmark:
+    &quot;&quot;&quot;
+    Compare standard attention vs Flash Attention
+    &quot;&quot;&quot;
+    def __init__(self, model_name: str):
+        self.model_name = model_name
+
+    def benchmark_attention(self, use_flash: bool, sequence_length: int):
+        &quot;&quot;&quot;
+        Benchmark with/without Flash Attention
+        &quot;&quot;&quot;
+        import time
+        import torch
+
+        # Load model
+        if use_flash:
+            model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                torch_dtype=torch.float16,
+                device_map=&quot;auto&quot;,
+                attn_implementation=&quot;flash_attention_2&quot;
+            )
+        else:
+            model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                torch_dtype=torch.float16,
+                device_map=&quot;auto&quot;,
+                attn_implementation=&quot;eager&quot;  # Standard attention
+            )
+
+        tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+
+        # Create long prompt
+        prompt = &quot;Hello &quot; * (sequence_length // 2)
+        inputs = tokenizer(prompt, return_tensors=&quot;pt&quot;).to(model.device)
+
+        # Warmup
+        for _ in range(3):
+            with torch.no_grad():
+                _ = model.generate(**inputs, max_new_tokens=10)
+
+        # Measure
+        num_runs = 5
+        start_time = time.time()
+        for _ in range(num_runs):
+            with torch.no_grad():
+                outputs = model.generate(**inputs, max_new_tokens=50)
+
+        avg_time = (time.time() - start_time) / num_runs
+
+        # Memory usage
+        memory_gb = torch.cuda.max_memory_allocated() / 1e9
+
+        return {
+            'attention_type': 'Flash Attention 2' if use_flash else 'Standard',
+            'sequence_length': sequence_length,
+            'avg_time_sec': round(avg_time, 3),
+            'memory_gb': round(memory_gb, 2),
+            'tokens_per_sec': round(50 / avg_time, 2)
+        }
+
+    def compare(self, sequence_lengths=[512, 1024, 2048, 4096]):
+        &quot;&quot;&quot;
+        Compare Flash vs Standard across different sequence lengths
+        &quot;&quot;&quot;
+        results = []
+
+        for seq_len in sequence_lengths:
+            print(f&quot;\nTesting sequence length: {seq_len}&quot;)
+
+            # Standard attention
+            std_result = self.benchmark_attention(False, seq_len)
+            print(f&quot;Standard: {std_result}&quot;)
+
+            # Flash attention
+            flash_result = self.benchmark_attention(True, seq_len)
+            print(f&quot;Flash: {flash_result}&quot;)
+
+            # Calculate improvement
+            speedup = std_result['avg_time_sec'] / flash_result['avg_time_sec']
+            memory_savings = std_result['memory_gb'] - flash_result['memory_gb']
+
+            results.append({
+                'sequence_length': seq_len,
+                'standard_time': std_result['avg_time_sec'],
+                'flash_time': flash_result['avg_time_sec'],
+                'speedup': f&quot;{speedup:.2f}x&quot;,
+                'memory_savings_gb': round(memory_savings, 2)
+            })
+
+        return results
+
+
+# Usage
+benchmark = FlashAttentionBenchmark(&quot;meta-llama/Llama-2-7b-chat-hf&quot;)
+results = benchmark.compare()</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-enabling-flash-attention">Enabling Flash Attention in 生产环境（Production）</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Dockerfile for Flash Attention support
+&quot;&quot;&quot;
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
+
+# Install dependencies
+RUN apt-get update &amp;&amp; apt-get install -y python3-pip git
+
+# Install Flash Attention 2
+RUN pip install packaging ninja
+RUN pip install flash-attn --no-build-isolation
+
+# Install vLLM with Flash Attention support
+RUN pip install vllm
+
+# Your application code
+COPY . /app
+WORKDIR /app
+
+CMD [&quot;python&quot;, &quot;serve.py&quot;]
+&quot;&quot;&quot;
+
+# Kubernetes deployment with Flash Attention
+&quot;&quot;&quot;
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-server-flash-attn
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: llm-server
+  template:
+    metadata:
+      labels:
+        app: llm-server
+    spec:
+      containers:
+      - name: vllm
+        image: your-registry/vllm-flash-attn:latest
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            memory: 32Gi
+          requests:
+            nvidia.com/gpu: 1
+            memory: 32Gi
+        env:
+        - name: MODEL_NAME
+          value: &quot;meta-llama/Llama-2-7b-chat-hf&quot;
+        - name: MAX_MODEL_LEN
+          value: &quot;4096&quot;
+        ports:
+        - containerPort: 8000
+&quot;&quot;&quot;</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-continuous-batching">Continuous Batching</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-understanding-continuous">Understanding Continuous Batching</h5>
+<p>Traditional batching waits for all requests to complete before processing new ones. Continuous batching (also called &quot;iteration-level batching&quot;) adds new requests as soon as slots become available.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Visualization of batching strategies
+&quot;&quot;&quot;
+Traditional Static Batching:
+Time: 0s    1s    2s    3s    4s    5s
+Req1: [================]
+Req2: [================]
+Req3: [================]
+Req4:                   [================]
+Req5:                   [================]
+Req6:                   [================]
+
+Continuous Batching:
+Time: 0s    1s    2s    3s    4s    5s
+Req1: [================]
+Req2: [================]
+Req3: [================]
+Req4:      [================]
+Req5:           [================]
+Req6:                [================]
+
+Result: Continuous batching achieves higher GPU utilization and lower average latency!
+&quot;&quot;&quot;</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-vllm-continuous-batching">vLLM 推理服务（vLLM） Continuous Batching</h5>
+<p>vLLM 推理服务（vLLM） implements continuous batching by default through its PagedAttention mechanism:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from vllm import LLM, SamplingParams
+from typing import List
+
+# Initialize vLLM with optimized settings for continuous batching
+llm = LLM(
+    model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    tensor_parallel_size=1,
+    max_num_batched_tokens=8192,      # Max tokens in a batch
+    max_num_seqs=256,                 # Max concurrent sequences
+    gpu_memory_utilization=0.90,      # Leave headroom for dynamic batching
+    enable_prefix_caching=True,       # Cache common prefixes
+)
+
+# Sampling parameters
+sampling_params = SamplingParams(
+    temperature=0.8,
+    top_p=0.95,
+    max_tokens=256
+)
+
+# Process multiple requests (continuous batching happens automatically)
+prompts = [
+    &quot;Write a story about&quot;,
+    &quot;Explain quantum computing&quot;,
+    &quot;What is the capital of&quot;,
+    # ... hundreds of prompts
+]
+
+# vLLM automatically batches and schedules these efficiently
+outputs = llm.generate(prompts, sampling_params)
+
+for output in outputs:
+    print(f&quot;Prompt: {output.prompt}&quot;)
+    print(f&quot;Output: {output.outputs[0].text}\n&quot;)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-continuous-batching-metr">Continuous Batching Metrics</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Monitor continuous batching performance
+class ContinuousBatchingMonitor:
+    &quot;&quot;&quot;
+    Monitor continuous batching metrics
+    &quot;&quot;&quot;
+    def __init__(self):
+        self.metrics = {
+            'batch_sizes': [],
+            'queue_lengths': [],
+            'gpu_utilization': [],
+            'throughput': []
+        }
+
+    def collect_metrics(self, batch_size: int, queue_length: int, gpu_util: float):
+        &quot;&quot;&quot;
+        Collect metrics during serving
+        &quot;&quot;&quot;
+        self.metrics['batch_sizes'].append(batch_size)
+        self.metrics['queue_lengths'].append(queue_length)
+        self.metrics['gpu_utilization'].append(gpu_util)
+
+    def calculate_throughput(self, tokens_generated: int, time_elapsed: float):
+        &quot;&quot;&quot;
+        Calculate tokens per second
+        &quot;&quot;&quot;
+        throughput = tokens_generated / time_elapsed
+        self.metrics['throughput'].append(throughput)
+        return throughput
+
+    def report(self):
+        &quot;&quot;&quot;
+        Generate performance report
+        &quot;&quot;&quot;
+        import numpy as np
+
+        report = {
+            'avg_batch_size': np.mean(self.metrics['batch_sizes']),
+            'p95_batch_size': np.percentile(self.metrics['batch_sizes'], 95),
+            'avg_queue_length': np.mean(self.metrics['queue_lengths']),
+            'avg_gpu_utilization': np.mean(self.metrics['gpu_utilization']),
+            'avg_throughput': np.mean(self.metrics['throughput'])
+        }
+
+        return report
+
+
+# Integration with vLLM server
+&quot;&quot;&quot;
+# In your vLLM server code:
+monitor = ContinuousBatchingMonitor()
+
+# After each batch
+monitor.collect_metrics(
+    batch_size=current_batch_size,
+    queue_length=len(request_queue),
+    gpu_util=get_gpu_utilization()
+)
+
+# Periodically log report
+if time.time() - last_report_time &gt; 60:
+    print(monitor.report())
+    last_report_time = time.time()
+&quot;&quot;&quot;</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-dynamic-batching-strateg">Dynamic Batching Strategies</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-adaptive-batch-sizing">Adaptive Batch Sizing</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class AdaptiveBatcher:
+    &quot;&quot;&quot;
+    Dynamically adjust batch size based on request patterns
+    &quot;&quot;&quot;
+    def __init__(
+        self,
+        min_batch_size: int = 1,
+        max_batch_size: int = 32,
+        target_latency_ms: float = 100
+    ):
+        self.min_batch_size = min_batch_size
+        self.max_batch_size = max_batch_size
+        self.target_latency_ms = target_latency_ms
+        self.current_batch_size = min_batch_size
+        self.latency_history = []
+
+    def adjust_batch_size(self, observed_latency_ms: float):
+        &quot;&quot;&quot;
+        Adjust batch size based on observed latency
+        &quot;&quot;&quot;
+        self.latency_history.append(observed_latency_ms)
+
+        # Keep last 100 measurements
+        if len(self.latency_history) &gt; 100:
+            self.latency_history.pop(0)
+
+        # Calculate average latency
+        avg_latency = sum(self.latency_history) / len(self.latency_history)
+
+        # Adjust batch size
+        if avg_latency &lt; self.target_latency_ms * 0.8:
+            # Latency is good, increase batch size
+            self.current_batch_size = min(
+                self.current_batch_size + 1,
+                self.max_batch_size
+            )
+        elif avg_latency &gt; self.target_latency_ms * 1.2:
+            # Latency is too high, decrease batch size
+            self.current_batch_size = max(
+                self.current_batch_size - 1,
+                self.min_batch_size
+            )
+
+        return self.current_batch_size
+
+    def get_batch_size(self) -&gt; int:
+        &quot;&quot;&quot;
+        Get current recommended batch size
+        &quot;&quot;&quot;
+        return self.current_batch_size
+
+
+# Usage in serving loop
+batcher = AdaptiveBatcher(
+    min_batch_size=1,
+    max_batch_size=64,
+    target_latency_ms=100
+)
+
+while True:
+    # Get current batch size
+    batch_size = batcher.get_batch_size()
+
+    # Process batch
+    start_time = time.time()
+    outputs = process_batch(requests[:batch_size])
+    latency_ms = (time.time() - start_time) * 1000
+
+    # Adjust for next iteration
+    batcher.adjust_batch_size(latency_ms)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-priority-based-batching">Priority-Based Batching</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from queue import PriorityQueue
+import time
+from dataclasses import dataclass, field
+from typing import Any
+
+@dataclass(order=True)
+class PrioritizedRequest:
+    &quot;&quot;&quot;
+    Request with priority for batching
+    &quot;&quot;&quot;
+    priority: int
+    timestamp: float = field(compare=False)
+    request_id: str = field(compare=False)
+    prompt: str = field(compare=False)
+    params: Any = field(compare=False)
+
+
+class PriorityBatcher:
+    &quot;&quot;&quot;
+    Batch requests based on priority
+    &quot;&quot;&quot;
+    def __init__(self, batch_size: int = 8):
+        self.batch_size = batch_size
+        self.queue = PriorityQueue()
+
+    def add_request(
+        self,
+        request_id: str,
+        prompt: str,
+        priority: int = 5,  # 1 = highest, 10 = lowest
+        params: dict = None
+    ):
+        &quot;&quot;&quot;
+        Add request to queue with priority
+        &quot;&quot;&quot;
+        request = PrioritizedRequest(
+            priority=priority,
+            timestamp=time.time(),
+            request_id=request_id,
+            prompt=prompt,
+            params=params or {}
+        )
+        self.queue.put(request)
+
+    def get_batch(self):
+        &quot;&quot;&quot;
+        Get next batch, prioritizing high-priority requests
+        &quot;&quot;&quot;
+        batch = []
+        while len(batch) &lt; self.batch_size and not self.queue.empty():
+            batch.append(self.queue.get())
+
+        return batch
+
+    def has_requests(self):
+        &quot;&quot;&quot;
+        Check if there are pending requests
+        &quot;&quot;&quot;
+        return not self.queue.empty()
+
+
+# Usage
+batcher = PriorityBatcher(batch_size=8)
+
+# Add requests with different priorities
+batcher.add_request(&quot;req1&quot;, &quot;Regular prompt&quot;, priority=5)
+batcher.add_request(&quot;req2&quot;, &quot;Important prompt&quot;, priority=1)  # Processed first
+batcher.add_request(&quot;req3&quot;, &quot;Low priority prompt&quot;, priority=10)
+
+# Get batch (high priority first)
+batch = batcher.get_batch()</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-multi-gpu-inference">Multi-GPU 推理（Inference）</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-tensor-parallelism">Tensor Parallelism</h5>
+<p>Tensor parallelism splits individual layers across GPUs for large models that don't fit on a single GPU 加速（GPU）.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># vLLM with tensor parallelism
+from vllm import LLM, SamplingParams
+
+# Split model across 4 GPUs
+llm = LLM(
+    model=&quot;meta-llama/Llama-2-70b-chat-hf&quot;,
+    tensor_parallel_size=4,           # Use 4 GPUs
+    gpu_memory_utilization=0.95,
+    max_model_len=4096,
+    dtype=&quot;float16&quot;
+)
+
+# Usage is the same
+outputs = llm.generate(prompts, sampling_params)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-tensor-parallelism-confi">Tensor Parallelism Configuration</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Calculate optimal tensor parallel size
+def calculate_tensor_parallel_size(
+    model_size_b: float,
+    available_gpus: list,
+    precision: str = &quot;fp16&quot;
+):
+    &quot;&quot;&quot;
+    Calculate optimal number of GPUs for tensor parallelism
+    &quot;&quot;&quot;
+    # Memory calculation
+    precision_bytes = {'fp32': 4, 'fp16': 2, 'int8': 1}
+    model_memory_gb = model_size_b * precision_bytes[precision]
+
+    # Add overhead for KV cache and activations (50%)
+    total_memory_needed = model_memory_gb * 1.5
+
+    # GPU memory (GB)
+    gpu_memory = {
+        'T4': 16,
+        'A10G': 24,
+        'A100-40GB': 40,
+        'A100-80GB': 80
+    }
+
+    configurations = []
+
+    for gpu_type in available_gpus:
+        single_gpu_memory = gpu_memory[gpu_type]
+
+        # Calculate minimum GPUs needed
+        min_gpus = int(np.ceil(total_memory_needed / single_gpu_memory))
+
+        # Tensor parallel size should be power of 2
+        tp_sizes = [1, 2, 4, 8]
+        valid_tp_sizes = [tp for tp in tp_sizes if tp &gt;= min_gpus]
+
+        for tp in valid_tp_sizes:
+            memory_per_gpu = total_memory_needed / tp
+            utilization = memory_per_gpu / single_gpu_memory
+
+            if utilization &lt;= 0.95:  # Leave some headroom
+                configurations.append({
+                    'gpu_type': gpu_type,
+                    'tensor_parallel_size': tp,
+                    'memory_per_gpu_gb': round(memory_per_gpu, 2),
+                    'utilization': f&quot;{utilization * 100:.1f}%&quot;,
+                    'total_gpus_needed': tp
+                })
+
+    return configurations
+
+
+# Example: Llama 2 70B
+configs = calculate_tensor_parallel_size(
+    model_size_b=70,
+    available_gpus=['A10G', 'A100-40GB', 'A100-80GB'],
+    precision='fp16'
+)
+
+print(&quot;Optimal configurations for Llama 2 70B:&quot;)
+for config in configs:
+    print(config)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-ray-serve-for-multi-mode">Ray Serve for Multi-Model Multi-GPU</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Deploy multiple models across GPUs with Ray Serve
+from ray import serve
+import ray
+from vllm import LLM, SamplingParams
+
+# Initialize Ray
+ray.init()
+
+@serve.deployment(
+    ray_actor_options={&quot;num_gpus&quot;: 1},
+    autoscaling_config={&quot;min_replicas&quot;: 1, &quot;max_replicas&quot;: 4}
+)
+class LLMDeployment:
+    def __init__(self, model_name: str):
+        self.llm = LLM(
+            model=model_name,
+            tensor_parallel_size=1,
+            gpu_memory_utilization=0.90
+        )
+        self.sampling_params = SamplingParams(
+            temperature=0.8,
+            top_p=0.95,
+            max_tokens=256
+        )
+
+    def __call__(self, request):
+        prompt = request.query_params.get(&quot;prompt&quot;)
+        outputs = self.llm.generate([prompt], self.sampling_params)
+        return {&quot;text&quot;: outputs[0].outputs[0].text}
+
+
+# Deploy multiple models
+serve.run(
+    LLMDeployment.bind(model_name=&quot;meta-llama/Llama-2-7b-chat-hf&quot;),
+    name=&quot;llama-7b&quot;,
+    route_prefix=&quot;/v1/llama-7b&quot;
+)
+
+serve.run(
+    LLMDeployment.bind(model_name=&quot;mistralai/Mistral-7B-Instruct-v0.1&quot;),
+    name=&quot;mistral-7b&quot;,
+    route_prefix=&quot;/v1/mistral-7b&quot;
+)
+
+# Each model automatically gets its own GPU(s) via Ray's scheduling</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-pipeline-parallelism">Pipeline Parallelism</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-understanding-pipeline-p">Understanding Pipeline Parallelism</h5>
+<p>Pipeline parallelism splits the model into stages, with each stage on a different GPU 加速（GPU）. Good for very large models and high throughput.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Pipeline parallelism visualization
+&quot;&quot;&quot;
+GPU 0: [Layers 0-7  ]  →  [Layers 0-7  ]  →  [Layers 0-7  ]
+GPU 1: [Layers 8-15 ]  →  [Layers 8-15 ]  →  [Layers 8-15 ]
+GPU 2: [Layers 16-23]  →  [Layers 16-23]  →  [Layers 16-23]
+GPU 3: [Layers 24-31]  →  [Layers 24-31]  →  [Layers 24-31]
+
+Time:  Batch 1         Batch 2         Batch 3
+
+Pipeline parallelism allows processing multiple batches simultaneously!
+&quot;&quot;&quot;</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-deepspeed-inference-pipe">DeepSpeed 推理（Inference） Pipeline</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># DeepSpeed inference with pipeline parallelism
+import deepspeed
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model_name = &quot;meta-llama/Llama-2-70b-hf&quot;
+
+# Load model
+model = AutoModelForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+# DeepSpeed inference configuration
+ds_config = {
+    &quot;fp16&quot;: {
+        &quot;enabled&quot;: True
+    },
+    &quot;bf16&quot;: {
+        &quot;enabled&quot;: False
+    },
+    &quot;zero_optimization&quot;: {
+        &quot;stage&quot;: 3,
+        &quot;offload_param&quot;: {
+            &quot;device&quot;: &quot;cpu&quot;
+        }
+    },
+    &quot;tensor_parallel&quot;: {
+        &quot;tp_size&quot;: 4  # 4-way tensor parallelism
+    },
+    &quot;pipeline_parallel&quot;: {
+        &quot;pp_size&quot;: 2  # 2-way pipeline parallelism
+    }
+}
+
+# Initialize DeepSpeed engine
+engine = deepspeed.init_inference(
+    model=model,
+    config=ds_config,
+    tensor_parallel={&quot;tp_size&quot;: 4},
+    dtype=torch.float16,
+    replace_with_kernel_inject=True
+)
+
+# Use model for inference
+inputs = tokenizer(&quot;Hello, world!&quot;, return_tensors=&quot;pt&quot;)
+outputs = engine.module.generate(**inputs, max_new_tokens=50)
+print(tokenizer.decode(outputs[0]))</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-kv-cache-management">KV Cache Management</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-understanding-kv-cache">Understanding KV Cache</h5>
+<p>The KV (Key-Value) cache stores attention keys and values from previous tokens to avoid recomputation during generation.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># KV cache memory calculation
+def calculate_kv_cache_memory(
+    batch_size: int,
+    sequence_length: int,
+    num_layers: int,
+    hidden_size: int,
+    num_attention_heads: int,
+    precision_bytes: int = 2  # FP16
+):
+    &quot;&quot;&quot;
+    Calculate KV cache memory requirements
+    &quot;&quot;&quot;
+    # Keys and Values for each layer
+    # Each: (batch_size, num_heads, seq_length, head_dim)
+    head_dim = hidden_size // num_attention_heads
+
+    # Memory per layer (keys + values)
+    memory_per_layer = (
+        2 *  # keys and values
+        batch_size *
+        num_attention_heads *
+        sequence_length *
+        head_dim *
+        precision_bytes
+    )
+
+    total_memory = memory_per_layer * num_layers
+
+    return {
+        'memory_per_layer_mb': memory_per_layer / (1024**2),
+        'total_memory_mb': total_memory / (1024**2),
+        'total_memory_gb': total_memory / (1024**3)
+    }
+
+
+# Example: Llama 2 7B with batch of 8
+kv_cache = calculate_kv_cache_memory(
+    batch_size=8,
+    sequence_length=2048,
+    num_layers=32,
+    hidden_size=4096,
+    num_attention_heads=32
+)
+print(f&quot;KV Cache for batch of 8: {kv_cache['total_memory_gb']:.2f} GB&quot;)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-pagedattention-vllm-s-ap">PagedAttention (vLLM's Approach)</h5>
+<p>PagedAttention manages KV cache like virtual memory, allowing efficient memory usage and dynamic batching.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># vLLM with optimized KV cache management
+from vllm import LLM, SamplingParams
+
+llm = LLM(
+    model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    tensor_parallel_size=1,
+    max_model_len=4096,
+    gpu_memory_utilization=0.90,  # Reserve memory for KV cache
+    # PagedAttention automatically manages KV cache efficiently
+)
+
+# vLLM benefits:
+# - Non-contiguous KV cache (like virtual memory paging)
+# - Efficient memory sharing for common prefixes
+# - Dynamic allocation based on actual sequence length</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-kv-cache-optimization-st">KV Cache Optimization Strategies</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class KVCacheOptimizer:
+    &quot;&quot;&quot;
+    Strategies for optimizing KV cache usage
+    &quot;&quot;&quot;
+    @staticmethod
+    def estimate_max_batch_size(
+        available_memory_gb: float,
+        model_memory_gb: float,
+        sequence_length: int,
+        kv_cache_per_token_mb: float
+    ):
+        &quot;&quot;&quot;
+        Estimate maximum batch size given memory constraints
+        &quot;&quot;&quot;
+        # Available memory for KV cache
+        kv_cache_memory_gb = available_memory_gb - model_memory_gb
+
+        # Memory per sequence
+        memory_per_sequence_mb = sequence_length * kv_cache_per_token_mb
+        memory_per_sequence_gb = memory_per_sequence_mb / 1024
+
+        # Maximum batch size
+        max_batch_size = int(kv_cache_memory_gb / memory_per_sequence_gb)
+
+        return max(1, max_batch_size)
+
+    @staticmethod
+    def optimize_for_throughput(
+        target_throughput_tokens_per_sec: int,
+        model_tokens_per_sec_single: int,
+        available_memory_gb: float,
+        model_memory_gb: float
+    ):
+        &quot;&quot;&quot;
+        Find optimal configuration for target throughput
+        &quot;&quot;&quot;
+        # Calculate required batch size
+        required_batch = target_throughput_tokens_per_sec / model_tokens_per_sec_single
+
+        # Check if memory allows this batch size
+        max_batch = KVCacheOptimizer.estimate_max_batch_size(
+            available_memory_gb=available_memory_gb,
+            model_memory_gb=model_memory_gb,
+            sequence_length=2048,  # Assume 2K context
+            kv_cache_per_token_mb=0.5  # Rough estimate
+        )
+
+        if required_batch &lt;= max_batch:
+            return {
+                'feasible': True,
+                'recommended_batch_size': int(required_batch),
+                'max_batch_size': max_batch
+            }
+        else:
+            return {
+                'feasible': False,
+                'required_batch_size': int(required_batch),
+                'max_batch_size': max_batch,
+                'suggestion': 'Need more GPUs or smaller model'
+            }
+
+
+# Usage
+optimizer = KVCacheOptimizer()
+
+config = optimizer.optimize_for_throughput(
+    target_throughput_tokens_per_sec=1000,
+    model_tokens_per_sec_single=50,
+    available_memory_gb=80,
+    model_memory_gb=14
+)
+print(config)</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-prompt-caching">Prompt Caching</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-automatic-prefix-caching">Automatic Prefix Caching</h5>
+<p>Cache common prompt prefixes to avoid recomputing them.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># vLLM with prefix caching
+from vllm import LLM, SamplingParams
+
+llm = LLM(
+    model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    enable_prefix_caching=True,  # Enable prefix caching
+    max_model_len=4096
+)
+
+# Common system prompt
+system_prompt = &quot;&quot;&quot;You are a helpful AI assistant. You are knowledgeable,
+accurate, and always strive to provide the best possible answers.&quot;&quot;&quot;
+
+# Multiple requests with same prefix
+prompts = [
+    f&quot;{system_prompt}\n\nUser: What is Python?\nAssistant:&quot;,
+    f&quot;{system_prompt}\n\nUser: What is JavaScript?\nAssistant:&quot;,
+    f&quot;{system_prompt}\n\nUser: What is Rust?\nAssistant:&quot;,
+]
+
+# First request processes full prompt
+# Subsequent requests reuse cached system prompt computation!
+outputs = llm.generate(prompts, SamplingParams(max_tokens=100))</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-manual-response-caching">Manual Response Caching</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import hashlib
+import json
+from typing import Optional
+import redis
+
+class LLMResponseCache:
+    &quot;&quot;&quot;
+    Cache LLM responses for identical requests
+    &quot;&quot;&quot;
+    def __init__(self, redis_host: str = &quot;localhost&quot;, redis_port: int = 6379):
+        self.redis_client = redis.Redis(
+            host=redis_host,
+            port=redis_port,
+            decode_responses=True
+        )
+        self.ttl_seconds = 3600  # 1 hour cache
+
+    def _generate_cache_key(self, prompt: str, params: dict) -&gt; str:
+        &quot;&quot;&quot;
+        Generate cache key from prompt and parameters
+        &quot;&quot;&quot;
+        cache_input = {
+            'prompt': prompt,
+            'params': params
+        }
+        cache_str = json.dumps(cache_input, sort_keys=True)
+        return hashlib.md5(cache_str.encode()).hexdigest()
+
+    def get(self, prompt: str, params: dict) -&gt; Optional[str]:
+        &quot;&quot;&quot;
+        Get cached response if available
+        &quot;&quot;&quot;
+        key = self._generate_cache_key(prompt, params)
+        cached = self.redis_client.get(key)
+
+        if cached:
+            # Update stats
+            self.redis_client.incr(&quot;cache_hits&quot;)
+            return cached
+
+        self.redis_client.incr(&quot;cache_misses&quot;)
+        return None
+
+    def set(self, prompt: str, params: dict, response: str):
+        &quot;&quot;&quot;
+        Cache response
+        &quot;&quot;&quot;
+        key = self._generate_cache_key(prompt, params)
+        self.redis_client.setex(key, self.ttl_seconds, response)
+
+    def get_stats(self):
+        &quot;&quot;&quot;
+        Get cache statistics
+        &quot;&quot;&quot;
+        hits = int(self.redis_client.get(&quot;cache_hits&quot;) or 0)
+        misses = int(self.redis_client.get(&quot;cache_misses&quot;) or 0)
+        total = hits + misses
+
+        return {
+            'hits': hits,
+            'misses': misses,
+            'total_requests': total,
+            'hit_rate': (hits / total * 100) if total &gt; 0 else 0
+        }
+
+
+# Usage with LLM serving
+cache = LLMResponseCache()
+
+def generate_with_cache(prompt: str, params: dict):
+    &quot;&quot;&quot;
+    Generate response with caching
+    &quot;&quot;&quot;
+    # Check cache first
+    cached_response = cache.get(prompt, params)
+    if cached_response:
+        return cached_response
+
+    # Generate new response
+    response = llm.generate([prompt], SamplingParams(**params))
+    response_text = response[0].outputs[0].text
+
+    # Cache result
+    cache.set(prompt, params, response_text)
+
+    return response_text</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-semantic-caching">Semantic Caching</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from sentence_transformers import SentenceTransformer
+import numpy as np
+from typing import List, Tuple
+
+class SemanticCache:
+    &quot;&quot;&quot;
+    Cache based on semantic similarity rather than exact matches
+    &quot;&quot;&quot;
+    def __init__(self, similarity_threshold: float = 0.95):
+        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+        self.cache = []  # List of (embedding, prompt, response)
+        self.similarity_threshold = similarity_threshold
+
+    def _get_embedding(self, text: str) -&gt; np.ndarray:
+        &quot;&quot;&quot;
+        Get embedding for text
+        &quot;&quot;&quot;
+        return self.embedding_model.encode(text)
+
+    def _cosine_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -&gt; float:
+        &quot;&quot;&quot;
+        Calculate cosine similarity between vectors
+        &quot;&quot;&quot;
+        return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+
+    def get(self, prompt: str) -&gt; Optional[str]:
+        &quot;&quot;&quot;
+        Get cached response if semantically similar prompt exists
+        &quot;&quot;&quot;
+        if not self.cache:
+            return None
+
+        # Get embedding for new prompt
+        prompt_embedding = self._get_embedding(prompt)
+
+        # Find most similar cached prompt
+        max_similarity = 0
+        best_match = None
+
+        for cached_embedding, cached_prompt, cached_response in self.cache:
+            similarity = self._cosine_similarity(prompt_embedding, cached_embedding)
+
+            if similarity &gt; max_similarity:
+                max_similarity = similarity
+                best_match = cached_response
+
+        # Return if above threshold
+        if max_similarity &gt;= self.similarity_threshold:
+            return best_match
+
+        return None
+
+    def set(self, prompt: str, response: str):
+        &quot;&quot;&quot;
+        Add prompt and response to cache
+        &quot;&quot;&quot;
+        embedding = self._get_embedding(prompt)
+        self.cache.append((embedding, prompt, response))
+
+        # Limit cache size
+        if len(self.cache) &gt; 1000:
+            self.cache.pop(0)
+
+
+# Usage
+semantic_cache = SemanticCache(similarity_threshold=0.95)
+
+# First query
+prompt1 = &quot;What is machine learning?&quot;
+response1 = generate_llm_response(prompt1)
+semantic_cache.set(prompt1, response1)
+
+# Similar query (will hit cache)
+prompt2 = &quot;Can you explain machine learning?&quot;
+cached = semantic_cache.get(prompt2)  # Returns response1!</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-speculative-decoding">Speculative Decoding</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-what-is-speculative-deco">What is Speculative Decoding?</h5>
+<p>Speculative decoding uses a small &quot;draft&quot; model to generate candidate tokens quickly, then verifies them with the larger target model in parallel. This can achieve 2-3x speedup.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Speculative decoding with vLLM
+from vllm import LLM, SamplingParams
+
+# Target model (large, accurate)
+target_model = LLM(
+    model=&quot;meta-llama/Llama-2-70b-chat-hf&quot;,
+    tensor_parallel_size=4
+)
+
+# Draft model (small, fast)
+draft_model = LLM(
+    model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    tensor_parallel_size=1
+)
+
+# Enable speculative decoding
+target_model.enable_speculative_decoding(
+    draft_model=draft_model,
+    num_speculative_tokens=5  # Generate 5 tokens ahead
+)
+
+# Use normally - speculative decoding happens automatically
+outputs = target_model.generate(prompts, sampling_params)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-implementing-speculative">Implementing Speculative Decoding</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+class SpeculativeDecoder:
+    &quot;&quot;&quot;
+    Implement speculative decoding manually
+    &quot;&quot;&quot;
+    def __init__(
+        self,
+        target_model_name: str,
+        draft_model_name: str,
+        num_speculative_tokens: int = 5
+    ):
+        # Load models
+        self.target_model = AutoModelForCausalLM.from_pretrained(
+            target_model_name,
+            torch_dtype=torch.float16,
+            device_map=&quot;auto&quot;
+        )
+        self.draft_model = AutoModelForCausalLM.from_pretrained(
+            draft_model_name,
+            torch_dtype=torch.float16,
+            device_map=&quot;auto&quot;
+        )
+        self.tokenizer = AutoTokenizer.from_pretrained(target_model_name)
+        self.num_speculative_tokens = num_speculative_tokens
+
+    def generate(self, prompt: str, max_tokens: int = 100):
+        &quot;&quot;&quot;
+        Generate text using speculative decoding
+        &quot;&quot;&quot;
+        # Tokenize prompt
+        input_ids = self.tokenizer.encode(prompt, return_tensors=&quot;pt&quot;).to(
+            self.target_model.device
+        )
+
+        generated_tokens = []
+        accepted_tokens = 0
+        total_drafted_tokens = 0
+
+        while len(generated_tokens) &lt; max_tokens:
+            # Step 1: Draft model generates K tokens
+            draft_tokens = self._draft_generate(
+                input_ids,
+                num_tokens=self.num_speculative_tokens
+            )
+            total_drafted_tokens += len(draft_tokens)
+
+            # Step 2: Target model verifies all at once (parallel)
+            accepted = self._verify_tokens(input_ids, draft_tokens)
+            accepted_tokens += len(accepted)
+
+            # Step 3: Add accepted tokens
+            generated_tokens.extend(accepted)
+            input_ids = torch.cat([
+                input_ids,
+                torch.tensor([accepted], device=input_ids.device)
+            ], dim=1)
+
+            # If not all tokens accepted, generate one more with target model
+            if len(accepted) &lt; len(draft_tokens):
+                next_token = self._target_generate_one(input_ids)
+                generated_tokens.append(next_token)
+                input_ids = torch.cat([
+                    input_ids,
+                    torch.tensor([[next_token]], device=input_ids.device)
+                ], dim=1)
+                accepted_tokens += 1
+
+        # Calculate acceptance rate
+        acceptance_rate = accepted_tokens / total_drafted_tokens if total_drafted_tokens &gt; 0 else 0
+
+        # Decode
+        output_text = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+
+        return {
+            'text': output_text,
+            'acceptance_rate': acceptance_rate,
+            'total_tokens': len(generated_tokens)
+        }
+
+    def _draft_generate(self, input_ids: torch.Tensor, num_tokens: int):
+        &quot;&quot;&quot;
+        Generate tokens with draft model
+        &quot;&quot;&quot;
+        draft_tokens = []
+
+        with torch.no_grad():
+            current_ids = input_ids
+
+            for _ in range(num_tokens):
+                outputs = self.draft_model(current_ids)
+                next_token = outputs.logits[:, -1, :].argmax(dim=-1)
+                draft_tokens.append(next_token.item())
+                current_ids = torch.cat([
+                    current_ids,
+                    next_token.unsqueeze(0)
+                ], dim=1)
+
+        return draft_tokens
+
+    def _verify_tokens(self, input_ids: torch.Tensor, draft_tokens: list):
+        &quot;&quot;&quot;
+        Verify draft tokens with target model (parallel)
+        &quot;&quot;&quot;
+        # Create input with all draft tokens
+        all_ids = torch.cat([
+            input_ids,
+            torch.tensor([draft_tokens], device=input_ids.device)
+        ], dim=1)
+
+        # Get target model's predictions for all positions at once
+        with torch.no_grad():
+            outputs = self.target_model(all_ids)
+            predictions = outputs.logits[:, -len(draft_tokens)-1:-1, :].argmax(dim=-1)
+
+        # Check which tokens match
+        accepted = []
+        for i, (pred, draft) in enumerate(zip(predictions[0], draft_tokens)):
+            if pred.item() == draft:
+                accepted.append(draft)
+            else:
+                break  # Stop at first mismatch
+
+        return accepted
+
+    def _target_generate_one(self, input_ids: torch.Tensor):
+        &quot;&quot;&quot;
+        Generate one token with target model
+        &quot;&quot;&quot;
+        with torch.no_grad():
+            outputs = self.target_model(input_ids)
+            next_token = outputs.logits[:, -1, :].argmax(dim=-1)
+        return next_token.item()
+
+
+# Usage
+decoder = SpeculativeDecoder(
+    target_model_name=&quot;meta-llama/Llama-2-13b-chat-hf&quot;,
+    draft_model_name=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    num_speculative_tokens=5
+)
+
+result = decoder.generate(&quot;Once upon a time&quot;, max_tokens=100)
+print(f&quot;Generated: {result['text']}&quot;)
+print(f&quot;Acceptance rate: {result['acceptance_rate']:.2%}&quot;)</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-benchmarking-llm-inferen">Benchmarking 大语言模型（LLM） 推理（Inference）</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-comprehensive-benchmark-">Comprehensive Benchmark Suite</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import time
+import torch
+import numpy as np
+from typing import List, Dict
+from dataclasses import dataclass
+
+@dataclass
+class BenchmarkResult:
+    &quot;&quot;&quot;
+    Results from a benchmark run
+    &quot;&quot;&quot;
+    metric_name: str
+    value: float
+    unit: str
+    percentile: Optional[int] = None
+
+
+class LLMBenchmark:
+    &quot;&quot;&quot;
+    Comprehensive LLM inference benchmarking
+    &quot;&quot;&quot;
+    def __init__(self, model, tokenizer):
+        self.model = model
+        self.tokenizer = tokenizer
+        self.results = {}
+
+    def benchmark_latency(
+        self,
+        prompts: List[str],
+        max_tokens: int = 50,
+        num_warmup: int = 3,
+        num_runs: int = 10
+    ):
+        &quot;&quot;&quot;
+        Benchmark inference latency
+        &quot;&quot;&quot;
+        # Warmup
+        for _ in range(num_warmup):
+            inputs = self.tokenizer(prompts[0], return_tensors=&quot;pt&quot;).to(self.model.device)
+            with torch.no_grad():
+                _ = self.model.generate(**inputs, max_new_tokens=10)
+
+        # Measure
+        latencies = []
+        for _ in range(num_runs):
+            for prompt in prompts:
+                inputs = self.tokenizer(prompt, return_tensors=&quot;pt&quot;).to(self.model.device)
+
+                start_time = time.time()
+                with torch.no_grad():
+                    outputs = self.model.generate(**inputs, max_new_tokens=max_tokens)
+                latency = time.time() - start_time
+
+                latencies.append(latency * 1000)  # Convert to ms
+
+        # Calculate statistics
+        self.results['latency'] = {
+            'mean_ms': np.mean(latencies),
+            'median_ms': np.median(latencies),
+            'p50_ms': np.percentile(latencies, 50),
+            'p95_ms': np.percentile(latencies, 95),
+            'p99_ms': np.percentile(latencies, 99),
+            'min_ms': np.min(latencies),
+            'max_ms': np.max(latencies),
+            'std_ms': np.std(latencies)
+        }
+
+        return self.results['latency']
+
+    def benchmark_throughput(
+        self,
+        prompts: List[str],
+        max_tokens: int = 50,
+        duration_seconds: int = 60
+    ):
+        &quot;&quot;&quot;
+        Benchmark throughput (requests per second)
+        &quot;&quot;&quot;
+        start_time = time.time()
+        num_requests = 0
+        total_tokens = 0
+
+        while time.time() - start_time &lt; duration_seconds:
+            prompt = prompts[num_requests % len(prompts)]
+            inputs = self.tokenizer(prompt, return_tensors=&quot;pt&quot;).to(self.model.device)
+
+            with torch.no_grad():
+                outputs = self.model.generate(**inputs, max_new_tokens=max_tokens)
+
+            num_requests += 1
+            total_tokens += outputs.shape[1]
+
+        elapsed = time.time() - start_time
+
+        self.results['throughput'] = {
+            'requests_per_second': num_requests / elapsed,
+            'tokens_per_second': total_tokens / elapsed,
+            'total_requests': num_requests,
+            'total_tokens': total_tokens,
+            'duration_seconds': elapsed
+        }
+
+        return self.results['throughput']
+
+    def benchmark_memory(self):
+        &quot;&quot;&quot;
+        Benchmark GPU memory usage
+        &quot;&quot;&quot;
+        torch.cuda.reset_peak_memory_stats()
+
+        # Run a few inferences
+        prompt = &quot;Hello, world!&quot;
+        inputs = self.tokenizer(prompt, return_tensors=&quot;pt&quot;).to(self.model.device)
+
+        with torch.no_grad():
+            _ = self.model.generate(**inputs, max_new_tokens=100)
+
+        # Get memory stats
+        allocated_gb = torch.cuda.memory_allocated() / 1e9
+        reserved_gb = torch.cuda.memory_reserved() / 1e9
+        peak_gb = torch.cuda.max_memory_allocated() / 1e9
+
+        self.results['memory'] = {
+            'allocated_gb': allocated_gb,
+            'reserved_gb': reserved_gb,
+            'peak_gb': peak_gb
+        }
+
+        return self.results['memory']
+
+    def benchmark_scaling(
+        self,
+        base_prompt: str,
+        sequence_lengths: List[int] = [128, 256, 512, 1024, 2048]
+    ):
+        &quot;&quot;&quot;
+        Benchmark how latency scales with sequence length
+        &quot;&quot;&quot;
+        scaling_results = []
+
+        for seq_len in sequence_lengths:
+            # Create prompt of specific length
+            tokens = self.tokenizer.encode(base_prompt)
+            while len(tokens) &lt; seq_len:
+                tokens.extend(tokens[:min(len(tokens), seq_len - len(tokens))])
+            tokens = tokens[:seq_len]
+            prompt = self.tokenizer.decode(tokens)
+
+            # Measure latency
+            inputs = self.tokenizer(prompt, return_tensors=&quot;pt&quot;).to(self.model.device)
+
+            latencies = []
+            for _ in range(5):
+                start_time = time.time()
+                with torch.no_grad():
+                    _ = self.model.generate(**inputs, max_new_tokens=50)
+                latencies.append((time.time() - start_time) * 1000)
+
+            scaling_results.append({
+                'sequence_length': seq_len,
+                'avg_latency_ms': np.mean(latencies),
+                'tokens_per_second': 50 / (np.mean(latencies) / 1000)
+            })
+
+        self.results['scaling'] = scaling_results
+        return scaling_results
+
+    def generate_report(self):
+        &quot;&quot;&quot;
+        Generate comprehensive benchmark report
+        &quot;&quot;&quot;
+        print(&quot;=&quot; * 60)
+        print(&quot;LLM INFERENCE BENCHMARK REPORT&quot;)
+        print(&quot;=&quot; * 60)
+
+        if 'latency' in self.results:
+            print(&quot;\nLatency Metrics:&quot;)
+            for key, value in self.results['latency'].items():
+                print(f&quot;  {key}: {value:.2f}&quot;)
+
+        if 'throughput' in self.results:
+            print(&quot;\nThroughput Metrics:&quot;)
+            for key, value in self.results['throughput'].items():
+                print(f&quot;  {key}: {value:.2f}&quot;)
+
+        if 'memory' in self.results:
+            print(&quot;\nMemory Metrics:&quot;)
+            for key, value in self.results['memory'].items():
+                print(f&quot;  {key}: {value:.2f}&quot;)
+
+        if 'scaling' in self.results:
+            print(&quot;\nScaling Analysis:&quot;)
+            for result in self.results['scaling']:
+                print(f&quot;  Seq Length {result['sequence_length']}: &quot;
+                      f&quot;{result['avg_latency_ms']:.2f}ms, &quot;
+                      f&quot;{result['tokens_per_second']:.2f} tokens/sec&quot;)
+
+        print(&quot;=&quot; * 60)
+
+
+# Usage
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model = AutoModelForCausalLM.from_pretrained(
+    &quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    torch_dtype=torch.float16,
+    device_map=&quot;auto&quot;
+)
+tokenizer = AutoTokenizer.from_pretrained(&quot;meta-llama/Llama-2-7b-chat-hf&quot;)
+
+benchmark = LLMBenchmark(model, tokenizer)
+
+# Run benchmarks
+prompts = [
+    &quot;What is machine learning?&quot;,
+    &quot;Explain quantum computing&quot;,
+    &quot;Write a story about&quot;
+]
+
+benchmark.benchmark_latency(prompts)
+benchmark.benchmark_throughput(prompts, duration_seconds=30)
+benchmark.benchmark_memory()
+benchmark.benchmark_scaling(&quot;Hello world&quot;)
+
+# Generate report
+benchmark.generate_report()</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-cost-vs-performance-trad">Cost vs Performance Trade-offs</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-optimization-decision-fr">Optimization Decision Framework</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class CostPerformanceOptimizer:
+    &quot;&quot;&quot;
+    Framework for making cost vs performance trade-off decisions
+    &quot;&quot;&quot;
+    def __init__(self):
+        self.gpu_costs = {
+            'T4': 0.40,
+            'A10G': 1.20,
+            'A100-40GB': 3.50,
+            'A100-80GB': 5.00
+        }
+
+        self.performance_factors = {
+            'T4': 1.0,
+            'A10G': 2.5,
+            'A100-40GB': 5.0,
+            'A100-80GB': 5.5
+        }
+
+    def analyze_configuration(
+        self,
+        gpu_type: str,
+        quantization: str,
+        batch_size: int,
+        requests_per_day: int,
+        target_latency_ms: int
+    ):
+        &quot;&quot;&quot;
+        Analyze a specific configuration
+        &quot;&quot;&quot;
+        # Base performance
+        base_performance = self.performance_factors[gpu_type]
+
+        # Quantization impact
+        quant_speedup = {
+            'fp16': 1.0,
+            'int8': 1.5,
+            'int4': 2.0
+        }[quantization]
+
+        # Effective performance
+        effective_performance = base_performance * quant_speedup
+
+        # Batch size impact on latency
+        latency_penalty = 1 + (batch_size - 1) * 0.1
+
+        # Estimated latency
+        estimated_latency_ms = 100 / effective_performance * latency_penalty
+
+        # Meets SLA?
+        meets_sla = estimated_latency_ms &lt;= target_latency_ms
+
+        # Cost calculation
+        requests_per_second = requests_per_day / 86400
+        gpus_needed = max(1, requests_per_second / (effective_performance * batch_size))
+
+        monthly_cost = gpus_needed * self.gpu_costs[gpu_type] * 24 * 30
+
+        # Cost per request
+        cost_per_request = monthly_cost / requests_per_day / 30
+
+        return {
+            'configuration': {
+                'gpu_type': gpu_type,
+                'quantization': quantization,
+                'batch_size': batch_size
+            },
+            'performance': {
+                'estimated_latency_ms': round(estimated_latency_ms, 2),
+                'meets_sla': meets_sla,
+                'effective_performance': round(effective_performance, 2)
+            },
+            'cost': {
+                'gpus_needed': round(gpus_needed, 2),
+                'monthly_cost': round(monthly_cost, 2),
+                'cost_per_request': round(cost_per_request, 6)
+            },
+            'score': self._calculate_score(
+                meets_sla, cost_per_request, estimated_latency_ms, target_latency_ms
+            )
+        }
+
+    def _calculate_score(
+        self,
+        meets_sla: bool,
+        cost_per_request: float,
+        latency_ms: float,
+        target_latency_ms: int
+    ):
+        &quot;&quot;&quot;
+        Calculate overall score (higher is better)
+        &quot;&quot;&quot;
+        if not meets_sla:
+            return 0  # Doesn't meet requirements
+
+        # Score based on cost efficiency and latency margin
+        latency_margin = (target_latency_ms - latency_ms) / target_latency_ms
+        cost_score = 1 / (cost_per_request * 1000)  # Lower cost = higher score
+
+        return cost_score * (1 + latency_margin)
+
+    def find_optimal_configuration(
+        self,
+        requests_per_day: int,
+        target_latency_ms: int,
+        budget_per_month: float = None
+    ):
+        &quot;&quot;&quot;
+        Find optimal configuration
+        &quot;&quot;&quot;
+        configurations = []
+
+        for gpu_type in ['T4', 'A10G', 'A100-40GB']:
+            for quantization in ['fp16', 'int8', 'int4']:
+                for batch_size in [1, 2, 4, 8, 16]:
+                    config = self.analyze_configuration(
+                        gpu_type=gpu_type,
+                        quantization=quantization,
+                        batch_size=batch_size,
+                        requests_per_day=requests_per_day,
+                        target_latency_ms=target_latency_ms
+                    )
+
+                    # Filter by budget if specified
+                    if budget_per_month and config['cost']['monthly_cost'] &gt; budget_per_month:
+                        continue
+
+                    if config['score'] &gt; 0:
+                        configurations.append(config)
+
+        # Sort by score
+        configurations.sort(key=lambda x: x['score'], reverse=True)
+
+        return configurations[:5]  # Top 5
+
+
+# Usage
+optimizer = CostPerformanceOptimizer()
+
+# Find best configuration
+optimal_configs = optimizer.find_optimal_configuration(
+    requests_per_day=100000,
+    target_latency_ms=200,
+    budget_per_month=5000
+)
+
+print(&quot;Top 5 configurations:&quot;)
+for i, config in enumerate(optimal_configs, 1):
+    print(f&quot;\n{i}. Configuration:&quot;)
+    print(f&quot;   GPU: {config['configuration']['gpu_type']}&quot;)
+    print(f&quot;   Quantization: {config['configuration']['quantization']}&quot;)
+    print(f&quot;   Batch Size: {config['configuration']['batch_size']}&quot;)
+    print(f&quot;   Latency: {config['performance']['estimated_latency_ms']}ms&quot;)
+    print(f&quot;   Monthly Cost: ${config['cost']['monthly_cost']}&quot;)
+    print(f&quot;   Cost per Request: ${config['cost']['cost_per_request']}&quot;)
+    print(f&quot;   Score: {config['score']:.2f}&quot;)</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-production-optimization-">生产环境（Production） Optimization Checklist</h4>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Production optimization checklist
+production_checklist = {
+    &quot;Model Selection&quot;: {
+        &quot;tasks&quot;: [
+            &quot;Choose smallest model that meets accuracy requirements&quot;,
+            &quot;Benchmark multiple model sizes&quot;,
+            &quot;Consider fine-tuned smaller models vs larger base models&quot;,
+            &quot;Evaluate domain-specific models&quot;
+        ],
+        &quot;verification&quot;: &quot;Run A/B tests to validate model choice&quot;
+    },
+    &quot;Quantization&quot;: {
+        &quot;tasks&quot;: [
+            &quot;Test INT8 quantization (98-99% accuracy, 50% cost reduction)&quot;,
+            &quot;Consider INT4 for non-critical workloads&quot;,
+            &quot;Benchmark GPTQ vs AWQ vs bitsandbytes&quot;,
+            &quot;Validate output quality after quantization&quot;
+        ],
+        &quot;verification&quot;: &quot;Quality metrics within 2% of baseline&quot;
+    },
+    &quot;Serving Framework&quot;: {
+        &quot;tasks&quot;: [
+            &quot;Use vLLM for production (best throughput)&quot;,
+            &quot;Enable Flash Attention 2&quot;,
+            &quot;Configure continuous batching&quot;,
+            &quot;Enable prefix caching for common prompts&quot;
+        ],
+        &quot;verification&quot;: &quot;Achieve 3x+ throughput vs naive implementation&quot;
+    },
+    &quot;GPU Configuration&quot;: {
+        &quot;tasks&quot;: [
+            &quot;Right-size GPU tier (don't over-provision)&quot;,
+            &quot;Configure tensor parallelism for large models&quot;,
+            &quot;Set optimal gpu_memory_utilization (0.85-0.95)&quot;,
+            &quot;Monitor actual GPU utilization&quot;
+        ],
+        &quot;verification&quot;: &quot;GPU utilization consistently &gt;70%&quot;
+    },
+    &quot;Batching&quot;: {
+        &quot;tasks&quot;: [
+            &quot;Configure max_num_batched_tokens appropriately&quot;,
+            &quot;Set max_num_seqs based on workload&quot;,
+            &quot;Monitor batch size distribution&quot;,
+            &quot;Tune timeout parameters&quot;
+        ],
+        &quot;verification&quot;: &quot;Average batch size &gt;8 under load&quot;
+    },
+    &quot;Caching&quot;: {
+        &quot;tasks&quot;: [
+            &quot;Implement response caching (Redis)&quot;,
+            &quot;Enable prefix caching in vLLM&quot;,
+            &quot;Consider semantic caching for similar queries&quot;,
+            &quot;Set appropriate cache TTLs&quot;
+        ],
+        &quot;verification&quot;: &quot;Cache hit rate &gt;30%&quot;
+    },
+    &quot;Monitoring&quot;: {
+        &quot;tasks&quot;: [
+            &quot;Track latency percentiles (p50, p95, p99)&quot;,
+            &quot;Monitor GPU utilization and memory&quot;,
+            &quot;Track throughput (tokens/sec, requests/sec)&quot;,
+            &quot;Monitor cost per request&quot;,
+            &quot;Alert on SLA violations&quot;
+        ],
+        &quot;verification&quot;: &quot;Full observability dashboard operational&quot;
+    },
+    &quot;Cost Optimization&quot;: {
+        &quot;tasks&quot;: [
+            &quot;Use spot instances where appropriate&quot;,
+            &quot;Implement auto-scaling&quot;,
+            &quot;Right-size for actual traffic patterns&quot;,
+            &quot;Review and optimize monthly&quot;
+        ],
+        &quot;verification&quot;: &quot;Cost per request tracked and optimized&quot;
+    }
+}
+
+
+# Automated checklist verification
+class ProductionReadinessChecker:
+    &quot;&quot;&quot;
+    Verify production optimization checklist
+    &quot;&quot;&quot;
+    def __init__(self):
+        self.checks = {}
+
+    def check_quantization(self, model):
+        &quot;&quot;&quot;
+        Verify quantization is enabled
+        &quot;&quot;&quot;
+        # Check if model is quantized
+        quantized = hasattr(model, 'quantization_config')
+        self.checks['quantization'] = quantized
+        return quantized
+
+    def check_flash_attention(self, model):
+        &quot;&quot;&quot;
+        Verify Flash Attention is enabled
+        &quot;&quot;&quot;
+        # Check model config
+        has_flash = getattr(model.config, '_attn_implementation', None) == 'flash_attention_2'
+        self.checks['flash_attention'] = has_flash
+        return has_flash
+
+    def check_gpu_utilization(self, target_utilization: float = 0.70):
+        &quot;&quot;&quot;
+        Verify GPU utilization meets target
+        &quot;&quot;&quot;
+        import torch
+        if not torch.cuda.is_available():
+            return False
+
+        # Get current utilization (this is simplified)
+        allocated = torch.cuda.memory_allocated() / torch.cuda.get_device_properties(0).total_memory
+        self.checks['gpu_utilization'] = allocated &gt;= target_utilization
+        return allocated &gt;= target_utilization
+
+    def check_monitoring(self, prometheus_endpoint: str):
+        &quot;&quot;&quot;
+        Verify monitoring is configured
+        &quot;&quot;&quot;
+        import requests
+        try:
+            response = requests.get(f&quot;{prometheus_endpoint}/metrics&quot;, timeout=5)
+            has_monitoring = response.status_code == 200
+            self.checks['monitoring'] = has_monitoring
+            return has_monitoring
+        except:
+            self.checks['monitoring'] = False
+            return False
+
+    def generate_report(self):
+        &quot;&quot;&quot;
+        Generate readiness report
+        &quot;&quot;&quot;
+        total_checks = len(self.checks)
+        passed_checks = sum(self.checks.values())
+
+        print(&quot;=&quot; * 60)
+        print(&quot;PRODUCTION READINESS REPORT&quot;)
+        print(&quot;=&quot; * 60)
+        print(f&quot;\nPassed: {passed_checks}/{total_checks} checks\n&quot;)
+
+        for check_name, passed in self.checks.items():
+            status = &quot;✓ PASS&quot; if passed else &quot;✗ FAIL&quot;
+            print(f&quot;{status}: {check_name}&quot;)
+
+        print(&quot;\n&quot; + &quot;=&quot; * 60)
+
+        if passed_checks == total_checks:
+            print(&quot;✓ System is production ready!&quot;)
+        else:
+            print(&quot;✗ System needs optimization before production deployment&quot;)
+
+        return passed_checks == total_checks</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-summary">Summary</h4>
+<p>This lesson covered comprehensive optimization techniques for 大语言模型（LLM） serving:</p>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-key-takeaways">Key Takeaways</h5>
+<ol>
+<li><strong>Quantization</strong>: 50-75% cost reduction with minimal quality loss</li>
+</ol>
+<ul>
+<li>INT8: Best quality/cost trade-off</li>
+<li>INT4: Maximum cost reduction</li>
+<li>GPTQ, AWQ for post-training quantization</li>
+</ul>
+<ol>
+<li><strong>Flash Attention 2</strong>: 2-4x speedup with no quality loss</li>
+</ol>
+<ul>
+<li>Enabled by default in vLLM 推理服务（vLLM）</li>
+<li>Enables longer context windows</li>
+</ul>
+<ol>
+<li><strong>Continuous Batching</strong>: 3-10x throughput improvement</li>
+</ol>
+<ul>
+<li>Automatic in vLLM 推理服务（vLLM）</li>
+<li>Maximizes GPU 加速（GPU） utilization</li>
+</ul>
+<ol>
+<li><strong>Multi-GPU 推理（Inference）</strong>: Scale to largest models</li>
+</ol>
+<ul>
+<li>Tensor parallelism for model splitting</li>
+<li>Pipeline parallelism for throughput</li>
+</ul>
+<ol>
+<li><strong>Caching</strong>: 30-60% cost reduction</li>
+</ol>
+<ul>
+<li>Response caching for identical requests</li>
+<li>Prefix caching for common prompts</li>
+<li>Semantic caching for similar queries</li>
+</ul>
+<ol>
+<li><strong>Speculative Decoding</strong>: 2-3x speedup</li>
+</ol>
+<ul>
+<li>Use small draft model + large target model</li>
+<li>Best for high-quality requirements</li>
+</ul>
+<ol>
+<li><strong>Benchmarking</strong>: Measure everything</li>
+</ol>
+<ul>
+<li>Latency, throughput, memory</li>
+<li>Scaling characteristics</li>
+<li>Cost per request</li>
+</ul>
+<ol>
+<li><strong>生产环境（Production） Checklist</strong>: Systematic optimization</li>
+</ol>
+<ul>
+<li>Quantization + Flash Attention + Caching = baseline</li>
+<li>Monitor and iterate</li>
+<li>Balance cost vs performance</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md-next-steps">Next Steps</h5>
+<p>In the next lesson, we'll cover complete 大语言模型（LLM） platform architecture, including multi-model serving, API gateways, monitoring, and security.</p>
+<hr/>
+<p><strong>Next Lesson</strong>: <a href="#doc-lessons-mod-110-llm-infrastructure-07-llm-platform-architecture-md">07-llm-platform-architecture.md</a></p><p><a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-05-llm-fine-tuning-infrastructure-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-110-llm-infrastructure.html#doc-lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-07-llm-platform-architecture-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

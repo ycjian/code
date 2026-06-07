@@ -1,0 +1,704 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 05: Distributed Tracing with Jaeger 链路追踪（Jaeger） and Tempo</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 05: Distributed Tracing with Jaeger 链路追踪（Jaeger） and Tempo</h1><p>Module 108: 监控与可观测性（Monitoring &amp; Observability） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" open><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Module 08: 监控（Monitoring） &amp; 可观测性（Observability）</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-resources-md.html">Module 08: 监控（Monitoring） &amp; 可观测性（Observability） - Resources</a></details><details class="tree-section" open><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lesson 01: Introduction to 可观测性（Observability）</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-02-prometheus-metrics-md.html">Lesson 02: Prometheus 指标监控（Prometheus） for Metrics Collection</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-03-grafana-visualization-md.html">Lesson 03: Grafana 可视化（Grafana） for Visualization</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-04-logging-elk-loki-md.html">Lesson 04: Logging with ELK Stack and Loki</a><a class="tree-doc active" href="../docs/doc-lessons-mod-108-monitoring-observability-05-distributed-tracing-md.html">Lesson 05: Distributed Tracing with Jaeger 链路追踪（Jaeger） and Tempo</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-06-alerting-strategies-md.html">Lesson 06: 告警（Alerting） Strategies and Alert Management</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-07-ml-model-observability-md.html">Lesson 07: ML-Specific 监控（Monitoring） and Model 可观测性（Observability）</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-08-best-practices-culture-md.html">Lesson 08: Best Practices and 可观测性（Observability） Culture</a></details><details class="tree-section" open><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-01-prometheus-instrumentation-md.html">Lab 01: Instrument a Python Service with Prometheus 指标监控（Prometheus）</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-02-grafana-dashboards-md.html">Lab 02: Build a Grafana 可视化（Grafana） Dashboard from Scratch</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-03-loki-logging-md.html">Lab 03: Send Logs to Loki</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-04-distributed-tracing-md.html">Lab 04: Distributed Tracing with OpenTelemetry 可观测性（OpenTelemetry） + Jaeger 链路追踪（Jaeger）</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-05-alerting-rules-md.html">Lab 05: Author Alert Rules with Multi-Window Burn Rates</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Module 108 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercise 01: 生产环境（Production） 可观测性（Observability） Stack (Prometheus + Grafana 可视化（Grafana） + Loki)</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-02-ml-model-monitoring-readme-.html">Exercise 02: ML Model 监控（Monitoring） and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-03-promql-deep-dive-readme-md.html">Exercise 03: PromQL Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-04-dashboards-as-code-readme-m.html">Exercise 04: Grafana 可视化（Grafana） Dashboards as Code</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-05-log-pipeline-readme-md.html">Exercise 05: Structured Log Pipeline (Loki + Vector)</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-06-distributed-tracing-otel-re.html">Exercise 06: Distributed Tracing with OpenTelemetry 可观测性（OpenTelemetry）</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-07-alertmanager-routing-readme.html">Exercise 07: Alertmanager Routing and Notification Strategy</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-08-slo-and-error-budgets-readm.html">Exercise 08: 服务水平指标（SLI） / 服务水平目标（SLO） / Error Budget Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-09-incident-response-gameday-r.html">Exercise 09: 事故响应（Incident Response） Game Day</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-10-observability-cost-control-.html">Exercise 10: 可观测性（Observability） Cost Control</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-readme-md.html">Module 08: 监控（Monitoring） &amp; 可观测性（Observability） - Exercises</a></details><details class="tree-section" open><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Module 08: 监控（Monitoring） &amp; 可观测性（Observability） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 05: Distributed Tracing with Jaeger 链路追踪（Jaeger） and Tempo</h2><p>Module 108: 监控与可观测性（Monitoring &amp; Observability） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>5</strong><span>reading order</span></div><div class="stat"><strong>28</strong><span>chapter docs</span></div><div class="stat"><strong>800</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-108-monitoring-observability-05-distributed-tracing-md" data-title="lesson 05: distributed tracing with jaeger and tempo lessons/mod-108-monitoring-observability/05-distributed-tracing.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">5/28</span><span class="chip">Lectures</span><span class="path">lessons/mod-108-monitoring-observability/05-distributed-tracing.md</span><span class="path">800 行</span></div><h2>Lesson 05: Distributed Tracing with Jaeger 链路追踪（Jaeger） and Tempo</h2><p><a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-04-logging-elk-loki-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-108-monitoring-observability.html#doc-lessons-mod-108-monitoring-observability-05-distributed-tracing-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-06-alerting-strategies-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-lesson-05-distributed-t">Lesson 05: Distributed Tracing with Jaeger 链路追踪（Jaeger） and Tempo</h3>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+<li>Understand distributed tracing concepts and terminology</li>
+<li>Install and configure Jaeger 链路追踪（Jaeger） for trace collection</li>
+<li>Deploy Grafana 可视化（Grafana） Tempo for cost-effective tracing</li>
+<li>Instrument Python applications with OpenTelemetry 可观测性（OpenTelemetry）</li>
+<li>Analyze traces to identify performance bottlenecks</li>
+<li>Correlate traces with logs and metrics</li>
+<li>Design tracing strategies for ML pipelines</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-prerequisites">前置要求（Prerequisites）</h4>
+<ul>
+<li>Completion of Lessons 01-04 (Observability fundamentals)</li>
+<li>Understanding of microservices architecture</li>
+<li>Python programming experience</li>
+<li>Familiarity with HTTP and async operations</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-introduction">Introduction</h4>
+<p>Distributed tracing tracks requests as they flow through complex 分布式系统（distributed systems）. For AI infrastructure, tracing is essential for understanding:</p>
+<ul>
+<li>How long each stage of an ML pipeline takes</li>
+<li>Where bottlenecks occur in multi-service inference</li>
+<li>Dependencies between data processing, model loading, and prediction</li>
+<li>Latency distribution across GPU 加速（GPU） workers</li>
+</ul>
+<p>While metrics tell you <em>what</em> is slow and logs tell you <em>why</em> it failed, traces tell you <em>where</em> the time is spent.</p>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-why-distributed-tracing">Why Distributed Tracing for ML Systems?</h5>
+<ol>
+<li><strong>Multi-service inference</strong>: Track requests across preprocessing → model serving → postprocessing</li>
+<li><strong>Pipeline debugging</strong>: Identify slow stages in data pipelines</li>
+<li><strong>Latency analysis</strong>: Understand where inference time is spent</li>
+<li><strong>Dependency mapping</strong>: Visualize service dependencies</li>
+<li><strong>Performance optimization</strong>: Find opportunities for parallelization or caching</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-1-tracing-fundamentals">1. Tracing Fundamentals</h4>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-core-concepts">Core Concepts</h5>
+<p><strong>Trace</strong>: The complete journey of a request through a system <strong>Span</strong>: A single operation within a trace (e.g., HTTP request, database query, model inference) <strong>Trace ID</strong>: Unique identifier for the entire trace <strong>Span ID</strong>: Unique identifier for a specific span <strong>Parent Span</strong>: The span that initiated the current span</p>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-trace-structure">Trace Structure</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Trace ID: abc123
+│
+├─ Span: HTTP POST /predict (100ms)
+│  ├─ Span: Load model (20ms)
+│  ├─ Span: Preprocess data (15ms)
+│  ├─ Span: Model inference (50ms)
+│  │  ├─ Span: GPU transfer (5ms)
+│  │  ├─ Span: Forward pass (40ms)
+│  │  └─ Span: GPU sync (5ms)
+│  └─ Span: Postprocess results (15ms)</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-span-attributes">Span Attributes</h5>
+<p>Spans can include metadata:</p>
+<ul>
+<li><strong>Name</strong>: Operation name (e.g., &quot;model_inference&quot;)</li>
+<li><strong>Start time</strong>: When the operation started</li>
+<li><strong>Duration</strong>: How long it took</li>
+<li><strong>Tags</strong>: Key-value metadata (model_name, batch_size, etc.)</li>
+<li><strong>Logs</strong>: Events during the span</li>
+<li><strong>Status</strong>: Success, error, or unknown</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-2-opentelemetry">2. OpenTelemetry 可观测性（OpenTelemetry）</h4>
+<p>OpenTelemetry 可观测性（OpenTelemetry） (OTel) is the industry standard for instrumentation, providing vendor-neutral APIs and SDKs.</p>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-installing-opentelemetr">Installing OpenTelemetry 可观测性（OpenTelemetry）</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Core packages
+pip install opentelemetry-api==1.20.0
+pip install opentelemetry-sdk==1.20.0
+
+# Instrumentation libraries
+pip install opentelemetry-instrumentation==0.41b0
+pip install opentelemetry-instrumentation-fastapi==0.41b0
+pip install opentelemetry-instrumentation-requests==0.41b0
+
+# Exporters
+pip install opentelemetry-exporter-jaeger==1.20.0
+pip install opentelemetry-exporter-otlp==1.20.0</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-basic-instrumentation">Basic Instrumentation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.sdk.resources import Resource
+
+# Configure resource (service identification)
+resource = Resource.create({
+    &quot;service.name&quot;: &quot;ml-model-serving&quot;,
+    &quot;service.version&quot;: &quot;1.0.0&quot;,
+    &quot;deployment.environment&quot;: &quot;production&quot;
+})
+
+# Setup tracer provider
+trace.set_tracer_provider(TracerProvider(resource=resource))
+tracer_provider = trace.get_tracer_provider()
+
+# Configure Jaeger exporter
+jaeger_exporter = JaegerExporter(
+    agent_host_name=&quot;jaeger&quot;,
+    agent_port=6831,
+)
+
+# Add span processor
+tracer_provider.add_span_processor(
+    BatchSpanProcessor(jaeger_exporter)
+)
+
+# Get tracer
+tracer = trace.get_tracer(__name__)
+
+# Create spans
+def process_request(data):
+    with tracer.start_as_current_span(&quot;process_request&quot;) as span:
+        span.set_attribute(&quot;request.size&quot;, len(data))
+
+        # Child span
+        with tracer.start_as_current_span(&quot;preprocess&quot;):
+            preprocessed = preprocess(data)
+
+        # Another child span
+        with tracer.start_as_current_span(&quot;inference&quot;):
+            result = model.predict(preprocessed)
+
+        span.set_attribute(&quot;result.size&quot;, len(result))
+        return result</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-3-jaeger">3. Jaeger 链路追踪（Jaeger）</h4>
+<p>Jaeger 链路追踪（Jaeger） is a distributed tracing platform originally built at Uber.</p>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-architecture">架构（Architecture）</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌─────────────┐
+│ Application │
+│  (OpenTel)  │
+└──────┬──────┘
+       │ UDP/gRPC
+       ↓
+┌──────────────┐      ┌─────────────┐
+│    Jaeger    │─────&gt;│   Storage   │
+│    Agent     │      │(Elasticsearch│
+└──────┬───────┘      │  Cassandra) │
+       │              └─────────────┘
+       │                      │
+       ↓                      ↓
+┌──────────────┐      ┌─────────────┐
+│   Jaeger     │&lt;─────│   Jaeger    │
+│  Collector   │      │    Query    │
+└──────────────┘      └──────┬──────┘
+                             │
+                             ↓
+                      ┌─────────────┐
+                      │  Jaeger UI  │
+                      └─────────────┘</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-installing-jaeger">Installing Jaeger 链路追踪（Jaeger）</h5>
+<p><strong>All-in-one Docker 容器（Docker） (Development):</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">version: '3.8'
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.50
+    container_name: jaeger
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    ports:
+      - &quot;5775:5775/udp&quot;   # Agent (compact thrift)
+      - &quot;6831:6831/udp&quot;   # Agent (thrift)
+      - &quot;6832:6832/udp&quot;   # Agent (binary thrift)
+      - &quot;5778:5778&quot;       # Agent config
+      - &quot;16686:16686&quot;     # UI
+      - &quot;14268:14268&quot;     # Collector HTTP
+      - &quot;14250:14250&quot;     # Collector gRPC
+      - &quot;9411:9411&quot;       # Zipkin compatible
+    networks:
+      - tracing
+
+networks:
+  tracing:
+    driver: bridge</code></pre></div>
+<p><strong>生产环境（Production） 部署（Deployment） (Kubernetes with Elasticsearch):</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Elasticsearch backend
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: jaeger-es
+  namespace: tracing
+spec:
+  version: 8.10.0
+  nodeSets:
+    - name: default
+      count: 3
+      config:
+        node.store.allow_mmap: false
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 100Gi
+
+---
+# Jaeger Operator
+apiVersion: jaegertracing.io/v1
+kind: Jaeger
+metadata:
+  name: jaeger-production
+  namespace: tracing
+spec:
+  strategy: production
+  storage:
+    type: elasticsearch
+    options:
+      es:
+        server-urls: https://jaeger-es-es-http:9200
+        index-prefix: jaeger
+    secretName: jaeger-es-secret
+  collector:
+    replicas: 3
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+  query:
+    replicas: 2
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-fastapi-instrumentation">FastAPI 服务框架（FastAPI） Instrumentation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import FastAPI
+from opentelemetry import trace
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource
+
+# Setup tracing
+resource = Resource.create({
+    &quot;service.name&quot;: &quot;ml-serving&quot;,
+    &quot;service.version&quot;: &quot;1.0.0&quot;
+})
+
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(
+    OTLPSpanExporter(endpoint=&quot;jaeger:4317&quot;, insecure=True)
+)
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
+
+# Create FastAPI app
+app = FastAPI()
+
+# Automatically instrument FastAPI
+FastAPIInstrumentor.instrument_app(app)
+
+# Get tracer for manual instrumentation
+tracer = trace.get_tracer(__name__)
+
+@app.post(&quot;/predict&quot;)
+async def predict(data: dict):
+    &quot;&quot;&quot;Instrumented prediction endpoint&quot;&quot;&quot;
+
+    # Automatic span created by FastAPIInstrumentor
+    # Add custom spans for specific operations
+
+    with tracer.start_as_current_span(&quot;load_model&quot;) as span:
+        span.set_attribute(&quot;model.name&quot;, data.get(&quot;model&quot;))
+        model = load_model(data.get(&quot;model&quot;))
+
+    with tracer.start_as_current_span(&quot;preprocess&quot;) as span:
+        span.set_attribute(&quot;input.size&quot;, len(data.get(&quot;inputs&quot;)))
+        processed = preprocess(data.get(&quot;inputs&quot;))
+
+    with tracer.start_as_current_span(&quot;inference&quot;) as span:
+        span.set_attribute(&quot;batch.size&quot;, len(processed))
+        predictions = model.predict(processed)
+        span.set_attribute(&quot;predictions.count&quot;, len(predictions))
+
+    return {&quot;predictions&quot;: predictions}</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-4-grafana-tempo">4. Grafana 可视化（Grafana） Tempo</h4>
+<p>Tempo is a distributed tracing backend designed to be cost-effective and easy to operate.</p>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-tempo-vs-jaeger">Tempo vs. Jaeger 链路追踪（Jaeger）</h5>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>Tempo</th><th>Jaeger 链路追踪（Jaeger）</th></tr></thead><tbody><tr><td><strong>Storage</strong></td><td>Object storage (S3, GCS)</td><td>Elasticsearch, Cassandra</td></tr><tr><td><strong>Indexing</strong></td><td>Trace ID only</td><td>Full trace indexing</td></tr><tr><td><strong>Search</strong></td><td>By trace ID or via metrics/logs</td><td>Full-text search on tags</td></tr><tr><td><strong>Cost</strong></td><td>Very low</td><td>Higher</td></tr><tr><td><strong>Query interface</strong></td><td>Grafana 可视化（Grafana）</td><td>Jaeger 链路追踪（Jaeger） UI</td></tr><tr><td><strong>Integration</strong></td><td>Native Grafana 可视化（Grafana） integration</td><td>Separate UI</td></tr></tbody></table></div>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-installing-tempo">Installing Tempo</h5>
+<p><strong>docker-compose.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">version: '3.8'
+
+services:
+  tempo:
+    image: grafana/tempo:2.3.0
+    container_name: tempo
+    command: [&quot;-config.file=/etc/tempo.yaml&quot;]
+    volumes:
+      - ./tempo-config.yaml:/etc/tempo.yaml
+      - tempo_data:/tmp/tempo
+    ports:
+      - &quot;3200:3200&quot;   # Tempo HTTP
+      - &quot;4317:4317&quot;   # OTLP gRPC
+      - &quot;4318:4318&quot;   # OTLP HTTP
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: grafana
+    ports:
+      - &quot;3000:3000&quot;
+    environment:
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    networks:
+      - monitoring
+    depends_on:
+      - tempo
+
+volumes:
+  tempo_data:
+  grafana_data:
+
+networks:
+  monitoring:
+    driver: bridge</code></pre></div>
+<p><strong>tempo-config.yaml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        http:
+        grpc:
+    jaeger:
+      protocols:
+        thrift_http:
+        grpc:
+
+ingester:
+  trace_idle_period: 10s
+  max_block_bytes: 1_000_000
+  max_block_duration: 5m
+
+compactor:
+  compaction:
+    block_retention: 168h  # 7 days
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /tmp/tempo/traces
+    pool:
+      max_workers: 100
+      queue_depth: 10000
+
+overrides:
+  per_tenant_override_config: /etc/tempo-overrides.yaml
+  metrics_generator_processors:
+    - service-graphs
+    - span-metrics</code></pre></div>
+<p><strong>Grafana 可视化（Grafana） datasource configuration:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># grafana-datasources.yaml
+apiVersion: 1
+
+datasources:
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: false
+    jsonData:
+      tracesToLogs:
+        datasourceUid: loki
+        tags: ['job', 'instance', 'pod', 'namespace']
+        mappedTags: [{ key: 'service.name', value: 'service' }]
+        mapTagNamesEnabled: false
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+      tracesToMetrics:
+        datasourceUid: prometheus
+        tags: [{ key: 'service.name', value: 'service' }]
+        queries:
+          - name: 'Sample query'
+            query: 'sum(rate(traces_spanmetrics_latency_bucket{$$__tags}[5m]))'
+      serviceMap:
+        datasourceUid: prometheus
+      nodeGraph:
+        enabled: true</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-5-complete-ml-pipeline-">5. Complete ML Pipeline Tracing Example</h4>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.trace import Status, StatusCode
+import time
+import logging
+
+# Configure tracing
+resource = Resource.create({
+    &quot;service.name&quot;: &quot;ml-inference-pipeline&quot;,
+    &quot;service.version&quot;: &quot;2.0.0&quot;,
+    &quot;deployment.environment&quot;: &quot;production&quot;,
+    &quot;service.namespace&quot;: &quot;ml-platform&quot;
+})
+
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(
+    OTLPSpanExporter(
+        endpoint=&quot;tempo:4317&quot;,
+        insecure=True
+    )
+)
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
+
+tracer = trace.get_tracer(__name__)
+
+class MLInferencePipeline:
+    &quot;&quot;&quot;ML inference pipeline with comprehensive tracing&quot;&quot;&quot;
+
+    def __init__(self, model_name: str, model_version: str):
+        self.model_name = model_name
+        self.model_version = model_version
+        self.model = None
+        self.logger = logging.getLogger(__name__)
+
+    def process_request(self, inputs: list, request_id: str):
+        &quot;&quot;&quot;
+        Process inference request with distributed tracing
+
+        Creates a trace showing:
+        - Total request time
+        - Time spent in each pipeline stage
+        - GPU operations
+        - Any errors or warnings
+        &quot;&quot;&quot;
+
+        # Root span for entire request
+        with tracer.start_as_current_span(
+            &quot;ml_inference_request&quot;,
+            attributes={
+                &quot;request.id&quot;: request_id,
+                &quot;model.name&quot;: self.model_name,
+                &quot;model.version&quot;: self.model_version,
+                &quot;input.count&quot;: len(inputs)
+            }
+        ) as root_span:
+
+            try:
+                # Stage 1: Model loading
+                if self.model is None:
+                    self._load_model()
+
+                # Stage 2: Input validation
+                validated_inputs = self._validate_inputs(inputs)
+
+                # Stage 3: Preprocessing
+                preprocessed = self._preprocess(validated_inputs)
+
+                # Stage 4: Inference
+                predictions = self._infer(preprocessed)
+
+                # Stage 5: Postprocessing
+                results = self._postprocess(predictions)
+
+                # Record success
+                root_span.set_status(Status(StatusCode.OK))
+                root_span.set_attribute(&quot;predictions.count&quot;, len(results))
+
+                return results
+
+            except Exception as e:
+                # Record error in span
+                root_span.set_status(
+                    Status(StatusCode.ERROR, str(e))
+                )
+                root_span.record_exception(e)
+                self.logger.error(f&quot;Inference failed: {e}&quot;, exc_info=True)
+                raise
+
+    def _load_model(self):
+        &quot;&quot;&quot;Load model with tracing&quot;&quot;&quot;
+        with tracer.start_as_current_span(
+            &quot;load_model&quot;,
+            attributes={
+                &quot;model.name&quot;: self.model_name,
+                &quot;model.version&quot;: self.model_version
+            }
+        ) as span:
+            start_time = time.time()
+
+            try:
+                # Simulate model loading
+                time.sleep(0.5)
+                self.model = f&quot;MockModel-{self.model_name}&quot;
+
+                load_time = time.time() - start_time
+                span.set_attribute(&quot;model.load_time_seconds&quot;, load_time)
+                span.set_attribute(&quot;model.size_mb&quot;, 512)
+
+                # Add event
+                span.add_event(
+                    &quot;model_loaded&quot;,
+                    attributes={&quot;load_time&quot;: load_time}
+                )
+
+            except Exception as e:
+                span.set_status(Status(StatusCode.ERROR, str(e)))
+                span.record_exception(e)
+                raise
+
+    def _validate_inputs(self, inputs: list):
+        &quot;&quot;&quot;Validate inputs with tracing&quot;&quot;&quot;
+        with tracer.start_as_current_span(
+            &quot;validate_inputs&quot;,
+            attributes={&quot;input.count&quot;: len(inputs)}
+        ) as span:
+
+            if not inputs:
+                span.set_status(Status(StatusCode.ERROR, &quot;Empty inputs&quot;))
+                raise ValueError(&quot;Inputs cannot be empty&quot;)
+
+            if len(inputs) &gt; 128:
+                span.add_event(
+                    &quot;large_batch_warning&quot;,
+                    attributes={&quot;batch_size&quot;: len(inputs)}
+                )
+
+            span.set_attribute(&quot;validation.passed&quot;, True)
+            return inputs
+
+    def _preprocess(self, inputs: list):
+        &quot;&quot;&quot;Preprocess with sub-operations traced&quot;&quot;&quot;
+        with tracer.start_as_current_span(
+            &quot;preprocess&quot;,
+            attributes={&quot;input.count&quot;: len(inputs)}
+        ) as span:
+
+            # Sub-operation: Tokenization
+            with tracer.start_as_current_span(&quot;tokenize&quot;) as token_span:
+                time.sleep(0.02)
+                token_span.set_attribute(&quot;tokens.count&quot;, len(inputs) * 512)
+
+            # Sub-operation: Normalization
+            with tracer.start_as_current_span(&quot;normalize&quot;) as norm_span:
+                time.sleep(0.01)
+                norm_span.set_attribute(&quot;normalization.method&quot;, &quot;zscore&quot;)
+
+            # Sub-operation: Batching
+            with tracer.start_as_current_span(&quot;batch&quot;) as batch_span:
+                batch_size = min(len(inputs), 32)
+                batch_span.set_attribute(&quot;batch.size&quot;, batch_size)
+
+            span.set_attribute(&quot;preprocessed.count&quot;, len(inputs))
+            return inputs
+
+    def _infer(self, preprocessed: list):
+        &quot;&quot;&quot;Inference with GPU operations traced&quot;&quot;&quot;
+        with tracer.start_as_current_span(
+            &quot;inference&quot;,
+            attributes={
+                &quot;batch.size&quot;: len(preprocessed),
+                &quot;model.name&quot;: self.model_name
+            }
+        ) as span:
+
+            # GPU transfer
+            with tracer.start_as_current_span(
+                &quot;gpu_transfer&quot;,
+                attributes={&quot;device&quot;: &quot;cuda:0&quot;}
+            ) as gpu_span:
+                time.sleep(0.005)
+                gpu_span.set_attribute(&quot;transfer.direction&quot;, &quot;host_to_device&quot;)
+                gpu_span.set_attribute(&quot;data.size_mb&quot;, 10)
+
+            # Forward pass
+            with tracer.start_as_current_span(
+                &quot;forward_pass&quot;,
+                attributes={&quot;device&quot;: &quot;cuda:0&quot;}
+            ) as forward_span:
+                time.sleep(0.05)
+                forward_span.set_attribute(&quot;gpu.utilization&quot;, 87.5)
+                forward_span.set_attribute(&quot;gpu.memory_used_mb&quot;, 2048)
+
+                # Add event for GPU metrics
+                forward_span.add_event(
+                    &quot;gpu_stats&quot;,
+                    attributes={
+                        &quot;gpu_id&quot;: 0,
+                        &quot;temperature&quot;: 72,
+                        &quot;power_watts&quot;: 180
+                    }
+                )
+
+            # GPU sync
+            with tracer.start_as_current_span(&quot;gpu_sync&quot;) as sync_span:
+                time.sleep(0.003)
+                sync_span.set_attribute(&quot;transfer.direction&quot;, &quot;device_to_host&quot;)
+
+            span.set_attribute(&quot;predictions.generated&quot;, len(preprocessed))
+            return preprocessed  # Mock predictions
+
+    def _postprocess(self, predictions: list):
+        &quot;&quot;&quot;Postprocess with tracing&quot;&quot;&quot;
+        with tracer.start_as_current_span(
+            &quot;postprocess&quot;,
+            attributes={&quot;predictions.count&quot;: len(predictions)}
+        ) as span:
+
+            # Apply threshold
+            with tracer.start_as_current_span(&quot;apply_threshold&quot;) as thresh_span:
+                time.sleep(0.005)
+                thresh_span.set_attribute(&quot;threshold&quot;, 0.5)
+
+            # Format results
+            with tracer.start_as_current_span(&quot;format_results&quot;) as format_span:
+                time.sleep(0.003)
+                format_span.set_attribute(&quot;format&quot;, &quot;json&quot;)
+
+            span.set_attribute(&quot;results.count&quot;, len(predictions))
+            return predictions
+
+
+# Usage example
+if __name__ == &quot;__main__&quot;:
+    pipeline = MLInferencePipeline(
+        model_name=&quot;bert-base&quot;,
+        model_version=&quot;v1.2&quot;
+    )
+
+    # Process request
+    results = pipeline.process_request(
+        inputs=[&quot;sample input 1&quot;, &quot;sample input 2&quot;],
+        request_id=&quot;req-12345&quot;
+    )
+
+    print(f&quot;Results: {results}&quot;)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-6-correlating-traces-lo">6. Correlating Traces, Logs, and Metrics</h4>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-trace-context-propagati">Trace Context Propagation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from opentelemetry import trace
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+import logging
+import structlog
+
+# Get current span context
+def log_with_trace_context(message: str, **kwargs):
+    &quot;&quot;&quot;Log with trace and span IDs&quot;&quot;&quot;
+
+    current_span = trace.get_current_span()
+    span_context = current_span.get_span_context()
+
+    logger = structlog.get_logger()
+    logger.info(
+        message,
+        trace_id=format(span_context.trace_id, '032x'),
+        span_id=format(span_context.span_id, '016x'),
+        **kwargs
+    )
+
+# Usage
+with tracer.start_as_current_span(&quot;operation&quot;) as span:
+    log_with_trace_context(
+        &quot;Processing batch&quot;,
+        batch_size=32,
+        model=&quot;bert&quot;
+    )</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-linking-traces-in-grafa">Linking Traces in Grafana 可视化（Grafana）</h5>
+<p>In Grafana 可视化（Grafana）, configure trace-to-logs correlation:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># In Tempo datasource configuration
+tracesToLogs:
+  datasourceUid: 'loki'
+  tags: ['service', 'namespace']
+  mappedTags:
+    - key: 'service.name'
+      value: 'service'
+  filterByTraceID: true
+  filterBySpanID: false</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<p>✅ Distributed tracing concepts (traces, spans, context propagation) ✅ OpenTelemetry 可观测性（OpenTelemetry） instrumentation for Python applications ✅ Setting up Jaeger 链路追踪（Jaeger） for trace collection and analysis ✅ Deploying Grafana 可视化（Grafana） Tempo for cost-effective tracing ✅ Instrumenting ML pipelines with comprehensive tracing ✅ Analyzing traces to identify performance bottlenecks ✅ Correlating traces with logs and metrics</p>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-next-steps">Next Steps</h4>
+<ul>
+<li><strong>Lesson 06</strong>: Learn alerting strategies and alert management</li>
+<li><strong>Practice</strong>: Instrument your ML services with OpenTelemetry 可观测性（OpenTelemetry）</li>
+<li><strong>Exercise</strong>: Trace a complete ML inference pipeline</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-05-distributed-tracing-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://opentelemetry.io/docs/">OpenTelemetry 可观测性（OpenTelemetry） Documentation</a></li>
+<li><a href="https://www.jaegertracing.io/docs/">Jaeger 链路追踪（Jaeger） Documentation</a></li>
+<li><a href="https://grafana.com/docs/tempo/latest/">Grafana 可视化（Grafana） Tempo Documentation</a></li>
+<li><a href="https://opentelemetry.io/docs/concepts/signals/traces/">Distributed Tracing Best Practices</a></li>
+</ul>
+<hr/>
+<p><strong>Estimated Time:</strong> 4-5 hours <strong>Difficulty:</strong> Intermediate-Advanced <strong>Prerequisites:</strong> Lessons 01-04, Python, Microservices basics</p><p><a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-04-logging-elk-loki-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-108-monitoring-observability.html#doc-lessons-mod-108-monitoring-observability-05-distributed-tracing-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-06-alerting-strategies-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

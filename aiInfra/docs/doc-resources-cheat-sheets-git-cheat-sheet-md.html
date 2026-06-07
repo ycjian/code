@@ -1,0 +1,534 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Git Cheat Sheet</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Git Cheat Sheet</h1><p>资源与版本（Resources） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" open><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" open><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-readme-md.html">Lessons</a><a class="tree-doc" href="../docs/doc-resources-cheat-sheets-docker-cheat-sheet-md.html">Docker 容器（Docker） Cheat Sheet</a><a class="tree-doc active" href="../docs/doc-resources-cheat-sheets-git-cheat-sheet-md.html">Git Cheat Sheet</a><a class="tree-doc" href="../docs/doc-resources-cheat-sheets-kubernetes-cheat-sheet-md.html">Kubernetes 容器编排（Kubernetes） Cheat Sheet</a><a class="tree-doc" href="../docs/doc-resources-cheat-sheets-linux-cheat-sheet-md.html">Linux Commands Cheat Sheet</a><a class="tree-doc" href="../docs/doc-resources-cheat-sheets-python-infrastructure-cheat-sheet-md.html">Python for Infrastructure Cheat Sheet</a><a class="tree-doc" href="../docs/doc-resources-faq-md.html">常见问题（FAQ）</a><a class="tree-doc" href="../docs/doc-resources-reading-lists-advanced-engineer-path-md.html">Reading List — Advanced Engineer Path</a><a class="tree-doc" href="../docs/doc-resources-reading-lists-staff-engineer-path-md.html">Reading List — Staff Engineer Path</a><a class="tree-doc" href="../docs/doc-resources-readme-md.html">资源（Resources）</a></details></details></aside></div><main><section class="hero"><h2>Git Cheat Sheet</h2><p>资源与版本（Resources） · References: 复盘资源</p><div class="stats"><div class="stat"><strong>3</strong><span>reading order</span></div><div class="stat"><strong>10</strong><span>chapter docs</span></div><div class="stat"><strong>634</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-resources-cheat-sheets-git-cheat-sheet-md" data-title="git cheat sheet resources/cheat-sheets/git-cheat-sheet.md references: 复盘资源"><div class="doc-head"><span class="chip">3/10</span><span class="chip">References</span><span class="path">resources/cheat-sheets/git-cheat-sheet.md</span><span class="path">634 行</span></div><h2>Git Cheat Sheet</h2><p><a class="home" href="../docs/doc-resources-cheat-sheets-docker-cheat-sheet-md.html">← 上一篇（Previous）</a> <a class="home" href="../resources.html#doc-resources-cheat-sheets-git-cheat-sheet-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-resources-cheat-sheets-kubernetes-cheat-sheet-md.html">下一篇（Next） →</a></p><h3 id="resources-cheat-sheets-git-cheat-sheet-md-git-cheat-sheet">Git Cheat Sheet</h3>
+<p>Quick reference for common Git commands and workflows.</p>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-getting-started">🚀 Getting Started</h4>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-configuration">Configuration</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Set user name
+git config --global user.name &quot;Your Name&quot;
+
+# Set email
+git config --global user.email &quot;your.email@example.com&quot;
+
+# Set default editor
+git config --global core.editor &quot;vim&quot;
+
+# View configuration
+git config --list
+
+# View specific config
+git config user.name
+
+# Set default branch name
+git config --global init.defaultBranch main</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-initialize-repository">Initialize Repository</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Initialize new repo
+git init
+
+# Clone existing repo
+git clone &lt;url&gt;
+
+# Clone to specific directory
+git clone &lt;url&gt; &lt;directory-name&gt;
+
+# Clone specific branch
+git clone -b &lt;branch-name&gt; &lt;url&gt;
+
+# Shallow clone (faster, less history)
+git clone --depth 1 &lt;url&gt;</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-basic-commands">📝 Basic Commands</h4>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-status-info">Status &amp; Info</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># View status
+git status
+
+# Short status
+git status -s
+
+# View commit history
+git log
+
+# One line per commit
+git log --oneline
+
+# Graph view
+git log --graph --oneline --all
+
+# Show last N commits
+git log -n 5
+
+# Show commits by author
+git log --author=&quot;Name&quot;
+
+# Show commits with diff
+git log -p
+
+# Show specific file history
+git log -- &lt;file-path&gt;</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-adding-committing">Adding &amp; Committing</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Stage file
+git add &lt;file&gt;
+
+# Stage all changes
+git add .
+git add -A
+
+# Stage specific pattern
+git add *.py
+
+# Interactive staging
+git add -i
+
+# Stage parts of file
+git add -p &lt;file&gt;
+
+# Commit staged changes
+git commit -m &quot;Commit message&quot;
+
+# Commit with detailed message
+git commit
+
+# Stage and commit in one
+git commit -am &quot;Message&quot;
+
+# Amend last commit
+git commit --amend
+
+# Amend without changing message
+git commit --amend --no-edit</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-branching">🌿 Branching</h4>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-create-switch">Create &amp; Switch</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># List branches
+git branch
+
+# List all branches (including remote)
+git branch -a
+
+# Create branch
+git branch &lt;branch-name&gt;
+
+# Create and switch to branch
+git checkout -b &lt;branch-name&gt;
+git switch -c &lt;branch-name&gt;  # Newer syntax
+
+# Switch branch
+git checkout &lt;branch-name&gt;
+git switch &lt;branch-name&gt;  # Newer syntax
+
+# Delete branch
+git branch -d &lt;branch-name&gt;
+
+# Force delete branch
+git branch -D &lt;branch-name&gt;
+
+# Rename current branch
+git branch -m &lt;new-name&gt;
+
+# Rename specific branch
+git branch -m &lt;old-name&gt; &lt;new-name&gt;</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-merging">Merging</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Merge branch into current
+git merge &lt;branch-name&gt;
+
+# Merge with commit even if fast-forward
+git merge --no-ff &lt;branch-name&gt;
+
+# Abort merge
+git merge --abort
+
+# Squash merge
+git merge --squash &lt;branch-name&gt;</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-remote-operations">🔄 Remote Operations</h4>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-remote-repositories">Remote Repositories</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># View remotes
+git remote -v
+
+# Add remote
+git remote add &lt;name&gt; &lt;url&gt;
+
+# Remove remote
+git remote remove &lt;name&gt;
+
+# Rename remote
+git remote rename &lt;old-name&gt; &lt;new-name&gt;
+
+# Change remote URL
+git remote set-url &lt;name&gt; &lt;new-url&gt;</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-fetch-pull-push">Fetch, Pull &amp; Push</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Fetch from remote
+git fetch origin
+
+# Fetch all remotes
+git fetch --all
+
+# Pull (fetch + merge)
+git pull
+
+# Pull with rebase
+git pull --rebase
+
+# Pull specific branch
+git pull origin &lt;branch-name&gt;
+
+# Push to remote
+git push origin &lt;branch-name&gt;
+
+# Push all branches
+git push --all
+
+# Push tags
+git push --tags
+
+# Force push (dangerous!)
+git push --force
+
+# Safer force push
+git push --force-with-lease
+
+# Set upstream and push
+git push -u origin &lt;branch-name&gt;
+
+# Delete remote branch
+git push origin --delete &lt;branch-name&gt;</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-viewing-changes">🔍 Viewing Changes</h4>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-diff">Diff</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># View unstaged changes
+git diff
+
+# View staged changes
+git diff --staged
+git diff --cached
+
+# View changes between commits
+git diff &lt;commit1&gt; &lt;commit2&gt;
+
+# View changes in specific file
+git diff &lt;file&gt;
+
+# View stat summary
+git diff --stat
+
+# View changes between branches
+git diff &lt;branch1&gt;..&lt;branch2&gt;</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-show">Show</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Show commit details
+git show &lt;commit&gt;
+
+# Show specific file from commit
+git show &lt;commit&gt;:&lt;file&gt;
+
+# Show files in commit
+git show --name-only &lt;commit&gt;</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-undoing-changes">↩️ Undoing Changes</h4>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-reset">Reset</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Unstage file
+git reset &lt;file&gt;
+
+# Unstage all
+git reset
+
+# Reset to specific commit (keep changes)
+git reset --soft &lt;commit&gt;
+
+# Reset to specific commit (discard staged changes)
+git reset --mixed &lt;commit&gt;
+
+# Reset to specific commit (discard all changes)
+git reset --hard &lt;commit&gt;
+
+# Reset to last commit
+git reset --hard HEAD
+
+# Reset to remote state
+git reset --hard origin/main</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-revert">Revert</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Revert specific commit (creates new commit)
+git revert &lt;commit&gt;
+
+# Revert without committing
+git revert -n &lt;commit&gt;
+
+# Revert merge commit
+git revert -m 1 &lt;merge-commit&gt;</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-checkout">Checkout</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Discard changes in file
+git checkout -- &lt;file&gt;
+
+# Discard all changes
+git checkout -- .
+
+# Checkout file from specific commit
+git checkout &lt;commit&gt; -- &lt;file&gt;</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-clean">Clean</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Remove untracked files (dry run)
+git clean -n
+
+# Remove untracked files
+git clean -f
+
+# Remove untracked directories
+git clean -fd
+
+# Remove untracked and ignored files
+git clean -fdx</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-tagging">🔖 Tagging</h4>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># List tags
+git tag
+
+# Create lightweight tag
+git tag &lt;tag-name&gt;
+
+# Create annotated tag
+git tag -a &lt;tag-name&gt; -m &quot;Tag message&quot;
+
+# Tag specific commit
+git tag &lt;tag-name&gt; &lt;commit&gt;
+
+# Show tag details
+git show &lt;tag-name&gt;
+
+# Delete tag
+git tag -d &lt;tag-name&gt;
+
+# Delete remote tag
+git push origin --delete &lt;tag-name&gt;
+
+# Push tag to remote
+git push origin &lt;tag-name&gt;
+
+# Push all tags
+git push --tags</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-advanced-operations">🔀 Advanced Operations</h4>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-stash">Stash</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Stash changes
+git stash
+
+# Stash with message
+git stash save &quot;Work in progress&quot;
+
+# List stashes
+git stash list
+
+# Apply latest stash
+git stash apply
+
+# Apply specific stash
+git stash apply stash@{2}
+
+# Apply and drop stash
+git stash pop
+
+# Drop stash
+git stash drop stash@{0}
+
+# Clear all stashes
+git stash clear
+
+# Show stash contents
+git stash show -p stash@{0}</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-rebase">Rebase</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Rebase current branch
+git rebase &lt;branch-name&gt;
+
+# Interactive rebase last N commits
+git rebase -i HEAD~3
+
+# Continue after resolving conflicts
+git rebase --continue
+
+# Abort rebase
+git rebase --abort
+
+# Skip commit during rebase
+git rebase --skip</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-cherry-pick">Cherry-pick</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Apply commit to current branch
+git cherry-pick &lt;commit&gt;
+
+# Cherry-pick without committing
+git cherry-pick -n &lt;commit&gt;
+
+# Cherry-pick range of commits
+git cherry-pick &lt;commit1&gt;..&lt;commit2&gt;</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-searching">🔍 Searching</h4>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Search in files
+git grep &quot;search term&quot;
+
+# Search in specific file type
+git grep &quot;search term&quot; -- '*.py'
+
+# Show line numbers
+git grep -n &quot;search term&quot;
+
+# Search in history
+git log -S &quot;search term&quot;
+
+# Search commit messages
+git log --grep=&quot;search term&quot;</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-useful-workflows">🛠️ Useful Workflows</h4>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-feature-branch-workflow">Feature Branch Workflow</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Start new feature
+git checkout -b feature/my-feature
+
+# Work on feature
+git add .
+git commit -m &quot;Add feature&quot;
+
+# Update with main
+git checkout main
+git pull
+git checkout feature/my-feature
+git rebase main
+
+# Finish feature
+git checkout main
+git merge --no-ff feature/my-feature
+git push origin main
+git branch -d feature/my-feature</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-hotfix-workflow">Hotfix Workflow</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create hotfix branch from main
+git checkout -b hotfix/critical-bug main
+
+# Fix bug
+git add .
+git commit -m &quot;Fix critical bug&quot;
+
+# Merge to main
+git checkout main
+git merge --no-ff hotfix/critical-bug
+git tag -a v1.0.1 -m &quot;Hotfix release&quot;
+
+# Merge to develop
+git checkout develop
+git merge --no-ff hotfix/critical-bug
+
+# Clean up
+git branch -d hotfix/critical-bug</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-useful-one-liners">📊 Useful One-Liners</h4>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Undo last commit (keep changes)
+git reset --soft HEAD~1
+
+# Delete all merged branches
+git branch --merged | grep -v &quot;\*&quot; | xargs -n 1 git branch -d
+
+# View commits not yet pushed
+git log origin/main..HEAD
+
+# View commits by date range
+git log --since=&quot;2 weeks ago&quot;
+
+# Count commits by author
+git shortlog -sn
+
+# Find which commit introduced a bug (binary search)
+git bisect start
+git bisect bad  # Current version is bad
+git bisect good &lt;commit&gt;  # Known good commit
+
+# Show files changed in commit
+git diff-tree --no-commit-id --name-only -r &lt;commit&gt;
+
+# Pretty log format
+git log --pretty=format:&quot;%h %an %ar - %s&quot;
+
+# View who changed what in file
+git blame &lt;file&gt;
+
+# Show commits that changed a specific line
+git log -L 15,23:&lt;file&gt;</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-troubleshooting">🚨 Troubleshooting</h4>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-common-issues">Common Issues</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Resolve merge conflicts
+# 1. View conflicts
+git status
+
+# 2. Edit conflicted files
+# 3. Mark as resolved
+git add &lt;file&gt;
+
+# 4. Complete merge
+git commit
+
+# Fix detached HEAD
+git checkout &lt;branch-name&gt;
+
+# Recover deleted branch
+git reflog
+git checkout -b &lt;branch-name&gt; &lt;commit&gt;
+
+# Undo force push (if reflog still exists)
+git reflog
+git reset --hard &lt;commit&gt;
+
+# Fix diverged branches
+git pull --rebase origin main</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-git-cheat-sheet-md-pro-tips">💡 Pro Tips</h4>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-aliases">Aliases</h5>
+<p>Add to <code>~/.gitconfig</code>:</p>
+<div class="code-shell"><div class="code-title"><span>ini</span><span>INI</span></div><pre><code class="language-ini">[alias]
+    st = status
+    co = checkout
+    br = branch
+    ci = commit
+    unstage = reset HEAD --
+    last = log -1 HEAD
+    lg = log --graph --oneline --all
+    amend = commit --amend --no-edit</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-gitignore-common-patterns">.gitignore Common Patterns</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text"># Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+.env
+
+# Node
+node_modules/
+npm-debug.log
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.egg-info/</code></pre></div>
+<h5 id="resources-cheat-sheets-git-cheat-sheet-md-best-practices">最佳实践（Best Practices）</h5>
+<ol>
+<li><strong>Commit often</strong> - Small, logical commits</li>
+<li><strong>Write good commit messages</strong> - Explain why, not what</li>
+<li><strong>Use branches</strong> - Keep main/develop clean</li>
+<li><strong>Pull before push</strong> - Avoid conflicts</li>
+<li><strong>Review before committing</strong> - Use <code>git diff --staged</code></li>
+<li><strong>Don't commit secrets</strong> - Use <code>.gitignore</code></li>
+<li><strong>Tag releases</strong> - Use semantic versioning</li>
+<li><strong>Rebase feature branches</strong> - Keep history clean</li>
+<li><strong>Sign commits</strong> - Use GPG signatures for verification</li>
+<li><strong>Use <code>.gitattributes</code></strong> - Normalize line endings</li>
+</ol>
+<hr/>
+<p><strong>See also:</strong></p>
+<ul>
+<li><a href="#doc-resources-cheat-sheets-docker-cheat-sheet-md">Docker 容器（Docker） Cheat Sheet</a></li>
+<li><a href="#doc-resources-cheat-sheets-kubernetes-cheat-sheet-md">Kubernetes 容器编排（Kubernetes） Cheat Sheet</a></li>
+<li><a href="#doc-resources-cheat-sheets-linux-cheat-sheet-md">Linux Commands Cheat Sheet</a></li>
+</ul><p><a class="home" href="../docs/doc-resources-cheat-sheets-docker-cheat-sheet-md.html">← 上一篇（Previous）</a> <a class="home" href="../resources.html#doc-resources-cheat-sheets-git-cheat-sheet-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-resources-cheat-sheets-kubernetes-cheat-sheet-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

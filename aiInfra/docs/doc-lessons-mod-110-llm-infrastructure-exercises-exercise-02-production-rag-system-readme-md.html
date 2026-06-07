@@ -1,0 +1,1239 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Exercise 02: 生产环境（Production） 检索增强生成（RAG） System (Retrieval-Augmented Generation)</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Exercise 02: 生产环境（Production） 检索增强生成（RAG） System (Retrieval-Augmented Generation)</h1><p>Module 110: LLM 基础设施（LLM Infrastructure） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-resources-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure） - Resources</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lesson 01: Introduction to 大语言模型（LLM） 基础设施（LLM Infrastructure）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-02-vllm-deployment-md.html">Lesson 02: vLLM 推理服务（vLLM） 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-03-rag-systems-md.html">Lesson 03: 检索增强生成（RAG） Systems (Retrieval-Augmented Generation)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-04-vector-databases-md.html">Lesson 04: Vector Databases</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-05-llm-fine-tuning-infrastructure-md.html">Lesson 05: 大语言模型（LLM） Fine-Tuning Infrastructure</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md.html">Lesson 06: 大语言模型（LLM） Serving Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-07-llm-platform-architecture-md.html">Lesson 07: 大语言模型（LLM） Platform Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md.html">Lesson 08: 生产环境（Production） 大语言模型（LLM） Best Practices</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-01-vllm-deployment-md.html">Lab 01: Deploy an 大语言模型（LLM） with vLLM 推理服务（vLLM）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-02-rag-pipeline-md.html">Lab 02: Build a 检索增强生成（RAG） Pipeline End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-03-vector-db-qdrant-md.html">Lab 03: Stand Up a 向量数据库（Vector Database） (Qdrant)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-04-lora-finetune-md.html">Lab 04: LoRA Fine-Tune a Small Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-05-streaming-responses-md.html">Lab 05: Streaming Responses to Clients</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-06-cost-monitoring-md.html">Lab 06: Cost Tracking and Budget Alerts</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-07-prompt-injection-defense-md.html">Lab 07: Prompt-Injection Defenses</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-08-multi-model-serving-md.html">Lab 08: Multi-Model Serving with Intelligent Routing</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Module 110 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercise 01: 生产环境（Production） 大语言模型（LLM） Serving Platform (vLLM + Kubernetes 容器编排（Kubernetes）)</a><a class="tree-doc active" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md.html">Exercise 02: 生产环境（Production） 检索增强生成（RAG） System (Retrieval-Augmented Generation)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-03-vllm-deep-dive-readme-md.html">Exercise 03: vLLM 推理服务（vLLM） Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-04-vector-db-benchmarking-readme-md.html">Exercise 04: 向量数据库（Vector Database） Benchmarking</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-05-finetuning-at-scale-readme-md.html">Exercise 05: Fine-Tuning at Scale (LoRA + QLoRA + Distributed)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-06-inference-optimization-llm-readme.html">Exercise 06: 大语言模型（LLM） 推理（Inference） Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-07-multi-tenant-llm-platform-readme-.html">Exercise 07: Multi-Tenant 大语言模型（LLM） Platform</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-08-llm-cost-routing-readme-md.html">Exercise 08: Cost-Aware 大语言模型（LLM） Routing</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-09-llm-observability-readme-md.html">Exercise 09: LLM-Specific 可观测性（Observability）</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-10-prompt-management-readme-md.html">Exercise 10: Prompt Management and Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-11-llm-guardrails-readme-md.html">Exercise 11: 大语言模型（LLM） Guardrails (Injection, Moderation, Output Filtering)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-12-llm-evaluation-harness-readme-md.html">Exercise 12: 大语言模型（LLM） Evaluation Infrastructure</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-13-semantic-caching-readme-md.html">Exercise 13: Semantic Caching for LLMs</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-14-hybrid-retrieval-reranking-readme.html">Exercise 14: Hybrid Retrieval + Reranking Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-readme-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure） - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Module 10: 大语言模型（LLM） 基础设施（LLM Infrastructure） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Exercise 02: 生产环境（Production） 检索增强生成（RAG） System (Retrieval-Augmented Generation)</h2><p>Module 110: LLM 基础设施（LLM Infrastructure） · Exercises: 课后练习</p><div class="stats"><div class="stat"><strong>10</strong><span>reading order</span></div><div class="stat"><strong>35</strong><span>chapter docs</span></div><div class="stat"><strong>1303</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md" data-title="exercise 02: production rag system (retrieval-augmented generation) lessons/mod-110-llm-infrastructure/exercises/exercise-02-production-rag-system/readme.md exercises: 课后练习"><div class="doc-head"><span class="chip">10/35</span><span class="chip">Exercises</span><span class="path">lessons/mod-110-llm-infrastructure/exercises/exercise-02-production-rag-system/README.md</span><span class="path">1303 行</span></div><h2>Exercise 02: 生产环境（Production） 检索增强生成（RAG） System (Retrieval-Augmented Generation)</h2><p><a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-110-llm-infrastructure.html#doc-lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-03-vllm-deep-dive-readme-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-e">Exercise 02: 生产环境（Production） 检索增强生成（RAG） System (Retrieval-Augmented Generation)</h3>
+<p><strong>Estimated Time</strong>: 34-42 hours</p>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-b">Business Context</h4>
+<p>Your company has 10 years of proprietary documentation (product manuals, internal wikis, customer support tickets) and wants to build an AI assistant that can answer questions using this knowledge base.</p>
+<p><strong>Current Situation</strong>:</p>
+<ul>
+<li>Using GPT-4 API for customer support chatbot</li>
+<li><strong>Problem</strong>: GPT-4 doesn't know about company-specific products/processes</li>
+<li><strong>Result</strong>: 60% of answers are generic or incorrect</li>
+<li>Customer satisfaction: 3.2/5 stars</li>
+<li>Support agents manually intervene in 70% of conversations</li>
+</ul>
+<p><strong>The Solution</strong>: Build a <strong>Retrieval-Augmented Generation (RAG) system</strong> that:</p>
+<ol>
+<li>Embeds all company documentation into vector database</li>
+<li>Retrieves relevant context for user questions</li>
+<li>Generates accurate answers using company knowledge</li>
+<li>Reduces hallucinations from 40% → &lt;5%</li>
+</ol>
+<p><strong>Business Goals</strong>:</p>
+<ul>
+<li><strong>Improve accuracy</strong>: 60% → 90% correct answers</li>
+<li><strong>Reduce support costs</strong>: $500K/year (fewer manual interventions)</li>
+<li><strong>Improve customer satisfaction</strong>: 3.2/5 → 4.5/5 stars</li>
+<li><strong>Data privacy</strong>: All data stays in-house</li>
+<li><strong>可扩展性（Scalability）</strong>: Handle 10,000 queries/day</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-l">Learning Objectives</h4>
+<p>After completing this exercise, you will be able to:</p>
+<ol>
+<li>Design and implement production 检索增强生成（RAG） architecture</li>
+<li>Deploy and configure vector databases (Qdrant)</li>
+<li>Implement document chunking strategies for optimal retrieval</li>
+<li>Build embedding pipelines with sentence transformers</li>
+<li>Optimize retrieval quality through re-ranking and hybrid search</li>
+<li>Implement 检索增强生成（RAG） evaluation metrics</li>
+<li>Handle 检索增强生成（RAG） challenges: context length, relevance, citations</li>
+<li>Build production-grade 检索增强生成（RAG） API with caching and monitoring</li>
+</ol>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-p">前置要求（Prerequisites）</h4>
+<ul>
+<li>Module 110 Exercise 01 (LLM Serving) - vLLM 推理服务（vLLM） deployment</li>
+<li>Understanding of vector embeddings and similarity search</li>
+<li>Python programming (advanced)</li>
+<li>Kubernetes 容器编排（Kubernetes） fundamentals</li>
+<li>Basic NLP concepts</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-p">Problem Statement</h4>
+<p>Build a <strong>生产环境（Production） 检索增强生成（RAG） System</strong> that:</p>
+<ol>
+<li><strong>Document Ingestion Pipeline</strong>:</li>
+</ol>
+<ul>
+<li>Load documents from multiple sources (PDF, HTML, Markdown)</li>
+<li>Chunk documents intelligently</li>
+<li>Generate embeddings</li>
+<li>Store in vector database</li>
+</ul>
+<ol>
+<li><strong>Retrieval Engine</strong>:</li>
+</ol>
+<ul>
+<li>Semantic search using embeddings</li>
+<li>Hybrid search (dense + sparse)</li>
+<li>Re-ranking for relevance</li>
+<li>Return top-k most relevant chunks</li>
+</ul>
+<ol>
+<li><strong>Generation Layer</strong>:</li>
+</ol>
+<ul>
+<li>大语言模型（LLM） integration (Llama 2, Mistral)</li>
+<li>Context-aware prompting</li>
+<li>Citation extraction</li>
+<li>Hallucination detection</li>
+</ul>
+<ol>
+<li><strong>生产环境（Production） Features</strong>:</li>
+</ol>
+<ul>
+<li>Query caching for common questions</li>
+<li>Real-time document updates</li>
+<li>Multi-user isolation</li>
+<li>Comprehensive monitoring</li>
+</ul>
+<ol>
+<li><strong>Evaluation Framework</strong>:</li>
+</ol>
+<ul>
+<li>Retrieval quality metrics</li>
+<li>Answer accuracy assessment</li>
+<li>A/B testing infrastructure</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-s">Success Metrics</h5>
+<ul>
+<li>Retrieval accuracy: 90% (correct documents in top-5)</li>
+<li>Answer accuracy: 90% (correct, grounded answers)</li>
+<li>Query latency: &lt;2 seconds 端到端（end-to-end）</li>
+<li>Handle 10,000 queries/day</li>
+<li>Support 1M+ documents</li>
+<li>Hallucination rate: &lt;5% (down from 40%)</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-a">Architecture Overview</h4>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌─────────────────────────────────────────────────────────────────┐
+│              Production RAG System Architecture                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │              Document Ingestion Pipeline                  │  │
+│  │                                                           │  │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │  │
+│  │  │   Load      │─▶│   Chunk     │─▶│   Embed     │     │  │
+│  │  │  Documents  │  │  Splitter   │  │ SentenceT5  │     │  │
+│  │  │  (PDF/HTML) │  │  - Overlap  │  │  (384-dim)  │     │  │
+│  │  └─────────────┘  │  - Metadata │  └─────────────┘     │  │
+│  │                    └─────────────┘          │            │  │
+│  │                                              ▼            │  │
+│  │                                    ┌─────────────────┐   │  │
+│  │                                    │  Qdrant         │   │  │
+│  │                                    │  Vector DB      │   │  │
+│  │                                    │  - 1M vectors   │   │  │
+│  │                                    │  - HNSW index   │   │  │
+│  │                                    └─────────────────┘   │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                  RAG Query Pipeline                       │  │
+│  │                                                           │  │
+│  │  User Query: &quot;How do I reset password?&quot;                 │  │
+│  │       │                                                   │  │
+│  │       ▼                                                   │  │
+│  │  ┌─────────────┐                                         │  │
+│  │  │  Embed      │  (Convert query to 384-dim vector)     │  │
+│  │  │  Query      │                                         │  │
+│  │  └─────────────┘                                         │  │
+│  │       │                                                   │  │
+│  │       ▼                                                   │  │
+│  │  ┌─────────────────────────────────────────┐            │  │
+│  │  │  Retrieval (Hybrid Search)              │            │  │
+│  │  │                                          │            │  │
+│  │  │  1. Dense Search (Vector Similarity)    │            │  │
+│  │  │     - Cosine similarity                 │            │  │
+│  │  │     - Retrieve top 20 chunks            │            │  │
+│  │  │                                          │            │  │
+│  │  │  2. Sparse Search (BM25 Keywords)       │            │  │
+│  │  │     - Exact keyword matching            │            │  │
+│  │  │     - Retrieve top 20 chunks            │            │  │
+│  │  │                                          │            │  │
+│  │  │  3. Fusion (Combine Results)            │            │  │
+│  │  │     - Reciprocal Rank Fusion            │            │  │
+│  │  │     - Top 10 chunks                     │            │  │
+│  │  └─────────────────────────────────────────┘            │  │
+│  │       │                                                   │  │
+│  │       ▼                                                   │  │
+│  │  ┌─────────────┐                                         │  │
+│  │  │  Re-Rank    │  (Cross-encoder for relevance)         │  │
+│  │  │  Top 5      │  → [Doc1: 0.95, Doc2: 0.89, ...]      │  │
+│  │  └─────────────┘                                         │  │
+│  │       │                                                   │  │
+│  │       ▼                                                   │  │
+│  │  ┌─────────────────────────────────────────┐            │  │
+│  │  │  LLM Generation                          │            │  │
+│  │  │                                          │            │  │
+│  │  │  Prompt:                                 │            │  │
+│  │  │  &quot;Based on the following context:       │            │  │
+│  │  │   [Retrieved chunks]                     │            │  │
+│  │  │   Answer: How do I reset password?&quot;     │            │  │
+│  │  │                                          │            │  │
+│  │  │  Response:                               │            │  │
+│  │  │  &quot;To reset your password:               │            │  │
+│  │  │   1. Go to Settings &gt; Account           │            │  │
+│  │  │   2. Click 'Reset Password'             │            │  │
+│  │  │   [Citation: user-guide.pdf, p.12]&quot;     │            │  │
+│  │  └─────────────────────────────────────────┘            │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │              Evaluation &amp; Monitoring                      │  │
+│  │                                                           │  │
+│  │  - Retrieval Precision/Recall                            │  │
+│  │  - Answer correctness (vs ground truth)                  │  │
+│  │  - Citation accuracy                                      │  │
+│  │  - Hallucination detection                               │  │
+│  │  - Query latency breakdown                               │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-i">Implementation Tasks</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-p">Part 1: Document Ingestion Pipeline (8-10 hours)</h5>
+<p>Build pipeline to load, chunk, and embed documents.</p>
+<h6 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-1">1.1 Document Loader</h6>
+<p>Create <code>src/ingestion/document_loader.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">&quot;&quot;&quot;
+TODO: Load documents from various sources.
+
+Supported formats:
+- PDF (PyPDF2, pdfplumber)
+- HTML (BeautifulSoup)
+- Markdown
+- Plain text
+- DOCX
+&quot;&quot;&quot;
+
+from typing import List, Dict
+from pathlib import Path
+from dataclasses import dataclass
+import PyPDF2
+from bs4 import BeautifulSoup
+import markdown
+
+@dataclass
+class Document:
+    &quot;&quot;&quot;Document with content and metadata.&quot;&quot;&quot;
+    content: str
+    metadata: Dict  # source, title, page, url, etc.
+    doc_id: str
+
+class PDFLoader:
+    &quot;&quot;&quot;Load PDF documents.&quot;&quot;&quot;
+
+    def load(self, file_path: str) -&gt; List[Document]:
+        &quot;&quot;&quot;
+        TODO: Extract text from PDF.
+
+        with open(file_path, 'rb') as f:
+            pdf = PyPDF2.PdfReader(f)
+
+            documents = []
+            for page_num, page in enumerate(pdf.pages):
+                text = page.extract_text()
+
+                # Create document per page (for better granularity)
+                doc = Document(
+                    content=text,
+                    metadata={
+                        'source': file_path,
+                        'page': page_num + 1,
+                        'total_pages': len(pdf.pages),
+                        'type': 'pdf'
+                    },
+                    doc_id=f&quot;{Path(file_path).stem}_page_{page_num + 1}&quot;
+                )
+                documents.append(doc)
+
+        return documents
+        &quot;&quot;&quot;
+        pass
+
+class HTMLLoader:
+    &quot;&quot;&quot;Load HTML documents.&quot;&quot;&quot;
+
+    def load(self, file_path: str) -&gt; Document:
+        &quot;&quot;&quot;
+        TODO: Parse HTML and extract text.
+
+        with open(file_path, 'r') as f:
+            soup = BeautifulSoup(f.read(), 'html.parser')
+
+            # Remove script and style tags
+            for script in soup(['script', 'style']):
+                script.decompose()
+
+            # Extract text
+            text = soup.get_text(separator='\n', strip=True)
+
+            # Extract title
+            title = soup.find('title')
+            title_text = title.string if title else Path(file_path).stem
+
+            return Document(
+                content=text,
+                metadata={
+                    'source': file_path,
+                    'title': title_text,
+                    'type': 'html'
+                },
+                doc_id=Path(file_path).stem
+            )
+        &quot;&quot;&quot;
+        pass
+
+class DocumentLoader:
+    &quot;&quot;&quot;Main document loader - auto-detects format.&quot;&quot;&quot;
+
+    def __init__(self):
+        self.loaders = {
+            '.pdf': PDFLoader(),
+            '.html': HTMLLoader(),
+            '.htm': HTMLLoader(),
+            # TODO: Add more loaders
+        }
+
+    def load(self, file_path: str) -&gt; List[Document]:
+        &quot;&quot;&quot;
+        TODO: Load document based on file extension.
+
+        suffix = Path(file_path).suffix.lower()
+        loader = self.loaders.get(suffix)
+
+        if not loader:
+            raise ValueError(f&quot;Unsupported file type: {suffix}&quot;)
+
+        return loader.load(file_path)
+        &quot;&quot;&quot;
+        pass
+
+    def load_directory(self, directory: str) -&gt; List[Document]:
+        &quot;&quot;&quot;
+        TODO: Recursively load all documents in directory.
+
+        documents = []
+        for file_path in Path(directory).rglob('*'):
+            if file_path.is_file() and file_path.suffix in self.loaders:
+                try:
+                    docs = self.load(str(file_path))
+                    documents.extend(docs)
+                except Exception as e:
+                    print(f&quot;Error loading {file_path}: {e}&quot;)
+
+        return documents
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<h6 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-1">1.2 Intelligent Chunking</h6>
+<p>Create <code>src/ingestion/chunker.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">&quot;&quot;&quot;
+TODO: Chunk documents for optimal retrieval.
+
+Chunking strategies:
+1. Fixed-size chunks (simple, works well)
+2. Sentence-based chunks (preserves meaning)
+3. Semantic chunks (split by topic)
+4. Recursive chunks (hierarchical)
+
+Key parameters:
+- chunk_size: 512 tokens (fits in most embedding models)
+- chunk_overlap: 50 tokens (preserves context across chunks)
+&quot;&quot;&quot;
+
+from typing import List
+from dataclasses import dataclass
+import tiktoken
+
+@dataclass
+class Chunk:
+    &quot;&quot;&quot;Document chunk with metadata.&quot;&quot;&quot;
+    content: str
+    metadata: Dict
+    chunk_id: str
+    embedding: Optional[List[float]] = None
+
+class RecursiveCharacterSplitter:
+    &quot;&quot;&quot;
+    Split text recursively by separators.
+
+    Hierarchy:
+    1. Try splitting by paragraphs (\n\n)
+    2. If too large, split by sentences (. ! ?)
+    3. If still too large, split by words
+    4. Last resort: split by characters
+
+    This preserves semantic boundaries better than fixed-size splits.
+    &quot;&quot;&quot;
+
+    def __init__(
+        self,
+        chunk_size: int = 512,
+        chunk_overlap: int = 50,
+        separators: List[str] = None
+    ):
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+        self.separators = separators or [&quot;\n\n&quot;, &quot;\n&quot;, &quot;. &quot;, &quot; &quot;, &quot;&quot;]
+        self.tokenizer = tiktoken.get_encoding(&quot;cl100k_base&quot;)  # GPT-4 tokenizer
+
+    def split(self, text: str, metadata: Dict) -&gt; List[Chunk]:
+        &quot;&quot;&quot;
+        TODO: Recursively split text into chunks.
+
+        Algorithm:
+        1. Try splitting by first separator (e.g., \n\n)
+        2. For each piece:
+           a. If piece &lt; chunk_size: Keep as chunk
+           b. If piece &gt; chunk_size: Try next separator
+           c. If at last separator: Force split at chunk_size
+        3. Add overlap between chunks (last N tokens of chunk[i] become
+           first N tokens of chunk[i+1])
+
+        Return list of Chunk objects with metadata preserved
+        &quot;&quot;&quot;
+        chunks = []
+
+        # TODO: Implement recursive splitting
+        # ...
+
+        return chunks
+
+    def _count_tokens(self, text: str) -&gt; int:
+        &quot;&quot;&quot;Count tokens using tiktoken.&quot;&quot;&quot;
+        return len(self.tokenizer.encode(text))
+
+class SemanticChunker:
+    &quot;&quot;&quot;
+    Split text based on semantic similarity.
+
+    Uses embeddings to detect topic changes:
+    1. Split text into sentences
+    2. Embed each sentence
+    3. Calculate similarity between adjacent sentences
+    4. Split where similarity drops (topic change)
+
+    More sophisticated but slower than recursive splitter.
+    &quot;&quot;&quot;
+
+    def __init__(self, embedding_model, similarity_threshold: float = 0.7):
+        self.embedding_model = embedding_model
+        self.similarity_threshold = similarity_threshold
+
+    def split(self, text: str, metadata: Dict) -&gt; List[Chunk]:
+        &quot;&quot;&quot;
+        TODO: Split based on semantic boundaries.
+
+        1. Split into sentences
+        2. Embed all sentences
+        3. Calculate cosine similarity between adjacent pairs
+        4. Where similarity &lt; threshold: Insert split point
+        5. Group sentences into chunks
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<h6 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-1">1.3 Embedding Generation</h6>
+<p>Create <code>src/ingestion/embedder.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">&quot;&quot;&quot;
+TODO: Generate embeddings for chunks.
+
+Embedding models:
+- sentence-transformers/all-MiniLM-L6-v2 (384-dim, fast)
+- sentence-transformers/all-mpnet-base-v2 (768-dim, quality)
+- BAAI/bge-large-en-v1.5 (1024-dim, SOTA)
+
+Choice: all-MiniLM-L6-v2 for speed/quality balance
+&quot;&quot;&quot;
+
+from sentence_transformers import SentenceTransformer
+from typing import List
+import numpy as np
+import torch
+
+class EmbeddingModel:
+    &quot;&quot;&quot;Generate embeddings for text chunks.&quot;&quot;&quot;
+
+    def __init__(
+        self,
+        model_name: str = &quot;sentence-transformers/all-MiniLM-L6-v2&quot;,
+        device: str = &quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;
+    ):
+        self.model = SentenceTransformer(model_name, device=device)
+        self.dimension = self.model.get_sentence_embedding_dimension()
+
+    def embed(self, texts: List[str], batch_size: int = 32) -&gt; np.ndarray:
+        &quot;&quot;&quot;
+        TODO: Generate embeddings for list of texts.
+
+        # Batch encode for efficiency
+        embeddings = self.model.encode(
+            texts,
+            batch_size=batch_size,
+            show_progress_bar=True,
+            convert_to_numpy=True,
+            normalize_embeddings=True  # L2 normalization for cosine similarity
+        )
+
+        return embeddings  # Shape: (len(texts), dimension)
+        &quot;&quot;&quot;
+        pass
+
+    def embed_query(self, query: str) -&gt; np.ndarray:
+        &quot;&quot;&quot;
+        TODO: Embed single query.
+
+        # Some models have instruction prefixes for queries
+        # Example: &quot;Represent this sentence for searching relevant passages:&quot;
+        # For all-MiniLM, no prefix needed
+
+        return self.model.encode(
+            query,
+            convert_to_numpy=True,
+            normalize_embeddings=True
+        )
+        &quot;&quot;&quot;
+        pass
+
+class EmbeddingPipeline:
+    &quot;&quot;&quot;Complete embedding pipeline.&quot;&quot;&quot;
+
+    def __init__(self, embedding_model: EmbeddingModel):
+        self.model = embedding_model
+
+    def process_chunks(self, chunks: List[Chunk]) -&gt; List[Chunk]:
+        &quot;&quot;&quot;
+        TODO: Add embeddings to chunks.
+
+        # Extract text from chunks
+        texts = [chunk.content for chunk in chunks]
+
+        # Generate embeddings
+        embeddings = self.model.embed(texts)
+
+        # Add embeddings to chunks
+        for chunk, embedding in zip(chunks, embeddings):
+            chunk.embedding = embedding.tolist()
+
+        return chunks
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-p">Part 2: 向量数据库（Vector Database） Setup (7-9 hours)</h5>
+<p>Deploy and configure Qdrant 向量数据库（Qdrant） vector database.</p>
+<h6 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-2">2.1 Qdrant 向量数据库（Qdrant） 部署（Deployment）</h6>
+<p>Create <code>kubernetes/qdrant/deployment.yaml</code>:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># TODO: Deploy Qdrant vector database
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: qdrant
+  namespace: rag-system
+spec:
+  serviceName: qdrant
+  replicas: 3  # HA with replication
+  selector:
+    matchLabels:
+      app: qdrant
+  template:
+    metadata:
+      labels:
+        app: qdrant
+    spec:
+      containers:
+        - name: qdrant
+          image: qdrant/qdrant:v1.7.4
+          ports:
+            - containerPort: 6333
+              name: http
+            - containerPort: 6334
+              name: grpc
+          env:
+            # Cluster configuration
+            - name: QDRANT__CLUSTER__ENABLED
+              value: &quot;true&quot;
+            - name: QDRANT__CLUSTER__P2P__PORT
+              value: &quot;6335&quot;
+          volumeMounts:
+            - name: qdrant-storage
+              mountPath: /qdrant/storage
+          resources:
+            requests:
+              memory: &quot;4Gi&quot;
+              cpu: &quot;2&quot;
+            limits:
+              memory: &quot;8Gi&quot;
+              cpu: &quot;4&quot;
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 6333
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 6333
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+  volumeClaimTemplates:
+    - metadata:
+        name: qdrant-storage
+      spec:
+        accessModes: [&quot;ReadWriteOnce&quot;]
+        storageClassName: fast-ssd
+        resources:
+          requests:
+            storage: 100Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qdrant
+  namespace: rag-system
+spec:
+  selector:
+    app: qdrant
+  ports:
+    - port: 6333
+      targetPort: 6333
+      name: http
+    - port: 6334
+      targetPort: 6334
+      name: grpc
+  type: ClusterIP</code></pre></div>
+<h6 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-2">2.2 Qdrant 向量数据库（Qdrant） Client</h6>
+<p>Create <code>src/vectordb/qdrant_client.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">&quot;&quot;&quot;
+TODO: Qdrant client for vector operations.
+
+Operations:
+- Create collection
+- Upsert vectors
+- Search similar vectors
+- Delete vectors
+- Manage indexes (HNSW)
+&quot;&quot;&quot;
+
+from qdrant_client import QdrantClient
+from qdrant_client.models import (
+    Distance, VectorParams, PointStruct,
+    Filter, FieldCondition, MatchValue,
+    SearchRequest
+)
+from typing import List, Dict, Optional
+import uuid
+
+class VectorDatabase:
+    &quot;&quot;&quot;Qdrant vector database client.&quot;&quot;&quot;
+
+    def __init__(self, host: str = &quot;qdrant&quot;, port: int = 6333):
+        self.client = QdrantClient(host=host, port=port)
+
+    def create_collection(
+        self,
+        collection_name: str,
+        vector_size: int = 384,
+        distance: str = &quot;Cosine&quot;
+    ):
+        &quot;&quot;&quot;
+        TODO: Create vector collection.
+
+        self.client.create_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(
+                size=vector_size,
+                distance=Distance.COSINE  # Cosine similarity
+            ),
+            # HNSW index configuration
+            hnsw_config={
+                &quot;m&quot;: 16,  # Number of connections per layer
+                &quot;ef_construct&quot;: 100  # Search quality during build
+            }
+        )
+
+        # Create payload index for metadata filtering
+        self.client.create_payload_index(
+            collection_name=collection_name,
+            field_name=&quot;source&quot;,
+            field_schema=&quot;keyword&quot;
+        )
+        &quot;&quot;&quot;
+        pass
+
+    def upsert_chunks(
+        self,
+        collection_name: str,
+        chunks: List[Chunk]
+    ):
+        &quot;&quot;&quot;
+        TODO: Insert/update chunks in vector database.
+
+        points = []
+        for chunk in chunks:
+            point = PointStruct(
+                id=str(uuid.uuid4()),  # Generate unique ID
+                vector=chunk.embedding,
+                payload={
+                    'content': chunk.content,
+                    'metadata': chunk.metadata,
+                    'chunk_id': chunk.chunk_id
+                }
+            )
+            points.append(point)
+
+        # Batch upsert (efficient for large datasets)
+        self.client.upsert(
+            collection_name=collection_name,
+            points=points
+        )
+        &quot;&quot;&quot;
+        pass
+
+    def search(
+        self,
+        collection_name: str,
+        query_vector: List[float],
+        top_k: int = 10,
+        filter_conditions: Optional[Dict] = None
+    ) -&gt; List[Dict]:
+        &quot;&quot;&quot;
+        TODO: Search for similar vectors.
+
+        # Build filter if provided
+        query_filter = None
+        if filter_conditions:
+            # Example: filter by source
+            # filter_conditions = {'source': 'user-guide.pdf'}
+            conditions = []
+            for key, value in filter_conditions.items():
+                conditions.append(
+                    FieldCondition(
+                        key=key,
+                        match=MatchValue(value=value)
+                    )
+                )
+            query_filter = Filter(must=conditions)
+
+        # Execute search
+        results = self.client.search(
+            collection_name=collection_name,
+            query_vector=query_vector,
+            query_filter=query_filter,
+            limit=top_k,
+            with_payload=True,
+            with_vectors=False  # Don't return vectors (save bandwidth)
+        )
+
+        # Format results
+        return [
+            {
+                'id': hit.id,
+                'score': hit.score,
+                'content': hit.payload['content'],
+                'metadata': hit.payload['metadata']
+            }
+            for hit in results
+        ]
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-p">Part 3: Retrieval Engine with Re-Ranking (7-9 hours)</h5>
+<p>Implement hybrid search and re-ranking for better retrieval quality.</p>
+<h6 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-3">3.1 Hybrid Search</h6>
+<p>Create <code>src/retrieval/hybrid_search.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">&quot;&quot;&quot;
+TODO: Hybrid search combining dense + sparse retrieval.
+
+Dense (Vector): Semantic similarity
+Sparse (BM25): Keyword matching
+Fusion: Reciprocal Rank Fusion
+
+Hybrid often outperforms either method alone.
+&quot;&quot;&quot;
+
+from typing import List, Dict
+from rank_bm25 import BM25Okapi
+import numpy as np
+
+class HybridRetriever:
+    &quot;&quot;&quot;Combine dense and sparse retrieval.&quot;&quot;&quot;
+
+    def __init__(
+        self,
+        vector_db: VectorDatabase,
+        embedding_model: EmbeddingModel,
+        collection_name: str
+    ):
+        self.vector_db = vector_db
+        self.embedding_model = embedding_model
+        self.collection_name = collection_name
+
+        # TODO: Build BM25 index
+        self.bm25_index = None
+        self.documents = []  # For BM25
+        self._build_bm25_index()
+
+    def _build_bm25_index(self):
+        &quot;&quot;&quot;
+        TODO: Build BM25 index from all documents.
+
+        # Fetch all documents from vector DB
+        # (In production, maintain separate BM25 index)
+        self.documents = self._fetch_all_documents()
+
+        # Tokenize documents
+        tokenized_docs = [
+            doc['content'].lower().split()
+            for doc in self.documents
+        ]
+
+        # Build BM25 index
+        self.bm25_index = BM25Okapi(tokenized_docs)
+        &quot;&quot;&quot;
+        pass
+
+    def retrieve(
+        self,
+        query: str,
+        top_k: int = 10,
+        dense_weight: float = 0.7,
+        sparse_weight: float = 0.3
+    ) -&gt; List[Dict]:
+        &quot;&quot;&quot;
+        TODO: Hybrid retrieval with RRF fusion.
+
+        1. Dense retrieval (vector search):
+           query_embedding = self.embedding_model.embed_query(query)
+           dense_results = self.vector_db.search(
+               collection_name=self.collection_name,
+               query_vector=query_embedding,
+               top_k=top_k * 2  # Retrieve more for fusion
+           )
+
+        2. Sparse retrieval (BM25):
+           tokenized_query = query.lower().split()
+           bm25_scores = self.bm25_index.get_scores(tokenized_query)
+           # Get top_k * 2 documents
+           sparse_results = ...
+
+        3. Reciprocal Rank Fusion:
+           For each document, calculate fusion score:
+           score = dense_weight * (1 / (rank_dense + 60)) +
+                   sparse_weight * (1 / (rank_sparse + 60))
+
+           Constant 60 is from RRF paper - prevents division by zero
+           and balances contribution of lower-ranked results
+
+        4. Re-rank and return top_k
+
+        Return fused results
+        &quot;&quot;&quot;
+        pass
+
+class ReRanker:
+    &quot;&quot;&quot;
+    Re-rank retrieved results using cross-encoder.
+
+    Cross-encoder: Jointly encodes query and document
+    More accurate than bi-encoder (separate embeddings) but slower
+
+    Use: Retrieve 20 docs with fast bi-encoder,
+         Re-rank to top 5 with slow cross-encoder
+    &quot;&quot;&quot;
+
+    def __init__(self, model_name: str = &quot;cross-encoder/ms-marco-MiniLM-L-6-v2&quot;):
+        from sentence_transformers import CrossEncoder
+        self.model = CrossEncoder(model_name)
+
+    def rerank(
+        self,
+        query: str,
+        documents: List[Dict],
+        top_k: int = 5
+    ) -&gt; List[Dict]:
+        &quot;&quot;&quot;
+        TODO: Re-rank documents using cross-encoder.
+
+        # Create query-document pairs
+        pairs = [[query, doc['content']] for doc in documents]
+
+        # Get relevance scores
+        scores = self.model.predict(pairs)
+
+        # Add scores to documents
+        for doc, score in zip(documents, scores):
+            doc['rerank_score'] = float(score)
+
+        # Sort by score and return top_k
+        ranked = sorted(documents, key=lambda x: x['rerank_score'], reverse=True)
+        return ranked[:top_k]
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-p">Part 4: 检索增强生成（RAG） Generation Pipeline (6-8 hours)</h5>
+<p>Build generation pipeline with 大语言模型（LLM） integration.</p>
+<h6 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-4">4.1 检索增强生成（RAG） Pipeline</h6>
+<p>Create <code>src/rag/rag_pipeline.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">&quot;&quot;&quot;
+TODO: Complete RAG pipeline: Retrieve + Generate.
+
+Flow:
+1. Receive query
+2. Retrieve relevant context
+3. Build prompt with context
+4. Generate answer using LLM
+5. Extract citations
+6. Detect hallucinations
+&quot;&quot;&quot;
+
+from typing import List, Dict, Optional
+import httpx
+
+class RAGPipeline:
+    &quot;&quot;&quot;End-to-end RAG system.&quot;&quot;&quot;
+
+    def __init__(
+        self,
+        retriever: HybridRetriever,
+        reranker: ReRanker,
+        llm_endpoint: str = &quot;http://llama2-7b-service:8000&quot;
+    ):
+        self.retriever = retriever
+        self.reranker = reranker
+        self.llm_endpoint = llm_endpoint
+
+    def query(
+        self,
+        query: str,
+        top_k: int = 5,
+        include_citations: bool = True
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        TODO: Execute RAG query.
+
+        1. Retrieve relevant chunks
+        retrieved_docs = self.retriever.retrieve(query, top_k=20)
+
+        2. Re-rank to top_k
+        ranked_docs = self.reranker.rerank(query, retrieved_docs, top_k=top_k)
+
+        3. Build prompt
+        prompt = self._build_prompt(query, ranked_docs)
+
+        4. Generate answer
+        answer = self._generate(prompt)
+
+        5. Add citations
+        if include_citations:
+            answer = self._add_citations(answer, ranked_docs)
+
+        6. Check for hallucinations
+        hallucination_score = self._detect_hallucination(answer, ranked_docs)
+
+        Return:
+        {
+            'query': query,
+            'answer': answer,
+            'citations': [...],
+            'context_used': ranked_docs,
+            'hallucination_score': hallucination_score
+        }
+        &quot;&quot;&quot;
+        pass
+
+    def _build_prompt(self, query: str, context_docs: List[Dict]) -&gt; str:
+        &quot;&quot;&quot;
+        TODO: Build RAG prompt.
+
+        Prompt template:</code></pre></div>
+<p>You are a helpful AI assistant. Answer the question based ONLY on the provided context. If the answer is not in the context, say &quot;I don't have enough information to answer that.&quot;</p>
+<p>Context: {context}</p>
+<p>Question: {query}</p>
+<p>Answer:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">
+        Format context:
+        context = &quot;\n\n&quot;.join([
+            f&quot;[{i+1}] {doc['content']}\nSource: {doc['metadata']['source']}&quot;
+            for i, doc in enumerate(context_docs)
+        ])
+        &quot;&quot;&quot;
+        pass
+
+    async def _generate(self, prompt: str) -&gt; str:
+        &quot;&quot;&quot;
+        TODO: Call LLM to generate answer.
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f&quot;{self.llm_endpoint}/v1/chat/completions&quot;,
+                json={
+                    &quot;model&quot;: &quot;llama2&quot;,
+                    &quot;messages&quot;: [
+                        {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a helpful assistant.&quot;},
+                        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}
+                    ],
+                    &quot;temperature&quot;: 0.1,  # Low temperature for factual answers
+                    &quot;max_tokens&quot;: 512
+                },
+                timeout=60.0
+            )
+
+            result = response.json()
+            return result['choices'][0]['message']['content']
+        &quot;&quot;&quot;
+        pass
+
+    def _add_citations(self, answer: str, context_docs: List[Dict]) -&gt; str:
+        &quot;&quot;&quot;
+        TODO: Add citations to answer.
+
+        Look for sentences in answer that match content from context_docs.
+        Append citation: [Source: doc_name, Page: X]
+
+        Example:
+        &quot;To reset your password, go to Settings. [1]&quot;
+        Where [1] refers to context document 1
+        &quot;&quot;&quot;
+        pass
+
+    def _detect_hallucination(
+        self,
+        answer: str,
+        context_docs: List[Dict]
+    ) -&gt; float:
+        &quot;&quot;&quot;
+        TODO: Detect if answer contains information not in context.
+
+        Simple heuristic:
+        1. Extract key facts from answer (using NER or sentence splitting)
+        2. Check if each fact appears in context
+        3. Hallucination score = (facts_not_in_context / total_facts)
+
+        Advanced: Use NLI (Natural Language Inference) model
+        to check entailment between answer and context
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-p">Part 5: Evaluation and 监控（Monitoring） (6-8 hours)</h5>
+<p>Implement 检索增强生成（RAG） evaluation metrics and monitoring.</p>
+<h6 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-5">5.1 Evaluation Framework</h6>
+<p>Create <code>src/evaluation/rag_eval.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">&quot;&quot;&quot;
+TODO: Evaluate RAG system performance.
+
+Metrics:
+1. Retrieval Quality:
+   - Precision@K: How many retrieved docs are relevant?
+   - Recall@K: What % of relevant docs were retrieved?
+   - MRR (Mean Reciprocal Rank): Position of first relevant doc
+   - NDCG: Normalized Discounted Cumulative Gain
+
+2. Generation Quality:
+   - Correctness: Is answer factually correct?
+   - Completeness: Does answer address all aspects of question?
+   - Groundedness: Is answer supported by context?
+   - Citation accuracy: Are citations correct?
+
+3. End-to-End:
+   - Latency: Time from query to answer
+   - User satisfaction: Thumbs up/down
+&quot;&quot;&quot;
+
+from typing import List, Dict
+import numpy as np
+
+class RAGEvaluator:
+    &quot;&quot;&quot;Evaluate RAG system performance.&quot;&quot;&quot;
+
+    def __init__(self, ground_truth_file: str):
+        # TODO: Load ground truth Q&amp;A pairs
+        # Format: [{&quot;query&quot;: &quot;...&quot;, &quot;answer&quot;: &quot;...&quot;, &quot;relevant_docs&quot;: [...]}]
+        self.ground_truth = self._load_ground_truth(ground_truth_file)
+
+    def evaluate_retrieval(
+        self,
+        rag_pipeline: RAGPipeline,
+        k: int = 5
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        TODO: Evaluate retrieval quality.
+
+        For each ground truth query:
+        1. Retrieve top-k documents
+        2. Compare with ground truth relevant docs
+        3. Calculate metrics
+
+        Metrics:
+        - Precision@K = (relevant docs in top-k) / k
+        - Recall@K = (relevant docs in top-k) / total relevant
+        - MRR = 1 / rank_of_first_relevant_doc
+        - NDCG@K = normalized discounted cumulative gain
+
+        Return average metrics across all queries
+        &quot;&quot;&quot;
+        precisions = []
+        recalls = []
+        mrrs = []
+
+        for item in self.ground_truth:
+            query = item['query']
+            relevant_doc_ids = set(item['relevant_docs'])
+
+            # Retrieve docs
+            retrieved = rag_pipeline.retriever.retrieve(query, top_k=k)
+            retrieved_ids = [doc['id'] for doc in retrieved]
+
+            # Calculate metrics
+            relevant_retrieved = set(retrieved_ids) &amp; relevant_doc_ids
+
+            precision = len(relevant_retrieved) / k
+            recall = len(relevant_retrieved) / len(relevant_doc_ids) if relevant_doc_ids else 0
+
+            precisions.append(precision)
+            recalls.append(recall)
+
+            # MRR: Find position of first relevant doc
+            for rank, doc_id in enumerate(retrieved_ids, 1):
+                if doc_id in relevant_doc_ids:
+                    mrrs.append(1.0 / rank)
+                    break
+            else:
+                mrrs.append(0.0)  # No relevant doc found
+
+        return {
+            'precision@k': np.mean(precisions),
+            'recall@k': np.mean(recalls),
+            'mrr': np.mean(mrrs)
+        }
+
+    def evaluate_generation(
+        self,
+        rag_pipeline: RAGPipeline,
+        use_llm_judge: bool = True
+    ) -&gt; Dict[str, float]:
+        &quot;&quot;&quot;
+        TODO: Evaluate answer quality.
+
+        For each ground truth Q&amp;A:
+        1. Generate answer using RAG
+        2. Compare with ground truth answer
+        3. Score on: correctness, completeness, groundedness
+
+        Scoring methods:
+        - Exact match (too strict)
+        - Token overlap (F1, ROUGE)
+        - Semantic similarity (embedding cosine similarity)
+        - LLM-as-judge: Use GPT-4 to evaluate (most accurate)
+
+        Example LLM-as-judge prompt:
+        &quot;Rate the following answer on a scale of 1-5 for correctness and completeness.
+         Question: {question}
+         Reference Answer: {ground_truth}
+         Generated Answer: {generated}
+         Provide scores and brief explanation.&quot;
+        &quot;&quot;&quot;
+        pass</code></pre></div>
+<h6 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-5">5.2 监控（Monitoring） Dashboard</h6>
+<p>Create <code>dashboards/rag-dashboard.json</code>:</p>
+<div class="code-shell"><div class="code-title"><span>json</span><span>JSON</span></div><pre><code class="language-json">{
+  &quot;dashboard&quot;: {
+    &quot;title&quot;: &quot;RAG System Monitoring&quot;,
+    &quot;panels&quot;: [
+      {
+        &quot;title&quot;: &quot;Query Rate&quot;,
+        &quot;targets&quot;: [{&quot;expr&quot;: &quot;rate(rag_queries_total[5m])&quot;}]
+      },
+      {
+        &quot;title&quot;: &quot;End-to-End Latency&quot;,
+        &quot;targets&quot;: [{
+          &quot;expr&quot;: &quot;histogram_quantile(0.95, rate(rag_query_duration_seconds_bucket[5m]))&quot;
+        }]
+      },
+      {
+        &quot;title&quot;: &quot;Retrieval Precision@5&quot;,
+        &quot;targets&quot;: [{&quot;expr&quot;: &quot;rag_retrieval_precision_at_5&quot;}]
+      },
+      {
+        &quot;title&quot;: &quot;Hallucination Rate&quot;,
+        &quot;targets&quot;: [{
+          &quot;expr&quot;: &quot;rate(rag_hallucinations_total[1h]) / rate(rag_queries_total[1h])&quot;
+        }]
+      },
+      {
+        &quot;title&quot;: &quot;Cache Hit Rate&quot;,
+        &quot;targets&quot;: [{
+          &quot;expr&quot;: &quot;rate(rag_cache_hits_total[5m]) / rate(rag_queries_total[5m])&quot;
+        }]
+      }
+    ]
+  }
+}</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-a">Acceptance Criteria</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-f">Functional Requirements</h5>
+<ul>
+<li>[ ] Document ingestion pipeline processes PDF, HTML, Markdown</li>
+<li>[ ] Intelligent chunking with overlap</li>
+<li>[ ] Qdrant 向量数据库（Qdrant） vector database deployed with HA</li>
+<li>[ ] Hybrid search (dense + sparse) implemented</li>
+<li>[ ] Re-ranking with cross-encoder</li>
+<li>[ ] 检索增强生成（RAG） generation with 大语言模型（LLM） integration</li>
+<li>[ ] Citation extraction</li>
+<li>[ ] Hallucination detection</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-p">Performance Requirements</h5>
+<ul>
+<li>[ ] Retrieval precision@5: &gt;90%</li>
+<li>[ ] Answer accuracy: &gt;90%</li>
+<li>[ ] End-to-end latency: &lt;2 seconds</li>
+<li>[ ] Handle 10,000 queries/day</li>
+<li>[ ] Support 1M+ documents</li>
+<li>[ ] Hallucination rate: &lt;5%</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-c">Code Quality</h5>
+<ul>
+<li>[ ] Comprehensive unit tests (&gt;80% coverage)</li>
+<li>[ ] Integration tests for full 检索增强生成（RAG） pipeline</li>
+<li>[ ] Evaluation framework with metrics</li>
+<li>[ ] 监控（Monitoring） dashboards</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-t">Testing Strategy</h4>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Unit tests
+pytest tests/
+
+# Integration tests
+pytest tests/integration/ -v
+
+# Evaluation
+python src/evaluation/run_eval.py --ground-truth data/eval_set.json
+
+# Load test
+python tests/load_test_rag.py --queries-per-second 100</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-d">交付物（Deliverables）</h4>
+<ol>
+<li><strong>Source Code</strong> (ingestion, retrieval, generation pipelines)</li>
+<li><strong>Kubernetes 容器编排（Kubernetes） Manifests</strong> (Qdrant deployment)</li>
+<li><strong>Evaluation Framework</strong> (metrics, ground truth dataset)</li>
+<li><strong>Documentation</strong> (architecture, API docs, evaluation results)</li>
+<li><strong>Dashboards</strong> (Grafana monitoring)</li>
+</ol>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-b">Bonus Challenges</h4>
+<ol>
+<li><strong>Multi-Modal 检索增强生成（RAG）</strong> (+8 hours): Support images, tables in documents</li>
+<li><strong>Conversational 检索增强生成（RAG）</strong> (+6 hours): Handle follow-up questions with context</li>
+<li><strong>Active Learning</strong> (+6 hours): Learn from user feedback to improve retrieval</li>
+</ol>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-r">资源（Resources）</h4>
+<ul>
+<li><a href="https://qdrant.tech/documentation/">Qdrant 向量数据库（Qdrant） Documentation</a></li>
+<li><a href="https://www.sbert.net/">Sentence Transformers</a></li>
+<li><a href="https://arxiv.org/abs/2005.11401">检索增强生成（RAG） Papers</a></li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md-s">Submission</h4>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">git add .
+git commit -m &quot;Complete Exercise 02: Production RAG System&quot;
+git push origin exercise-02-production-rag-system</code></pre></div>
+<hr/>
+<p><strong>Estimated Time Breakdown</strong>:</p>
+<ul>
+<li>Part 1 (Document Ingestion): 8-10 hours</li>
+<li>Part 2 (Vector Database): 7-9 hours</li>
+<li>Part 3 (Retrieval Engine): 7-9 hours</li>
+<li>Part 4 (RAG Generation): 6-8 hours</li>
+<li>Part 5 (Evaluation): 6-8 hours</li>
+<li><strong>Total</strong>: 34-42 hours</li>
+</ul><p><a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-110-llm-infrastructure.html#doc-lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-03-vllm-deep-dive-readme-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

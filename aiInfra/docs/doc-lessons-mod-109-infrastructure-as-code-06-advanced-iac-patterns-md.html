@@ -1,0 +1,1290 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 06: Advanced IaC Patterns</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 06: Advanced IaC Patterns</h1><p>Module 109: 基础设施即代码（Infrastructure as Code） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Module 09: 基础设施即代码（Infrastructure as Code） (IaC)</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-resources-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Resources</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lesson 01: Introduction to 基础设施即代码（Infrastructure as Code）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md.html">Lesson 02: Terraform 基础设施编排（Terraform） Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-03-terraform-state-management-md.html">Lesson 03: Terraform 基础设施编排（Terraform） State Management</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md.html">Lesson 04: Building AI 基础设施（AI Infrastructure） with Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-05-pulumi-infrastructure-as-software-md.html">Lesson 05: Pulumi 多语言 IaC（Pulumi） - Infrastructure as Software</a><a class="tree-doc active" href="../docs/doc-lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md.html">Lesson 06: Advanced IaC Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md.html">Lesson 07: GitOps 交付模式（GitOps） and IaC CI/CD 持续集成与交付（CI/CD）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-08-security-best-practices-md.html">Lesson 08: 安全（Security） Best Practices for IaC</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-01-terraform-aws-vpc-md.html">Lab 01: Terraform 基础设施编排（Terraform） AWS 云（AWS） VPC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-02-terraform-eks-md.html">Lab 02: Terraform 基础设施编排（Terraform） EKS 托管 Kubernetes（EKS） Cluster</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-03-terraform-state-backend-md.html">Lab 03: Remote State Backend with S3 + DynamoDB Locking</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-04-pulumi-multicloud-md.html">Lab 04: Pulumi 多语言 IaC（Pulumi） Multi-Cloud 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-05-iac-cicd-md.html">Lab 05: IaC in CI/CD 持续集成与交付（CI/CD） with PR-Based Plan</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-06-secret-management-md.html">Lab 06: Secret Management with Vault + Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-07-policy-as-code-md.html">Lab 07: Policy as Code with OPA Conftest</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Module 109 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercise 01: 生产环境（Production） 机器学习基础设施（ML Infrastructure） with Terraform 基础设施编排（Terraform）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-02-pulumi-multicloud-ml-readme-m.html">Exercise 02: Multi-Cloud 机器学习基础设施（ML Infrastructure） with Pulumi 多语言 IaC（Pulumi）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-03-terraform-module-library-read.html">Exercise 03: Build a Reusable Terraform 基础设施编排（Terraform） Module Library</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-04-state-management-at-scale-rea.html">Exercise 04: Terraform 基础设施编排（Terraform） State Management at Scale</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-05-pulumi-advanced-patterns-read.html">Exercise 05: Pulumi 多语言 IaC（Pulumi） Advanced Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-06-gitops-argocd-readme-md.html">Exercise 06: GitOps 交付模式（GitOps） with ArgoCD GitOps 部署（ArgoCD）</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-07-secret-management-readme-md.html">Exercise 07: Secret Management Across IaC + Runtime</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-08-policy-as-code-readme-md.html">Exercise 08: Policy as Code (OPA + Sentinel)</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-09-drift-detection-readme-md.html">Exercise 09: Drift Detection and Remediation</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-10-multi-environment-promotion-r.html">Exercise 10: Multi-Environment Promotion Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-11-cost-aware-iac-readme-md.html">Exercise 11: Cost-Aware IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-12-disaster-recovery-iac-readme-.html">Exercise 12: Disaster Recovery via IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-13-iac-for-ml-workloads-readme-m.html">Exercise 13: IaC for AI/ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-readme-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Module 09: 基础设施即代码（Infrastructure as Code） - Quiz</a></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 06: Advanced IaC Patterns</h2><p>Module 109: 基础设施即代码（Infrastructure as Code） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>6</strong><span>reading order</span></div><div class="stat"><strong>33</strong><span>chapter docs</span></div><div class="stat"><strong>1452</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md" data-title="lesson 06: advanced iac patterns lessons/mod-109-infrastructure-as-code/06-advanced-iac-patterns.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">6/33</span><span class="chip">Lectures</span><span class="path">lessons/mod-109-infrastructure-as-code/06-advanced-iac-patterns.md</span><span class="path">1452 行</span></div><h2>Lesson 06: Advanced IaC Patterns</h2><p><a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-05-pulumi-infrastructure-as-software-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-109-infrastructure-as-code.html#doc-lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-lesson-06-advanced-iac-">Lesson 06: Advanced IaC Patterns</h3>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will:</p>
+<ul>
+<li>Create reusable Terraform 基础设施编排（Terraform） modules for ML infrastructure</li>
+<li>Design module inputs, outputs, and composition patterns</li>
+<li>Implement multi-environment strategies (dev/staging/prod)</li>
+<li>Deploy multi-cloud infrastructure (AWS + GCP 云（GCP）)</li>
+<li>Use dynamic configuration with external data sources</li>
+<li>Master conditional resource creation</li>
+<li>Apply advanced for_each and count patterns</li>
+<li>Control resource dependencies and targeting</li>
+<li>Publish and version modules in registries</li>
+</ul>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-terraform-modules">Terraform 基础设施编排（Terraform） Modules</h4>
+<p>Modules are reusable packages of Terraform 基础设施编排（Terraform） configuration. Think of them as functions for infrastructure.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-why-modules">Why Modules?</h5>
+<p><strong>Without modules (copy-paste hell):</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">projects/
+├── dev/
+│   ├── vpc.tf          # 200 lines
+│   ├── instances.tf    # 150 lines
+│   └── storage.tf      # 100 lines
+├── staging/
+│   ├── vpc.tf          # 200 lines (duplicated!)
+│   ├── instances.tf    # 150 lines (duplicated!)
+│   └── storage.tf      # 100 lines (duplicated!)
+└── production/
+    ├── vpc.tf          # 200 lines (duplicated!)
+    ├── instances.tf    # 150 lines (duplicated!)
+    └── storage.tf      # 100 lines (duplicated!)
+
+# Total: 1350 lines (900 duplicated!)
+# Any change requires updating 3 places</code></pre></div>
+<p><strong>With modules (DRY principle):</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">projects/
+├── modules/
+│   └── ml-infrastructure/
+│       ├── main.tf       # 450 lines (single source of truth)
+│       ├── variables.tf
+│       └── outputs.tf
+├── dev/
+│   └── main.tf           # 20 lines (uses module)
+├── staging/
+│   └── main.tf           # 20 lines (uses module)
+└── production/
+    └── main.tf           # 20 lines (uses module)
+
+# Total: 510 lines (no duplication!)
+# Changes in one place affect all environments</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-creating-a-module">Creating a Module</h5>
+<p><strong>Directory structure:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">modules/
+└── gpu-cluster/
+    ├── main.tf         # Resources
+    ├── variables.tf    # Input variables
+    ├── outputs.tf      # Output values
+    ├── README.md       # Documentation
+    └── examples/       # Usage examples
+        └── basic/
+            └── main.tf</code></pre></div>
+<p><strong>modules/gpu-cluster/variables.tf:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">variable &quot;cluster_name&quot; {
+  description = &quot;Name of the GPU cluster&quot;
+  type        = string
+}
+
+variable &quot;instance_type&quot; {
+  description = &quot;EC2 instance type for GPU nodes&quot;
+  type        = string
+  default     = &quot;p3.2xlarge&quot;
+
+  validation {
+    condition     = can(regex(&quot;^(p3|p4d|g4dn|g5)\\.&quot;, var.instance_type))
+    error_message = &quot;Instance type must be a GPU instance (p3, p4d, g4dn, or g5).&quot;
+  }
+}
+
+variable &quot;instance_count&quot; {
+  description = &quot;Number of GPU instances in cluster&quot;
+  type        = number
+  default     = 2
+
+  validation {
+    condition     = var.instance_count &gt; 0 &amp;&amp; var.instance_count &lt;= 100
+    error_message = &quot;Instance count must be between 1 and 100.&quot;
+  }
+}
+
+variable &quot;disk_size_gb&quot; {
+  description = &quot;Root volume size in GB&quot;
+  type        = number
+  default     = 500
+}
+
+variable &quot;use_spot_instances&quot; {
+  description = &quot;Use spot instances for cost savings&quot;
+  type        = bool
+  default     = true
+}
+
+variable &quot;spot_max_price&quot; {
+  description = &quot;Maximum spot price per hour (only if use_spot_instances = true)&quot;
+  type        = string
+  default     = &quot;3.00&quot;
+}
+
+variable &quot;vpc_id&quot; {
+  description = &quot;VPC ID where cluster will be deployed&quot;
+  type        = string
+}
+
+variable &quot;subnet_ids&quot; {
+  description = &quot;List of subnet IDs for instance placement&quot;
+  type        = list(string)
+}
+
+variable &quot;allowed_cidr_blocks&quot; {
+  description = &quot;CIDR blocks allowed to access cluster&quot;
+  type        = list(string)
+  default     = [&quot;0.0.0.0/0&quot;]
+}
+
+variable &quot;s3_buckets&quot; {
+  description = &quot;S3 buckets for data access&quot;
+  type = object({
+    datasets = string
+    models   = string
+  })
+}
+
+variable &quot;tags&quot; {
+  description = &quot;Additional tags for resources&quot;
+  type        = map(string)
+  default     = {}
+}</code></pre></div>
+<p><strong>modules/gpu-cluster/main.tf:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Get latest Deep Learning AMI
+data &quot;aws_ami&quot; &quot;deep_learning&quot; {
+  most_recent = true
+  owners      = [&quot;amazon&quot;]
+
+  filter {
+    name   = &quot;name&quot;
+    values = [&quot;Deep Learning AMI GPU PyTorch *&quot;]
+  }
+
+  filter {
+    name   = &quot;architecture&quot;
+    values = [&quot;x86_64&quot;]
+  }
+}
+
+# Security group
+resource &quot;aws_security_group&quot; &quot;cluster&quot; {
+  name_prefix = &quot;${var.cluster_name}-&quot;
+  description = &quot;Security group for ${var.cluster_name} GPU cluster&quot;
+  vpc_id      = var.vpc_id
+
+  # SSH
+  ingress {
+    description = &quot;SSH&quot;
+    from_port   = 22
+    to_port     = 22
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = var.allowed_cidr_blocks
+  }
+
+  # Jupyter
+  ingress {
+    description = &quot;Jupyter&quot;
+    from_port   = 8888
+    to_port     = 8888
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = var.allowed_cidr_blocks
+  }
+
+  # Inter-instance communication
+  ingress {
+    description = &quot;Inter-instance&quot;
+    from_port   = 0
+    to_port     = 0
+    protocol    = &quot;-1&quot;
+    self        = true
+  }
+
+  # All outbound
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = &quot;-1&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  tags = merge(
+    {
+      Name = &quot;${var.cluster_name}-sg&quot;
+    },
+    var.tags
+  )
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# IAM role
+resource &quot;aws_iam_role&quot; &quot;cluster&quot; {
+  name = &quot;${var.cluster_name}-role&quot;
+
+  assume_role_policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [{
+      Action = &quot;sts:AssumeRole&quot;
+      Effect = &quot;Allow&quot;
+      Principal = {
+        Service = &quot;ec2.amazonaws.com&quot;
+      }
+    }]
+  })
+
+  tags = var.tags
+}
+
+# IAM policy for S3 access
+resource &quot;aws_iam_role_policy&quot; &quot;s3_access&quot; {
+  name = &quot;${var.cluster_name}-s3-policy&quot;
+  role = aws_iam_role.cluster.id
+
+  policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [{
+      Effect = &quot;Allow&quot;
+      Action = [
+        &quot;s3:GetObject&quot;,
+        &quot;s3:PutObject&quot;,
+        &quot;s3:ListBucket&quot;
+      ]
+      Resource = [
+        &quot;arn:aws:s3:::${var.s3_buckets.datasets}&quot;,
+        &quot;arn:aws:s3:::${var.s3_buckets.datasets}/*&quot;,
+        &quot;arn:aws:s3:::${var.s3_buckets.models}&quot;,
+        &quot;arn:aws:s3:::${var.s3_buckets.models}/*&quot;
+      ]
+    }]
+  })
+}
+
+# Instance profile
+resource &quot;aws_iam_instance_profile&quot; &quot;cluster&quot; {
+  name = &quot;${var.cluster_name}-profile&quot;
+  role = aws_iam_role.cluster.name
+}
+
+# Launch template
+resource &quot;aws_launch_template&quot; &quot;cluster&quot; {
+  name_prefix   = &quot;${var.cluster_name}-&quot;
+  image_id      = data.aws_ami.deep_learning.id
+  instance_type = var.instance_type
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.cluster.name
+  }
+
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.cluster.id]
+  }
+
+  block_device_mappings {
+    device_name = &quot;/dev/sda1&quot;
+    ebs {
+      volume_size = var.disk_size_gb
+      volume_type = &quot;gp3&quot;
+      iops        = 3000
+      throughput  = 125
+    }
+  }
+
+  # Spot instance configuration
+  dynamic &quot;instance_market_options&quot; {
+    for_each = var.use_spot_instances ? [1] : []
+
+    content {
+      market_type = &quot;spot&quot;
+      spot_options {
+        max_price                      = var.spot_max_price
+        spot_instance_type            = &quot;persistent&quot;
+        instance_interruption_behavior = &quot;stop&quot;
+      }
+    }
+  }
+
+  user_data = base64encode(templatefile(&quot;${path.module}/user-data.sh&quot;, {
+    cluster_name    = var.cluster_name
+    datasets_bucket = var.s3_buckets.datasets
+    models_bucket   = var.s3_buckets.models
+  }))
+
+  tag_specifications {
+    resource_type = &quot;instance&quot;
+    tags = merge(
+      {
+        Name    = &quot;${var.cluster_name}-node&quot;
+        Cluster = var.cluster_name
+      },
+      var.tags
+    )
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Auto Scaling Group
+resource &quot;aws_autoscaling_group&quot; &quot;cluster&quot; {
+  name                = &quot;${var.cluster_name}-asg&quot;
+  vpc_zone_identifier = var.subnet_ids
+  min_size            = 0
+  max_size            = var.instance_count * 2
+  desired_capacity    = var.instance_count
+
+  launch_template {
+    id      = aws_launch_template.cluster.id
+    version = &quot;$Latest&quot;
+  }
+
+  health_check_type         = &quot;EC2&quot;
+  health_check_grace_period = 300
+
+  tag {
+    key                 = &quot;Name&quot;
+    value               = &quot;${var.cluster_name}-asg-node&quot;
+    propagate_at_launch = true
+  }
+
+  dynamic &quot;tag&quot; {
+    for_each = var.tags
+
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
+  }
+}
+
+# CloudWatch alarms
+resource &quot;aws_cloudwatch_metric_alarm&quot; &quot;high_cpu&quot; {
+  alarm_name          = &quot;${var.cluster_name}-high-cpu&quot;
+  comparison_operator = &quot;GreaterThanThreshold&quot;
+  evaluation_periods  = &quot;2&quot;
+  metric_name         = &quot;CPUUtilization&quot;
+  namespace           = &quot;AWS/EC2&quot;
+  period              = &quot;300&quot;
+  statistic           = &quot;Average&quot;
+  threshold           = &quot;80&quot;
+  alarm_description   = &quot;This metric monitors GPU cluster CPU utilization&quot;
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.cluster.name
+  }
+}</code></pre></div>
+<p><strong>modules/gpu-cluster/outputs.tf:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">output &quot;cluster_name&quot; {
+  description = &quot;Name of the GPU cluster&quot;
+  value       = var.cluster_name
+}
+
+output &quot;security_group_id&quot; {
+  description = &quot;Security group ID for the cluster&quot;
+  value       = aws_security_group.cluster.id
+}
+
+output &quot;iam_role_arn&quot; {
+  description = &quot;IAM role ARN for cluster instances&quot;
+  value       = aws_iam_role.cluster.arn
+}
+
+output &quot;autoscaling_group_name&quot; {
+  description = &quot;Auto Scaling Group name&quot;
+  value       = aws_autoscaling_group.cluster.name
+}
+
+output &quot;autoscaling_group_arn&quot; {
+  description = &quot;Auto Scaling Group ARN&quot;
+  value       = aws_autoscaling_group.cluster.arn
+}
+
+output &quot;launch_template_id&quot; {
+  description = &quot;Launch template ID&quot;
+  value       = aws_launch_template.cluster.id
+}</code></pre></div>
+<p><strong>modules/gpu-cluster/user-data.sh:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">#!/bin/bash
+set -e
+
+# Log everything
+exec &gt; &gt;(tee /var/log/user-data.log)
+exec 2&gt;&amp;1
+
+echo &quot;Starting GPU cluster initialization...&quot;
+
+# Update system
+yum update -y
+
+# Install additional ML tools
+pip install --upgrade torch torchvision torchaudio
+pip install transformers datasets accelerate
+pip install wandb mlflow tensorboard
+
+# Configure AWS CLI
+aws configure set default.region $(ec2-metadata --availability-zone | cut -d' ' -f2 | sed 's/.$//')
+
+# Create data directories
+mkdir -p /data/datasets /data/models /data/cache
+
+# Sync S3 data
+aws s3 sync s3://${datasets_bucket} /data/datasets --quiet &amp;
+aws s3 sync s3://${models_bucket} /data/models --quiet &amp;
+
+# Setup NVIDIA container runtime (if using Docker)
+if command -v docker &amp;&gt; /dev/null; then
+    distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+    curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | \
+        sudo tee /etc/yum.repos.d/nvidia-docker.repo
+    yum install -y nvidia-container-toolkit
+    systemctl restart docker
+fi
+
+# Create cluster info file
+cat &gt; /etc/cluster-info &lt;&lt;EOF
+CLUSTER_NAME=${cluster_name}
+DATASETS_BUCKET=${datasets_bucket}
+MODELS_BUCKET=${models_bucket}
+INITIALIZED_AT=$(date)
+EOF
+
+echo &quot;GPU cluster initialization complete!&quot;
+touch /tmp/cluster-ready</code></pre></div>
+<p><strong>modules/gpu-cluster/README.md:</strong></p>
+<div class="code-shell"><div class="code-title"><span>markdown</span><span>MARKDOWN</span></div><pre><code class="language-markdown"># GPU Cluster Module
+
+Creates an auto-scaling GPU cluster for ML training workloads.
+
+## Features
+
+- Auto Scaling Group with GPU instances
+- Spot instance support for cost optimization
+- S3 integration for datasets and models
+- CloudWatch monitoring and alarms
+- Customizable security groups
+- IAM roles with least privilege
+
+## Usage
+
+\`\`\`hcl
+module &quot;training_cluster&quot; {
+  source = &quot;./modules/gpu-cluster&quot;
+
+  cluster_name       = &quot;ml-training&quot;
+  instance_type      = &quot;p3.8xlarge&quot;
+  instance_count     = 4
+  use_spot_instances = true
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnet_ids
+
+  s3_buckets = {
+    datasets = aws_s3_bucket.datasets.id
+    models   = aws_s3_bucket.models.id
+  }
+
+  tags = {
+    Project     = &quot;ML-Platform&quot;
+    Environment = &quot;production&quot;
+  }
+}
+\`\`\`
+
+## Requirements
+
+- Terraform &gt;= 1.0
+- AWS Provider &gt;= 5.0
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|----------|
+| cluster_name | Name of the GPU cluster | string | - | yes |
+| instance_type | EC2 instance type | string | p3.2xlarge | no |
+| instance_count | Number of instances | number | 2 | no |
+| vpc_id | VPC ID | string | - | yes |
+| subnet_ids | Subnet IDs | list(string) | - | yes |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| cluster_name | GPU cluster name |
+| security_group_id | Security group ID |
+| autoscaling_group_name | ASG name |</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-using-modules">Using Modules</h5>
+<p><strong>environment/production/main.tf:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">module &quot;training_cluster&quot; {
+  source = &quot;../../modules/gpu-cluster&quot;
+
+  cluster_name       = &quot;production-training&quot;
+  instance_type      = &quot;p3.8xlarge&quot;
+  instance_count     = 10
+  use_spot_instances = false  # Production uses on-demand
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnet_ids
+
+  s3_buckets = {
+    datasets = aws_s3_bucket.datasets.id
+    models   = aws_s3_bucket.models.id
+  }
+
+  tags = {
+    Project     = &quot;ML-Platform&quot;
+    Environment = &quot;production&quot;
+    CostCenter  = &quot;AI-Research&quot;
+  }
+}
+
+module &quot;inference_cluster&quot; {
+  source = &quot;../../modules/gpu-cluster&quot;
+
+  cluster_name       = &quot;production-inference&quot;
+  instance_type      = &quot;g4dn.xlarge&quot;  # T4 GPUs for inference
+  instance_count     = 5
+  use_spot_instances = true
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.public_subnet_ids
+
+  s3_buckets = {
+    datasets = aws_s3_bucket.datasets.id
+    models   = aws_s3_bucket.models.id
+  }
+
+  tags = {
+    Project     = &quot;ML-Platform&quot;
+    Environment = &quot;production&quot;
+    CostCenter  = &quot;AI-Research&quot;
+  }
+}
+
+# Use module outputs
+output &quot;training_cluster_asg&quot; {
+  value = module.training_cluster.autoscaling_group_name
+}
+
+output &quot;inference_cluster_asg&quot; {
+  value = module.inference_cluster.autoscaling_group_name
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-multi-environment-strat">Multi-Environment Strategies</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-strategy-1-workspaces">Strategy 1: Workspaces</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create workspaces
+terraform workspace new dev
+terraform workspace new staging
+terraform workspace new production
+
+# Switch between workspaces
+terraform workspace select dev
+terraform apply
+
+terraform workspace select production
+terraform apply</code></pre></div>
+<p><strong>main.tf with workspaces:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">locals {
+  environment = terraform.workspace
+
+  # Environment-specific configuration
+  config = {
+    dev = {
+      instance_type  = &quot;t3.large&quot;
+      instance_count = 1
+      disk_size      = 50
+    }
+    staging = {
+      instance_type  = &quot;p3.2xlarge&quot;
+      instance_count = 2
+      disk_size      = 100
+    }
+    production = {
+      instance_type  = &quot;p3.8xlarge&quot;
+      instance_count = 10
+      disk_size      = 500
+    }
+  }
+
+  env_config = local.config[local.environment]
+}
+
+module &quot;gpu_cluster&quot; {
+  source = &quot;./modules/gpu-cluster&quot;
+
+  cluster_name   = &quot;${local.environment}-cluster&quot;
+  instance_type  = local.env_config.instance_type
+  instance_count = local.env_config.instance_count
+  disk_size_gb   = local.env_config.disk_size
+
+  # ...
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-strategy-2-separate-dir">Strategy 2: Separate Directories (Recommended)</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">infrastructure/
+├── modules/
+│   ├── gpu-cluster/
+│   ├── vpc/
+│   └── storage/
+├── environments/
+│   ├── dev/
+│   │   ├── backend.tf
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── terraform.tfvars
+│   ├── staging/
+│   │   ├── backend.tf
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── terraform.tfvars
+│   └── production/
+│       ├── backend.tf
+│       ├── main.tf
+│       ├── variables.tf
+│       └── terraform.tfvars
+└── README.md</code></pre></div>
+<p><strong>environments/dev/main.tf:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">module &quot;gpu_cluster&quot; {
+  source = &quot;../../modules/gpu-cluster&quot;
+
+  cluster_name   = &quot;dev-cluster&quot;
+  instance_type  = var.instance_type
+  instance_count = var.instance_count
+
+  # ...
+}</code></pre></div>
+<p><strong>environments/dev/terraform.tfvars:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">instance_type  = &quot;t3.large&quot;
+instance_count = 1
+disk_size_gb   = 50</code></pre></div>
+<p><strong>environments/production/terraform.tfvars:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">instance_type  = &quot;p3.8xlarge&quot;
+instance_count = 10
+disk_size_gb   = 500</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-strategy-3-terragrunt-a">Strategy 3: Terragrunt (Advanced)</h5>
+<p>Terragrunt is a thin wrapper for Terraform 基础设施编排（Terraform） that provides DRY configuration.</p>
+<p><strong>terragrunt.hcl (root):</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">remote_state {
+  backend = &quot;s3&quot;
+  config = {
+    bucket         = &quot;my-terraform-state&quot;
+    key            = &quot;${path_relative_to_include()}/terraform.tfstate&quot;
+    region         = &quot;us-west-2&quot;
+    encrypt        = true
+    dynamodb_table = &quot;terraform-locks&quot;
+  }
+}</code></pre></div>
+<p><strong>environments/dev/terragrunt.hcl:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">include &quot;root&quot; {
+  path = find_in_parent_folders()
+}
+
+inputs = {
+  environment    = &quot;dev&quot;
+  instance_type  = &quot;t3.large&quot;
+  instance_count = 1
+}</code></pre></div>
+<p><strong>environments/production/terragrunt.hcl:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">include &quot;root&quot; {
+  path = find_in_parent_folders()
+}
+
+inputs = {
+  environment    = &quot;production&quot;
+  instance_type  = &quot;p3.8xlarge&quot;
+  instance_count = 10
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-multi-cloud-deployments">Multi-Cloud Deployments</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-aws-gcp-configuration">AWS 云（AWS） + GCP 云（GCP） Configuration</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># providers.tf
+terraform {
+  required_providers {
+    aws = {
+      source  = &quot;hashicorp/aws&quot;
+      version = &quot;~&gt; 5.0&quot;
+    }
+    google = {
+      source  = &quot;hashicorp/google&quot;
+      version = &quot;~&gt; 5.0&quot;
+    }
+  }
+}
+
+provider &quot;aws&quot; {
+  region = &quot;us-west-2&quot;
+}
+
+provider &quot;google&quot; {
+  project = &quot;my-ml-project&quot;
+  region  = &quot;us-central1&quot;
+}
+
+# AWS GPU cluster
+module &quot;aws_training_cluster&quot; {
+  source = &quot;./modules/aws-gpu-cluster&quot;
+
+  cluster_name   = &quot;aws-training&quot;
+  instance_type  = &quot;p3.8xlarge&quot;
+  instance_count = 5
+
+  # ...
+}
+
+# GCP GPU cluster
+module &quot;gcp_training_cluster&quot; {
+  source = &quot;./modules/gcp-gpu-cluster&quot;
+
+  cluster_name   = &quot;gcp-training&quot;
+  machine_type   = &quot;a2-highgpu-1g&quot;  # A100 GPU
+  instance_count = 3
+
+  # ...
+}
+
+# Cross-cloud networking (VPN or direct connect)
+resource &quot;aws_vpn_gateway&quot; &quot;main&quot; {
+  vpc_id = module.aws_vpc.vpc_id
+}
+
+resource &quot;google_compute_vpn_gateway&quot; &quot;main&quot; {
+  name    = &quot;ml-vpn-gateway&quot;
+  network = module.gcp_vpc.network_name
+}
+
+# Configure VPN tunnels
+resource &quot;aws_vpn_connection&quot; &quot;gcp&quot; {
+  vpn_gateway_id      = aws_vpn_gateway.main.id
+  customer_gateway_id = aws_customer_gateway.gcp.id
+  type                = &quot;ipsec.1&quot;
+  static_routes_only  = true
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-dynamic-configuration">Dynamic Configuration</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-external-data-sources">External Data Sources</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Get instance pricing from AWS API
+data &quot;aws_ec2_spot_price&quot; &quot;gpu&quot; {
+  instance_type     = &quot;p3.8xlarge&quot;
+  availability_zone = &quot;us-west-2a&quot;
+
+  filter {
+    name   = &quot;product-description&quot;
+    values = [&quot;Linux/UNIX&quot;]
+  }
+}
+
+# Use dynamic pricing
+resource &quot;aws_spot_instance_request&quot; &quot;gpu&quot; {
+  ami           = data.aws_ami.deep_learning.id
+  instance_type = &quot;p3.8xlarge&quot;
+  spot_price    = data.aws_ec2_spot_price.gpu.spot_price * 1.1  # 10% buffer
+
+  # ...
+}
+
+# HTTP data source (external API)
+data &quot;http&quot; &quot;gpu_availability&quot; {
+  url = &quot;https://api.example.com/gpu-availability?region=us-west-2&quot;
+
+  request_headers = {
+    Accept = &quot;application/json&quot;
+  }
+}
+
+locals {
+  gpu_available = jsondecode(data.http.gpu_availability.body).available
+}
+
+# Only create if GPUs are available
+resource &quot;aws_instance&quot; &quot;gpu&quot; {
+  count = local.gpu_available ? var.instance_count : 0
+
+  # ...
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-template-files">Template Files</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Read template file
+data &quot;template_file&quot; &quot;user_data&quot; {
+  template = file(&quot;${path.module}/templates/user-data.sh.tpl&quot;)
+
+  vars = {
+    cluster_name    = var.cluster_name
+    datasets_bucket = aws_s3_bucket.datasets.id
+    models_bucket   = aws_s3_bucket.models.id
+    mlflow_uri      = var.mlflow_tracking_uri
+    wandb_api_key   = var.wandb_api_key
+  }
+}
+
+resource &quot;aws_instance&quot; &quot;gpu&quot; {
+  user_data = data.template_file.user_data.rendered
+  # ...
+}</code></pre></div>
+<p><strong>templates/user-data.sh.tpl:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">#!/bin/bash
+export CLUSTER_NAME=&quot;${cluster_name}&quot;
+export DATASETS_BUCKET=&quot;${datasets_bucket}&quot;
+export MODELS_BUCKET=&quot;${models_bucket}&quot;
+export MLFLOW_TRACKING_URI=&quot;${mlflow_uri}&quot;
+export WANDB_API_KEY=&quot;${wandb_api_key}&quot;
+
+# Setup script
+pip install mlflow wandb
+mlflow server --host 0.0.0.0 &amp;</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-conditional-resources">Conditional Resources</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-simple-conditionals">Simple Conditionals</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Create resource only in production
+resource &quot;aws_instance&quot; &quot;monitoring&quot; {
+  count = var.environment == &quot;production&quot; ? 1 : 0
+
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = &quot;t3.medium&quot;
+
+  tags = {
+    Name = &quot;monitoring-server&quot;
+  }
+}
+
+# Create multiple resources conditionally
+resource &quot;aws_instance&quot; &quot;gpu_cluster&quot; {
+  count = var.enable_gpu ? var.gpu_count : 0
+
+  instance_type = &quot;p3.8xlarge&quot;
+  # ...
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-complex-conditionals-wi">Complex Conditionals with Dynamic Blocks</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">resource &quot;aws_security_group&quot; &quot;ml&quot; {
+  name   = &quot;ml-sg&quot;
+  vpc_id = var.vpc_id
+
+  # Conditionally add rules
+  dynamic &quot;ingress&quot; {
+    for_each = var.enable_ssh ? [1] : []
+
+    content {
+      from_port   = 22
+      to_port     = 22
+      protocol    = &quot;tcp&quot;
+      cidr_blocks = var.ssh_allowed_cidrs
+    }
+  }
+
+  dynamic &quot;ingress&quot; {
+    for_each = var.enable_jupyter ? [1] : []
+
+    content {
+      from_port   = 8888
+      to_port     = 8888
+      protocol    = &quot;tcp&quot;
+      cidr_blocks = var.jupyter_allowed_cidrs
+    }
+  }
+
+  # Always include egress
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = &quot;-1&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-advanced-for-each-and-c">Advanced for_each and count Patterns</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-for-each-with-maps">for_each with Maps</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Create different instance types based on workload
+variable &quot;workloads&quot; {
+  type = map(object({
+    instance_type = string
+    count         = number
+    disk_size     = number
+  }))
+
+  default = {
+    training = {
+      instance_type = &quot;p3.8xlarge&quot;
+      count         = 4
+      disk_size     = 500
+    }
+    inference = {
+      instance_type = &quot;g4dn.xlarge&quot;
+      count         = 10
+      disk_size     = 100
+    }
+    preprocessing = {
+      instance_type = &quot;c5.4xlarge&quot;
+      count         = 5
+      disk_size     = 200
+    }
+  }
+}
+
+# Create launch template for each workload
+resource &quot;aws_launch_template&quot; &quot;workload&quot; {
+  for_each = var.workloads
+
+  name_prefix   = &quot;${each.key}-&quot;
+  instance_type = each.value.instance_type
+
+  block_device_mappings {
+    device_name = &quot;/dev/sda1&quot;
+    ebs {
+      volume_size = each.value.disk_size
+    }
+  }
+
+  tags = {
+    Workload = each.key
+  }
+}
+
+# Create ASG for each workload
+resource &quot;aws_autoscaling_group&quot; &quot;workload&quot; {
+  for_each = var.workloads
+
+  name             = &quot;${each.key}-asg&quot;
+  min_size         = 0
+  max_size         = each.value.count * 2
+  desired_capacity = each.value.count
+
+  launch_template {
+    id      = aws_launch_template.workload[each.key].id
+    version = &quot;$Latest&quot;
+  }
+
+  # ...
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-nested-for-each">Nested for_each</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Create buckets in multiple regions
+variable &quot;regions&quot; {
+  default = [&quot;us-west-2&quot;, &quot;us-east-1&quot;, &quot;eu-west-1&quot;]
+}
+
+variable &quot;bucket_types&quot; {
+  default = [&quot;datasets&quot;, &quot;models&quot;, &quot;artifacts&quot;]
+}
+
+locals {
+  # Flatten into list of {region, bucket_type} combinations
+  region_bucket_combinations = flatten([
+    for region in var.regions : [
+      for bucket_type in var.bucket_types : {
+        region      = region
+        bucket_type = bucket_type
+        key         = &quot;${region}-${bucket_type}&quot;
+      }
+    ]
+  ])
+
+  # Convert to map for for_each
+  region_buckets = {
+    for combo in local.region_bucket_combinations :
+    combo.key =&gt; combo
+  }
+}
+
+# Create bucket in each region for each type
+resource &quot;aws_s3_bucket&quot; &quot;multi_region&quot; {
+  for_each = local.region_buckets
+
+  bucket = &quot;ml-${each.value.bucket_type}-${each.value.region}-${data.aws_caller_identity.current.account_id}&quot;
+
+  # Note: Region must be set via provider alias
+  provider = aws.${each.value.region}
+
+  tags = {
+    Region     = each.value.region
+    BucketType = each.value.bucket_type
+  }
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-count-with-computed-val">count with Computed Values</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Scale instances based on time of day (example)
+data &quot;external&quot; &quot;business_hours&quot; {
+  program = [&quot;python&quot;, &quot;${path.module}/scripts/check_business_hours.py&quot;]
+}
+
+locals {
+  is_business_hours = data.external.business_hours.result.is_business_hours == &quot;true&quot;
+  instance_count    = local.is_business_hours ? 10 : 2
+}
+
+resource &quot;aws_instance&quot; &quot;auto_scale&quot; {
+  count = local.instance_count
+
+  instance_type = &quot;p3.2xlarge&quot;
+  # ...
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-resource-dependencies">Resource Dependencies</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-implicit-dependencies">Implicit Dependencies</h5>
+<p>Terraform 基础设施编排（Terraform） automatically detects dependencies when you reference resources:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">resource &quot;aws_security_group&quot; &quot;ml&quot; {
+  vpc_id = aws_vpc.main.id  # Implicit dependency on vpc
+}
+
+resource &quot;aws_instance&quot; &quot;gpu&quot; {
+  vpc_security_group_ids = [aws_security_group.ml.id]  # Implicit dependency on SG
+}
+
+# Terraform will create in order: VPC → Security Group → Instance</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-explicit-dependencies">Explicit Dependencies</h5>
+<p>Use <code>depends_on</code> when Terraform 基础设施编排（Terraform） can't detect dependencies:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">resource &quot;aws_iam_role_policy_attachment&quot; &quot;ml_policy&quot; {
+  role       = aws_iam_role.ml.name
+  policy_arn = aws_iam_policy.ml.arn
+}
+
+resource &quot;aws_instance&quot; &quot;gpu&quot; {
+  iam_instance_profile = aws_iam_instance_profile.ml.name
+
+  # Explicit dependency: ensure policy is attached before creating instance
+  depends_on = [
+    aws_iam_role_policy_attachment.ml_policy
+  ]
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-resource-targeting">Resource Targeting</h5>
+<p>Apply or destroy specific resources:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Apply only specific resource
+terraform apply -target=aws_instance.gpu_training
+
+# Apply module and its dependencies
+terraform apply -target=module.gpu_cluster
+
+# Destroy specific resource
+terraform destroy -target=aws_instance.temp_server
+
+# Multiple targets
+terraform apply \
+  -target=module.vpc \
+  -target=module.gpu_cluster</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-module-versioning-and-r">Module Versioning and Registry</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-git-based-versioning">Git-based Versioning</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Use specific git tag
+module &quot;gpu_cluster&quot; {
+  source = &quot;git::https://github.com/myorg/terraform-modules.git//gpu-cluster?ref=v1.2.0&quot;
+
+  # ...
+}
+
+# Use specific branch
+module &quot;gpu_cluster&quot; {
+  source = &quot;git::https://github.com/myorg/terraform-modules.git//gpu-cluster?ref=main&quot;
+
+  # ...
+}
+
+# Use specific commit
+module &quot;gpu_cluster&quot; {
+  source = &quot;git::https://github.com/myorg/terraform-modules.git//gpu-cluster?ref=abc123def&quot;
+
+  # ...
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-terraform-registry">Terraform 基础设施编排（Terraform） Registry</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Public registry
+module &quot;vpc&quot; {
+  source  = &quot;terraform-aws-modules/vpc/aws&quot;
+  version = &quot;~&gt; 5.0&quot;
+
+  # ...
+}
+
+# Private registry
+module &quot;gpu_cluster&quot; {
+  source  = &quot;app.terraform.io/myorg/gpu-cluster/aws&quot;
+  version = &quot;~&gt; 2.1&quot;
+
+  # ...
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-semantic-versioning">Semantic Versioning</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Specific version
+version = &quot;1.2.3&quot;
+
+# Any version in 1.x series
+version = &quot;~&gt; 1.0&quot;
+
+# Any version &gt;= 1.2.3 but &lt; 2.0.0
+version = &quot;~&gt; 1.2&quot;
+
+# Any version &gt;= 1.2.3
+version = &quot;&gt;= 1.2.3&quot;
+
+# Version range
+version = &quot;&gt;= 1.0.0, &lt; 2.0.0&quot;</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-complete-advanced-examp">Complete Advanced Example</h4>
+<p><strong>Project structure:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">ml-infrastructure/
+├── modules/
+│   ├── vpc/
+│   ├── gpu-cluster/
+│   ├── storage/
+│   └── monitoring/
+├── environments/
+│   ├── dev/
+│   ├── staging/
+│   └── production/
+├── shared/
+│   ├── data.tf
+│   └── locals.tf
+└── README.md</code></pre></div>
+<p><strong>environments/production/main.tf:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">terraform {
+  required_version = &quot;&gt;= 1.0&quot;
+
+  backend &quot;s3&quot; {
+    bucket         = &quot;ml-platform-terraform-state&quot;
+    key            = &quot;production/terraform.tfstate&quot;
+    region         = &quot;us-west-2&quot;
+    dynamodb_table = &quot;terraform-locks&quot;
+    encrypt        = true
+  }
+
+  required_providers {
+    aws = {
+      source  = &quot;hashicorp/aws&quot;
+      version = &quot;~&gt; 5.0&quot;
+    }
+  }
+}
+
+provider &quot;aws&quot; {
+  region = var.region
+
+  default_tags {
+    tags = var.common_tags
+  }
+}
+
+# VPC Module
+module &quot;vpc&quot; {
+  source = &quot;../../modules/vpc&quot;
+
+  name               = &quot;${var.project_name}-vpc&quot;
+  cidr               = &quot;10.0.0.0/16&quot;
+  availability_zones = [&quot;us-west-2a&quot;, &quot;us-west-2b&quot;, &quot;us-west-2c&quot;]
+
+  private_subnets = [&quot;10.0.1.0/24&quot;, &quot;10.0.2.0/24&quot;, &quot;10.0.3.0/24&quot;]
+  public_subnets  = [&quot;10.0.101.0/24&quot;, &quot;10.0.102.0/24&quot;, &quot;10.0.103.0/24&quot;]
+
+  enable_nat_gateway = true
+  enable_vpn_gateway = false
+
+  tags = var.common_tags
+}
+
+# Storage Module
+module &quot;storage&quot; {
+  source = &quot;../../modules/storage&quot;
+
+  project_name = var.project_name
+  environment  = var.environment
+
+  bucket_types = [&quot;datasets&quot;, &quot;models&quot;, &quot;artifacts&quot;, &quot;logs&quot;]
+
+  lifecycle_rules = {
+    datasets = {
+      transition_days    = 90
+      transition_class   = &quot;STANDARD_IA&quot;
+      expiration_enabled = false
+    }
+    models = {
+      transition_days    = 180
+      transition_class   = &quot;GLACIER&quot;
+      expiration_enabled = false
+    }
+    artifacts = {
+      transition_days    = 30
+      transition_class   = &quot;STANDARD_IA&quot;
+      expiration_enabled = true
+      expiration_days    = 90
+    }
+  }
+
+  tags = var.common_tags
+}
+
+# Training Cluster Module
+module &quot;training_cluster&quot; {
+  source = &quot;../../modules/gpu-cluster&quot;
+
+  cluster_name       = &quot;${var.project_name}-training&quot;
+  instance_type      = &quot;p3.8xlarge&quot;
+  instance_count     = 10
+  disk_size_gb       = 500
+  use_spot_instances = false
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnet_ids
+
+  s3_buckets = {
+    datasets = module.storage.bucket_names[&quot;datasets&quot;]
+    models   = module.storage.bucket_names[&quot;models&quot;]
+  }
+
+  allowed_cidr_blocks = concat(
+    module.vpc.private_subnets_cidr_blocks,
+    [var.office_cidr]
+  )
+
+  tags = merge(
+    var.common_tags,
+    {
+      Workload = &quot;Training&quot;
+    }
+  )
+}
+
+# Inference Cluster Module
+module &quot;inference_cluster&quot; {
+  source = &quot;../../modules/gpu-cluster&quot;
+
+  cluster_name       = &quot;${var.project_name}-inference&quot;
+  instance_type      = &quot;g4dn.xlarge&quot;
+  instance_count     = 20
+  disk_size_gb       = 100
+  use_spot_instances = true
+  spot_max_price     = &quot;0.75&quot;
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.public_subnet_ids
+
+  s3_buckets = {
+    datasets = module.storage.bucket_names[&quot;datasets&quot;]
+    models   = module.storage.bucket_names[&quot;models&quot;]
+  }
+
+  allowed_cidr_blocks = [&quot;0.0.0.0/0&quot;]
+
+  tags = merge(
+    var.common_tags,
+    {
+      Workload = &quot;Inference&quot;
+    }
+  )
+}
+
+# Monitoring Module
+module &quot;monitoring&quot; {
+  source = &quot;../../modules/monitoring&quot;
+
+  project_name = var.project_name
+
+  alarm_targets = {
+    training_asg  = module.training_cluster.autoscaling_group_name
+    inference_asg = module.inference_cluster.autoscaling_group_name
+  }
+
+  alarm_email = var.alarm_email
+
+  tags = var.common_tags
+}
+
+# Outputs
+output &quot;vpc_id&quot; {
+  value = module.vpc.vpc_id
+}
+
+output &quot;storage_buckets&quot; {
+  value = module.storage.bucket_names
+}
+
+output &quot;training_cluster_asg&quot; {
+  value = module.training_cluster.autoscaling_group_name
+}
+
+output &quot;inference_cluster_asg&quot; {
+  value = module.inference_cluster.autoscaling_group_name
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-best-practices">最佳实践（Best Practices）</h4>
+<p>✅ <strong>Use modules</strong> for reusable infrastructure components ✅ <strong>Version your modules</strong> with git tags or registry versions ✅ <strong>Document modules</strong> with README and examples ✅ <strong>Separate environments</strong> with directories (not just workspaces) ✅ <strong>Use for_each over count</strong> for more flexibility ✅ <strong>Leverage dynamic blocks</strong> for conditional configuration ✅ <strong>Explicit dependencies</strong> when Terraform 基础设施编排（Terraform） can't detect them ✅ <strong>Resource targeting</strong> carefully (can cause drift) ✅ <strong>Test modules</strong> in dev before production ✅ <strong>Semantic versioning</strong> for module releases</p>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-key-takeaways">Key Takeaways</h4>
+<p>✅ Modules promote code reuse and DRY principles ✅ Multi-environment strategies: workspaces, directories, or Terragrunt ✅ Multi-cloud requires careful provider configuration ✅ Dynamic configuration with data sources and templates ✅ Conditional resources with count, for_each, and dynamic blocks ✅ Advanced patterns enable complex infrastructure scenarios ✅ Module versioning ensures stability and reproducibility ✅ Dependencies control resource creation order</p>
+<h4 id="lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md-next-steps">Next Steps</h4>
+<p>Now that you've mastered advanced IaC patterns, explore:</p>
+<ul>
+<li><strong>Lesson 07</strong>: GitOps 交付模式（GitOps） and CI/CD 持续集成与交付（CI/CD） workflows for infrastructure</li>
+<li><strong>Lesson 08</strong>: 安全（Security） best practices and compliance</li>
+</ul>
+<hr/>
+<p><strong>Next Lesson</strong>: <a href="#doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md">07-gitops-iac-cicd.md</a></p><p><a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-05-pulumi-infrastructure-as-software-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-109-infrastructure-as-code.html#doc-lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 01: Docker 容器（Docker） Introduction</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 01: Docker 容器（Docker） Introduction</h1><p>Module 103: 容器化（Containerization） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Module 03: 容器化（Containerization） with Docker 容器（Docker）</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-resources-md.html">Module 03 Resources: 容器化（Containerization） with Docker 容器（Docker）</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary><a class="tree-doc active" href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lesson 01: Docker 容器（Docker） Introduction</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-02-dockerfile-ml-apps-md.html">Lesson 02: Dockerfiles for ML Applications</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-03-image-optimization-md.html">Lesson 03: Image Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-04-docker-networking-volumes-md.html">Lesson 04: Docker 容器（Docker） Networking and Volumes</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-05-docker-compose-md.html">Lesson 05: Docker 容器（Docker） Compose 多服务编排（Docker Compose） for ML Applications</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-06-container-registries-md.html">Lesson 06: Container Registries</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-07-gpu-docker-md.html">Lesson 07: GPU 加速（GPU） Support in Docker 容器（Docker）</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-08-production-best-practices-md.html">Lesson 08: 生产环境（Production） Best Practices</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-01-dockerfile-optimization-md.html">Lab 01: Dockerfile Optimization for ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-02-multi-stage-builds-md.html">Lab 02: Multi-Stage Builds for Slim 生产环境（Production） Images</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-03-docker-compose-stack-md.html">Lab 03: Compose a Multi-Service Stack</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-04-gpu-docker-md.html">Lab 04: Run a GPU 加速（GPU） Container with PyTorch 深度学习框架（PyTorch） CUDA 并行计算（CUDA）</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-05-private-registry-md.html">Lab 05: Stand Up a Private Container Registry</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-lab-06-container-security-scanning-md.html">Lab 06: Security-Scan Images with Trivy</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Module 103 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-01-dockerfile-md.html">Exercise 01: Build Your First ML Dockerfile</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-02-multi-container-md.html">Exercise 02: Multi-Container ML Application</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-03-gpu-container-md.html">Exercise 03: GPU-Accelerated ML Container</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercise 04: Container 安全（Security） Scanner</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-05-image-optimizer-readme-md.html">Exercise 05: Multi-Stage Build Optimizer</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-06-registry-manager-readme-md.html">Exercise 06: Container Registry Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-07-buildkit-cache-optimization-readme-.html">Exercise 07: BuildKit Cache Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-08-multi-arch-builds-readme-md.html">Exercise 08: Multi-Architecture Builds (amd64 + arm64)</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-09-runtime-debugging-readme-md.html">Exercise 09: Container Runtime Debugging</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-10-sbom-and-supply-chain-readme-md.html">Exercise 10: SBOM and Container Supply Chain</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-11-ml-container-patterns-readme-md.html">Exercise 11: ML-Specific Container Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-12-vulnerability-remediation-readme-md.html">Exercise 12: Container Vulnerability Remediation Workflow</a></details><details class="tree-section" open><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Module 03 Quiz: 容器化（Containerization） with Docker 容器（Docker）</a></details></details><details class="tree-group" ><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 01: Docker 容器（Docker） Introduction</h2><p>Module 103: 容器化（Containerization） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>1</strong><span>reading order</span></div><div class="stat"><strong>30</strong><span>chapter docs</span></div><div class="stat"><strong>733</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-103-containerization-01-docker-introduction-md" data-title="lesson 01: docker introduction lessons/mod-103-containerization/01-docker-introduction.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">1/30</span><span class="chip">Lectures</span><span class="path">lessons/mod-103-containerization/01-docker-introduction.md</span><span class="path">733 行</span></div><h2>Lesson 01: Docker 容器（Docker） Introduction</h2><p> <a class="home" href="../mod-103-containerization.html#doc-lessons-mod-103-containerization-01-docker-introduction-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-103-containerization-02-dockerfile-ml-apps-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-103-containerization-01-docker-introduction-md-lesson-01-docker-introduction">Lesson 01: Docker 容器（Docker） Introduction</h3>
+<p><strong>Duration:</strong> 4 hours <strong>Objectives:</strong> Understand containers, Docker 容器（Docker） architecture, and run your first ML container</p>
+<h4 id="lessons-mod-103-containerization-01-docker-introduction-md-what-are-containers">What are Containers?</h4>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-the-shipping-container-analogy">The Shipping Container Analogy</h5>
+<p>Docker 容器（Docker）'s name comes from shipping docks where standardized containers revolutionized cargo transport. Similarly, software containers revolutionized application deployment.</p>
+<p><strong>Traditional Shipping (Pre-Containers):</strong></p>
+<ul>
+<li>Each cargo type required different handling</li>
+<li>Loading/unloading was slow and error-prone</li>
+<li>Different ships needed different loading equipment</li>
+<li>High costs and inefficiencies</li>
+</ul>
+<p><strong>Container Shipping:</strong></p>
+<ul>
+<li>Standardized containers (20ft, 40ft)</li>
+<li>Same handling equipment everywhere</li>
+<li>Fast loading/unloading</li>
+<li>Works with ships, trains, trucks identically</li>
+</ul>
+<p><strong>The Same Logic for Software:</strong></p>
+<ul>
+<li><strong>Before Containers:</strong> Each application needs custom setup, different dependencies, conflicts</li>
+<li><strong>With Containers:</strong> Package app + dependencies into standard unit, runs anywhere identically</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-containers-vs-virtual-machines">Containers vs Virtual Machines</h5>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-virtual-machines-vms">Virtual Machines (VMs)</h6>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌─────────────────────────────────────┐
+│         Application A               │
+│    ┌──────────────────────┐         │
+│    │   Guest OS (Ubuntu)  │         │
+│    │      4GB RAM         │         │
+│    └──────────────────────┘         │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│         Application B               │
+│    ┌──────────────────────┐         │
+│    │   Guest OS (CentOS)  │         │
+│    │      4GB RAM         │         │
+│    └──────────────────────┘         │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│          Hypervisor (VMware)        │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│        Host OS (Linux)              │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│       Hardware (8GB RAM)            │
+└─────────────────────────────────────┘</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-containers">Containers</h6>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌───────────────┬───────────────┬───────────────┐
+│  Container A  │  Container B  │  Container C  │
+│  App + Libs   │  App + Libs   │  App + Libs   │
+│   (50MB)      │   (30MB)      │   (60MB)      │
+└───────────────┴───────────────┴───────────────┘
+┌─────────────────────────────────────────────────┐
+│           Docker Engine                         │
+└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────┐
+│           Host OS (Linux)                       │
+└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────┐
+│           Hardware (8GB RAM)                    │
+└─────────────────────────────────────────────────┘</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-key-differences">Key Differences</h6>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>Virtual Machines</th><th>Containers</th></tr></thead><tbody><tr><td><strong>Size</strong></td><td>GBs (full OS)</td><td>MBs (app + libs)</td></tr><tr><td><strong>Startup</strong></td><td>Minutes</td><td>Seconds</td></tr><tr><td><strong>Performance</strong></td><td>Slower (virtualization overhead)</td><td>Near-native</td></tr><tr><td><strong>Isolation</strong></td><td>Strong (separate kernel)</td><td>Process-level</td></tr><tr><td><strong>Resource Usage</strong></td><td>High (multiple OS copies)</td><td>Low (shared kernel)</td></tr><tr><td><strong>Portability</strong></td><td>Limited (hypervisor-specific)</td><td>High (run anywhere Docker 容器（Docker） runs)</td></tr><tr><td><strong>Use Case</strong></td><td>Different OS needed</td><td>Same OS, different apps</td></tr></tbody></table></div>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-why-containers-for-machine-lear">Why Containers for 机器学习（Machine Learning）?</h5>
+<ol>
+<li><strong>Dependency Hell → Dependency Heaven</strong></li>
+</ol>
+<ul>
+<li>ML requires specific versions: PyTorch 深度学习框架（PyTorch） 2.0, CUDA 并行计算（CUDA） 11.8, cuDNN 8.6</li>
+<li>Container packages everything together</li>
+<li>No conflicts with other projects</li>
+</ul>
+<ol>
+<li><strong>&quot;Works on My Machine&quot; → &quot;Works Everywhere&quot;</strong></li>
+</ol>
+<ul>
+<li>Developer laptop: Mac M1</li>
+<li>训练（Training） server: Ubuntu with NVIDIA GPUs</li>
+<li>生产环境（Production）: Kubernetes 容器编排（Kubernetes） cluster</li>
+<li>Same container runs identically on all</li>
+</ul>
+<ol>
+<li><strong>Reproducibility</strong></li>
+</ol>
+<ul>
+<li>ML research: publish container with paper</li>
+<li>Anyone can reproduce exact results</li>
+<li>No ambiguity about environment</li>
+</ul>
+<ol>
+<li><strong>可扩展性（Scalability）</strong></li>
+</ol>
+<ul>
+<li>Deploy 100 instances of model server in seconds</li>
+<li>Kubernetes 容器编排（Kubernetes） orchestrates containers automatically</li>
+<li>Easy horizontal scaling</li>
+</ul>
+<ol>
+<li><strong>Resource Efficiency</strong></li>
+</ol>
+<ul>
+<li>Run 10 different models on same machine</li>
+<li>Each in isolated container</li>
+<li>Minimal overhead compared to VMs</li>
+</ul>
+<h4 id="lessons-mod-103-containerization-01-docker-introduction-md-docker-architecture">Docker 容器（Docker） Architecture</h4>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-core-components">Core Components</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌──────────────────────────────────────────────────┐
+│              Docker Client (CLI)                 │
+│        $ docker run pytorch/pytorch              │
+└─────────────────┬────────────────────────────────┘
+                  │ Docker API (REST)
+┌─────────────────▼────────────────────────────────┐
+│              Docker Daemon                       │
+│  ┌────────────────────────────────────────┐     │
+│  │  Container Runtime (containerd)        │     │
+│  └────────────────────────────────────────┘     │
+│                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐      │
+│  │Container │  │Container │  │Container │      │
+│  │    A     │  │    B     │  │    C     │      │
+│  └──────────┘  └──────────┘  └──────────┘      │
+│                                                  │
+│  ┌────────────────────────────────────────┐     │
+│  │      Images (Local Storage)            │     │
+│  │  pytorch:2.0  tensorflow:2.10          │     │
+│  └────────────────────────────────────────┘     │
+└──────────────────────────────────────────────────┘</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-1-docker-client">1. Docker 容器（Docker） Client</h6>
+<ul>
+<li>Command-line tool you interact with</li>
+<li>Commands: <code>docker run</code>, <code>docker build</code>, <code>docker ps</code></li>
+<li>Communicates with daemon via REST API</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-2-docker-daemon-dockerd">2. Docker 容器（Docker） Daemon (dockerd)</h6>
+<ul>
+<li>Background service managing containers</li>
+<li>Builds images, runs containers, manages networks</li>
+<li>Listens for API requests from client</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-3-container-runtime">3. Container Runtime</h6>
+<ul>
+<li>Low-level component that actually runs containers</li>
+<li>Default: containerd (donated to CNCF by Docker 容器（Docker）)</li>
+<li>Interfaces with OS kernel</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-4-images">4. Images</h6>
+<ul>
+<li>Read-only templates for creating containers</li>
+<li>Stored locally after pulling/building</li>
+<li>Composed of layers (more on this later)</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-5-containers">5. Containers</h6>
+<ul>
+<li>Running instances of images</li>
+<li>Isolated processes on host machine</li>
+<li>Have own filesystem, networking, process space</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-6-docker-registry">6. Docker 容器（Docker） Registry</h6>
+<ul>
+<li>Storage for Docker 容器（Docker） images</li>
+<li>Docker 容器（Docker） Hub (public registry)</li>
+<li>Private registries (ECR, GCR, ACR, self-hosted)</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-docker-workflow">Docker 容器（Docker） Workflow</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">1. Write Dockerfile  →  2. Build Image  →  3. Push to Registry
+     (recipe)              (template)          (share)
+        │                      │                    │
+        └──────────────────────┴────────────────────┘
+                               │
+                               ▼
+4. Pull Image  →  5. Run Container  →  6. Container Running
+  (download)         (instantiate)         (your app)</code></pre></div>
+<p><strong>Example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># 1. Write Dockerfile (create file)
+# 2. Build image
+docker build -t my-ml-model:v1 .
+
+# 3. Push to registry
+docker push myrepo/my-ml-model:v1
+
+# 4. Pull image (on production server)
+docker pull myrepo/my-ml-model:v1
+
+# 5. Run container
+docker run -p 8000:8000 myrepo/my-ml-model:v1
+
+# 6. Container is running and serving predictions</code></pre></div>
+<h4 id="lessons-mod-103-containerization-01-docker-introduction-md-installing-docker">Installing Docker 容器（Docker）</h4>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-prerequisites">前置要求（Prerequisites）</h5>
+<p><strong>System Requirements:</strong></p>
+<ul>
+<li><strong>Linux:</strong> Kernel 3.10+ (most distributions supported)</li>
+<li><strong>macOS:</strong> macOS 10.15+ (Catalina or newer)</li>
+<li><strong>Windows:</strong> Windows 10/11 Pro, Enterprise, or Education (with WSL2)</li>
+<li><strong>RAM:</strong> 4GB minimum, 8GB+ recommended</li>
+<li><strong>Disk:</strong> 20GB+ free space</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-installation-options">Installation Options</h5>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-option-1-docker-desktop-recomme">Option 1: Docker 容器（Docker） Desktop (Recommended for Mac/Windows)</h6>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>GUI for managing containers</li>
+<li>Includes Docker 容器（Docker） Engine, CLI, Compose, and Kubernetes 容器编排（Kubernetes）</li>
+<li>Easy installation</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Requires license for enterprise use (companies with &gt;250 employees or &gt;$10M revenue)</li>
+<li>Resource overhead (runs Linux VM on Mac/Windows)</li>
+</ul>
+<p><strong>Download:</strong> https://www.docker.com/products/docker-desktop</p>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-option-2-docker-engine-linux-fr">Option 2: Docker 容器（Docker） Engine (Linux, Free and Open Source)</h6>
+<p><strong>Ubuntu/Debian:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Update package index
+sudo apt-get update
+
+# Install dependencies
+sudo apt-get install -y \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+
+# Add Docker's official GPG key
+sudo mkdir -m 0755 -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# Set up repository
+echo \
+  &quot;deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable&quot; | sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
+
+# Install Docker Engine
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Start and enable Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add your user to docker group (avoid using sudo)
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Verify installation
+docker --version
+docker run hello-world</code></pre></div>
+<p><strong>CentOS/RHEL:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install dependencies
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+# Install Docker
+sudo yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# Start Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add user to docker group
+sudo usermod -aG docker $USER
+newgrp docker</code></pre></div>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-post-installation-verification">Post-Installation Verification</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Check Docker version
+docker --version
+# Output: Docker version 24.0.7, build afdd53b
+
+# Check Docker info
+docker info
+
+# Run test container
+docker run hello-world
+# Should download and run successfully
+
+# Check Docker Compose
+docker compose version
+# Output: Docker Compose version v2.23.0</code></pre></div>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-troubleshooting-installation">Troubleshooting Installation</h5>
+<p><strong>Issue:</strong> &quot;permission denied&quot; when running docker commands</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Solution: Add user to docker group
+sudo usermod -aG docker $USER
+# Log out and log back in, or run:
+newgrp docker</code></pre></div>
+<p><strong>Issue:</strong> Docker 容器（Docker） daemon not running</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Linux: Start Docker service
+sudo systemctl start docker
+sudo systemctl status docker
+
+# Mac/Windows: Start Docker Desktop application</code></pre></div>
+<p><strong>Issue:</strong> &quot;Cannot connect to the Docker 容器（Docker） daemon&quot;</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Check if Docker daemon is running
+sudo systemctl status docker
+
+# Check Docker socket permissions
+ls -l /var/run/docker.sock</code></pre></div>
+<h4 id="lessons-mod-103-containerization-01-docker-introduction-md-your-first-docker-commands">Your First Docker 容器（Docker） Commands</h4>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-basic-commands">Basic Commands</h5>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-1-check-docker-installation">1. Check Docker 容器（Docker） Installation</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker --version
+docker info</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-2-run-your-first-container">2. Run Your First Container</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Run official Python container
+docker run python:3.11 python --version
+
+# What happened:
+# 1. Docker looked for 'python:3.11' image locally
+# 2. Didn't find it, so pulled from Docker Hub
+# 3. Created container from image
+# 4. Ran 'python --version' inside container
+# 5. Printed output and exited</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-3-run-interactive-container">3. Run Interactive Container</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Run Python container interactively
+docker run -it python:3.11 python
+
+# Now you're inside Python REPL in container
+&gt;&gt;&gt; import sys
+&gt;&gt;&gt; print(sys.version)
+&gt;&gt;&gt; exit()</code></pre></div>
+<p><strong>Flags:</strong></p>
+<ul>
+<li><code>-i</code>: Interactive (keep STDIN open)</li>
+<li><code>-t</code>: Allocate pseudo-TTY (terminal)</li>
+<li>Combined: <code>-it</code> for interactive terminal</li>
+</ul>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-4-run-container-in-background-d">4. Run Container in Background (Detached)</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Run Nginx web server in background
+docker run -d -p 8080:80 nginx
+
+# Flags:
+# -d: Detached mode (background)
+# -p 8080:80: Map host port 8080 to container port 80
+
+# Visit http://localhost:8080 in browser</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-5-list-running-containers">5. List Running Containers</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker ps
+
+# Output:
+# CONTAINER ID   IMAGE   COMMAND                  CREATED         STATUS         PORTS                  NAMES
+# a1b2c3d4e5f6   nginx   &quot;/docker-entrypoint.…&quot;   2 minutes ago   Up 2 minutes   0.0.0.0:8080-&gt;80/tcp   brave_tesla</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-6-list-all-containers-including">6. List All Containers (Including Stopped)</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker ps -a</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-7-stop-a-container">7. Stop a Container</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker stop &lt;container_id or name&gt;
+# Example:
+docker stop a1b2c3d4e5f6
+# or
+docker stop brave_tesla</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-8-start-a-stopped-container">8. Start a Stopped Container</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker start &lt;container_id or name&gt;</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-9-remove-a-container">9. Remove a Container</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker rm &lt;container_id or name&gt;
+
+# Force remove running container:
+docker rm -f &lt;container_id&gt;</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-10-list-downloaded-images">10. List Downloaded Images</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker images
+
+# Output:
+# REPOSITORY   TAG     IMAGE ID       CREATED       SIZE
+# python       3.11    1234567890ab   2 weeks ago   1.01GB
+# nginx        latest  abcdef123456   3 weeks ago   142MB</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-11-remove-an-image">11. Remove an Image</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker rmi &lt;image_id or name:tag&gt;
+
+# Example:
+docker rmi python:3.11</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-12-view-container-logs">12. View Container Logs</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker logs &lt;container_id or name&gt;
+
+# Follow logs in real-time:
+docker logs -f &lt;container_id&gt;</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-13-execute-command-in-running-c">13. Execute Command in Running Container</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker exec -it &lt;container_id&gt; bash
+
+# This opens a shell inside the running container
+# Now you can explore filesystem, check processes, etc.</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-14-inspect-container-details">14. Inspect Container Details</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker inspect &lt;container_id&gt;
+# Returns JSON with all container configuration and state</code></pre></div>
+<h6 id="lessons-mod-103-containerization-01-docker-introduction-md-15-pull-image-without-running">15. Pull Image Without Running</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker pull pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime</code></pre></div>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-docker-command-cheat-sheet">Docker 容器（Docker） Command Cheat Sheet</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Images
+docker pull &lt;image&gt;           # Download image
+docker images                 # List images
+docker rmi &lt;image&gt;            # Remove image
+docker build -t &lt;name&gt; .      # Build image from Dockerfile
+
+# Containers
+docker run &lt;image&gt;            # Create and start container
+docker ps                     # List running containers
+docker ps -a                  # List all containers
+docker stop &lt;container&gt;       # Stop container
+docker start &lt;container&gt;      # Start stopped container
+docker restart &lt;container&gt;    # Restart container
+docker rm &lt;container&gt;         # Remove container
+docker logs &lt;container&gt;       # View logs
+docker exec -it &lt;container&gt; bash  # Shell into container
+
+# Cleanup
+docker system prune           # Remove unused data
+docker container prune        # Remove stopped containers
+docker image prune            # Remove dangling images
+docker volume prune           # Remove unused volumes
+
+# Information
+docker info                   # Docker system info
+docker version                # Docker version
+docker inspect &lt;container&gt;    # Container details
+docker stats                  # Container resource usage</code></pre></div>
+<h4 id="lessons-mod-103-containerization-01-docker-introduction-md-running-your-first-ml-container">Running Your First ML Container</h4>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-example-1-pytorch-container">Example 1: PyTorch 深度学习框架（PyTorch） Container</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Pull official PyTorch image
+docker pull pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
+
+# Run interactive PyTorch session
+docker run -it pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime python
+
+# Inside Python:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; print(torch.__version__)
+2.0.0
+&gt;&gt;&gt; print(torch.cuda.is_available())
+False  # (False if no GPU mapped to container)
+&gt;&gt;&gt; exit()</code></pre></div>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-example-2-tensorflow-container">Example 2: TensorFlow 深度学习框架（TensorFlow） Container</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Pull TensorFlow image
+docker pull tensorflow/tensorflow:latest
+
+# Run Jupyter notebook
+docker run -it -p 8888:8888 tensorflow/tensorflow:latest-jupyter
+
+# Open browser to http://localhost:8888
+# Token will be printed in terminal</code></pre></div>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-example-3-run-jupyter-with-pyto">Example 3: Run Jupyter with PyTorch 深度学习框架（PyTorch）</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Run Jupyter with PyTorch
+docker run -it \
+    -p 8888:8888 \
+    -v $(pwd):/workspace \
+    pytorch/pytorch:latest \
+    sh -c &quot;pip install jupyter &amp;&amp; jupyter notebook --ip=0.0.0.0 --allow-root&quot;
+
+# Breakdown:
+# -it: Interactive terminal
+# -p 8888:8888: Map Jupyter port
+# -v $(pwd):/workspace: Mount current directory
+# pytorch/pytorch:latest: Image to use
+# sh -c &quot;...&quot;: Command to run</code></pre></div>
+<h4 id="lessons-mod-103-containerization-01-docker-introduction-md-understanding-docker-images-and">Understanding Docker 容器（Docker） Images and Layers</h4>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-image-layers">Image Layers</h5>
+<p>Docker 容器（Docker） images are built from layers. Each layer represents a set of filesystem changes.</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌───────────────────────────────────┐
+│  Layer 5: pip install pytorch     │  ← 2GB (PyTorch binaries)
+├───────────────────────────────────┤
+│  Layer 4: pip install numpy       │  ← 50MB (NumPy)
+├───────────────────────────────────┤
+│  Layer 3: apt install python3-pip │  ← 100MB (pip + dependencies)
+├───────────────────────────────────┤
+│  Layer 2: apt update               │  ← 50MB (package lists)
+├───────────────────────────────────┤
+│  Layer 1: Base Ubuntu 22.04       │  ← 77MB (OS)
+└───────────────────────────────────┘
+Total Image Size: ~2.3GB</code></pre></div>
+<p><strong>Key Benefits:</strong></p>
+<ol>
+<li><strong>Reusability:</strong> Base layers shared across images</li>
+<li><strong>Efficiency:</strong> Only changed layers downloaded/stored</li>
+<li><strong>Fast Builds:</strong> Unchanged layers cached</li>
+</ol>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-inspecting-image-layers">Inspecting Image Layers</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># View image history (layers)
+docker history pytorch/pytorch:latest
+
+# Output shows each layer:
+# IMAGE          CREATED BY                                      SIZE
+# &lt;missing&gt;      pip install pytorch                             2.0GB
+# &lt;missing&gt;      pip install numpy                               50MB
+# &lt;missing&gt;      apt install python3-pip                         100MB
+# ...</code></pre></div>
+<h4 id="lessons-mod-103-containerization-01-docker-introduction-md-docker-naming-conventions">Docker 容器（Docker） Naming Conventions</h4>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-image-names">Image Names</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">registry.com/username/repository:tag</code></pre></div>
+<p><strong>Examples:</strong></p>
+<ul>
+<li><code>pytorch/pytorch:2.0.0</code> - Docker 容器（Docker） Hub, pytorch org, pytorch repo, tag 2.0.0</li>
+<li><code>gcr.io/myproject/model-server:v1.2</code> - GCR, myproject, model-server, v1.2</li>
+<li><code>nginx:latest</code> - Docker 容器（Docker） Hub (implicit), nginx repo, latest tag</li>
+</ul>
+<p><strong>Tags:</strong></p>
+<ul>
+<li><code>latest</code> - Most recent version (default if tag omitted)</li>
+<li><code>2.0.0</code> - Semantic version</li>
+<li><code>2.0.0-cuda11.7</code> - Version with additional info</li>
+<li><code>dev</code>, <code>prod</code>, <code>staging</code> - Environment tags</li>
+</ul>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-container-names">Container Names</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Docker auto-generates names like &quot;brave_tesla&quot; if not specified
+docker run nginx
+# Creates container with random name
+
+# Specify custom name:
+docker run --name my-web-server nginx</code></pre></div>
+<h4 id="lessons-mod-103-containerization-01-docker-introduction-md-hands-on-exercise">Hands-On Exercise</h4>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-exercise-1-run-pre-built-ml-mod">Exercise 1: Run Pre-Built ML Model Container</h5>
+<p>Deploy a pre-trained model using a public Docker 容器（Docker） image:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># TODO: Pull Hugging Face model serving container
+docker pull huggingface/transformers-pytorch-cpu:latest
+
+# TODO: Run container serving BERT model
+docker run -p 8080:8080 huggingface/transformers-pytorch-cpu:latest
+
+# TODO: Test inference endpoint
+# curl -X POST http://localhost:8080/predict -d '{&quot;text&quot;: &quot;Hello world&quot;}'
+
+# TODO: View container logs
+docker logs &lt;container_id&gt;
+
+# TODO: Stop and remove container
+docker stop &lt;container_id&gt;
+docker rm &lt;container_id&gt;</code></pre></div>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-exercise-2-explore-container-fi">Exercise 2: Explore Container Filesystem</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># TODO: Run Ubuntu container interactively
+docker run -it ubuntu:22.04 bash
+
+# Inside container:
+# pwd                    # Where am I?
+# ls -la                 # What files exist?
+# apt update             # Update package lists
+# apt install python3    # Install Python
+# python3 --version      # Verify Python installed
+# exit                   # Leave container</code></pre></div>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-exercise-3-mount-local-director">Exercise 3: Mount Local Directory</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># TODO: Create local directory with Python script
+mkdir ~/ml-docker-test
+cd ~/ml-docker-test
+echo 'print(&quot;Hello from Docker!&quot;)' &gt; hello.py
+
+# TODO: Run container with volume mount
+docker run -it -v $(pwd):/workspace python:3.11 bash
+
+# Inside container:
+# cd /workspace
+# ls                     # See hello.py from host
+# python hello.py        # Run script
+# exit</code></pre></div>
+<h4 id="lessons-mod-103-containerization-01-docker-introduction-md-common-issues-and-solutions">Common Issues and Solutions</h4>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-issue-1-port-already-in-use">Issue 1: Port Already in Use</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Error: &quot;bind: address already in use&quot;
+# Solution: Use different host port
+docker run -p 8081:80 nginx  # Instead of 8080:80</code></pre></div>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-issue-2-container-exits-immedia">Issue 2: Container Exits Immediately</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Container runs and exits right away
+# Reason: No foreground process running
+# Solution: Use -it for interactive, or run long-running process
+docker run -it ubuntu bash</code></pre></div>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-issue-3-cannot-access-container">Issue 3: Cannot Access Container from Host</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Container running but can't connect
+# Solution: Check port mapping
+docker ps  # Verify PORTS column shows mapping
+# Ensure application binds to 0.0.0.0, not 127.0.0.1</code></pre></div>
+<h5 id="lessons-mod-103-containerization-01-docker-introduction-md-issue-4-out-of-disk-space">Issue 4: Out of Disk Space</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Error: &quot;no space left on device&quot;
+# Solution: Clean up Docker resources
+docker system prune -a  # Remove all unused images, containers, networks</code></pre></div>
+<h4 id="lessons-mod-103-containerization-01-docker-introduction-md-next-steps">Next Steps</h4>
+<p>In the next lesson, you'll learn to:</p>
+<ol>
+<li>Write Dockerfiles from scratch</li>
+<li>Build custom images for ML applications</li>
+<li>Understand Dockerfile instructions in depth</li>
+<li>Create production-ready images</li>
+</ol>
+<h4 id="lessons-mod-103-containerization-01-docker-introduction-md-self-check-questions">Self-Check Questions</h4>
+<p>Before proceeding to Lesson 02, ensure you can answer:</p>
+<ol>
+<li>What is the difference between an image and a container?</li>
+<li>What are the main benefits of containers vs VMs for ML?</li>
+<li>How do you run a container in detached mode?</li>
+<li>What does the <code>-p</code> flag do in <code>docker run</code>?</li>
+<li>How do you access a shell inside a running container?</li>
+<li>What are Docker 容器（Docker） image layers and why do they matter?</li>
+</ol>
+<hr/>
+<p><strong>Congratulations!</strong> You've completed your introduction to Docker 容器（Docker）. You now understand container fundamentals and can run pre-built containers. In the next lesson, you'll learn to build your own images for ML applications.</p>
+<p><strong>Next:</strong> <a href="#doc-lessons-mod-103-containerization-02-dockerfile-ml-apps-md">02-dockerfile-ml-apps.md</a> - Writing Dockerfiles for ML Applications</p><p> <a class="home" href="../mod-103-containerization.html#doc-lessons-mod-103-containerization-01-docker-introduction-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-103-containerization-02-dockerfile-ml-apps-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>

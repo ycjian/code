@@ -1,0 +1,1078 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lesson 08: GPU 加速（GPU） Scheduling in Kubernetes 容器编排（Kubernetes）</title><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.search{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:#07101d;color:#e5eefb;padding:10px;margin-bottom:10px}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;max-height:320px;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo">AI</div><div><h1>Lesson 08: GPU 加速（GPU） Scheduling in Kubernetes 容器编排（Kubernetes）</h1><p>Module 104: Kubernetes 容器编排（Kubernetes） · single reading</p></div></div><a class="home" href="../index.html">入口（Home）</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><input class="search" id="search" placeholder="搜索当前内容（Search current content）"/><h2>课程树（Course Tree）</h2><details class="tree-group" ><summary><a href="../overview.html">Class 0 · 总览与路线（Overview）</a></summary><details class="tree-section" ><summary><a href="../overview.html#section-class-map">Class 0: 课程地图（Course Map） <span>5</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-101-foundations.html">Chapter 1 · Module 101: 基础（Foundations）</a></summary><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-exercises">Exercises: 课后练习 <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-101-foundations.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-102-cloud-computing.html">Chapter 2 · Module 102: 云计算（Cloud Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-labs">Labs: 动手实验 <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-exercises">Exercises: 课后练习 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-102-cloud-computing.html#section-assessments">Assessment: 测验与答案 <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-103-containerization.html">Chapter 3 · Module 103: 容器化（Containerization）</a></summary><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-103-containerization.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../mod-104-kubernetes.html">Chapter 4 · Module 104: Kubernetes 容器编排（Kubernetes）</a></summary><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-chapter-overview">Chapter Overview: 本章导读 <span>3</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-module-completion-status-md.html">Module 04: Kubernetes 容器编排（Kubernetes） Fundamentals - Completion Status</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Module 04: Kubernetes 容器编排（Kubernetes） Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-resources-md.html">Module 04 Resources: Kubernetes 容器编排（Kubernetes） Fundamentals</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-lectures">Lectures: 课堂讲义 <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lesson 01: Kubernetes 容器编排（Kubernetes） Introduction</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-02-k8s-architecture-md.html">Lesson 02: Kubernetes 容器编排（Kubernetes） Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-03-core-resources-md.html">Lesson 03: Core Kubernetes 容器编排（Kubernetes） Resources</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-04-deployments-services-md.html">Lesson 04: Deployments and Services Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-05-networking-ingress-md.html">Lesson 05: Kubernetes 容器编排（Kubernetes） Networking and Ingress</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-06-storage-persistence-md.html">Lesson 06: Storage and Persistence in Kubernetes 容器编排（Kubernetes）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-07-helm-package-manager-md.html">Lesson 07: Helm 包管理（Helm） Package Manager</a><a class="tree-doc active" href="../docs/doc-lessons-mod-104-kubernetes-08-gpu-scheduling-md.html">Lesson 08: GPU 加速（GPU） Scheduling in Kubernetes 容器编排（Kubernetes）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-09-monitoring-troubleshooting-md.html">Lesson 09: 监控（Monitoring） and Troubleshooting Kubernetes 容器编排（Kubernetes）</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-labs">Labs: 动手实验 <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-01-pod-deployment-md.html">Lab 01: Your First Pod and 部署（Deployment）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-02-service-discovery-md.html">Lab 02: Service Discovery — ClusterIP, NodePort, LoadBalancer</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-03-configmaps-secrets-md.html">Lab 03: ConfigMaps and Secrets</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-04-persistent-volumes-md.html">Lab 04: Persistent Volumes for Stateful Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-05-helm-chart-md.html">Lab 05: Package an App with Helm 包管理（Helm）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-06-hpa-md.html">Lab 06: Horizontal Pod Autoscaler under Load</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-07-network-policies-md.html">Lab 07: NetworkPolicies for East-West Isolation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-08-debugging-md.html">Lab 08: Debug a Broken 部署（Deployment） from Scratch</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Module 104 — Labs</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-exercises">Exercises: 课后练习 <span>16</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercise 01: Kubernetes 容器编排（Kubernetes） Fundamentals — Build a Working Service</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-02-control-plane-tour-readme-md.html">Exercise 02: Control Plane Tour</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-03-core-resources-mastery-readme-md.html">Exercise 03: Core Resources Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-04-k8s-cluster-autoscaler-readme-md.html">Exercise 04: Kubernetes 容器编排（Kubernetes） Cluster Autoscaler with Custom Metrics</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md.html">Exercise 05: Service Mesh 可观测性（Observability） with Istio</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-06-k8s-operator-framework-readme-md.html">Exercise 06: Kubernetes 容器编排（Kubernetes） Operator for ML Model Lifecycle</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-07-helm-chart-authoring-readme-md.html">Exercise 07: Author a Production-Grade Helm 包管理（Helm） Chart</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-08-gpu-scheduling-readme-md.html">Exercise 08: GPU 加速（GPU） Scheduling Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-09-monitoring-troubleshooting-readme-md.html">Exercise 09: Kubernetes 容器编排（Kubernetes） 监控（Monitoring） and Troubleshooting Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-10-multi-cluster-federation-readme-md.html">Exercise 10: Multi-Cluster Federation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-11-custom-operator-readme-md.html">Exercise 11: Build a Custom Kubernetes 容器编排（Kubernetes） Operator</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-12-stateful-postgres-readme-md.html">Exercise 12: Stateful Postgres on Kubernetes 容器编排（Kubernetes）</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-13-cluster-upgrade-readme-md.html">Exercise 13: Cluster Upgrade Procedure</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-14-resource-quotas-multitenancy-readme-md.html">Exercise 14: Resource Quotas and Multi-Tenancy</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-15-cluster-cost-optimization-readme-md.html">Exercise 15: Kubernetes 容器编排（Kubernetes） Cluster Cost Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-readme-md.html">Module 04: Kubernetes 容器编排（Kubernetes） - Exercises</a></details><details class="tree-section" open><summary><a href="../mod-104-kubernetes.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Module 04 Quiz: Kubernetes 容器编排（Kubernetes） Fundamentals</a></details></details><details class="tree-group" ><summary><a href="../mod-105-data-pipelines.html">Chapter 5 · Module 105: 数据管道（Data Pipelines）</a></summary><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-exercises">Exercises: 课后练习 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-105-data-pipelines.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-106-mlops.html">Chapter 6 · Module 106: MLOps 机器学习运维（MLOps）</a></summary><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-106-mlops.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-107-gpu-computing.html">Chapter 7 · Module 107: GPU 计算（GPU Computing）</a></summary><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-labs">Labs: 动手实验 <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-exercises">Exercises: 课后练习 <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-107-gpu-computing.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-108-monitoring-observability.html">Chapter 8 · Module 108: 监控与可观测性（Monitoring &amp; Observability）</a></summary><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-labs">Labs: 动手实验 <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-exercises">Exercises: 课后练习 <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-108-monitoring-observability.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-109-infrastructure-as-code.html">Chapter 9 · Module 109: 基础设施即代码（Infrastructure as Code）</a></summary><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-labs">Labs: 动手实验 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-exercises">Exercises: 课后练习 <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-109-infrastructure-as-code.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../mod-110-llm-infrastructure.html">Chapter 10 · Module 110: LLM 基础设施（LLM Infrastructure）</a></summary><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-chapter-overview">Chapter Overview: 本章导读 <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-lectures">Lectures: 课堂讲义 <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-labs">Labs: 动手实验 <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-exercises">Exercises: 课后练习 <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../mod-110-llm-infrastructure.html#section-assessments">Assessment: 测验与答案 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../projects.html">Workshop · 实战项目（Projects）</a></summary><details class="tree-section" ><summary><a href="../projects.html#section-project-101">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-102">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-project-103">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../projects.html#section-references">References: 复盘资源 <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../assessments.html">Workshop · 测验与评估（Assessments）</a></summary><details class="tree-section" ><summary><a href="../assessments.html#section-assessments">Assessment: 测验与答案 <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../assessments.html#section-references">References: 复盘资源 <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../resources.html">Workshop · 资源与版本（Resources）</a></summary><details class="tree-section" ><summary><a href="../resources.html#section-references">References: 复盘资源 <span>10</span></a></summary></details></details></aside></div><main><section class="hero"><h2>Lesson 08: GPU 加速（GPU） Scheduling in Kubernetes 容器编排（Kubernetes）</h2><p>Module 104: Kubernetes 容器编排（Kubernetes） · Lectures: 课堂讲义</p><div class="stats"><div class="stat"><strong>8</strong><span>reading order</span></div><div class="stat"><strong>38</strong><span>chapter docs</span></div><div class="stat"><strong>1321</strong><span>source lines</span></div><div class="stat"><strong>1</strong><span>page focus</span></div></div></section><article class="doc" id="doc-lessons-mod-104-kubernetes-08-gpu-scheduling-md" data-title="lesson 08: gpu scheduling in kubernetes lessons/mod-104-kubernetes/08-gpu-scheduling.md lectures: 课堂讲义"><div class="doc-head"><span class="chip">8/38</span><span class="chip">Lectures</span><span class="path">lessons/mod-104-kubernetes/08-gpu-scheduling.md</span><span class="path">1321 行</span></div><h2>Lesson 08: GPU 加速（GPU） Scheduling in Kubernetes 容器编排（Kubernetes）</h2><p><a class="home" href="../docs/doc-lessons-mod-104-kubernetes-07-helm-package-manager-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-104-kubernetes.html#doc-lessons-mod-104-kubernetes-08-gpu-scheduling-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-104-kubernetes-09-monitoring-troubleshooting-md.html">下一篇（Next） →</a></p><h3 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-lesson-08-gpu-scheduling-in-kubernetes">Lesson 08: GPU 加速（GPU） Scheduling in Kubernetes 容器编排（Kubernetes）</h3>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+<li>Understand how Kubernetes 容器编排（Kubernetes） manages GPU 加速（GPU） resources</li>
+<li>Install and configure NVIDIA GPU 加速（GPU） Operator</li>
+<li>Schedule ML workloads on GPU-enabled nodes</li>
+<li>Implement GPU 加速（GPU） resource requests and limits</li>
+<li>Use node affinity and taints for GPU 加速（GPU） workloads</li>
+<li>Understand GPU 加速（GPU） sharing strategies (time-slicing, MIG)</li>
+<li>Monitor GPU 加速（GPU） utilization in Kubernetes 容器编排（Kubernetes） clusters</li>
+<li>Troubleshoot common GPU 加速（GPU） scheduling issues</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-prerequisites">前置要求（Prerequisites）</h4>
+<ul>
+<li>Completed lessons 01-04 (Kubernetes fundamentals)</li>
+<li>Understanding of GPU 加速（GPU） computing basics (Module 03, Lesson 06)</li>
+<li>Familiarity with Docker 容器（Docker） GPU 加速（GPU） support</li>
+<li>Access to a cluster with GPU 加速（GPU） nodes (or minikube with GPU 加速（GPU） support)</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-introduction">Introduction</h4>
+<p>GPUs are essential for modern ML infrastructure, enabling:</p>
+<ul>
+<li><strong>训练（Training） acceleration</strong>: 10-100x faster than CPUs for deep learning</li>
+<li><strong>推理（Inference） optimization</strong>: Lower latency for production models</li>
+<li><strong>Cost efficiency</strong>: Better throughput per dollar for ML workloads</li>
+<li><strong>Scale</strong>: Handle larger models and datasets</li>
+</ul>
+<p>However, GPUs in Kubernetes 容器编排（Kubernetes） require special configuration:</p>
+<ul>
+<li><strong>Device plugins</strong>: Expose GPUs as schedulable resources</li>
+<li><strong>Drivers</strong>: NVIDIA/AMD drivers must be installed on nodes</li>
+<li><strong>Resource management</strong>: Prevent over-allocation</li>
+<li><strong>监控（Monitoring）</strong>: Track utilization and performance</li>
+</ul>
+<p><strong>Real-world examples:</strong></p>
+<ul>
+<li><strong>OpenAI</strong>: Runs large-scale GPU 加速（GPU） clusters on Kubernetes 容器编排（Kubernetes）</li>
+<li><strong>Spotify</strong>: Uses K8s GPU 加速（GPU） scheduling for ML training pipelines</li>
+<li><strong>Uber</strong>: Schedules thousands of GPU 加速（GPU） jobs daily via K8s</li>
+<li><strong>Netflix</strong>: Runs recommendation model training on K8s with GPUs</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-1-gpu-support-in-kubernetes">1. GPU 加速（GPU） Support in Kubernetes 容器编排（Kubernetes）</h4>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-1-1-how-kubernetes-discovers-gpus">1.1 How Kubernetes 容器编排（Kubernetes） Discovers GPUs</h5>
+<p>Kubernetes 容器编排（Kubernetes） uses the <strong>Device Plugin Framework</strong> to expose specialized hardware:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Device plugins advertise resources to kubelet
+# GPUs become schedulable resources like CPU/memory
+
+Node Resources:
+  cpu: 32 cores
+  memory: 256Gi
+  nvidia.com/gpu: 8        # GPUs advertised by device plugin
+  nvidia.com/mig-1g.5gb: 56 # MIG instances (if enabled)</code></pre></div>
+<p><strong>Architecture:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">┌─────────────────────────────────────────┐
+│           Kubernetes Node               │
+│                                         │
+│  ┌────────────┐      ┌──────────────┐  │
+│  │  kubelet   │◄────►│ Device Plugin│  │
+│  │            │      │  (NVIDIA)    │  │
+│  └────────────┘      └──────┬───────┘  │
+│                             │          │
+│                             ▼          │
+│                      ┌──────────────┐  │
+│                      │ GPU Devices  │  │
+│                      │ /dev/nvidia0 │  │
+│                      │ /dev/nvidia1 │  │
+│                      └──────────────┘  │
+└─────────────────────────────────────────┘</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-1-2-nvidia-gpu-operator">1.2 NVIDIA GPU 加速（GPU） Operator</h5>
+<p>The <strong>NVIDIA GPU 加速（GPU） Operator</strong> automates GPU 加速（GPU） management in K8s:</p>
+<p><strong>What it does:</strong></p>
+<ul>
+<li>Installs NVIDIA drivers on nodes</li>
+<li>Deploys the NVIDIA device plugin</li>
+<li>Configures the container runtime (containerd/Docker 容器（Docker）)</li>
+<li>Sets up GPU 加速（GPU） monitoring with DCGM (Data Center GPU 加速（GPU） Manager)</li>
+<li>Manages GPU 加速（GPU） Feature Discovery (GFD)</li>
+</ul>
+<p><strong>Components installed:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">Components:
+  - NVIDIA Driver Container: Installs drivers on each node
+  - NVIDIA Container Toolkit: Enables GPU access in containers
+  - NVIDIA Device Plugin: Advertises GPUs to Kubernetes
+  - NVIDIA DCGM Exporter: Exports GPU metrics to Prometheus
+  - GPU Feature Discovery: Labels nodes with GPU capabilities
+  - Node Feature Discovery: Detects node hardware features</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-2-installing-nvidia-gpu-operator">2. Installing NVIDIA GPU 加速（GPU） Operator</h4>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-2-1-prerequisites">2.1 Prerequisites</h5>
+<p><strong>On GPU 加速（GPU） Nodes:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># 1. Verify GPU is present
+lspci | grep -i nvidia
+# Output: 00:1e.0 3D controller: NVIDIA Corporation Tesla V100 (rev a1)
+
+# 2. Check kernel version (must be compatible)
+uname -r
+# Output: 5.10.0-18-amd64
+
+# 3. Ensure nouveau driver is disabled (conflicts with NVIDIA)
+lsmod | grep nouveau
+# Should return nothing
+
+# 4. Verify containerd is configured for GPUs
+cat /etc/containerd/config.toml | grep nvidia</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-2-2-install-gpu-operator-with-helm">2.2 Install GPU 加速（GPU） Operator with Helm 包管理（Helm）</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Add NVIDIA Helm repository
+helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+helm repo update
+
+# Create namespace
+kubectl create namespace gpu-operator
+
+# Install GPU Operator
+helm install gpu-operator nvidia/gpu-operator \
+  --namespace gpu-operator \
+  --set driver.enabled=true \
+  --set toolkit.enabled=true \
+  --set devicePlugin.enabled=true \
+  --set dcgmExporter.enabled=true \
+  --set gfd.enabled=true
+
+# Watch installation
+kubectl get pods -n gpu-operator -w</code></pre></div>
+<p><strong>Expected output:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">NAME                                       READY   STATUS    RESTARTS   AGE
+gpu-feature-discovery-abcde                1/1     Running   0          2m
+gpu-operator-1234567890-xyz                1/1     Running   0          3m
+nvidia-container-toolkit-daemonset-fghij   1/1     Running   0          2m
+nvidia-dcgm-exporter-klmno                 1/1     Running   0          2m
+nvidia-device-plugin-daemonset-pqrst       1/1     Running   0          2m
+nvidia-driver-daemonset-uvwxy              1/1     Running   0          5m</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-2-3-verify-gpu-nodes">2.3 Verify GPU 加速（GPU） Nodes</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Check node labels (added by GPU Feature Discovery)
+kubectl get nodes --show-labels | grep nvidia
+
+# Check node capacity
+kubectl describe node &lt;gpu-node-name&gt; | grep nvidia.com/gpu
+
+# Output:
+#  nvidia.com/gpu:     8
+#  nvidia.com/gpu:     8  (allocatable)
+
+# View GPU details
+kubectl describe node &lt;gpu-node-name&gt;</code></pre></div>
+<p><strong>Node labels added automatically:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">Labels:
+  nvidia.com/cuda.driver.major=525
+  nvidia.com/cuda.driver.minor=116
+  nvidia.com/cuda.driver.rev=04
+  nvidia.com/cuda.runtime.major=12
+  nvidia.com/cuda.runtime.minor=0
+  nvidia.com/gpu.count=8
+  nvidia.com/gpu.product=Tesla-V100-SXM2-32GB
+  nvidia.com/gpu.memory=32768
+  nvidia.com/mig.strategy=single</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-3-scheduling-gpu-workloads">3. Scheduling GPU 加速（GPU） Workloads</h4>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-3-1-basic-gpu-pod">3.1 Basic GPU 加速（GPU） Pod</h5>
+<p><strong>Request a single GPU 加速（GPU）:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># pytorch-training-gpu.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pytorch-training-gpu
+spec:
+  containers:
+  - name: pytorch
+    image: pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
+    command: [&quot;python&quot;]
+    args: [&quot;-c&quot;, &quot;import torch; print(f'CUDA available: {torch.cuda.is_available()}'); print(f'GPU count: {torch.cuda.device_count()}')&quot;]
+    resources:
+      limits:
+        nvidia.com/gpu: 1  # Request 1 GPU
+      requests:
+        nvidia.com/gpu: 1
+        memory: &quot;16Gi&quot;
+        cpu: &quot;4&quot;
+  restartPolicy: OnFailure</code></pre></div>
+<p><strong>Deploy and verify:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">kubectl apply -f pytorch-training-gpu.yaml
+kubectl logs pytorch-training-gpu
+
+# Output:
+# CUDA available: True
+# GPU count: 1</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-3-2-multi-gpu-training-job">3.2 Multi-GPU 训练（Training） Job</h5>
+<p><strong>Request multiple GPUs for distributed training:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># multi-gpu-training.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-gpu-training
+spec:
+  containers:
+  - name: distributed-training
+    image: pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
+    command: [&quot;torchrun&quot;]
+    args:
+      - &quot;--nproc_per_node=4&quot;  # 4 processes (one per GPU)
+      - &quot;train_distributed.py&quot;
+    resources:
+      limits:
+        nvidia.com/gpu: 4  # Request 4 GPUs
+      requests:
+        nvidia.com/gpu: 4
+        memory: &quot;64Gi&quot;
+        cpu: &quot;16&quot;
+    volumeMounts:
+    - name: training-data
+      mountPath: /data
+    - name: model-output
+      mountPath: /output
+  volumes:
+  - name: training-data
+    persistentVolumeClaim:
+      claimName: training-data-pvc
+  - name: model-output
+    persistentVolumeClaim:
+      claimName: model-output-pvc
+  restartPolicy: OnFailure</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-3-3-gpu-inference-deployment">3.3 GPU 加速（GPU） 推理（Inference） 部署（Deployment）</h5>
+<p><strong>生产环境（Production） ML inference with GPU 加速（GPU）:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># gpu-inference-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-inference-gpu
+spec:
+  replicas: 3  # 3 replicas, each gets 1 GPU
+  selector:
+    matchLabels:
+      app: model-inference-gpu
+  template:
+    metadata:
+      labels:
+        app: model-inference-gpu
+    spec:
+      containers:
+      - name: inference-server
+        image: myregistry.io/bert-inference:v1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MODEL_PATH
+          value: /models/bert-base
+        - name: BATCH_SIZE
+          value: &quot;32&quot;
+        - name: CUDA_VISIBLE_DEVICES
+          value: &quot;0&quot;  # Use first GPU
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            memory: &quot;8Gi&quot;
+            cpu: &quot;4&quot;
+          requests:
+            nvidia.com/gpu: 1
+            memory: &quot;8Gi&quot;
+            cpu: &quot;4&quot;
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-inference-gpu-service
+spec:
+  selector:
+    app: model-inference-gpu
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-4-node-affinity-and-gpu-scheduling">4. Node Affinity and GPU 加速（GPU） Scheduling</h4>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-4-1-node-selectors-for-gpu-nodes">4.1 Node Selectors for GPU 加速（GPU） Nodes</h5>
+<p><strong>Schedule only on GPU-enabled nodes:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># gpu-job-node-selector.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gpu-job-node-selector
+spec:
+  template:
+    spec:
+      nodeSelector:
+        nvidia.com/gpu.product: Tesla-V100-SXM2-32GB  # Specific GPU model
+      containers:
+      - name: training
+        image: pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
+        command: [&quot;python&quot;, &quot;train.py&quot;]
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+      restartPolicy: Never</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-4-2-node-affinity-for-advanced-scheduling">4.2 Node Affinity for Advanced Scheduling</h5>
+<p><strong>Prefer specific GPU 加速（GPU） types, fallback to others:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># gpu-affinity.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-affinity-pod
+spec:
+  affinity:
+    nodeAffinity:
+      # REQUIRED: Must have GPU
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: nvidia.com/gpu.present
+            operator: In
+            values: [&quot;true&quot;]
+
+      # PREFERRED: Prefer V100, but accept A100 or T4
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+          - key: nvidia.com/gpu.product
+            operator: In
+            values: [&quot;Tesla-V100-SXM2-32GB&quot;]
+      - weight: 80
+        preference:
+          matchExpressions:
+          - key: nvidia.com/gpu.product
+            operator: In
+            values: [&quot;NVIDIA-A100-SXM4-40GB&quot;]
+      - weight: 50
+        preference:
+          matchExpressions:
+          - key: nvidia.com/gpu.product
+            operator: In
+            values: [&quot;Tesla-T4&quot;]
+
+  containers:
+  - name: training
+    image: pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+  restartPolicy: OnFailure</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-4-3-taints-and-tolerations-for-gpu-nodes">4.3 Taints and Tolerations for GPU 加速（GPU） Nodes</h5>
+<p><strong>Reserve GPU 加速（GPU） nodes only for GPU 加速（GPU） workloads:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Taint GPU nodes to prevent non-GPU pods from scheduling
+kubectl taint nodes &lt;gpu-node-name&gt; nvidia.com/gpu=present:NoSchedule
+
+# Verify taint
+kubectl describe node &lt;gpu-node-name&gt; | grep Taints
+# Output: Taints: nvidia.com/gpu=present:NoSchedule</code></pre></div>
+<p><strong>Tolerate GPU 加速（GPU） taints in pod spec:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># gpu-toleration.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-toleration-pod
+spec:
+  tolerations:
+  - key: &quot;nvidia.com/gpu&quot;
+    operator: &quot;Equal&quot;
+    value: &quot;present&quot;
+    effect: &quot;NoSchedule&quot;
+
+  containers:
+  - name: training
+    image: pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+  restartPolicy: OnFailure</code></pre></div>
+<p><strong>Result:</strong> Only pods with GPU 加速（GPU） requests AND toleration can schedule on GPU 加速（GPU） nodes.</p>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-5-gpu-sharing-strategies">5. GPU 加速（GPU） Sharing Strategies</h4>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-5-1-time-slicing-gpus">5.1 Time-Slicing GPUs</h5>
+<p><strong>Problem:</strong> GPUs are expensive; underutilized GPUs waste money.</p>
+<p><strong>Solution:</strong> Time-slicing allows multiple pods to share a single GPU 加速（GPU）.</p>
+<p><strong>Configure time-slicing:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># gpu-time-slicing-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: device-plugin-config
+  namespace: gpu-operator
+data:
+  config.yaml: |
+    version: v1
+    sharing:
+      timeSlicing:
+        resources:
+        - name: nvidia.com/gpu
+          replicas: 4  # Each GPU appears as 4 schedulable resources</code></pre></div>
+<p><strong>Apply configuration:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">kubectl apply -f gpu-time-slicing-config.yaml
+
+# Restart device plugin to apply changes
+kubectl rollout restart daemonset nvidia-device-plugin-daemonset -n gpu-operator
+
+# Verify: each GPU now shows as 4 resources
+kubectl describe node &lt;gpu-node&gt; | grep nvidia.com/gpu
+# Output:
+#  nvidia.com/gpu: 32  (8 GPUs × 4 replicas = 32 schedulable units)</code></pre></div>
+<p><strong>Deploy 4 pods sharing 1 GPU 加速（GPU）:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># time-sliced-inference.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shared-gpu-inference
+spec:
+  replicas: 4  # 4 pods share 1 physical GPU
+  selector:
+    matchLabels:
+      app: shared-inference
+  template:
+    metadata:
+      labels:
+        app: shared-inference
+    spec:
+      containers:
+      - name: inference
+        image: myregistry.io/small-model-inference:v1
+        resources:
+          limits:
+            nvidia.com/gpu: 1  # Each pod requests 1 &quot;slice&quot;
+        env:
+        - name: CUDA_VISIBLE_DEVICES
+          value: &quot;0&quot;
+  restartPolicy: Always</code></pre></div>
+<p><strong>Caution:</strong></p>
+<ul>
+<li>Time-slicing does NOT provide GPU 加速（GPU） memory isolation</li>
+<li>One pod can starve others if it uses too much memory</li>
+<li>Best for inference workloads with predictable memory usage</li>
+<li>Monitor GPU 加速（GPU） memory closely</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-5-2-multi-instance-gpu-mig">5.2 Multi-Instance GPU 加速（GPU） (MIG)</h5>
+<p><strong>What is MIG?</strong></p>
+<ul>
+<li>Available on NVIDIA A100, A30, H100 GPUs</li>
+<li><strong>Hardware partitioning</strong> of a single GPU 加速（GPU） into isolated instances</li>
+<li>Each MIG instance has dedicated memory and compute</li>
+</ul>
+<p><strong>MIG profiles (A100 40GB example):</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Profile      | Instances | Memory/Instance | Use Case
+-------------|-----------|-----------------|---------------------------
+1g.5gb       | 7         | 5 GB            | Small inference, dev/test
+2g.10gb      | 3         | 10 GB           | Medium models
+3g.20gb      | 2         | 20 GB           | Large inference
+4g.20gb      | 1         | 20 GB           | Training small models
+7g.40gb      | 1         | 40 GB           | Full GPU (no partitioning)</code></pre></div>
+<p><strong>Enable MIG on GPU 加速（GPU） nodes:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># SSH to GPU node
+nvidia-smi -mig 1  # Enable MIG mode
+
+# Create MIG instances (example: 7 × 1g.5gb)
+nvidia-smi mig -cgi 19,19,19,19,19,19,19  # Create 7 GPU instances
+nvidia-smi mig -cci                        # Create compute instances
+
+# Verify
+nvidia-smi -L
+# Output:
+# GPU 0: NVIDIA A100 (UUID: GPU-xxx)
+#   MIG 1g.5gb Device 0: (UUID: MIG-yyy-0)
+#   MIG 1g.5gb Device 1: (UUID: MIG-yyy-1)
+#   ...</code></pre></div>
+<p><strong>Configure GPU 加速（GPU） Operator for MIG:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># mig-strategy-config.yaml
+helm upgrade gpu-operator nvidia/gpu-operator \
+  --namespace gpu-operator \
+  --set mig.strategy=mixed \  # Support both MIG and non-MIG
+  --set devicePlugin.enabled=true</code></pre></div>
+<p><strong>Schedule workloads on MIG instances:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># mig-inference-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mig-inference
+spec:
+  containers:
+  - name: inference
+    image: nvcr.io/nvidia/pytorch:23.01-py3
+    resources:
+      limits:
+        nvidia.com/mig-1g.5gb: 1  # Request 1 MIG instance (1g.5gb profile)
+      requests:
+        nvidia.com/mig-1g.5gb: 1
+        memory: &quot;4Gi&quot;
+        cpu: &quot;2&quot;
+  restartPolicy: OnFailure</code></pre></div>
+<p><strong>Comparison:</strong></p>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>Time-Slicing</th><th>MIG</th></tr></thead><tbody><tr><td>Isolation</td><td>None (shared memory)</td><td>Hardware isolation</td></tr><tr><td>Memory Safety</td><td>No</td><td>Yes (dedicated memory)</td></tr><tr><td>GPU 加速（GPU） Support</td><td>All NVIDIA GPUs</td><td>A100, A30, H100 only</td></tr><tr><td>Overhead</td><td>Context switching</td><td>None</td></tr><tr><td>Use Case</td><td>Dev/test, small models</td><td>生产环境（Production） multi-tenancy</td></tr><tr><td>Cost</td><td>Better utilization</td><td>Better isolation</td></tr></tbody></table></div>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-6-monitoring-gpu-utilization">6. 监控（Monitoring） GPU 加速（GPU） Utilization</h4>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-6-1-nvidia-dcgm-exporter-prometheus-metric">6.1 NVIDIA DCGM Exporter (Prometheus Metrics)</h5>
+<p><strong>Install DCGM Exporter (included in GPU 加速（GPU） Operator):</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Verify DCGM Exporter is running
+kubectl get pods -n gpu-operator | grep dcgm
+
+# Check metrics endpoint
+kubectl port-forward -n gpu-operator &lt;dcgm-exporter-pod&gt; 9400:9400
+curl localhost:9400/metrics | grep DCGM</code></pre></div>
+<p><strong>Key metrics exposed:</strong></p>
+<div class="code-shell"><div class="code-title"><span>prometheus</span><span>PROMETHEUS</span></div><pre><code class="language-prometheus"># GPU utilization (0-100%)
+DCGM_FI_DEV_GPU_UTIL{gpu=&quot;0&quot;,UUID=&quot;GPU-xxx&quot;} 87
+
+# GPU memory used (MB)
+DCGM_FI_DEV_FB_USED{gpu=&quot;0&quot;,UUID=&quot;GPU-xxx&quot;} 28672
+
+# GPU temperature (Celsius)
+DCGM_FI_DEV_GPU_TEMP{gpu=&quot;0&quot;,UUID=&quot;GPU-xxx&quot;} 68
+
+# GPU power usage (Watts)
+DCGM_FI_DEV_POWER_USAGE{gpu=&quot;0&quot;,UUID=&quot;GPU-xxx&quot;} 245
+
+# GPU memory bandwidth utilization (%)
+DCGM_FI_DEV_MEM_COPY_UTIL{gpu=&quot;0&quot;,UUID=&quot;GPU-xxx&quot;} 42
+
+# SM (Streaming Multiprocessor) occupancy
+DCGM_FI_DEV_SM_OCCUPANCY{gpu=&quot;0&quot;,UUID=&quot;GPU-xxx&quot;} 0.76</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-6-2-grafana-dashboard-for-gpu-monitoring">6.2 Grafana 可视化（Grafana） Dashboard for GPU 加速（GPU） 监控（Monitoring）</h5>
+<p><strong>Import NVIDIA DCGM dashboard:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Dashboard ID: 12239 (NVIDIA DCGM Exporter Dashboard)
+# URL: https://grafana.com/grafana/dashboards/12239
+
+# Or use this JSON config
+cat &lt;&lt;EOF | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-gpu-dashboard
+  namespace: monitoring
+data:
+  gpu-dashboard.json: |
+    {
+      &quot;dashboard&quot;: {
+        &quot;title&quot;: &quot;GPU Cluster Monitoring&quot;,
+        &quot;panels&quot;: [
+          {
+            &quot;title&quot;: &quot;GPU Utilization&quot;,
+            &quot;targets&quot;: [{&quot;expr&quot;: &quot;DCGM_FI_DEV_GPU_UTIL&quot;}]
+          },
+          {
+            &quot;title&quot;: &quot;GPU Memory Usage&quot;,
+            &quot;targets&quot;: [{&quot;expr&quot;: &quot;DCGM_FI_DEV_FB_USED / DCGM_FI_DEV_FB_TOTAL * 100&quot;}]
+          },
+          {
+            &quot;title&quot;: &quot;GPU Temperature&quot;,
+            &quot;targets&quot;: [{&quot;expr&quot;: &quot;DCGM_FI_DEV_GPU_TEMP&quot;}]
+          }
+        ]
+      }
+    }
+EOF</code></pre></div>
+<p><strong>Prometheus 指标监控（Prometheus） alerts for GPU 加速（GPU） issues:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># gpu-alerts.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-gpu-alerts
+  namespace: monitoring
+data:
+  gpu-alerts.rules: |
+    groups:
+    - name: gpu-alerts
+      interval: 30s
+      rules:
+      # GPU temperature too high
+      - alert: GPUHighTemperature
+        expr: DCGM_FI_DEV_GPU_TEMP &gt; 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: &quot;GPU {{ $labels.gpu }} temperature is high&quot;
+          description: &quot;GPU temperature is {{ $value }}°C&quot;
+
+      # GPU memory exhaustion
+      - alert: GPUMemoryHigh
+        expr: (DCGM_FI_DEV_FB_USED / DCGM_FI_DEV_FB_TOTAL) &gt; 0.95
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: &quot;GPU {{ $labels.gpu }} memory is nearly full&quot;
+          description: &quot;GPU memory usage is {{ $value | humanizePercentage }}&quot;
+
+      # GPU not being utilized (waste)
+      - alert: GPUUnderutilized
+        expr: DCGM_FI_DEV_GPU_UTIL &lt; 10
+        for: 1h
+        labels:
+          severity: info
+        annotations:
+          summary: &quot;GPU {{ $labels.gpu }} is underutilized&quot;
+          description: &quot;GPU utilization is only {{ $value }}%&quot;</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-6-3-kubectl-plugin-for-gpu-monitoring">6.3 kubectl Plugin for GPU 加速（GPU） 监控（Monitoring）</h5>
+<p><strong>Install kubectl-gpu plugin:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install krew (kubectl plugin manager)
+curl -fsSL https://krew.sh/install | bash
+
+# Install gpu plugin
+kubectl krew install resource-capacity
+
+# View GPU allocation across cluster
+kubectl resource-capacity --pods --util --sort gpu.nvidia.com</code></pre></div>
+<p><strong>Output example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">NODE            GPU TOTAL   GPU ALLOCATED   GPU UTILIZATION
+gpu-node-1      8           6 (75%)         87%
+gpu-node-2      8           8 (100%)        92%
+gpu-node-3      8           4 (50%)         45%</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-7-best-practices-for-gpu-scheduling">7. Best Practices for GPU 加速（GPU） Scheduling</h4>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-7-1-resource-requests-and-limits">7.1 Resource Requests and Limits</h5>
+<p><strong>Always set GPU 加速（GPU） requests equal to limits:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># ✅ GOOD: Request = Limit
+resources:
+  limits:
+    nvidia.com/gpu: 2
+  requests:
+    nvidia.com/gpu: 2  # Must be equal</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># ❌ BAD: Request ≠ Limit (will cause errors)
+resources:
+  limits:
+    nvidia.com/gpu: 2
+  requests:
+    nvidia.com/gpu: 1  # ERROR: GPUs are not overcommitable</code></pre></div>
+<p><strong>Why?</strong> Kubernetes 容器编排（Kubernetes） treats GPUs as <strong>non-overcommitable extended resources</strong>. Requests and limits MUST be equal.</p>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-7-2-set-appropriate-cpu-and-memory">7.2 Set Appropriate CPU and Memory</h5>
+<p>GPUs need sufficient CPU and memory to avoid bottlenecks:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># ✅ GOOD: Balanced resources
+resources:
+  limits:
+    nvidia.com/gpu: 1
+    memory: &quot;16Gi&quot;  # Enough for model + batch
+    cpu: &quot;8&quot;        # Enough for data preprocessing
+  requests:
+    nvidia.com/gpu: 1
+    memory: &quot;16Gi&quot;
+    cpu: &quot;8&quot;</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># ❌ BAD: GPU bottlenecked by CPU/memory
+resources:
+  limits:
+    nvidia.com/gpu: 1
+    memory: &quot;2Gi&quot;   # Too little memory
+    cpu: &quot;1&quot;        # CPU will starve GPU</code></pre></div>
+<p><strong>Rule of thumb:</strong></p>
+<ul>
+<li><strong>训练（Training）:</strong> 8-16 CPU cores per GPU 加速（GPU）, 32-64 GB RAM per GPU 加速（GPU）</li>
+<li><strong>推理（Inference）:</strong> 4-8 CPU cores per GPU 加速（GPU）, 8-16 GB RAM per GPU 加速（GPU）</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-7-3-use-poddisruptionbudgets-for-critical-">7.3 Use PodDisruptionBudgets for Critical Workloads</h5>
+<p>Protect long-running training jobs from disruption:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># pdb-gpu-training.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: gpu-training-pdb
+spec:
+  minAvailable: 2  # At least 2 pods must remain during disruptions
+  selector:
+    matchLabels:
+      app: distributed-training</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-7-4-use-node-pools-for-gpu-isolation">7.4 Use Node Pools for GPU 加速（GPU） Isolation</h5>
+<p><strong>Separate GPU 加速（GPU） node pools by use case:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Production inference: V100 GPUs
+kubectl label nodes gpu-prod-1 gpu-prod-2 gpu-prod-3 \
+  workload=inference \
+  gpu-type=v100
+
+# Training/experimentation: T4 GPUs
+kubectl label nodes gpu-train-1 gpu-train-2 \
+  workload=training \
+  gpu-type=t4
+
+# Development: Shared A100 with MIG
+kubectl label nodes gpu-dev-1 \
+  workload=development \
+  gpu-type=a100-mig</code></pre></div>
+<p><strong>Schedule to appropriate pools:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># inference-deployment.yaml
+spec:
+  template:
+    spec:
+      nodeSelector:
+        workload: inference
+        gpu-type: v100
+      containers:
+      - name: inference
+        resources:
+          limits:
+            nvidia.com/gpu: 1</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-7-5-implement-resource-quotas">7.5 Implement Resource Quotas</h5>
+<p>Prevent GPU 加速（GPU） resource exhaustion by teams:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># gpu-resource-quota.yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: gpu-quota-team-ml
+  namespace: team-ml
+spec:
+  hard:
+    requests.nvidia.com/gpu: &quot;16&quot;  # Max 16 GPUs for team-ml
+    limits.nvidia.com/gpu: &quot;16&quot;
+    pods: &quot;50&quot;</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># gpu-limit-range.yaml
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: gpu-limit-range
+  namespace: team-ml
+spec:
+  limits:
+  - max:
+      nvidia.com/gpu: &quot;4&quot;  # Max 4 GPUs per pod
+    min:
+      nvidia.com/gpu: &quot;1&quot;  # Min 1 GPU per pod
+    type: Container</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-8-troubleshooting-gpu-scheduling-issues">8. Troubleshooting GPU 加速（GPU） Scheduling Issues</h4>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-8-1-pod-stuck-in-pending-state">8.1 Pod Stuck in Pending State</h5>
+<p><strong>Symptom:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">kubectl get pods
+# NAME                READY   STATUS    RESTARTS   AGE
+# gpu-training-pod    0/1     Pending   0          10m</code></pre></div>
+<p><strong>Diagnose:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">kubectl describe pod gpu-training-pod | grep -A 10 Events
+
+# Common reasons:
+# 1. Insufficient GPU resources
+#    Warning  FailedScheduling  pod unschedulable: Insufficient nvidia.com/gpu
+#
+# 2. No nodes with GPUs
+#    Warning  FailedScheduling  no nodes available with label nvidia.com/gpu.present=true
+#
+# 3. Taints not tolerated
+#    Warning  FailedScheduling  node(s) had taint {nvidia.com/gpu: present}, that the pod didn't tolerate</code></pre></div>
+<p><strong>Solutions:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># 1. Check GPU availability across cluster
+kubectl describe nodes | grep -A 5 &quot;nvidia.com/gpu&quot;
+
+# 2. Verify GPU operator is running
+kubectl get pods -n gpu-operator
+
+# 3. Check if GPU nodes are cordoned
+kubectl get nodes | grep SchedulingDisabled
+
+# 4. Review pod tolerations and node selectors
+kubectl get pod gpu-training-pod -o yaml | grep -A 10 tolerations</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-8-2-gpu-not-detected-in-container">8.2 GPU 加速（GPU） Not Detected in Container</h5>
+<p><strong>Symptom:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch
+print(torch.cuda.is_available())  # False</code></pre></div>
+<p><strong>Diagnose:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># 1. Verify GPU is allocated to pod
+kubectl describe pod &lt;pod-name&gt; | grep nvidia.com/gpu
+# Should show: nvidia.com/gpu: 1
+
+# 2. Check container runtime configuration
+kubectl exec &lt;pod-name&gt; -- nvidia-smi
+# Should show GPU details
+
+# 3. Verify NVIDIA container toolkit
+kubectl exec &lt;pod-name&gt; -- ls -la /dev/nvidia*
+# Should list: /dev/nvidia0, /dev/nvidiactl, /dev/nvidia-uvm</code></pre></div>
+<p><strong>Solutions:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># 1. Ensure nvidia-container-toolkit is installed on nodes
+ssh &lt;node&gt; &quot;which nvidia-container-toolkit&quot;
+
+# 2. Verify containerd runtime configuration
+ssh &lt;node&gt; &quot;cat /etc/containerd/config.toml | grep nvidia&quot;
+
+# 3. Restart device plugin daemonset
+kubectl rollout restart daemonset nvidia-device-plugin-daemonset -n gpu-operator
+
+# 4. Check pod spec includes GPU resource request
+kubectl get pod &lt;pod-name&gt; -o yaml | grep -A 5 resources</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-8-3-gpu-memory-errors-oom">8.3 GPU 加速（GPU） Memory Errors (OOM)</h5>
+<p><strong>Symptom:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">kubectl logs &lt;pod-name&gt;
+# torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 GiB</code></pre></div>
+<p><strong>Diagnose:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Check GPU memory usage
+kubectl exec &lt;pod-name&gt; -- nvidia-smi
+
+# +-----------------------------------------------------------------------------+
+# | Processes:                                                                  |
+# |  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+# |        ID   ID                                                   Usage      |
+# |=============================================================================|
+# |    0   N/A  N/A      1234      C   python                          31000MiB |
+# +-----------------------------------------------------------------------------+</code></pre></div>
+<p><strong>Solutions:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># 1. Reduce batch size or model size in code
+
+# 2. Request more GPU memory (use A100 instead of V100)
+spec:
+  nodeSelector:
+    nvidia.com/gpu.product: NVIDIA-A100-SXM4-80GB  # 80GB model
+  resources:
+    limits:
+      nvidia.com/gpu: 1
+
+# 3. Use gradient accumulation (training)
+# Accumulate gradients over multiple batches to simulate larger batch sizes
+
+# 4. Use MIG for smaller workloads
+resources:
+  limits:
+    nvidia.com/mig-3g.20gb: 1  # Use 20GB MIG instance instead of full GPU</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-8-4-gpu-utilization-is-low">8.4 GPU 加速（GPU） Utilization is Low</h5>
+<p><strong>Symptom:</strong></p>
+<p>GPU 加速（GPU） utilization showing 15-30% despite running training job.</p>
+<p><strong>Diagnose:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Check if CPU/memory is bottlenecking
+kubectl top pod &lt;pod-name&gt;
+# NAME           CPU(cores)   MEMORY(bytes)
+# training-pod   7950m        15Gi  # CPU maxed out at 8 cores
+
+# Check I/O wait
+kubectl exec &lt;pod-name&gt; -- iostat -x 1 5</code></pre></div>
+<p><strong>Solutions:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># 1. Increase CPU allocation
+resources:
+  limits:
+    nvidia.com/gpu: 1
+    cpu: &quot;16&quot;  # Increase from 8 to 16
+    memory: &quot;32Gi&quot;
+
+# 2. Use faster storage for data loading
+volumeMounts:
+- name: training-data
+  mountPath: /data
+volumes:
+- name: training-data
+  persistentVolumeClaim:
+    claimName: fast-ssd-pvc  # Use SSD instead of HDD
+
+# 3. Optimize data loading in code
+# - Use DataLoader with num_workers=4-8
+# - Prefetch data to GPU asynchronously
+# - Use mixed precision training (FP16)</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-9-hands-on-exercise-deploy-gpu-accelerated">9. Hands-On Exercise: Deploy GPU-Accelerated ML Pipeline</h4>
+<p><strong>Objective:</strong> Deploy a complete GPU-accelerated training pipeline with:</p>
+<ul>
+<li>GPU 加速（GPU） scheduling with node affinity</li>
+<li>Persistent storage for datasets and models</li>
+<li>GPU 加速（GPU） monitoring with Prometheus 指标监控（Prometheus）</li>
+<li>Resource quotas</li>
+</ul>
+<p><strong>Step 1: Create namespace with GPU 加速（GPU） quota</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">kubectl create namespace gpu-training
+
+cat &lt;&lt;EOF | kubectl apply -f -
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: gpu-quota
+  namespace: gpu-training
+spec:
+  hard:
+    requests.nvidia.com/gpu: &quot;4&quot;
+    limits.nvidia.com/gpu: &quot;4&quot;
+EOF</code></pre></div>
+<p><strong>Step 2: Create PVCs for data and models</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># training-pvcs.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: training-data-pvc
+  namespace: gpu-training
+spec:
+  accessModes:
+  - ReadOnlyMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: fast-ssd
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-output-pvc
+  namespace: gpu-training
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: fast-ssd</code></pre></div>
+<p><strong>Step 3: Deploy training job with GPU 加速（GPU）</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># gpu-training-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: resnet50-training
+  namespace: gpu-training
+spec:
+  template:
+    metadata:
+      labels:
+        app: resnet50-training
+    spec:
+      restartPolicy: OnFailure
+
+      # Schedule on V100 GPUs with affinity
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values: [&quot;Tesla-V100-SXM2-32GB&quot;]
+
+      # Tolerate GPU node taints
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Equal
+        value: present
+        effect: NoSchedule
+
+      containers:
+      - name: pytorch-training
+        image: pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
+        command: [&quot;python&quot;, &quot;train_resnet50.py&quot;]
+        args:
+          - &quot;--data-dir=/data/imagenet&quot;
+          - &quot;--output-dir=/output&quot;
+          - &quot;--epochs=90&quot;
+          - &quot;--batch-size=256&quot;
+          - &quot;--learning-rate=0.1&quot;
+
+        resources:
+          limits:
+            nvidia.com/gpu: 2  # Use 2 GPUs
+            memory: &quot;32Gi&quot;
+            cpu: &quot;16&quot;
+          requests:
+            nvidia.com/gpu: 2
+            memory: &quot;32Gi&quot;
+            cpu: &quot;16&quot;
+
+        volumeMounts:
+        - name: training-data
+          mountPath: /data
+          readOnly: true
+        - name: model-output
+          mountPath: /output
+
+        env:
+        - name: NCCL_DEBUG
+          value: &quot;INFO&quot;  # Enable NCCL debugging for multi-GPU
+        - name: CUDA_VISIBLE_DEVICES
+          value: &quot;0,1&quot;
+
+      volumes:
+      - name: training-data
+        persistentVolumeClaim:
+          claimName: training-data-pvc
+      - name: model-output
+        persistentVolumeClaim:
+          claimName: model-output-pvc</code></pre></div>
+<p><strong>Step 4: Monitor GPU 加速（GPU） usage</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Apply all resources
+kubectl apply -f training-pvcs.yaml
+kubectl apply -f gpu-training-job.yaml
+
+# Watch job progress
+kubectl get jobs -n gpu-training -w
+
+# Check GPU utilization
+kubectl exec -n gpu-training &lt;pod-name&gt; -- nvidia-smi
+
+# View logs
+kubectl logs -n gpu-training &lt;pod-name&gt; -f
+
+# Check resource usage
+kubectl top pod -n gpu-training
+
+# View Prometheus metrics (if port-forwarded)
+curl localhost:9400/metrics | grep &quot;DCGM_FI_DEV_GPU_UTIL.*pod.*resnet50&quot;</code></pre></div>
+<p><strong>Expected output:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">GPU utilization: 95-100%
+Training speed: ~500 images/second
+Memory usage: 28GB / 32GB
+Time to complete: ~24 hours</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-10-summary">10. Summary</h4>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-key-takeaways">Key Takeaways</h5>
+<p>✅ <strong>GPU 加速（GPU） scheduling requires specialized components:</strong></p>
+<ul>
+<li>NVIDIA GPU 加速（GPU） Operator automates driver and device plugin installation</li>
+<li>Device plugins advertise GPUs as schedulable resources</li>
+<li>GPU 加速（GPU） nodes should be labeled and tainted for proper isolation</li>
+</ul>
+<p>✅ <strong>Resource management:</strong></p>
+<ul>
+<li>GPU 加速（GPU） requests must equal limits (non-overcommitable)</li>
+<li>Always provide sufficient CPU and memory to avoid bottlenecks</li>
+<li>Use resource quotas to prevent exhaustion</li>
+</ul>
+<p>✅ <strong>GPU 加速（GPU） sharing strategies:</strong></p>
+<ul>
+<li><strong>Time-slicing:</strong> Share GPUs without isolation (dev/test)</li>
+<li><strong>MIG:</strong> Hardware-partitioned GPU 加速（GPU） instances (production multi-tenancy)</li>
+</ul>
+<p>✅ <strong>监控（Monitoring） and troubleshooting:</strong></p>
+<ul>
+<li>DCGM Exporter provides detailed GPU 加速（GPU） metrics to Prometheus 指标监控（Prometheus）</li>
+<li>Common issues: insufficient resources, missing tolerations, OOM errors</li>
+<li>Use <code>nvidia-smi</code> in pods to debug GPU 加速（GPU） detection</li>
+</ul>
+<p>✅ <strong>生产环境（Production） best practices:</strong></p>
+<ul>
+<li>Use node affinity to schedule on appropriate GPU 加速（GPU） types</li>
+<li>Implement PodDisruptionBudgets for critical workloads</li>
+<li>Create separate node pools for inference vs training</li>
+<li>Monitor GPU 加速（GPU） utilization to optimize costs</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-real-world-impact">Real-World Impact</h5>
+<p>Companies running ML 大规模（at scale） rely heavily on Kubernetes 容器编排（Kubernetes） GPU 加速（GPU） scheduling:</p>
+<ul>
+<li><strong>OpenAI:</strong> Trains GPT models on thousands of GPUs orchestrated by K8s</li>
+<li><strong>Uber:</strong> Schedules 10,000+ GPU 加速（GPU） jobs/day for ML experimentation</li>
+<li><strong>Spotify:</strong> Uses K8s GPU 加速（GPU） scheduling for personalization models</li>
+<li><strong>NVIDIA:</strong> Recommends GPU 加速（GPU） Operator as standard for production K8s</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-what-s-next">What's Next?</h5>
+<p>In the next lesson, we'll cover <strong>监控（Monitoring） and Troubleshooting</strong> Kubernetes 容器编排（Kubernetes） clusters, including:</p>
+<ul>
+<li>Advanced <code>kubectl</code> debugging techniques</li>
+<li>Log aggregation with Fluentd/Loki</li>
+<li>Metrics collection with Prometheus 指标监控（Prometheus）</li>
+<li>Distributed tracing for ML services</li>
+<li>Common production issues and solutions</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li>What components does the NVIDIA GPU 加速（GPU） Operator install?</li>
+<li>Why must GPU 加速（GPU） resource requests equal limits in Kubernetes 容器编排（Kubernetes）?</li>
+<li>What's the difference between GPU 加速（GPU） time-slicing and MIG?</li>
+<li>How do you prevent non-GPU workloads from scheduling on GPU 加速（GPU） nodes?</li>
+<li>What Prometheus 指标监控（Prometheus） metrics are most important for GPU 加速（GPU） monitoring?</li>
+<li>How would you troubleshoot a pod stuck in Pending due to insufficient GPUs?</li>
+<li>What's the recommended CPU and memory allocation per GPU 加速（GPU） for training workloads?</li>
+<li>How do you schedule a pod on a specific GPU 加速（GPU） model (e.g., V100)?</li>
+</ol>
+<h4 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-additional-resources">Additional Resources</h4>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-official-documentation">Official Documentation</h5>
+<ul>
+<li><a href="https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/getting-started.html">NVIDIA GPU 加速（GPU） Operator Documentation</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/">Kubernetes 容器编排（Kubernetes） Device Plugins</a></li>
+<li><a href="https://docs.nvidia.com/datacenter/tesla/mig-user-guide/">NVIDIA Multi-Instance GPU 加速（GPU） (MIG)</a></li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-tutorials-and-guides">Tutorials and Guides</h5>
+<ul>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/gpus">Running GPU 加速（GPU） Jobs on Kubernetes 容器编排（Kubernetes）</a></li>
+<li><a href="https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/gpu-sharing.html">GPU 加速（GPU） Time-Slicing Configuration</a></li>
+<li><a href="https://docs.nvidia.com/datacenter/dcgm/latest/dcgm-api/dcgm-api-field-ids.html">DCGM Exporter Metrics Guide</a></li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-tools">Tools</h5>
+<ul>
+<li><a href="https://github.com/kubernetes-sigs/kubectl-gpu">kubectl-gpu plugin</a></li>
+<li><a href="https://developer.nvidia.com/dcgm">NVIDIA DCGM</a></li>
+<li><a href="https://grafana.com/grafana/dashboards/12239">Grafana 可视化（Grafana） DCGM Dashboard</a></li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-08-gpu-scheduling-md-community-resources">Community Resources</h5>
+<ul>
+<li><a href="https://catalog.ngc.nvidia.com/">NVIDIA GPU 加速（GPU） Cloud (NGC) Catalog</a></li>
+<li><a href="https://www.cncf.io/blog/">Cloud Native Computing Foundation (CNCF) Blog</a></li>
+<li><a href="https://kubernetes.slack.com/">Kubernetes 容器编排（Kubernetes） Slack #sig-scheduling</a></li>
+</ul>
+<hr/>
+<p><strong>Congratulations!</strong> You now understand how to schedule and manage GPU 加速（GPU） workloads in Kubernetes 容器编排（Kubernetes）, a critical skill for ML infrastructure engineers. Practice deploying GPU 加速（GPU） workloads and monitoring their performance to solidify these concepts.</p><p><a class="home" href="../docs/doc-lessons-mod-104-kubernetes-07-helm-package-manager-md.html">← 上一篇（Previous）</a> <a class="home" href="../mod-104-kubernetes.html#doc-lessons-mod-104-kubernetes-08-gpu-scheduling-md">返回本章（Back to chapter）</a> <a class="home" href="../docs/doc-lessons-mod-104-kubernetes-09-monitoring-troubleshooting-md.html">下一篇（Next） →</a></p></article></main></div><script>const q=document.getElementById('search');const docs=[...document.querySelectorAll('.doc')];q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();for(const d of docs){d.classList.toggle('hidden',v && !d.dataset.title.includes(v) && !d.textContent.toLowerCase().includes(v));}});</script><footer class="foot">ycjian.github.io/code · AI Infra interview reader</footer></div></body></html>
