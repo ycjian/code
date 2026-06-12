@@ -1,0 +1,701 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-resources-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Learning Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lesson 01: Introduction to MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md.html">Lesson 02: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰</a><a class="tree-doc active" href="../docs/doc-lessons-mod-106-mlops-03-model-registry-versioning-md.html">Lesson 03: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ &amp; Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-04-feature-stores-engineering-md.html">Lesson 04: Feature Stores &amp; Feature Engineering</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-05-cicd-ml-models-md.html">Lesson 05: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for ML Models</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-06-model-deployment-strategies-md.html">Lesson 06: Model éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-07-ab-testing-experimentation-md.html">Lesson 07: A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ &amp; Experimentation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-08-best-practices-governance-md.html">Lesson 08: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Best Practices &amp; æ²»ç†ï¼ˆGovernanceï¼‰</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Module 106 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-01-mlflow-tracking-md.html">Lab 01: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Tracking Server End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-02-model-registry-md.html">Lab 02: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ and Stage Promotion</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-03-feature-store-md.html">Lab 03: Stand Up a Feast ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-04-cicd-models-md.html">Lab 04: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for Models with GitHub Actions</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-05-canary-deployment-md.html">Lab 05: Canary éƒ¨ç½²ï¼ˆDeploymentï¼‰ with Argo Rollouts</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-06-ab-testing-md.html">Lab 06: A/B Test with Traffic Splitting</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-07-drift-monitoring-md.html">Lab 07: Drift ç›‘æŽ§ï¼ˆMonitoringï¼‰ with Evidently</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercise 01: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Maturity Assessment</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-02-mlflow-tracking-deep-dive-readme-md.html">Exercise 02: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Tracking Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-03-model-registry-promotion-readme-md.html">Exercise 03: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ and Promotion Workflow</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md.html">Exercise 04: å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ and æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">Exercise 05: Model ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md.html">Exercise 06: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for ML Pipelines</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-07-feature-store-implementation-readme-md.html">Exercise 07: ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-08-deployment-strategies-readme-md.html">Exercise 08: Model éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-09-ab-testing-infrastructure-readme-md.html">Exercise 09: A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ Infrastructure for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-10-model-governance-readme-md.html">Exercise 10: Model æ²»ç†ï¼ˆGovernanceï¼‰ and Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-11-ml-orchestration-patterns-readme-md.html">Exercise 11: ML Pipeline Orchestration Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-12-model-cost-attribution-readme-md.html">Exercise 12: Per-Model Cost Attribution</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-13-reproducibility-audit-readme-md.html">Exercise 13: ML Reproducibility Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-14-ml-platform-operating-model-readme-md.html">Exercise 14: ML Platform Team Operating Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-readme-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-106-mlops-03-model-registry-versioning-md"><h3 id="lessons-mod-106-mlops-03-model-registry-versioning-md-lesson-03-model-registry-versioning">Lesson 03: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ &amp; Versioning</h3>
+<h4 id="lessons-mod-106-mlops-03-model-registry-versioning-md-overview">æ¦‚è§ˆï¼ˆOverviewï¼‰</h4>
+<p>A æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ is a centralized repository for storing, versioning, and managing ML models throughout their lifecycle. This lesson covers model versioning strategies, MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰, and governance workflows for production ML systems.</p>
+<p><strong>Duration:</strong> 5-6 hours <strong>Difficulty:</strong> Intermediate <strong>Prerequisites:</strong> MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Tracking basics, understanding of software versioning</p>
+<h4 id="lessons-mod-106-mlops-03-model-registry-versioning-md-learning-objectives">Learning Objectives</h4>
+<ul>
+<li>Understand model versioning concepts and strategies</li>
+<li>Implement MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰</li>
+<li>Manage model lifecycle stages</li>
+<li>Create approval workflows</li>
+<li>Track model lineage and metadata</li>
+<li>Integrate registry with deployment systems</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-03-model-registry-versioning-md-1-model-versioning-fundamentals">1. Model Versioning Fundamentals</h4>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-1-1-why-version-models">1.1 Why Version Models?</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Problem: Without versioning
+model = joblib.load('fraud_model.pkl')  # Which version? When trained?
+
+# Solution: With versioning
+model = mlflow.pyfunc.load_model('models:/fraud_model/3')  # Version 3</code></pre></div>
+<p><strong>Key reasons:</strong></p>
+<ul>
+<li>Reproducibility</li>
+<li>Rollback capability</li>
+<li>A/B testing</li>
+<li>Audit trail</li>
+<li>Collaborative development</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-1-2-versioning-strategies">1.2 Versioning Strategies</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Semantic Versioning (MAJOR.MINOR.PATCH)
+â”œâ”€ MAJOR: Breaking changes (new algorithm, features)
+â”œâ”€ MINOR: New features (backward compatible)
+â””â”€ PATCH: Bug fixes, retraining
+
+Timestamp Versioning (YYYYMMDD-HHMMSS)
+â””â”€ Simple, chronological
+
+Git-style Hashing
+â””â”€ Content-addressable, unique identifiers</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-03-model-registry-versioning-md-2-mlflow-model-registry">2. MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰</h4>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-2-1-architecture">2.1 Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚          MLflow Model Registry               â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                              â”‚
+â”‚  Model: fraud_detection                      â”‚
+â”‚  â”œâ”€ Version 1 (Archived)                    â”‚
+â”‚  â”œâ”€ Version 2 (Staging)                     â”‚
+â”‚  â”œâ”€ Version 3 (Production) â—„â”€â”€ Active       â”‚
+â”‚  â””â”€ Version 4 (None)                        â”‚
+â”‚                                              â”‚
+â”‚  Metadata:                                   â”‚
+â”‚  â€¢ Description                               â”‚
+â”‚  â€¢ Tags                                      â”‚
+â”‚  â€¢ Metrics                                   â”‚
+â”‚  â€¢ Source run                                â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-2-2-model-lifecycle-stages">2.2 Model Lifecycle Stages</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from mlflow.tracking import MlflowClient
+
+# Stages in MLflow Model Registry
+stages = {
+    'None': 'Initial registration, not yet validated',
+    'Staging': 'Under validation, ready for testing',
+    'Production': 'Deployed to production',
+    'Archived': 'Deprecated, no longer in use'
+}</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-03-model-registry-versioning-md-3-registering-models">3. Registering Models</h4>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-3-1-basic-registration">3.1 Basic Registration</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+import mlflow.sklearn
+from sklearn.ensemble import RandomForestClassifier
+
+# Train and log model
+with mlflow.start_run() as run:
+    model = RandomForestClassifier()
+    model.fit(X_train, y_train)
+
+    mlflow.sklearn.log_model(
+        model,
+        &quot;model&quot;,
+        registered_model_name=&quot;fraud_detection&quot;
+    )
+
+    # Log metrics
+    mlflow.log_metrics({&quot;accuracy&quot;: 0.95, &quot;f1&quot;: 0.93})
+
+print(f&quot;Model logged to run: {run.info.run_id}&quot;)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-3-2-programmatic-registration">3.2 Programmatic Registration</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from mlflow.tracking import MlflowClient
+
+client = MlflowClient()
+
+# Register model from existing run
+model_uri = f&quot;runs:/{run_id}/model&quot;
+model_details = client.create_registered_model(&quot;fraud_detection&quot;)
+
+# Create model version
+model_version = client.create_model_version(
+    name=&quot;fraud_detection&quot;,
+    source=model_uri,
+    run_id=run_id,
+    description=&quot;Random Forest with 100 trees&quot;
+)
+
+print(f&quot;Model version: {model_version.version}&quot;)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-3-3-model-with-metadata">3.3 Model with Metadata</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def register_model_with_metadata(
+    model_name: str,
+    run_id: str,
+    description: str,
+    tags: dict,
+    metrics: dict
+):
+    &quot;&quot;&quot;Register model with comprehensive metadata&quot;&quot;&quot;
+    client = MlflowClient()
+
+    # Create model version
+    model_uri = f&quot;runs:/{run_id}/model&quot;
+    mv = client.create_model_version(
+        name=model_name,
+        source=model_uri,
+        run_id=run_id,
+        description=description
+    )
+
+    # Add tags
+    for key, value in tags.items():
+        client.set_model_version_tag(
+            name=model_name,
+            version=mv.version,
+            key=key,
+            value=value
+        )
+
+    # Add performance metrics as tags
+    for metric, value in metrics.items():
+        client.set_model_version_tag(
+            name=model_name,
+            version=mv.version,
+            key=f&quot;metric_{metric}&quot;,
+            value=str(value)
+        )
+
+    return mv
+
+# Usage
+mv = register_model_with_metadata(
+    model_name=&quot;fraud_detection&quot;,
+    run_id=run.info.run_id,
+    description=&quot;Production fraud detection model&quot;,
+    tags={
+        &quot;team&quot;: &quot;risk-ml&quot;,
+        &quot;framework&quot;: &quot;sklearn&quot;,
+        &quot;algorithm&quot;: &quot;random_forest&quot;
+    },
+    metrics={
+        &quot;accuracy&quot;: 0.95,
+        &quot;precision&quot;: 0.94,
+        &quot;recall&quot;: 0.96
+    }
+)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-03-model-registry-versioning-md-4-managing-model-versions">4. Managing Model Versions</h4>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-4-1-transitioning-stages">4.1 Transitioning Stages</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from mlflow.tracking import MlflowClient
+
+client = MlflowClient()
+
+# Transition to Staging
+client.transition_model_version_stage(
+    name=&quot;fraud_detection&quot;,
+    version=3,
+    stage=&quot;Staging&quot;,
+    archive_existing_versions=False
+)
+
+# Transition to Production
+client.transition_model_version_stage(
+    name=&quot;fraud_detection&quot;,
+    version=3,
+    stage=&quot;Production&quot;,
+    archive_existing_versions=True  # Archive previous production versions
+)
+
+# Archive old version
+client.transition_model_version_stage(
+    name=&quot;fraud_detection&quot;,
+    version=1,
+    stage=&quot;Archived&quot;
+)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-4-2-querying-versions">4.2 Querying Versions</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Get all versions of a model
+versions = client.search_model_versions(f&quot;name='fraud_detection'&quot;)
+
+for mv in versions:
+    print(f&quot;Version {mv.version}: {mv.current_stage}&quot;)
+    print(f&quot;  Run ID: {mv.run_id}&quot;)
+    print(f&quot;  Status: {mv.status}&quot;)
+
+# Get latest version by stage
+latest_production = client.get_latest_versions(
+    &quot;fraud_detection&quot;,
+    stages=[&quot;Production&quot;]
+)[0]
+
+latest_staging = client.get_latest_versions(
+    &quot;fraud_detection&quot;,
+    stages=[&quot;Staging&quot;]
+)[0]
+
+print(f&quot;Production version: {latest_production.version}&quot;)
+print(f&quot;Staging version: {latest_staging.version}&quot;)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-4-3-loading-models-by-version">4.3 Loading Models by Version</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow.pyfunc
+
+# Load specific version
+model_v3 = mlflow.pyfunc.load_model(&quot;models:/fraud_detection/3&quot;)
+
+# Load latest by stage
+production_model = mlflow.pyfunc.load_model(
+    &quot;models:/fraud_detection/Production&quot;
+)
+
+staging_model = mlflow.pyfunc.load_model(
+    &quot;models:/fraud_detection/Staging&quot;
+)
+
+# Make predictions
+predictions = production_model.predict(X_test)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-03-model-registry-versioning-md-5-model-approval-workflows">5. Model Approval Workflows</h4>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-5-1-automated-validation">5.1 Automated Validation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class ModelValidator:
+    &quot;&quot;&quot;Validate models before promotion&quot;&quot;&quot;
+
+    def __init__(self, client: MlflowClient):
+        self.client = client
+
+    def validate_metrics(self, model_version, thresholds: dict) -&gt; bool:
+        &quot;&quot;&quot;Check if model meets metric thresholds&quot;&quot;&quot;
+        run = self.client.get_run(model_version.run_id)
+        metrics = run.data.metrics
+
+        for metric, threshold in thresholds.items():
+            if metric not in metrics:
+                return False
+            if metrics[metric] &lt; threshold:
+                return False
+
+        return True
+
+    def validate_against_champion(
+        self,
+        challenger_version,
+        champion_version,
+        test_data
+    ) -&gt; bool:
+        &quot;&quot;&quot;Compare challenger against current champion&quot;&quot;&quot;
+        challenger_model = mlflow.pyfunc.load_model(
+            f&quot;models:/{challenger_version.name}/{challenger_version.version}&quot;
+        )
+        champion_model = mlflow.pyfunc.load_model(
+            f&quot;models:/{champion_version.name}/{champion_version.version}&quot;
+        )
+
+        challenger_acc = evaluate_model(challenger_model, test_data)
+        champion_acc = evaluate_model(champion_model, test_data)
+
+        return challenger_acc &gt; champion_acc
+
+    def approve_for_staging(
+        self,
+        model_name: str,
+        version: int,
+        thresholds: dict
+    ) -&gt; bool:
+        &quot;&quot;&quot;Approve model for staging if it passes validation&quot;&quot;&quot;
+        mv = self.client.get_model_version(model_name, version)
+
+        if self.validate_metrics(mv, thresholds):
+            self.client.transition_model_version_stage(
+                name=model_name,
+                version=version,
+                stage=&quot;Staging&quot;
+            )
+
+            # Add approval metadata
+            self.client.set_model_version_tag(
+                model_name,
+                version,
+                &quot;validated&quot;,
+                &quot;true&quot;
+            )
+
+            return True
+
+        return False
+
+# Usage
+validator = ModelValidator(client)
+
+approved = validator.approve_for_staging(
+    model_name=&quot;fraud_detection&quot;,
+    version=4,
+    thresholds={&quot;accuracy&quot;: 0.9, &quot;f1_score&quot;: 0.85}
+)
+
+if approved:
+    print(&quot;Model approved for staging&quot;)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-5-2-manual-approval-workflow">5.2 Manual Approval Workflow</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class ApprovalWorkflow:
+    &quot;&quot;&quot;Manage manual approval process&quot;&quot;&quot;
+
+    def __init__(self, client: MlflowClient):
+        self.client = client
+
+    def request_approval(
+        self,
+        model_name: str,
+        version: int,
+        approver: str,
+        reason: str
+    ):
+        &quot;&quot;&quot;Create approval request&quot;&quot;&quot;
+        self.client.set_model_version_tag(
+            model_name,
+            version,
+            &quot;approval_status&quot;,
+            &quot;pending&quot;
+        )
+        self.client.set_model_version_tag(
+            model_name,
+            version,
+            &quot;approver&quot;,
+            approver
+        )
+        self.client.set_model_version_tag(
+            model_name,
+            version,
+            &quot;approval_reason&quot;,
+            reason
+        )
+
+        # Send notification
+        self.notify_approver(approver, model_name, version)
+
+    def approve(
+        self,
+        model_name: str,
+        version: int,
+        approver: str
+    ):
+        &quot;&quot;&quot;Approve model for production&quot;&quot;&quot;
+        self.client.set_model_version_tag(
+            model_name,
+            version,
+            &quot;approval_status&quot;,
+            &quot;approved&quot;
+        )
+        self.client.set_model_version_tag(
+            model_name,
+            version,
+            &quot;approved_by&quot;,
+            approver
+        )
+        self.client.set_model_version_tag(
+            model_name,
+            version,
+            &quot;approved_at&quot;,
+            datetime.now().isoformat()
+        )
+
+        # Transition to production
+        self.client.transition_model_version_stage(
+            model_name,
+            version,
+            &quot;Production&quot;,
+            archive_existing_versions=True
+        )
+
+    def reject(
+        self,
+        model_name: str,
+        version: int,
+        reason: str
+    ):
+        &quot;&quot;&quot;Reject model&quot;&quot;&quot;
+        self.client.set_model_version_tag(
+            model_name,
+            version,
+            &quot;approval_status&quot;,
+            &quot;rejected&quot;
+        )
+        self.client.set_model_version_tag(
+            model_name,
+            version,
+            &quot;rejection_reason&quot;,
+            reason
+        )
+
+# Usage
+workflow = ApprovalWorkflow(client)
+
+# Request approval
+workflow.request_approval(
+    model_name=&quot;fraud_detection&quot;,
+    version=4,
+    approver=&quot;ml-lead@company.com&quot;,
+    reason=&quot;Improved accuracy by 2%&quot;
+)
+
+# Approve
+workflow.approve(
+    model_name=&quot;fraud_detection&quot;,
+    version=4,
+    approver=&quot;ml-lead@company.com&quot;
+)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-03-model-registry-versioning-md-6-model-lineage-metadata">6. Model Lineage &amp; Metadata</h4>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-6-1-tracking-model-lineage">6.1 Tracking Model Lineage</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def log_model_lineage(
+    model_name: str,
+    version: int,
+    training_data_version: str,
+    parent_model_version: int = None,
+    dependencies: dict = None
+):
+    &quot;&quot;&quot;Log complete model lineage&quot;&quot;&quot;
+    client = MlflowClient()
+
+    # Training data lineage
+    client.set_model_version_tag(
+        model_name,
+        version,
+        &quot;training_data_version&quot;,
+        training_data_version
+    )
+
+    # Parent model (for retraining)
+    if parent_model_version:
+        client.set_model_version_tag(
+            model_name,
+            version,
+            &quot;parent_model_version&quot;,
+            str(parent_model_version)
+        )
+
+    # Dependencies
+    if dependencies:
+        for dep, ver in dependencies.items():
+            client.set_model_version_tag(
+                model_name,
+                version,
+                f&quot;dependency_{dep}&quot;,
+                ver
+            )
+
+    # Code version
+    import subprocess
+    try:
+        git_commit = subprocess.check_output(
+            ['git', 'rev-parse', 'HEAD']
+        ).decode().strip()
+
+        client.set_model_version_tag(
+            model_name,
+            version,
+            &quot;git_commit&quot;,
+            git_commit
+        )
+    except:
+        pass
+
+# Usage
+log_model_lineage(
+    model_name=&quot;fraud_detection&quot;,
+    version=4,
+    training_data_version=&quot;2024-01-15&quot;,
+    parent_model_version=3,
+    dependencies={
+        &quot;sklearn&quot;: &quot;1.3.0&quot;,
+        &quot;pandas&quot;: &quot;2.0.0&quot;
+    }
+)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-6-2-model-cards">6.2 Model Cards</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from dataclasses import dataclass
+from typing import Dict, List
+
+@dataclass
+class ModelCard:
+    &quot;&quot;&quot;Structured model documentation&quot;&quot;&quot;
+    model_name: str
+    version: int
+    description: str
+    intended_use: str
+    training_data: Dict
+    performance_metrics: Dict
+    ethical_considerations: List[str]
+    limitations: List[str]
+
+    def to_dict(self) -&gt; dict:
+        return {
+            'model_name': self.model_name,
+            'version': self.version,
+            'description': self.description,
+            'intended_use': self.intended_use,
+            'training_data': self.training_data,
+            'performance_metrics': self.performance_metrics,
+            'ethical_considerations': self.ethical_considerations,
+            'limitations': self.limitations
+        }
+
+    def save_to_registry(self, client: MlflowClient):
+        &quot;&quot;&quot;Save model card to registry&quot;&quot;&quot;
+        import json
+
+        card_json = json.dumps(self.to_dict(), indent=2)
+
+        client.set_model_version_tag(
+            self.model_name,
+            self.version,
+            &quot;model_card&quot;,
+            card_json
+        )
+
+# Usage
+card = ModelCard(
+    model_name=&quot;fraud_detection&quot;,
+    version=4,
+    description=&quot;Random Forest classifier for credit card fraud detection&quot;,
+    intended_use=&quot;Real-time fraud scoring for transaction approvals&quot;,
+    training_data={
+        &quot;source&quot;: &quot;transactions_2023&quot;,
+        &quot;size&quot;: &quot;1M records&quot;,
+        &quot;date_range&quot;: &quot;2023-01-01 to 2023-12-31&quot;
+    },
+    performance_metrics={
+        &quot;accuracy&quot;: 0.95,
+        &quot;precision&quot;: 0.94,
+        &quot;recall&quot;: 0.96,
+        &quot;f1_score&quot;: 0.95
+    },
+    ethical_considerations=[
+        &quot;Potential bias in historical fraud patterns&quot;,
+        &quot;False positives may impact customer experience&quot;
+    ],
+    limitations=[
+        &quot;Performance degrades on new fraud patterns&quot;,
+        &quot;Requires retraining quarterly&quot;
+    ]
+)
+
+card.save_to_registry(client)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-03-model-registry-versioning-md-7-integration-with-deployment">7. Integration with éƒ¨ç½²ï¼ˆDeploymentï¼‰</h4>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-7-1-deployment-automation">7.1 éƒ¨ç½²ï¼ˆDeploymentï¼‰ Automation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class ModelDeploymentManager:
+    &quot;&quot;&quot;Manage model deployments from registry&quot;&quot;&quot;
+
+    def __init__(self, client: MlflowClient):
+        self.client = client
+
+    def deploy_production_model(
+        self,
+        model_name: str,
+        deployment_target: str
+    ):
+        &quot;&quot;&quot;Deploy current production model&quot;&quot;&quot;
+        # Get production version
+        versions = self.client.get_latest_versions(
+            model_name,
+            stages=[&quot;Production&quot;]
+        )
+
+        if not versions:
+            raise ValueError(f&quot;No production version for {model_name}&quot;)
+
+        prod_version = versions[0]
+
+        # Load model
+        model_uri = f&quot;models:/{model_name}/Production&quot;
+
+        # Deploy based on target
+        if deployment_target == &quot;kubernetes&quot;:
+            self.deploy_to_k8s(model_uri, prod_version)
+        elif deployment_target == &quot;sagemaker&quot;:
+            self.deploy_to_sagemaker(model_uri, prod_version)
+        elif deployment_target == &quot;lambda&quot;:
+            self.deploy_to_lambda(model_uri, prod_version)
+
+        # Record deployment
+        self.client.set_model_version_tag(
+            model_name,
+            prod_version.version,
+            &quot;deployed_to&quot;,
+            deployment_target
+        )
+        self.client.set_model_version_tag(
+            model_name,
+            prod_version.version,
+            &quot;deployed_at&quot;,
+            datetime.now().isoformat()
+        )
+
+    def rollback_deployment(
+        self,
+        model_name: str,
+        previous_version: int
+    ):
+        &quot;&quot;&quot;Rollback to previous version&quot;&quot;&quot;
+        self.client.transition_model_version_stage(
+            model_name,
+            previous_version,
+            &quot;Production&quot;,
+            archive_existing_versions=True
+        )</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-03-model-registry-versioning-md-8-best-practices">8. Best Practices</h4>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-8-1-model-registry-checklist">8.1 æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ Checklist</h5>
+<p>âœ… <strong>DO:</strong></p>
+<ul>
+<li>Use descriptive model names</li>
+<li>Document models thoroughly</li>
+<li>Version all dependencies</li>
+<li>Implement approval workflows</li>
+<li>Track model lineage</li>
+<li>Clean up archived models</li>
+<li>Use semantic versioning</li>
+</ul>
+<p>âŒ <strong>DON'T:</strong></p>
+<ul>
+<li>Skip validation before promotion</li>
+<li>Bypass approval workflows</li>
+<li>Leave models in staging indefinitely</li>
+<li>Delete production models</li>
+<li>Mix unrelated models in same registry</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-03-model-registry-versioning-md-8-2-production-example">8.2 ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ Example</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Complete production workflow
+def production_model_workflow():
+    &quot;&quot;&quot;End-to-end model registry workflow&quot;&quot;&quot;
+    client = MlflowClient()
+
+    # 1. Train model
+    with mlflow.start_run() as run:
+        model = train_model()
+        metrics = evaluate_model(model)
+        mlflow.sklearn.log_model(model, &quot;model&quot;)
+        mlflow.log_metrics(metrics)
+
+    # 2. Register model
+    mv = register_model_with_metadata(
+        model_name=&quot;fraud_detection&quot;,
+        run_id=run.info.run_id,
+        description=&quot;Quarterly retrained model&quot;,
+        tags={&quot;quarter&quot;: &quot;Q1-2024&quot;},
+        metrics=metrics
+    )
+
+    # 3. Validate
+    validator = ModelValidator(client)
+    if validator.approve_for_staging(
+        &quot;fraud_detection&quot;,
+        mv.version,
+        {&quot;accuracy&quot;: 0.9, &quot;f1_score&quot;: 0.85}
+    ):
+        print(f&quot;Version {mv.version} moved to Staging&quot;)
+
+    # 4. Request approval
+    workflow = ApprovalWorkflow(client)
+    workflow.request_approval(
+        &quot;fraud_detection&quot;,
+        mv.version,
+        &quot;ml-lead@company.com&quot;,
+        &quot;Quarterly retrained model with improved metrics&quot;
+    )
+
+    # 5. Deploy (after approval)
+    deployer = ModelDeploymentManager(client)
+    deployer.deploy_production_model(
+        &quot;fraud_detection&quot;,
+        &quot;kubernetes&quot;
+    )</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-03-model-registry-versioning-md-9-summary">9. Summary</h4>
+<p>Key takeaways:</p>
+<ul>
+<li>âœ… æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ provides centralized model management</li>
+<li>âœ… Lifecycle stages organize model progression</li>
+<li>âœ… Automated validation ensures quality</li>
+<li>âœ… Approval workflows provide governance</li>
+<li>âœ… Model lineage enables reproducibility</li>
+<li>âœ… Integration with deployment automates releases</li>
+</ul>
+<p><strong>Next Lesson:</strong> <a href="#doc-lessons-mod-106-mlops-04-feature-stores-engineering-md">04 - Feature Stores Engineering</a></p><p><a class="home" href="../docs/doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-04-feature-stores-engineering-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

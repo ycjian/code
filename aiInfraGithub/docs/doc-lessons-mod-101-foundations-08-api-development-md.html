@@ -1,0 +1,689 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Module 01: Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-resources-md.html">Module 101 â€” Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lesson 01: Introduction to æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-02-environment-setup-md.html">Lesson 02: Development Environment Setup</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-03-ml-infrastructure-basics-md.html">Lesson 03: æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Basics</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-04-ml-frameworks-md.html">Lesson 04: ML Frameworks Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-05-cloud-intro-md.html">Lesson 05: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-06-model-serving-basics-md.html">Lesson 06: æ¨¡åž‹æœåŠ¡ï¼ˆModel Servingï¼‰ Basics</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-07-docker-basics-md.html">Lesson 07: Docker å®¹å™¨ï¼ˆDockerï¼‰ Basics for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc active" href="../docs/doc-lessons-mod-101-foundations-08-api-development-md.html">Lesson 08: API Development for ML Services</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Module 101 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-01-python-dev-environment-md.html">Lab 01: Reproducible Python Dev Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-02-first-docker-container-md.html">Lab 02: Build, Run, and Inspect Your First Docker å®¹å™¨ï¼ˆDockerï¼‰ Container</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-03-local-kind-cluster-md.html">Lab 03: Stand Up a Local Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cluster with kind</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-04-serve-sklearn-model-md.html">Lab 04: Serve a Scikit-Learn Model Behind a FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ Endpoint</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-05-instrument-with-prometheus-md.html">Lab 05: Add Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Instrumentation to the FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ Service</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercise 04: Advanced Python Environment Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md.html">Exercise 05: ML Framework Benchmarking Tool</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-06-fastapi-ml-template-generator-readme-md.html">Exercise 06: FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ ML Service Template Generator</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-07-cloud-onboarding-readme-md.html">Exercise 07: Cloud Onboarding for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Engineers</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-08-production-model-serving-readme-md.html">Exercise 08: Production-Grade æ¨¡åž‹æœåŠ¡ï¼ˆModel Servingï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-09-api-integration-tests-readme-md.html">Exercise 09: API Integration &amp; Contract Testing</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-10-end-to-end-mini-project-readme-md.html">Exercise 10: End-to-End Mini-Project (Capstone for Module 101)</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-01-environment-md.html">Exercise 01: Environment Verification</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-02-docker-md.html">Exercise 02: Docker å®¹å™¨ï¼ˆDockerï¼‰ Fundamentals for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-03-kubernetes-md.html">Exercise 03: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰ for ML</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Module 01: Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-101-foundations-08-api-development-md"><h3 id="lessons-mod-101-foundations-08-api-development-md-lesson-08-api-development-for-ml-service">Lesson 08: API Development for ML Services</h3>
+<p><strong>Duration:</strong> 5 hours <strong>Objectives:</strong> Build production-ready APIs for ML model serving</p>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-introduction">Introduction</h4>
+<p>APIs (Application Programming Interfaces) are how users interact with your ML models. As an ML infrastructure engineer, you'll build APIs that:</p>
+<ul>
+<li>Accept user input (images, text, data)</li>
+<li>Run model inference</li>
+<li>Return predictions</li>
+<li>Handle errors gracefully</li>
+<li>Scale to handle many requests</li>
+<li>Provide monitoring and logging</li>
+</ul>
+<p>This lesson covers building production-ready ML APIs using modern Python frameworks, focusing on FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰.</p>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-why-fastapi-for-ml">Why FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ for ML?</h4>
+<p><strong>FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰</strong> is a modern, fast web framework for building APIs with Python 3.7+.</p>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-fastapi-vs-alternatives">FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ vs Alternatives</h5>
+<div class="table-wrap"><table><thead><tr><th>Framework</th><th>Speed</th><th>Async</th><th>Docs</th><th>Type Safety</th><th>ML Use</th></tr></thead><tbody><tr><td><strong>FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰</strong></td><td>âš¡âš¡âš¡</td><td>âœ…</td><td>Auto</td><td>âœ…</td><td>â­â­â­</td></tr><tr><td>Flask</td><td>âš¡</td><td>âŒ</td><td>Manual</td><td>âŒ</td><td>â­â­</td></tr><tr><td>Django</td><td>âš¡</td><td>âŒ</td><td>Good</td><td>âŒ</td><td>â­</td></tr><tr><td>Tornado</td><td>âš¡âš¡</td><td>âœ…</td><td>Manual</td><td>âŒ</td><td>â­â­</td></tr></tbody></table></div>
+<p><strong>Why FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ wins for ML:</strong></p>
+<ol>
+<li><strong>Speed</strong>: One of the fastest Python frameworks (on par with NodeJS, Go)</li>
+<li><strong>Async</strong>: Handle multiple requests efficiently</li>
+<li><strong>Auto Documentation</strong>: Interactive API docs (Swagger UI)</li>
+<li><strong>Type Safety</strong>: Pydantic validation catches errors early</li>
+<li><strong>Modern</strong>: Built on latest Python features</li>
+</ol>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-fastapi-basics">FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ Basics</h4>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-installation">Installation</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">pip install fastapi uvicorn[standard]</code></pre></div>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-hello-world-api">Hello World API</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># app.py
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get(&quot;/&quot;)
+def read_root():
+    return {&quot;message&quot;: &quot;Hello World&quot;}
+
+@app.get(&quot;/health&quot;)
+def health_check():
+    return {&quot;status&quot;: &quot;healthy&quot;}</code></pre></div>
+<p><strong>Run the server:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">uvicorn app:app --reload</code></pre></div>
+<p><strong>Access:</strong></p>
+<ul>
+<li>API: http://localhost:8000/</li>
+<li>Auto Docs: http://localhost:8000/docs</li>
+<li>Alternative Docs: http://localhost:8000/redoc</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-path-parameters">Path Parameters</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">@app.get(&quot;/models/{model_name}&quot;)
+def get_model_info(model_name: str):
+    return {&quot;model&quot;: model_name, &quot;status&quot;: &quot;loaded&quot;}
+
+# Access: /models/resnet18
+# Returns: {&quot;model&quot;: &quot;resnet18&quot;, &quot;status&quot;: &quot;loaded&quot;}</code></pre></div>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-query-parameters">Query Parameters</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">@app.get(&quot;/predict&quot;)
+def predict(
+    model: str = &quot;resnet18&quot;,
+    top_k: int = 5,
+    threshold: float = 0.5
+):
+    return {
+        &quot;model&quot;: model,
+        &quot;top_k&quot;: top_k,
+        &quot;threshold&quot;: threshold
+    }
+
+# Access: /predict?model=resnet50&amp;top_k=10&amp;threshold=0.7</code></pre></div>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-request-body-post">Request Body (POST)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pydantic import BaseModel
+
+class PredictionRequest(BaseModel):
+    image_url: str
+    model: str = &quot;resnet18&quot;
+    top_k: int = 5
+
+@app.post(&quot;/predict&quot;)
+def predict(request: PredictionRequest):
+    return {
+        &quot;image_url&quot;: request.image_url,
+        &quot;model&quot;: request.model,
+        &quot;predictions&quot;: []
+    }
+
+# POST /predict
+# Body: {&quot;image_url&quot;: &quot;http://example.com/image.jpg&quot;, &quot;top_k&quot;: 3}</code></pre></div>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-file-upload">File Upload</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import File, UploadFile
+
+@app.post(&quot;/predict/image&quot;)
+async def predict_image(file: UploadFile = File(...)):
+    # Read file content
+    contents = await file.read()
+
+    # Process image
+    # ... (your ML inference code)
+
+    return {
+        &quot;filename&quot;: file.filename,
+        &quot;content_type&quot;: file.content_type,
+        &quot;prediction&quot;: &quot;cat&quot;
+    }
+
+# Test with curl:
+# curl -X POST http://localhost:8000/predict/image \
+#   -F &quot;file=@image.jpg&quot;</code></pre></div>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-building-an-ml-prediction-api">Building an ML Prediction API</h4>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-complete-example">Complete Example</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># ml_api.py
+from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from typing import List, Optional
+import torch
+import torchvision.models as models
+import torchvision.transforms as transforms
+from PIL import Image
+import io
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Create app
+app = FastAPI(
+    title=&quot;ML Model Serving API&quot;,
+    description=&quot;API for image classification using ResNet&quot;,
+    version=&quot;1.0.0&quot;
+)
+
+# Global model (loaded once on startup)
+MODEL = None
+DEVICE = None
+TRANSFORM = None
+CLASSES = None
+
+# Response models
+class PredictionResult(BaseModel):
+    class_name: str
+    confidence: float
+
+class PredictionResponse(BaseModel):
+    predictions: List[PredictionResult]
+    model: str
+    inference_time_ms: float
+
+@app.on_event(&quot;startup&quot;)
+async def startup_event():
+    &quot;&quot;&quot;Load model on startup&quot;&quot;&quot;
+    global MODEL, DEVICE, TRANSFORM, CLASSES
+
+    logger.info(&quot;Loading model...&quot;)
+
+    # Set device
+    DEVICE = torch.device(&quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;)
+    logger.info(f&quot;Using device: {DEVICE}&quot;)
+
+    # Load model
+    MODEL = models.resnet18(pretrained=True)
+    MODEL.to(DEVICE)
+    MODEL.eval()
+
+    # Define transforms
+    TRANSFORM = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225]
+        )
+    ])
+
+    # Load ImageNet class labels
+    CLASSES = load_imagenet_classes()
+
+    logger.info(&quot;Model loaded successfully!&quot;)
+
+@app.get(&quot;/&quot;)
+def root():
+    &quot;&quot;&quot;Root endpoint&quot;&quot;&quot;
+    return {
+        &quot;service&quot;: &quot;ML Model Serving API&quot;,
+        &quot;version&quot;: &quot;1.0.0&quot;,
+        &quot;endpoints&quot;: {
+            &quot;health&quot;: &quot;/health&quot;,
+            &quot;predict&quot;: &quot;/predict (POST with image file)&quot;,
+            &quot;docs&quot;: &quot;/docs&quot;
+        }
+    }
+
+@app.get(&quot;/health&quot;)
+def health_check():
+    &quot;&quot;&quot;Health check endpoint&quot;&quot;&quot;
+    return {
+        &quot;status&quot;: &quot;healthy&quot;,
+        &quot;model_loaded&quot;: MODEL is not None,
+        &quot;device&quot;: str(DEVICE)
+    }
+
+@app.post(&quot;/predict&quot;, response_model=PredictionResponse)
+async def predict(
+    file: UploadFile = File(...),
+    top_k: int = 5
+):
+    &quot;&quot;&quot;
+    Predict image class
+
+    Args:
+        file: Image file (JPEG, PNG)
+        top_k: Number of top predictions to return
+
+    Returns:
+        Predictions with class names and confidence scores
+    &quot;&quot;&quot;
+    import time
+    start_time = time.time()
+
+    try:
+        # Validate file type
+        if file.content_type not in [&quot;image/jpeg&quot;, &quot;image/png&quot;, &quot;image/jpg&quot;]:
+            raise HTTPException(
+                status_code=400,
+                detail=f&quot;Invalid file type: {file.content_type}. &quot;
+                       f&quot;Supported types: image/jpeg, image/png&quot;
+            )
+
+        # Read and decode image
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents)).convert(&quot;RGB&quot;)
+
+        # Preprocess
+        input_tensor = TRANSFORM(image).unsqueeze(0).to(DEVICE)
+
+        # Run inference
+        with torch.no_grad():
+            outputs = MODEL(input_tensor)
+            probabilities = torch.nn.functional.softmax(outputs[0], dim=0)
+
+        # Get top-k predictions
+        top_probs, top_indices = torch.topk(probabilities, top_k)
+
+        predictions = [
+            PredictionResult(
+                class_name=CLASSES[idx.item()],
+                confidence=float(prob.item())
+            )
+            for prob, idx in zip(top_probs, top_indices)
+        ]
+
+        inference_time = (time.time() - start_time) * 1000
+
+        return PredictionResponse(
+            predictions=predictions,
+            model=&quot;resnet18&quot;,
+            inference_time_ms=round(inference_time, 2)
+        )
+
+    except Exception as e:
+        logger.error(f&quot;Prediction failed: {str(e)}&quot;)
+        raise HTTPException(status_code=500, detail=str(e))
+
+def load_imagenet_classes():
+    &quot;&quot;&quot;Load ImageNet class labels&quot;&quot;&quot;
+    # Simplified - in production, load from file
+    return [&quot;class_&quot; + str(i) for i in range(1000)]
+
+if __name__ == &quot;__main__&quot;:
+    import uvicorn
+    uvicorn.run(app, host=&quot;0.0.0.0&quot;, port=8000)</code></pre></div>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-testing-the-api">Testing the API</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Test health check
+curl http://localhost:8000/health
+
+# Test prediction
+curl -X POST http://localhost:8000/predict?top_k=3 \
+  -F &quot;file=@cat.jpg&quot;
+
+# Response:
+# {
+#   &quot;predictions&quot;: [
+#     {&quot;class_name&quot;: &quot;tabby_cat&quot;, &quot;confidence&quot;: 0.87},
+#     {&quot;class_name&quot;: &quot;egyptian_cat&quot;, &quot;confidence&quot;: 0.09},
+#     {&quot;class_name&quot;: &quot;tiger_cat&quot;, &quot;confidence&quot;: 0.03}
+#   ],
+#   &quot;model&quot;: &quot;resnet18&quot;,
+#   &quot;inference_time_ms&quot;: 45.23
+# }</code></pre></div>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-request-validation-with-pydantic">Request Validation with Pydantic</h4>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-input-validation">Input Validation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pydantic import BaseModel, Field, validator
+from typing import List, Optional
+
+class PredictionRequest(BaseModel):
+    image_url: str = Field(..., description=&quot;URL of image to classify&quot;)
+    model_name: str = Field(&quot;resnet18&quot;, description=&quot;Model to use&quot;)
+    top_k: int = Field(5, ge=1, le=10, description=&quot;Number of top predictions&quot;)
+    threshold: float = Field(0.0, ge=0.0, le=1.0, description=&quot;Confidence threshold&quot;)
+
+    @validator('image_url')
+    def validate_url(cls, v):
+        if not v.startswith(('http://', 'https://')):
+            raise ValueError('Invalid URL format')
+        return v
+
+    @validator('model_name')
+    def validate_model(cls, v):
+        allowed_models = ['resnet18', 'resnet50', 'mobilenet_v2']
+        if v not in allowed_models:
+            raise ValueError(f'Model must be one of: {allowed_models}')
+        return v
+
+    class Config:
+        schema_extra = {
+            &quot;example&quot;: {
+                &quot;image_url&quot;: &quot;https://example.com/cat.jpg&quot;,
+                &quot;model_name&quot;: &quot;resnet18&quot;,
+                &quot;top_k&quot;: 5,
+                &quot;threshold&quot;: 0.5
+            }
+        }
+
+@app.post(&quot;/predict/url&quot;)
+async def predict_from_url(request: PredictionRequest):
+    # Input is automatically validated
+    # If invalid, FastAPI returns 422 error with details
+    return {&quot;message&quot;: &quot;Processing image&quot;, &quot;request&quot;: request}</code></pre></div>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-error-handling">Error Handling</h4>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-http-exception-handling">HTTP Exception Handling</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import HTTPException, status
+
+@app.post(&quot;/predict&quot;)
+async def predict(file: UploadFile = File(...)):
+    # Input validation error
+    if file.content_type not in [&quot;image/jpeg&quot;, &quot;image/png&quot;]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=&quot;Invalid file type&quot;
+        )
+
+    try:
+        # Process image
+        result = process_image(file)
+        return result
+
+    except ValueError as e:
+        # Client error (bad input)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+    except Exception as e:
+        # Server error
+        logger.error(f&quot;Prediction failed: {str(e)}&quot;)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=&quot;Internal server error&quot;
+        )</code></pre></div>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-custom-exception-handlers">Custom Exception Handlers</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import Request
+from fastapi.responses import JSONResponse
+
+class ModelNotLoadedError(Exception):
+    pass
+
+@app.exception_handler(ModelNotLoadedError)
+async def model_not_loaded_handler(request: Request, exc: ModelNotLoadedError):
+    return JSONResponse(
+        status_code=503,
+        content={
+            &quot;error&quot;: &quot;Model not loaded&quot;,
+            &quot;detail&quot;: &quot;Service is starting up, please try again&quot;
+        }
+    )
+
+@app.post(&quot;/predict&quot;)
+async def predict(file: UploadFile = File(...)):
+    if MODEL is None:
+        raise ModelNotLoadedError()
+
+    # ... rest of prediction logic</code></pre></div>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-async-processing">Async Processing</h4>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-why-async">Why Async?</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># âŒ Synchronous (blocking)
+@app.post(&quot;/predict&quot;)
+def predict(file: UploadFile = File(...)):
+    # This blocks the entire server while reading file
+    contents = file.file.read()
+    # This blocks while running inference
+    result = model.predict(contents)
+    return result
+
+# âœ… Asynchronous (non-blocking)
+@app.post(&quot;/predict&quot;)
+async def predict(file: UploadFile = File(...)):
+    # This doesn't block - other requests can be handled
+    contents = await file.read()
+
+    # For CPU-bound operations, use thread pool
+    import asyncio
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, model.predict, contents)
+
+    return result</code></pre></div>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-background-tasks">Background Tasks</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import BackgroundTasks
+
+def log_prediction(image_id: str, prediction: str):
+    &quot;&quot;&quot;Background task to log prediction&quot;&quot;&quot;
+    # This runs after response is sent
+    logger.info(f&quot;Image {image_id}: predicted {prediction}&quot;)
+    # Could also save to database, send metrics, etc.
+
+@app.post(&quot;/predict&quot;)
+async def predict(
+    file: UploadFile = File(...),
+    background_tasks: BackgroundTasks
+):
+    # Run inference
+    result = await run_inference(file)
+
+    # Add background task
+    background_tasks.add_task(
+        log_prediction,
+        image_id=file.filename,
+        prediction=result['class']
+    )
+
+    # Response sent immediately, background task runs after
+    return result</code></pre></div>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-monitoring-and-metrics">ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Metrics</h4>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-adding-prometheus-metrics">Adding Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Metrics</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from prometheus_client import Counter, Histogram, make_asgi_app
+import time
+
+# Define metrics
+prediction_count = Counter(
+    'ml_predictions_total',
+    'Total number of predictions',
+    ['model', 'status']
+)
+
+prediction_latency = Histogram(
+    'ml_prediction_latency_seconds',
+    'Prediction latency in seconds',
+    ['model']
+)
+
+model_confidence = Histogram(
+    'ml_prediction_confidence',
+    'Prediction confidence scores',
+    ['model']
+)
+
+# Mount Prometheus metrics endpoint
+metrics_app = make_asgi_app()
+app.mount(&quot;/metrics&quot;, metrics_app)
+
+@app.post(&quot;/predict&quot;)
+async def predict(file: UploadFile = File(...)):
+    start_time = time.time()
+    model_name = &quot;resnet18&quot;
+
+    try:
+        # Run inference
+        result = await run_inference(file)
+
+        # Record metrics
+        prediction_count.labels(model=model_name, status='success').inc()
+        model_confidence.labels(model=model_name).observe(result['confidence'])
+
+        return result
+
+    except Exception as e:
+        prediction_count.labels(model=model_name, status='error').inc()
+        raise
+
+    finally:
+        latency = time.time() - start_time
+        prediction_latency.labels(model=model_name).observe(latency)</code></pre></div>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-structured-logging">Structured Logging</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import logging
+import json
+from datetime import datetime
+
+class JSONFormatter(logging.Formatter):
+    def format(self, record):
+        log_data = {
+            'timestamp': datetime.utcnow().isoformat(),
+            'level': record.levelname,
+            'message': record.getMessage(),
+            'module': record.module,
+        }
+        if hasattr(record, 'request_id'):
+            log_data['request_id'] = record.request_id
+        return json.dumps(log_data)
+
+# Configure logger
+handler = logging.StreamHandler()
+handler.setFormatter(JSONFormatter())
+logger = logging.getLogger(__name__)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
+# Use in endpoints
+@app.post(&quot;/predict&quot;)
+async def predict(file: UploadFile = File(...)):
+    logger.info(&quot;Prediction started&quot;, extra={'filename': file.filename})
+    try:
+        result = await run_inference(file)
+        logger.info(&quot;Prediction successful&quot;, extra={'result': result})
+        return result
+    except Exception as e:
+        logger.error(&quot;Prediction failed&quot;, extra={'error': str(e)})
+        raise</code></pre></div>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-api-versioning">API Versioning</h4>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-path-based-versioning">Path-Based Versioning</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import APIRouter
+
+# Version 1 API
+v1_router = APIRouter(prefix=&quot;/v1&quot;)
+
+@v1_router.post(&quot;/predict&quot;)
+async def predict_v1(file: UploadFile = File(...)):
+    # Old prediction logic
+    return {&quot;version&quot;: &quot;v1&quot;, &quot;result&quot;: &quot;...&quot;}
+
+# Version 2 API (with enhanced features)
+v2_router = APIRouter(prefix=&quot;/v2&quot;)
+
+@v2_router.post(&quot;/predict&quot;)
+async def predict_v2(
+    file: UploadFile = File(...),
+    model: str = &quot;resnet50&quot;,  # New parameter
+    return_embeddings: bool = False  # New feature
+):
+    # New prediction logic
+    return {&quot;version&quot;: &quot;v2&quot;, &quot;result&quot;: &quot;...&quot;}
+
+# Include routers
+app.include_router(v1_router)
+app.include_router(v2_router)
+
+# Access:
+# POST /v1/predict
+# POST /v2/predict</code></pre></div>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-rate-limiting">Rate Limiting</h4>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-basic-rate-limiting">Basic Rate Limiting</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import Request, HTTPException
+from datetime import datetime, timedelta
+from collections import defaultdict
+
+# Simple in-memory rate limiter (production: use Redis)
+request_counts = defaultdict(list)
+RATE_LIMIT = 100  # requests
+TIME_WINDOW = 60  # seconds
+
+async def rate_limit(request: Request):
+    client_ip = request.client.host
+    now = datetime.now()
+
+    # Clean old requests
+    request_counts[client_ip] = [
+        req_time for req_time in request_counts[client_ip]
+        if now - req_time &lt; timedelta(seconds=TIME_WINDOW)
+    ]
+
+    # Check limit
+    if len(request_counts[client_ip]) &gt;= RATE_LIMIT:
+        raise HTTPException(
+            status_code=429,
+            detail=f&quot;Rate limit exceeded: {RATE_LIMIT} requests per {TIME_WINDOW}s&quot;
+        )
+
+    # Add current request
+    request_counts[client_ip].append(now)
+
+@app.post(&quot;/predict&quot;)
+async def predict(
+    request: Request,
+    file: UploadFile = File(...)
+):
+    await rate_limit(request)
+    # ... rest of prediction logic</code></pre></div>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-api-documentation">API Documentation</h4>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-customizing-auto-generated-docs">Customizing Auto-Generated Docs</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
+
+app = FastAPI()
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    openapi_schema = get_openapi(
+        title=&quot;ML Model Serving API&quot;,
+        version=&quot;1.0.0&quot;,
+        description=&quot;&quot;&quot;
+        ## Image Classification API
+
+        This API provides image classification using pre-trained models.
+
+        ### Features:
+        * Multiple model support (ResNet, MobileNet)
+        * Batch prediction
+        * Confidence thresholds
+        * Real-time inference
+
+        ### Rate Limits:
+        * 100 requests per minute per IP
+
+        ### Contact:
+        * Email: ml-team@example.com
+        * Docs: https://docs.example.com
+        &quot;&quot;&quot;,
+        routes=app.routes,
+    )
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi</code></pre></div>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-production-deployment">ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</h4>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-running-with-uvicorn">Running with Uvicorn</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Development (auto-reload)
+uvicorn app:app --reload
+
+# Production (single worker)
+uvicorn app:app --host 0.0.0.0 --port 8000
+
+# Production (multiple workers)
+uvicorn app:app --host 0.0.0.0 --port 8000 --workers 4
+
+# With custom settings
+uvicorn app:app \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --workers 4 \
+  --limit-concurrency 1000 \
+  --timeout-keep-alive 5</code></pre></div>
+<h5 id="lessons-mod-101-foundations-08-api-development-md-running-with-gunicorn-uvicorn-workers">Running with Gunicorn + Uvicorn Workers</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install
+pip install gunicorn
+
+# Run with Uvicorn workers
+gunicorn app:app \
+  --workers 4 \
+  --worker-class uvicorn.workers.UvicornWorker \
+  --bind 0.0.0.0:8000 \
+  --timeout 120</code></pre></div>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-key-takeaways">Key Takeaways</h4>
+<ol>
+<li><strong>FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰</strong> is ideal for ML APIs: fast, async, auto-docs, type-safe</li>
+<li><strong>Pydantic</strong> provides automatic request validation</li>
+<li><strong>Async/await</strong> enables efficient handling of I/O-bound operations</li>
+<li><strong>Error handling</strong> is critical for production reliability</li>
+<li><strong>ç›‘æŽ§ï¼ˆMonitoringï¼‰</strong> with Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ provides observability</li>
+<li><strong>Rate limiting</strong> protects against abuse</li>
+<li><strong>Versioning</strong> enables safe API evolution</li>
+<li><strong>Background tasks</strong> for post-processing without blocking responses</li>
+</ol>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li>What are the advantages of FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ over Flask for ML serving?</li>
+<li>How does Pydantic help with input validation?</li>
+<li>What's the difference between sync and async endpoints?</li>
+<li>How do you handle file uploads in FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰?</li>
+<li>What metrics should you track for an ML API?</li>
+<li>How do you implement API versioning?</li>
+<li>What's the difference between Uvicorn and Gunicorn?</li>
+</ol>
+<h4 id="lessons-mod-101-foundations-08-api-development-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://fastapi.tiangolo.com/">FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ Documentation</a></li>
+<li><a href="https://docs.pydantic.dev/">Pydantic Documentation</a></li>
+<li><a href="https://www.uvicorn.org/">Uvicorn Documentation</a></li>
+<li><a href="https://github.com/prometheus/client_python">Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Python Client</a></li>
+<li><a href="https://restfulapi.net/">API Design Best Practices</a></li>
+<li><a href="https://httpstatuses.com/">HTTP Status Codes</a></li>
+</ul>
+<hr/>
+<p><strong>Next:</strong> Complete <a href="../../projects/project-101-basic-model-serving/">Project 01</a> to apply these concepts!</p><p><a class="home" href="../docs/doc-lessons-mod-101-foundations-07-docker-basics-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

@@ -1,0 +1,1613 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Module 09: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰ (IaC)</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-resources-md.html">Module 09: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰ - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lesson 01: Introduction to åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md.html">Lesson 02: Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-03-terraform-state-management-md.html">Lesson 03: Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ State Management</a><a class="tree-doc active" href="../docs/doc-lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md.html">Lesson 04: Building AI åŸºç¡€è®¾æ–½ï¼ˆAI Infrastructureï¼‰ with Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-05-pulumi-infrastructure-as-software-md.html">Lesson 05: Pulumi å¤šè¯­è¨€ IaCï¼ˆPulumiï¼‰ - Infrastructure as Software</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md.html">Lesson 06: Advanced IaC Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md.html">Lesson 07: GitOps äº¤ä»˜æ¨¡å¼ï¼ˆGitOpsï¼‰ and IaC CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-08-security-best-practices-md.html">Lesson 08: å®‰å…¨ï¼ˆSecurityï¼‰ Best Practices for IaC</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Module 109 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-01-terraform-aws-vpc-md.html">Lab 01: Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ AWS äº‘ï¼ˆAWSï¼‰ VPC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-02-terraform-eks-md.html">Lab 02: Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ EKS æ‰˜ç®¡ Kubernetesï¼ˆEKSï¼‰ Cluster</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-03-terraform-state-backend-md.html">Lab 03: Remote State Backend with S3 + DynamoDB Locking</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-04-pulumi-multicloud-md.html">Lab 04: Pulumi å¤šè¯­è¨€ IaCï¼ˆPulumiï¼‰ Multi-Cloud éƒ¨ç½²ï¼ˆDeploymentï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-05-iac-cicd-md.html">Lab 05: IaC in CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ with PR-Based Plan</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-06-secret-management-md.html">Lab 06: Secret Management with Vault + Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-07-policy-as-code-md.html">Lab 07: Policy as Code with OPA Conftest</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercise 01: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ with Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-02-pulumi-multicloud-ml-readme-m.html">Exercise 02: Multi-Cloud æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ with Pulumi å¤šè¯­è¨€ IaCï¼ˆPulumiï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-03-terraform-module-library-read.html">Exercise 03: Build a Reusable Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ Module Library</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-04-state-management-at-scale-rea.html">Exercise 04: Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ State Management at Scale</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-05-pulumi-advanced-patterns-read.html">Exercise 05: Pulumi å¤šè¯­è¨€ IaCï¼ˆPulumiï¼‰ Advanced Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-06-gitops-argocd-readme-md.html">Exercise 06: GitOps äº¤ä»˜æ¨¡å¼ï¼ˆGitOpsï¼‰ with ArgoCD GitOps éƒ¨ç½²ï¼ˆArgoCDï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-07-secret-management-readme-md.html">Exercise 07: Secret Management Across IaC + Runtime</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-08-policy-as-code-readme-md.html">Exercise 08: Policy as Code (OPA + Sentinel)</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-09-drift-detection-readme-md.html">Exercise 09: Drift Detection and Remediation</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-10-multi-environment-promotion-r.html">Exercise 10: Multi-Environment Promotion Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-11-cost-aware-iac-readme-md.html">Exercise 11: Cost-Aware IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-12-disaster-recovery-iac-readme-.html">Exercise 12: Disaster Recovery via IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-13-iac-for-ml-workloads-readme-m.html">Exercise 13: IaC for AI/ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-readme-md.html">Module 09: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰ - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Module 09: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md"><h3 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-lesson-0">Lesson 04: Building AI åŸºç¡€è®¾æ–½ï¼ˆAI Infrastructureï¼‰ with Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰</h3>
+<h4 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-learning">Learning Objectives</h4>
+<p>By the end of this lesson, you will:</p>
+<ul>
+<li>Provision GPU åŠ é€Ÿï¼ˆGPUï¼‰ instances on AWS äº‘ï¼ˆAWSï¼‰ (p3, g4dn, p4d) and GCP äº‘ï¼ˆGCPï¼‰ (A100, V100)</li>
+<li>Set up EKS æ‰˜ç®¡ Kubernetesï¼ˆEKSï¼‰/GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ clusters optimized for ML workloads</li>
+<li>Configure S3/GCS buckets for datasets, models, and artifacts</li>
+<li>Design VPC, subnets, and security groups for ML infrastructure</li>
+<li>Create IAM roles and policies for ML services</li>
+<li>Build a complete ç«¯åˆ°ç«¯ï¼ˆend-to-endï¼‰ ML training platform</li>
+<li>Optimize costs using spot instances and è‡ªåŠ¨æ‰©ç¼©å®¹ï¼ˆauto-scalingï¼‰</li>
+<li>Implement è‡ªåŠ¨æ‰©ç¼©å®¹ï¼ˆauto-scalingï¼‰ for inference workloads</li>
+</ul>
+<h4 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-gpu-inst">GPU åŠ é€Ÿï¼ˆGPUï¼‰ Instance Provisioning</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-aws-gpu-">AWS äº‘ï¼ˆAWSï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ Instance Types</h5>
+<p><strong>GPU åŠ é€Ÿï¼ˆGPUï¼‰ Instance Families:</strong></p>
+<ul>
+<li><strong>p3</strong>: Previous-gen NVIDIA V100 GPUs (good price/performance)</li>
+<li><strong>p4d</strong>: NVIDIA A100 GPUs (latest, most powerful)</li>
+<li><strong>g4dn</strong>: NVIDIA T4 GPUs (inference, light training)</li>
+<li><strong>g5</strong>: NVIDIA A10G GPUs (mid-range option)</li>
+</ul>
+<p><strong>Comparison:</strong></p>
+<div class="table-wrap"><table><thead><tr><th>Instance Type</th><th>GPUs</th><th>GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory</th><th>vCPUs</th><th>RAM</th><th>Network</th><th>Cost/hr (approx)</th><th>Best For</th></tr></thead><tbody><tr><td>p3.2xlarge</td><td>1x V100</td><td>16 GB</td><td>8</td><td>61 GB</td><td>10 Gbps</td><td>$3.06</td><td>Small models, learning</td></tr><tr><td>p3.8xlarge</td><td>4x V100</td><td>64 GB</td><td>32</td><td>244 GB</td><td>10 Gbps</td><td>$12.24</td><td>Distributed training</td></tr><tr><td>p3.16xlarge</td><td>8x V100</td><td>128 GB</td><td>64</td><td>488 GB</td><td>25 Gbps</td><td>$24.48</td><td>Large-scale training</td></tr><tr><td>p4d.24xlarge</td><td>8x A100</td><td>320 GB</td><td>96</td><td>1152 GB</td><td>400 Gbps</td><td>$32.77</td><td>Enterprise training</td></tr><tr><td>g4dn.xlarge</td><td>1x T4</td><td>16 GB</td><td>4</td><td>16 GB</td><td>25 Gbps</td><td>$0.526</td><td>æŽ¨ç†ï¼ˆInferenceï¼‰</td></tr><tr><td>g4dn.12xlarge</td><td>4x T4</td><td>64 GB</td><td>48</td><td>192 GB</td><td>50 Gbps</td><td>$3.912</td><td>Batch inference</td></tr></tbody></table></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-basic-gp">Basic GPU åŠ é€Ÿï¼ˆGPUï¼‰ Instance</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># gpu-instance.tf
+
+provider &quot;aws&quot; {
+  region = &quot;us-west-2&quot;  # Good GPU availability
+}
+
+# Data source: Find latest Deep Learning AMI
+data &quot;aws_ami&quot; &quot;deep_learning&quot; {
+  most_recent = true
+  owners      = [&quot;amazon&quot;]
+
+  filter {
+    name   = &quot;name&quot;
+    values = [&quot;Deep Learning AMI GPU PyTorch *&quot;]
+  }
+
+  filter {
+    name   = &quot;architecture&quot;
+    values = [&quot;x86_64&quot;]
+  }
+
+  filter {
+    name   = &quot;root-device-type&quot;
+    values = [&quot;ebs&quot;]
+  }
+}
+
+# GPU training instance
+resource &quot;aws_instance&quot; &quot;gpu_training&quot; {
+  ami           = data.aws_ami.deep_learning.id
+  instance_type = &quot;p3.2xlarge&quot;
+
+  # Use spot for 70% cost savings (can be interrupted)
+  instance_market_options {
+    market_type = &quot;spot&quot;
+    spot_options {
+      max_price                      = &quot;1.50&quot;  # Max price per hour
+      spot_instance_type            = &quot;persistent&quot;
+      instance_interruption_behavior = &quot;stop&quot;  # Stop, don't terminate
+    }
+  }
+
+  # Storage for datasets and models
+  root_block_device {
+    volume_size = 500  # 500 GB
+    volume_type = &quot;gp3&quot;
+    iops        = 3000
+    throughput  = 125
+  }
+
+  # EBS volume for large datasets
+  ebs_block_device {
+    device_name = &quot;/dev/sdf&quot;
+    volume_size = 1000  # 1 TB
+    volume_type = &quot;gp3&quot;
+  }
+
+  # Startup script
+  user_data = &lt;&lt;-EOF
+              #!/bin/bash
+              # Install additional ML tools
+              pip install --upgrade torch torchvision torchaudio
+              pip install transformers datasets accelerate
+              pip install wandb mlflow
+
+              # Mount EBS volume
+              mkfs -t ext4 /dev/nvme1n1
+              mkdir -p /data
+              mount /dev/nvme1n1 /data
+              echo &quot;/dev/nvme1n1 /data ext4 defaults,nofail 0 2&quot; &gt;&gt; /etc/fstab
+
+              # Setup complete
+              echo &quot;GPU instance ready!&quot; &gt; /tmp/setup_complete.txt
+              EOF
+
+  # IAM role for S3 access
+  iam_instance_profile = aws_iam_instance_profile.ml_training.name
+
+  # Networking
+  subnet_id              = aws_subnet.private_a.id
+  vpc_security_group_ids = [aws_security_group.gpu_training.id]
+
+  tags = {
+    Name        = &quot;GPU-Training-Server&quot;
+    Environment = &quot;production&quot;
+    Workload    = &quot;ML-Training&quot;
+    ManagedBy   = &quot;Terraform&quot;
+  }
+}
+
+# Elastic IP for consistent access
+resource &quot;aws_eip&quot; &quot;gpu_training&quot; {
+  instance = aws_instance.gpu_training.id
+  domain   = &quot;vpc&quot;
+
+  tags = {
+    Name = &quot;GPU-Training-EIP&quot;
+  }
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-gpu-clus">GPU åŠ é€Ÿï¼ˆGPUï¼‰ Cluster with Auto Scaling</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># gpu-cluster.tf
+
+# Launch template for GPU instances
+resource &quot;aws_launch_template&quot; &quot;gpu_training&quot; {
+  name_prefix   = &quot;gpu-training-&quot;
+  image_id      = data.aws_ami.deep_learning.id
+  instance_type = &quot;p3.8xlarge&quot;
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ml_training.name
+  }
+
+  network_interfaces {
+    associate_public_ip_address = false
+    security_groups             = [aws_security_group.gpu_training.id]
+  }
+
+  block_device_mappings {
+    device_name = &quot;/dev/sda1&quot;
+    ebs {
+      volume_size = 500
+      volume_type = &quot;gp3&quot;
+      iops        = 3000
+      throughput  = 125
+    }
+  }
+
+  # Use spot instances
+  instance_market_options {
+    market_type = &quot;spot&quot;
+    spot_options {
+      max_price = &quot;5.00&quot;
+    }
+  }
+
+  user_data = base64encode(templatefile(&quot;${path.module}/scripts/gpu-init.sh&quot;, {
+    cluster_name = &quot;ml-training-cluster&quot;
+    s3_bucket    = aws_s3_bucket.ml_data.bucket
+  }))
+
+  tag_specifications {
+    resource_type = &quot;instance&quot;
+    tags = {
+      Name      = &quot;GPU-Training-Node&quot;
+      Cluster   = &quot;ml-training-cluster&quot;
+      ManagedBy = &quot;Terraform&quot;
+    }
+  }
+}
+
+# Auto Scaling Group
+resource &quot;aws_autoscaling_group&quot; &quot;gpu_training&quot; {
+  name                = &quot;gpu-training-asg&quot;
+  vpc_zone_identifier = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+
+  min_size         = 0  # Scale to zero when not in use
+  max_size         = 10
+  desired_capacity = 4
+
+  launch_template {
+    id      = aws_launch_template.gpu_training.id
+    version = &quot;$Latest&quot;
+  }
+
+  # Health checks
+  health_check_type         = &quot;EC2&quot;
+  health_check_grace_period = 300
+
+  # Termination policies (terminate oldest instances first)
+  termination_policies = [&quot;OldestInstance&quot;]
+
+  tag {
+    key                 = &quot;Name&quot;
+    value               = &quot;GPU-Training-ASG-Node&quot;
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = &quot;Cluster&quot;
+    value               = &quot;ml-training-cluster&quot;
+    propagate_at_launch = true
+  }
+}
+
+# Scheduled scaling (scale up during business hours)
+resource &quot;aws_autoscaling_schedule&quot; &quot;scale_up&quot; {
+  scheduled_action_name  = &quot;scale-up-business-hours&quot;
+  min_size               = 4
+  max_size               = 10
+  desired_capacity       = 4
+  recurrence             = &quot;0 8 * * MON-FRI&quot;  # 8 AM weekdays
+  autoscaling_group_name = aws_autoscaling_group.gpu_training.name
+}
+
+# Scale down after hours
+resource &quot;aws_autoscaling_schedule&quot; &quot;scale_down&quot; {
+  scheduled_action_name  = &quot;scale-down-after-hours&quot;
+  min_size               = 0
+  max_size               = 10
+  desired_capacity       = 0
+  recurrence             = &quot;0 20 * * *&quot;  # 8 PM daily
+  autoscaling_group_name = aws_autoscaling_group.gpu_training.name
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-gcp-gpu-">GCP äº‘ï¼ˆGCPï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ Instances</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># gcp-gpu.tf
+
+provider &quot;google&quot; {
+  project = &quot;my-ml-project&quot;
+  region  = &quot;us-central1&quot;
+  zone    = &quot;us-central1-a&quot;
+}
+
+# Data source: Latest Deep Learning image
+data &quot;google_compute_image&quot; &quot;deep_learning&quot; {
+  family  = &quot;pytorch-latest-gpu&quot;
+  project = &quot;deeplearning-platform-release&quot;
+}
+
+# GPU instance with A100
+resource &quot;google_compute_instance&quot; &quot;gpu_training&quot; {
+  name         = &quot;gpu-training-a100&quot;
+  machine_type = &quot;a2-highgpu-1g&quot;  # 1x A100 GPU
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.deep_learning.self_link
+      size  = 500  # GB
+      type  = &quot;pd-ssd&quot;
+    }
+  }
+
+  # Additional disk for data
+  attached_disk {
+    source = google_compute_disk.training_data.id
+  }
+
+  # GPU configuration
+  guest_accelerator {
+    type  = &quot;nvidia-tesla-a100&quot;
+    count = 1
+  }
+
+  # Required for GPU instances
+  scheduling {
+    on_host_maintenance = &quot;TERMINATE&quot;
+    preemptible         = true  # Use preemptible for cost savings
+    automatic_restart   = false
+  }
+
+  network_interface {
+    network    = google_compute_network.ml_vpc.name
+    subnetwork = google_compute_subnetwork.ml_subnet.name
+
+    access_config {
+      # Ephemeral public IP
+    }
+  }
+
+  service_account {
+    email  = google_service_account.ml_training.email
+    scopes = [&quot;cloud-platform&quot;]
+  }
+
+  metadata = {
+    install-nvidia-driver = &quot;True&quot;
+  }
+
+  metadata_startup_script = &lt;&lt;-EOF
+    #!/bin/bash
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+    pip install transformers datasets accelerate
+    echo &quot;GPU setup complete&quot; &gt; /tmp/ready
+  EOF
+
+  tags = [&quot;gpu-training&quot;, &quot;ml-workload&quot;]
+}
+
+# Persistent disk for training data
+resource &quot;google_compute_disk&quot; &quot;training_data&quot; {
+  name = &quot;training-data-disk&quot;
+  type = &quot;pd-ssd&quot;
+  size = 1000  # 1 TB
+  zone = &quot;us-central1-a&quot;
+}
+
+# Service account for ML workloads
+resource &quot;google_service_account&quot; &quot;ml_training&quot; {
+  account_id   = &quot;ml-training-sa&quot;
+  display_name = &quot;ML Training Service Account&quot;
+}
+
+# Grant storage access
+resource &quot;google_project_iam_member&quot; &quot;ml_training_storage&quot; {
+  project = &quot;my-ml-project&quot;
+  role    = &quot;roles/storage.objectAdmin&quot;
+  member  = &quot;serviceAccount:${google_service_account.ml_training.email}&quot;
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-eks-clus">EKS æ‰˜ç®¡ Kubernetesï¼ˆEKSï¼‰ Cluster for ML Workloads</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-complete">Complete EKS æ‰˜ç®¡ Kubernetesï¼ˆEKSï¼‰ Setup</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># eks-cluster.tf
+
+# EKS cluster
+resource &quot;aws_eks_cluster&quot; &quot;ml_platform&quot; {
+  name     = &quot;ml-platform-cluster&quot;
+  role_arn = aws_iam_role.eks_cluster.arn
+  version  = &quot;1.28&quot;
+
+  vpc_config {
+    subnet_ids              = [aws_subnet.private_a.id, aws_subnet.private_b.id, aws_subnet.public_a.id, aws_subnet.public_b.id]
+    endpoint_private_access = true
+    endpoint_public_access  = true
+    public_access_cidrs     = [&quot;0.0.0.0/0&quot;]  # Restrict in production
+    security_group_ids      = [aws_security_group.eks_cluster.id]
+  }
+
+  enabled_cluster_log_types = [&quot;api&quot;, &quot;audit&quot;, &quot;authenticator&quot;, &quot;controllerManager&quot;, &quot;scheduler&quot;]
+
+  encryption_config {
+    provider {
+      key_arn = aws_kms_key.eks.arn
+    }
+    resources = [&quot;secrets&quot;]
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_cluster_policy,
+    aws_iam_role_policy_attachment.eks_service_policy,
+  ]
+
+  tags = {
+    Name        = &quot;ML-Platform-Cluster&quot;
+    Environment = &quot;production&quot;
+  }
+}
+
+# EKS cluster IAM role
+resource &quot;aws_iam_role&quot; &quot;eks_cluster&quot; {
+  name = &quot;ml-platform-eks-cluster-role&quot;
+
+  assume_role_policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [{
+      Action = &quot;sts:AssumeRole&quot;
+      Effect = &quot;Allow&quot;
+      Principal = {
+        Service = &quot;eks.amazonaws.com&quot;
+      }
+    }]
+  })
+}
+
+resource &quot;aws_iam_role_policy_attachment&quot; &quot;eks_cluster_policy&quot; {
+  policy_arn = &quot;arn:aws:iam::aws:policy/AmazonEKSClusterPolicy&quot;
+  role       = aws_iam_role.eks_cluster.name
+}
+
+resource &quot;aws_iam_role_policy_attachment&quot; &quot;eks_service_policy&quot; {
+  policy_arn = &quot;arn:aws:iam::aws:policy/AmazonEKSServicePolicy&quot;
+  role       = aws_iam_role.eks_cluster.name
+}
+
+# KMS key for cluster encryption
+resource &quot;aws_kms_key&quot; &quot;eks&quot; {
+  description             = &quot;EKS cluster encryption key&quot;
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+}
+
+# CPU node group (for control plane tasks, data processing)
+resource &quot;aws_eks_node_group&quot; &quot;cpu_nodes&quot; {
+  cluster_name    = aws_eks_cluster.ml_platform.name
+  node_group_name = &quot;cpu-nodes&quot;
+  node_role_arn   = aws_iam_role.eks_nodes.arn
+  subnet_ids      = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+
+  scaling_config {
+    desired_size = 3
+    max_size     = 10
+    min_size     = 2
+  }
+
+  instance_types = [&quot;c5.2xlarge&quot;]  # CPU-optimized
+  capacity_type  = &quot;ON_DEMAND&quot;     # For reliability
+
+  labels = {
+    workload = &quot;cpu&quot;
+    role     = &quot;general&quot;
+  }
+
+  tags = {
+    Name = &quot;ML-Platform-CPU-Nodes&quot;
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_node_policy,
+    aws_iam_role_policy_attachment.eks_cni_policy,
+    aws_iam_role_policy_attachment.eks_container_registry_policy,
+  ]
+}
+
+# GPU node group (for training and inference)
+resource &quot;aws_eks_node_group&quot; &quot;gpu_nodes&quot; {
+  cluster_name    = aws_eks_cluster.ml_platform.name
+  node_group_name = &quot;gpu-nodes&quot;
+  node_role_arn   = aws_iam_role.eks_nodes.arn
+  subnet_ids      = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 10
+    min_size     = 0  # Can scale to zero when not needed
+  }
+
+  instance_types = [&quot;p3.2xlarge&quot;]
+  capacity_type  = &quot;SPOT&quot;  # Use spot for cost savings
+
+  labels = {
+    workload      = &quot;gpu&quot;
+    role          = &quot;ml-training&quot;
+    gpu-type      = &quot;v100&quot;
+    nvidia.com/gpu = &quot;true&quot;
+  }
+
+  taints {
+    key    = &quot;nvidia.com/gpu&quot;
+    value  = &quot;true&quot;
+    effect = &quot;NO_SCHEDULE&quot;
+  }
+
+  tags = {
+    Name = &quot;ML-Platform-GPU-Nodes&quot;
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_node_policy,
+    aws_iam_role_policy_attachment.eks_cni_policy,
+    aws_iam_role_policy_attachment.eks_container_registry_policy,
+  ]
+}
+
+# Inference node group (g4dn instances)
+resource &quot;aws_eks_node_group&quot; &quot;inference_nodes&quot; {
+  cluster_name    = aws_eks_cluster.ml_platform.name
+  node_group_name = &quot;inference-nodes&quot;
+  node_role_arn   = aws_iam_role.eks_nodes.arn
+  subnet_ids      = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 20
+    min_size     = 1
+  }
+
+  instance_types = [&quot;g4dn.xlarge&quot;]  # T4 GPUs, good for inference
+  capacity_type  = &quot;SPOT&quot;
+
+  labels = {
+    workload      = &quot;inference&quot;
+    role          = &quot;model-serving&quot;
+    gpu-type      = &quot;t4&quot;
+    nvidia.com/gpu = &quot;true&quot;
+  }
+
+  taints {
+    key    = &quot;workload&quot;
+    value  = &quot;inference&quot;
+    effect = &quot;NO_SCHEDULE&quot;
+  }
+
+  tags = {
+    Name = &quot;ML-Platform-Inference-Nodes&quot;
+    &quot;k8s.io/cluster-autoscaler/enabled&quot; = &quot;true&quot;
+    &quot;k8s.io/cluster-autoscaler/${aws_eks_cluster.ml_platform.name}&quot; = &quot;owned&quot;
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_node_policy,
+    aws_iam_role_policy_attachment.eks_cni_policy,
+    aws_iam_role_policy_attachment.eks_container_registry_policy,
+  ]
+}
+
+# EKS node IAM role
+resource &quot;aws_iam_role&quot; &quot;eks_nodes&quot; {
+  name = &quot;ml-platform-eks-node-role&quot;
+
+  assume_role_policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [{
+      Action = &quot;sts:AssumeRole&quot;
+      Effect = &quot;Allow&quot;
+      Principal = {
+        Service = &quot;ec2.amazonaws.com&quot;
+      }
+    }]
+  })
+}
+
+resource &quot;aws_iam_role_policy_attachment&quot; &quot;eks_node_policy&quot; {
+  policy_arn = &quot;arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy&quot;
+  role       = aws_iam_role.eks_nodes.name
+}
+
+resource &quot;aws_iam_role_policy_attachment&quot; &quot;eks_cni_policy&quot; {
+  policy_arn = &quot;arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy&quot;
+  role       = aws_iam_role.eks_nodes.name
+}
+
+resource &quot;aws_iam_role_policy_attachment&quot; &quot;eks_container_registry_policy&quot; {
+  policy_arn = &quot;arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly&quot;
+  role       = aws_iam_role.eks_nodes.name
+}
+
+# Custom policy for S3 access
+resource &quot;aws_iam_role_policy&quot; &quot;eks_s3_access&quot; {
+  name = &quot;eks-s3-access&quot;
+  role = aws_iam_role.eks_nodes.id
+
+  policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;s3:GetObject&quot;,
+          &quot;s3:PutObject&quot;,
+          &quot;s3:ListBucket&quot;
+        ]
+        Resource = [
+          aws_s3_bucket.ml_datasets.arn,
+          &quot;${aws_s3_bucket.ml_datasets.arn}/*&quot;,
+          aws_s3_bucket.ml_models.arn,
+          &quot;${aws_s3_bucket.ml_models.arn}/*&quot;
+        ]
+      }
+    ]
+  })
+}
+
+# Cluster autoscaler IAM policy
+resource &quot;aws_iam_role_policy&quot; &quot;cluster_autoscaler&quot; {
+  name = &quot;cluster-autoscaler&quot;
+  role = aws_iam_role.eks_nodes.id
+
+  policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;autoscaling:DescribeAutoScalingGroups&quot;,
+          &quot;autoscaling:DescribeAutoScalingInstances&quot;,
+          &quot;autoscaling:DescribeLaunchConfigurations&quot;,
+          &quot;autoscaling:DescribeScalingActivities&quot;,
+          &quot;autoscaling:DescribeTags&quot;,
+          &quot;ec2:DescribeInstanceTypes&quot;,
+          &quot;ec2:DescribeLaunchTemplateVersions&quot;
+        ]
+        Resource = &quot;*&quot;
+      },
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;autoscaling:SetDesiredCapacity&quot;,
+          &quot;autoscaling:TerminateInstanceInAutoScalingGroup&quot;,
+          &quot;ec2:DescribeImages&quot;,
+          &quot;ec2:GetInstanceTypesFromInstanceRequirements&quot;,
+          &quot;eks:DescribeNodegroup&quot;
+        ]
+        Resource = &quot;*&quot;
+      }
+    ]
+  })
+}
+
+# OIDC provider for service accounts
+data &quot;tls_certificate&quot; &quot;eks&quot; {
+  url = aws_eks_cluster.ml_platform.identity[0].oidc[0].issuer
+}
+
+resource &quot;aws_iam_openid_connect_provider&quot; &quot;eks&quot; {
+  client_id_list  = [&quot;sts.amazonaws.com&quot;]
+  thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
+  url             = aws_eks_cluster.ml_platform.identity[0].oidc[0].issuer
+
+  tags = {
+    Name = &quot;ML-Platform-OIDC&quot;
+  }
+}
+
+# Output kubeconfig
+output &quot;eks_cluster_endpoint&quot; {
+  value = aws_eks_cluster.ml_platform.endpoint
+}
+
+output &quot;eks_cluster_name&quot; {
+  value = aws_eks_cluster.ml_platform.name
+}
+
+output &quot;configure_kubectl&quot; {
+  value = &quot;aws eks update-kubeconfig --region us-west-2 --name ${aws_eks_cluster.ml_platform.name}&quot;
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-storage-">Storage: S3 Buckets</h4>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># s3-storage.tf
+
+# Bucket for raw datasets
+resource &quot;aws_s3_bucket&quot; &quot;ml_datasets&quot; {
+  bucket = &quot;ml-platform-datasets-${data.aws_caller_identity.current.account_id}&quot;
+
+  tags = {
+    Name        = &quot;ML Datasets&quot;
+    Purpose     = &quot;Raw and processed training data&quot;
+    Environment = &quot;production&quot;
+  }
+}
+
+# Versioning for datasets (track changes)
+resource &quot;aws_s3_bucket_versioning&quot; &quot;ml_datasets&quot; {
+  bucket = aws_s3_bucket.ml_datasets.id
+
+  versioning_configuration {
+    status = &quot;Enabled&quot;
+  }
+}
+
+# Lifecycle rules (move old data to cheaper storage)
+resource &quot;aws_s3_bucket_lifecycle_configuration&quot; &quot;ml_datasets&quot; {
+  bucket = aws_s3_bucket.ml_datasets.id
+
+  rule {
+    id     = &quot;archive-old-datasets&quot;
+    status = &quot;Enabled&quot;
+
+    transition {
+      days          = 90
+      storage_class = &quot;STANDARD_IA&quot;  # Infrequent Access
+    }
+
+    transition {
+      days          = 180
+      storage_class = &quot;GLACIER&quot;  # Long-term archive
+    }
+
+    noncurrent_version_transition {
+      noncurrent_days = 30
+      storage_class   = &quot;GLACIER&quot;
+    }
+  }
+
+  rule {
+    id     = &quot;cleanup-temp-data&quot;
+    status = &quot;Enabled&quot;
+
+    filter {
+      prefix = &quot;temp/&quot;
+    }
+
+    expiration {
+      days = 7  # Delete temp data after 7 days
+    }
+  }
+}
+
+# Encryption
+resource &quot;aws_s3_bucket_server_side_encryption_configuration&quot; &quot;ml_datasets&quot; {
+  bucket = aws_s3_bucket.ml_datasets.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = &quot;aws:kms&quot;
+      kms_master_key_id = aws_kms_key.s3_encryption.arn
+    }
+  }
+}
+
+# Block public access
+resource &quot;aws_s3_bucket_public_access_block&quot; &quot;ml_datasets&quot; {
+  bucket = aws_s3_bucket.ml_datasets.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Bucket for trained models
+resource &quot;aws_s3_bucket&quot; &quot;ml_models&quot; {
+  bucket = &quot;ml-platform-models-${data.aws_caller_identity.current.account_id}&quot;
+
+  tags = {
+    Name        = &quot;ML Models&quot;
+    Purpose     = &quot;Trained model artifacts&quot;
+    Environment = &quot;production&quot;
+  }
+}
+
+# Versioning for models (critical for rollbacks)
+resource &quot;aws_s3_bucket_versioning&quot; &quot;ml_models&quot; {
+  bucket = aws_s3_bucket.ml_models.id
+
+  versioning_configuration {
+    status = &quot;Enabled&quot;
+  }
+}
+
+# Encryption for models
+resource &quot;aws_s3_bucket_server_side_encryption_configuration&quot; &quot;ml_models&quot; {
+  bucket = aws_s3_bucket.ml_models.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = &quot;aws:kms&quot;
+      kms_master_key_id = aws_kms_key.s3_encryption.arn
+    }
+  }
+}
+
+# Block public access
+resource &quot;aws_s3_bucket_public_access_block&quot; &quot;ml_models&quot; {
+  bucket = aws_s3_bucket.ml_models.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Bucket for experiment artifacts (MLflow, Weights &amp; Biases)
+resource &quot;aws_s3_bucket&quot; &quot;ml_artifacts&quot; {
+  bucket = &quot;ml-platform-artifacts-${data.aws_caller_identity.current.account_id}&quot;
+
+  tags = {
+    Name        = &quot;ML Artifacts&quot;
+    Purpose     = &quot;Experiment tracking and metadata&quot;
+    Environment = &quot;production&quot;
+  }
+}
+
+# Lifecycle for artifacts (cleanup old experiments)
+resource &quot;aws_s3_bucket_lifecycle_configuration&quot; &quot;ml_artifacts&quot; {
+  bucket = aws_s3_bucket.ml_artifacts.id
+
+  rule {
+    id     = &quot;cleanup-old-experiments&quot;
+    status = &quot;Enabled&quot;
+
+    filter {
+      prefix = &quot;experiments/&quot;
+    }
+
+    expiration {
+      days = 90  # Keep experiments for 90 days
+    }
+  }
+}
+
+# KMS key for S3 encryption
+resource &quot;aws_kms_key&quot; &quot;s3_encryption&quot; {
+  description             = &quot;KMS key for ML S3 buckets&quot;
+  deletion_window_in_days = 10
+  enable_key_rotation     = true
+
+  tags = {
+    Name = &quot;ML-S3-Encryption-Key&quot;
+  }
+}
+
+resource &quot;aws_kms_alias&quot; &quot;s3_encryption&quot; {
+  name          = &quot;alias/ml-s3-encryption&quot;
+  target_key_id = aws_kms_key.s3_encryption.key_id
+}
+
+# Bucket policies
+resource &quot;aws_s3_bucket_policy&quot; &quot;ml_datasets&quot; {
+  bucket = aws_s3_bucket.ml_datasets.id
+
+  policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [
+      {
+        Sid    = &quot;EnforcedTLS&quot;
+        Effect = &quot;Deny&quot;
+        Principal = &quot;*&quot;
+        Action = &quot;s3:*&quot;
+        Resource = [
+          aws_s3_bucket.ml_datasets.arn,
+          &quot;${aws_s3_bucket.ml_datasets.arn}/*&quot;
+        ]
+        Condition = {
+          Bool = {
+            &quot;aws:SecureTransport&quot; = &quot;false&quot;
+          }
+        }
+      },
+      {
+        Sid    = &quot;AllowEKSNodes&quot;
+        Effect = &quot;Allow&quot;
+        Principal = {
+          AWS = aws_iam_role.eks_nodes.arn
+        }
+        Action = [
+          &quot;s3:GetObject&quot;,
+          &quot;s3:PutObject&quot;,
+          &quot;s3:ListBucket&quot;
+        ]
+        Resource = [
+          aws_s3_bucket.ml_datasets.arn,
+          &quot;${aws_s3_bucket.ml_datasets.arn}/*&quot;
+        ]
+      }
+    ]
+  })
+}
+
+# Get current AWS account ID
+data &quot;aws_caller_identity&quot; &quot;current&quot; {}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-vpc-and-">VPC and Networking</h4>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># networking.tf
+
+# VPC for ML infrastructure
+resource &quot;aws_vpc&quot; &quot;ml_vpc&quot; {
+  cidr_block           = &quot;10.0.0.0/16&quot;
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name        = &quot;ML-Platform-VPC&quot;
+    Environment = &quot;production&quot;
+    &quot;kubernetes.io/cluster/${var.cluster_name}&quot; = &quot;shared&quot;
+  }
+}
+
+# Public subnets (for load balancers, NAT gateways)
+resource &quot;aws_subnet&quot; &quot;public_a&quot; {
+  vpc_id                  = aws_vpc.ml_vpc.id
+  cidr_block              = &quot;10.0.1.0/24&quot;
+  availability_zone       = &quot;us-west-2a&quot;
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = &quot;ML-Platform-Public-A&quot;
+    Type = &quot;Public&quot;
+    &quot;kubernetes.io/cluster/${var.cluster_name}&quot; = &quot;shared&quot;
+    &quot;kubernetes.io/role/elb&quot;                      = &quot;1&quot;
+  }
+}
+
+resource &quot;aws_subnet&quot; &quot;public_b&quot; {
+  vpc_id                  = aws_vpc.ml_vpc.id
+  cidr_block              = &quot;10.0.2.0/24&quot;
+  availability_zone       = &quot;us-west-2b&quot;
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = &quot;ML-Platform-Public-B&quot;
+    Type = &quot;Public&quot;
+    &quot;kubernetes.io/cluster/${var.cluster_name}&quot; = &quot;shared&quot;
+    &quot;kubernetes.io/role/elb&quot;                      = &quot;1&quot;
+  }
+}
+
+# Private subnets (for GPU instances, EKS nodes)
+resource &quot;aws_subnet&quot; &quot;private_a&quot; {
+  vpc_id            = aws_vpc.ml_vpc.id
+  cidr_block        = &quot;10.0.10.0/24&quot;
+  availability_zone = &quot;us-west-2a&quot;
+
+  tags = {
+    Name = &quot;ML-Platform-Private-A&quot;
+    Type = &quot;Private&quot;
+    &quot;kubernetes.io/cluster/${var.cluster_name}&quot; = &quot;shared&quot;
+    &quot;kubernetes.io/role/internal-elb&quot;            = &quot;1&quot;
+  }
+}
+
+resource &quot;aws_subnet&quot; &quot;private_b&quot; {
+  vpc_id            = aws_vpc.ml_vpc.id
+  cidr_block        = &quot;10.0.11.0/24&quot;
+  availability_zone = &quot;us-west-2b&quot;
+
+  tags = {
+    Name = &quot;ML-Platform-Private-B&quot;
+    Type = &quot;Private&quot;
+    &quot;kubernetes.io/cluster/${var.cluster_name}&quot; = &quot;shared&quot;
+    &quot;kubernetes.io/role/internal-elb&quot;            = &quot;1&quot;
+  }
+}
+
+# Internet Gateway
+resource &quot;aws_internet_gateway&quot; &quot;ml_igw&quot; {
+  vpc_id = aws_vpc.ml_vpc.id
+
+  tags = {
+    Name = &quot;ML-Platform-IGW&quot;
+  }
+}
+
+# Elastic IPs for NAT Gateways
+resource &quot;aws_eip&quot; &quot;nat_a&quot; {
+  domain = &quot;vpc&quot;
+
+  tags = {
+    Name = &quot;ML-Platform-NAT-EIP-A&quot;
+  }
+
+  depends_on = [aws_internet_gateway.ml_igw]
+}
+
+resource &quot;aws_eip&quot; &quot;nat_b&quot; {
+  domain = &quot;vpc&quot;
+
+  tags = {
+    Name = &quot;ML-Platform-NAT-EIP-B&quot;
+  }
+
+  depends_on = [aws_internet_gateway.ml_igw]
+}
+
+# NAT Gateways (for private subnet internet access)
+resource &quot;aws_nat_gateway&quot; &quot;nat_a&quot; {
+  allocation_id = aws_eip.nat_a.id
+  subnet_id     = aws_subnet.public_a.id
+
+  tags = {
+    Name = &quot;ML-Platform-NAT-A&quot;
+  }
+
+  depends_on = [aws_internet_gateway.ml_igw]
+}
+
+resource &quot;aws_nat_gateway&quot; &quot;nat_b&quot; {
+  allocation_id = aws_eip.nat_b.id
+  subnet_id     = aws_subnet.public_b.id
+
+  tags = {
+    Name = &quot;ML-Platform-NAT-B&quot;
+  }
+
+  depends_on = [aws_internet_gateway.ml_igw]
+}
+
+# Route table for public subnets
+resource &quot;aws_route_table&quot; &quot;public&quot; {
+  vpc_id = aws_vpc.ml_vpc.id
+
+  route {
+    cidr_block = &quot;0.0.0.0/0&quot;
+    gateway_id = aws_internet_gateway.ml_igw.id
+  }
+
+  tags = {
+    Name = &quot;ML-Platform-Public-RT&quot;
+  }
+}
+
+resource &quot;aws_route_table_association&quot; &quot;public_a&quot; {
+  subnet_id      = aws_subnet.public_a.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource &quot;aws_route_table_association&quot; &quot;public_b&quot; {
+  subnet_id      = aws_subnet.public_b.id
+  route_table_id = aws_route_table.public.id
+}
+
+# Route tables for private subnets
+resource &quot;aws_route_table&quot; &quot;private_a&quot; {
+  vpc_id = aws_vpc.ml_vpc.id
+
+  route {
+    cidr_block     = &quot;0.0.0.0/0&quot;
+    nat_gateway_id = aws_nat_gateway.nat_a.id
+  }
+
+  tags = {
+    Name = &quot;ML-Platform-Private-RT-A&quot;
+  }
+}
+
+resource &quot;aws_route_table&quot; &quot;private_b&quot; {
+  vpc_id = aws_vpc.ml_vpc.id
+
+  route {
+    cidr_block     = &quot;0.0.0.0/0&quot;
+    nat_gateway_id = aws_nat_gateway.nat_b.id
+  }
+
+  tags = {
+    Name = &quot;ML-Platform-Private-RT-B&quot;
+  }
+}
+
+resource &quot;aws_route_table_association&quot; &quot;private_a&quot; {
+  subnet_id      = aws_subnet.private_a.id
+  route_table_id = aws_route_table.private_a.id
+}
+
+resource &quot;aws_route_table_association&quot; &quot;private_b&quot; {
+  subnet_id      = aws_subnet.private_b.id
+  route_table_id = aws_route_table.private_b.id
+}
+
+# VPC Flow Logs (for network monitoring)
+resource &quot;aws_flow_log&quot; &quot;ml_vpc&quot; {
+  iam_role_arn    = aws_iam_role.vpc_flow_logs.arn
+  log_destination = aws_cloudwatch_log_group.vpc_flow_logs.arn
+  traffic_type    = &quot;ALL&quot;
+  vpc_id          = aws_vpc.ml_vpc.id
+
+  tags = {
+    Name = &quot;ML-Platform-VPC-Flow-Logs&quot;
+  }
+}
+
+resource &quot;aws_cloudwatch_log_group&quot; &quot;vpc_flow_logs&quot; {
+  name              = &quot;/aws/vpc/ml-platform&quot;
+  retention_in_days = 30
+
+  tags = {
+    Name = &quot;ML-Platform-VPC-Logs&quot;
+  }
+}
+
+resource &quot;aws_iam_role&quot; &quot;vpc_flow_logs&quot; {
+  name = &quot;ml-platform-vpc-flow-logs&quot;
+
+  assume_role_policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [{
+      Action = &quot;sts:AssumeRole&quot;
+      Effect = &quot;Allow&quot;
+      Principal = {
+        Service = &quot;vpc-flow-logs.amazonaws.com&quot;
+      }
+    }]
+  })
+}
+
+resource &quot;aws_iam_role_policy&quot; &quot;vpc_flow_logs&quot; {
+  name = &quot;vpc-flow-logs-policy&quot;
+  role = aws_iam_role.vpc_flow_logs.id
+
+  policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [{
+      Action = [
+        &quot;logs:CreateLogGroup&quot;,
+        &quot;logs:CreateLogStream&quot;,
+        &quot;logs:PutLogEvents&quot;,
+        &quot;logs:DescribeLogGroups&quot;,
+        &quot;logs:DescribeLogStreams&quot;
+      ]
+      Effect   = &quot;Allow&quot;
+      Resource = &quot;*&quot;
+    }]
+  })
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-security">å®‰å…¨ï¼ˆSecurityï¼‰ Groups</h4>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># security-groups.tf
+
+# Security group for GPU training instances
+resource &quot;aws_security_group&quot; &quot;gpu_training&quot; {
+  name        = &quot;gpu-training-sg&quot;
+  description = &quot;Security group for GPU training instances&quot;
+  vpc_id      = aws_vpc.ml_vpc.id
+
+  # SSH access (restrict to bastion or VPN in production)
+  ingress {
+    description = &quot;SSH&quot;
+    from_port   = 22
+    to_port     = 22
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = [&quot;10.0.0.0/16&quot;]  # VPC only
+  }
+
+  # Jupyter notebook
+  ingress {
+    description = &quot;Jupyter&quot;
+    from_port   = 8888
+    to_port     = 8888
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = [&quot;10.0.0.0/16&quot;]
+  }
+
+  # TensorBoard
+  ingress {
+    description = &quot;TensorBoard&quot;
+    from_port   = 6006
+    to_port     = 6006
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = [&quot;10.0.0.0/16&quot;]
+  }
+
+  # Distributed training communication
+  ingress {
+    description = &quot;PyTorch DDP&quot;
+    from_port   = 29500
+    to_port     = 29500
+    protocol    = &quot;tcp&quot;
+    self        = true  # Only from other instances in this SG
+  }
+
+  # All outbound traffic
+  egress {
+    description = &quot;All outbound&quot;
+    from_port   = 0
+    to_port     = 0
+    protocol    = &quot;-1&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  tags = {
+    Name = &quot;GPU-Training-SG&quot;
+  }
+}
+
+# Security group for EKS cluster
+resource &quot;aws_security_group&quot; &quot;eks_cluster&quot; {
+  name        = &quot;eks-cluster-sg&quot;
+  description = &quot;Security group for EKS cluster control plane&quot;
+  vpc_id      = aws_vpc.ml_vpc.id
+
+  tags = {
+    Name = &quot;EKS-Cluster-SG&quot;
+  }
+}
+
+# Allow nodes to communicate with cluster
+resource &quot;aws_security_group_rule&quot; &quot;cluster_inbound_node_https&quot; {
+  description              = &quot;Allow nodes to communicate with cluster API&quot;
+  type                     = &quot;ingress&quot;
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = &quot;tcp&quot;
+  security_group_id        = aws_security_group.eks_cluster.id
+  source_security_group_id = aws_security_group.eks_nodes.id
+}
+
+# Security group for EKS nodes
+resource &quot;aws_security_group&quot; &quot;eks_nodes&quot; {
+  name        = &quot;eks-nodes-sg&quot;
+  description = &quot;Security group for EKS worker nodes&quot;
+  vpc_id      = aws_vpc.ml_vpc.id
+
+  # Allow nodes to communicate with each other
+  ingress {
+    description = &quot;Node to node&quot;
+    from_port   = 0
+    to_port     = 0
+    protocol    = &quot;-1&quot;
+    self        = true
+  }
+
+  # Allow cluster to communicate with nodes
+  ingress {
+    description              = &quot;Cluster to node&quot;
+    from_port                = 1025
+    to_port                  = 65535
+    protocol                 = &quot;tcp&quot;
+    security_group_id        = aws_security_group.eks_cluster.id
+    source_security_group_id = aws_security_group.eks_cluster.id
+  }
+
+  # All outbound
+  egress {
+    description = &quot;All outbound&quot;
+    from_port   = 0
+    to_port     = 0
+    protocol    = &quot;-1&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  tags = {
+    Name = &quot;EKS-Nodes-SG&quot;
+    &quot;kubernetes.io/cluster/${var.cluster_name}&quot; = &quot;owned&quot;
+  }
+}
+
+# Security group for load balancers
+resource &quot;aws_security_group&quot; &quot;alb&quot; {
+  name        = &quot;ml-platform-alb-sg&quot;
+  description = &quot;Security group for Application Load Balancer&quot;
+  vpc_id      = aws_vpc.ml_vpc.id
+
+  # HTTPS from anywhere
+  ingress {
+    description = &quot;HTTPS&quot;
+    from_port   = 443
+    to_port     = 443
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  # HTTP from anywhere (redirect to HTTPS)
+  ingress {
+    description = &quot;HTTP&quot;
+    from_port   = 80
+    to_port     = 80
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  # All outbound
+  egress {
+    description = &quot;All outbound&quot;
+    from_port   = 0
+    to_port     = 0
+    protocol    = &quot;-1&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  tags = {
+    Name = &quot;ALB-SG&quot;
+  }
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-iam-role">IAM Roles and Policies</h4>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># iam.tf
+
+# IAM role for ML training instances
+resource &quot;aws_iam_role&quot; &quot;ml_training&quot; {
+  name = &quot;ml-training-instance-role&quot;
+
+  assume_role_policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [{
+      Action = &quot;sts:AssumeRole&quot;
+      Effect = &quot;Allow&quot;
+      Principal = {
+        Service = &quot;ec2.amazonaws.com&quot;
+      }
+    }]
+  })
+
+  tags = {
+    Name = &quot;ML-Training-Role&quot;
+  }
+}
+
+# Custom policy for ML training
+resource &quot;aws_iam_role_policy&quot; &quot;ml_training&quot; {
+  name = &quot;ml-training-policy&quot;
+  role = aws_iam_role.ml_training.id
+
+  policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;s3:GetObject&quot;,
+          &quot;s3:PutObject&quot;,
+          &quot;s3:DeleteObject&quot;,
+          &quot;s3:ListBucket&quot;
+        ]
+        Resource = [
+          aws_s3_bucket.ml_datasets.arn,
+          &quot;${aws_s3_bucket.ml_datasets.arn}/*&quot;,
+          aws_s3_bucket.ml_models.arn,
+          &quot;${aws_s3_bucket.ml_models.arn}/*&quot;,
+          aws_s3_bucket.ml_artifacts.arn,
+          &quot;${aws_s3_bucket.ml_artifacts.arn}/*&quot;
+        ]
+      },
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;ecr:GetAuthorizationToken&quot;,
+          &quot;ecr:BatchCheckLayerAvailability&quot;,
+          &quot;ecr:GetDownloadUrlForLayer&quot;,
+          &quot;ecr:BatchGetImage&quot;
+        ]
+        Resource = &quot;*&quot;
+      },
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;logs:CreateLogGroup&quot;,
+          &quot;logs:CreateLogStream&quot;,
+          &quot;logs:PutLogEvents&quot;,
+          &quot;logs:DescribeLogStreams&quot;
+        ]
+        Resource = &quot;arn:aws:logs:*:*:*&quot;
+      },
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;cloudwatch:PutMetricData&quot;
+        ]
+        Resource = &quot;*&quot;
+      },
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;secretsmanager:GetSecretValue&quot;
+        ]
+        Resource = &quot;arn:aws:secretsmanager:*:*:secret:ml/*&quot;
+      }
+    ]
+  })
+}
+
+# Instance profile
+resource &quot;aws_iam_instance_profile&quot; &quot;ml_training&quot; {
+  name = &quot;ml-training-profile&quot;
+  role = aws_iam_role.ml_training.name
+}
+
+# IAM role for model serving / inference
+resource &quot;aws_iam_role&quot; &quot;ml_inference&quot; {
+  name = &quot;ml-inference-role&quot;
+
+  assume_role_policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [{
+      Action = &quot;sts:AssumeRole&quot;
+      Effect = &quot;Allow&quot;
+      Principal = {
+        Service = &quot;ec2.amazonaws.com&quot;
+      }
+    }]
+  })
+}
+
+# Inference policy (read-only for models)
+resource &quot;aws_iam_role_policy&quot; &quot;ml_inference&quot; {
+  name = &quot;ml-inference-policy&quot;
+  role = aws_iam_role.ml_inference.id
+
+  policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;s3:GetObject&quot;,
+          &quot;s3:ListBucket&quot;
+        ]
+        Resource = [
+          aws_s3_bucket.ml_models.arn,
+          &quot;${aws_s3_bucket.ml_models.arn}/*&quot;
+        ]
+      },
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;ecr:GetAuthorizationToken&quot;,
+          &quot;ecr:BatchCheckLayerAvailability&quot;,
+          &quot;ecr:GetDownloadUrlForLayer&quot;,
+          &quot;ecr:BatchGetImage&quot;
+        ]
+        Resource = &quot;*&quot;
+      },
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;logs:CreateLogGroup&quot;,
+          &quot;logs:CreateLogStream&quot;,
+          &quot;logs:PutLogEvents&quot;
+        ]
+        Resource = &quot;arn:aws:logs:*:*:*&quot;
+      },
+      {
+        Effect = &quot;Allow&quot;
+        Action = [
+          &quot;cloudwatch:PutMetricData&quot;
+        ]
+        Resource = &quot;*&quot;
+      }
+    ]
+  })
+}
+
+resource &quot;aws_iam_instance_profile&quot; &quot;ml_inference&quot; {
+  name = &quot;ml-inference-profile&quot;
+  role = aws_iam_role.ml_inference.name
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-complete">Complete End-to-End Example</h4>
+<p>Create a complete ML training platform with all components:</p>
+<p><strong>main.tf:</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># main.tf - Complete ML Platform
+
+terraform {
+  required_version = &quot;&gt;= 1.0&quot;
+
+  required_providers {
+    aws = {
+      source  = &quot;hashicorp/aws&quot;
+      version = &quot;~&gt; 5.0&quot;
+    }
+  }
+
+  backend &quot;s3&quot; {
+    bucket         = &quot;my-terraform-state&quot;
+    key            = &quot;ml-platform/terraform.tfstate&quot;
+    region         = &quot;us-west-2&quot;
+    dynamodb_table = &quot;terraform-locks&quot;
+    encrypt        = true
+  }
+}
+
+provider &quot;aws&quot; {
+  region = var.region
+
+  default_tags {
+    tags = {
+      Project     = &quot;ML-Platform&quot;
+      ManagedBy   = &quot;Terraform&quot;
+      Environment = var.environment
+      CostCenter  = &quot;AI-Research&quot;
+    }
+  }
+}
+
+# Variables
+variable &quot;region&quot; {
+  description = &quot;AWS region&quot;
+  type        = string
+  default     = &quot;us-west-2&quot;
+}
+
+variable &quot;environment&quot; {
+  description = &quot;Environment (dev/staging/prod)&quot;
+  type        = string
+  default     = &quot;production&quot;
+}
+
+variable &quot;cluster_name&quot; {
+  description = &quot;EKS cluster name&quot;
+  type        = string
+  default     = &quot;ml-platform-cluster&quot;
+}
+
+# Include all the resources defined above:
+# - VPC and networking (networking.tf)
+# - Security groups (security-groups.tf)
+# - S3 buckets (s3-storage.tf)
+# - EKS cluster (eks-cluster.tf)
+# - GPU instances (gpu-instance.tf)
+# - IAM roles (iam.tf)
+
+# Outputs
+output &quot;eks_cluster_name&quot; {
+  value       = aws_eks_cluster.ml_platform.name
+  description = &quot;EKS cluster name&quot;
+}
+
+output &quot;eks_cluster_endpoint&quot; {
+  value       = aws_eks_cluster.ml_platform.endpoint
+  description = &quot;EKS cluster endpoint&quot;
+}
+
+output &quot;datasets_bucket&quot; {
+  value       = aws_s3_bucket.ml_datasets.bucket
+  description = &quot;S3 bucket for datasets&quot;
+}
+
+output &quot;models_bucket&quot; {
+  value       = aws_s3_bucket.ml_models.bucket
+  description = &quot;S3 bucket for models&quot;
+}
+
+output &quot;gpu_instance_ip&quot; {
+  value       = aws_eip.gpu_training.public_ip
+  description = &quot;GPU training instance public IP&quot;
+}
+
+output &quot;configure_kubectl&quot; {
+  value       = &quot;aws eks update-kubeconfig --region ${var.region} --name ${aws_eks_cluster.ml_platform.name}&quot;
+  description = &quot;Command to configure kubectl&quot;
+}</code></pre></div>
+<p><strong>Deploy the platform:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Initialize
+terraform init
+
+# Plan
+terraform plan -out=tfplan
+
+# Review plan carefully
+terraform show tfplan
+
+# Apply
+terraform apply tfplan
+
+# Configure kubectl
+aws eks update-kubeconfig --region us-west-2 --name ml-platform-cluster
+
+# Verify cluster
+kubectl get nodes
+
+# Deploy NVIDIA device plugin for GPU support
+kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.0/nvidia-device-plugin.yml
+
+# Verify GPU nodes
+kubectl get nodes -l nvidia.com/gpu=true
+
+# When done (be careful!)
+terraform destroy</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-cost-opt">æˆæœ¬ä¼˜åŒ–ï¼ˆCost Optimizationï¼‰</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-spot-ins">Spot Instances</h5>
+<p>Spot instances can save 70-90% on GPU åŠ é€Ÿï¼ˆGPUï¼‰ costs:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Use spot for training (can be interrupted)
+resource &quot;aws_instance&quot; &quot;gpu_training_spot&quot; {
+  ami           = data.aws_ami.deep_learning.id
+  instance_type = &quot;p3.8xlarge&quot;
+
+  instance_market_options {
+    market_type = &quot;spot&quot;
+    spot_options {
+      max_price                      = &quot;3.00&quot;  # Max $3/hr (vs $12.24 on-demand)
+      spot_instance_type            = &quot;persistent&quot;
+      instance_interruption_behavior = &quot;stop&quot;  # Stop and resume when capacity returns
+    }
+  }
+
+  # Checkpointing in user_data to handle interruptions
+  user_data = &lt;&lt;-EOF
+              #!/bin/bash
+              # Training script with checkpointing
+              python train.py \
+                --checkpoint-dir s3://models/checkpoints/ \
+                --checkpoint-frequency 100 \
+                --resume-from-checkpoint true
+              EOF
+
+  tags = {
+    Name = &quot;GPU-Training-Spot&quot;
+  }
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-auto-sca">Auto-Scaling for æŽ¨ç†ï¼ˆInferenceï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Auto-scaling based on request rate
+resource &quot;aws_appautoscaling_target&quot; &quot;inference&quot; {
+  max_capacity       = 20
+  min_capacity       = 1
+  resource_id        = &quot;service/${aws_ecs_cluster.inference.name}/${aws_ecs_service.model_serving.name}&quot;
+  scalable_dimension = &quot;ecs:service:DesiredCount&quot;
+  service_namespace  = &quot;ecs&quot;
+}
+
+resource &quot;aws_appautoscaling_policy&quot; &quot;inference_scale_up&quot; {
+  name               = &quot;inference-scale-up&quot;
+  policy_type        = &quot;TargetTrackingScaling&quot;
+  resource_id        = aws_appautoscaling_target.inference.resource_id
+  scalable_dimension = aws_appautoscaling_target.inference.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.inference.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    target_value = 70.0  # Target 70% CPU utilization
+
+    predefined_metric_specification {
+      predefined_metric_type = &quot;ECSServiceAverageCPUUtilization&quot;
+    }
+
+    scale_in_cooldown  = 300
+    scale_out_cooldown = 60
+  }
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-schedule">Scheduled Scaling</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Scale down during off-hours
+resource &quot;aws_autoscaling_schedule&quot; &quot;scale_down_night&quot; {
+  scheduled_action_name  = &quot;scale-down-night&quot;
+  min_size               = 0
+  max_size               = 10
+  desired_capacity       = 0
+  recurrence             = &quot;0 20 * * *&quot;  # 8 PM daily
+  autoscaling_group_name = aws_autoscaling_group.gpu_training.name
+}
+
+resource &quot;aws_autoscaling_schedule&quot; &quot;scale_up_morning&quot; {
+  scheduled_action_name  = &quot;scale-up-morning&quot;
+  min_size               = 2
+  max_size               = 10
+  desired_capacity       = 4
+  recurrence             = &quot;0 8 * * MON-FRI&quot;  # 8 AM weekdays
+  autoscaling_group_name = aws_autoscaling_group.gpu_training.name
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-key-take">Key Takeaways</h4>
+<p>âœ… GPU åŠ é€Ÿï¼ˆGPUï¼‰ instances (p3, p4d, g4dn) are provisioned based on workload requirements âœ… EKS æ‰˜ç®¡ Kubernetesï¼ˆEKSï¼‰ clusters provide scalable, containerized ML infrastructure âœ… S3 buckets with versioning and lifecycle policies manage ML data âœ… VPC design isolates ML workloads with public/private subnets âœ… å®‰å…¨ï¼ˆSecurityï¼‰ groups control network access between components âœ… IAM roles follow least privilege principle âœ… Spot instances save 70-90% on GPU åŠ é€Ÿï¼ˆGPUï¼‰ costs âœ… Auto-scaling handles variable inference workloads âœ… Complete infrastructure deployed with single <code>terraform apply</code></p>
+<h4 id="lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md-next-ste">Next Steps</h4>
+<p>Now that you've built AI infrastructure with Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰, explore:</p>
+<ul>
+<li><strong>Lesson 05</strong>: Pulumi å¤šè¯­è¨€ IaCï¼ˆPulumiï¼‰ for Python-based infrastructure code</li>
+<li><strong>Lesson 06</strong>: Advanced IaC patterns and reusable modules</li>
+<li><strong>Lesson 07</strong>: GitOps äº¤ä»˜æ¨¡å¼ï¼ˆGitOpsï¼‰ and CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for infrastructure</li>
+</ul>
+<hr/>
+<p><strong>Next Lesson</strong>: <a href="#doc-lessons-mod-109-infrastructure-as-code-05-pulumi-infrastructure-as-software-md">05-pulumi-infrastructure-as-software.md</a></p><p><a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-03-terraform-state-management-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-05-pulumi-infrastructure-as-software-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

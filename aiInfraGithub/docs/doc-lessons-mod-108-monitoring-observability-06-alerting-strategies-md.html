@@ -1,0 +1,615 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-resources-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lesson 01: Introduction to å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-02-prometheus-metrics-md.html">Lesson 02: Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ for Metrics Collection</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-03-grafana-visualization-md.html">Lesson 03: Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ for Visualization</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-04-logging-elk-loki-md.html">Lesson 04: Logging with ELK Stack and Loki</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-05-distributed-tracing-md.html">Lesson 05: Distributed Tracing with Jaeger é“¾è·¯è¿½è¸ªï¼ˆJaegerï¼‰ and Tempo</a><a class="tree-doc active" href="../docs/doc-lessons-mod-108-monitoring-observability-06-alerting-strategies-md.html">Lesson 06: å‘Šè­¦ï¼ˆAlertingï¼‰ Strategies and Alert Management</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-07-ml-model-observability-md.html">Lesson 07: ML-Specific ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Model å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-08-best-practices-culture-md.html">Lesson 08: Best Practices and å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ Culture</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Module 108 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-01-prometheus-instrumentation-md.html">Lab 01: Instrument a Python Service with Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-02-grafana-dashboards-md.html">Lab 02: Build a Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ Dashboard from Scratch</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-03-loki-logging-md.html">Lab 03: Send Logs to Loki</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-04-distributed-tracing-md.html">Lab 04: Distributed Tracing with OpenTelemetry å¯è§‚æµ‹æ€§ï¼ˆOpenTelemetryï¼‰ + Jaeger é“¾è·¯è¿½è¸ªï¼ˆJaegerï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-05-alerting-rules-md.html">Lab 05: Author Alert Rules with Multi-Window Burn Rates</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercise 01: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ Stack (Prometheus + Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ + Loki)</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-02-ml-model-monitoring-readme-.html">Exercise 02: ML Model ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-03-promql-deep-dive-readme-md.html">Exercise 03: PromQL Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-04-dashboards-as-code-readme-m.html">Exercise 04: Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ Dashboards as Code</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-05-log-pipeline-readme-md.html">Exercise 05: Structured Log Pipeline (Loki + Vector)</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-06-distributed-tracing-otel-re.html">Exercise 06: Distributed Tracing with OpenTelemetry å¯è§‚æµ‹æ€§ï¼ˆOpenTelemetryï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-07-alertmanager-routing-readme.html">Exercise 07: Alertmanager Routing and Notification Strategy</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-08-slo-and-error-budgets-readm.html">Exercise 08: æœåŠ¡æ°´å¹³æŒ‡æ ‡ï¼ˆSLIï¼‰ / æœåŠ¡æ°´å¹³ç›®æ ‡ï¼ˆSLOï¼‰ / Error Budget Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-09-incident-response-gameday-r.html">Exercise 09: äº‹æ•…å“åº”ï¼ˆIncident Responseï¼‰ Game Day</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-10-observability-cost-control-.html">Exercise 10: å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ Cost Control</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-readme-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ - Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-108-monitoring-observability-06-alerting-strategies-md"><h3 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-lesson-06-alerting-stra">Lesson 06: å‘Šè­¦ï¼ˆAlertingï¼‰ Strategies and Alert Management</h3>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+<li>Design effective alerting strategies for AI infrastructure</li>
+<li>Configure Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Alertmanager for alert routing</li>
+<li>Create meaningful alert rules for ML systems</li>
+<li>Implement alert routing, grouping, and deduplication</li>
+<li>Set up multiple notification channels (Slack, PagerDuty, email)</li>
+<li>Reduce alert fatigue with proper thresholds and severity levels</li>
+<li>Build on-call workflows and runbooks</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-prerequisites">å‰ç½®è¦æ±‚ï¼ˆPrerequisitesï¼‰</h4>
+<ul>
+<li>Completion of Lessons 01-05 (Observability fundamentals)</li>
+<li>Understanding of Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ and PromQL</li>
+<li>Familiarity with incident management concepts</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-introduction">Introduction</h4>
+<p>Alerts are automated notifications triggered when systems deviate from expected behavior. For AI infrastructure, effective alerting is critical for:</p>
+<ul>
+<li>Detecting model degradation before users notice</li>
+<li>Identifying GPU åŠ é€Ÿï¼ˆGPUï¼‰ failures and resource exhaustion</li>
+<li>Catching data pipeline issues early</li>
+<li>Preventing cascading failures in ML services</li>
+</ul>
+<p>However, <strong>bad alerting is worse than no alerting</strong>. Alert fatigue from too many false positives leads teams to ignore critical alerts.</p>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-principles-of-good-aler">Principles of Good å‘Šè­¦ï¼ˆAlertingï¼‰</h5>
+<ol>
+<li><strong>Alert on symptoms, not causes</strong>: Alert when users are impacted</li>
+<li><strong>Make alerts actionable</strong>: Every alert should have a clear response</li>
+<li><strong>Avoid alert fatigue</strong>: Only alert on what matters</li>
+<li><strong>Classify by severity</strong>: Critical vs warning vs informational</li>
+<li><strong>Include context</strong>: Provide debugging information in alerts</li>
+<li><strong>Test your alerts</strong>: Validate that alerts fire as expected</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-1-alerting-strategy">1. å‘Šè­¦ï¼ˆAlertingï¼‰ Strategy</h4>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-the-four-golden-signals">The Four Golden Signals (for ML Systems)</h5>
+<p><strong>1. Latency</strong>: How long does inference take?</p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql">histogram_quantile(0.99,
+  rate(model_inference_duration_seconds_bucket[5m])
+) &gt; 1.0</code></pre></div>
+<p><strong>2. Traffic</strong>: How many requests are we serving?</p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql">sum(rate(model_requests_total[5m])) &lt; 10</code></pre></div>
+<p><strong>3. Errors</strong>: What percentage of requests are failing?</p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql">(sum(rate(model_requests_total{status=&quot;error&quot;}[5m])) /
+ sum(rate(model_requests_total[5m]))) &gt; 0.05</code></pre></div>
+<p><strong>4. Saturation</strong>: How full are our resources?</p>
+<div class="code-shell"><div class="code-title"><span>promql</span><span>PROMQL</span></div><pre><code class="language-promql">avg(gpu_utilization) &gt; 95
+avg(gpu_memory_utilization) &gt; 90</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-alert-severity-levels">Alert Severity Levels</h5>
+<div class="table-wrap"><table><thead><tr><th>Severity</th><th>When to Use</th><th>Response Time</th><th>Example</th></tr></thead><tbody><tr><td><strong>Critical/Page</strong></td><td>User-facing impact</td><td>Immediate (minutes)</td><td>All models down, &gt;50% error rate</td></tr><tr><td><strong>Error/High</strong></td><td>Potential user impact</td><td>Hours</td><td>Single model degraded, GPU åŠ é€Ÿï¼ˆGPUï¼‰ failure</td></tr><tr><td><strong>Warning</strong></td><td>Needs investigation</td><td>Days</td><td>High latency, resource saturation</td></tr><tr><td><strong>Info</strong></td><td>FYI, no action needed</td><td>N/A</td><td>éƒ¨ç½²ï¼ˆDeploymentï¼‰ completed, scaling event</td></tr></tbody></table></div>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-alerting-vs-monitoring">å‘Šè­¦ï¼ˆAlertingï¼‰ vs. ç›‘æŽ§ï¼ˆMonitoringï¼‰</h5>
+<p><strong>Monitor (don't alert)</strong>:</p>
+<ul>
+<li>Successful requests</li>
+<li>Normal resource usage</li>
+<li>Routine maintenance</li>
+<li>Informational events</li>
+</ul>
+<p><strong>Alert (with urgency)</strong>:</p>
+<ul>
+<li>Service unavailable</li>
+<li>Error rate spike</li>
+<li>Critical resource exhaustion</li>
+<li>Data quality issues</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-2-prometheus-alertmanag">2. Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Alertmanager</h4>
+<p>Alertmanager handles alerts sent by Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰, providing routing, grouping, inhibition, and silencing.</p>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-architecture">æž¶æž„ï¼ˆArchitectureï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  Prometheus   â”‚
+â”‚  (Evaluates   â”‚
+â”‚    Rules)     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜
+        â”‚ Alerts
+        â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Alertmanager  â”‚
+â”‚  - Route      â”‚
+â”‚  - Group      â”‚
+â”‚  - Dedupe     â”‚
+â”‚  - Silence    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜
+        â”‚
+        â”œâ”€â”€â”€â”€â”€&gt; Slack
+        â”œâ”€â”€â”€â”€â”€&gt; PagerDuty
+        â”œâ”€â”€â”€â”€â”€&gt; Email
+        â””â”€â”€â”€â”€â”€&gt; Webhook</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-installing-alertmanager">Installing Alertmanager</h5>
+<p><strong>docker-compose.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">version: '3.8'
+
+services:
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: alertmanager
+    ports:
+      - &quot;9093:9093&quot;
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: prometheus
+    ports:
+      - &quot;9090:9090&quot;
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alerts:/etc/prometheus/alerts
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - monitoring
+    depends_on:
+      - alertmanager
+
+volumes:
+  alertmanager_data:
+  prometheus_data:
+
+networks:
+  monitoring:
+    driver: bridge</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-alertmanager-configurat">Alertmanager Configuration</h5>
+<p><strong>alertmanager.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">global:
+  # Default notification settings
+  resolve_timeout: 5m
+  slack_api_url: 'https://hooks.slack.com/services/YOUR/WEBHOOK/URL'
+  pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+
+# Templates for notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Alert routing tree
+route:
+  # Default receiver if no match
+  receiver: 'default'
+
+  # Group alerts by these labels
+  group_by: ['alertname', 'cluster', 'service']
+
+  # How long to wait before sending initial notification
+  group_wait: 10s
+
+  # How long to wait before sending notification about new alerts
+  # added to a group
+  group_interval: 10s
+
+  # How often to re-send notifications for unresolved alerts
+  repeat_interval: 12h
+
+  # Child routes (evaluated in order)
+  routes:
+    # Critical alerts go to PagerDuty and Slack
+    - match:
+        severity: critical
+      receiver: 'pagerduty-critical'
+      continue: true  # Also match other routes
+
+    - match:
+        severity: critical
+      receiver: 'slack-critical'
+
+    # ML-specific alerts
+    - match:
+        team: ml-platform
+      receiver: 'slack-ml-team'
+      group_by: ['alertname', 'model_name']
+      routes:
+        # GPU alerts need immediate attention
+        - match_re:
+            alertname: '^GPU.*'
+          receiver: 'slack-ml-team-urgent'
+          repeat_interval: 4h
+
+    # Data pipeline alerts
+    - match:
+        team: data-engineering
+      receiver: 'slack-data-team'
+
+    # Warning alerts (non-critical)
+    - match:
+        severity: warning
+      receiver: 'slack-warnings'
+      repeat_interval: 24h
+
+# Inhibition rules (suppress alerts based on other alerts)
+inhibit_rules:
+  # Inhibit warnings if critical alert is firing
+  - source_match:
+      severity: critical
+    target_match:
+      severity: warning
+    equal: ['alertname', 'cluster', 'service']
+
+  # If entire service is down, don't alert on individual instances
+  - source_match:
+      alertname: ServiceDown
+    target_match_re:
+      alertname: '^(HighLatency|HighErrorRate)$'
+    equal: ['service']
+
+# Notification receivers
+receivers:
+  - name: 'default'
+    slack_configs:
+      - channel: '#alerts'
+        title: 'Alert: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+  - name: 'pagerduty-critical'
+    pagerduty_configs:
+      - service_key: 'YOUR_PAGERDUTY_SERVICE_KEY'
+        description: '{{ .GroupLabels.alertname }}'
+        details:
+          firing: '{{ .Alerts.Firing | len }}'
+          resolved: '{{ .Alerts.Resolved | len }}'
+
+  - name: 'slack-critical'
+    slack_configs:
+      - channel: '#ml-critical-alerts'
+        username: 'Alertmanager'
+        icon_emoji: ':rotating_light:'
+        color: 'danger'
+        title: 'CRITICAL: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Labels.alertname }}
+          *Severity:* {{ .Labels.severity }}
+          *Summary:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Runbook:* {{ .Annotations.runbook_url }}
+          {{ end }}
+        send_resolved: true
+
+  - name: 'slack-ml-team'
+    slack_configs:
+      - channel: '#ml-platform-alerts'
+        title: '{{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+  - name: 'slack-ml-team-urgent'
+    slack_configs:
+      - channel: '#ml-platform-urgent'
+        color: 'warning'
+        title: 'GPU ALERT: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Model:* {{ .Labels.model_name }}
+          *GPU:* {{ .Labels.gpu_id }}
+          *Node:* {{ .Labels.node }}
+          *Issue:* {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'slack-warnings'
+    slack_configs:
+      - channel: '#monitoring-warnings'
+        color: 'warning'
+        send_resolved: true
+
+  - name: 'slack-data-team'
+    slack_configs:
+      - channel: '#data-platform-alerts'</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-3-alert-rules">3. Alert Rules</h4>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-prometheus-alert-rules">Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Alert Rules</h5>
+<p><strong>alerts/ml-platform-alerts.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">groups:
+  - name: ml_infrastructure
+    interval: 30s
+    rules:
+      # ========== SERVICE AVAILABILITY ==========
+
+      - alert: ModelServingDown
+        expr: up{job=&quot;ml-serving&quot;} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: ml-platform
+        annotations:
+          summary: &quot;Model serving instance is down&quot;
+          description: &quot;{{ $labels.instance }} has been down for more than 1 minute&quot;
+          runbook_url: &quot;https://runbooks.company.com/ModelServingDown&quot;
+
+      - alert: HighModelErrorRate
+        expr: |
+          (sum(rate(model_requests_total{status=&quot;error&quot;}[5m])) by (model_name) /
+           sum(rate(model_requests_total[5m])) by (model_name)) &gt; 0.05
+        for: 5m
+        labels:
+          severity: critical
+          team: ml-platform
+        annotations:
+          summary: &quot;High error rate for model {{ $labels.model_name }}&quot;
+          description: &quot;Error rate is {{ $value | humanizePercentage }} (threshold: 5%)&quot;
+          runbook_url: &quot;https://runbooks.company.com/HighErrorRate&quot;
+
+      # ========== LATENCY ==========
+
+      - alert: HighInferenceLatency
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(model_inference_duration_seconds_bucket[5m])) by (model_name, le)
+          ) &gt; 1.0
+        for: 10m
+        labels:
+          severity: warning
+          team: ml-platform
+        annotations:
+          summary: &quot;High P99 latency for {{ $labels.model_name }}&quot;
+          description: &quot;P99 latency is {{ $value }}s (threshold: 1.0s)&quot;
+          runbook_url: &quot;https://runbooks.company.com/HighLatency&quot;
+
+      - alert: CriticalInferenceLatency
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(model_inference_duration_seconds_bucket[5m])) by (model_name, le)
+          ) &gt; 5.0
+        for: 5m
+        labels:
+          severity: critical
+          team: ml-platform
+        annotations:
+          summary: &quot;CRITICAL: P99 latency for {{ $labels.model_name }}&quot;
+          description: &quot;P99 latency is {{ $value }}s (threshold: 5.0s)&quot;
+
+      # ========== GPU RESOURCES ==========
+
+      - alert: GPUHighTemperature
+        expr: gpu_temperature_celsius &gt; 85
+        for: 5m
+        labels:
+          severity: warning
+          team: ml-platform
+        annotations:
+          summary: &quot;GPU temperature high on {{ $labels.node }}&quot;
+          description: &quot;GPU {{ $labels.gpu_id }} temperature is {{ $value }}Â°C&quot;
+
+      - alert: GPUCriticalTemperature
+        expr: gpu_temperature_celsius &gt; 90
+        for: 2m
+        labels:
+          severity: critical
+          team: ml-platform
+        annotations:
+          summary: &quot;CRITICAL: GPU overheating on {{ $labels.node }}&quot;
+          description: &quot;GPU {{ $labels.gpu_id }} at {{ $value }}Â°C - risk of shutdown&quot;
+          runbook_url: &quot;https://runbooks.company.com/GPUOverheating&quot;
+
+      - alert: GPUMemoryExhaustion
+        expr: |
+          (gpu_memory_used_bytes / gpu_memory_total_bytes) &gt; 0.95
+        for: 10m
+        labels:
+          severity: warning
+          team: ml-platform
+        annotations:
+          summary: &quot;GPU memory near capacity on {{ $labels.node }}&quot;
+          description: &quot;GPU {{ $labels.gpu_id }} memory at {{ $value | humanizePercentage }}&quot;
+
+      - alert: GPUUtilizationLow
+        expr: avg(gpu_utilization) by (node, gpu_id) &lt; 20
+        for: 30m
+        labels:
+          severity: info
+          team: ml-platform
+        annotations:
+          summary: &quot;Low GPU utilization on {{ $labels.node }}&quot;
+          description: &quot;GPU {{ $labels.gpu_id }} utilization at {{ $value }}% for 30min&quot;
+
+      # ========== TRAINING JOBS ==========
+
+      - alert: TrainingJobStalled
+        expr: |
+          increase(training_samples_processed[10m]) == 0
+        for: 10m
+        labels:
+          severity: warning
+          team: ml-platform
+        annotations:
+          summary: &quot;Training job {{ $labels.job_name }} appears stalled&quot;
+          description: &quot;No progress in 10 minutes&quot;
+
+      - alert: TrainingLossDivergence
+        expr: training_loss &gt; 1000
+        for: 5m
+        labels:
+          severity: warning
+          team: ml-platform
+        annotations:
+          summary: &quot;Training loss diverging for {{ $labels.job_name }}&quot;
+          description: &quot;Loss value: {{ $value }}&quot;
+
+      # ========== DATA PIPELINES ==========
+
+      - alert: DataPipelineFailed
+        expr: airflow_dag_status{status=&quot;failed&quot;} == 1
+        for: 5m
+        labels:
+          severity: critical
+          team: data-engineering
+        annotations:
+          summary: &quot;Airflow DAG {{ $labels.dag_id }} failed&quot;
+          description: &quot;Pipeline has been in failed state for 5 minutes&quot;
+
+      - alert: DataQualityCheckFailed
+        expr: data_quality_check_passed == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: data-engineering
+        annotations:
+          summary: &quot;Data quality check failed: {{ $labels.check_name }}&quot;
+          description: &quot;Dataset: {{ $labels.dataset }}&quot;
+
+      # ========== RESOURCE SATURATION ==========
+
+      - alert: HighCPUUsage
+        expr: |
+          100 - (avg(rate(node_cpu_seconds_total{mode=&quot;idle&quot;}[5m])) by (instance) * 100) &gt; 90
+        for: 15m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: &quot;High CPU usage on {{ $labels.instance }}&quot;
+          description: &quot;CPU usage at {{ $value }}%&quot;
+
+      - alert: HighMemoryUsage
+        expr: |
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) /
+          node_memory_MemTotal_bytes &gt; 0.90
+        for: 10m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: &quot;High memory usage on {{ $labels.instance }}&quot;
+          description: &quot;Memory usage at {{ $value | humanizePercentage }}&quot;
+
+      # ========== DISK SPACE ==========
+
+      - alert: DiskSpaceLow
+        expr: |
+          (node_filesystem_avail_bytes / node_filesystem_size_bytes) &lt; 0.15
+        for: 10m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: &quot;Disk space low on {{ $labels.instance }}&quot;
+          description: &quot;Only {{ $value | humanizePercentage }} available on {{ $labels.mountpoint }}&quot;
+
+      - alert: DiskSpaceCritical
+        expr: |
+          (node_filesystem_avail_bytes / node_filesystem_size_bytes) &lt; 0.05
+        for: 5m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: &quot;CRITICAL: Disk space critically low on {{ $labels.instance }}&quot;
+          description: &quot;Only {{ $value | humanizePercentage }} available on {{ $labels.mountpoint }}&quot;</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-4-notification-template">4. Notification Templates</h4>
+<p><strong>alertmanager/templates/slack.tmpl:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">{{ define &quot;slack.default.title&quot; }}
+[{{ .Status | toUpper }}{{ if eq .Status &quot;firing&quot; }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join &quot; &quot; }}
+{{ end }}
+
+{{ define &quot;slack.default.text&quot; }}
+{{ range .Alerts }}
+*Alert:* {{ .Labels.alertname }}
+*Severity:* {{ .Labels.severity }}
+*Summary:* {{ .Annotations.summary }}
+*Description:* {{ .Annotations.description }}
+{{ if .Annotations.runbook_url }}*Runbook:* {{ .Annotations.runbook_url }}{{ end }}
+*Labels:*
+{{ range .Labels.SortedPairs }} â€¢ {{ .Name }}: `{{ .Value }}`
+{{ end }}
+{{ end }}
+{{ end }}</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-5-best-practices">5. Best Practices</h4>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-1-make-alerts-actionabl">1. Make Alerts Actionable</h5>
+<p><strong>Bad Alert:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">- alert: SomethingWrong
+  expr: metric &gt; threshold
+  annotations:
+    summary: &quot;Metric is high&quot;</code></pre></div>
+<p><strong>Good Alert:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">- alert: HighModelLatency
+  expr: histogram_quantile(0.99, rate(latency_bucket[5m])) &gt; 1.0
+  annotations:
+    summary: &quot;Model {{ $labels.model_name }} P99 latency &gt; 1s&quot;
+    description: |
+      Current P99 latency: {{ $value }}s
+      Check:
+      1. GPU utilization and memory
+      2. Batch size and concurrency
+      3. Recent deployments
+    runbook_url: &quot;https://runbooks.company.com/HighLatency&quot;
+    dashboard_url: &quot;https://grafana.company.com/d/model-perf&quot;</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-2-use-appropriate-thres">2. Use Appropriate Thresholds</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Too sensitive - alert fatigue
+- alert: AnyError
+  expr: errors &gt; 0
+  for: 1m
+
+# Better - tolerate occasional errors
+- alert: HighErrorRate
+  expr: (errors / requests) &gt; 0.05
+  for: 5m</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-3-group-related-alerts">3. Group Related Alerts</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">route:
+  group_by: ['alertname', 'model_name', 'cluster']
+  group_wait: 30s
+  group_interval: 5m</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-4-avoid-alert-storms">4. Avoid Alert Storms</h5>
+<p>Use inhibition rules:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">inhibit_rules:
+  - source_match:
+      alertname: DatacenterDown
+    target_match_re:
+      alertname: '.*'
+    equal: ['datacenter']</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-6-on-call-workflows">6. On-Call Workflows</h4>
+<h5 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-runbook-example">Runbook Example</h5>
+<p><strong>Runbook: HighModelLatency</strong></p>
+<div class="code-shell"><div class="code-title"><span>markdown</span><span>MARKDOWN</span></div><pre><code class="language-markdown"># High Model Latency Runbook
+
+## Severity
+Warning / Critical (depending on latency)
+
+## Impact
+Users experiencing slow inference responses
+
+## Diagnosis
+
+1. Check GPU utilization:</code></pre></div>
+<p>avg(gpu_utilization{model=&quot;$MODEL&quot;}) by (node, gpu_id)</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">
+2. Check batch sizes:</code></pre></div>
+<p>histogram_quantile(0.95, rate(batch_size_bucket[5m]))</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">
+3. Check recent deployments:</code></pre></div>
+<p>kubectl get events --namespace ml-serving</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">
+4. Check model health:</code></pre></div>
+<p>curl http://model-serving/health</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">
+## Common Causes
+
+1. **GPU saturation**: Utilization &gt; 95%
+2. **Large batch sizes**: Batch &gt; optimal size
+3. **Memory pressure**: GPU memory &gt; 90%
+4. **Network issues**: Cross-AZ latency
+5. **Model version issue**: Recent deployment
+
+## Resolution
+
+1. **Immediate**:
+   - Scale up replicas if traffic spike
+   - Reduce batch size if GPU saturated
+   - Rollback if recent deployment
+
+2. **Short-term**:
+   - Add GPU nodes if sustained high load
+   - Optimize model if consistently slow
+
+3. **Long-term**:
+   - Consider model quantization
+   - Implement request batching
+   - Add caching layer
+
+## Escalation
+
+- L1: ML Platform team (@ml-oncall)
+- L2: ML Infrastructure lead (@ml-lead)
+- L3: VP Engineering (@vp-eng)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<p>âœ… Designing effective alerting strategies (Four Golden Signals) âœ… Configuring Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Alertmanager for routing and deduplication âœ… Creating meaningful alert rules for ML infrastructure âœ… Setting up notification channels (Slack, PagerDuty, email) âœ… Reducing alert fatigue with proper thresholds and grouping âœ… Building on-call workflows and runbooks</p>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-next-steps">Next Steps</h4>
+<ul>
+<li><strong>Lesson 07</strong>: ML-specific monitoring and model observability</li>
+<li><strong>Practice</strong>: Create alert rules for your ML infrastructure</li>
+<li><strong>Exercise</strong>: Design a complete alerting strategy</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-06-alerting-strategies-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://prometheus.io/docs/alerting/latest/">Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ å‘Šè­¦ï¼ˆAlertingï¼‰ Documentation</a></li>
+<li><a href="https://prometheus.io/docs/alerting/latest/configuration/">Alertmanager Configuration</a></li>
+<li><a href="https://sre.google/sre-book/monitoring-distributed-systems/">SRE Book: ç›‘æŽ§ï¼ˆMonitoringï¼‰ Distributed Systems</a></li>
+<li><a href="https://grafana.com/blog/2022/02/14/how-to-reduce-alert-fatigue/">Alert Fatigue Guide</a></li>
+</ul>
+<hr/>
+<p><strong>Estimated Time:</strong> 3-4 hours <strong>Difficulty:</strong> Intermediate <strong>Prerequisites:</strong> Lessons 01-05, Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ basics</p><p><a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-05-distributed-tracing-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-07-ml-model-observability-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

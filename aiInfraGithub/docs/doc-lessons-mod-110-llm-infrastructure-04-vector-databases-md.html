@@ -1,0 +1,696 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-resources-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lesson 01: Introduction to å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-02-vllm-deployment-md.html">Lesson 02: vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-03-rag-systems-md.html">Lesson 03: æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ Systems (Retrieval-Augmented Generation)</a><a class="tree-doc active" href="../docs/doc-lessons-mod-110-llm-infrastructure-04-vector-databases-md.html">Lesson 04: Vector Databases</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-05-llm-fine-tuning-infrastructure-md.html">Lesson 05: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Fine-Tuning Infrastructure</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md.html">Lesson 06: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Serving Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-07-llm-platform-architecture-md.html">Lesson 07: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Platform Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md.html">Lesson 08: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Best Practices</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Module 110 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-01-vllm-deployment-md.html">Lab 01: Deploy an å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ with vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-02-rag-pipeline-md.html">Lab 02: Build a æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ Pipeline End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-03-vector-db-qdrant-md.html">Lab 03: Stand Up a å‘é‡æ•°æ®åº“ï¼ˆVector Databaseï¼‰ (Qdrant)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-04-lora-finetune-md.html">Lab 04: LoRA Fine-Tune a Small Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-05-streaming-responses-md.html">Lab 05: Streaming Responses to Clients</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-06-cost-monitoring-md.html">Lab 06: Cost Tracking and Budget Alerts</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-07-prompt-injection-defense-md.html">Lab 07: Prompt-Injection Defenses</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-08-multi-model-serving-md.html">Lab 08: Multi-Model Serving with Intelligent Routing</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercise 01: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Serving Platform (vLLM + Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md.html">Exercise 02: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ System (Retrieval-Augmented Generation)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-03-vllm-deep-dive-readme-md.html">Exercise 03: vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-04-vector-db-benchmarking-readme-md.html">Exercise 04: å‘é‡æ•°æ®åº“ï¼ˆVector Databaseï¼‰ Benchmarking</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-05-finetuning-at-scale-readme-md.html">Exercise 05: Fine-Tuning at Scale (LoRA + QLoRA + Distributed)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-06-inference-optimization-llm-readme.html">Exercise 06: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ æŽ¨ç†ï¼ˆInferenceï¼‰ Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-07-multi-tenant-llm-platform-readme-.html">Exercise 07: Multi-Tenant å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Platform</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-08-llm-cost-routing-readme-md.html">Exercise 08: Cost-Aware å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Routing</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-09-llm-observability-readme-md.html">Exercise 09: LLM-Specific å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-10-prompt-management-readme-md.html">Exercise 10: Prompt Management and Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-11-llm-guardrails-readme-md.html">Exercise 11: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Guardrails (Injection, Moderation, Output Filtering)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-12-llm-evaluation-harness-readme-md.html">Exercise 12: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Evaluation Infrastructure</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-13-semantic-caching-readme-md.html">Exercise 13: Semantic Caching for LLMs</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-14-hybrid-retrieval-reranking-readme.html">Exercise 14: Hybrid Retrieval + Reranking Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-readme-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-110-llm-infrastructure-04-vector-databases-md"><h3 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-lesson-04-vector-databases">Lesson 04: Vector Databases</h3>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-table-of-contents">Table of Contents</h4>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#vector-database-fundamentals">å‘é‡æ•°æ®åº“ï¼ˆVector Databaseï¼‰ Fundamentals</a></li>
+<li><a href="#detailed-comparison">Detailed Comparison</a></li>
+<li><a href="#qdrant-deep-dive">Qdrant å‘é‡æ•°æ®åº“ï¼ˆQdrantï¼‰ Deep Dive</a></li>
+<li><a href="#weaviate-deep-dive">Weaviate å‘é‡æ•°æ®åº“ï¼ˆWeaviateï¼‰ Deep Dive</a></li>
+<li><a href="#chroma-deep-dive">Chroma Deep Dive</a></li>
+<li><a href="#pinecone-deep-dive">Pinecone å‘é‡æ•°æ®åº“ï¼ˆPineconeï¼‰ Deep Dive</a></li>
+<li><a href="#milvus-and-faiss">Milvus å‘é‡æ•°æ®åº“ï¼ˆMilvusï¼‰ and FAISS</a></li>
+<li><a href="#deployment-strategies">éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</a></li>
+<li><a href="#vector-indexing">Vector Indexing</a></li>
+<li><a href="#scaling-strategies">Scaling Strategies</a></li>
+<li><a href="#kubernetes-deployments">Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Deployments</a></li>
+<li><a href="#monitoring-and-performance">ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Performance</a></li>
+<li><a href="#cost-optimization">Cost Optimization</a></li>
+<li><a href="#summary">Summary</a></li>
+</ol>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-introduction">Introduction</h4>
+<p>Vector databases are specialized databases optimized for storing, indexing, and searching high-dimensional vectors (embeddings). They are essential infrastructure for æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ systems, semantic search, recommendation engines, and other AI applications.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-learning-objectives">Learning Objectives</h5>
+<ul>
+<li>Understand vector database architecture and indexing</li>
+<li>Compare major vector database options</li>
+<li>Deploy vector databases in production</li>
+<li>Optimize performance and costs</li>
+<li>Implement proper monitoring and scaling</li>
+<li>Choose the right vector database for your use case</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-vector-database-fundamentals">å‘é‡æ•°æ®åº“ï¼ˆVector Databaseï¼‰ Fundamentals</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-what-is-a-vector-database">What is a å‘é‡æ•°æ®åº“ï¼ˆVector Databaseï¼‰?</h5>
+<p>A vector database is purpose-built for:</p>
+<ul>
+<li>Storing high-dimensional vectors (embeddings)</li>
+<li>Efficient similarity search (ANN - Approximate Nearest Neighbor)</li>
+<li>Metadata filtering alongside vector search</li>
+<li>Horizontal scaling for billions of vectors</li>
+<li>Real-time updates and queries</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-key-concepts">Key Concepts</h5>
+<p><strong>Embeddings</strong>: Dense vector representations of data</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">text = &quot;Machine learning is amazing&quot;
+embedding = [0.12, -0.45, 0.78, ..., 0.23]  # 768 dimensions</code></pre></div>
+<p><strong>Similarity Metrics</strong>:</p>
+<ul>
+<li><strong>Cosine Similarity</strong>: Measures angle between vectors</li>
+<li><strong>Euclidean Distance</strong>: Straight-line distance</li>
+<li><strong>Dot Product</strong>: Inner product of vectors</li>
+</ul>
+<p><strong>Indexing Algorithms</strong>:</p>
+<ul>
+<li><strong>HNSW</strong> (Hierarchical Navigable Small World): Fast, memory-intensive</li>
+<li><strong>IVF</strong> (Inverted File Index): Good balance</li>
+<li><strong>LSH</strong> (Locality Sensitive Hashing): Fast approximate search</li>
+<li><strong>ANNOY</strong>: Tree-based, memory-efficient</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-detailed-comparison">Detailed Comparison</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-feature-comparison-matrix">Feature Comparison Matrix</h5>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>Qdrant å‘é‡æ•°æ®åº“ï¼ˆQdrantï¼‰</th><th>Weaviate å‘é‡æ•°æ®åº“ï¼ˆWeaviateï¼‰</th><th>Chroma</th><th>Pinecone å‘é‡æ•°æ®åº“ï¼ˆPineconeï¼‰</th><th>Milvus å‘é‡æ•°æ®åº“ï¼ˆMilvusï¼‰</th></tr></thead><tbody><tr><td><strong>Open Source</strong></td><td>âœ…</td><td>âœ…</td><td>âœ…</td><td>âŒ</td><td>âœ…</td></tr><tr><td><strong>Managed Cloud</strong></td><td>âœ…</td><td>âœ…</td><td>âŒ</td><td>âœ…</td><td>âœ…</td></tr><tr><td><strong>Language</strong></td><td>Rust</td><td>Go</td><td>Python</td><td>Proprietary</td><td>C++/Python</td></tr><tr><td><strong>Filtering</strong></td><td>Excellent</td><td>Excellent</td><td>Basic</td><td>Good</td><td>Excellent</td></tr><tr><td><strong>Performance</strong></td><td>Excellent</td><td>Very Good</td><td>Good</td><td>Excellent</td><td>Excellent</td></tr><tr><td><strong>Ease of Use</strong></td><td>Very Good</td><td>Good</td><td>Excellent</td><td>Excellent</td><td>Moderate</td></tr><tr><td><strong>Hybrid Search</strong></td><td>âœ…</td><td>âœ…</td><td>âŒ</td><td>âŒ</td><td>âœ…</td></tr><tr><td><strong>Multi-tenancy</strong></td><td>âœ…</td><td>âœ…</td><td>âŒ</td><td>âœ…</td><td>âœ…</td></tr><tr><td><strong>GraphQL</strong></td><td>âŒ</td><td>âœ…</td><td>âŒ</td><td>âŒ</td><td>âŒ</td></tr></tbody></table></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-when-to-use-each">When to Use Each</h5>
+<p><strong>Qdrant å‘é‡æ•°æ®åº“ï¼ˆQdrantï¼‰</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># High performance, complex filtering, self-hosted
+use_cases = [
+    &quot;Production RAG systems&quot;,
+    &quot;High-throughput applications&quot;,
+    &quot;Complex metadata filtering&quot;,
+    &quot;Cost-conscious deployments&quot;
+]</code></pre></div>
+<p><strong>Weaviate å‘é‡æ•°æ®åº“ï¼ˆWeaviateï¼‰</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Hybrid search, GraphQL, knowledge graphs
+use_cases = [
+    &quot;Hybrid vector + keyword search&quot;,
+    &quot;GraphQL API requirements&quot;,
+    &quot;Multi-modal search (text, images)&quot;,
+    &quot;Knowledge graph applications&quot;
+]</code></pre></div>
+<p><strong>Chroma</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Development, prototyping, embedded
+use_cases = [
+    &quot;Rapid prototyping&quot;,
+    &quot;Small to medium datasets&quot;,
+    &quot;Embedded in applications&quot;,
+    &quot;Development and testing&quot;
+]</code></pre></div>
+<p><strong>Pinecone å‘é‡æ•°æ®åº“ï¼ˆPineconeï¼‰</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Fully managed, enterprise, scale
+use_cases = [
+    &quot;Fully managed solution needed&quot;,
+    &quot;Enterprise support required&quot;,
+    &quot;Massive scale (billions of vectors)&quot;,
+    &quot;Don't want to manage infrastructure&quot;
+]</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-qdrant-deep-dive">Qdrant å‘é‡æ•°æ®åº“ï¼ˆQdrantï¼‰ Deep Dive</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-architecture">æž¶æž„ï¼ˆArchitectureï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams, PointStruct
+import numpy as np
+
+# Initialize client
+client = QdrantClient(host=&quot;localhost&quot;, port=6333)
+
+# Create collection
+client.create_collection(
+    collection_name=&quot;my_collection&quot;,
+    vectors_config=VectorParams(
+        size=768,  # Embedding dimension
+        distance=Distance.COSINE
+    )
+)
+
+# Insert vectors
+points = [
+    PointStruct(
+        id=1,
+        vector=np.random.rand(768).tolist(),
+        payload={&quot;text&quot;: &quot;Sample document&quot;, &quot;category&quot;: &quot;tech&quot;}
+    )
+    for i in range(1000)
+]
+
+client.upsert(
+    collection_name=&quot;my_collection&quot;,
+    points=points
+)
+
+# Search
+results = client.search(
+    collection_name=&quot;my_collection&quot;,
+    query_vector=np.random.rand(768).tolist(),
+    limit=10
+)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-advanced-features">Advanced Features</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from qdrant_client.models import Filter, FieldCondition, MatchValue
+
+# Filtered search
+results = client.search(
+    collection_name=&quot;my_collection&quot;,
+    query_vector=query_vector,
+    query_filter=Filter(
+        must=[
+            FieldCondition(
+                key=&quot;category&quot;,
+                match=MatchValue(value=&quot;tech&quot;)
+            )
+        ]
+    ),
+    limit=10
+)
+
+# Scroll through all vectors
+records, next_offset = client.scroll(
+    collection_name=&quot;my_collection&quot;,
+    limit=100,
+    with_payload=True,
+    with_vectors=False
+)
+
+# Batch operations
+client.upsert(
+    collection_name=&quot;my_collection&quot;,
+    points=points,
+    wait=True  # Wait for operation to complete
+)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-qdrant-production-deployment">Qdrant å‘é‡æ•°æ®åº“ï¼ˆQdrantï¼‰ ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># docker-compose.yml
+version: '3.8'
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - &quot;6333:6333&quot;
+      - &quot;6334:6334&quot;  # gRPC port
+    volumes:
+      - ./qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    restart: always</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Production configuration
+client = QdrantClient(
+    host=&quot;localhost&quot;,
+    port=6333,
+    grpc_port=6334,
+    prefer_grpc=True,  # Use gRPC for better performance
+    timeout=60
+)
+
+# Optimize for performance
+client.create_collection(
+    collection_name=&quot;production&quot;,
+    vectors_config=VectorParams(
+        size=768,
+        distance=Distance.COSINE
+    ),
+    optimizers_config={
+        &quot;memmap_threshold&quot;: 20000,  # Use memory-mapped files
+        &quot;indexing_threshold&quot;: 10000
+    },
+    quantization_config={
+        &quot;scalar&quot;: {
+            &quot;type&quot;: &quot;int8&quot;,
+            &quot;quantile&quot;: 0.99,
+            &quot;always_ram&quot;: True
+        }
+    }
+)</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-weaviate-deep-dive">Weaviate å‘é‡æ•°æ®åº“ï¼ˆWeaviateï¼‰ Deep Dive</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-setup-and-basic-usage">Setup and Basic Usage</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import weaviate
+
+# Initialize client
+client = weaviate.Client(&quot;http://localhost:8080&quot;)
+
+# Create schema
+schema = {
+    &quot;class&quot;: &quot;Document&quot;,
+    &quot;vectorizer&quot;: &quot;text2vec-transformers&quot;,
+    &quot;moduleConfig&quot;: {
+        &quot;text2vec-transformers&quot;: {
+            &quot;model&quot;: &quot;sentence-transformers/all-MiniLM-L6-v2&quot;
+        }
+    },
+    &quot;properties&quot;: [
+        {
+            &quot;name&quot;: &quot;content&quot;,
+            &quot;dataType&quot;: [&quot;text&quot;]
+        },
+        {
+            &quot;name&quot;: &quot;category&quot;,
+            &quot;dataType&quot;: [&quot;string&quot;]
+        }
+    ]
+}
+
+client.schema.create_class(schema)
+
+# Insert data (automatic vectorization)
+client.data_object.create(
+    {
+        &quot;content&quot;: &quot;Machine learning is a subset of AI&quot;,
+        &quot;category&quot;: &quot;technology&quot;
+    },
+    &quot;Document&quot;
+)
+
+# Search
+result = client.query.get(
+    &quot;Document&quot;,
+    [&quot;content&quot;, &quot;category&quot;]
+).with_near_text({
+    &quot;concepts&quot;: [&quot;artificial intelligence&quot;]
+}).with_limit(10).do()</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-hybrid-search">Hybrid Search</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Combine vector and keyword search
+result = client.query.get(
+    &quot;Document&quot;,
+    [&quot;content&quot;, &quot;category&quot;]
+).with_hybrid(
+    query=&quot;machine learning&quot;,
+    alpha=0.5  # 0=keyword only, 1=vector only
+).with_limit(10).do()</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-weaviate-deployment">Weaviate å‘é‡æ•°æ®åº“ï¼ˆWeaviateï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># docker-compose.yml
+version: '3.8'
+services:
+  weaviate:
+    image: semitechnologies/weaviate:latest
+    ports:
+      - &quot;8080:8080&quot;
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-transformers'
+      ENABLE_MODULES: 'text2vec-transformers'
+      TRANSFORMERS_INFERENCE_API: 'http://t2v-transformers:8080'
+    volumes:
+      - ./weaviate_data:/var/lib/weaviate
+
+  t2v-transformers:
+    image: semitechnologies/transformers-inference:sentence-transformers-all-MiniLM-L6-v2
+    environment:
+      ENABLE_CUDA: '0'</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-chroma-deep-dive">Chroma Deep Dive</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-setup-and-usage">Setup and Usage</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import chromadb
+from chromadb.config import Settings
+
+# Persistent client
+client = chromadb.PersistentClient(path=&quot;./chroma_db&quot;)
+
+# Create collection
+collection = client.create_collection(
+    name=&quot;my_collection&quot;,
+    metadata={&quot;hnsw:space&quot;: &quot;cosine&quot;}
+)
+
+# Add documents (automatic embedding with default model)
+collection.add(
+    documents=[
+        &quot;This is a document about machine learning&quot;,
+        &quot;This document is about natural language processing&quot;
+    ],
+    metadatas=[
+        {&quot;category&quot;: &quot;ML&quot;},
+        {&quot;category&quot;: &quot;NLP&quot;}
+    ],
+    ids=[&quot;doc1&quot;, &quot;doc2&quot;]
+)
+
+# Query
+results = collection.query(
+    query_texts=[&quot;What is machine learning?&quot;],
+    n_results=10
+)
+
+print(results)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-custom-embedding-function">Custom Embedding Function</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from chromadb.utils import embedding_functions
+
+# Use custom embedding function
+sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
+    model_name=&quot;all-mpnet-base-v2&quot;
+)
+
+collection = client.create_collection(
+    name=&quot;custom_embeddings&quot;,
+    embedding_function=sentence_transformer_ef
+)
+
+# Or use OpenAI
+openai_ef = embedding_functions.OpenAIEmbeddingFunction(
+    api_key=&quot;your-api-key&quot;,
+    model_name=&quot;text-embedding-ada-002&quot;
+)</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-pinecone-deep-dive">Pinecone å‘é‡æ•°æ®åº“ï¼ˆPineconeï¼‰ Deep Dive</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-setup-and-usage">Setup and Usage</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import pinecone
+
+# Initialize
+pinecone.init(
+    api_key=&quot;your-api-key&quot;,
+    environment=&quot;us-west1-gcp&quot;
+)
+
+# Create index
+pinecone.create_index(
+    &quot;my-index&quot;,
+    dimension=768,
+    metric=&quot;cosine&quot;,
+    pods=1,
+    replicas=1,
+    pod_type=&quot;p1.x1&quot;
+)
+
+# Connect to index
+index = pinecone.Index(&quot;my-index&quot;)
+
+# Upsert vectors
+vectors = [
+    (&quot;id1&quot;, [0.1] * 768, {&quot;text&quot;: &quot;Document 1&quot;}),
+    (&quot;id2&quot;, [0.2] * 768, {&quot;text&quot;: &quot;Document 2&quot;})
+]
+
+index.upsert(vectors=vectors)
+
+# Query
+results = index.query(
+    vector=[0.15] * 768,
+    top_k=10,
+    include_metadata=True
+)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-pinecone-namespaces">Pinecone å‘é‡æ•°æ®åº“ï¼ˆPineconeï¼‰ Namespaces</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Use namespaces for multi-tenancy
+index.upsert(
+    vectors=vectors,
+    namespace=&quot;user_123&quot;
+)
+
+# Query specific namespace
+results = index.query(
+    vector=query_vector,
+    top_k=10,
+    namespace=&quot;user_123&quot;
+)</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-deployment-strategies">éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-self-hosted-vs-managed">Self-Hosted vs. Managed</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">deployment_decision_matrix = {
+    &quot;self_hosted&quot;: {
+        &quot;pros&quot;: [
+            &quot;Full control&quot;,
+            &quot;Lower long-term costs&quot;,
+            &quot;Data privacy&quot;,
+            &quot;Custom optimizations&quot;
+        ],
+        &quot;cons&quot;: [
+            &quot;Operations overhead&quot;,
+            &quot;Scaling complexity&quot;,
+            &quot;Maintenance burden&quot;
+        ],
+        &quot;recommended_for&quot;: [
+            &quot;Qdrant&quot;,
+            &quot;Weaviate&quot;,
+            &quot;Milvus&quot;,
+            &quot;Chroma&quot;
+        ]
+    },
+    &quot;managed&quot;: {
+        &quot;pros&quot;: [
+            &quot;No operations overhead&quot;,
+            &quot;Automatic scaling&quot;,
+            &quot;Enterprise support&quot;,
+            &quot;Managed backups&quot;
+        ],
+        &quot;cons&quot;: [
+            &quot;Higher costs&quot;,
+            &quot;Less control&quot;,
+            &quot;Vendor lock-in&quot;
+        ],
+        &quot;recommended_for&quot;: [
+            &quot;Pinecone&quot;,
+            &quot;Weaviate Cloud&quot;,
+            &quot;Qdrant Cloud&quot;
+        ]
+    }
+}</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-kubernetes-deployment-qdrant">Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰ (Qdrant)</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># qdrant-deployment.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: qdrant
+spec:
+  serviceName: qdrant
+  replicas: 3
+  selector:
+    matchLabels:
+      app: qdrant
+  template:
+    metadata:
+      labels:
+        app: qdrant
+    spec:
+      containers:
+      - name: qdrant
+        image: qdrant/qdrant:latest
+        ports:
+        - containerPort: 6333
+          name: http
+        - containerPort: 6334
+          name: grpc
+        volumeMounts:
+        - name: qdrant-storage
+          mountPath: /qdrant/storage
+        resources:
+          requests:
+            memory: &quot;4Gi&quot;
+            cpu: &quot;2&quot;
+          limits:
+            memory: &quot;8Gi&quot;
+            cpu: &quot;4&quot;
+  volumeClaimTemplates:
+  - metadata:
+      name: qdrant-storage
+    spec:
+      accessModes: [&quot;ReadWriteOnce&quot;]
+      resources:
+        requests:
+          storage: 100Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qdrant
+spec:
+  clusterIP: None
+  selector:
+    app: qdrant
+  ports:
+  - port: 6333
+    name: http
+  - port: 6334
+    name: grpc</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-vector-indexing">Vector Indexing</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-hnsw-hierarchical-navigable-smal">HNSW (Hierarchical Navigable Small World)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># HNSW is the most popular indexing algorithm
+
+# Qdrant HNSW configuration
+client.create_collection(
+    collection_name=&quot;hnsw_collection&quot;,
+    vectors_config=VectorParams(
+        size=768,
+        distance=Distance.COSINE
+    ),
+    hnsw_config={
+        &quot;m&quot;: 16,  # Number of connections per layer
+        &quot;ef_construct&quot;: 100,  # Size of dynamic candidate list
+        &quot;full_scan_threshold&quot;: 10000
+    }
+)
+
+# Tuning parameters:
+# m: Higher = better recall, more memory
+# ef_construct: Higher = better index quality, slower indexing
+# ef (search-time): Higher = better recall, slower search</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-ivf-inverted-file-index">IVF (Inverted File Index)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Common in FAISS and Milvus
+import faiss
+
+# Create IVF index
+dimension = 768
+nlist = 100  # Number of clusters
+
+quantizer = faiss.IndexFlatL2(dimension)
+index = faiss.IndexIVFFlat(quantizer, dimension, nlist)
+
+# Train index
+index.train(training_vectors)
+
+# Add vectors
+index.add(vectors)
+
+# Search
+index.nprobe = 10  # Number of clusters to search
+distances, indices = index.search(query_vectors, k=10)</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-scaling-strategies">Scaling Strategies</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-horizontal-scaling">Horizontal Scaling</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class VectorDBScaling:
+    &quot;&quot;&quot;Scaling strategies for vector databases&quot;&quot;&quot;
+
+    @staticmethod
+    def sharding_strategy():
+        &quot;&quot;&quot;
+        Split data across multiple nodes
+        &quot;&quot;&quot;
+        strategies = {
+            &quot;by_tenant&quot;: &quot;Shard by user/tenant ID&quot;,
+            &quot;by_category&quot;: &quot;Shard by metadata category&quot;,
+            &quot;by_hash&quot;: &quot;Hash-based sharding&quot;,
+            &quot;by_time&quot;: &quot;Time-based partitioning&quot;
+        }
+        return strategies
+
+    @staticmethod
+    def replication_strategy():
+        &quot;&quot;&quot;
+        Replicate data for high availability
+        &quot;&quot;&quot;
+        configs = {
+            &quot;qdrant&quot;: {
+                &quot;replication_factor&quot;: 2,
+                &quot;write_consistency_factor&quot;: 1
+            },
+            &quot;weaviate&quot;: {
+                &quot;replicationFactor&quot;: 2
+            }
+        }
+        return configs</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-performance-optimization">Performance Optimization</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">optimization_techniques = {
+    &quot;indexing&quot;: {
+        &quot;hnsw_tuning&quot;: &quot;Adjust m and ef_construct&quot;,
+        &quot;quantization&quot;: &quot;Use scalar or product quantization&quot;,
+        &quot;filtering&quot;: &quot;Use payload indexes for metadata&quot;
+    },
+    &quot;search&quot;: {
+        &quot;batch_queries&quot;: &quot;Process multiple queries together&quot;,
+        &quot;ef_tuning&quot;: &quot;Adjust search-time ef parameter&quot;,
+        &quot;result_caching&quot;: &quot;Cache frequent queries&quot;
+    },
+    &quot;storage&quot;: {
+        &quot;quantization&quot;: &quot;Reduce memory footprint&quot;,
+        &quot;mmap&quot;: &quot;Use memory-mapped files&quot;,
+        &quot;compression&quot;: &quot;Compress stored data&quot;
+    }
+}</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-monitoring-and-performance">ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Performance</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-metrics-to-track">Metrics to Track</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from prometheus_client import Counter, Histogram, Gauge
+
+# Vector database metrics
+VECTOR_DB_QUERIES = Counter(
+    'vector_db_queries_total',
+    'Total vector DB queries',
+    ['collection', 'status']
+)
+
+VECTOR_DB_LATENCY = Histogram(
+    'vector_db_query_duration_seconds',
+    'Query duration',
+    ['collection']
+)
+
+VECTOR_DB_SIZE = Gauge(
+    'vector_db_collection_size',
+    'Number of vectors in collection',
+    ['collection']
+)
+
+INDEX_QUALITY = Gauge(
+    'vector_db_index_quality',
+    'Index quality metrics',
+    ['collection', 'metric']
+)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-qdrant-monitoring">Qdrant å‘é‡æ•°æ®åº“ï¼ˆQdrantï¼‰ ç›‘æŽ§ï¼ˆMonitoringï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Get collection info
+info = client.get_collection(&quot;my_collection&quot;)
+
+metrics = {
+    &quot;vectors_count&quot;: info.vectors_count,
+    &quot;indexed_vectors_count&quot;: info.indexed_vectors_count,
+    &quot;points_count&quot;: info.points_count,
+    &quot;segments_count&quot;: len(info.segments),
+    &quot;status&quot;: info.status
+}
+
+# Monitor index quality
+for segment in info.segments:
+    print(f&quot;Segment: {segment.segment_id}&quot;)
+    print(f&quot;  Vectors: {segment.num_vectors}&quot;)
+    print(f&quot;  Deleted: {segment.num_deleted_vectors}&quot;)</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-cost-optimization">æˆæœ¬ä¼˜åŒ–ï¼ˆCost Optimizationï¼‰</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-strategies">Strategies</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class CostOptimization:
+    &quot;&quot;&quot;Cost optimization for vector databases&quot;&quot;&quot;
+
+    @staticmethod
+    def quantization():
+        &quot;&quot;&quot;
+        Reduce memory and storage costs
+        &quot;&quot;&quot;
+        return {
+            &quot;scalar_quantization&quot;: &quot;4-8x reduction, minimal quality loss&quot;,
+            &quot;product_quantization&quot;: &quot;16-64x reduction, moderate quality loss&quot;,
+            &quot;binary_quantization&quot;: &quot;32x reduction, significant quality loss&quot;
+        }
+
+    @staticmethod
+    def rightsizing():
+        &quot;&quot;&quot;
+        Choose appropriate instance sizes
+        &quot;&quot;&quot;
+        guidelines = {
+            &quot;development&quot;: &quot;Small instances, Chroma or single Qdrant&quot;,
+            &quot;production_small&quot;: &quot;1-2 nodes, moderate resources&quot;,
+            &quot;production_large&quot;: &quot;3+ nodes, high resources, replication&quot;
+        }
+        return guidelines
+
+    @staticmethod
+    def caching():
+        &quot;&quot;&quot;
+        Reduce query costs
+        &quot;&quot;&quot;
+        return {
+            &quot;query_caching&quot;: &quot;Cache frequent queries&quot;,
+            &quot;result_caching&quot;: &quot;Cache search results&quot;,
+            &quot;embedding_caching&quot;: &quot;Cache embeddings&quot;
+        }</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-cost-comparison">Cost Comparison</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">monthly_cost_estimates = {
+    &quot;qdrant_cloud&quot;: {
+        &quot;starter&quot;: 25,  # 1GB
+        &quot;standard&quot;: 100,  # 4GB
+        &quot;business&quot;: 500   # 32GB
+    },
+    &quot;pinecone&quot;: {
+        &quot;starter&quot;: 70,   # 1 pod
+        &quot;standard&quot;: 140,  # 2 pods
+        &quot;enterprise&quot;: 500  # Custom
+    },
+    &quot;self_hosted_qdrant&quot;: {
+        &quot;small&quot;: 30,  # 4GB RAM instance
+        &quot;medium&quot;: 100,  # 16GB RAM instance
+        &quot;large&quot;: 300   # 64GB RAM instance
+    },
+    &quot;weaviate_cloud&quot;: {
+        &quot;sandbox&quot;: 0,    # Free tier
+        &quot;standard&quot;: 100,  # Production
+        &quot;enterprise&quot;: 500  # Custom
+    }
+}</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-04-vector-databases-md-summary">Summary</h4>
+<p>Vector databases are critical infrastructure for å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ applications. Key takeaways:</p>
+<ol>
+<li><strong>Choose based on needs</strong>: Qdrant å‘é‡æ•°æ®åº“ï¼ˆQdrantï¼‰ for performance, Weaviate å‘é‡æ•°æ®åº“ï¼ˆWeaviateï¼‰ for hybrid search, Chroma for development, Pinecone å‘é‡æ•°æ®åº“ï¼ˆPineconeï¼‰ for managed</li>
+<li><strong>Indexing matters</strong>: HNSW for most cases, tune parameters for your workload</li>
+<li><strong>Scale appropriately</strong>: Use sharding and replication for large deployments</li>
+<li><strong>Monitor actively</strong>: Track query latency, index quality, and costs</li>
+<li><strong>Optimize costs</strong>: Quantization, caching, and rightsizing save money</li>
+</ol>
+<hr/>
+<p><strong>Next Lesson</strong>: <a href="#doc-lessons-mod-110-llm-infrastructure-05-llm-fine-tuning-infrastructure-md">05-llm-fine-tuning-infrastructure.md</a></p><p><a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-03-rag-systems-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-05-llm-fine-tuning-infrastructure-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

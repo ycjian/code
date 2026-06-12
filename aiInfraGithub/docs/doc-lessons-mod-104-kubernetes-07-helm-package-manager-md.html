@@ -1,0 +1,928 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Module 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-resources-md.html">Module 04 Resources: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-module-completion-status-md.html">Module 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals - Completion Status</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lesson 01: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Introduction</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-02-k8s-architecture-md.html">Lesson 02: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-03-core-resources-md.html">Lesson 03: Core Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Resources</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-04-deployments-services-md.html">Lesson 04: Deployments and Services Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-05-networking-ingress-md.html">Lesson 05: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Networking and Ingress</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-06-storage-persistence-md.html">Lesson 06: Storage and Persistence in Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc active" href="../docs/doc-lessons-mod-104-kubernetes-07-helm-package-manager-md.html">Lesson 07: Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Package Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-08-gpu-scheduling-md.html">Lesson 08: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Scheduling in Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-09-monitoring-troubleshooting-md.html">Lesson 09: ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Troubleshooting Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Module 104 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-01-pod-deployment-md.html">Lab 01: Your First Pod and éƒ¨ç½²ï¼ˆDeploymentï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-02-service-discovery-md.html">Lab 02: Service Discovery â€” ClusterIP, NodePort, LoadBalancer</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-03-configmaps-secrets-md.html">Lab 03: ConfigMaps and Secrets</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-04-persistent-volumes-md.html">Lab 04: Persistent Volumes for Stateful Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-05-helm-chart-md.html">Lab 05: Package an App with Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-06-hpa-md.html">Lab 06: Horizontal Pod Autoscaler under Load</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-07-network-policies-md.html">Lab 07: NetworkPolicies for East-West Isolation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-08-debugging-md.html">Lab 08: Debug a Broken éƒ¨ç½²ï¼ˆDeploymentï¼‰ from Scratch</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercise 01: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals â€” Build a Working Service</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-02-control-plane-tour-readme-md.html">Exercise 02: Control Plane Tour</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-03-core-resources-mastery-readme-md.html">Exercise 03: Core Resources Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-04-k8s-cluster-autoscaler-readme-md.html">Exercise 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cluster Autoscaler with Custom Metrics</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md.html">Exercise 05: Service Mesh å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ with Istio</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-06-k8s-operator-framework-readme-md.html">Exercise 06: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Operator for ML Model Lifecycle</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-07-helm-chart-authoring-readme-md.html">Exercise 07: Author a Production-Grade Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Chart</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-08-gpu-scheduling-readme-md.html">Exercise 08: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Scheduling Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-09-monitoring-troubleshooting-readme-md.html">Exercise 09: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Troubleshooting Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-10-multi-cluster-federation-readme-md.html">Exercise 10: Multi-Cluster Federation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-11-custom-operator-readme-md.html">Exercise 11: Build a Custom Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Operator</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-12-stateful-postgres-readme-md.html">Exercise 12: Stateful Postgres on Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-13-cluster-upgrade-readme-md.html">Exercise 13: Cluster Upgrade Procedure</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-14-resource-quotas-multitenancy-readme-md.html">Exercise 14: Resource Quotas and Multi-Tenancy</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-15-cluster-cost-optimization-readme-md.html">Exercise 15: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cluster Cost Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-readme-md.html">Module 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ - Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Module 04 Quiz: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-104-kubernetes-07-helm-package-manager-md"><h3 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-lesson-07-helm-package-manager">Lesson 07: Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Package Manager</h3>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+<li>Understand what Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ is and why it's valuable for ML infrastructure</li>
+<li>Install and configure Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ 3</li>
+<li>Deploy applications using Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ charts</li>
+<li>Create custom Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ charts for ML applications</li>
+<li>Use Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ values to configure deployments</li>
+<li>Manage chart repositories</li>
+<li>Implement Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ best practices for ML platforms</li>
+<li>Debug and troubleshoot Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ deployments</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-prerequisites">å‰ç½®è¦æ±‚ï¼ˆPrerequisitesï¼‰</h4>
+<ul>
+<li>Completed lessons 01-06 (Kubernetes fundamentals)</li>
+<li>Understanding of YAML and templating concepts</li>
+<li>Familiarity with Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ resources (Deployments, Services, etc.)</li>
+<li>Basic command-line skills</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-introduction">Introduction</h4>
+<p><strong>Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰</strong> is the package manager for Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ (like apt for Ubuntu, brew for macOS).</p>
+<p><strong>Why Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ matters for ML infrastructure:</strong></p>
+<ul>
+<li><strong>Reusability:</strong> Package complex ML stacks (MLflow, Kubeflow, etc.) for easy deployment</li>
+<li><strong>Configuration management:</strong> Single values file to configure entire ML platform</li>
+<li><strong>Versioning:</strong> Roll back to previous versions of ML infrastructure</li>
+<li><strong>Templating:</strong> DRY principle - don't repeat Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ YAML</li>
+<li><strong>Ecosystem:</strong> 1000+ pre-built charts (Prometheus, Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰, Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰, etc.)</li>
+</ul>
+<p><strong>Real-world examples:</strong></p>
+<ul>
+<li><strong>Uber:</strong> Uses Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ to deploy ML platform components across 1000+ K8s clusters</li>
+<li><strong>Spotify:</strong> Deploys personalization ML services via custom Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ charts</li>
+<li><strong>Airbnb:</strong> Manages experimentation infrastructure with Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰</li>
+<li><strong>Netflix:</strong> Deploys recommendation system components using Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰</li>
+</ul>
+<p><strong>Without Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f ingress.yaml
+kubectl apply -f configmap.yaml
+kubectl apply -f secret.yaml
+# ... 50 more files
+# How do you manage versions? How do you configure for dev vs prod?</code></pre></div>
+<p><strong>With Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm install ml-platform ./ml-platform-chart --values prod-values.yaml
+# Done! All resources deployed, configured, versioned.</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-1-helm-concepts">1. Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Concepts</h4>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-1-1-core-components">1.1 Core Components</h5>
+<p><strong>Chart:</strong></p>
+<ul>
+<li>Package containing Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ manifests</li>
+<li>Like a .deb or .rpm package</li>
+<li>Directory structure with templates and metadata</li>
+</ul>
+<p><strong>Release:</strong></p>
+<ul>
+<li>Instance of a chart running in a cluster</li>
+<li>You can install the same chart multiple times (different releases)</li>
+<li>Example: <code>ml-platform-dev</code>, <code>ml-platform-staging</code>, <code>ml-platform-prod</code></li>
+</ul>
+<p><strong>Repository:</strong></p>
+<ul>
+<li>Collection of charts</li>
+<li>Can be public (ArtifactHub) or private (ChartMuseum, AWS äº‘ï¼ˆAWSï¼‰ ECR)</li>
+</ul>
+<p><strong>Values:</strong></p>
+<ul>
+<li>Configuration parameters for a chart</li>
+<li>Override default settings</li>
+<li>Different values for dev/staging/prod</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-1-2-helm-architecture-helm-3">1.2 Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Architecture (Helm 3)</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚           User's Machine                    â”‚
+â”‚                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                             â”‚
+â”‚  â”‚ Helm CLI   â”‚                             â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜                             â”‚
+â”‚        â”‚                                    â”‚
+â”‚        â”‚ 1. helm install                    â”‚
+â”‚        â”‚    --values prod.yaml              â”‚
+â”‚        â”‚                                    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+         â”‚
+         â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚         Kubernetes Cluster                  â”‚
+â”‚                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚    Kubernetes API Server           â”‚    â”‚
+â”‚  â”‚  (Helm stores release info in      â”‚    â”‚
+â”‚  â”‚   Secrets/ConfigMaps)              â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â”‚               â”‚                             â”‚
+â”‚               â”‚ 2. Create resources         â”‚
+â”‚               â–¼                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚  Deployment, Service, Ingress, ... â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+Note: Helm 3 removed Tiller (server-side component)
+All operations are client-side + K8s API</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-2-installing-and-using-helm">2. Installing and Using Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰</h4>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-2-1-install-helm-3">2.1 Install Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ 3</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install Helm on Linux
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# Or via package manager
+# macOS
+brew install helm
+
+# Verify installation
+helm version
+# version.BuildInfo{Version:&quot;v3.12.0&quot;, ...}
+
+# Add common repositories
+helm repo add stable https://charts.helm.sh/stable
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-2-2-installing-a-chart">2.2 Installing a Chart</h5>
+<p><strong>Example: Install Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ for monitoring</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Search for Prometheus charts
+helm search repo prometheus
+
+# Install Prometheus
+helm install my-prometheus prometheus-community/prometheus \
+  --namespace monitoring \
+  --create-namespace
+
+# List installed releases
+helm list -n monitoring
+# NAME           NAMESPACE  REVISION  STATUS    CHART
+# my-prometheus  monitoring 1         deployed  prometheus-15.10.0
+
+# Check deployed resources
+kubectl get all -n monitoring</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-2-3-customizing-with-values">2.3 Customizing with Values</h5>
+<p><strong>View default values:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm show values prometheus-community/prometheus &gt; prometheus-default-values.yaml</code></pre></div>
+<p><strong>Create custom values file:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># prometheus-custom-values.yaml
+server:
+  persistentVolume:
+    enabled: true
+    size: 50Gi
+    storageClass: gp3-balanced
+
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+
+alertmanager:
+  enabled: false  # Disable alertmanager
+
+pushgateway:
+  enabled: false  # Disable pushgateway</code></pre></div>
+<p><strong>Install with custom values:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm install my-prometheus prometheus-community/prometheus \
+  --namespace monitoring \
+  --create-namespace \
+  --values prometheus-custom-values.yaml</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-2-4-upgrading-and-rolling-back">2.4 Upgrading and Rolling Back</h5>
+<p><strong>Upgrade a release:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Modify values file
+# ... edit prometheus-custom-values.yaml ...
+
+# Upgrade with new values
+helm upgrade my-prometheus prometheus-community/prometheus \
+  --namespace monitoring \
+  --values prometheus-custom-values.yaml
+
+# View release history
+helm history my-prometheus -n monitoring
+# REVISION  STATUS     CHART                 DESCRIPTION
+# 1         superseded prometheus-15.10.0    Install complete
+# 2         deployed   prometheus-15.10.0    Upgrade complete</code></pre></div>
+<p><strong>Roll back to previous version:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Rollback to revision 1
+helm rollback my-prometheus 1 -n monitoring
+
+# Verify rollback
+helm history my-prometheus -n monitoring
+# REVISION  STATUS     CHART                 DESCRIPTION
+# 1         superseded prometheus-15.10.0    Install complete
+# 2         superseded prometheus-15.10.0    Upgrade complete
+# 3         deployed   prometheus-15.10.0    Rollback to 1</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-2-5-uninstalling-a-release">2.5 Uninstalling a Release</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Uninstall release (deletes all resources)
+helm uninstall my-prometheus -n monitoring
+
+# Keep history for potential rollback
+helm uninstall my-prometheus -n monitoring --keep-history</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-3-creating-custom-helm-charts">3. Creating Custom Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Charts</h4>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-3-1-chart-structure">3.1 Chart Structure</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">ml-model-serving/
+â”œâ”€â”€ Chart.yaml          # Chart metadata
+â”œâ”€â”€ values.yaml         # Default configuration values
+â”œâ”€â”€ templates/          # Kubernetes manifest templates
+â”‚   â”œâ”€â”€ deployment.yaml
+â”‚   â”œâ”€â”€ service.yaml
+â”‚   â”œâ”€â”€ ingress.yaml
+â”‚   â”œâ”€â”€ configmap.yaml
+â”‚   â”œâ”€â”€ _helpers.tpl   # Template helpers
+â”‚   â””â”€â”€ NOTES.txt      # Post-install notes
+â”œâ”€â”€ charts/             # Dependent charts (subcharts)
+â””â”€â”€ README.md           # Chart documentation</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-3-2-create-a-chart-for-ml-model-serv">3.2 Create a Chart for ML æ¨¡åž‹æœåŠ¡ï¼ˆModel Servingï¼‰</h5>
+<p><strong>Step 1: Generate chart scaffold</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm create ml-model-serving
+cd ml-model-serving</code></pre></div>
+<p><strong>Step 2: Define Chart.yaml</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Chart.yaml
+apiVersion: v2
+name: ml-model-serving
+description: Helm chart for deploying ML model inference services
+type: application
+version: 1.0.0  # Chart version
+appVersion: &quot;1.0&quot;  # Application version
+
+keywords:
+  - ml
+  - machine-learning
+  - inference
+  - model-serving
+
+maintainers:
+  - name: ML Platform Team
+    email: ml-platform@company.com
+
+dependencies: []  # No subcharts for now</code></pre></div>
+<p><strong>Step 3: Define default values.yaml</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># values.yaml
+replicaCount: 3
+
+image:
+  repository: myregistry.io/bert-inference
+  tag: &quot;v1.0.0&quot;
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  host: ml-api.example.com
+  path: /bert
+  tls:
+    enabled: true
+    secretName: ml-api-tls
+
+resources:
+  limits:
+    cpu: 4000m
+    memory: 8Gi
+    nvidia.com/gpu: 1
+  requests:
+    cpu: 2000m
+    memory: 4Gi
+    nvidia.com/gpu: 1
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+model:
+  name: &quot;bert-base-uncased&quot;
+  path: &quot;/models/bert&quot;
+  batchSize: 32
+
+env:
+  - name: LOG_LEVEL
+    value: &quot;INFO&quot;
+  - name: WORKERS
+    value: &quot;4&quot;</code></pre></div>
+<p><strong>Step 4: Create templates/deployment.yaml</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include &quot;ml-model-serving.fullname&quot; . }}
+  labels:
+    {{- include &quot;ml-model-serving.labels&quot; . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include &quot;ml-model-serving.selectorLabels&quot; . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include &quot;ml-model-serving.selectorLabels&quot; . | nindent 8 }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: &quot;{{ .Values.image.repository }}:{{ .Values.image.tag }}&quot;
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.targetPort }}
+          protocol: TCP
+
+        env:
+        - name: MODEL_NAME
+          value: {{ .Values.model.name | quote }}
+        - name: MODEL_PATH
+          value: {{ .Values.model.path | quote }}
+        - name: BATCH_SIZE
+          value: {{ .Values.model.batchSize | quote }}
+        {{- range .Values.env }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 10
+
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 5</code></pre></div>
+<p><strong>Step 5: Create templates/service.yaml</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include &quot;ml-model-serving.fullname&quot; . }}
+  labels:
+    {{- include &quot;ml-model-serving.labels&quot; . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+  - port: {{ .Values.service.port }}
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    {{- include &quot;ml-model-serving.selectorLabels&quot; . | nindent 4 }}</code></pre></div>
+<p><strong>Step 6: Create templates/ingress.yaml</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># templates/ingress.yaml
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include &quot;ml-model-serving.fullname&quot; . }}
+  labels:
+    {{- include &quot;ml-model-serving.labels&quot; . | nindent 4 }}
+  annotations:
+    cert-manager.io/cluster-issuer: &quot;letsencrypt-prod&quot;
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+  - hosts:
+    - {{ .Values.ingress.host }}
+    secretName: {{ .Values.ingress.tls.secretName }}
+  {{- end }}
+  rules:
+  - host: {{ .Values.ingress.host }}
+    http:
+      paths:
+      - path: {{ .Values.ingress.path }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include &quot;ml-model-serving.fullname&quot; . }}
+            port:
+              number: {{ .Values.service.port }}
+{{- end }}</code></pre></div>
+<p><strong>Step 7: Create templates/_helpers.tpl</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># templates/_helpers.tpl
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define &quot;ml-model-serving.name&quot; -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix &quot;-&quot; }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+*/}}
+{{- define &quot;ml-model-serving.fullname&quot; -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix &quot;-&quot; }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- printf &quot;%s-%s&quot; .Release.Name $name | trunc 63 | trimSuffix &quot;-&quot; }}
+{{- end }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define &quot;ml-model-serving.labels&quot; -}}
+helm.sh/chart: {{ include &quot;ml-model-serving.chart&quot; . }}
+{{ include &quot;ml-model-serving.selectorLabels&quot; . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define &quot;ml-model-serving.selectorLabels&quot; -}}
+app.kubernetes.io/name: {{ include &quot;ml-model-serving.name&quot; . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define &quot;ml-model-serving.chart&quot; -}}
+{{- printf &quot;%s-%s&quot; .Chart.Name .Chart.Version | replace &quot;+&quot; &quot;_&quot; | trunc 63 | trimSuffix &quot;-&quot; }}
+{{- end }}</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-3-3-testing-the-chart">3.3 Testing the Chart</h5>
+<p><strong>Lint the chart:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm lint ./ml-model-serving
+# ==&gt; Linting ./ml-model-serving
+# [INFO] Chart.yaml: icon is recommended
+# 1 chart(s) linted, 0 chart(s) failed</code></pre></div>
+<p><strong>Dry-run installation:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm install bert-model ./ml-model-serving \
+  --namespace ml-serving \
+  --dry-run --debug
+# This will print all rendered YAML without actually installing</code></pre></div>
+<p><strong>Template rendering:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Render templates locally
+helm template bert-model ./ml-model-serving \
+  --values prod-values.yaml &gt; rendered-manifests.yaml
+
+# Inspect rendered YAML
+cat rendered-manifests.yaml</code></pre></div>
+<p><strong>Install for real:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm install bert-model ./ml-model-serving \
+  --namespace ml-serving \
+  --create-namespace
+
+# Verify installation
+helm list -n ml-serving
+kubectl get all -n ml-serving</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-4-environment-specific-values">4. Environment-Specific Values</h4>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-4-1-development-environment">4.1 Development Environment</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># values-dev.yaml
+replicaCount: 1
+
+image:
+  tag: &quot;latest&quot;  # Use latest for dev
+
+service:
+  type: NodePort  # Use NodePort for easy testing
+
+ingress:
+  enabled: false  # No Ingress in dev
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+    nvidia.com/gpu: 0  # No GPU in dev
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+autoscaling:
+  enabled: false  # No autoscaling in dev
+
+env:
+  - name: LOG_LEVEL
+    value: &quot;DEBUG&quot;  # Verbose logging in dev</code></pre></div>
+<p><strong>Deploy to dev:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm install bert-dev ./ml-model-serving \
+  --namespace ml-dev \
+  --values values-dev.yaml</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-4-2-production-environment">4.2 ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ Environment</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># values-prod.yaml
+replicaCount: 5
+
+image:
+  repository: myregistry.io/bert-inference
+  tag: &quot;v1.2.3&quot;  # Specific version in prod
+
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: true
+  className: nginx
+  host: ml-api.company.com
+  path: /bert
+  tls:
+    enabled: true
+    secretName: ml-api-prod-tls
+
+resources:
+  limits:
+    cpu: 4000m
+    memory: 8Gi
+    nvidia.com/gpu: 1
+  requests:
+    cpu: 2000m
+    memory: 4Gi
+    nvidia.com/gpu: 1
+
+autoscaling:
+  enabled: true
+  minReplicas: 5
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 60
+
+env:
+  - name: LOG_LEVEL
+    value: &quot;WARNING&quot;  # Less verbose in prod
+  - name: WORKERS
+    value: &quot;8&quot;</code></pre></div>
+<p><strong>Deploy to prod:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm install bert-prod ./ml-model-serving \
+  --namespace ml-prod \
+  --values values-prod.yaml</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-5-advanced-helm-features">5. Advanced Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Features</h4>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-5-1-chart-dependencies-subcharts">5.1 Chart Dependencies (Subcharts)</h5>
+<p><strong>Example: ML platform with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ + PostgreSQL</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># ml-platform/Chart.yaml
+apiVersion: v2
+name: ml-platform
+version: 1.0.0
+dependencies:
+  - name: postgresql
+    version: 12.x.x
+    repository: https://charts.bitnami.com/bitnami
+  - name: minio
+    version: 12.x.x
+    repository: https://charts.bitnami.com/bitnami</code></pre></div>
+<p><strong>Install dependencies:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">cd ml-platform
+helm dependency update
+# Downloaded postgresql-12.8.0.tgz
+# Downloaded minio-12.6.0.tgz</code></pre></div>
+<p><strong>Override subchart values:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># ml-platform/values.yaml
+postgresql:
+  auth:
+    username: mlflow
+    password: changeme
+    database: mlflow
+  primary:
+    persistence:
+      size: 50Gi
+
+minio:
+  auth:
+    rootUser: admin
+    rootPassword: changeme
+  persistence:
+    size: 500Gi</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-5-2-conditional-resources">5.2 Conditional Resources</h5>
+<p><strong>Example: Enable GPU åŠ é€Ÿï¼ˆGPUï¼‰ support conditionally</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># values.yaml
+gpu:
+  enabled: true
+  count: 1
+  model: &quot;Tesla-V100&quot;</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># templates/deployment.yaml
+spec:
+  template:
+    spec:
+      {{- if .Values.gpu.enabled }}
+      nodeSelector:
+        nvidia.com/gpu.product: {{ .Values.gpu.model }}
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Equal
+        value: present
+        effect: NoSchedule
+      {{- end }}
+
+      containers:
+      - name: inference
+        resources:
+          {{- if .Values.gpu.enabled }}
+          limits:
+            nvidia.com/gpu: {{ .Values.gpu.count }}
+          requests:
+            nvidia.com/gpu: {{ .Values.gpu.count }}
+          {{- end }}</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-5-3-helm-hooks">5.3 Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Hooks</h5>
+<p><strong>Use hooks to run jobs before/after install/upgrade:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># templates/pre-install-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include &quot;ml-model-serving.fullname&quot; . }}-pre-install
+  annotations:
+    &quot;helm.sh/hook&quot;: pre-install
+    &quot;helm.sh/hook-weight&quot;: &quot;0&quot;
+    &quot;helm.sh/hook-delete-policy&quot;: hook-succeeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: model-downloader
+        image: amazon/aws-cli
+        command: [&quot;sh&quot;, &quot;-c&quot;]
+        args:
+          - |
+            aws s3 cp s3://my-models/bert-v1.0.pth /models/
+        volumeMounts:
+        - name: models
+          mountPath: /models
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: model-storage-pvc
+      restartPolicy: Never</code></pre></div>
+<p><strong>Hook types:</strong></p>
+<ul>
+<li><code>pre-install</code>: Run before install</li>
+<li><code>post-install</code>: Run after install</li>
+<li><code>pre-upgrade</code>: Run before upgrade</li>
+<li><code>post-upgrade</code>: Run after upgrade</li>
+<li><code>pre-delete</code>: Run before uninstall</li>
+<li><code>post-delete</code>: Run after uninstall</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-6-helm-best-practices-for-ml">6. Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Best Practices for ML</h4>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-6-1-versioning-strategy">6.1 Versioning Strategy</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Use semantic versioning
+Chart.yaml:
+  version: 1.2.3  # Chart version (increment when chart changes)
+  appVersion: &quot;2.0.0&quot;  # Application version (model version)
+
+values.yaml:
+  image:
+    tag: &quot;v2.0.0&quot;  # Match appVersion</code></pre></div>
+<p><strong>Version management:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install specific chart version
+helm install bert ./ml-model-serving --version 1.2.3
+
+# Upgrade to specific version
+helm upgrade bert ./ml-model-serving --version 1.3.0
+
+# List available versions
+helm search repo ml-model-serving --versions</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-6-2-secrets-management">6.2 Secrets Management</h5>
+<p><strong>Don't commit secrets to values.yaml!</strong></p>
+<p><strong>Option 1: Use separate secrets file (encrypted)</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># secrets.yaml (DO NOT COMMIT)
+postgresql:
+  auth:
+    password: &quot;super-secret-password&quot;</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Encrypt with git-crypt or SOPS
+# Then install
+helm install ml-platform ./ml-platform \
+  --values values.yaml \
+  --values secrets.yaml  # Encrypted secrets</code></pre></div>
+<p><strong>Option 2: Use external secrets management</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Use external-secrets operator
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: ml-platform-secrets
+spec:
+  secretStoreRef:
+    name: aws-secrets-manager
+  target:
+    name: ml-platform-db-password
+  data:
+  - secretKey: password
+    remoteRef:
+      key: prod/ml-platform/db-password</code></pre></div>
+<p><strong>Option 3: Pass values via CLI</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm install ml-platform ./ml-platform \
+  --set postgresql.auth.password=&quot;$(kubectl get secret db-password -o jsonpath='{.data.password}' | base64 -d)&quot;</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-6-3-resource-naming-conventions">6.3 Resource Naming Conventions</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># _helpers.tpl
+{{- define &quot;ml-model.fullname&quot; -}}
+{{ .Release.Name }}-{{ .Chart.Name }}
+{{- end }}
+
+# Results in predictable names:
+# bert-prod-ml-model-serving-deployment
+# bert-prod-ml-model-serving-service
+# bert-prod-ml-model-serving-ingress</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-6-4-validation-with-json-schema">6.4 Validation with JSON Schema</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># values.schema.json
+{
+  &quot;$schema&quot;: &quot;https://json-schema.org/draft-07/schema#&quot;,
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;required&quot;: [&quot;replicaCount&quot;, &quot;image&quot;],
+  &quot;properties&quot;: {
+    &quot;replicaCount&quot;: {
+      &quot;type&quot;: &quot;integer&quot;,
+      &quot;minimum&quot;: 1,
+      &quot;maximum&quot;: 100
+    },
+    &quot;image&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;required&quot;: [&quot;repository&quot;, &quot;tag&quot;],
+      &quot;properties&quot;: {
+        &quot;repository&quot;: {&quot;type&quot;: &quot;string&quot;},
+        &quot;tag&quot;: {&quot;type&quot;: &quot;string&quot;}
+      }
+    },
+    &quot;resources&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;properties&quot;: {
+        &quot;limits&quot;: {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;properties&quot;: {
+            &quot;nvidia.com/gpu&quot;: {&quot;type&quot;: &quot;integer&quot;, &quot;minimum&quot;: 0, &quot;maximum&quot;: 8}
+          }
+        }
+      }
+    }
+  }
+}</code></pre></div>
+<p><strong>Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ will validate values against schema automatically!</strong></p>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-7-publishing-and-sharing-charts">7. Publishing and Sharing Charts</h4>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-7-1-package-a-chart">7.1 Package a Chart</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Package chart into .tgz archive
+helm package ml-model-serving/
+# Successfully packaged chart and saved it to: ml-model-serving-1.0.0.tgz</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-7-2-host-charts-in-chart-repository">7.2 Host Charts in Chart Repository</h5>
+<p><strong>Option 1: GitHub Pages (free)</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create gh-pages branch
+git checkout --orphan gh-pages
+git rm -rf .
+
+# Package charts
+helm package ../ml-model-serving
+helm package ../ml-platform
+
+# Create index
+helm repo index . --url https://mycompany.github.io/helm-charts
+
+# Commit and push
+git add .
+git commit -m &quot;Initial charts&quot;
+git push origin gh-pages
+
+# Users can now add your repo
+helm repo add mycompany https://mycompany.github.io/helm-charts
+helm repo update
+helm search repo mycompany</code></pre></div>
+<p><strong>Option 2: ChartMuseum (self-hosted)</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install ChartMuseum
+helm install chartmuseum stable/chartmuseum \
+  --set env.open.DISABLE_API=false \
+  --set persistence.enabled=true
+
+# Upload chart
+curl --data-binary &quot;@ml-model-serving-1.0.0.tgz&quot; \
+  http://chartmuseum.example.com/api/charts</code></pre></div>
+<p><strong>Option 3: AWS äº‘ï¼ˆAWSï¼‰ ECR / GCP äº‘ï¼ˆGCPï¼‰ Artifact Registry / Azure äº‘ï¼ˆAzureï¼‰ ACR</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># AWS ECR example
+aws ecr create-repository --repository-name helm-charts
+helm push ml-model-serving-1.0.0.tgz oci://123456789.dkr.ecr.us-west-2.amazonaws.com/helm-charts</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-8-debugging-helm-deployments">8. Debugging Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Deployments</h4>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-8-1-common-issues">8.1 Common Issues</h5>
+<p><strong>Issue 1: Template rendering error</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm install bert ./ml-model-serving
+# Error: YAML parse error on ml-model-serving/templates/deployment.yaml:
+# error converting YAML to JSON: yaml: line 25: mapping values are not allowed in this context
+
+# Debug: Render templates
+helm template bert ./ml-model-serving --debug</code></pre></div>
+<p><strong>Issue 2: Release in failed state</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm list -n ml-serving
+# NAME  STATUS  REVISION
+# bert  failed  1
+
+# Check release notes
+helm get notes bert -n ml-serving
+
+# Get all manifests of release
+helm get manifest bert -n ml-serving
+
+# Check values used
+helm get values bert -n ml-serving
+
+# Uninstall and reinstall
+helm uninstall bert -n ml-serving
+helm install bert ./ml-model-serving -n ml-serving</code></pre></div>
+<p><strong>Issue 3: Upgrade stuck/failed</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Rollback to previous revision
+helm rollback bert -n ml-serving
+
+# Force upgrade (dangerous!)
+helm upgrade bert ./ml-model-serving -n ml-serving --force
+
+# Delete and reinstall (nuclear option)
+helm uninstall bert -n ml-serving
+helm install bert ./ml-model-serving -n ml-serving</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-9-hands-on-exercise-deploy-ml-platfo">9. Hands-On Exercise: Deploy ML Platform with Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰</h4>
+<p><strong>Objective:</strong> Create a Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ chart that deploys:</p>
+<ul>
+<li>ML model inference service</li>
+<li>Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ for monitoring</li>
+<li>Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ for dashboards</li>
+</ul>
+<p><strong>Step 1: Create chart structure</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">mkdir ml-platform-chart
+cd ml-platform-chart
+helm create .</code></pre></div>
+<p><strong>Step 2: Define dependencies in Chart.yaml</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Chart.yaml
+apiVersion: v2
+name: ml-platform
+version: 1.0.0
+dependencies:
+  - name: prometheus
+    version: 15.x.x
+    repository: https://prometheus-community.github.io/helm-charts
+  - name: grafana
+    version: 6.x.x
+    repository: https://grafana.github.io/helm-charts</code></pre></div>
+<p><strong>Step 3: Configure values</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># values.yaml
+mlModel:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: myregistry.io/bert-inference
+    tag: v1.0.0
+
+prometheus:
+  server:
+    persistentVolume:
+      size: 50Gi
+
+grafana:
+  adminPassword: changeme
+  persistence:
+    enabled: true
+    size: 10Gi</code></pre></div>
+<p><strong>Step 4: Install dependencies</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm dependency update</code></pre></div>
+<p><strong>Step 5: Deploy</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">helm install ml-platform . \
+  --namespace ml-platform \
+  --create-namespace \
+  --values values.yaml
+
+# Check deployment
+helm list -n ml-platform
+kubectl get all -n ml-platform</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-10-summary">10. Summary</h4>
+<h5 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-key-takeaways">Key Takeaways</h5>
+<p>âœ… <strong>Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ is the package manager for Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</strong></p>
+<ul>
+<li>Packages are called charts</li>
+<li>Instances are called releases</li>
+<li>Charts are versioned and reusable</li>
+</ul>
+<p>âœ… <strong>Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ simplifies deployment:</strong></p>
+<ul>
+<li>One command to deploy complex applications</li>
+<li>Templating eliminates repetitive YAML</li>
+<li>Environment-specific configurations via values</li>
+</ul>
+<p>âœ… <strong>Creating custom charts:</strong></p>
+<ul>
+<li>Use <code>helm create</code> to scaffold</li>
+<li>Define templates with Go templating</li>
+<li>Use values.yaml for configuration</li>
+<li>Test with <code>helm lint</code> and <code>helm template</code></li>
+</ul>
+<p>âœ… <strong>Best practices:</strong></p>
+<ul>
+<li>Use semantic versioning</li>
+<li>Separate dev/staging/prod values</li>
+<li>Never commit secrets to values.yaml</li>
+<li>Validate with JSON schema</li>
+<li>Use chart dependencies for complex stacks</li>
+</ul>
+<p>âœ… <strong>Real-world ML use cases:</strong></p>
+<ul>
+<li>Deploy ML platforms (MLflow, Kubeflow)</li>
+<li>Package model serving applications</li>
+<li>Manage multi-environment deployments</li>
+<li>Version ML infrastructure</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li>What's the difference between a Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ chart and a Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ release?</li>
+<li>How do you override default values in a chart?</li>
+<li>What command would you use to roll back a failed upgrade?</li>
+<li>How do you create a chart with dependencies?</li>
+<li>What's the purpose of templates/_helpers.tpl?</li>
+<li>How would you deploy the same chart to dev, staging, and prod?</li>
+<li>What are Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ hooks and when would you use them?</li>
+<li>How do you troubleshoot a chart that won't install?</li>
+</ol>
+<h4 id="lessons-mod-104-kubernetes-07-helm-package-manager-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://helm.sh/docs/">Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Official Documentation</a></li>
+<li><a href="https://artifacthub.io/">Artifact Hub (chart repository)</a></li>
+<li><a href="https://helm.sh/docs/chart_best_practices/">Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Best Practices</a></li>
+<li><a href="https://helm.sh/docs/chart_template_guide/">Creating Charts Guide</a></li>
+<li><a href="https://github.com/helm/chart-testing">Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Chart Testing</a></li>
+</ul>
+<hr/>
+<p><strong>Next lesson:</strong> ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Troubleshooting Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</p><p><a class="home" href="../docs/doc-lessons-mod-104-kubernetes-06-storage-persistence-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-104-kubernetes-08-gpu-scheduling-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

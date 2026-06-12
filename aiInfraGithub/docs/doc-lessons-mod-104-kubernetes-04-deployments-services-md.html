@@ -1,0 +1,696 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Module 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-resources-md.html">Module 04 Resources: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-module-completion-status-md.html">Module 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals - Completion Status</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lesson 01: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Introduction</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-02-k8s-architecture-md.html">Lesson 02: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-03-core-resources-md.html">Lesson 03: Core Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Resources</a><a class="tree-doc active" href="../docs/doc-lessons-mod-104-kubernetes-04-deployments-services-md.html">Lesson 04: Deployments and Services Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-05-networking-ingress-md.html">Lesson 05: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Networking and Ingress</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-06-storage-persistence-md.html">Lesson 06: Storage and Persistence in Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-07-helm-package-manager-md.html">Lesson 07: Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Package Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-08-gpu-scheduling-md.html">Lesson 08: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Scheduling in Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-09-monitoring-troubleshooting-md.html">Lesson 09: ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Troubleshooting Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Module 104 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-01-pod-deployment-md.html">Lab 01: Your First Pod and éƒ¨ç½²ï¼ˆDeploymentï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-02-service-discovery-md.html">Lab 02: Service Discovery â€” ClusterIP, NodePort, LoadBalancer</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-03-configmaps-secrets-md.html">Lab 03: ConfigMaps and Secrets</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-04-persistent-volumes-md.html">Lab 04: Persistent Volumes for Stateful Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-05-helm-chart-md.html">Lab 05: Package an App with Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-06-hpa-md.html">Lab 06: Horizontal Pod Autoscaler under Load</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-07-network-policies-md.html">Lab 07: NetworkPolicies for East-West Isolation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-08-debugging-md.html">Lab 08: Debug a Broken éƒ¨ç½²ï¼ˆDeploymentï¼‰ from Scratch</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercise 01: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals â€” Build a Working Service</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-02-control-plane-tour-readme-md.html">Exercise 02: Control Plane Tour</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-03-core-resources-mastery-readme-md.html">Exercise 03: Core Resources Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-04-k8s-cluster-autoscaler-readme-md.html">Exercise 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cluster Autoscaler with Custom Metrics</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md.html">Exercise 05: Service Mesh å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ with Istio</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-06-k8s-operator-framework-readme-md.html">Exercise 06: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Operator for ML Model Lifecycle</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-07-helm-chart-authoring-readme-md.html">Exercise 07: Author a Production-Grade Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Chart</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-08-gpu-scheduling-readme-md.html">Exercise 08: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Scheduling Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-09-monitoring-troubleshooting-readme-md.html">Exercise 09: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Troubleshooting Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-10-multi-cluster-federation-readme-md.html">Exercise 10: Multi-Cluster Federation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-11-custom-operator-readme-md.html">Exercise 11: Build a Custom Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Operator</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-12-stateful-postgres-readme-md.html">Exercise 12: Stateful Postgres on Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-13-cluster-upgrade-readme-md.html">Exercise 13: Cluster Upgrade Procedure</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-14-resource-quotas-multitenancy-readme-md.html">Exercise 14: Resource Quotas and Multi-Tenancy</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-15-cluster-cost-optimization-readme-md.html">Exercise 15: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cluster Cost Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-readme-md.html">Module 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ - Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Module 04 Quiz: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-104-kubernetes-04-deployments-services-md"><h3 id="lessons-mod-104-kubernetes-04-deployments-services-md-lesson-04-deployments-and-services-d">Lesson 04: Deployments and Services Deep Dive</h3>
+<p><strong>Duration:</strong> 8 hours <strong>Objectives:</strong> Master advanced deployment strategies, service patterns, and health checks for ML workloads</p>
+<h4 id="lessons-mod-104-kubernetes-04-deployments-services-md-introduction">Introduction</h4>
+<p>You've learned the basics of Deployments and Services. Now we'll explore advanced patterns critical for production ML infrastructure: rolling updates, blue-green deployments, canary releases, and sophisticated health checks.</p>
+<h4 id="lessons-mod-104-kubernetes-04-deployments-services-md-advanced-deployment-strategies">Advanced éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</h4>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-1-rolling-updates-default">1. Rolling Updates (Default)</h5>
+<p><strong>Zero-downtime deployments</strong> by gradually replacing pods.</p>
+<p><strong>Configuration:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-model
+spec:
+  replicas: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2          # Max 2 extra pods (20%)
+      maxUnavailable: 1    # Max 1 unavailable (10%)
+  template:
+    spec:
+      containers:
+      - name: model-server
+        image: ml-model:v2</code></pre></div>
+<p><strong>How it works:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Initial state:     [v1] [v1] [v1] [v1] [v1]
+maxSurge +2:       [v1] [v1] [v1] [v1] [v1] [v2] [v2]
+maxUnavailable 1:  [v1] [v1] [v1] [v1] [X]  [v2] [v2]
+Replace:           [v1] [v1] [v1] [v1] [v2] [v2] [v2]
+Continue:          [v2] [v2] [v2] [v2] [v2] [v2] [v2]</code></pre></div>
+<p><strong>Best practices for ML models:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Conservative rollout for critical models
+rollingUpdate:
+  maxSurge: 1
+  maxUnavailable: 0    # No downtime tolerance
+
+# Aggressive for non-critical
+rollingUpdate:
+  maxSurge: 3
+  maxUnavailable: 2</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-2-blue-green-deployment">2. Blue-Green éƒ¨ç½²ï¼ˆDeploymentï¼‰</h5>
+<p><strong>Two complete environments</strong>: blue (current) and green (new).</p>
+<p><strong>Implementation with labels:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Blue deployment (current production)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-model-blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ml-model
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: ml-model
+        version: blue
+    spec:
+      containers:
+      - name: model
+        image: ml-model:v1
+
+---
+# Green deployment (new version)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-model-green
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ml-model
+      version: green
+  template:
+    metadata:
+      labels:
+        app: ml-model
+        version: green
+    spec:
+      containers:
+      - name: model
+        image: ml-model:v2
+
+---
+# Service initially points to blue
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-model-service
+spec:
+  selector:
+    app: ml-model
+    version: blue  # Switch to 'green' to cutover
+  ports:
+  - port: 80
+    targetPort: 8080</code></pre></div>
+<p><strong>Cutover process:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># 1. Deploy green alongside blue
+kubectl apply -f green-deployment.yaml
+
+# 2. Test green independently
+kubectl port-forward deployment/ml-model-green 8080:8080
+
+# 3. Switch service to green (instant cutover)
+kubectl patch service ml-model-service -p '{&quot;spec&quot;:{&quot;selector&quot;:{&quot;version&quot;:&quot;green&quot;}}}'
+
+# 4. Monitor for issues
+
+# 5. If OK, delete blue
+kubectl delete deployment ml-model-blue
+
+# 6. If issues, rollback to blue
+kubectl patch service ml-model-service -p '{&quot;spec&quot;:{&quot;selector&quot;:{&quot;version&quot;:&quot;blue&quot;}}}'</code></pre></div>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li>Instant cutover and rollback</li>
+<li>Full testing before cutover</li>
+<li>Two complete environments</li>
+</ul>
+<p><strong>Disadvantages:</strong></p>
+<ul>
+<li>Double resources during transition</li>
+<li>Higher cost</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-3-canary-deployment">3. Canary éƒ¨ç½²ï¼ˆDeploymentï¼‰</h5>
+<p><strong>Gradual rollout</strong>: route small % of traffic to new version.</p>
+<p><strong>Using multiple deployments:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Stable deployment (90% traffic)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-model-stable
+spec:
+  replicas: 9
+  selector:
+    matchLabels:
+      app: ml-model
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: ml-model
+        track: stable
+    spec:
+      containers:
+      - name: model
+        image: ml-model:v1
+
+---
+# Canary deployment (10% traffic)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-model-canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-model
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: ml-model
+        track: canary
+    spec:
+      containers:
+      - name: model
+        image: ml-model:v2
+
+---
+# Service balances across both
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-model-service
+spec:
+  selector:
+    app: ml-model  # Matches both stable and canary
+  ports:
+  - port: 80
+    targetPort: 8080</code></pre></div>
+<p><strong>Traffic distribution:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">9 stable pods + 1 canary pod = ~10% to canary</code></pre></div>
+<p><strong>Gradual rollout:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Start: 10% canary
+kubectl scale deployment ml-model-stable --replicas=9
+kubectl scale deployment ml-model-canary --replicas=1
+
+# If metrics OK: 25% canary
+kubectl scale deployment ml-model-stable --replicas=6
+kubectl scale deployment ml-model-canary --replicas=2
+
+# If metrics OK: 50% canary
+kubectl scale deployment ml-model-stable --replicas=4
+kubectl scale deployment ml-model-canary --replicas=4
+
+# If metrics OK: 100% canary
+kubectl scale deployment ml-model-stable --replicas=0
+kubectl scale deployment ml-model-canary --replicas=8
+
+# Cleanup: rename canary to stable</code></pre></div>
+<p><strong>Advanced canary with Flagger (GitOps):</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: ml-model
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ml-model
+  service:
+    port: 8080
+  analysis:
+    interval: 1m
+    threshold: 5
+    maxWeight: 50
+    stepWeight: 10
+    metrics:
+    - name: request-success-rate
+      threshold: 99
+    - name: request-duration
+      threshold: 500</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-4-recreate-strategy">4. Recreate Strategy</h5>
+<p><strong>Delete all old pods before creating new ones</strong> - causes downtime.</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">strategy:
+  type: Recreate</code></pre></div>
+<p><strong>Use cases:</strong></p>
+<ul>
+<li>Database migrations requiring downtime</li>
+<li>Incompatible versions cannot coexist</li>
+<li>Resource constraints (cannot run both versions)</li>
+</ul>
+<p><strong>Process:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">[v1] [v1] [v1] â†’ (delete all) â†’ [v2] [v2] [v2]
+         â†“ Downtime</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-04-deployments-services-md-advanced-health-checks">Advanced Health Checks</h4>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-comprehensive-health-check-configura">Comprehensive Health Check Configuration</h5>
+<p><strong>For ML model serving:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: ml-model-server
+spec:
+  containers:
+  - name: model
+    image: ml-model:v1
+    ports:
+    - containerPort: 8080
+
+    # Startup probe: large model loading (60 seconds)
+    startupProbe:
+      httpGet:
+        path: /startup
+        port: 8080
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      failureThreshold: 12  # 60 seconds (12 * 5s)
+
+    # Liveness probe: is container alive?
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3     # Restart after 30s (3 * 10s)
+      successThreshold: 1
+
+    # Readiness probe: ready for traffic?
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+      successThreshold: 2  # Must succeed twice</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-health-check-implementations">Health Check Implementations</h5>
+<p><strong>Flask example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from flask import Flask, jsonify
+import time
+import threading
+
+app = Flask(__name__)
+
+# State tracking
+startup_complete = False
+model_loaded = False
+healthy = True
+
+def load_model():
+    global model_loaded, startup_complete
+    time.sleep(30)  # Simulate slow model loading
+    model_loaded = True
+    startup_complete = True
+
+# Start model loading in background
+threading.Thread(target=load_model, daemon=True).start()
+
+@app.route('/startup', methods=['GET'])
+def startup():
+    &quot;&quot;&quot;Startup probe: has initial setup completed?&quot;&quot;&quot;
+    if startup_complete:
+        return jsonify({'status': 'ready'}), 200
+    return jsonify({'status': 'loading'}), 503
+
+@app.route('/health', methods=['GET'])
+def health():
+    &quot;&quot;&quot;Liveness probe: is application alive?&quot;&quot;&quot;
+    if healthy:
+        return jsonify({'status': 'healthy'}), 200
+    return jsonify({'status': 'unhealthy'}), 503
+
+@app.route('/ready', methods=['GET'])
+def ready():
+    &quot;&quot;&quot;Readiness probe: ready to serve traffic?&quot;&quot;&quot;
+    if model_loaded and healthy:
+        # Additional checks
+        if check_dependencies():  # DB, cache, etc.
+            return jsonify({'status': 'ready'}), 200
+    return jsonify({'status': 'not_ready'}), 503</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-custom-probe-handlers">Custom Probe Handlers</h5>
+<p><strong>TCP socket probe:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">livenessProbe:
+  tcpSocket:
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 10</code></pre></div>
+<p><strong>Exec command probe:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">livenessProbe:
+  exec:
+    command:
+    - /bin/sh
+    - -c
+    - &quot;curl -f http://localhost:8080/health || exit 1&quot;
+  initialDelaySeconds: 30
+  periodSeconds: 10</code></pre></div>
+<p><strong>gRPC probe (Kubernetes 1.24+):</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">livenessProbe:
+  grpc:
+    port: 9090
+  initialDelaySeconds: 10</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-04-deployments-services-md-service-patterns">Service Patterns</h4>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-1-headless-service-for-statefulsets">1. Headless Service for StatefulSets</h5>
+<p><strong>For distributed ML training</strong> where pods need stable DNS names.</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: ml-training
+spec:
+  clusterIP: None  # Headless
+  selector:
+    app: ml-training
+  ports:
+  - port: 8080
+    name: training
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ml-training
+spec:
+  serviceName: ml-training  # Links to headless service
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ml-training
+  template:
+    metadata:
+      labels:
+        app: ml-training
+    spec:
+      containers:
+      - name: trainer
+        image: distributed-trainer:v1
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name</code></pre></div>
+<p><strong>DNS names:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">ml-training-0.ml-training.default.svc.cluster.local
+ml-training-1.ml-training.default.svc.cluster.local
+ml-training-2.ml-training.default.svc.cluster.local</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-2-session-affinity-sticky-sessions">2. Session Affinity (Sticky Sessions)</h5>
+<p><strong>Route requests from same client to same pod.</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: ml-model-sticky
+spec:
+  selector:
+    app: ml-model
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800  # 3 hours
+  ports:
+  - port: 80
+    targetPort: 8080</code></pre></div>
+<p><strong>Use cases:</strong></p>
+<ul>
+<li>Stateful ML applications</li>
+<li>Model caching per pod</li>
+<li>WebSocket connections</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-3-external-services">3. External Services</h5>
+<p><strong>Access external databases/APIs:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># External service (outside cluster)
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-db
+spec:
+  type: ExternalName
+  externalName: mysql-instance.cxxxx.us-west-2.rds.amazonaws.com
+
+---
+# Or with endpoints for IP-based
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-api
+spec:
+  ports:
+  - port: 443
+    targetPort: 443
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: external-api
+subsets:
+- addresses:
+  - ip: 203.0.113.42
+  ports:
+  - port: 443</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-4-service-topology-locality">4. Service Topology (Locality)</h5>
+<p><strong>Route traffic to closest pods</strong> (reduce latency).</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: ml-model-local
+spec:
+  selector:
+    app: ml-model
+  topologyKeys:
+  - &quot;kubernetes.io/hostname&quot;    # Same node
+  - &quot;topology.kubernetes.io/zone&quot;  # Same zone
+  - &quot;*&quot;                         # Any node
+  ports:
+  - port: 80
+    targetPort: 8080</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-04-deployments-services-md-resource-management-for-ml-workloads">Resource Management for ML Workloads</h4>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-quality-of-service-qos-classes">Quality of Service (QoS) Classes</h5>
+<p><strong>1. Guaranteed (highest priority):</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">resources:
+  requests:
+    memory: &quot;16Gi&quot;
+    cpu: &quot;4&quot;
+    nvidia.com/gpu: &quot;1&quot;
+  limits:
+    memory: &quot;16Gi&quot;
+    cpu: &quot;4&quot;
+    nvidia.com/gpu: &quot;1&quot;</code></pre></div>
+<p><strong>2. Burstable:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">resources:
+  requests:
+    memory: &quot;8Gi&quot;
+    cpu: &quot;2&quot;
+  limits:
+    memory: &quot;16Gi&quot;
+    cpu: &quot;4&quot;</code></pre></div>
+<p><strong>3. BestEffort (lowest priority):</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># No resources specified
+# Evicted first under pressure</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-resource-quotas-and-limits">Resource Quotas and Limits</h5>
+<p><strong>Namespace-level quotas:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: ml-team-quota
+  namespace: ml-team
+spec:
+  hard:
+    requests.cpu: &quot;100&quot;
+    requests.memory: &quot;200Gi&quot;
+    requests.nvidia.com/gpu: &quot;8&quot;
+    limits.cpu: &quot;200&quot;
+    limits.memory: &quot;400Gi&quot;
+    pods: &quot;50&quot;
+    services.loadbalancers: &quot;5&quot;</code></pre></div>
+<p><strong>Limit ranges (defaults):</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: v1
+kind: LimitRange
+metadata:
+  name: ml-limits
+  namespace: ml-team
+spec:
+  limits:
+  - max:
+      cpu: &quot;16&quot;
+      memory: &quot;64Gi&quot;
+    min:
+      cpu: &quot;100m&quot;
+      memory: &quot;128Mi&quot;
+    default:
+      cpu: &quot;1&quot;
+      memory: &quot;2Gi&quot;
+    defaultRequest:
+      cpu: &quot;500m&quot;
+      memory: &quot;1Gi&quot;
+    type: Container</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-04-deployments-services-md-hands-on-canary-deployment-for-ml-mo">Hands-On: Canary éƒ¨ç½²ï¼ˆDeploymentï¼‰ for ML Model</h4>
+<p><strong>Setup:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create namespace
+kubectl create namespace ml-canary
+
+# Deploy stable version
+kubectl apply -f - &lt;&lt;EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-model-stable
+  namespace: ml-canary
+spec:
+  replicas: 9
+  selector:
+    matchLabels:
+      app: ml-model
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: ml-model
+        track: stable
+        version: v1
+    spec:
+      containers:
+      - name: model
+        image: hashicorp/http-echo:latest
+        args:
+        - &quot;-text=Model v1 (stable)&quot;
+        - &quot;-listen=:8080&quot;
+        ports:
+        - containerPort: 8080
+EOF
+
+# Deploy canary version
+kubectl apply -f - &lt;&lt;EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-model-canary
+  namespace: ml-canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-model
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: ml-model
+        track: canary
+        version: v2
+    spec:
+      containers:
+      - name: model
+        image: hashicorp/http-echo:latest
+        args:
+        - &quot;-text=Model v2 (canary)&quot;
+        - &quot;-listen=:8080&quot;
+        ports:
+        - containerPort: 8080
+EOF
+
+# Create service
+kubectl apply -f - &lt;&lt;EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-model
+  namespace: ml-canary
+spec:
+  selector:
+    app: ml-model
+  ports:
+  - port: 80
+    targetPort: 8080
+EOF</code></pre></div>
+<p><strong>Test traffic distribution:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Port forward service
+kubectl port-forward -n ml-canary svc/ml-model 8080:80 &amp;
+
+# Send 100 requests and count distribution
+for i in {1..100}; do curl -s http://localhost:8080; done | sort | uniq -c
+
+# Expected:
+# ~90 Model v1 (stable)
+# ~10 Model v2 (canary)</code></pre></div>
+<p><strong>Promote canary:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Gradually increase canary traffic
+kubectl scale deployment ml-model-stable --replicas=6 -n ml-canary
+kubectl scale deployment ml-model-canary --replicas=4 -n ml-canary
+
+# Test again
+for i in {1..100}; do curl -s http://localhost:8080; done | sort | uniq -c
+
+# If metrics good, full cutover
+kubectl scale deployment ml-model-stable --replicas=0 -n ml-canary
+kubectl scale deployment ml-model-canary --replicas=10 -n ml-canary</code></pre></div>
+<p><strong>Cleanup:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">kubectl delete namespace ml-canary</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-04-deployments-services-md-production-best-practices">ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ Best Practices</h4>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-1-always-use-readiness-probes">1. Always Use Readiness Probes</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5</code></pre></div>
+<p>Without readiness probes, pods receive traffic immediately, potentially causing errors during startup.</p>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-2-set-resource-requests-and-limits">2. Set Resource Requests and Limits</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">resources:
+  requests:
+    memory: &quot;2Gi&quot;
+    cpu: &quot;1&quot;
+  limits:
+    memory: &quot;4Gi&quot;
+    cpu: &quot;2&quot;</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-3-use-deployment-annotations">3. Use éƒ¨ç½²ï¼ˆDeploymentï¼‰ Annotations</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">metadata:
+  annotations:
+    kubernetes.io/change-cause: &quot;Update to model v2.1 with improved accuracy&quot;</code></pre></div>
+<p>View history:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">kubectl rollout history deployment/ml-model</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-4-poddisruptionbudgets">4. PodDisruptionBudgets</h5>
+<p><strong>Ensure availability during voluntary disruptions:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ml-model-pdb
+spec:
+  minAvailable: 2  # At least 2 pods always available
+  selector:
+    matchLabels:
+      app: ml-model</code></pre></div>
+<p>Or:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">spec:
+  maxUnavailable: 1  # Max 1 pod can be down</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-04-deployments-services-md-5-anti-affinity-rules">5. Anti-Affinity Rules</h5>
+<p><strong>Spread pods across nodes/zones:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchLabels:
+          app: ml-model
+      topologyKey: kubernetes.io/hostname  # Different nodes</code></pre></div>
+<p>Or across zones:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">topologyKey: topology.kubernetes.io/zone</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-04-deployments-services-md-summary">Summary</h4>
+<p>In this lesson, you've mastered:</p>
+<ul>
+<li>âœ… Advanced deployment strategies: rolling, blue-green, canary</li>
+<li>âœ… Comprehensive health check configuration</li>
+<li>âœ… Service patterns: headless, session affinity, external</li>
+<li>âœ… Resource management and QoS classes</li>
+<li>âœ… ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ best practices for ML workloads</li>
+<li>âœ… Hands-on canary deployment</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-04-deployments-services-md-what-s-next">What's Next?</h4>
+<p><strong>Lesson 05: Networking and Ingress</strong> - Deep dive into Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ networking, Ingress controllers, and TLS termination.</p>
+<h4 id="lessons-mod-104-kubernetes-04-deployments-services-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li>What's the difference between blue-green and canary deployments?</li>
+<li>When would you use a headless service?</li>
+<li>What's the purpose of each type of health probe?</li>
+<li>How do resource requests affect scheduling?</li>
+<li>What is a PodDisruptionBudget and why use it?</li>
+</ol>
+<hr/>
+<p><strong>Next Lesson:</strong> <a href="#doc-lessons-mod-104-kubernetes-05-networking-ingress-md">05-networking-ingress.md</a></p><p><a class="home" href="../docs/doc-lessons-mod-104-kubernetes-03-core-resources-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-104-kubernetes-05-networking-ingress-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

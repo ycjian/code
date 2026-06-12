@@ -1,0 +1,754 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-resources-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lesson 01: Introduction to GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ for AI</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md.html">Lesson 02: CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Programming Fundamentals</a><a class="tree-doc active" href="../docs/doc-lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md.html">Lesson 03: PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ Acceleration</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md.html">Lesson 04: åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-05-multi-gpu-training-strategies-md.html">Lesson 05: Multi-GPU è®­ç»ƒï¼ˆTrainingï¼‰ Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-06-model-pipeline-parallelism-md.html">Lesson 06: Model and Pipeline Parallelism</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-07-gpu-memory-management-md.html">Lesson 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Management &amp; Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-08-advanced-gpu-optimization-md.html">Lesson 08: Advanced GPU åŠ é€Ÿï¼ˆGPUï¼‰ Optimization</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Module 107 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-01-cuda-hello-world-md.html">Lab 01: CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Hello-World and Device Introspection</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-02-pytorch-gpu-inference-md.html">Lab 02: PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ æŽ¨ç†ï¼ˆInferenceï¼‰ and Benchmarking</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-03-multi-gpu-training-md.html">Lab 03: Multi-GPU è®­ç»ƒï¼ˆTrainingï¼‰ with DistributedDataParallel</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-04-gpu-cluster-on-k8s-md.html">Lab 04: Run a GPU åŠ é€Ÿï¼ˆGPUï¼‰ Pod on Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-05-mixed-precision-md.html">Lab 05: Mixed-Precision è®­ç»ƒï¼ˆTrainingï¼‰ with `torch.amp`</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-06-memory-profiling-md.html">Lab 06: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Profiling and OOM Diagnosis</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercise 01: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Introspection and First CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Op</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-02-cuda-kernel-readme-md.html">Exercise 02: Write Your First CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Kernel</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-03-pytorch-gpu-pipeline-readme-md.html">Exercise 03: End-to-End PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-04-gpu-cluster-management-readme-md.html">Exercise 04: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Cluster Management and Scheduling</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-05-gpu-performance-optimization-readme-md.html">Exercise 05: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Performance Optimization and Profiling</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-06-distributed-gpu-training-readme-md.html">Exercise 06: Distributed GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®­ç»ƒï¼ˆTrainingï¼‰ at Scale</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-07-gpu-memory-profiling-readme-md.html">Exercise 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Profiling and OOM Diagnosis</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-08-mixed-precision-readme-md.html">Exercise 08: Mixed Precision è®­ç»ƒï¼ˆTrainingï¼‰ Benchmarks</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-09-inference-optimization-readme-md.html">Exercise 09: GPU åŠ é€Ÿï¼ˆGPUï¼‰ æŽ¨ç†ï¼ˆInferenceï¼‰ Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-10-gpu-sharing-strategies-readme-md.html">Exercise 10: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Sharing Strategies (MIG, MPS, Time-Slicing)</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-11-gpu-cost-optimization-readme-md.html">Exercise 11: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Cost Optimization Playbook</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-readme-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ - Hands-on Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md"><h3 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-lesson-03-pytorch-gpu-acceler">Lesson 03: PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ Acceleration</h3>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ol>
+<li>Move PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ tensors and models efficiently between CPU and GPU åŠ é€Ÿï¼ˆGPUï¼‰</li>
+<li>Implement mixed precision training with Automatic Mixed Precision (AMP)</li>
+<li>Profile GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory usage and identify memory bottlenecks</li>
+<li>Optimize GPU åŠ é€Ÿï¼ˆGPUï¼‰ utilization in PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ training loops</li>
+<li>Troubleshoot common GPU-related errors and performance issues</li>
+<li>Use PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ profiler to identify performance bottlenecks</li>
+</ol>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-introduction">Introduction</h4>
+<p>PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ provides a high-level, Pythonic interface to GPU åŠ é€Ÿï¼ˆGPUï¼‰ computing. While it abstracts away most CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ complexity, understanding how PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ uses GPUs is essential for building efficient ML infrastructure.</p>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-moving-data-to-gpu">Moving Data to GPU åŠ é€Ÿï¼ˆGPUï¼‰</h4>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-basic-tensor-operations">Basic Tensor Operations</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch
+
+# Create tensor on CPU (default)
+x_cpu = torch.randn(1000, 1000)
+print(f&quot;Device: {x_cpu.device}&quot;)  # cpu
+
+# Move to GPU
+x_gpu = x_cpu.cuda()  # Method 1
+x_gpu = x_cpu.to('cuda')  # Method 2
+x_gpu = x_cpu.to(device='cuda:0')  # Method 3: Specific GPU
+
+# Check device
+print(f&quot;Device: {x_gpu.device}&quot;)  # cuda:0
+print(f&quot;Is CUDA: {x_gpu.is_cuda}&quot;)  # True
+
+# Create directly on GPU
+y_gpu = torch.randn(1000, 1000, device='cuda')
+z_gpu = torch.randn(1000, 1000).cuda()
+
+# Move back to CPU
+result_cpu = x_gpu.cpu()
+result_cpu = x_gpu.to('cpu')</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-device-agnostic-code">Device-Agnostic Code</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Best practice: Write device-agnostic code
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f&quot;Using device: {device}&quot;)
+
+# Create tensors on specified device
+x = torch.randn(1000, 1000, device=device)
+y = torch.randn(1000, 1000, device=device)
+
+# Operations work regardless of device
+z = x + y
+result = torch.mm(x, y)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-multi-gpu-selection">Multi-GPU Selection</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Check number of GPUs
+n_gpus = torch.cuda.device_count()
+print(f&quot;Number of GPUs: {n_gpus}&quot;)
+
+# Get GPU names
+for i in range(n_gpus):
+    print(f&quot;GPU {i}: {torch.cuda.get_device_name(i)}&quot;)
+
+# Specify which GPU to use
+x = torch.randn(1000, device='cuda:0')  # First GPU
+y = torch.randn(1000, device='cuda:1')  # Second GPU
+
+# Set default GPU
+torch.cuda.set_device(0)
+x = torch.randn(1000).cuda()  # Uses cuda:0
+
+# Context manager for temporary device change
+with torch.cuda.device(1):
+    y = torch.randn(1000).cuda()  # Uses cuda:1</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-moving-models-to-gpu">Moving Models to GPU åŠ é€Ÿï¼ˆGPUï¼‰</h4>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-basic-model-transfer">Basic Model Transfer</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch.nn as nn
+
+# Define model
+class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc1 = nn.Linear(1000, 500)
+        self.fc2 = nn.Linear(500, 10)
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        x = self.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+# Create model
+model = MyModel()
+
+# Move to GPU
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = model.to(device)
+
+# Now all model parameters and buffers are on GPU
+for param in model.parameters():
+    print(param.device)  # cuda:0</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-training-loop-with-gpu">è®­ç»ƒï¼ˆTrainingï¼‰ Loop with GPU åŠ é€Ÿï¼ˆGPUï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Complete training loop
+def train_epoch(model, dataloader, optimizer, criterion, device):
+    model.train()
+    total_loss = 0
+
+    for batch_idx, (data, target) in enumerate(dataloader):
+        # Move data to GPU
+        data = data.to(device, non_blocking=True)
+        target = target.to(device, non_blocking=True)
+
+        # Forward pass
+        optimizer.zero_grad()
+        output = model(data)
+        loss = criterion(output, target)
+
+        # Backward pass
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+
+    return total_loss / len(dataloader)
+
+# Usage
+model = MyModel().to(device)
+optimizer = torch.optim.Adam(model.parameters())
+criterion = nn.CrossEntropyLoss()
+
+for epoch in range(num_epochs):
+    loss = train_epoch(model, train_loader, optimizer, criterion, device)
+    print(f&quot;Epoch {epoch}: Loss = {loss:.4f}&quot;)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-non-blocking-transfers">Non-Blocking Transfers</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Use non_blocking=True for faster transfers with pinned memory
+for data, target in train_loader:
+    data = data.to(device, non_blocking=True)
+    target = target.to(device, non_blocking=True)
+
+    # This allows the transfer to happen asynchronously
+    # CPU can prepare next batch while GPU processes current
+
+# Requires pinned memory in DataLoader
+train_loader = DataLoader(
+    dataset,
+    batch_size=32,
+    pin_memory=True,  # Enable pinned memory
+    num_workers=4
+)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-mixed-precision-training">Mixed Precision è®­ç»ƒï¼ˆTrainingï¼‰</h4>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-what-is-mixed-precision">What is Mixed Precision?</h5>
+<p>Mixed precision uses both FP16 (16-bit floating point) and FP32 (32-bit floating point):</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚           Mixed Precision Training                  â”‚
+â”‚                                                     â”‚
+â”‚  FP16 (half precision):                            â”‚
+â”‚  - Forward pass computations                       â”‚
+â”‚  - Backward pass gradient computation              â”‚
+â”‚  - 2x memory reduction                             â”‚
+â”‚  - 2-3x speed improvement (with Tensor Cores)     â”‚
+â”‚                                                     â”‚
+â”‚  FP32 (full precision):                            â”‚
+â”‚  - Master weights                                  â”‚
+â”‚  - Loss scaling (prevent underflow)                â”‚
+â”‚  - Optimizer updates                               â”‚
+â”‚                                                     â”‚
+â”‚  Benefits:                                         â”‚
+â”‚  âœ“ Faster training (Tensor Cores)                 â”‚
+â”‚  âœ“ Lower memory usage                             â”‚
+â”‚  âœ“ Larger batch sizes possible                    â”‚
+â”‚  âœ“ Minimal accuracy loss                          â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-automatic-mixed-precision-amp">Automatic Mixed Precision (AMP)</h5>
+<p>PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ provides <code>torch.cuda.amp</code> for easy mixed precision training:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from torch.cuda.amp import autocast, GradScaler
+
+# Create gradient scaler (handles loss scaling)
+scaler = GradScaler()
+
+model = MyModel().to(device)
+optimizer = torch.optim.Adam(model.parameters())
+
+for epoch in range(num_epochs):
+    for batch_idx, (data, target) in enumerate(train_loader):
+        data, target = data.to(device), target.to(device)
+
+        optimizer.zero_grad()
+
+        # Forward pass with autocast
+        with autocast():
+            output = model(data)
+            loss = criterion(output, target)
+
+        # Backward pass with gradient scaling
+        scaler.scale(loss).backward()
+
+        # Optimizer step with unscaling
+        scaler.step(optimizer)
+        scaler.update()
+
+        if batch_idx % 100 == 0:
+            print(f&quot;Loss: {loss.item():.4f}&quot;)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-how-amp-works">How AMP Works</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># What happens under the hood:
+
+# 1. autocast() automatically casts operations
+with autocast():
+    # This operation uses FP16
+    z = torch.mm(x, y)  # FP16 matrix multiplication
+
+    # This operation stays in FP32 (for numerical stability)
+    loss = F.cross_entropy(z, target)  # FP32 loss
+
+# 2. GradScaler prevents gradient underflow
+scaler = GradScaler()
+
+# Scale loss to prevent gradient underflow in FP16
+scaled_loss = loss * scale_factor  # e.g., scale_factor = 65536
+scaled_loss.backward()  # Compute scaled gradients
+
+# Unscale gradients before optimizer step
+unscaled_grads = grads / scale_factor
+optimizer.step()
+
+# Adjust scale factor for next iteration
+scaler.update()  # Increase if no overflow, decrease if overflow</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-bfloat16-brain-floating-point">BFloat16 (Brain Floating Point)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># BFloat16 (BF16): Alternative to FP16
+# - Same range as FP32
+# - Lower precision than FP16
+# - No gradient scaling needed
+# - Supported on Ampere+ GPUs
+
+# Enable BF16
+torch.set_float32_matmul_precision('medium')  # or 'high'
+
+# Use BF16 autocast
+with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
+    output = model(data)
+    loss = criterion(output, target)
+
+# No scaler needed!
+loss.backward()
+optimizer.step()</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-comparing-precision-types">Comparing Precision Types</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import time
+
+def benchmark_precision(model, data, iterations=100):
+    &quot;&quot;&quot;Compare FP32, FP16, and BF16 performance&quot;&quot;&quot;
+
+    # FP32 (baseline)
+    model_fp32 = model.float()
+    data_fp32 = data.float()
+
+    start = time.time()
+    for _ in range(iterations):
+        with torch.no_grad():
+            _ = model_fp32(data_fp32)
+    torch.cuda.synchronize()
+    fp32_time = time.time() - start
+
+    # FP16 with AMP
+    model_amp = model.half()
+    data_amp = data.half()
+
+    start = time.time()
+    for _ in range(iterations):
+        with torch.no_grad(), autocast():
+            _ = model_amp(data_amp)
+    torch.cuda.synchronize()
+    fp16_time = time.time() - start
+
+    # BF16
+    model_bf16 = model.bfloat16()
+    data_bf16 = data.bfloat16()
+
+    start = time.time()
+    for _ in range(iterations):
+        with torch.no_grad():
+            _ = model_bf16(data_bf16)
+    torch.cuda.synchronize()
+    bf16_time = time.time() - start
+
+    print(f&quot;FP32: {fp32_time:.3f}s (baseline)&quot;)
+    print(f&quot;FP16: {fp16_time:.3f}s ({fp32_time/fp16_time:.2f}x speedup)&quot;)
+    print(f&quot;BF16: {bf16_time:.3f}s ({fp32_time/bf16_time:.2f}x speedup)&quot;)
+
+# Test
+model = MyModel().cuda()
+data = torch.randn(128, 1000).cuda()
+benchmark_precision(model, data)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-gpu-memory-management">GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Management</h4>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-monitoring-memory-usage">ç›‘æŽ§ï¼ˆMonitoringï¼‰ Memory Usage</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Check GPU memory
+if torch.cuda.is_available():
+    # Current memory allocated
+    allocated = torch.cuda.memory_allocated() / 1024**3  # GB
+    print(f&quot;Allocated: {allocated:.2f} GB&quot;)
+
+    # Peak memory allocated
+    peak = torch.cuda.max_memory_allocated() / 1024**3
+    print(f&quot;Peak: {peak:.2f} GB&quot;)
+
+    # Memory reserved by PyTorch
+    reserved = torch.cuda.memory_reserved() / 1024**3
+    print(f&quot;Reserved: {reserved:.2f} GB&quot;)
+
+    # Total GPU memory
+    total = torch.cuda.get_device_properties(0).total_memory / 1024**3
+    print(f&quot;Total: {total:.2f} GB&quot;)
+
+    # Reset peak stats
+    torch.cuda.reset_peak_memory_stats()</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-memory-profiling-during-train">Memory Profiling During è®­ç»ƒï¼ˆTrainingï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def train_with_memory_tracking(model, dataloader, optimizer, criterion, device):
+    &quot;&quot;&quot;Training loop with memory tracking&quot;&quot;&quot;
+    model.train()
+
+    for batch_idx, (data, target) in enumerate(dataloader):
+        # Track memory before batch
+        mem_before = torch.cuda.memory_allocated() / 1024**2  # MB
+
+        data, target = data.to(device), target.to(device)
+
+        optimizer.zero_grad()
+        output = model(data)
+        loss = criterion(output, target)
+        loss.backward()
+        optimizer.step()
+
+        # Track memory after batch
+        mem_after = torch.cuda.memory_allocated() / 1024**2
+        mem_peak = torch.cuda.max_memory_allocated() / 1024**2
+
+        if batch_idx % 10 == 0:
+            print(f&quot;Batch {batch_idx}:&quot;)
+            print(f&quot;  Memory: {mem_after:.0f} MB&quot;)
+            print(f&quot;  Peak: {mem_peak:.0f} MB&quot;)
+            print(f&quot;  Delta: {mem_after - mem_before:.0f} MB&quot;)
+
+        # Clear cache periodically (caution: can slow training)
+        if batch_idx % 100 == 0:
+            torch.cuda.empty_cache()</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-handling-out-of-memory-oom-er">Handling Out of Memory (OOM) Errors</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Common OOM scenarios and solutions
+
+# Problem 1: Batch size too large
+# Solution: Reduce batch size or use gradient accumulation
+
+# Gradient accumulation
+accumulation_steps = 4
+effective_batch_size = batch_size * accumulation_steps
+
+for i, (data, target) in enumerate(train_loader):
+    data, target = data.to(device), target.to(device)
+
+    output = model(data)
+    loss = criterion(output, target) / accumulation_steps
+    loss.backward()
+
+    if (i + 1) % accumulation_steps == 0:
+        optimizer.step()
+        optimizer.zero_grad()
+
+# Problem 2: Large model doesn't fit
+# Solution: Gradient checkpointing
+
+from torch.utils.checkpoint import checkpoint
+
+class CheckpointedModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.layers = nn.ModuleList([
+            nn.Linear(1000, 1000) for _ in range(10)
+        ])
+
+    def forward(self, x):
+        # Use checkpointing for layers
+        for layer in self.layers:
+            x = checkpoint(layer, x)
+        return x
+
+# Trade-off: Recompute activations during backward pass
+# Memory: â†“ (don't store all activations)
+# Speed: â†“ (recompute during backward)
+
+# Problem 3: Memory leak
+# Solution: Clear cache and check for references
+
+torch.cuda.empty_cache()  # Free unused memory
+
+# Check for lingering tensors
+import gc
+gc.collect()
+torch.cuda.empty_cache()</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-memory-efficient-training-tec">Memory-Efficient è®­ç»ƒï¼ˆTrainingï¼‰ Techniques</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Technique 1: Delete unnecessary variables
+def train_step(data, target):
+    output = model(data)
+    loss = criterion(output, target)
+    loss.backward()
+
+    # Delete tensors explicitly
+    del output
+    del loss
+    torch.cuda.empty_cache()
+
+# Technique 2: Use torch.no_grad() for validation
+@torch.no_grad()
+def validate(model, val_loader, criterion, device):
+    model.eval()
+    val_loss = 0
+
+    for data, target in val_loader:
+        data, target = data.to(device), target.to(device)
+        output = model(data)
+        val_loss += criterion(output, target).item()
+
+    return val_loss / len(val_loader)
+
+# Technique 3: Set zero_grad(set_to_none=True)
+# Faster and more memory-efficient than zero_grad()
+optimizer.zero_grad(set_to_none=True)
+
+# Technique 4: Use empty_cache() strategically
+# Don't use too frequently (overhead), but helps between phases
+torch.cuda.empty_cache()  # After validation, before training</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-performance-profiling">Performance Profiling</h4>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-using-pytorch-profiler">Using PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ Profiler</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from torch.profiler import profile, record_function, ProfilerActivity
+
+# Basic profiling
+with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+    for i in range(10):
+        data, target = next(iter(train_loader))
+        data, target = data.to(device), target.to(device)
+
+        output = model(data)
+        loss = criterion(output, target)
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
+# Print results
+print(prof.key_averages().table(
+    sort_by=&quot;cuda_time_total&quot;,
+    row_limit=10
+))
+
+# Export for TensorBoard
+prof.export_chrome_trace(&quot;trace.json&quot;)
+
+# Detailed profiling with record_function
+with profile(activities=[ProfilerActivity.CUDA]) as prof:
+    with record_function(&quot;data_loading&quot;):
+        data, target = next(iter(train_loader))
+        data, target = data.to(device), target.to(device)
+
+    with record_function(&quot;forward&quot;):
+        output = model(data)
+
+    with record_function(&quot;loss&quot;):
+        loss = criterion(output, target)
+
+    with record_function(&quot;backward&quot;):
+        loss.backward()
+
+    with record_function(&quot;optimizer&quot;):
+        optimizer.step()
+
+print(prof.key_averages().table(sort_by=&quot;cuda_time_total&quot;))</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-advanced-profiling">Advanced Profiling</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Profile with scheduling (warmup, active, skip)
+from torch.profiler import schedule
+
+# Skip first 5 batches, warmup 2 batches, profile 3 batches, repeat
+my_schedule = schedule(
+    skip_first=5,
+    wait=1,
+    warmup=2,
+    active=3,
+    repeat=2
+)
+
+with profile(
+    activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+    schedule=my_schedule,
+    on_trace_ready=torch.profiler.tensorboard_trace_handler('./log'),
+    record_shapes=True,
+    profile_memory=True,
+    with_stack=True
+) as prof:
+    for step, (data, target) in enumerate(train_loader):
+        data, target = data.to(device), target.to(device)
+
+        output = model(data)
+        loss = criterion(output, target)
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
+        prof.step()  # Signal end of step
+
+# View in TensorBoard
+# tensorboard --logdir=./log</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-memory-profiling">Memory Profiling</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Profile memory usage
+with profile(
+    activities=[ProfilerActivity.CUDA],
+    profile_memory=True,
+    record_shapes=True
+) as prof:
+    for _ in range(10):
+        data, target = next(iter(train_loader))
+        data, target = data.to(device), target.to(device)
+
+        output = model(data)
+        loss = criterion(output, target)
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
+# Show memory usage
+print(prof.key_averages().table(
+    sort_by=&quot;self_cuda_memory_usage&quot;,
+    row_limit=10
+))
+
+# Find memory bottlenecks
+memory_events = [
+    event for event in prof.key_averages()
+    if event.self_cuda_memory_usage &gt; 0
+]
+memory_events.sort(key=lambda x: x.self_cuda_memory_usage, reverse=True)
+
+for event in memory_events[:5]:
+    print(f&quot;{event.key}: {event.self_cuda_memory_usage / 1024**2:.2f} MB&quot;)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-optimizing-data-loading">Optimizing Data Loading</h4>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-pin-memory-and-num-workers">Pin Memory and Num Workers</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Optimize DataLoader for GPU training
+train_loader = DataLoader(
+    dataset,
+    batch_size=32,
+    shuffle=True,
+    num_workers=4,      # Parallel data loading (CPU cores)
+    pin_memory=True,    # Faster transfer to GPU
+    prefetch_factor=2,  # Prefetch batches per worker
+    persistent_workers=True  # Keep workers alive
+)
+
+# Impact on performance:
+# - num_workers: 0 (slow) â†’ 4 (fast, diminishing returns after ~4-8)
+# - pin_memory: False â†’ True (~2x faster transfers)
+# - prefetch_factor: 2-4 (balance memory vs speed)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-benchmark-data-loading">Benchmark Data Loading</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import time
+
+def benchmark_dataloader(loader, num_batches=100):
+    &quot;&quot;&quot;Measure data loading speed&quot;&quot;&quot;
+    start = time.time()
+
+    for i, (data, target) in enumerate(loader):
+        if i &gt;= num_batches:
+            break
+
+        # Simulate transfer to GPU
+        data = data.to(device, non_blocking=True)
+        target = target.to(device, non_blocking=True)
+
+    elapsed = time.time() - start
+    batches_per_sec = num_batches / elapsed
+
+    print(f&quot;Batches/sec: {batches_per_sec:.2f}&quot;)
+    print(f&quot;Time/batch: {elapsed/num_batches*1000:.2f} ms&quot;)
+
+# Test different configurations
+configs = [
+    {'num_workers': 0, 'pin_memory': False},
+    {'num_workers': 0, 'pin_memory': True},
+    {'num_workers': 4, 'pin_memory': True},
+    {'num_workers': 8, 'pin_memory': True},
+]
+
+for config in configs:
+    loader = DataLoader(dataset, batch_size=32, **config)
+    print(f&quot;\nConfig: {config}&quot;)
+    benchmark_dataloader(loader)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-common-performance-issues">Common Performance Issues</h4>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-issue-1-low-gpu-utilization">Issue 1: Low GPU åŠ é€Ÿï¼ˆGPUï¼‰ Utilization</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Check GPU utilization
+# nvidia-smi -l 1
+
+# If GPU utilization &lt; 80%:
+
+# Cause 1: Data loading bottleneck
+# Solution: Increase num_workers, use pin_memory
+
+# Cause 2: Small batch size
+# Solution: Increase batch size (if memory allows)
+
+# Cause 3: CPU preprocessing too slow
+# Solution: Move preprocessing to GPU or simplify
+
+# Cause 4: Synchronization points
+# Avoid .item(), .cpu() in training loop
+bad_example = []
+for data, target in train_loader:
+    loss = train_step(data, target)
+    bad_example.append(loss.item())  # Synchronization!
+
+# Better: Accumulate on GPU, sync at end
+good_example = []
+for data, target in train_loader:
+    loss = train_step(data, target)
+    good_example.append(loss.detach())  # No sync
+
+total_loss = torch.stack(good_example).mean().item()  # One sync</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-issue-2-memory-fragmentation">Issue 2: Memory Fragmentation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Symptom: OOM errors despite low memory usage
+
+# Solution 1: Empty cache periodically
+if batch_idx % 100 == 0:
+    torch.cuda.empty_cache()
+
+# Solution 2: Preallocate tensors
+class PreallocatedBuffer:
+    def __init__(self, shape, device):
+        self.buffer = torch.empty(shape, device=device)
+
+    def get(self):
+        return self.buffer
+
+# Reuse buffer instead of allocating new tensors
+buffer = PreallocatedBuffer((batch_size, *input_shape), device)
+
+# Solution 3: Use memory pools (advanced)
+torch.cuda.memory.set_per_process_memory_fraction(0.8, device=0)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-issue-3-slow-mixed-precision">Issue 3: Slow Mixed Precision</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Mixed precision should be faster, but sometimes isn't
+
+# Check: Are Tensor Cores being used?
+# Tensor Cores require specific dimensions (multiples of 8)
+
+# Bad: Odd dimensions
+model = nn.Linear(1001, 503)  # Won't use Tensor Cores efficiently
+
+# Good: Multiple of 8
+model = nn.Linear(1024, 512)  # Uses Tensor Cores
+
+# Check hardware support
+props = torch.cuda.get_device_properties(0)
+if props.major &gt;= 7:  # Volta or newer
+    print(&quot;Tensor Cores supported&quot;)
+else:
+    print(&quot;No Tensor Cores - FP16 may not help&quot;)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-practical-exercises">Practical Exercises</h4>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-exercise-1-gpu-training-loop">Exercise 1: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®­ç»ƒï¼ˆTrainingï¼‰ Loop</h5>
+<p>Implement a complete training loop with GPU åŠ é€Ÿï¼ˆGPUï¼‰ support:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+
+# TODO: Implement training function
+def train_model(model, train_loader, val_loader, epochs=10):
+    &quot;&quot;&quot;
+    Train model with:
+    - GPU support
+    - Mixed precision
+    - Memory tracking
+    - Validation
+    &quot;&quot;&quot;
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # Your code here
+    pass
+
+# Test
+model = nn.Sequential(
+    nn.Linear(100, 256),
+    nn.ReLU(),
+    nn.Linear(256, 10)
+)
+
+# Create dummy data
+X = torch.randn(1000, 100)
+y = torch.randint(0, 10, (1000,))
+dataset = TensorDataset(X, y)
+train_loader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+train_model(model, train_loader, train_loader)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-exercise-2-memory-optimizatio">Exercise 2: Memory Optimization</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># TODO: Optimize this code to reduce memory usage
+def memory_hungry_training(model, data_loader):
+    optimizer = torch.optim.Adam(model.parameters())
+
+    for data, target in data_loader:
+        output = model(data)
+        loss = F.cross_entropy(output, target)
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
+    # Hints:
+    # - Use gradient accumulation
+    # - Add memory tracking
+    # - Use mixed precision
+    # - Clear cache when needed</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-exercise-3-profile-and-optimi">Exercise 3: Profile and Optimize</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># TODO: Profile this code and identify bottlenecks
+def slow_training_loop(model, data_loader, device):
+    for data, target in data_loader:
+        data = data.to(device)
+        target = target.to(device)
+
+        output = model(data)
+        loss = F.cross_entropy(output, target)
+
+        # Extract loss value (problematic!)
+        loss_value = loss.item()
+
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
+        print(f&quot;Loss: {loss_value}&quot;)
+
+# Use PyTorch Profiler to identify issues
+# Then optimize the code</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<ol>
+<li><strong>GPU åŠ é€Ÿï¼ˆGPUï¼‰ Data Transfer</strong>: Moving tensors and models to GPU åŠ é€Ÿï¼ˆGPUï¼‰, device-agnostic code</li>
+<li><strong>Mixed Precision</strong>: FP16/BF16 training with AMP for 2-3x speedup</li>
+<li><strong>Memory Management</strong>: ç›‘æŽ§ï¼ˆMonitoringï¼‰, profiling, and optimizing GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory</li>
+<li><strong>Performance Profiling</strong>: Using PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ Profiler to find bottlenecks</li>
+<li><strong>Data Loading</strong>: Optimizing DataLoader for GPU åŠ é€Ÿï¼ˆGPUï¼‰ training</li>
+<li><strong>Common Issues</strong>: Identifying and fixing GPU åŠ é€Ÿï¼ˆGPUï¼‰ performance problems</li>
+</ol>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-key-takeaways">Key Takeaways</h4>
+<ul>
+<li><strong>Always use mixed precision</strong> on modern GPUs (Volta+) for free speedup</li>
+<li><strong>Pin memory + num_workers</strong> for efficient data loading</li>
+<li><strong>Avoid synchronization</strong> (.item(), .cpu()) in training loops</li>
+<li><strong>Profile first, optimize second</strong> - use profiler to find real bottlenecks</li>
+<li><strong>Memory is precious</strong> - use gradient checkpointing for large models</li>
+<li><strong>Batch size matters</strong> - larger batches improve GPU åŠ é€Ÿï¼ˆGPUï¼‰ utilization</li>
+</ul>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-further-reading">Further Reading</h4>
+<ul>
+<li><a href="https://pytorch.org/docs/stable/notes/cuda.html">PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Semantics</a></li>
+<li><a href="https://pytorch.org/docs/stable/amp.html">Automatic Mixed Precision</a></li>
+<li><a href="https://pytorch.org/tutorials/recipes/recipes/profiler_recipe.html">PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ Profiler</a></li>
+<li><a href="https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html">Performance Tuning Guide</a></li>
+</ul>
+<h4 id="lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md-next-steps">Next Steps</h4>
+<p>In the next lesson, <strong>åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ Fundamentals</strong>, we'll explore how to scale training across multiple GPUs and multiple machines using PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰'s distributed training capabilities.</p>
+<hr/>
+<p><strong>Ready to scale across multiple GPUs? Let's dive into distributed training!</strong></p><p><a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

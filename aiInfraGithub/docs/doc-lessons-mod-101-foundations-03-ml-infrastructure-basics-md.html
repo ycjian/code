@@ -1,0 +1,530 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Module 01: Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-resources-md.html">Module 101 â€” Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lesson 01: Introduction to æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-02-environment-setup-md.html">Lesson 02: Development Environment Setup</a><a class="tree-doc active" href="../docs/doc-lessons-mod-101-foundations-03-ml-infrastructure-basics-md.html">Lesson 03: æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Basics</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-04-ml-frameworks-md.html">Lesson 04: ML Frameworks Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-05-cloud-intro-md.html">Lesson 05: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-06-model-serving-basics-md.html">Lesson 06: æ¨¡åž‹æœåŠ¡ï¼ˆModel Servingï¼‰ Basics</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-07-docker-basics-md.html">Lesson 07: Docker å®¹å™¨ï¼ˆDockerï¼‰ Basics for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-08-api-development-md.html">Lesson 08: API Development for ML Services</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Module 101 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-01-python-dev-environment-md.html">Lab 01: Reproducible Python Dev Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-02-first-docker-container-md.html">Lab 02: Build, Run, and Inspect Your First Docker å®¹å™¨ï¼ˆDockerï¼‰ Container</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-03-local-kind-cluster-md.html">Lab 03: Stand Up a Local Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cluster with kind</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-04-serve-sklearn-model-md.html">Lab 04: Serve a Scikit-Learn Model Behind a FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ Endpoint</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-05-instrument-with-prometheus-md.html">Lab 05: Add Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Instrumentation to the FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ Service</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercise 04: Advanced Python Environment Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md.html">Exercise 05: ML Framework Benchmarking Tool</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-06-fastapi-ml-template-generator-readme-md.html">Exercise 06: FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ ML Service Template Generator</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-07-cloud-onboarding-readme-md.html">Exercise 07: Cloud Onboarding for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Engineers</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-08-production-model-serving-readme-md.html">Exercise 08: Production-Grade æ¨¡åž‹æœåŠ¡ï¼ˆModel Servingï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-09-api-integration-tests-readme-md.html">Exercise 09: API Integration &amp; Contract Testing</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-10-end-to-end-mini-project-readme-md.html">Exercise 10: End-to-End Mini-Project (Capstone for Module 101)</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-01-environment-md.html">Exercise 01: Environment Verification</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-02-docker-md.html">Exercise 02: Docker å®¹å™¨ï¼ˆDockerï¼‰ Fundamentals for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-03-kubernetes-md.html">Exercise 03: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰ for ML</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Module 01: Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-101-foundations-03-ml-infrastructure-basics-md"><h3 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-lesson-03-ml-infrastructure-bas">Lesson 03: æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Basics</h3>
+<p><strong>Duration:</strong> 4 hours <strong>Objectives:</strong> Understand the ML lifecycle and infrastructure requirements at each stage</p>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-introduction">Introduction</h4>
+<p>Machine learning infrastructure exists to support the complete ML lifecycle - from data collection through model deployment and monitoring. Understanding this lifecycle and the infrastructure requirements at each stage is fundamental to being an effective ML infrastructure engineer.</p>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-the-ml-lifecycle">The ML Lifecycle</h4>
+<p>The ML lifecycle consists of several interconnected stages that form a continuous loop:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                     ML Lifecycle                                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+  â”‚   1. DATA   â”‚
+  â”‚ Collection  â”‚
+  â”‚ Preparation â”‚
+  â”‚  Labeling   â”‚
+  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+         â”‚
+         â†“
+  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+  â”‚ 2. TRAINING â”‚
+  â”‚Experiment   â”‚
+  â”‚Development  â”‚
+  â”‚Validation   â”‚
+  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+         â”‚
+         â†“
+  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+  â”‚3. EVALUATIONâ”‚
+  â”‚   Testing   â”‚
+  â”‚ Validation  â”‚
+  â”‚   Metrics   â”‚
+  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+         â”‚
+         â†“
+  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+  â”‚4. DEPLOYMENTâ”‚
+  â”‚  Serving    â”‚
+  â”‚Integration  â”‚
+  â”‚   Scaling   â”‚
+  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+         â”‚
+         â†“
+  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+  â”‚5. MONITORINGâ”‚
+  â”‚Performance  â”‚
+  â”‚  Metrics    â”‚
+  â”‚ Drift Det.  â”‚
+  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+         â”‚
+         â†“
+  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+  â”‚6. RETRAININGâ”‚
+  â”‚Update Model â”‚
+  â”‚  New Data   â”‚
+  â”‚   Deploy    â”‚
+  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+         â”‚
+         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                      â”‚
+                      â””â”€â”€â”€â”€&gt; (Loop back to Data)</code></pre></div>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-stage-1-data-collection-and-pre">Stage 1: Data Collection and Preparation</h4>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-what-happens">What Happens</h5>
+<ul>
+<li>Raw data is collected from various sources (databases, APIs, sensors, logs)</li>
+<li>Data is cleaned, validated, and transformed</li>
+<li>Features are engineered from raw data</li>
+<li>Data is labeled (for supervised learning)</li>
+<li>Datasets are versioned and stored</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-infrastructure-requirements">Infrastructure Requirements</h5>
+<p><strong>Storage:</strong></p>
+<ul>
+<li><strong>Object storage</strong> (S3, GCS, Azure äº‘ï¼ˆAzureï¼‰ Blob) for large datasets</li>
+<li><strong>Data lakes</strong> for raw, unstructured data</li>
+<li><strong>Data warehouses</strong> for structured, processed data</li>
+<li><strong>Version control for data</strong> (DVC, Delta Lake)</li>
+</ul>
+<p><strong>Compute:</strong></p>
+<ul>
+<li><strong>Data processing clusters</strong> (Spark, Dask) for large-scale transformations</li>
+<li><strong>ETL/ELT pipelines</strong> for data movement and transformation</li>
+<li><strong>Distributed computing</strong> for parallel processing</li>
+</ul>
+<p><strong>Tools:</strong></p>
+<ul>
+<li><strong>Apache Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰</strong> - Workflow orchestration</li>
+<li><strong>Apache Kafka æµå¤„ç†ï¼ˆKafkaï¼‰</strong> - Real-time data streaming</li>
+<li><strong>DVC æ•°æ®ç‰ˆæœ¬æŽ§åˆ¶ï¼ˆDVCï¼‰</strong> - Data version control</li>
+<li><strong>Great Expectations</strong> - Data validation</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-example-infrastructure">Example Infrastructure</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Data pipeline orchestration with Airflow
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+
+def collect_data():
+    # Collect from API
+    pass
+
+def validate_data():
+    # Check data quality
+    pass
+
+def transform_data():
+    # Feature engineering
+    pass
+
+dag = DAG('data_pipeline', start_date=datetime(2025, 1, 1))
+
+collect = PythonOperator(task_id='collect', python_callable=collect_data, dag=dag)
+validate = PythonOperator(task_id='validate', python_callable=validate_data, dag=dag)
+transform = PythonOperator(task_id='transform', python_callable=transform_data, dag=dag)
+
+collect &gt;&gt; validate &gt;&gt; transform</code></pre></div>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-stage-2-model-training-and-expe">Stage 2: Model è®­ç»ƒï¼ˆTrainingï¼‰ and Experimentation</h4>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-what-happens">What Happens</h5>
+<ul>
+<li>Data scientists experiment with different algorithms</li>
+<li>Models are trained on prepared datasets</li>
+<li>Hyperparameters are tuned</li>
+<li>Multiple experiments are run and tracked</li>
+<li>Best models are selected based on validation metrics</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-infrastructure-requirements">Infrastructure Requirements</h5>
+<p><strong>Compute:</strong></p>
+<ul>
+<li><strong>GPU åŠ é€Ÿï¼ˆGPUï¼‰ clusters</strong> for deep learning training</li>
+<li><strong>Distributed training</strong> across multiple GPUs/nodes</li>
+<li><strong>Resource scheduling</strong> (Kubernetes, SLURM)</li>
+<li><strong>Spot instances</strong> for æˆæœ¬ä¼˜åŒ–ï¼ˆcost optimizationï¼‰</li>
+</ul>
+<p><strong>å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰:</strong></p>
+<ul>
+<li><strong>MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰</strong> - Experiment tracking and model registry</li>
+<li><strong>Weights &amp; Biases</strong> - Experiment visualization</li>
+<li><strong>TensorBoard</strong> - è®­ç»ƒï¼ˆTrainingï¼‰ metrics visualization</li>
+</ul>
+<p><strong>Storage:</strong></p>
+<ul>
+<li><strong>Model registry</strong> for versioning trained models</li>
+<li><strong>Artifact storage</strong> for model files, checkpoints</li>
+<li><strong>Metadata storage</strong> for experiment parameters</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-example-infrastructure">Example Infrastructure</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Experiment tracking with MLflow
+import mlflow
+import torch
+
+mlflow.start_run()
+
+# Log parameters
+mlflow.log_param(&quot;learning_rate&quot;, 0.001)
+mlflow.log_param(&quot;batch_size&quot;, 32)
+
+# Training loop
+for epoch in range(num_epochs):
+    loss = train_epoch(model, data_loader)
+
+    # Log metrics
+    mlflow.log_metric(&quot;loss&quot;, loss, step=epoch)
+    mlflow.log_metric(&quot;accuracy&quot;, accuracy, step=epoch)
+
+# Save model
+mlflow.pytorch.log_model(model, &quot;model&quot;)
+
+mlflow.end_run()</code></pre></div>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-resource-requirements">Resource Requirements</h5>
+<div class="table-wrap"><table><thead><tr><th>Model Type</th><th>GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory</th><th>è®­ç»ƒï¼ˆTrainingï¼‰ Time</th><th>Storage</th></tr></thead><tbody><tr><td>Small CNN</td><td>4-8 GB</td><td>Hours</td><td>&lt;1 GB</td></tr><tr><td>Large CNN (ResNet-152)</td><td>12-16 GB</td><td>Days</td><td>5-10 GB</td></tr><tr><td>BERT Base</td><td>16-24 GB</td><td>Days</td><td>500 MB</td></tr><tr><td>GPT-3 Scale</td><td>80 GB+ (multiple)</td><td>Weeks</td><td>100s of GB</td></tr><tr><td>å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ (7B params)</td><td>28 GB+</td><td>Days-Weeks</td><td>14-28 GB</td></tr></tbody></table></div>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-stage-3-model-evaluation-and-va">Stage 3: Model Evaluation and Validation</h4>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-what-happens">What Happens</h5>
+<ul>
+<li>Models are evaluated on test datasets</li>
+<li>Performance metrics are calculated</li>
+<li>Model behavior is analyzed (confusion matrices, error analysis)</li>
+<li>Edge cases and failure modes are identified</li>
+<li>Model fairness and bias are assessed</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-infrastructure-requirements">Infrastructure Requirements</h5>
+<p><strong>Compute:</strong></p>
+<ul>
+<li>æŽ¨ç†ï¼ˆInferenceï¼‰ infrastructure for batch evaluation</li>
+<li>A/B testing frameworks</li>
+</ul>
+<p><strong>Tools:</strong></p>
+<ul>
+<li><strong>Model evaluation frameworks</strong> (scikit-learn metrics, custom evaluators)</li>
+<li><strong>Bias detection tools</strong> (Fairlearn, AI Fairness 360)</li>
+<li><strong>Model explainability</strong> (SHAP, LIME)</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-key-metrics-to-track">Key Metrics to Track</h5>
+<p><strong>Classification:</strong></p>
+<ul>
+<li>Accuracy, Precision, Recall, F1 Score</li>
+<li>ROC AUC, Precision-Recall AUC</li>
+<li>Confusion Matrix</li>
+</ul>
+<p><strong>Regression:</strong></p>
+<ul>
+<li>MSE, RMSE, MAE</li>
+<li>RÂ² Score</li>
+<li>Residual plots</li>
+</ul>
+<p><strong>Ranking:</strong></p>
+<ul>
+<li>NDCG (Normalized Discounted Cumulative Gain)</li>
+<li>MAP (Mean Average Precision)</li>
+</ul>
+<p><strong>Business Metrics:</strong></p>
+<ul>
+<li>Revenue impact</li>
+<li>User engagement</li>
+<li>Conversion rate</li>
+</ul>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-stage-4-model-deployment">Stage 4: Model éƒ¨ç½²ï¼ˆDeploymentï¼‰</h4>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-what-happens">What Happens</h5>
+<ul>
+<li>Model is packaged for production</li>
+<li>Model is deployed to serving infrastructure</li>
+<li>API endpoints are created for inference</li>
+<li>Load balancing and scaling are configured</li>
+<li>Gradual rollout (canary deployment)</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-infrastructure-requirements">Infrastructure Requirements</h5>
+<p><strong>Serving:</strong></p>
+<ul>
+<li><strong>Model serving frameworks</strong> (TorchServe, TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰ Serving, FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰)</li>
+<li><strong>Container orchestration</strong> (Kubernetes)</li>
+<li><strong>Load balancers</strong> for traffic distribution</li>
+<li><strong>API gateways</strong> for request routing</li>
+</ul>
+<p><strong>éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies:</strong></p>
+<ol>
+<li><strong>Blue-Green éƒ¨ç½²ï¼ˆDeploymentï¼‰</strong></li>
+</ol>
+<ul>
+<li>Run two identical production environments</li>
+<li>Switch traffic from old (blue) to new (green)</li>
+<li>Instant rollback if issues</li>
+</ul>
+<ol>
+<li><strong>Canary éƒ¨ç½²ï¼ˆDeploymentï¼‰</strong></li>
+</ol>
+<ul>
+<li>Gradually route traffic to new version</li>
+<li>Monitor metrics closely</li>
+<li>Roll back if degradation detected</li>
+</ul>
+<ol>
+<li><strong>Shadow éƒ¨ç½²ï¼ˆDeploymentï¼‰</strong></li>
+</ol>
+<ul>
+<li>Send traffic to both old and new models</li>
+<li>Compare predictions without affecting users</li>
+<li>Validate before full deployment</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-example-deployment-architecture">Example éƒ¨ç½²ï¼ˆDeploymentï¼‰ Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚  Load Balancer  â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                             â”‚
+              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+              â”‚              â”‚              â”‚
+              â†“              â†“              â†“
+         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”
+         â”‚ Model  â”‚     â”‚ Model  â”‚     â”‚ Model  â”‚
+         â”‚ Pod 1  â”‚     â”‚ Pod 2  â”‚     â”‚ Pod 3  â”‚
+         â”‚ (v1.2) â”‚     â”‚ (v1.2) â”‚     â”‚ (v1.2) â”‚
+         â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-stage-5-monitoring-and-observab">Stage 5: ç›‘æŽ§ï¼ˆMonitoringï¼‰ and å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</h4>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-what-happens">What Happens</h5>
+<ul>
+<li>æŽ¨ç†ï¼ˆInferenceï¼‰ latency and throughput are monitored</li>
+<li>Prediction distributions are tracked</li>
+<li>Model performance degradation is detected</li>
+<li>System health metrics are collected</li>
+<li>Alerts are triggered for anomalies</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-infrastructure-requirements">Infrastructure Requirements</h5>
+<p><strong>ç›‘æŽ§ï¼ˆMonitoringï¼‰ Stack:</strong></p>
+<ul>
+<li><strong>Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰</strong> - Metrics collection</li>
+<li><strong>Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰</strong> - Dashboards and visualization</li>
+<li><strong>ELK Stack</strong> (Elasticsearch, Logstash, Kibana) - Log aggregation</li>
+<li><strong>Jaeger é“¾è·¯è¿½è¸ªï¼ˆJaegerï¼‰/Zipkin</strong> - Distributed tracing</li>
+</ul>
+<p><strong>Key Metrics to Monitor:</strong></p>
+<p><strong>System Metrics:</strong></p>
+<ul>
+<li>Request rate (requests/second)</li>
+<li>Latency (p50, p95, p99)</li>
+<li>Error rate</li>
+<li>CPU/GPU åŠ é€Ÿï¼ˆGPUï¼‰ utilization</li>
+<li>Memory usage</li>
+</ul>
+<p><strong>Model Metrics:</strong></p>
+<ul>
+<li>Prediction distribution</li>
+<li>Confidence scores</li>
+<li>Feature distributions</li>
+<li>Data drift</li>
+<li>Concept drift</li>
+</ul>
+<p><strong>Business Metrics:</strong></p>
+<ul>
+<li>Conversion rate</li>
+<li>Revenue per prediction</li>
+<li>User satisfaction</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-example-monitoring-setup">Example ç›‘æŽ§ï¼ˆMonitoringï¼‰ Setup</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from prometheus_client import Counter, Histogram
+
+# Define metrics
+prediction_counter = Counter(
+    'model_predictions_total',
+    'Total predictions made',
+    ['model_version', 'outcome']
+)
+
+inference_duration = Histogram(
+    'model_inference_duration_seconds',
+    'Model inference duration'
+)
+
+# Track metrics
+with inference_duration.time():
+    prediction = model.predict(input_data)
+
+prediction_counter.labels(
+    model_version='v1.2',
+    outcome='success'
+).inc()</code></pre></div>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-stage-6-model-retraining-and-up">Stage 6: Model Retraining and Updates</h4>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-what-happens">What Happens</h5>
+<ul>
+<li>Performance degradation is detected</li>
+<li>New data is collected</li>
+<li>Model is retrained with updated data</li>
+<li>Retrained model is evaluated</li>
+<li>New model is deployed through CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-infrastructure-requirements">Infrastructure Requirements</h5>
+<p><strong>Automation:</strong></p>
+<ul>
+<li><strong>Scheduled retraining</strong> - Periodic model updates</li>
+<li><strong>Triggered retraining</strong> - When drift detected or new data available</li>
+<li><strong>CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ pipelines</strong> - Automated testing and deployment</li>
+</ul>
+<p><strong>Continuous è®­ç»ƒï¼ˆTrainingï¼‰:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Data â†’ Validate â†’ Train â†’ Evaluate â†’ Deploy
+  â†‘                                     â”‚
+  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+         (Continuous Loop)</code></pre></div>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-infrastructure-challenges-in-ml">Infrastructure Challenges in ML</h4>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-1-data-volume-and-velocity">1. Data Volume and Velocity</h5>
+<p><strong>Challenge:</strong> ML requires massive amounts of data that grows continuously</p>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>Distributed storage (HDFS, S3)</li>
+<li>Stream processing (Kafka, Flink)</li>
+<li>Data compression and efficient formats (Parquet, ORC)</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-2-compute-intensity">2. Compute Intensity</h5>
+<p><strong>Challenge:</strong> è®­ç»ƒï¼ˆTrainingï¼‰ large models requires significant compute resources</p>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>GPU åŠ é€Ÿï¼ˆGPUï¼‰ clusters</li>
+<li>Distributed training (data parallelism, model parallelism)</li>
+<li>Cloud elasticity (scale up/down as needed)</li>
+<li>Spot instances for æˆæœ¬ä¼˜åŒ–ï¼ˆcost optimizationï¼‰</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-3-model-versioning">3. Model Versioning</h5>
+<p><strong>Challenge:</strong> Need to track models, data, and code together</p>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>Model registries (MLflow, DVC æ•°æ®ç‰ˆæœ¬æŽ§åˆ¶ï¼ˆDVCï¼‰)</li>
+<li>Git for code</li>
+<li>Data versioning tools</li>
+<li>Reproducible experiments</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-4-serving-latency">4. Serving Latency</h5>
+<p><strong>Challenge:</strong> Real-time predictions must be fast (&lt;100ms)</p>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>Model optimization (quantization, pruning)</li>
+<li>Caching</li>
+<li>Batch inference</li>
+<li>GPU åŠ é€Ÿï¼ˆGPUï¼‰ acceleration</li>
+<li>Edge deployment</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-5-monitoring-complexity">5. ç›‘æŽ§ï¼ˆMonitoringï¼‰ Complexity</h5>
+<p><strong>Challenge:</strong> Need to monitor both system and model performance</p>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>Comprehensive observability stack</li>
+<li>Custom metrics for ML</li>
+<li>Automated alerting</li>
+<li>Drift detection</li>
+</ul>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-infrastructure-anti-patterns-to">Infrastructure Anti-Patterns to Avoid</h4>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-1-manual-deployments">1. Manual Deployments</h5>
+<p><strong>Problem:</strong> Error-prone, slow, not reproducible</p>
+<p><strong>Solution:</strong> Automate with CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ pipelines</p>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-2-no-model-versioning">2. No Model Versioning</h5>
+<p><strong>Problem:</strong> Can't roll back, can't reproduce results</p>
+<p><strong>Solution:</strong> Use model registry, version everything</p>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-3-training-in-production">3. è®­ç»ƒï¼ˆTrainingï¼‰ in ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰</h5>
+<p><strong>Problem:</strong> Unstable, resource competition, security risks</p>
+<p><strong>Solution:</strong> Separate training and serving environments</p>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-4-ignoring-data-quality">4. Ignoring Data Quality</h5>
+<p><strong>Problem:</strong> Garbage in, garbage out - models fail silently</p>
+<p><strong>Solution:</strong> Data validation, quality checks, monitoring</p>
+<h5 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-5-no-monitoring">5. No ç›‘æŽ§ï¼ˆMonitoringï¼‰</h5>
+<p><strong>Problem:</strong> Don't know when models degrade</p>
+<p><strong>Solution:</strong> Comprehensive monitoring and alerting</p>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-the-role-of-ml-infrastructure-e">The Role of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Engineers</h4>
+<p>At each lifecycle stage, ML infrastructure engineers:</p>
+<p><strong>Data Stage:</strong></p>
+<ul>
+<li>Build and maintain data pipelines</li>
+<li>Implement data versioning</li>
+<li>Ensure data quality</li>
+</ul>
+<p><strong>è®­ç»ƒï¼ˆTrainingï¼‰ Stage:</strong></p>
+<ul>
+<li>Provision GPU åŠ é€Ÿï¼ˆGPUï¼‰ clusters</li>
+<li>Set up experiment tracking</li>
+<li>Optimize training performance</li>
+</ul>
+<p><strong>Evaluation Stage:</strong></p>
+<ul>
+<li>Create evaluation frameworks</li>
+<li>Implement bias detection</li>
+<li>Build validation pipelines</li>
+</ul>
+<p><strong>éƒ¨ç½²ï¼ˆDeploymentï¼‰ Stage:</strong></p>
+<ul>
+<li>Build serving infrastructure</li>
+<li>Implement deployment strategies</li>
+<li>Manage container orchestration</li>
+</ul>
+<p><strong>ç›‘æŽ§ï¼ˆMonitoringï¼‰ Stage:</strong></p>
+<ul>
+<li>Set up observability stack</li>
+<li>Define alerts and SLOs</li>
+<li>Build dashboards</li>
+</ul>
+<p><strong>Retraining Stage:</strong></p>
+<ul>
+<li>Automate retraining pipelines</li>
+<li>Implement CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for ML</li>
+<li>Manage model lifecycle</li>
+</ul>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-real-world-example-recommendati">Real-World Example: Recommendation System</h4>
+<p>Let's trace a recommendation system through the ML lifecycle:</p>
+<p><strong>1. Data Collection:</strong></p>
+<ul>
+<li>User interactions logged to Kafka æµå¤„ç†ï¼ˆKafkaï¼‰</li>
+<li>Batch job processes logs daily</li>
+<li>Features stored in feature store</li>
+</ul>
+<p><strong>2. è®­ç»ƒï¼ˆTrainingï¼‰:</strong></p>
+<ul>
+<li>Nightly training on GPU åŠ é€Ÿï¼ˆGPUï¼‰ cluster</li>
+<li>Experiment tracking with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰</li>
+<li>Best model registered</li>
+</ul>
+<p><strong>3. Evaluation:</strong></p>
+<ul>
+<li>Offline metrics (AUC, NDCG)</li>
+<li>A/B test framework ready</li>
+</ul>
+<p><strong>4. éƒ¨ç½²ï¼ˆDeploymentï¼‰:</strong></p>
+<ul>
+<li>Canary deployment (5% traffic)</li>
+<li>Monitor metrics for 24 hours</li>
+<li>Full rollout if successful</li>
+</ul>
+<p><strong>5. ç›‘æŽ§ï¼ˆMonitoringï¼‰:</strong></p>
+<ul>
+<li>Latency dashboard (target: &lt;50ms)</li>
+<li>Click-through rate tracking</li>
+<li>Model drift detection</li>
+</ul>
+<p><strong>6. Retraining:</strong></p>
+<ul>
+<li>Weekly retraining with new data</li>
+<li>Automated evaluation pipeline</li>
+<li>Auto-deploy if metrics improve</li>
+</ul>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-key-takeaways">Key Takeaways</h4>
+<ol>
+<li><strong>ML lifecycle is continuous</strong> - Not a one-time process</li>
+<li><strong>Infrastructure enables each stage</strong> - Different requirements at each stage</li>
+<li><strong>Automation is critical</strong> - Manual processes don't scale</li>
+<li><strong>ç›‘æŽ§ï¼ˆMonitoringï¼‰ is essential</strong> - Models can fail silently</li>
+<li><strong>Everything should be versioned</strong> - Data, code, models, config</li>
+<li><strong>ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ is different from development</strong> - Need robust infrastructure</li>
+</ol>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-practical-exercise">Practical Exercise</h4>
+<p>Think about a simple ML use case (e.g., spam detection):</p>
+<ol>
+<li><strong>List data requirements</strong> - What data needed? Where does it come from?</li>
+<li><strong>Identify compute needs</strong> - What resources for training? For serving?</li>
+<li><strong>Define success metrics</strong> - How do you measure if the model works?</li>
+<li><strong>Plan monitoring</strong> - What would you track in production?</li>
+<li><strong>Consider failure modes</strong> - What could go wrong at each stage?</li>
+</ol>
+<p>Write your answers and compare with the patterns discussed in this lesson.</p>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li>What are the six stages of the ML lifecycle?</li>
+<li>Why is model versioning important?</li>
+<li>What's the difference between system metrics and model metrics?</li>
+<li>What are three deployment strategies for ML models?</li>
+<li>Why is monitoring critical for production ML systems?</li>
+<li>What infrastructure is needed for the training stage?</li>
+<li>What is data drift and why does it matter?</li>
+</ol>
+<h4 id="lessons-mod-101-foundations-03-ml-infrastructure-basics-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning">Google's MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Whitepaper</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/architecture/example-scenario/mlops/mlops-maturity-model">Microsoft's MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Maturity Model</a></li>
+<li><a href="https://www.uber.com/blog/michelangelo-machine-learning-platform/">Uber's Michelangelo Platform</a></li>
+<li><a href="http://www.mlebook.com/">&quot;æœºå™¨å­¦ä¹ ï¼ˆMachine Learningï¼‰ Engineering&quot; by Andriy Burkov</a></li>
+</ul>
+<hr/>
+<p><strong>Next Lesson:</strong> <a href="#doc-lessons-mod-101-foundations-04-ml-frameworks-md">04-ml-frameworks.md</a> - Working with PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ and TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰ for infrastructure engineers</p><p><a class="home" href="../docs/doc-lessons-mod-101-foundations-02-environment-setup-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-101-foundations-04-ml-frameworks-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

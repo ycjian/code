@@ -1,0 +1,778 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Module 05: Data Pipelines and Orchestration</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-resources-md.html">Module 05: Data Pipelines - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lesson 01: Data Pipeline Architecture for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-02-apache-airflow-fundamentals-md.html">Lesson 02: Apache Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ Fundamentals</a><a class="tree-doc active" href="../docs/doc-lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md.html">Lesson 03: Advanced Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-04-data-versioning-dvc-md.html">Lesson 04: Data Versioning with DVC æ•°æ®ç‰ˆæœ¬æŽ§åˆ¶ï¼ˆDVCï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-05-data-processing-spark-md.html">Lesson 05: Data Processing with Apache Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-06-streaming-data-kafka-md.html">Lesson 06: Streaming Data with Apache Kafka æµå¤„ç†ï¼ˆKafkaï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-07-data-quality-validation-md.html">Lesson 07: Data Quality and Validation</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-08-pipeline-monitoring-errors-md.html">Lesson 08: Pipeline ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Error Handling</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Module 105 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-01-airflow-local-md.html">Lab 01: Run Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ Locally with docker-compose</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-02-dag-development-md.html">Lab 02: Author Your First DAG</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-03-spark-job-md.html">Lab 03: Run a Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ Batch Job Locally</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-04-kafka-streaming-md.html">Lab 04: Stream Events Through Kafka æµå¤„ç†ï¼ˆKafkaï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-05-dvc-versioning-md.html">Lab 05: Version Data and Models with DVC æ•°æ®ç‰ˆæœ¬æŽ§åˆ¶ï¼ˆDVCï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-06-data-quality-md.html">Lab 06: Validate Data with Great Expectations</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercise 01: Data Pipeline Architecture Design</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-02-airflow-fundamentals-readme-md.html">Exercise 02: Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ Fundamentals â€” Build a Real DAG</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-03-streaming-pipeline-kafka-readme-md.html">Exercise 03: Real-Time ML Feature Pipeline with Kafka æµå¤„ç†ï¼ˆKafkaï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-04-workflow-orchestration-airflow-readme.html">Exercise 04: ML Workflow Orchestration with Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-05-spark-batch-processing-readme-md.html">Exercise 05: Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ Batch Processing for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-06-data-versioning-dvc-readme-md.html">Exercise 06: Data and Model Versioning with DVC æ•°æ®ç‰ˆæœ¬æŽ§åˆ¶ï¼ˆDVCï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-07-data-quality-great-expectations-readm.html">Exercise 07: Data Quality Validation with Great Expectations</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-08-pipeline-monitoring-lineage-readme-md.html">Exercise 08: Pipeline ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Data Lineage</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-09-backfill-strategies-readme-md.html">Exercise 09: Backfill Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-10-etl-to-elt-migration-readme-md.html">Exercise 10: ETL â†’ ELT Migration with dbt</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-11-lambda-architecture-readme-md.html">Exercise 11: Lambda Architecture â€” Batch + Streaming Hybrid</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-12-pipeline-cost-optimization-readme-md.html">Exercise 12: Pipeline Cost Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-readme-md.html">Module 05: Data Pipelines - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Module 05: Data Pipelines - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md"><h3 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-lesson-03-advanced-airflow-for-ml">Lesson 03: Advanced Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ for ML</h3>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+<li>Implement complex DAG patterns for ML workflows</li>
+<li>Create dynamic DAGs that generate tasks programmatically</li>
+<li>Use TaskFlow API effectively for data passing</li>
+<li>Optimize Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ performance for large-scale ML pipelines</li>
+<li>Implement branching and conditional logic in DAGs</li>
+<li>Build distributed training pipelines with Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰</li>
+<li>Apply production-ready patterns and anti-patterns</li>
+</ul>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-prerequisites">å‰ç½®è¦æ±‚ï¼ˆPrerequisitesï¼‰</h4>
+<ul>
+<li>Completed Lesson 02 (Airflow Fundamentals)</li>
+<li>Python programming (decorators, comprehensions)</li>
+<li>Understanding of ML training workflows</li>
+<li>Familiarity with Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</li>
+</ul>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-introduction">Introduction</h4>
+<p>This lesson covers advanced Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ patterns specifically for ML infrastructure:</p>
+<ul>
+<li><strong>Dynamic DAGs</strong>: Generate tasks for multiple models/experiments</li>
+<li><strong>Complex dependencies</strong>: Fan-out/fan-in, conditional branching</li>
+<li><strong>Distributed training</strong>: Orchestrate multi-GPU/multi-node training</li>
+<li><strong>Performance optimization</strong>: Handle 100+ concurrent DAGs</li>
+</ul>
+<p><strong>Real-world applications:</strong></p>
+<ul>
+<li><strong>Uber</strong>: Dynamic DAGs for 100+ ML models trained daily</li>
+<li><strong>Lyft</strong>: Branching DAGs for A/B testing model variants</li>
+<li><strong>Netflix</strong>: Fan-out pattern for personalization across 190+ countries</li>
+</ul>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-1-dynamic-dags">1. Dynamic DAGs</h4>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-1-1-why-dynamic-dags">1.1 Why Dynamic DAGs?</h5>
+<p><strong>Problem</strong>: Need to train 50 models with similar pipelines</p>
+<p><strong>âŒ Bad solution</strong>: Copy-paste 50 DAG files</p>
+<p><strong>âœ… Good solution</strong>: Generate DAGs programmatically</p>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-1-2-dynamic-dag-with-loop">1.2 Dynamic DAG with Loop</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># dags/dynamic_model_training.py
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+
+# List of models to train
+MODELS = ['bert', 'gpt2', 'roberta', 'albert', 'xlnet']
+
+def train_model(model_name, **context):
+    &quot;&quot;&quot;Train a specific model&quot;&quot;&quot;
+    print(f&quot;Training {model_name} for {context['ds']}&quot;)
+    # Training logic here
+    return f&quot;{model_name}_trained&quot;
+
+# Generate one DAG per model
+for model in MODELS:
+    dag_id = f'train_{model}_daily'
+
+    dag = DAG(
+        dag_id,
+        schedule_interval='@daily',
+        start_date=datetime(2023, 1, 1),
+        catchup=False,
+        tags=['ml', 'training', model],
+    )
+
+    train_task = PythonOperator(
+        task_id='train_model',
+        python_callable=train_model,
+        op_kwargs={'model_name': model},
+        dag=dag,
+    )
+
+    # Register DAG in globals() so Airflow can find it
+    globals()[dag_id] = dag
+
+# Result: 5 DAGs created (train_bert_daily, train_gpt2_daily, etc.)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-1-3-dynamic-dag-from-config-file">1.3 Dynamic DAG from Config File</h5>
+<p><strong>More maintainable: define models in YAML</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># config/models.yaml
+models:
+  - name: sentiment_classifier
+    architecture: bert
+    dataset: imdb
+    epochs: 10
+    gpu_count: 2
+
+  - name: ner_model
+    architecture: roberta
+    dataset: conll2003
+    epochs: 20
+    gpu_count: 4
+
+  - name: qa_model
+    architecture: albert
+    dataset: squad
+    epochs: 15
+    gpu_count: 2</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># dags/dynamic_from_config.py
+import yaml
+from airflow import DAG
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
+from datetime import datetime
+from kubernetes.client import models as k8s
+
+# Load config
+with open('/opt/airflow/config/models.yaml', 'r') as f:
+    config = yaml.safe_load(f)
+
+def create_training_dag(model_config):
+    &quot;&quot;&quot;Create DAG for a model&quot;&quot;&quot;
+    model_name = model_config['name']
+
+    dag = DAG(
+        f'train_{model_name}',
+        schedule_interval='@daily',
+        start_date=datetime(2023, 1, 1),
+        catchup=False,
+        tags=['ml', 'dynamic', model_config['architecture']],
+    )
+
+    train_task = KubernetesPodOperator(
+        task_id='train_model',
+        name=f'{model_name}-training',
+        namespace='ml-jobs',
+        image=f'myregistry.io/{model_config[&quot;architecture&quot;]}:latest',
+        cmds=[&quot;python&quot;, &quot;train.py&quot;],
+        arguments=[
+            &quot;--model-name&quot;, model_name,
+            &quot;--dataset&quot;, model_config['dataset'],
+            &quot;--epochs&quot;, str(model_config['epochs']),
+        ],
+        resources={
+            'limit_nvidia.com/gpu': str(model_config['gpu_count']),
+            'limit_memory': '32Gi',
+            'limit_cpu': '16',
+        },
+        dag=dag,
+    )
+
+    return dag
+
+# Generate DAGs from config
+for model in config['models']:
+    dag_id = f&quot;train_{model['name']}&quot;
+    globals()[dag_id] = create_training_dag(model)
+
+# Result: 3 DAGs created from config</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-1-4-dynamic-tasks-within-a-dag">1.4 Dynamic Tasks within a DAG</h5>
+<p><strong>Fan-out pattern: process multiple items in parallel</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+
+dag = DAG('dynamic_tasks', start_date=datetime(2023, 1, 1), schedule_interval=None)
+
+# Generate tasks dynamically
+COUNTRIES = ['US', 'UK', 'CA', 'AU', 'DE', 'FR', 'JP']
+
+def process_country(country, **context):
+    print(f&quot;Processing data for {country}&quot;)
+    # Country-specific logic
+
+# Create one task per country (fan-out)
+country_tasks = []
+for country in COUNTRIES:
+    task = PythonOperator(
+        task_id=f'process_{country.lower()}',
+        python_callable=process_country,
+        op_kwargs={'country': country},
+        dag=dag,
+    )
+    country_tasks.append(task)
+
+# Aggregate results (fan-in)
+def aggregate_results(**context):
+    print(&quot;Aggregating results from all countries&quot;)
+
+aggregate_task = PythonOperator(
+    task_id='aggregate_results',
+    python_callable=aggregate_results,
+    dag=dag,
+)
+
+# Dependencies: all country tasks â†’ aggregate
+for task in country_tasks:
+    task &gt;&gt; aggregate_task</code></pre></div>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-2-complex-dag-patterns">2. Complex DAG Patterns</h4>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-2-1-branching-conditional-executi">2.1 Branching (Conditional Execution)</h5>
+<p><strong>Execute different tasks based on conditions:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from airflow import DAG
+from airflow.operators.python import PythonOperator, BranchPythonOperator
+from airflow.operators.empty import EmptyOperator
+from datetime import datetime
+
+dag = DAG('branching_example', start_date=datetime(2023, 1, 1), schedule_interval=None)
+
+def check_data_quality(**context):
+    &quot;&quot;&quot;Decide which branch to take based on data quality&quot;&quot;&quot;
+    # Check data quality
+    data_quality_score = 0.95  # Example: compute actual score
+
+    if data_quality_score &gt;= 0.9:
+        return 'high_quality_pipeline'  # Task ID to execute
+    elif data_quality_score &gt;= 0.7:
+        return 'medium_quality_pipeline'
+    else:
+        return 'low_quality_pipeline'
+
+branch_task = BranchPythonOperator(
+    task_id='check_quality',
+    python_callable=check_data_quality,
+    dag=dag,
+)
+
+# Branch 1: High quality data
+high_quality_task = PythonOperator(
+    task_id='high_quality_pipeline',
+    python_callable=lambda: print(&quot;Running high-quality pipeline&quot;),
+    dag=dag,
+)
+
+# Branch 2: Medium quality data
+medium_quality_task = PythonOperator(
+    task_id='medium_quality_pipeline',
+    python_callable=lambda: print(&quot;Running medium-quality pipeline with extra validation&quot;),
+    dag=dag,
+)
+
+# Branch 3: Low quality data
+low_quality_task = PythonOperator(
+    task_id='low_quality_pipeline',
+    python_callable=lambda: print(&quot;Alerting team about low quality data&quot;),
+    dag=dag,
+)
+
+# Join point (runs after any branch)
+join_task = EmptyOperator(
+    task_id='join',
+    trigger_rule='none_failed_min_one_success',  # Run if at least one branch succeeded
+    dag=dag,
+)
+
+# Dependencies
+branch_task &gt;&gt; [high_quality_task, medium_quality_task, low_quality_task]
+[high_quality_task, medium_quality_task, low_quality_task] &gt;&gt; join_task</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-2-2-subdags-deprecated-use-taskgr">2.2 SubDAGs (Deprecated, use TaskGroups instead)</h5>
+<p><strong>TaskGroups: Organize tasks visually</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.utils.task_group import TaskGroup
+from datetime import datetime
+
+dag = DAG('taskgroup_example', start_date=datetime(2023, 1, 1), schedule_interval=None)
+
+# TaskGroup for data preprocessing
+with TaskGroup('preprocessing', tooltip='Data preprocessing tasks', dag=dag) as preprocessing_group:
+    extract_task = PythonOperator(
+        task_id='extract',
+        python_callable=lambda: print(&quot;Extracting data&quot;),
+    )
+
+    validate_task = PythonOperator(
+        task_id='validate',
+        python_callable=lambda: print(&quot;Validating data&quot;),
+    )
+
+    transform_task = PythonOperator(
+        task_id='transform',
+        python_callable=lambda: print(&quot;Transforming data&quot;),
+    )
+
+    extract_task &gt;&gt; validate_task &gt;&gt; transform_task
+
+# TaskGroup for model training
+with TaskGroup('training', tooltip='Model training tasks', dag=dag) as training_group:
+    train_task = PythonOperator(
+        task_id='train',
+        python_callable=lambda: print(&quot;Training model&quot;),
+    )
+
+    evaluate_task = PythonOperator(
+        task_id='evaluate',
+        python_callable=lambda: print(&quot;Evaluating model&quot;),
+    )
+
+    train_task &gt;&gt; evaluate_task
+
+# Dependencies between groups
+preprocessing_group &gt;&gt; training_group</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-2-3-trigger-rules">2.3 Trigger Rules</h5>
+<p><strong>Control when a task runs based on upstream task states:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+
+dag = DAG('trigger_rules', start_date=datetime(2023, 1, 1), schedule_interval=None)
+
+task_a = PythonOperator(task_id='task_a', python_callable=lambda: print(&quot;A&quot;), dag=dag)
+task_b = PythonOperator(task_id='task_b', python_callable=lambda: print(&quot;B&quot;), dag=dag)
+task_c = PythonOperator(task_id='task_c', python_callable=lambda: print(&quot;C&quot;), dag=dag)
+
+# Task D runs only if ALL upstream tasks succeed (default)
+task_d = PythonOperator(
+    task_id='task_d_all_success',
+    python_callable=lambda: print(&quot;D: All succeeded&quot;),
+    trigger_rule='all_success',  # Default
+    dag=dag,
+)
+
+# Task E runs if AT LEAST ONE upstream task succeeds
+task_e = PythonOperator(
+    task_id='task_e_one_success',
+    python_callable=lambda: print(&quot;E: At least one succeeded&quot;),
+    trigger_rule='one_success',
+    dag=dag,
+)
+
+# Task F runs if ALL upstream tasks are done (regardless of success/failure)
+task_f = PythonOperator(
+    task_id='task_f_all_done',
+    python_callable=lambda: print(&quot;F: All done&quot;),
+    trigger_rule='all_done',
+    dag=dag,
+)
+
+# Task G runs if AT LEAST ONE upstream task failed
+task_g = PythonOperator(
+    task_id='task_g_one_failed',
+    python_callable=lambda: print(&quot;G: Cleanup after failure&quot;),
+    trigger_rule='one_failed',
+    dag=dag,
+)
+
+[task_a, task_b, task_c] &gt;&gt; task_d
+[task_a, task_b, task_c] &gt;&gt; task_e
+[task_a, task_b, task_c] &gt;&gt; task_f
+[task_a, task_b, task_c] &gt;&gt; task_g</code></pre></div>
+<p><strong>Common trigger rules:</strong></p>
+<ul>
+<li><code>all_success</code> (default): All upstream tasks succeeded</li>
+<li><code>all_failed</code>: All upstream tasks failed</li>
+<li><code>all_done</code>: All upstream tasks completed (success or failed)</li>
+<li><code>one_success</code>: At least one upstream task succeeded</li>
+<li><code>one_failed</code>: At least one upstream task failed</li>
+<li><code>none_failed</code>: No upstream tasks failed (some may have been skipped)</li>
+<li><code>none_failed_min_one_success</code>: No failures and at least one success</li>
+<li><code>none_skipped</code>: No upstream tasks were skipped</li>
+<li><code>always</code>: Always run (ignore upstream states)</li>
+</ul>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-3-distributed-training-orchestrat">3. åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ Orchestration</h4>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-3-1-multi-gpu-training-on-single-">3.1 Multi-GPU è®­ç»ƒï¼ˆTrainingï¼‰ on Single Node</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from airflow import DAG
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
+from datetime import datetime
+from kubernetes.client import models as k8s
+
+dag = DAG('distributed_training_single_node', start_date=datetime(2023, 1, 1), schedule_interval='@daily')
+
+train_task = KubernetesPodOperator(
+    task_id='train_multi_gpu',
+    name='multi-gpu-training',
+    namespace='ml-jobs',
+    image='pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime',
+    cmds=[&quot;torchrun&quot;],
+    arguments=[
+        &quot;--nproc_per_node=4&quot;,  # 4 GPUs on this node
+        &quot;train_distributed.py&quot;,
+        &quot;--data-dir=/data&quot;,
+        &quot;--epochs=100&quot;,
+    ],
+
+    # Request 4 GPUs
+    resources={
+        'limit_nvidia.com/gpu': '4',
+        'limit_memory': '64Gi',
+        'limit_cpu': '32',
+        'request_nvidia.com/gpu': '4',
+        'request_memory': '64Gi',
+        'request_cpu': '32',
+    },
+
+    # Mount data volume
+    volumes=[
+        k8s.V1Volume(
+            name='training-data',
+            persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(
+                claim_name='imagenet-pvc'
+            ),
+        ),
+    ],
+    volume_mounts=[
+        k8s.V1VolumeMount(name='training-data', mount_path='/data', read_only=True),
+    ],
+
+    dag=dag,
+)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-3-2-multi-node-distributed-traini">3.2 Multi-Node åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰</h5>
+<p><strong>Use PyTorchJob (Kubeflow è®­ç»ƒï¼ˆTrainingï¼‰ Operator):</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+from kubernetes import client, config
+import yaml
+
+dag = DAG('distributed_training_multi_node', start_date=datetime(2023, 1, 1), schedule_interval='@daily')
+
+def submit_pytorch_job(**context):
+    &quot;&quot;&quot;Submit PyTorchJob for distributed training&quot;&quot;&quot;
+    config.load_incluster_config()  # Load K8s config from pod
+
+    pytorch_job_manifest = {
+        'apiVersion': 'kubeflow.org/v1',
+        'kind': 'PyTorchJob',
+        'metadata': {
+            'name': f&quot;resnet-training-{context['ds'].replace('-', '')}&quot;,
+            'namespace': 'ml-jobs',
+        },
+        'spec': {
+            'pytorchReplicaSpecs': {
+                # Master replica
+                'Master': {
+                    'replicas': 1,
+                    'restartPolicy': 'OnFailure',
+                    'template': {
+                        'spec': {
+                            'containers': [{
+                                'name': 'pytorch',
+                                'image': 'pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime',
+                                'command': ['python', 'train_distributed.py'],
+                                'args': ['--backend=nccl', '--epochs=100'],
+                                'resources': {
+                                    'limits': {'nvidia.com/gpu': '2'},
+                                },
+                            }],
+                        },
+                    },
+                },
+                # Worker replicas
+                'Worker': {
+                    'replicas': 3,  # 3 worker nodes
+                    'restartPolicy': 'OnFailure',
+                    'template': {
+                        'spec': {
+                            'containers': [{
+                                'name': 'pytorch',
+                                'image': 'pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime',
+                                'command': ['python', 'train_distributed.py'],
+                                'args': ['--backend=nccl', '--epochs=100'],
+                                'resources': {
+                                    'limits': {'nvidia.com/gpu': '2'},
+                                },
+                            }],
+                        },
+                    },
+                },
+            },
+        },
+    }
+
+    # Create PyTorchJob
+    api = client.CustomObjectsApi()
+    api.create_namespaced_custom_object(
+        group='kubeflow.org',
+        version='v1',
+        namespace='ml-jobs',
+        plural='pytorchjobs',
+        body=pytorch_job_manifest,
+    )
+
+    print(f&quot;Submitted PyTorchJob: {pytorch_job_manifest['metadata']['name']}&quot;)
+
+submit_task = PythonOperator(
+    task_id='submit_distributed_training',
+    python_callable=submit_pytorch_job,
+    dag=dag,
+)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-3-3-hyperparameter-tuning-with-pa">3.3 Hyperparameter Tuning with Parallel è®­ç»ƒï¼ˆTrainingï¼‰</h5>
+<p><strong>Train multiple model variants in parallel:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from airflow import DAG
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+import itertools
+
+dag = DAG('hyperparameter_tuning', start_date=datetime(2023, 1, 1), schedule_interval=None)
+
+# Define hyperparameter grid
+learning_rates = [0.001, 0.01, 0.1]
+batch_sizes = [32, 64, 128]
+optimizers = ['adam', 'sgd']
+
+# Generate all combinations
+hyperparam_combinations = list(itertools.product(learning_rates, batch_sizes, optimizers))
+
+training_tasks = []
+
+for lr, batch_size, optimizer in hyperparam_combinations:
+    task_id = f'train_lr{lr}_bs{batch_size}_{optimizer}'.replace('.', '_')
+
+    train_task = KubernetesPodOperator(
+        task_id=task_id,
+        name=f'hp-tuning-{task_id}',
+        namespace='ml-jobs',
+        image='myregistry.io/model-training:v1.0',
+        cmds=[&quot;python&quot;, &quot;train.py&quot;],
+        arguments=[
+            &quot;--lr&quot;, str(lr),
+            &quot;--batch-size&quot;, str(batch_size),
+            &quot;--optimizer&quot;, optimizer,
+            &quot;--output-dir&quot;, f&quot;s3://ml-experiments/{{ ds }}/{task_id}/&quot;,
+        ],
+        resources={'limit_nvidia.com/gpu': '1'},
+        dag=dag,
+    )
+
+    training_tasks.append(train_task)
+
+# Aggregate results and select best model
+def select_best_model(**context):
+    &quot;&quot;&quot;Compare all experiment results and select best model&quot;&quot;&quot;
+    print(&quot;Selecting best model from hyperparameter tuning...&quot;)
+    # Logic to compare metrics from S3 and select winner
+
+select_task = PythonOperator(
+    task_id='select_best_model',
+    python_callable=select_best_model,
+    dag=dag,
+)
+
+# All training tasks run in parallel, then select best
+training_tasks &gt;&gt; select_task
+
+# Result: 18 parallel training tasks (3 LRs Ã— 3 batch sizes Ã— 2 optimizers)</code></pre></div>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-4-taskflow-api-advanced-patterns">4. TaskFlow API Advanced Patterns</h4>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-4-1-multiple-outputs">4.1 Multiple Outputs</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from airflow.decorators import dag, task
+from datetime import datetime
+from typing import Dict
+
+@dag(schedule_interval='@daily', start_date=datetime(2023, 1, 1), catchup=False)
+def ml_pipeline_taskflow():
+
+    @task(multiple_outputs=True)
+    def extract_and_validate() -&gt; Dict[str, any]:
+        &quot;&quot;&quot;Extract data and return multiple outputs&quot;&quot;&quot;
+        return {
+            'data_path': 's3://ml-data/processed/2023-10-15/data.parquet',
+            'row_count': 1000000,
+            'quality_score': 0.95,
+        }
+
+    @task
+    def train_model(data_path: str, row_count: int):
+        print(f&quot;Training on {data_path} with {row_count} rows&quot;)
+        return {'model_path': 's3://models/model.pth', 'accuracy': 0.92}
+
+    @task
+    def deploy_model(model_path: str, accuracy: float):
+        if accuracy &gt;= 0.9:
+            print(f&quot;Deploying model from {model_path}&quot;)
+        else:
+            print(&quot;Model accuracy too low, not deploying&quot;)
+
+    # Unpack multiple outputs
+    extraction = extract_and_validate()
+    training = train_model(
+        data_path=extraction['data_path'],
+        row_count=extraction['row_count']
+    )
+    deploy_model(model_path=training['model_path'], accuracy=training['accuracy'])
+
+ml_pipeline_taskflow_dag = ml_pipeline_taskflow()</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-4-2-task-mapping-airflow-2-3">4.2 Task Mapping (Airflow 2.3+)</h5>
+<p><strong>Dynamic task mapping for parallel processing:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from airflow.decorators import dag, task
+from datetime import datetime
+
+@dag(schedule_interval='@daily', start_date=datetime(2023, 1, 1), catchup=False)
+def dynamic_task_mapping():
+
+    @task
+    def get_countries():
+        &quot;&quot;&quot;Return list of countries to process&quot;&quot;&quot;
+        return ['US', 'UK', 'CA', 'AU', 'DE', 'FR', 'JP', 'IN', 'BR', 'CN']
+
+    @task
+    def process_country(country: str):
+        &quot;&quot;&quot;Process data for a single country&quot;&quot;&quot;
+        print(f&quot;Processing {country}&quot;)
+        return {'country': country, 'rows': 10000}
+
+    @task
+    def aggregate_results(results: list):
+        &quot;&quot;&quot;Aggregate results from all countries&quot;&quot;&quot;
+        total_rows = sum(r['rows'] for r in results)
+        print(f&quot;Processed {total_rows} total rows across {len(results)} countries&quot;)
+
+    # Dynamic mapping: creates one process_country task per country
+    countries = get_countries()
+    results = process_country.expand(country=countries)  # Magic happens here!
+    aggregate_results(results)
+
+dynamic_task_mapping_dag = dynamic_task_mapping()</code></pre></div>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-5-performance-optimization">5. Performance Optimization</h4>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-5-1-reduce-dag-parsing-time">5.1 Reduce DAG Parsing Time</h5>
+<p><strong>Problem</strong>: DAGs with heavy imports slow down scheduler</p>
+<p><strong>âŒ Bad:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import pandas as pd  # Heavy import
+import tensorflow as tf  # Very heavy!
+
+dag = DAG('slow_dag', ...)</code></pre></div>
+<p><strong>âœ… Good:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">dag = DAG('fast_dag', ...)
+
+def train_model(**context):
+    import tensorflow as tf  # Import only when task runs
+    # Training logic</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-5-2-pool-management">5.2 Pool Management</h5>
+<p><strong>Limit concurrent tasks to avoid resource exhaustion:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create pool via UI: Admin â†’ Pools â†’ Create
+# Or via CLI:
+airflow pools set ml_training_pool 10 &quot;Pool for ML training tasks (max 10 concurrent)&quot;</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+
+dag = DAG('pooled_tasks', start_date=datetime(2023, 1, 1))
+
+# Tasks will use pool (max 10 concurrent across all DAGs)
+for i in range(50):
+    task = PythonOperator(
+        task_id=f'train_model_{i}',
+        python_callable=lambda: print(&quot;Training model&quot;),
+        pool='ml_training_pool',  # Use pool
+        pool_slots=1,  # Takes 1 slot
+        dag=dag,
+    )</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-5-3-smart-sensors-airflow-2-2">5.3 Smart Sensors (Airflow 2.2+)</h5>
+<p><strong>Reduce scheduler load from sensors:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from airflow.sensors.s3 import S3KeySensor
+
+# âœ… Smart sensor: offloads to separate sensor worker
+sensor = S3KeySensor(
+    task_id='wait_for_data',
+    bucket_key='data/{{ ds }}/file.parquet',
+    aws_conn_id='aws_default',
+    timeout=3600,
+    poke_interval=60,
+    mode='reschedule',  # Important for smart sensors
+    deferrable=True,  # Enable smart sensor (Airflow 2.2+)
+    dag=dag,
+)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-5-4-parallelism-configuration">5.4 Parallelism Configuration</h5>
+<p><strong>Tune Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ for high throughput:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># airflow.cfg or Helm values
+core:
+  parallelism: 128  # Max tasks across all DAGs
+  dag_concurrency: 32  # Max tasks per DAG
+  max_active_runs_per_dag: 4  # Max concurrent DAG runs
+
+scheduler:
+  max_dagruns_per_loop_to_schedule: 10
+  scheduler_heartbeat_sec: 5
+
+kubernetes_executor:
+  worker_pods_creation_batch_size: 8  # Create 8 pods at a time</code></pre></div>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-6-production-anti-patterns">6. ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ Anti-Patterns</h4>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-6-1-storing-large-data-in-xcom">6.1 âŒ Storing Large Data in XCom</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># âŒ BAD: XCom for large datasets
+def extract_data():
+    df = pd.read_csv('large_file.csv')  # 10 GB
+    return df  # Stored in XCom (database) - WILL FAIL!
+
+# âœ… GOOD: Store in S3, pass path via XCom
+def extract_data():
+    df = pd.read_csv('large_file.csv')
+    s3_path = 's3://bucket/data.parquet'
+    df.to_parquet(s3_path)
+    return s3_path  # Small string, safe for XCom</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-6-2-not-setting-execution-timeout">6.2 âŒ Not Setting execution_timeout</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># âŒ BAD: Task runs forever if stuck
+task = PythonOperator(
+    task_id='train',
+    python_callable=train_model,
+)
+
+# âœ… GOOD: Kill if exceeds timeout
+task = PythonOperator(
+    task_id='train',
+    python_callable=train_model,
+    execution_timeout=timedelta(hours=6),  # Kill after 6 hours
+)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-6-3-too-many-small-tasks">6.3 âŒ Too Many Small Tasks</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># âŒ BAD: 1000 tasks for 1000 rows (scheduler overhead!)
+for row in range(1000):
+    task = PythonOperator(task_id=f'process_row_{row}', ...)
+
+# âœ… GOOD: Batch into fewer tasks
+for batch in range(10):  # 10 tasks processing 100 rows each
+    task = PythonOperator(
+        task_id=f'process_batch_{batch}',
+        op_kwargs={'start_row': batch*100, 'end_row': (batch+1)*100},
+        ...
+    )</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-6-4-tight-coupling-between-dags">6.4 âŒ Tight Coupling Between DAGs</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># âŒ BAD: DAG B depends on specific task in DAG A
+# If DAG A changes structure, DAG B breaks
+
+# âœ… GOOD: Use TriggerDagRunOperator or Datasets (Airflow 2.4+)
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+
+trigger = TriggerDagRunOperator(
+    task_id='trigger_model_deployment',
+    trigger_dag_id='deploy_model',
+    conf={'model_version': '{{ ti.xcom_pull(&quot;train_model&quot;) }}'},
+)</code></pre></div>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-7-summary">7. Summary</h4>
+<h5 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-key-takeaways">Key Takeaways</h5>
+<p>âœ… <strong>Dynamic DAGs</strong>:</p>
+<ul>
+<li>Generate DAGs from config files (YAML/JSON)</li>
+<li>Use loops to create multiple similar DAGs</li>
+<li>Dynamic tasks for fan-out/fan-in patterns</li>
+</ul>
+<p>âœ… <strong>Advanced patterns</strong>:</p>
+<ul>
+<li>Branching for conditional execution</li>
+<li>TaskGroups for organization</li>
+<li>Trigger rules for complex dependencies</li>
+</ul>
+<p>âœ… <strong>Distributed training</strong>:</p>
+<ul>
+<li>KubernetesPodOperator for multi-GPU</li>
+<li>PyTorchJob for multi-node training</li>
+<li>Parallel hyperparameter tuning</li>
+</ul>
+<p>âœ… <strong>TaskFlow API</strong>:</p>
+<ul>
+<li>Cleaner syntax with decorators</li>
+<li>Multiple outputs and task mapping</li>
+<li>Better type safety</li>
+</ul>
+<p>âœ… <strong>Performance</strong>:</p>
+<ul>
+<li>Lazy imports in DAG files</li>
+<li>Pools to limit concurrency</li>
+<li>Smart sensors to reduce load</li>
+<li>Tune parallelism settings</li>
+</ul>
+<p>âœ… <strong>Avoid anti-patterns</strong>:</p>
+<ul>
+<li>Don't use XCom for large data</li>
+<li>Always set execution_timeout</li>
+<li>Batch small tasks</li>
+<li>Decouple DAGs</li>
+</ul>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li>How do you create multiple DAGs from a config file?</li>
+<li>What's the difference between fan-out and fan-in patterns?</li>
+<li>When would you use BranchPythonOperator?</li>
+<li>What trigger rule runs a task if at least one upstream task succeeds?</li>
+<li>How do you limit concurrent training tasks to 10?</li>
+<li>Why should you avoid storing large datasets in XCom?</li>
+<li>How do you implement hyperparameter tuning with Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰?</li>
+<li>What's the benefit of deferrable sensors?</li>
+</ol>
+<h4 id="lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://www.astronomer.io/guides/dynamically-generating-dags/">Dynamic DAGs</a></li>
+<li><a href="https://airflow.apache.org/docs/apache-airflow/stable/tutorial_taskflow_api.html">TaskFlow API Guide</a></li>
+<li><a href="https://www.kubeflow.org/docs/components/training/">Kubeflow è®­ç»ƒï¼ˆTrainingï¼‰ Operator</a></li>
+<li><a href="https://www.astronomer.io/guides/airflow-scaling-workers/">Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ Performance Tuning</a></li>
+</ul>
+<hr/>
+<p><strong>Next lesson:</strong> Data Versioning with DVC æ•°æ®ç‰ˆæœ¬æŽ§åˆ¶ï¼ˆDVCï¼‰ - Track datasets like code!</p><p><a class="home" href="../docs/doc-lessons-mod-105-data-pipelines-02-apache-airflow-fundamentals-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-105-data-pipelines-04-data-versioning-dvc-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

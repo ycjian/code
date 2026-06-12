@@ -1,0 +1,522 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Module 02: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-resources-md.html">Module 02 Resources: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for ML</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc active" href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lesson 01: Cloud Architecture for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md.html">Lesson 02: AWS äº‘ï¼ˆAWSï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md.html">Lesson 03: Google Cloud Platform for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-04-azure-ml-infrastructure-md.html">Lesson 04: Azure äº‘ï¼ˆAzureï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-05-cloud-storage-md.html">Lesson 05: Cloud Storage for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-06-cloud-networking-md.html">Lesson 06: Cloud Networking for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-07-managed-ml-services-md.html">Lesson 07: Managed ML Services Comparison</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-08-multi-cloud-cost-optimization-md.html">Lesson 08: Multi-Cloud &amp; Cost Optimization</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Module 102 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-01-aws-ml-infra-md.html">Lab 01: Provision an ML-Ready AWS äº‘ï¼ˆAWSï¼‰ Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-02-gcp-ml-infra-md.html">Lab 02: Provision an ML-Ready GCP äº‘ï¼ˆGCPï¼‰ Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-03-azure-ml-infra-md.html">Lab 03: Provision an ML-Ready Azure äº‘ï¼ˆAzureï¼‰ Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-04-multi-cloud-deployment-md.html">Lab 04: Multi-Cloud éƒ¨ç½²ï¼ˆDeploymentï¼‰ with a Single Tool</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercise 01: Multi-Cloud Cost Analyzer</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-02-cloud-ml-infrastructure-readme-md.html">Exercise 02: Cloud æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md.html">Exercise 03: Cloud Disaster Recovery System</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-04-cross-region-replication-readme-md.html">Exercise 04: Cross-Region Replication for ML Artifacts</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-05-cloud-networking-for-ml-readme-md.html">Exercise 05: Cloud Networking for ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-06-managed-ml-services-comparison-readm.html">Exercise 06: Managed ML Services Comparison</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-07-multi-account-security-readme-md.html">Exercise 07: Multi-Account / Multi-Project å®‰å…¨ï¼ˆSecurityï¼‰ Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-08-finops-automation-readme-md.html">Exercise 08: FinOps Automation for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-readme-md.html">Module 02 Exercises: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for ML</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Module 02: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ - Final Quiz</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-mid-module-quiz-md.html">Module 02: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ - Mid-Module Quiz</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-module-quiz-md.html">Module 02 Quiz: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for ML</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md"><h3 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-lesson-01-cloud-architecture-for-">Lesson 01: Cloud Architecture for ML</h3>
+<p><strong>Duration:</strong> 6 hours <strong>Objectives:</strong> Understand cloud architecture patterns and design principles for ML systems</p>
+<h4 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-introduction">Introduction</h4>
+<p>Architecting ML systems in the cloud requires understanding both general cloud architecture principles and ML-specific considerations. This lesson covers fundamental cloud architecture patterns, components, and design decisions that impact ML infrastructure.</p>
+<h4 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-cloud-architecture-fundamentals">Cloud Architecture Fundamentals</h4>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-the-three-pillars-of-cloud-archit">The Three Pillars of Cloud Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚           Cloud Architecture Pillars                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                          â”‚
+â”‚  1. COMPUTE                2. STORAGE        3. NETWORK â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”             â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚  â”‚   VMs    â”‚             â”‚  Object  â”‚     â”‚   VPC   â”‚ â”‚
+â”‚  â”‚ Containersâ”‚            â”‚  Block   â”‚     â”‚  Subnet â”‚ â”‚
+â”‚  â”‚Serverlessâ”‚             â”‚   File   â”‚     â”‚   LB    â”‚ â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜             â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚       â†“                        â†“                 â†“      â”‚
+â”‚  Run ML code           Store data/models    Connect it  â”‚
+â”‚                                                          â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-1-compute-resources">1. Compute Resources</h5>
+<p><strong>Virtual Machines (VMs)</strong></p>
+<ul>
+<li>Full control over OS and software</li>
+<li>Suitable for complex ML pipelines</li>
+<li>Can run 24/7 or on-demand</li>
+<li>Examples: AWS äº‘ï¼ˆAWSï¼‰ EC2, GCP äº‘ï¼ˆGCPï¼‰ Compute Engine, Azure äº‘ï¼ˆAzureï¼‰ VMs</li>
+</ul>
+<p><strong>Containers</strong></p>
+<ul>
+<li>Portable and consistent environments</li>
+<li>Faster startup than VMs</li>
+<li>Ideal for ML model serving</li>
+<li>Examples: AWS äº‘ï¼ˆAWSï¼‰ ECS/EKS æ‰˜ç®¡ Kubernetesï¼ˆEKSï¼‰, GCP äº‘ï¼ˆGCPï¼‰ GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰, Azure äº‘ï¼ˆAzureï¼‰ AKS æ‰˜ç®¡ Kubernetesï¼ˆAKSï¼‰</li>
+</ul>
+<p><strong>Serverless</strong></p>
+<ul>
+<li>No server management</li>
+<li>Auto-scaling</li>
+<li>Pay per execution</li>
+<li>Examples: AWS äº‘ï¼ˆAWSï¼‰ Lambda, GCP äº‘ï¼ˆGCPï¼‰ Cloud Functions, Azure äº‘ï¼ˆAzureï¼‰ Functions</li>
+</ul>
+<p><strong>When to use each:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">VMs:           Long-running training jobs, complex dependencies
+Containers:    Model serving, microservices, portability
+Serverless:    Lightweight inference, event-driven processing</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-2-storage-resources">2. Storage Resources</h5>
+<p><strong>Object Storage</strong></p>
+<ul>
+<li>Unlimited scalability</li>
+<li>Store datasets, models, logs</li>
+<li>HTTP/S access</li>
+<li>Examples: AWS äº‘ï¼ˆAWSï¼‰ S3, GCP äº‘ï¼ˆGCPï¼‰ Cloud Storage, Azure äº‘ï¼ˆAzureï¼‰ Blob Storage</li>
+<li>Cost: ~$0.02/GB/month</li>
+</ul>
+<p><strong>Block Storage</strong></p>
+<ul>
+<li>Attached to compute instances</li>
+<li>Low latency, high IOPS</li>
+<li>Databases, application data</li>
+<li>Examples: AWS äº‘ï¼ˆAWSï¼‰ EBS, GCP äº‘ï¼ˆGCPï¼‰ Persistent Disk, Azure äº‘ï¼ˆAzureï¼‰ Managed Disks</li>
+<li>Cost: ~$0.10/GB/month</li>
+</ul>
+<p><strong>File Storage</strong></p>
+<ul>
+<li>Shared file systems</li>
+<li>NFS protocol</li>
+<li>Multi-instance access</li>
+<li>Examples: AWS äº‘ï¼ˆAWSï¼‰ EFS, GCP äº‘ï¼ˆGCPï¼‰ Filestore, Azure äº‘ï¼ˆAzureï¼‰ Files</li>
+<li>Cost: ~$0.30/GB/month</li>
+</ul>
+<p><strong>When to use each:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Object Storage:  Datasets, trained models, backups, logs
+Block Storage:   Databases, training data cache, checkpoints
+File Storage:    Shared training data, home directories</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-3-networking-resources">3. Networking Resources</h5>
+<p><strong>Virtual Private Cloud (VPC)</strong></p>
+<ul>
+<li>Isolated network environment</li>
+<li>Define IP ranges, subnets</li>
+<li>Control traffic flow</li>
+</ul>
+<p><strong>Load Balancers</strong></p>
+<ul>
+<li>Distribute traffic across instances</li>
+<li>Health checking</li>
+<li>SSL termination</li>
+</ul>
+<p><strong>Content Delivery Network (CDN)</strong></p>
+<ul>
+<li>Cache model predictions</li>
+<li>Reduce latency for users</li>
+<li>Examples: AWS äº‘ï¼ˆAWSï¼‰ CloudFront, GCP äº‘ï¼ˆGCPï¼‰ Cloud CDN, Azure äº‘ï¼ˆAzureï¼‰ CDN</li>
+</ul>
+<h4 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-ml-specific-architecture-patterns">ML-Specific Architecture Patterns</h4>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-pattern-1-training-architecture">Pattern 1: è®­ç»ƒï¼ˆTrainingï¼‰ Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚              ML Training Architecture                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                           â”‚
+â”‚  Data Storage          Compute              Output       â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚ S3/GCS   â”‚ â”€â”€â”€â”€â”€â”€â–º â”‚  GPU   â”‚ â”€â”€â”€â”€â”€â”€â–º â”‚  Model   â”‚   â”‚
+â”‚  â”‚ Dataset  â”‚         â”‚Instanceâ”‚         â”‚  Storage â”‚   â”‚
+â”‚  â”‚  (1TB)   â”‚         â”‚Trainingâ”‚         â”‚  (S3/GCS)â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜         â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚       â”‚                    â”‚                   â”‚         â”‚
+â”‚       â”‚                    â†“                   â”‚         â”‚
+â”‚       â”‚              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”                â”‚         â”‚
+â”‚       â”‚              â”‚Metrics â”‚                â”‚         â”‚
+â”‚       â”‚              â”‚Trackingâ”‚                â”‚         â”‚
+â”‚       â”‚              â”‚(MLflow)â”‚                â”‚         â”‚
+â”‚       â”‚              â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜                â”‚         â”‚
+â”‚       â”‚                                        â”‚         â”‚
+â”‚       â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Clean up â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜         â”‚
+â”‚                                                           â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+Components:
+1. Data Storage: S3/GCS bucket with versioned datasets
+2. Training Instance: GPU instance (p3.2xlarge, n1-highmem-8)
+3. Experiment Tracking: MLflow on separate instance
+4. Model Registry: Versioned models in object storage
+5. Monitoring: CloudWatch/Stackdriver for GPU utilization</code></pre></div>
+<p><strong>Key Considerations:</strong></p>
+<ul>
+<li>Use spot instances for cost savings (up to 90% off)</li>
+<li>Implement checkpointing for fault tolerance</li>
+<li>Auto-shutdown after training completes</li>
+<li>Version datasets and models</li>
+<li>Track experiments with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰/W&amp;B</li>
+</ul>
+<p><strong>Cost Estimation:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Training Job (ResNet-50 on ImageNet):
+- GPU Instance (p3.2xlarge): $3.06/hour
+- Training Time: 24 hours
+- Storage (1TB dataset): $20/month
+- Data Transfer: $50
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+Total: ~$150 per training run</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-pattern-2-inference-architecture">Pattern 2: æŽ¨ç†ï¼ˆInferenceï¼‰ Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚             ML Inference Architecture                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                           â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”       â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”       â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”‚
+â”‚  â”‚  CDN   â”‚       â”‚   Load   â”‚       â”‚  Inference â”‚     â”‚
+â”‚  â”‚ Cache  â”‚ â—„â”€â”€â”€  â”‚ Balancer â”‚  â”€â”€â”€â–º â”‚  Instances â”‚     â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜       â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜       â”‚  (Auto-    â”‚     â”‚
+â”‚                         â”‚             â”‚   scaled)  â”‚     â”‚
+â”‚                         â”‚             â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚
+â”‚                         â”‚                   â”‚            â”‚
+â”‚                         â†“                   â†“            â”‚
+â”‚                   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”       â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”‚
+â”‚                   â”‚  Metrics â”‚       â”‚   Model    â”‚     â”‚
+â”‚                   â”‚ (Prom/   â”‚       â”‚  Storage   â”‚     â”‚
+â”‚                   â”‚  Stack)  â”‚       â”‚  (S3/GCS)  â”‚     â”‚
+â”‚                   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜       â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚
+â”‚                                                           â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+Components:
+1. CDN: Cache responses at edge locations
+2. Load Balancer: Distribute traffic, SSL termination
+3. Auto-Scaling Group: 2-10 instances based on load
+4. Model Storage: Versioned models in S3/GCS
+5. Monitoring: Prometheus + Grafana or CloudWatch
+6. Caching: Redis for frequent predictions</code></pre></div>
+<p><strong>Key Considerations:</strong></p>
+<ul>
+<li>Use è‡ªåŠ¨æ‰©ç¼©å®¹ï¼ˆauto-scalingï¼‰ for variable load</li>
+<li>Implement caching at multiple levels</li>
+<li>Use CDN for static assets</li>
+<li>Monitor latency (p50, p95, p99)</li>
+<li>Implement circuit breakers</li>
+</ul>
+<p><strong>Cost Estimation:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Inference Service (1M requests/month):
+- Load Balancer: $18/month
+- Compute (3x t3.medium): $90/month
+- Data Transfer: $80/month
+- CDN: $40/month
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+Total: ~$230/month</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-pattern-3-data-pipeline-architect">Pattern 3: Data Pipeline Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚              Data Pipeline Architecture                   â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                           â”‚
+â”‚  Ingestion         Processing        Storage             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”       â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”          â”‚
+â”‚  â”‚ API/    â”‚ â”€â”€â”€â–º â”‚ Spark/  â”‚ â”€â”€â–º â”‚  Data   â”‚          â”‚
+â”‚  â”‚ Stream  â”‚       â”‚ Airflow â”‚     â”‚  Lake   â”‚          â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜       â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚ (S3/GCS)â”‚          â”‚
+â”‚       â”‚                 â”‚           â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜          â”‚
+â”‚       â”‚                 â”‚                 â”‚              â”‚
+â”‚       â”‚                 â†“                 â†“              â”‚
+â”‚       â”‚           â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”       â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”         â”‚
+â”‚       â”‚           â”‚Transformâ”‚       â”‚ Feature â”‚         â”‚
+â”‚       â”‚           â”‚  Jobs   â”‚       â”‚  Store  â”‚         â”‚
+â”‚       â”‚           â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜       â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜         â”‚
+â”‚       â”‚                                   â”‚              â”‚
+â”‚       â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜              â”‚
+â”‚                                                           â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h4 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-architecture-design-principles">Architecture Design Principles</h4>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-1-high-availability">1. High Availability</h5>
+<p><strong>Definition:</strong> System remains operational even when components fail</p>
+<p><strong>Strategies:</strong></p>
+<ul>
+<li><strong>Multi-AZ éƒ¨ç½²ï¼ˆDeploymentï¼‰</strong>: Distribute across availability zones</li>
+<li><strong>Load Balancing</strong>: Distribute traffic across instances</li>
+<li><strong>Health Checks</strong>: Automatic failover to healthy instances</li>
+<li><strong>Redundancy</strong>: Multiple instances of critical components</li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Single AZ (99.5% uptime):
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Load Balancerâ”‚
+â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜
+       â”‚
+   â”Œâ”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”
+   â”‚  2 VMs    â”‚  (Single point of failure: AZ outage)
+   â”‚ (Same AZ) â”‚
+   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+Multi-AZ (99.99% uptime):
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Load Balancerâ”‚
+â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜
+       â”‚
+   â”Œâ”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+   â”‚                    â”‚
+â”Œâ”€â”€â”´â”€â”€â”€â”€â”          â”Œâ”€â”€â”€â”€â”´â”€â”€â”
+â”‚ AZ-1  â”‚          â”‚ AZ-2  â”‚
+â”‚ 2 VMs â”‚          â”‚ 2 VMs â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”˜          â””â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-2-scalability">2. å¯æ‰©å±•æ€§ï¼ˆScalabilityï¼‰</h5>
+<p><strong>Vertical Scaling (Scale Up)</strong></p>
+<ul>
+<li>Increase instance size (more CPU/RAM/GPU åŠ é€Ÿï¼ˆGPUï¼‰)</li>
+<li>Simpler but has limits</li>
+<li>Requires restart</li>
+</ul>
+<p><strong>Horizontal Scaling (Scale Out)</strong></p>
+<ul>
+<li>Add more instances</li>
+<li>Unlimited scaling potential</li>
+<li>No downtime</li>
+</ul>
+<p><strong>Auto-Scaling Example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># AWS Auto Scaling Configuration
+MinSize: 2              # Minimum instances
+MaxSize: 10             # Maximum instances
+DesiredCapacity: 3      # Initial instances
+TargetCPU: 70%          # Scale when CPU &gt; 70%
+
+Scaling Policies:
+- Scale Up: Add 2 instances when CPU &gt; 70% for 5 minutes
+- Scale Down: Remove 1 instance when CPU &lt; 30% for 10 minutes</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-3-cost-optimization">3. Cost Optimization</h5>
+<p><strong>Right-Sizing</strong></p>
+<ul>
+<li>Start small, scale up as needed</li>
+<li>Monitor actual usage</li>
+<li>Avoid over-provisioning</li>
+</ul>
+<p><strong>Reserved Instances</strong></p>
+<ul>
+<li>1-year: ~40% savings</li>
+<li>3-year: ~60% savings</li>
+<li>Good for steady workloads</li>
+</ul>
+<p><strong>Spot Instances</strong></p>
+<ul>
+<li>70-90% savings</li>
+<li>Can be terminated with 2-minute notice</li>
+<li>Perfect for training, batch processing</li>
+</ul>
+<p><strong>Cost Optimization Hierarchy:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">1. Spot Instances (Training, Batch)       90% savings
+2. Reserved Instances (Production)        60% savings
+3. Auto-Scaling (Variable load)           40% savings
+4. Right-Sizing (Match actual needs)      30% savings
+5. Storage Lifecycle (Archive old data)   50% savings
+6. Data Transfer Optimization             20% savings</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-4-security">4. å®‰å…¨ï¼ˆSecurityï¼‰</h5>
+<p><strong>Defense in Depth:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Layer 1: Network (VPC, Subnets, Firewalls)    â”‚
+â”‚ Layer 2: Access (IAM, RBAC, MFA)              â”‚
+â”‚ Layer 3: Data (Encryption at rest &amp; transit)  â”‚
+â”‚ Layer 4: Application (Input validation)       â”‚
+â”‚ Layer 5: Monitoring (Logs, alerts, audit)     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Principle of least privilege</li>
+<li>Encrypt data at rest and in transit</li>
+<li>Network isolation (private subnets)</li>
+<li>Regular security audits</li>
+<li>Automated patching</li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-5-observability">5. å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</h5>
+<p><strong>Three Pillars:</strong></p>
+<ol>
+<li><strong>Metrics</strong>: Quantitative measurements (CPU, latency, errors)</li>
+<li><strong>Logs</strong>: Event records for debugging</li>
+<li><strong>Traces</strong>: Request flow through system</li>
+</ol>
+<p><strong>ç›‘æŽ§ï¼ˆMonitoringï¼‰ Stack:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Application â”€â”€â–º Metrics   â”€â”€â–º Prometheus â”€â”€â–º Grafana
+            â”‚
+            â”œâ”€â–º Logs      â”€â”€â–º ELK Stack  â”€â”€â–º Kibana
+            â”‚
+            â””â”€â–º Traces    â”€â”€â–º Jaeger     â”€â”€â–º UI</code></pre></div>
+<h4 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-architecting-for-ml-workloads">Architecting for ML Workloads</h4>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-training-vs-inference-architectur">è®­ç»ƒï¼ˆTrainingï¼‰ vs æŽ¨ç†ï¼ˆInferenceï¼‰ Architecture</h5>
+<div class="table-wrap"><table><thead><tr><th>Aspect</th><th>è®­ç»ƒï¼ˆTrainingï¼‰</th><th>æŽ¨ç†ï¼ˆInferenceï¼‰</th></tr></thead><tbody><tr><td><strong>Compute</strong></td><td>GPU-heavy, spot instances</td><td>CPU, è‡ªåŠ¨æ‰©ç¼©å®¹ï¼ˆauto-scalingï¼‰</td></tr><tr><td><strong>Storage</strong></td><td>High-throughput (EBS/Persistent SSD)</td><td>Low-latency (caching)</td></tr><tr><td><strong>Network</strong></td><td>Internal only</td><td>Public-facing, CDN</td></tr><tr><td><strong>Cost Model</strong></td><td>Temporary (hours/days)</td><td>Continuous (24/7)</td></tr><tr><td><strong>Optimization</strong></td><td>Throughput</td><td>Latency</td></tr><tr><td><strong>Scaling</strong></td><td>Vertical (bigger GPU åŠ é€Ÿï¼ˆGPUï¼‰)</td><td>Horizontal (more instances)</td></tr></tbody></table></div>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-data-flow-architecture">Data Flow Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Data Ingestion â†’ Preprocessing â†’ Training â†’ Evaluation â†’ Deployment â†’ Monitoring
+       â†“              â†“              â†“           â†“            â†“           â†“
+   S3/GCS        Spark/EMR      GPU VMs     MLflow      K8s/ECS    Prometheus
+   Kinesis       Airflow        Spot         W&amp;B         ECS         CloudWatch
+   Kafka         Glue           Reserved     TensorB     Fargate     Grafana</code></pre></div>
+<h4 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-practical-exercise-design-an-ml-a">Practical Exercise: Design an ML Architecture</h4>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-scenario">Scenario</h5>
+<p>Design a cloud architecture for an image classification service:</p>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>1 million predictions per day</li>
+<li>99.9% availability</li>
+<li>&lt; 500ms latency (p95)</li>
+<li>Global user base</li>
+<li>$500/month budget</li>
+<li>Support model updates without downtime</li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-your-task">Your Task</h5>
+<ol>
+<li><strong>Choose compute resources:</strong></li>
+</ol>
+<ul>
+<li>How many instances?</li>
+<li>What instance types?</li>
+<li>Auto-scaling strategy?</li>
+</ul>
+<ol>
+<li><strong>Design storage:</strong></li>
+</ol>
+<ul>
+<li>Where to store models?</li>
+<li>How to version them?</li>
+<li>Caching strategy?</li>
+</ul>
+<ol>
+<li><strong>Plan networking:</strong></li>
+</ol>
+<ul>
+<li>Load balancer configuration?</li>
+<li>CDN usage?</li>
+<li>Multi-region deployment?</li>
+</ul>
+<ol>
+<li><strong>Estimate costs:</strong></li>
+</ol>
+<ul>
+<li>Compute costs</li>
+<li>Storage costs</li>
+<li>Network costs</li>
+<li>Total monthly cost</li>
+</ul>
+<ol>
+<li><strong>Plan for high availability:</strong></li>
+</ol>
+<ul>
+<li>Multi-AZ deployment?</li>
+<li>Health checks?</li>
+<li>Failover strategy?</li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-sample-solution">Sample Solution</h5>
+<p><strong>Architecture:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Global Users
+     â”‚
+     â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ CloudFront â”‚ (CDN, caching)
+â”‚   (CDN)    â”‚
+â””â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+      â”‚
+      â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Application â”‚ (SSL termination, routing)
+â”‚Load Balancerâ”‚
+â””â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜
+      â”‚
+   â”Œâ”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+   â”‚             â”‚
+â”Œâ”€â”€â”´â”€â”€â”€â”    â”Œâ”€â”€â”€â”´â”€â”€â”
+â”‚ AZ-1 â”‚    â”‚ AZ-2 â”‚
+â”‚ 2x   â”‚    â”‚ 2x   â”‚
+â”‚ t3.  â”‚    â”‚ t3.  â”‚
+â”‚mediumâ”‚    â”‚mediumâ”‚
+â””â”€â”€â”¬â”€â”€â”€â”˜    â””â”€â”€â”€â”¬â”€â”€â”˜
+   â”‚            â”‚
+   â””â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+         â”‚
+    â”Œâ”€â”€â”€â”€â”´â”€â”€â”€â”€â”
+    â”‚ S3/GCS  â”‚ (Model storage)
+    â”‚ (Models)â”‚
+    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<p><strong>Cost Breakdown:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Load Balancer:           $18/month
+CloudFront (CDN):        $50/month (1M requests)
+Compute (4x t3.medium):  $120/month
+S3 Storage (10GB):       $0.23/month
+Data Transfer:           $80/month
+Monitoring:              $30/month
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+Total:                   ~$298/month (Under budget!)</code></pre></div>
+<p><strong>Scaling Strategy:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Normal Load (0-6am):    2 instances
+Peak Load (12-8pm):     4-6 instances
+High Load (events):     8-10 instances</code></pre></div>
+<h4 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-key-architecture-decisions">Key Architecture Decisions</h4>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-1-region-selection">1. Region Selection</h5>
+<p><strong>Factors:</strong></p>
+<ul>
+<li>User location (latency)</li>
+<li>Data residency requirements</li>
+<li>Service availability</li>
+<li>Cost (varies by region)</li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">US Users:      us-east-1 (Virginia) or us-west-2 (Oregon)
+EU Users:      eu-west-1 (Ireland) or eu-central-1 (Frankfurt)
+Asia Users:    ap-southeast-1 (Singapore) or ap-northeast-1 (Tokyo)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-2-instance-selection">2. Instance Selection</h5>
+<p><strong>CPU-Based (Model Serving):</strong></p>
+<ul>
+<li>Small model: t3.medium (2 vCPU, 4GB)</li>
+<li>Medium model: c5.xlarge (4 vCPU, 8GB)</li>
+<li>Large model: c5.4xlarge (16 vCPU, 32GB)</li>
+</ul>
+<p><strong>GPU-Based (Training):</strong></p>
+<ul>
+<li>Small model: g4dn.xlarge (1x T4, 4 vCPU)</li>
+<li>Medium model: p3.2xlarge (1x V100, 8 vCPU)</li>
+<li>Large model: p3.8xlarge (4x V100, 32 vCPU)</li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-3-storage-strategy">3. Storage Strategy</h5>
+<p><strong>Hot Data</strong> (accessed frequently):</p>
+<ul>
+<li>Standard S3/GCS</li>
+<li>SSD-backed block storage</li>
+<li>In-memory caching (Redis)</li>
+</ul>
+<p><strong>Warm Data</strong> (accessed occasionally):</p>
+<ul>
+<li>Infrequent Access storage class</li>
+<li>Standard block storage</li>
+</ul>
+<p><strong>Cold Data</strong> (archived):</p>
+<ul>
+<li>Glacier/Archive storage</li>
+<li>Lifecycle policies</li>
+</ul>
+<h4 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-common-architecture-patterns">Common Architecture Patterns</h4>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-pattern-lambda-architecture">Pattern: Lambda Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Real-time Layer:    Stream processing â†’ Serving Layer
+                    (Kafka/Kinesis)
+                           â”‚
+Batch Layer:        â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º Model Training
+                    Historical Data</code></pre></div>
+<p>Use for: Real-time predictions with periodic retraining</p>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-pattern-microservices">Pattern: Microservices</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">API Gateway
+    â”‚
+    â”œâ”€â–º Preprocessing Service
+    â”œâ”€â–º Model Service A (v1)
+    â”œâ”€â–º Model Service B (v2)
+    â””â”€â–º Post-processing Service</code></pre></div>
+<p>Use for: Multiple models, independent scaling</p>
+<h5 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-pattern-monolith">Pattern: Monolith</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Single Application
+â”œâ”€ API endpoints
+â”œâ”€ Model inference
+â”œâ”€ Pre/post processing
+â””â”€ Monitoring</code></pre></div>
+<p>Use for: Simple use cases, getting started</p>
+<h4 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-key-takeaways">Key Takeaways</h4>
+<ol>
+<li><strong>Three pillars</strong>: Compute, Storage, Network</li>
+<li><strong>è®­ç»ƒï¼ˆTrainingï¼‰ â‰  æŽ¨ç†ï¼ˆInferenceï¼‰</strong>: Different architectures for different workloads</li>
+<li><strong>High Availability</strong>: Multi-AZ, load balancing, health checks</li>
+<li><strong>Cost Optimization</strong>: Spot instances, è‡ªåŠ¨æ‰©ç¼©å®¹ï¼ˆauto-scalingï¼‰, right-sizing</li>
+<li><strong>å®‰å…¨ï¼ˆSecurityï¼‰</strong>: Defense in depth, principle of least privilege</li>
+<li><strong>å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</strong>: Metrics, logs, traces</li>
+<li><strong>Design for failure</strong>: Assume components will fail</li>
+<li><strong>Start simple</strong>: Add complexity as needed</li>
+</ol>
+<h4 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li>What are the three pillars of cloud architecture?</li>
+<li>When would you use object storage vs block storage?</li>
+<li>What's the difference between vertical and horizontal scaling?</li>
+<li>Why use spot instances for training but not serving?</li>
+<li>What are the three pillars of observability?</li>
+<li>How does multi-AZ deployment improve availability?</li>
+<li>What's the cost difference between reserved and on-demand instances?</li>
+</ol>
+<h4 id="lessons-mod-102-cloud-computing-01-cloud-architecture-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://aws.amazon.com/architecture/well-architected/">AWS äº‘ï¼ˆAWSï¼‰ Well-Architected Framework</a></li>
+<li><a href="https://cloud.google.com/architecture">Google Cloud Architecture Center</a></li>
+<li><a href="https://docs.microsoft.com/azure/architecture/">Azure äº‘ï¼ˆAzureï¼‰ Architecture Center</a></li>
+<li><a href="https://martinfowler.com/">Martin Fowler's Architecture Patterns</a></li>
+<li><a href="https://www.oreilly.com/library/view/cloud-architecture-patterns/9781449357979/">Cloud Architecture Patterns (Book)</a></li>
+</ul>
+<hr/>
+<p><strong>Next Lesson:</strong> <a href="#doc-lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md">02-aws-ml-infrastructure.md</a> - Deep dive into AWS äº‘ï¼ˆAWSï¼‰</p><p><a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-resources-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

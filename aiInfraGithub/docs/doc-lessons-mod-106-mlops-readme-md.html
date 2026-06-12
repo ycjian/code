@@ -1,0 +1,418 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc active" href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-resources-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Learning Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lesson 01: Introduction to MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md.html">Lesson 02: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-03-model-registry-versioning-md.html">Lesson 03: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ &amp; Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-04-feature-stores-engineering-md.html">Lesson 04: Feature Stores &amp; Feature Engineering</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-05-cicd-ml-models-md.html">Lesson 05: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for ML Models</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-06-model-deployment-strategies-md.html">Lesson 06: Model éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-07-ab-testing-experimentation-md.html">Lesson 07: A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ &amp; Experimentation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-08-best-practices-governance-md.html">Lesson 08: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Best Practices &amp; æ²»ç†ï¼ˆGovernanceï¼‰</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Module 106 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-01-mlflow-tracking-md.html">Lab 01: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Tracking Server End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-02-model-registry-md.html">Lab 02: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ and Stage Promotion</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-03-feature-store-md.html">Lab 03: Stand Up a Feast ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-04-cicd-models-md.html">Lab 04: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for Models with GitHub Actions</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-05-canary-deployment-md.html">Lab 05: Canary éƒ¨ç½²ï¼ˆDeploymentï¼‰ with Argo Rollouts</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-06-ab-testing-md.html">Lab 06: A/B Test with Traffic Splitting</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-07-drift-monitoring-md.html">Lab 07: Drift ç›‘æŽ§ï¼ˆMonitoringï¼‰ with Evidently</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercise 01: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Maturity Assessment</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-02-mlflow-tracking-deep-dive-readme-md.html">Exercise 02: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Tracking Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-03-model-registry-promotion-readme-md.html">Exercise 03: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ and Promotion Workflow</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md.html">Exercise 04: å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ and æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">Exercise 05: Model ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md.html">Exercise 06: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for ML Pipelines</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-07-feature-store-implementation-readme-md.html">Exercise 07: ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-08-deployment-strategies-readme-md.html">Exercise 08: Model éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-09-ab-testing-infrastructure-readme-md.html">Exercise 09: A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ Infrastructure for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-10-model-governance-readme-md.html">Exercise 10: Model æ²»ç†ï¼ˆGovernanceï¼‰ and Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-11-ml-orchestration-patterns-readme-md.html">Exercise 11: ML Pipeline Orchestration Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-12-model-cost-attribution-readme-md.html">Exercise 12: Per-Model Cost Attribution</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-13-reproducibility-audit-readme-md.html">Exercise 13: ML Reproducibility Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-14-ml-platform-operating-model-readme-md.html">Exercise 14: ML Platform Team Operating Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-readme-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-106-mlops-readme-md"><h3 id="lessons-mod-106-mlops-readme-md-module-06-mlops-experiment-tracking">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰</h3>
+<h4 id="lessons-mod-106-mlops-readme-md-overview">æ¦‚è§ˆï¼ˆOverviewï¼‰</h4>
+<p>MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ (Machine Learning Operations) is the practice of applying DevOps principles to machine learning systems. This module covers the complete ML lifecycle from experimentation to production deployment, including experiment tracking, model versioning, feature stores, CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ pipelines, and deployment strategies.</p>
+<p><strong>Duration:</strong> 40-50 hours <strong>Difficulty:</strong> Intermediate to Advanced <strong>Prerequisites:</strong></p>
+<ul>
+<li>Completed Modules 01-05</li>
+<li>Python programming</li>
+<li>Basic ML/data science knowledge</li>
+<li>Understanding of CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ concepts</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this module, you will be able to:</p>
+<ul>
+<li>âœ… Implement experiment tracking with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰</li>
+<li>âœ… Build and manage model registries</li>
+<li>âœ… Design and deploy feature stores</li>
+<li>âœ… Create CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ pipelines for ML models</li>
+<li>âœ… Deploy models using various strategies (batch, real-time, edge)</li>
+<li>âœ… Implement A/B testing and experimentation frameworks</li>
+<li>âœ… Apply MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ best practices and design patterns</li>
+<li>âœ… Monitor and maintain models in production</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-module-structure">Module Structure</h4>
+<h5 id="lessons-mod-106-mlops-readme-md-lesson-01-introduction-to-mlops">Lesson 01: Introduction to MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</h5>
+<p><strong>Duration:</strong> 4-5 hours | <strong>File:</strong> <code>01-introduction-to-mlops.md</code></p>
+<p>Introduction to MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ principles, challenges, and the ML lifecycle.</p>
+<p><strong>Topics:</strong></p>
+<ul>
+<li>What is MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ and why it matters</li>
+<li>ML lifecycle stages</li>
+<li>MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ vs DevOps</li>
+<li>Common challenges in ML production</li>
+<li>MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ maturity model</li>
+<li>Tools and ecosystem overview</li>
+</ul>
+<p><strong>Hands-on:</strong></p>
+<ul>
+<li>Assess current MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ maturity</li>
+<li>Design ML system architecture</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-readme-md-lesson-02-mlflow-experiment-tracking">Lesson 02: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰</h5>
+<p><strong>Duration:</strong> 6-7 hours | <strong>File:</strong> <code>02-mlflow-experiment-tracking.md</code></p>
+<p>Comprehensive guide to experiment tracking with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰.</p>
+<p><strong>Topics:</strong></p>
+<ul>
+<li>MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ architecture and components</li>
+<li>Tracking experiments, parameters, and metrics</li>
+<li>Logging artifacts and models</li>
+<li>Organizing experiments with tags</li>
+<li>Querying and comparing runs</li>
+<li>MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ UI and visualization</li>
+<li>Integration with popular frameworks</li>
+</ul>
+<p><strong>Hands-on:</strong></p>
+<ul>
+<li>Set up MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ tracking server</li>
+<li>Track experiments for multiple models</li>
+<li>Build experiment comparison dashboard</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-readme-md-lesson-03-model-registry-versioning">Lesson 03: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ &amp; Versioning</h5>
+<p><strong>Duration:</strong> 5-6 hours | <strong>File:</strong> <code>03-model-registry-versioning.md</code></p>
+<p>Building robust model versioning and registry systems.</p>
+<p><strong>Topics:</strong></p>
+<ul>
+<li>Model versioning strategies</li>
+<li>MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰</li>
+<li>Model lifecycle stages (staging, production, archived)</li>
+<li>Model lineage and metadata tracking</li>
+<li>Model governance and approval workflows</li>
+<li>Integration with deployment systems</li>
+</ul>
+<p><strong>Hands-on:</strong></p>
+<ul>
+<li>Implement model registry</li>
+<li>Create approval workflow</li>
+<li>Automate model promotion</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-readme-md-lesson-04-feature-stores">Lesson 04: Feature Stores</h5>
+<p><strong>Duration:</strong> 6-7 hours | <strong>File:</strong> <code>04-feature-stores.md</code></p>
+<p>Designing and implementing feature stores for ML systems.</p>
+<p><strong>Topics:</strong></p>
+<ul>
+<li>What are feature stores and why they matter</li>
+<li>Feature store architecture</li>
+<li>Online vs offline feature serving</li>
+<li>Feature engineering pipelines</li>
+<li>Feature versioning and lineage</li>
+<li>Popular feature store solutions (Feast, Tecton, AWS äº‘ï¼ˆAWSï¼‰ ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰)</li>
+<li>Point-in-time correctness</li>
+</ul>
+<p><strong>Hands-on:</strong></p>
+<ul>
+<li>Build simple feature store with Feast</li>
+<li>Implement online and offline feature serving</li>
+<li>Create feature pipeline with versioning</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-readme-md-lesson-05-ci-cd-for-ml-models">Lesson 05: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for ML Models</h5>
+<p><strong>Duration:</strong> 7-8 hours | <strong>File:</strong> <code>05-cicd-ml-models.md</code></p>
+<p>Implementing continuous integration and deployment for ML systems.</p>
+<p><strong>Topics:</strong></p>
+<ul>
+<li>CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ principles for ML</li>
+<li>Testing ML code (unit, integration, model tests)</li>
+<li>Data validation in CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰</li>
+<li>Model validation and testing</li>
+<li>Automated training pipelines</li>
+<li>éƒ¨ç½²ï¼ˆDeploymentï¼‰ automation</li>
+<li>GitOps äº¤ä»˜æ¨¡å¼ï¼ˆGitOpsï¼‰ for ML</li>
+<li>GitHub Actions, GitLab CI, Jenkins for ML</li>
+</ul>
+<p><strong>Hands-on:</strong></p>
+<ul>
+<li>Build complete CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ pipeline</li>
+<li>Implement automated testing</li>
+<li>Create automated deployment workflow</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-readme-md-lesson-06-model-deployment-strategies">Lesson 06: Model éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</h5>
+<p><strong>Duration:</strong> 6-7 hours | <strong>File:</strong> <code>06-model-deployment-strategies.md</code></p>
+<p>Comprehensive guide to deploying ML models in production.</p>
+<p><strong>Topics:</strong></p>
+<ul>
+<li>Batch vs real-time vs streaming inference</li>
+<li>Model serving patterns (online, offline, edge)</li>
+<li>éƒ¨ç½²ï¼ˆDeploymentï¼‰ strategies (blue-green, canary, shadow)</li>
+<li>Scaling inference services</li>
+<li>Model optimization (quantization, pruning, distillation)</li>
+<li>Multi-model serving</li>
+<li>Serverless deployment</li>
+</ul>
+<p><strong>Hands-on:</strong></p>
+<ul>
+<li>Implement multiple deployment strategies</li>
+<li>Build è‡ªåŠ¨æ‰©ç¼©å®¹ï¼ˆauto-scalingï¼‰ inference service</li>
+<li>Deploy model to serverless platform</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-readme-md-lesson-07-a-b-testing-experimentation">Lesson 07: A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ &amp; Experimentation</h5>
+<p><strong>Duration:</strong> 5-6 hours | <strong>File:</strong> <code>07-ab-testing-experimentation.md</code></p>
+<p>Implementing experimentation frameworks for ML models.</p>
+<p><strong>Topics:</strong></p>
+<ul>
+<li>A/B testing fundamentals</li>
+<li>Statistical significance and power analysis</li>
+<li>Multi-armed bandits</li>
+<li>Experimentation platforms</li>
+<li>Feature flags for ML</li>
+<li>Measuring experiment impact</li>
+<li>Common pitfalls and best practices</li>
+</ul>
+<p><strong>Hands-on:</strong></p>
+<ul>
+<li>Build A/B testing framework</li>
+<li>Implement feature flags</li>
+<li>Run model comparison experiment</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-106-mlops-readme-md-lesson-08-mlops-best-practices">Lesson 08: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Best Practices</h5>
+<p><strong>Duration:</strong> 4-5 hours | <strong>File:</strong> <code>08-mlops-best-practices.md</code></p>
+<p>Production-ready MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ patterns and practices.</p>
+<p><strong>Topics:</strong></p>
+<ul>
+<li>Model monitoring and observability</li>
+<li>Model retraining strategies</li>
+<li>Handling model drift</li>
+<li>Cost optimization</li>
+<li>å®‰å…¨ï¼ˆSecurityï¼‰ and compliance</li>
+<li>Documentation and reproducibility</li>
+<li>Team organization and workflows</li>
+<li>Common anti-patterns to avoid</li>
+</ul>
+<p><strong>Hands-on:</strong></p>
+<ul>
+<li>Implement model monitoring</li>
+<li>Create retraining pipeline</li>
+<li>Build MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ documentation</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-assessment">Assessment</h4>
+<h5 id="lessons-mod-106-mlops-readme-md-quizzes">Quizzes</h5>
+<ul>
+<li><strong>Module Quiz:</strong> 25 questions covering all lessons</li>
+<li><strong>Lesson Quizzes:</strong> Available for each lesson</li>
+<li><strong>Passing Score:</strong> 80% (20/25 correct)</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-readme-md-practical-exercises">Practical Exercises</h5>
+<p>5 hands-on labs in <code>exercises/</code> directory:</p>
+<ol>
+<li><strong>Lab 01:</strong> MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ (3-4 hours)</li>
+<li><strong>Lab 02:</strong> ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Implementation (4-5 hours)</li>
+<li><strong>Lab 03:</strong> CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ Pipeline for ML (5-6 hours)</li>
+<li><strong>Lab 04:</strong> Multi-Strategy Model éƒ¨ç½²ï¼ˆDeploymentï¼‰ (4-5 hours)</li>
+<li><strong>Lab 05:</strong> End-to-End MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ System (10-12 hours)</li>
+</ol>
+<h5 id="lessons-mod-106-mlops-readme-md-capstone-project">Capstone Project</h5>
+<p>Build a complete MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ system:</p>
+<ul>
+<li>Experiment tracking with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰</li>
+<li>Feature store with online/offline serving</li>
+<li>CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ pipeline with automated testing</li>
+<li>Multiple deployment strategies</li>
+<li>A/B testing framework</li>
+<li>ç›‘æŽ§ï¼ˆMonitoringï¼‰ and alerting</li>
+<li>Documentation and runbooks</li>
+</ul>
+<p><strong>Estimated Time:</strong> 20-25 hours</p>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-prerequisites-checklist">Prerequisites Checklist</h4>
+<p>Before starting this module, ensure you have:</p>
+<ul>
+<li>âœ… Completed Modules 01-05 (or equivalent knowledge)</li>
+<li>âœ… Python 3.8+ installed</li>
+<li>âœ… Docker å®¹å™¨ï¼ˆDockerï¼‰ and Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ basics</li>
+<li>âœ… Git and GitHub/GitLab experience</li>
+<li>âœ… Basic ML/data science knowledge (sklearn, pandas)</li>
+<li>âœ… Understanding of APIs and web services</li>
+<li>âœ… Familiarity with CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ concepts</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-required-tools-setup">Required Tools &amp; Setup</h4>
+<h5 id="lessons-mod-106-mlops-readme-md-core-tools">Core Tools</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Python packages
+pip install mlflow==2.9.0
+pip install feast==0.35.0
+pip install scikit-learn pandas numpy
+pip install fastapi uvicorn
+pip install pytest pytest-cov
+pip install great-expectations
+
+# CLI tools
+brew install kubectl  # or apt-get install kubectl
+brew install helm</code></pre></div>
+<h5 id="lessons-mod-106-mlops-readme-md-infrastructure">Infrastructure</h5>
+<ul>
+<li><strong>Docker å®¹å™¨ï¼ˆDockerï¼‰ Desktop</strong> (for local development)</li>
+<li><strong>Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ cluster</strong> (Minikube, Kind, or cloud)</li>
+<li><strong>Git repository</strong> (GitHub, GitLab, or Bitbucket)</li>
+<li><strong>Cloud account</strong> (AWS, GCP äº‘ï¼ˆGCPï¼‰, or Azure äº‘ï¼ˆAzureï¼‰ - free tier sufficient)</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-readme-md-optional-tools">Optional Tools</h5>
+<ul>
+<li><strong>MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Tracking Server</strong> (hosted or self-hosted)</li>
+<li><strong>CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ Platform</strong> (GitHub Actions, GitLab CI, or Jenkins)</li>
+<li><strong>ç›‘æŽ§ï¼ˆMonitoringï¼‰ Stack</strong> (Prometheus + Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰)</li>
+<li><strong>Cloud Storage</strong> (S3, GCS, or Azure äº‘ï¼ˆAzureï¼‰ Blob)</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-learning-path">å­¦ä¹ è·¯å¾„ï¼ˆLearning Pathï¼‰</h4>
+<h5 id="lessons-mod-106-mlops-readme-md-week-1-foundations-lessons-01-02">Week 1: Foundations (Lessons 01-02)</h5>
+<ul>
+<li>Understand MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ principles</li>
+<li>Master MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ experiment tracking</li>
+<li>Complete Lab 01</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-readme-md-week-2-model-management-lessons-03-04">Week 2: Model Management (Lessons 03-04)</h5>
+<ul>
+<li>Learn model registry patterns</li>
+<li>Understand feature stores</li>
+<li>Complete Labs 02</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-readme-md-week-3-automation-lessons-05-06">Week 3: Automation (Lessons 05-06)</h5>
+<ul>
+<li>Build CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ pipelines</li>
+<li>Master deployment strategies</li>
+<li>Complete Labs 03-04</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-readme-md-week-4-advanced-topics-lessons-07-08">Week 4: Advanced Topics (Lessons 07-08)</h5>
+<ul>
+<li>Implement A/B testing</li>
+<li>Apply best practices</li>
+<li>Complete Lab 05</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-readme-md-week-5-capstone-project">Week 5: Capstone Project</h5>
+<ul>
+<li>Build ç«¯åˆ°ç«¯ï¼ˆend-to-endï¼‰ MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ system</li>
+<li>Document and present solution</li>
+<li>Peer review and feedback</li>
+</ul>
+<p><strong>Total Time:</strong> 5-6 weeks (8-10 hours/week)</p>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-real-world-applications">Real-World Applications</h4>
+<h5 id="lessons-mod-106-mlops-readme-md-use-cases-covered">Use Cases Covered</h5>
+<ol>
+<li><strong>E-commerce Recommendation System</strong></li>
+</ol>
+<ul>
+<li>Feature store for user/product features</li>
+<li>Real-time model serving</li>
+<li>A/B testing new models</li>
+</ul>
+<ol>
+<li><strong>Fraud Detection</strong></li>
+</ol>
+<ul>
+<li>Streaming feature computation</li>
+<li>Real-time inference with low latency</li>
+<li>Model retraining on new fraud patterns</li>
+</ul>
+<ol>
+<li><strong>Demand Forecasting</strong></li>
+</ol>
+<ul>
+<li>Batch inference for daily predictions</li>
+<li>Automated retraining pipeline</li>
+<li>Model performance monitoring</li>
+</ul>
+<ol>
+<li><strong>Computer Vision API</strong></li>
+</ol>
+<ul>
+<li>Edge deployment for low-latency inference</li>
+<li>Model optimization (quantization)</li>
+<li>Canary deployments for new versions</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-success-criteria">Success Criteria</h4>
+<p>You'll have successfully completed this module when you can:</p>
+<ul>
+<li>[ ] Track and compare ML experiments systematically</li>
+<li>[ ] Manage model versions with proper governance</li>
+<li>[ ] Build and operate a feature store</li>
+<li>[ ] Create automated CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ pipelines for ML</li>
+<li>[ ] Deploy models using multiple strategies</li>
+<li>[ ] Run A/B tests to validate model improvements</li>
+<li>[ ] Monitor and maintain models in production</li>
+<li>[ ] Apply MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ best practices consistently</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-common-challenges-solutions">Common Challenges &amp; Solutions</h4>
+<h5 id="lessons-mod-106-mlops-readme-md-challenge-1-experiment-tracking-overhead">Challenge 1: å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ Overhead</h5>
+<p><strong>Problem:</strong> Manually tracking experiments is tedious and error-prone</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>Use MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ auto-logging</li>
+<li>Create experiment tracking templates</li>
+<li>Automate experiment setup</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-readme-md-challenge-2-feature-engineering-complexity">Challenge 2: Feature Engineering Complexity</h5>
+<p><strong>Problem:</strong> Inconsistent features between training and serving</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>Implement feature store</li>
+<li>Use same feature code for training and serving</li>
+<li>Version features alongside models</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-readme-md-challenge-3-deployment-complexity">Challenge 3: éƒ¨ç½²ï¼ˆDeploymentï¼‰ Complexity</h5>
+<p><strong>Problem:</strong> Multiple deployment targets and strategies</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>Standardize model packaging (ONNX, TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰ SavedModel)</li>
+<li>Use deployment automation tools</li>
+<li>Create deployment templates</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-readme-md-challenge-4-model-governance">Challenge 4: Model æ²»ç†ï¼ˆGovernanceï¼‰</h5>
+<p><strong>Problem:</strong> Unclear model approval and promotion process</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>Implement model registry with stages</li>
+<li>Define clear approval workflows</li>
+<li>Document model metadata</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-resources">èµ„æºï¼ˆResourcesï¼‰</h4>
+<h5 id="lessons-mod-106-mlops-readme-md-documentation">Documentation</h5>
+<ul>
+<li>MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰: https://mlflow.org/docs/latest/</li>
+<li>Feast: https://docs.feast.dev/</li>
+<li>Kubeflow: https://www.kubeflow.org/docs/</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-readme-md-books">Books</h5>
+<ul>
+<li>&quot;Introducing MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰&quot; by Mark Treveil et al. (O'Reilly, 2020)</li>
+<li>&quot;Building æœºå™¨å­¦ä¹ ï¼ˆMachine Learningï¼‰ Pipelines&quot; by Hannes Hapke &amp; Catherine Nelson (O'Reilly, 2020)</li>
+<li>&quot;æœºå™¨å­¦ä¹ ï¼ˆMachine Learningï¼‰ Design Patterns&quot; by Lakshmanan et al. (O'Reilly, 2020)</li>
+</ul>
+<h5 id="lessons-mod-106-mlops-readme-md-community">Community</h5>
+<ul>
+<li>MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Community: https://mlops.community/</li>
+<li>MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Slack: https://mlflow.org/slack</li>
+<li>Feast Slack: https://feast-slack.herokuapp.com/</li>
+</ul>
+<p>See <code>resources.md</code> for complete resource list.</p>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-next-steps">Next Steps</h4>
+<p>After completing this module:</p>
+<ol>
+<li><strong>Practice:</strong> Build a personal MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ project</li>
+<li><strong>Certify:</strong> Consider AWS äº‘ï¼ˆAWSï¼‰ ML Specialty or GCP äº‘ï¼ˆGCPï¼‰ ML Engineer certification</li>
+<li><strong>Continue:</strong> Move to Module 07 (GPU Computing)</li>
+<li><strong>Connect:</strong> Join MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ community and share learnings</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-getting-help">Getting Help</h4>
+<ul>
+<li><strong>Discussion Forum:</strong> [Link to forum]</li>
+<li><strong>Office Hours:</strong> Thursdays 2-4pm PST</li>
+<li><strong>Slack Channel:</strong> #mlops-help</li>
+<li><strong>Email:</strong> mlops-help@example.com</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-readme-md-feedback">Feedback</h4>
+<p>Your feedback helps improve this module:</p>
+<ul>
+<li><strong>Issues:</strong> Report bugs or unclear content</li>
+<li><strong>Suggestions:</strong> Propose new topics or examples</li>
+<li><strong>Contributions:</strong> Submit pull requests with improvements</li>
+</ul>
+<hr/>
+<p><strong>Let's build production-ready ML systems! ðŸš€</strong></p>
+<p>Good luck with your MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ journey!</p><p> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-resources-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

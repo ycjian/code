@@ -1,0 +1,630 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-resources-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lesson 01: Introduction to GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ for AI</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md.html">Lesson 02: CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Programming Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md.html">Lesson 03: PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ Acceleration</a><a class="tree-doc active" href="../docs/doc-lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md.html">Lesson 04: åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-05-multi-gpu-training-strategies-md.html">Lesson 05: Multi-GPU è®­ç»ƒï¼ˆTrainingï¼‰ Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-06-model-pipeline-parallelism-md.html">Lesson 06: Model and Pipeline Parallelism</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-07-gpu-memory-management-md.html">Lesson 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Management &amp; Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-08-advanced-gpu-optimization-md.html">Lesson 08: Advanced GPU åŠ é€Ÿï¼ˆGPUï¼‰ Optimization</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Module 107 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-01-cuda-hello-world-md.html">Lab 01: CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Hello-World and Device Introspection</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-02-pytorch-gpu-inference-md.html">Lab 02: PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ æŽ¨ç†ï¼ˆInferenceï¼‰ and Benchmarking</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-03-multi-gpu-training-md.html">Lab 03: Multi-GPU è®­ç»ƒï¼ˆTrainingï¼‰ with DistributedDataParallel</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-04-gpu-cluster-on-k8s-md.html">Lab 04: Run a GPU åŠ é€Ÿï¼ˆGPUï¼‰ Pod on Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-05-mixed-precision-md.html">Lab 05: Mixed-Precision è®­ç»ƒï¼ˆTrainingï¼‰ with `torch.amp`</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-06-memory-profiling-md.html">Lab 06: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Profiling and OOM Diagnosis</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercise 01: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Introspection and First CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Op</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-02-cuda-kernel-readme-md.html">Exercise 02: Write Your First CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Kernel</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-03-pytorch-gpu-pipeline-readme-md.html">Exercise 03: End-to-End PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-04-gpu-cluster-management-readme-md.html">Exercise 04: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Cluster Management and Scheduling</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-05-gpu-performance-optimization-readme-md.html">Exercise 05: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Performance Optimization and Profiling</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-06-distributed-gpu-training-readme-md.html">Exercise 06: Distributed GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®­ç»ƒï¼ˆTrainingï¼‰ at Scale</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-07-gpu-memory-profiling-readme-md.html">Exercise 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Profiling and OOM Diagnosis</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-08-mixed-precision-readme-md.html">Exercise 08: Mixed Precision è®­ç»ƒï¼ˆTrainingï¼‰ Benchmarks</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-09-inference-optimization-readme-md.html">Exercise 09: GPU åŠ é€Ÿï¼ˆGPUï¼‰ æŽ¨ç†ï¼ˆInferenceï¼‰ Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-10-gpu-sharing-strategies-readme-md.html">Exercise 10: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Sharing Strategies (MIG, MPS, Time-Slicing)</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-11-gpu-cost-optimization-readme-md.html">Exercise 11: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Cost Optimization Playbook</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-readme-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ - Hands-on Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md"><h3 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-lesson-04-distribute">Lesson 04: åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ Fundamentals</h3>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ol>
+<li>Understand the need for distributed training and when to use it</li>
+<li>Explain data parallelism vs model parallelism strategies</li>
+<li>Understand collective communication operations (AllReduce, Broadcast, etc.)</li>
+<li>Set up PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ distributed training basics</li>
+<li>Implement synchronous and asynchronous training</li>
+<li>Calculate distributed training efficiency and identify bottlenecks</li>
+</ol>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-introduction">Introduction</h4>
+<p>As models and datasets grow larger, single-GPU training becomes impractical. Distributed training allows us to:</p>
+<ul>
+<li>Train larger models that don't fit on a single GPU åŠ é€Ÿï¼ˆGPUï¼‰</li>
+<li>Speed up training by leveraging multiple GPUs/machines</li>
+<li>Process larger batch sizes</li>
+<li>Enable faster experimentation</li>
+</ul>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-why-distributed-trai">Why åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰?</h4>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-the-scale-challenge">The Scale Challenge</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Model Size Growth:
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ GPT-2 (2019):     1.5B params  â”‚  6 GB  â”‚
+â”‚ GPT-3 (2020):     175B params  â”‚ 700 GB â”‚
+â”‚ PaLM (2022):      540B params  â”‚ 2.2 TB â”‚
+â”‚ GPT-4 (2023):     ~1.7T params â”‚  ~7 TB â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+Single A100 GPU: 80 GB VRAM
+â†’ Need distributed training!</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-training-time-reduct">è®­ç»ƒï¼ˆTrainingï¼‰ Time Reduction</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Single GPU Training Time:
+Model: BERT-Large on 1M samples
+- 1x RTX 4090:  ~10 days
+- 4x RTX 4090:  ~3 days   (3.3x speedup)
+- 8x A100:      ~1 day    (10x speedup)
+- 64x A100:     ~2 hours  (120x speedup)
+
+Note: Speedup &lt; N due to communication overhead</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-parallelism-strategi">Parallelism Strategies</h4>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-data-parallelism">Data Parallelism</h5>
+<p>Split data across devices, replicate model:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚              Data Parallelism                        â”‚
+â”‚                                                      â”‚
+â”‚  GPU 0:  Model Copy    GPU 1:  Model Copy           â”‚
+â”‚          â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”             â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”          â”‚
+â”‚          â”‚ Model  â”‚             â”‚ Model  â”‚          â”‚
+â”‚          â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜             â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜          â”‚
+â”‚             â†‘ â†“                    â†‘ â†“              â”‚
+â”‚          Batch 1                Batch 2             â”‚
+â”‚          [0-15]                 [16-31]             â”‚
+â”‚                                                      â”‚
+â”‚  After forward/backward:                            â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”            â”‚
+â”‚  â”‚  Synchronize Gradients (AllReduce) â”‚            â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜            â”‚
+â”‚                     â†“                               â”‚
+â”‚  Both GPUs update with averaged gradients          â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+Characteristics:
+âœ“ Easy to implement
+âœ“ Works for most models
+âœ“ Linear scaling (ideally)
+âœ— Model must fit on single GPU
+âœ— Communication overhead</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-model-parallelism">Model Parallelism</h5>
+<p>Split model across devices, same data:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚             Model Parallelism                        â”‚
+â”‚                                                      â”‚
+â”‚  GPU 0:  Layers 1-5    GPU 1:  Layers 6-10          â”‚
+â”‚          â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”             â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”          â”‚
+â”‚          â”‚Layer 1 â”‚             â”‚Layer 6 â”‚          â”‚
+â”‚          â”‚Layer 2 â”‚             â”‚Layer 7 â”‚          â”‚
+â”‚          â”‚Layer 3 â”‚â”€â”€Forwardâ”€â”€â”€â–¶â”‚Layer 8 â”‚          â”‚
+â”‚          â”‚Layer 4 â”‚             â”‚Layer 9 â”‚          â”‚
+â”‚          â”‚Layer 5 â”‚â—€â”€â”€Backwardâ”€â”€â”‚Layer 10â”‚          â”‚
+â”‚          â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜             â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜          â”‚
+â”‚                                                      â”‚
+â”‚  Same batch flows through both GPUs sequentially    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+Characteristics:
+âœ“ Can train very large models
+âœ“ Lower memory per GPU
+âœ— More complex to implement
+âœ— Sequential execution (GPU idle time)
+âœ— Requires careful pipeline design</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-pipeline-parallelism">Pipeline Parallelism</h5>
+<p>Split model into stages, pipeline mini-batches:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚           Pipeline Parallelism                       â”‚
+â”‚                                                      â”‚
+â”‚  Time â†’                                             â”‚
+â”‚                                                      â”‚
+â”‚  GPU 0 (Stage 1):  [B1] [B2] [B3] [B4]             â”‚
+â”‚  GPU 1 (Stage 2):      [B1] [B2] [B3] [B4]         â”‚
+â”‚  GPU 2 (Stage 3):          [B1] [B2] [B3] [B4]     â”‚
+â”‚  GPU 3 (Stage 4):              [B1] [B2] [B3] [B4] â”‚
+â”‚                                                      â”‚
+â”‚  Better GPU utilization than naive model parallel   â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+Characteristics:
+âœ“ Better GPU utilization than model parallel
+âœ“ Can train very large models
+âœ— Complex to implement
+âœ— &quot;Bubble&quot; overhead at start/end
+âœ— Requires careful batch splitting</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-hybrid-parallelism">Hybrid Parallelism</h5>
+<p>Combine strategies for optimal performance:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚        Hybrid: Data + Model Parallelism             â”‚
+â”‚                                                      â”‚
+â”‚  Data Parallel Replicas (across nodes)              â”‚
+â”‚      â”‚                         â”‚                    â”‚
+â”‚      â”œâ”€ Node 1 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”œâ”€ Node 2           â”‚
+â”‚      â”‚                         â”‚                    â”‚
+â”‚  Model Parallel (within node)                       â”‚
+â”‚  GPU 0  GPU 1  GPU 2  GPU 3   GPU 4  GPU 5  ...   â”‚
+â”‚  [L1-2] [L3-4] [L5-6] [L7-8]  [L1-2] [L3-4] ...   â”‚
+â”‚                                                      â”‚
+â”‚  Example: GPT-3 training uses this approach         â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-collective-communica">Collective Communication</h4>
+<p>Distributed training relies on collective communication operations:</p>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-allreduce">AllReduce</h5>
+<p>Combine values from all processes and distribute result:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                   AllReduce                          â”‚
+â”‚                                                      â”‚
+â”‚  Before:                                            â”‚
+â”‚  GPU 0: grad = [1, 2, 3]                           â”‚
+â”‚  GPU 1: grad = [4, 5, 6]                           â”‚
+â”‚  GPU 2: grad = [7, 8, 9]                           â”‚
+â”‚                                                      â”‚
+â”‚  After AllReduce (sum):                             â”‚
+â”‚  GPU 0: grad = [12, 15, 18]                        â”‚
+â”‚  GPU 1: grad = [12, 15, 18]                        â”‚
+â”‚  GPU 2: grad = [12, 15, 18]                        â”‚
+â”‚                                                      â”‚
+â”‚  After averaging:                                   â”‚
+â”‚  All GPUs: grad = [4, 5, 6]                        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+Most important operation for data parallelism!</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-ring-allreduce">Ring AllReduce</h5>
+<p>Efficient AllReduce implementation:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚              Ring AllReduce                          â”‚
+â”‚                                                      â”‚
+â”‚  GPUs arranged in ring topology:                    â”‚
+â”‚  GPU 0 â†” GPU 1 â†” GPU 2 â†” GPU 3 â†” GPU 0            â”‚
+â”‚                                                      â”‚
+â”‚  Phase 1: Reduce-Scatter                            â”‚
+â”‚    Each GPU receives partial sum from neighbor      â”‚
+â”‚    2(N-1) messages total                            â”‚
+â”‚                                                      â”‚
+â”‚  Phase 2: AllGather                                 â”‚
+â”‚    Each GPU shares complete result with neighbor    â”‚
+â”‚    2(N-1) messages total                            â”‚
+â”‚                                                      â”‚
+â”‚  Total: 4(N-1) messages                             â”‚
+â”‚  Bandwidth: O(1) per GPU (optimal!)                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+Benefits:
+- Bandwidth doesn't increase with GPU count
+- Scales to many GPUs
+- Used by PyTorch DDP</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-other-collective-ope">Other Collective Operations</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Broadcast: Send from one process to all
+# Before: GPU 0: [1,2,3]   GPU 1: [0,0,0]
+# After:  GPU 0: [1,2,3]   GPU 1: [1,2,3]
+dist.broadcast(tensor, src=0)
+
+# Reduce: Combine from all to one
+# Before: GPU 0: [1,2]  GPU 1: [3,4]
+# After:  GPU 0: [4,6]  GPU 1: [3,4]  (unchanged)
+dist.reduce(tensor, dst=0, op=dist.ReduceOp.SUM)
+
+# AllGather: Gather from all, send to all
+# Before: GPU 0: [1,2]  GPU 1: [3,4]
+# After:  GPU 0: [1,2,3,4]  GPU 1: [1,2,3,4]
+dist.all_gather(tensor_list, tensor)
+
+# Scatter: Split from one to all
+# Before: GPU 0: [1,2,3,4]
+# After:  GPU 0: [1,2]  GPU 1: [3,4]
+dist.scatter(tensor, scatter_list, src=0)
+
+# Gather: Collect from all to one
+# Before: GPU 0: [1,2]  GPU 1: [3,4]
+# After:  GPU 0: [1,2,3,4]  GPU 1: [3,4]
+dist.gather(tensor, gather_list, dst=0)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-pytorch-distributed-">PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ Distributed Basics</h4>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-process-groups">Process Groups</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch.distributed as dist
+import torch.multiprocessing as mp
+
+def setup(rank, world_size):
+    &quot;&quot;&quot;Initialize distributed process group&quot;&quot;&quot;
+    # Set environment variables
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '12355'
+
+    # Initialize process group
+    dist.init_process_group(
+        backend='nccl',  # NCCL for GPU, Gloo for CPU
+        rank=rank,       # Process ID (0 to world_size-1)
+        world_size=world_size  # Total number of processes
+    )
+
+def cleanup():
+    &quot;&quot;&quot;Cleanup distributed&quot;&quot;&quot;
+    dist.destroy_process_group()
+
+# Launch processes
+def main(rank, world_size):
+    setup(rank, world_size)
+
+    # Your distributed code here
+    print(f&quot;Process {rank}/{world_size}&quot;)
+
+    cleanup()
+
+if __name__ == '__main__':
+    world_size = 4  # 4 GPUs
+    mp.spawn(
+        main,
+        args=(world_size,),
+        nprocs=world_size,
+        join=True
+    )</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-distributed-data-loa">Distributed Data Loading</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from torch.utils.data.distributed import DistributedSampler
+
+def get_dataloader(rank, world_size, batch_size):
+    &quot;&quot;&quot;Create distributed dataloader&quot;&quot;&quot;
+    # Create dataset
+    dataset = YourDataset()
+
+    # Create distributed sampler
+    # Each process gets different subset of data
+    sampler = DistributedSampler(
+        dataset,
+        num_replicas=world_size,
+        rank=rank,
+        shuffle=True,
+        drop_last=True
+    )
+
+    # Create dataloader
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        sampler=sampler,  # Use sampler instead of shuffle
+        num_workers=4,
+        pin_memory=True
+    )
+
+    return dataloader
+
+# Important: Set epoch for sampler (shuffling)
+for epoch in range(num_epochs):
+    train_sampler.set_epoch(epoch)  # Ensure different shuffle each epoch
+
+    for batch in train_loader:
+        # Training code
+        pass</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-synchronous-vs-async">Synchronous vs Asynchronous è®­ç»ƒï¼ˆTrainingï¼‰</h4>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-synchronous-training">Synchronous è®­ç»ƒï¼ˆTrainingï¼‰ (More Common)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># All workers synchronize gradients after each batch
+def synchronous_training_step(model, data, target):
+    &quot;&quot;&quot;Standard synchronous training&quot;&quot;&quot;
+    output = model(data)
+    loss = criterion(output, target)
+    loss.backward()
+
+    # Implicit synchronization via AllReduce
+    # All workers wait for all gradients
+    optimizer.step()
+    optimizer.zero_grad()
+
+# Characteristics:
+# âœ“ Deterministic (same as single GPU with larger batch)
+# âœ“ Better convergence
+# âœ— Speed limited by slowest worker
+# âœ— Stragglers cause delays</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-asynchronous-trainin">Asynchronous è®­ç»ƒï¼ˆTrainingï¼‰ (Less Common)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Workers update independently without waiting
+# Implemented with parameter servers
+
+# Characteristics:
+# âœ“ No waiting for stragglers
+# âœ“ Higher throughput
+# âœ— Stale gradients
+# âœ— Worse convergence
+# âœ— Complex implementation
+
+# Rarely used in modern deep learning
+# Synchronous SGD preferred due to better convergence</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-gradient-synchroniza">Gradient Synchronization Strategies</h4>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-standard-ddp-default">Standard DDP åˆ†å¸ƒå¼æ•°æ®å¹¶è¡Œï¼ˆDDPï¼‰ (Default)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Synchronize gradients after backward pass
+loss.backward()  # Compute gradients
+# â† AllReduce happens here (automatically)
+optimizer.step()  # Update with synchronized gradients</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-gradient-accumulatio">Gradient Accumulation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Accumulate gradients over multiple batches
+accumulation_steps = 4
+
+for i, (data, target) in enumerate(train_loader):
+    data, target = data.to(device), target.to(device)
+
+    output = model(data)
+    loss = criterion(output, target) / accumulation_steps
+    loss.backward()  # Accumulate gradients
+
+    if (i + 1) % accumulation_steps == 0:
+        # Synchronize accumulated gradients
+        optimizer.step()
+        optimizer.zero_grad()
+
+# Effective batch size = batch_size * accumulation_steps * world_size
+# Useful when memory limited</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-no-sync-context">No Sync Context</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Skip gradient synchronization for some steps
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+model = DDP(model)
+
+for i, (data, target) in enumerate(train_loader):
+    # Skip sync for intermediate steps
+    if i % accumulation_steps != 0:
+        with model.no_sync():
+            output = model(data)
+            loss = criterion(output, target)
+            loss.backward()  # No AllReduce
+    else:
+        # Sync on last step
+        output = model(data)
+        loss = criterion(output, target)
+        loss.backward()  # AllReduce happens
+        optimizer.step()
+        optimizer.zero_grad()</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-distributed-training">åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ Efficiency</h4>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-linear-scaling">Linear Scaling</h5>
+<p>Ideal speedup: è®­ç»ƒï¼ˆTrainingï¼‰ with N GPUs is N times faster</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Linear scaling formula:
+# Speedup = T_1GPU / T_NGPU
+
+# Example:
+# 1 GPU:  100 seconds/epoch
+# 4 GPUs: 25 seconds/epoch
+# Speedup: 100/25 = 4x (perfect linear scaling!)
+
+# In practice:
+# 4 GPUs: ~28 seconds/epoch
+# Speedup: 100/28 = 3.57x (88% efficiency)
+
+# Efficiency = Speedup / N
+# Efficiency = 3.57 / 4 = 89%</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-scaling-efficiency-f">Scaling Efficiency Factors</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚         What Affects Scaling Efficiency?            â”‚
+â”‚                                                      â”‚
+â”‚  Communication Overhead:                            â”‚
+â”‚  - AllReduce time vs computation time              â”‚
+â”‚  - Network bandwidth (NVLink &gt; PCIe &gt; Ethernet)    â”‚
+â”‚  - Model size (larger = more gradients to sync)    â”‚
+â”‚                                                      â”‚
+â”‚  Load Imbalance:                                    â”‚
+â”‚  - Uneven data distribution                        â”‚
+â”‚  - Stragglers (slow workers)                       â”‚
+â”‚  - Different GPU speeds                            â”‚
+â”‚                                                      â”‚
+â”‚  Batch Size Effects:                                â”‚
+â”‚  - Too small: Overhead dominates                   â”‚
+â”‚  - Too large: Convergence issues                   â”‚
+â”‚  - Sweet spot: Balance efficiency and convergence  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-communication-to-com">Communication to Computation Ratio</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def calculate_comm_comp_ratio(model, batch_size, world_size):
+    &quot;&quot;&quot;
+    Estimate communication/computation ratio
+    &quot;&quot;&quot;
+    # Gradient size (bytes)
+    param_size = sum(p.numel() for p in model.parameters()) * 4  # FP32
+
+    # Computation (FLOPs)
+    # Rough estimate for transformer
+    seq_len = 512
+    hidden = 768
+    flops = 6 * param_size * batch_size * seq_len
+
+    # Communication (bytes)
+    # AllReduce: 2(N-1)/N * param_size for Ring AllReduce
+    comm_bytes = 2 * (world_size - 1) / world_size * param_size
+
+    # Communication time (assuming 100 GB/s)
+    bandwidth = 100e9  # bytes/sec
+    comm_time = comm_bytes / bandwidth
+
+    # Computation time (assuming 100 TFLOPS)
+    compute_power = 100e12  # FLOPS
+    comp_time = flops / compute_power
+
+    ratio = comm_time / comp_time
+
+    print(f&quot;Communication time: {comm_time*1000:.2f} ms&quot;)
+    print(f&quot;Computation time: {comp_time*1000:.2f} ms&quot;)
+    print(f&quot;Comm/Comp ratio: {ratio:.2f}&quot;)
+
+    if ratio &gt; 0.1:
+        print(&quot;âš  Communication overhead is significant!&quot;)
+    else:
+        print(&quot;âœ“ Good compute/communication balance&quot;)
+
+    return ratio</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-weak-scaling-vs-stro">Weak Scaling vs Strong Scaling</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Strong Scaling (fixed total workload):
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ 1 GPU:  1000 samples, 100s         â”‚
+â”‚ 2 GPUs: 1000 samples,  50s (ideal) â”‚
+â”‚ 4 GPUs: 1000 samples,  25s (ideal) â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+Each GPU processes fewer samples
+Total batch size constant
+
+Weak Scaling (fixed per-GPU workload):
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ 1 GPU:  1000 samples, 100s         â”‚
+â”‚ 2 GPUs: 2000 samples, 100s (ideal) â”‚
+â”‚ 4 GPUs: 4000 samples, 100s (ideal) â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+Each GPU processes same number of samples
+Total batch size increases
+
+ML typically uses weak scaling:
+- Larger batch size with more GPUs
+- Maintains GPU efficiency
+- May need to adjust learning rate</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-practical-example-si">Practical Example: Simple åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰</h4>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch
+import torch.distributed as dist
+import torch.nn as nn
+import torch.optim as optim
+import torch.multiprocessing as mp
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data.distributed import DistributedSampler
+
+def setup(rank, world_size):
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '12355'
+    dist.init_process_group(&quot;nccl&quot;, rank=rank, world_size=world_size)
+
+def cleanup():
+    dist.destroy_process_group()
+
+def train(rank, world_size):
+    print(f&quot;Running on rank {rank}&quot;)
+    setup(rank, world_size)
+
+    # Create model and move to GPU
+    model = nn.Linear(10, 10).to(rank)
+    ddp_model = DDP(model, device_ids=[rank])
+
+    # Create optimizer
+    optimizer = optim.SGD(ddp_model.parameters(), lr=0.01)
+
+    # Create distributed dataset
+    dataset = torch.randn(1000, 10)
+    sampler = DistributedSampler(
+        dataset,
+        num_replicas=world_size,
+        rank=rank
+    )
+    loader = DataLoader(dataset, sampler=sampler, batch_size=32)
+
+    # Training loop
+    for epoch in range(10):
+        sampler.set_epoch(epoch)  # Shuffle
+
+        for batch in loader:
+            batch = batch.to(rank)
+
+            optimizer.zero_grad()
+            output = ddp_model(batch)
+            loss = output.sum()
+            loss.backward()
+            optimizer.step()
+
+        # Only print from rank 0
+        if rank == 0:
+            print(f&quot;Epoch {epoch}, Loss: {loss.item()}&quot;)
+
+    cleanup()
+
+if __name__ == '__main__':
+    world_size = 4
+    mp.spawn(train, args=(world_size,), nprocs=world_size, join=True)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-debugging-distribute">Debugging åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰</h4>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-common-issues">Common Issues</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Issue 1: Hanging at init_process_group
+# Cause: Firewall, wrong MASTER_ADDR/PORT
+# Solution: Check network, verify environment variables
+
+# Issue 2: NCCL timeout
+# Cause: Slow network, unbalanced load
+# Solution: Increase timeout
+os.environ['NCCL_TIMEOUT'] = '1800'  # 30 minutes
+
+# Issue 3: Different random seeds across processes
+# Solution: Set seeds properly
+def set_seed(seed, rank):
+    torch.manual_seed(seed + rank)  # Different seed per rank
+    np.random.seed(seed + rank)
+
+# Issue 4: Incorrect batch size scaling
+# Total batch size = per_gpu_batch_size * world_size
+# Remember to adjust learning rate accordingly
+
+# Issue 5: Non-deterministic behavior
+# Cause: Non-deterministic CUDA operations
+# Solution:
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-debugging-tools">Debugging Tools</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Enable verbose logging
+os.environ['NCCL_DEBUG'] = 'INFO'
+
+# Check process group initialization
+if dist.is_initialized():
+    print(f&quot;Rank: {dist.get_rank()}&quot;)
+    print(f&quot;World size: {dist.get_world_size()}&quot;)
+
+# Barrier for synchronization debugging
+dist.barrier()  # All processes wait here
+print(f&quot;Rank {rank} passed barrier&quot;)
+
+# Test collective operations
+tensor = torch.tensor([rank], device='cuda')
+dist.all_reduce(tensor, op=dist.ReduceOp.SUM)
+print(f&quot;Rank {rank}: AllReduce result = {tensor.item()}&quot;)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-practical-exercises">Practical Exercises</h4>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-exercise-1-setup-dis">Exercise 1: Setup Distributed Environment</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># TODO: Implement distributed setup
+def setup_distributed(rank, world_size, backend='nccl'):
+    &quot;&quot;&quot;
+    Initialize distributed environment
+    - Set environment variables
+    - Initialize process group
+    - Set device
+    &quot;&quot;&quot;
+    pass
+
+# Test with 2 processes
+mp.spawn(setup_distributed, args=(2,), nprocs=2)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-exercise-2-distribut">Exercise 2: åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ Loop</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># TODO: Complete distributed training function
+def distributed_train(rank, world_size, epochs=10):
+    &quot;&quot;&quot;
+    Implement complete distributed training:
+    - Setup process group
+    - Create DDP model
+    - Create distributed dataloader
+    - Training loop
+    - Synchronization
+    &quot;&quot;&quot;
+    pass</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-exercise-3-measure-s">Exercise 3: Measure Scaling Efficiency</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># TODO: Measure and compare training time
+def benchmark_scaling(model, dataset, num_gpus_list):
+    &quot;&quot;&quot;
+    Measure training time with different GPU counts
+    Calculate and plot scaling efficiency
+    &quot;&quot;&quot;
+    results = {}
+
+    for num_gpus in num_gpus_list:
+        start = time.time()
+        # Train for 100 iterations
+        elapsed = time.time() - start
+        results[num_gpus] = elapsed
+
+    # Calculate efficiency
+    baseline = results[1]
+    for num_gpus, elapsed in results.items():
+        speedup = baseline / elapsed
+        efficiency = speedup / num_gpus
+        print(f&quot;{num_gpus} GPUs: {speedup:.2f}x speedup, {efficiency*100:.1f}% efficiency&quot;)
+
+# Test with 1, 2, 4, 8 GPUs
+benchmark_scaling(model, dataset, [1, 2, 4, 8])</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<ol>
+<li><strong>Parallelism Strategies</strong>: Data parallelism, model parallelism, pipeline parallelism</li>
+<li><strong>Collective Operations</strong>: AllReduce, Broadcast, Gather, Scatter</li>
+<li><strong>PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ Distributed</strong>: Process groups, distributed sampling, DDP åˆ†å¸ƒå¼æ•°æ®å¹¶è¡Œï¼ˆDDPï¼‰</li>
+<li><strong>Synchronization</strong>: Synchronous vs asynchronous, gradient accumulation</li>
+<li><strong>Efficiency Metrics</strong>: Linear scaling, communication overhead, weak vs strong scaling</li>
+<li><strong>Debugging</strong>: Common issues and tools for distributed training</li>
+</ol>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-key-takeaways">Key Takeaways</h4>
+<ul>
+<li><strong>Data parallelism is most common</strong> - works for models that fit on single GPU åŠ é€Ÿï¼ˆGPUï¼‰</li>
+<li><strong>AllReduce is critical</strong> - efficient gradient synchronization</li>
+<li><strong>Communication overhead matters</strong> - use fast interconnects (NVLink)</li>
+<li><strong>Scaling isn't linear</strong> - expect 80-90% efficiency</li>
+<li><strong>Batch size scaling</strong> - adjust learning rate with total batch size</li>
+<li><strong>DistributedSampler is essential</strong> - ensures each process sees different data</li>
+</ul>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-further-reading">Further Reading</h4>
+<ul>
+<li><a href="https://pytorch.org/tutorials/beginner/dist_overview.html">PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ Distributed Overview</a></li>
+<li><a href="https://docs.nvidia.com/deeplearning/nccl/">NCCL Documentation</a></li>
+<li><a href="https://pytorch.org/tutorials/intermediate/ddp_tutorial.html">åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ Best Practices</a></li>
+<li><a href="https://arxiv.org/abs/1909.08053">Megatron-LM Paper</a> - Model parallelism å¤§è§„æ¨¡ï¼ˆat scaleï¼‰</li>
+</ul>
+<h4 id="lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md-next-steps">Next Steps</h4>
+<p>In the next lesson, <strong>Multi-GPU è®­ç»ƒï¼ˆTrainingï¼‰ Strategies</strong>, we'll implement DistributedDataParallel, optimize multi-GPU training on a single node, and explore advanced optimization techniques.</p>
+<hr/>
+<p><strong>Ready to implement distributed training? Let's build scalable training pipelines!</strong></p><p><a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-05-multi-gpu-training-strategies-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

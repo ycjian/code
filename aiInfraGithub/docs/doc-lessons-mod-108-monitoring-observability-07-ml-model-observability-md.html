@@ -1,0 +1,674 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-resources-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lesson 01: Introduction to å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-02-prometheus-metrics-md.html">Lesson 02: Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ for Metrics Collection</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-03-grafana-visualization-md.html">Lesson 03: Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ for Visualization</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-04-logging-elk-loki-md.html">Lesson 04: Logging with ELK Stack and Loki</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-05-distributed-tracing-md.html">Lesson 05: Distributed Tracing with Jaeger é“¾è·¯è¿½è¸ªï¼ˆJaegerï¼‰ and Tempo</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-06-alerting-strategies-md.html">Lesson 06: å‘Šè­¦ï¼ˆAlertingï¼‰ Strategies and Alert Management</a><a class="tree-doc active" href="../docs/doc-lessons-mod-108-monitoring-observability-07-ml-model-observability-md.html">Lesson 07: ML-Specific ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Model å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-08-best-practices-culture-md.html">Lesson 08: Best Practices and å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ Culture</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Module 108 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-01-prometheus-instrumentation-md.html">Lab 01: Instrument a Python Service with Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-02-grafana-dashboards-md.html">Lab 02: Build a Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ Dashboard from Scratch</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-03-loki-logging-md.html">Lab 03: Send Logs to Loki</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-04-distributed-tracing-md.html">Lab 04: Distributed Tracing with OpenTelemetry å¯è§‚æµ‹æ€§ï¼ˆOpenTelemetryï¼‰ + Jaeger é“¾è·¯è¿½è¸ªï¼ˆJaegerï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-05-alerting-rules-md.html">Lab 05: Author Alert Rules with Multi-Window Burn Rates</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercise 01: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ Stack (Prometheus + Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ + Loki)</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-02-ml-model-monitoring-readme-.html">Exercise 02: ML Model ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-03-promql-deep-dive-readme-md.html">Exercise 03: PromQL Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-04-dashboards-as-code-readme-m.html">Exercise 04: Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ Dashboards as Code</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-05-log-pipeline-readme-md.html">Exercise 05: Structured Log Pipeline (Loki + Vector)</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-06-distributed-tracing-otel-re.html">Exercise 06: Distributed Tracing with OpenTelemetry å¯è§‚æµ‹æ€§ï¼ˆOpenTelemetryï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-07-alertmanager-routing-readme.html">Exercise 07: Alertmanager Routing and Notification Strategy</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-08-slo-and-error-budgets-readm.html">Exercise 08: æœåŠ¡æ°´å¹³æŒ‡æ ‡ï¼ˆSLIï¼‰ / æœåŠ¡æ°´å¹³ç›®æ ‡ï¼ˆSLOï¼‰ / Error Budget Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-09-incident-response-gameday-r.html">Exercise 09: äº‹æ•…å“åº”ï¼ˆIncident Responseï¼‰ Game Day</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-10-observability-cost-control-.html">Exercise 10: å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ Cost Control</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-readme-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ - Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-108-monitoring-observability-07-ml-model-observability-md"><h3 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-lesson-07-ml-specifi">Lesson 07: ML-Specific ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Model å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</h3>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+<li>Monitor ML model performance in production</li>
+<li>Track data drift and model degradation</li>
+<li>Implement feature store monitoring</li>
+<li>Monitor training pipelines and experiments</li>
+<li>Set up model explainability and fairness monitoring</li>
+<li>Build comprehensive ML observability dashboards</li>
+<li>Integrate ML monitoring with existing observability stack</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-prerequisites">å‰ç½®è¦æ±‚ï¼ˆPrerequisitesï¼‰</h4>
+<ul>
+<li>Completion of Lessons 01-06 (Observability fundamentals)</li>
+<li>Understanding of ML concepts (training, inference, drift)</li>
+<li>Familiarity with Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰, Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰, and Python</li>
+<li>Experience with ML frameworks (PyTorch, TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰, or scikit-learn)</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-introduction">Introduction</h4>
+<p>Traditional infrastructure monitoring focuses on system health (CPU, memory, latency). ML observability extends this to track <strong>model behavior and performance</strong>, including:</p>
+<ul>
+<li>Prediction quality over time</li>
+<li>Input data distribution shifts</li>
+<li>Feature importance changes</li>
+<li>Model fairness and bias</li>
+<li>Experiment tracking and comparison</li>
+</ul>
+<h5 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-why-ml-specific-moni">Why ML-Specific ç›‘æŽ§ï¼ˆMonitoringï¼‰?</h5>
+<ol>
+<li><strong>Models degrade</strong>: Unlike traditional software, ML models can silently fail</li>
+<li><strong>Data drift</strong>: Input distributions change, reducing model accuracy</li>
+<li><strong>Concept drift</strong>: The relationship between features and target changes</li>
+<li><strong>è®­ç»ƒï¼ˆTrainingï¼‰ monitoring</strong>: Track experiments, hyperparameters, and convergence</li>
+<li><strong>Compliance</strong>: Monitor fairness, bias, and explainability requirements</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-1-model-performance-">1. Model Performance Metrics</h4>
+<h5 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-classification-model">Classification Models</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from prometheus_client import Gauge, Histogram
+import numpy as np
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score,
+    f1_score, roc_auc_score, confusion_matrix
+)
+
+# Define metrics
+MODEL_ACCURACY = Gauge(
+    'model_accuracy',
+    'Model accuracy score',
+    ['model_name', 'model_version', 'dataset']
+)
+
+MODEL_PRECISION = Gauge(
+    'model_precision',
+    'Model precision score',
+    ['model_name', 'model_version', 'class']
+)
+
+MODEL_RECALL = Gauge(
+    'model_recall',
+    'Model recall score',
+    ['model_name', 'model_version', 'class']
+)
+
+MODEL_F1 = Gauge(
+    'model_f1_score',
+    'Model F1 score',
+    ['model_name', 'model_version', 'class']
+)
+
+MODEL_AUC = Gauge(
+    'model_auc_roc',
+    'Model AUC-ROC score',
+    ['model_name', 'model_version']
+)
+
+CONFUSION_MATRIX = Gauge(
+    'model_confusion_matrix',
+    'Confusion matrix elements',
+    ['model_name', 'model_version', 'true_class', 'predicted_class']
+)
+
+def update_classification_metrics(
+    y_true, y_pred, y_prob,
+    model_name, model_version, class_names
+):
+    &quot;&quot;&quot;Update classification metrics&quot;&quot;&quot;
+
+    # Overall accuracy
+    accuracy = accuracy_score(y_true, y_pred)
+    MODEL_ACCURACY.labels(
+        model_name=model_name,
+        model_version=model_version,
+        dataset='production'
+    ).set(accuracy)
+
+    # Per-class metrics
+    precision = precision_score(y_true, y_pred, average=None)
+    recall = recall_score(y_true, y_pred, average=None)
+    f1 = f1_score(y_true, y_pred, average=None)
+
+    for i, class_name in enumerate(class_names):
+        MODEL_PRECISION.labels(
+            model_name=model_name,
+            model_version=model_version,
+            class_name=class_name
+        ).set(precision[i])
+
+        MODEL_RECALL.labels(
+            model_name=model_name,
+            model_version=model_version,
+            class_name=class_name
+        ).set(recall[i])
+
+        MODEL_F1.labels(
+            model_name=model_name,
+            model_version=model_version,
+            class_name=class_name
+        ).set(f1[i])
+
+    # AUC-ROC (if probabilities available)
+    if y_prob is not None:
+        auc = roc_auc_score(y_true, y_prob, multi_class='ovr')
+        MODEL_AUC.labels(
+            model_name=model_name,
+            model_version=model_version
+        ).set(auc)
+
+    # Confusion matrix
+    cm = confusion_matrix(y_true, y_pred)
+    for i, true_class in enumerate(class_names):
+        for j, pred_class in enumerate(class_names):
+            CONFUSION_MATRIX.labels(
+                model_name=model_name,
+                model_version=model_version,
+                true_class=true_class,
+                predicted_class=pred_class
+            ).set(cm[i, j])</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-regression-models">Regression Models</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from sklearn.metrics import (
+    mean_squared_error, mean_absolute_error,
+    r2_score, mean_absolute_percentage_error
+)
+
+# Define metrics
+MODEL_RMSE = Gauge(
+    'model_rmse',
+    'Root Mean Squared Error',
+    ['model_name', 'model_version']
+)
+
+MODEL_MAE = Gauge(
+    'model_mae',
+    'Mean Absolute Error',
+    ['model_name', 'model_version']
+)
+
+MODEL_R2 = Gauge(
+    'model_r2_score',
+    'R-squared score',
+    ['model_name', 'model_version']
+)
+
+MODEL_MAPE = Gauge(
+    'model_mape',
+    'Mean Absolute Percentage Error',
+    ['model_name', 'model_version']
+)
+
+PREDICTION_ERROR_DISTRIBUTION = Histogram(
+    'model_prediction_error',
+    'Distribution of prediction errors',
+    ['model_name', 'model_version'],
+    buckets=[-100, -50, -10, -5, -1, 0, 1, 5, 10, 50, 100]
+)
+
+def update_regression_metrics(y_true, y_pred, model_name, model_version):
+    &quot;&quot;&quot;Update regression metrics&quot;&quot;&quot;
+
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    mae = mean_absolute_error(y_true, y_pred)
+    r2 = r2_score(y_true, y_pred)
+    mape = mean_absolute_percentage_error(y_true, y_pred)
+
+    MODEL_RMSE.labels(
+        model_name=model_name,
+        model_version=model_version
+    ).set(rmse)
+
+    MODEL_MAE.labels(
+        model_name=model_name,
+        model_version=model_version
+    ).set(mae)
+
+    MODEL_R2.labels(
+        model_name=model_name,
+        model_version=model_version
+    ).set(r2)
+
+    MODEL_MAPE.labels(
+        model_name=model_name,
+        model_version=model_version
+    ).set(mape)
+
+    # Error distribution
+    errors = y_pred - y_true
+    for error in errors:
+        PREDICTION_ERROR_DISTRIBUTION.labels(
+            model_name=model_name,
+            model_version=model_version
+        ).observe(error)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-2-data-drift-detecti">2. Data Drift Detection</h4>
+<h5 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-statistical-drift-de">Statistical Drift Detection</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from scipy.stats import ks_2samp, chi2_contingency
+from prometheus_client import Gauge, Counter
+import numpy as np
+
+# Metrics
+FEATURE_DRIFT_SCORE = Gauge(
+    'feature_drift_score',
+    'KS statistic for feature drift',
+    ['model_name', 'feature_name']
+)
+
+DRIFT_DETECTED = Counter(
+    'drift_detected_total',
+    'Number of times drift was detected',
+    ['model_name', 'feature_name', 'drift_type']
+)
+
+class DriftDetector:
+    &quot;&quot;&quot;Detect data drift using statistical tests&quot;&quot;&quot;
+
+    def __init__(self, reference_data, model_name, threshold=0.05):
+        self.reference_data = reference_data
+        self.model_name = model_name
+        self.threshold = threshold
+
+    def check_numerical_drift(self, feature_name, current_data):
+        &quot;&quot;&quot;
+        Check drift in numerical features using Kolmogorov-Smirnov test
+        &quot;&quot;&quot;
+        reference = self.reference_data[feature_name]
+        statistic, p_value = ks_2samp(reference, current_data)
+
+        # Update metric
+        FEATURE_DRIFT_SCORE.labels(
+            model_name=self.model_name,
+            feature_name=feature_name
+        ).set(statistic)
+
+        # Check for drift
+        if p_value &lt; self.threshold:
+            DRIFT_DETECTED.labels(
+                model_name=self.model_name,
+                feature_name=feature_name,
+                drift_type='numerical'
+            ).inc()
+
+            return True, statistic, p_value
+
+        return False, statistic, p_value
+
+    def check_categorical_drift(self, feature_name, current_data):
+        &quot;&quot;&quot;
+        Check drift in categorical features using chi-squared test
+        &quot;&quot;&quot;
+        reference = self.reference_data[feature_name]
+
+        # Create contingency table
+        ref_counts = reference.value_counts()
+        curr_counts = current_data.value_counts()
+
+        # Align indices
+        all_categories = set(ref_counts.index) | set(curr_counts.index)
+        ref_aligned = [ref_counts.get(cat, 0) for cat in all_categories]
+        curr_aligned = [curr_counts.get(cat, 0) for cat in all_categories]
+
+        contingency = np.array([ref_aligned, curr_aligned])
+        statistic, p_value, _, _ = chi2_contingency(contingency)
+
+        # Update metric
+        FEATURE_DRIFT_SCORE.labels(
+            model_name=self.model_name,
+            feature_name=feature_name
+        ).set(statistic)
+
+        if p_value &lt; self.threshold:
+            DRIFT_DETECTED.labels(
+                model_name=self.model_name,
+                feature_name=feature_name,
+                drift_type='categorical'
+            ).inc()
+
+            return True, statistic, p_value
+
+        return False, statistic, p_value
+
+# Usage
+import pandas as pd
+
+reference_df = pd.read_csv('reference_data.csv')
+detector = DriftDetector(reference_df, model_name='fraud-detector')
+
+# Check drift on new data
+current_batch = pd.read_csv('current_batch.csv')
+
+for column in reference_df.columns:
+    if reference_df[column].dtype in ['float64', 'int64']:
+        drift, stat, pval = detector.check_numerical_drift(
+            column,
+            current_batch[column]
+        )
+    else:
+        drift, stat, pval = detector.check_categorical_drift(
+            column,
+            current_batch[column]
+        )
+
+    if drift:
+        print(f&quot;DRIFT DETECTED in {column}: stat={stat:.4f}, p={pval:.4f}&quot;)</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-population-stability">Population Stability Index (PSI)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import numpy as np
+from prometheus_client import Gauge
+
+PSI_SCORE = Gauge(
+    'feature_psi_score',
+    'Population Stability Index',
+    ['model_name', 'feature_name']
+)
+
+def calculate_psi(expected, actual, bins=10):
+    &quot;&quot;&quot;
+    Calculate Population Stability Index
+
+    PSI &lt; 0.1: No significant change
+    PSI 0.1-0.25: Moderate change
+    PSI &gt; 0.25: Significant change
+    &quot;&quot;&quot;
+    # Create bins
+    breakpoints = np.linspace(
+        min(expected.min(), actual.min()),
+        max(expected.max(), actual.max()),
+        bins + 1
+    )
+
+    # Calculate distributions
+    expected_percents = np.histogram(expected, breakpoints)[0] / len(expected)
+    actual_percents = np.histogram(actual, breakpoints)[0] / len(actual)
+
+    # Avoid division by zero
+    expected_percents = np.where(expected_percents == 0, 0.0001, expected_percents)
+    actual_percents = np.where(actual_percents == 0, 0.0001, actual_percents)
+
+    # Calculate PSI
+    psi = np.sum(
+        (actual_percents - expected_percents) *
+        np.log(actual_percents / expected_percents)
+    )
+
+    return psi
+
+# Usage
+for feature in features:
+    psi = calculate_psi(
+        reference_df[feature],
+        current_df[feature]
+    )
+
+    PSI_SCORE.labels(
+        model_name='fraud-detector',
+        feature_name=feature
+    ).set(psi)
+
+    if psi &gt; 0.25:
+        print(f&quot;Significant drift in {feature}: PSI = {psi:.3f}&quot;)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-3-training-pipeline-">3. è®­ç»ƒï¼ˆTrainingï¼‰ Pipeline ç›‘æŽ§ï¼ˆMonitoringï¼‰</h4>
+<h5 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-experiment-tracking-">å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import mlflow
+from prometheus_client import Gauge, Counter
+import logging
+
+# Metrics
+EXPERIMENT_RUN = Counter(
+    'mlflow_experiment_runs_total',
+    'Total number of experiment runs',
+    ['experiment_name', 'status']
+)
+
+TRAINING_METRIC = Gauge(
+    'training_metric_value',
+    'Training metric value',
+    ['experiment_name', 'run_id', 'metric_name']
+)
+
+TRAINING_DURATION = Gauge(
+    'training_duration_seconds',
+    'Training duration in seconds',
+    ['experiment_name', 'run_id']
+)
+
+class MLflowMonitor:
+    &quot;&quot;&quot;Monitor MLflow experiments&quot;&quot;&quot;
+
+    def __init__(self, experiment_name):
+        self.experiment_name = experiment_name
+        mlflow.set_experiment(experiment_name)
+        self.logger = logging.getLogger(__name__)
+
+    def track_training(self, model, train_fn, **params):
+        &quot;&quot;&quot;
+        Track training with MLflow and export metrics to Prometheus
+        &quot;&quot;&quot;
+        with mlflow.start_run() as run:
+            run_id = run.info.run_id
+
+            try:
+                # Log parameters
+                mlflow.log_params(params)
+
+                # Train model
+                import time
+                start_time = time.time()
+
+                metrics = train_fn(model, **params)
+
+                duration = time.time() - start_time
+
+                # Log metrics to MLflow
+                mlflow.log_metrics(metrics)
+
+                # Export to Prometheus
+                for metric_name, value in metrics.items():
+                    TRAINING_METRIC.labels(
+                        experiment_name=self.experiment_name,
+                        run_id=run_id,
+                        metric_name=metric_name
+                    ).set(value)
+
+                TRAINING_DURATION.labels(
+                    experiment_name=self.experiment_name,
+                    run_id=run_id
+                ).set(duration)
+
+                # Mark as successful
+                EXPERIMENT_RUN.labels(
+                    experiment_name=self.experiment_name,
+                    status='success'
+                ).inc()
+
+                self.logger.info(
+                    f&quot;Training completed: run_id={run_id}, duration={duration:.2f}s&quot;
+                )
+
+                return run_id, metrics
+
+            except Exception as e:
+                # Mark as failed
+                EXPERIMENT_RUN.labels(
+                    experiment_name=self.experiment_name,
+                    status='failed'
+                ).inc()
+
+                self.logger.error(f&quot;Training failed: {e}&quot;, exc_info=True)
+                raise
+
+# Usage
+monitor = MLflowMonitor('fraud-detection-experiments')
+
+def train_model(model, learning_rate, batch_size, epochs):
+    &quot;&quot;&quot;Training function&quot;&quot;&quot;
+    # Training logic here
+    return {
+        'train_loss': 0.123,
+        'val_loss': 0.145,
+        'train_accuracy': 0.95,
+        'val_accuracy': 0.93
+    }
+
+run_id, metrics = monitor.track_training(
+    model,
+    train_model,
+    learning_rate=0.001,
+    batch_size=32,
+    epochs=10
+)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-4-model-explainabili">4. Model Explainability ç›‘æŽ§ï¼ˆMonitoringï¼‰</h4>
+<h5 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-shap-values-tracking">SHAP Values Tracking</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import shap
+import numpy as np
+from prometheus_client import Gauge, Histogram
+
+FEATURE_IMPORTANCE = Gauge(
+    'model_feature_importance',
+    'SHAP-based feature importance',
+    ['model_name', 'feature_name']
+)
+
+SHAP_VALUE_DISTRIBUTION = Histogram(
+    'model_shap_values',
+    'Distribution of SHAP values',
+    ['model_name', 'feature_name'],
+    buckets=[-1.0, -0.5, -0.1, 0, 0.1, 0.5, 1.0]
+)
+
+def monitor_feature_importance(model, X, feature_names, model_name):
+    &quot;&quot;&quot;Track feature importance using SHAP&quot;&quot;&quot;
+
+    # Calculate SHAP values
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X)
+
+    # Mean absolute SHAP values (feature importance)
+    importance = np.abs(shap_values).mean(axis=0)
+
+    for i, feature in enumerate(feature_names):
+        # Feature importance
+        FEATURE_IMPORTANCE.labels(
+            model_name=model_name,
+            feature_name=feature
+        ).set(importance[i])
+
+        # SHAP value distribution
+        for value in shap_values[:, i]:
+            SHAP_VALUE_DISTRIBUTION.labels(
+                model_name=model_name,
+                feature_name=feature
+            ).observe(value)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-5-model-fairness-mon">5. Model Fairness ç›‘æŽ§ï¼ˆMonitoringï¼‰</h4>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from prometheus_client import Gauge
+import numpy as np
+
+FAIRNESS_METRIC = Gauge(
+    'model_fairness_metric',
+    'Fairness metric value',
+    ['model_name', 'protected_attribute', 'metric_type']
+)
+
+def calculate_fairness_metrics(
+    y_true, y_pred, sensitive_attribute, model_name
+):
+    &quot;&quot;&quot;
+    Calculate fairness metrics across sensitive attributes
+    &quot;&quot;&quot;
+    unique_groups = np.unique(sensitive_attribute)
+
+    # Demographic parity difference
+    positive_rates = {}
+    for group in unique_groups:
+        mask = sensitive_attribute == group
+        positive_rate = y_pred[mask].mean()
+        positive_rates[group] = positive_rate
+
+    dp_diff = max(positive_rates.values()) - min(positive_rates.values())
+
+    FAIRNESS_METRIC.labels(
+        model_name=model_name,
+        protected_attribute='all',
+        metric_type='demographic_parity_diff'
+    ).set(dp_diff)
+
+    # Equal opportunity difference (TPR parity)
+    tpr_by_group = {}
+    for group in unique_groups:
+        mask = (sensitive_attribute == group) &amp; (y_true == 1)
+        if mask.sum() &gt; 0:
+            tpr = y_pred[mask].mean()
+            tpr_by_group[group] = tpr
+
+    if len(tpr_by_group) &gt; 0:
+        eo_diff = max(tpr_by_group.values()) - min(tpr_by_group.values())
+
+        FAIRNESS_METRIC.labels(
+            model_name=model_name,
+            protected_attribute='all',
+            metric_type='equal_opportunity_diff'
+        ).set(eo_diff)
+
+    return {
+        'demographic_parity_diff': dp_diff,
+        'equal_opportunity_diff': eo_diff if len(tpr_by_group) &gt; 0 else None
+    }</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-6-complete-ml-observ">6. Complete ML å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ Dashboard</h4>
+<p><strong>Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ Dashboard JSON (Excerpt):</strong></p>
+<div class="code-shell"><div class="code-title"><span>json</span><span>JSON</span></div><pre><code class="language-json">{
+  &quot;dashboard&quot;: {
+    &quot;title&quot;: &quot;ML Model Observability&quot;,
+    &quot;panels&quot;: [
+      {
+        &quot;title&quot;: &quot;Model Accuracy Over Time&quot;,
+        &quot;type&quot;: &quot;timeseries&quot;,
+        &quot;targets&quot;: [{
+          &quot;expr&quot;: &quot;model_accuracy{model_name=\&quot;fraud-detector\&quot;}&quot;,
+          &quot;legendFormat&quot;: &quot;{{ model_version }}&quot;
+        }],
+        &quot;fieldConfig&quot;: {
+          &quot;defaults&quot;: {
+            &quot;unit&quot;: &quot;percentunit&quot;,
+            &quot;min&quot;: 0,
+            &quot;max&quot;: 1,
+            &quot;thresholds&quot;: {
+              &quot;steps&quot;: [
+                {&quot;value&quot;: 0, &quot;color&quot;: &quot;red&quot;},
+                {&quot;value&quot;: 0.85, &quot;color&quot;: &quot;yellow&quot;},
+                {&quot;value&quot;: 0.92, &quot;color&quot;: &quot;green&quot;}
+              ]
+            }
+          }
+        }
+      },
+      {
+        &quot;title&quot;: &quot;Feature Drift (PSI)&quot;,
+        &quot;type&quot;: &quot;bargauge&quot;,
+        &quot;targets&quot;: [{
+          &quot;expr&quot;: &quot;feature_psi_score{model_name=\&quot;fraud-detector\&quot;}&quot;
+        }],
+        &quot;fieldConfig&quot;: {
+          &quot;defaults&quot;: {
+            &quot;thresholds&quot;: {
+              &quot;steps&quot;: [
+                {&quot;value&quot;: 0, &quot;color&quot;: &quot;green&quot;},
+                {&quot;value&quot;: 0.1, &quot;color&quot;: &quot;yellow&quot;},
+                {&quot;value&quot;: 0.25, &quot;color&quot;: &quot;red&quot;}
+              ]
+            }
+          }
+        }
+      },
+      {
+        &quot;title&quot;: &quot;Training Loss&quot;,
+        &quot;type&quot;: &quot;timeseries&quot;,
+        &quot;targets&quot;: [{
+          &quot;expr&quot;: &quot;training_metric_value{metric_name=\&quot;train_loss\&quot;}&quot;,
+          &quot;legendFormat&quot;: &quot;Run {{ run_id }}&quot;
+        }]
+      },
+      {
+        &quot;title&quot;: &quot;Prediction Distribution&quot;,
+        &quot;type&quot;: &quot;heatmap&quot;,
+        &quot;targets&quot;: [{
+          &quot;expr&quot;: &quot;rate(model_prediction_value_bucket[5m])&quot;
+        }]
+      }
+    ]
+  }
+}</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<p>âœ… ç›‘æŽ§ï¼ˆMonitoringï¼‰ ML model performance (accuracy, precision, recall, etc.) âœ… Detecting data drift with statistical tests (KS test, PSI, Chi-squared) âœ… Tracking training pipelines and experiments with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ âœ… ç›‘æŽ§ï¼ˆMonitoringï¼‰ model explainability with SHAP values âœ… Measuring model fairness across protected attributes âœ… Building comprehensive ML observability dashboards</p>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-next-steps">Next Steps</h4>
+<ul>
+<li><strong>Lesson 08</strong>: Best practices and observability culture</li>
+<li><strong>Practice</strong>: Implement drift detection for your ML models</li>
+<li><strong>Exercise</strong>: Create a complete ML observability pipeline</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-07-ml-model-observability-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://mlflow.org/docs/latest/index.html">MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Documentation</a></li>
+<li><a href="https://shap.readthedocs.io/">SHAP Documentation</a></li>
+<li><a href="https://docs.evidentlyai.com/">Evidently AI (Drift Detection)</a></li>
+<li><a href="https://fairlearn.org/">Fairlearn (Fairness Assessment)</a></li>
+<li><a href="https://docs.seldon.io/projects/alibi/en/stable/">Alibi (Model Explainability)</a></li>
+</ul>
+<hr/>
+<p><strong>Estimated Time:</strong> 5-6 hours <strong>Difficulty:</strong> Advanced <strong>Prerequisites:</strong> Lessons 01-06, ML fundamentals, Statistics</p><p><a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-06-alerting-strategies-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-08-best-practices-culture-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

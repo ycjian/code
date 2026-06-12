@@ -1,0 +1,992 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Module 09: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰ (IaC)</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-resources-md.html">Module 09: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰ - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lesson 01: Introduction to åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a><a class="tree-doc active" href="../docs/doc-lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md.html">Lesson 02: Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-03-terraform-state-management-md.html">Lesson 03: Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ State Management</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-04-building-ai-infrastructure-terraform-md.html">Lesson 04: Building AI åŸºç¡€è®¾æ–½ï¼ˆAI Infrastructureï¼‰ with Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-05-pulumi-infrastructure-as-software-md.html">Lesson 05: Pulumi å¤šè¯­è¨€ IaCï¼ˆPulumiï¼‰ - Infrastructure as Software</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-06-advanced-iac-patterns-md.html">Lesson 06: Advanced IaC Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-07-gitops-iac-cicd-md.html">Lesson 07: GitOps äº¤ä»˜æ¨¡å¼ï¼ˆGitOpsï¼‰ and IaC CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-08-security-best-practices-md.html">Lesson 08: å®‰å…¨ï¼ˆSecurityï¼‰ Best Practices for IaC</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Module 109 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-01-terraform-aws-vpc-md.html">Lab 01: Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ AWS äº‘ï¼ˆAWSï¼‰ VPC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-02-terraform-eks-md.html">Lab 02: Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ EKS æ‰˜ç®¡ Kubernetesï¼ˆEKSï¼‰ Cluster</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-03-terraform-state-backend-md.html">Lab 03: Remote State Backend with S3 + DynamoDB Locking</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-04-pulumi-multicloud-md.html">Lab 04: Pulumi å¤šè¯­è¨€ IaCï¼ˆPulumiï¼‰ Multi-Cloud éƒ¨ç½²ï¼ˆDeploymentï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-05-iac-cicd-md.html">Lab 05: IaC in CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ with PR-Based Plan</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-06-secret-management-md.html">Lab 06: Secret Management with Vault + Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-lab-07-policy-as-code-md.html">Lab 07: Policy as Code with OPA Conftest</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercise 01: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ with Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-02-pulumi-multicloud-ml-readme-m.html">Exercise 02: Multi-Cloud æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ with Pulumi å¤šè¯­è¨€ IaCï¼ˆPulumiï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-03-terraform-module-library-read.html">Exercise 03: Build a Reusable Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ Module Library</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-04-state-management-at-scale-rea.html">Exercise 04: Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ State Management at Scale</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-05-pulumi-advanced-patterns-read.html">Exercise 05: Pulumi å¤šè¯­è¨€ IaCï¼ˆPulumiï¼‰ Advanced Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-06-gitops-argocd-readme-md.html">Exercise 06: GitOps äº¤ä»˜æ¨¡å¼ï¼ˆGitOpsï¼‰ with ArgoCD GitOps éƒ¨ç½²ï¼ˆArgoCDï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-07-secret-management-readme-md.html">Exercise 07: Secret Management Across IaC + Runtime</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-08-policy-as-code-readme-md.html">Exercise 08: Policy as Code (OPA + Sentinel)</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-09-drift-detection-readme-md.html">Exercise 09: Drift Detection and Remediation</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-10-multi-environment-promotion-r.html">Exercise 10: Multi-Environment Promotion Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-11-cost-aware-iac-readme-md.html">Exercise 11: Cost-Aware IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-12-disaster-recovery-iac-readme-.html">Exercise 12: Disaster Recovery via IaC</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-13-iac-for-ml-workloads-readme-m.html">Exercise 13: IaC for AI/ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-readme-md.html">Module 09: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰ - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Module 09: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md"><h3 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-lesson-02-terraform-fu">Lesson 02: Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ Fundamentals</h3>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will:</p>
+<ul>
+<li>Install and configure Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ on your system</li>
+<li>Understand HCL (HashiCorp Configuration Language) syntax</li>
+<li>Work with providers, resources, and data sources</li>
+<li>Use variables, outputs, and local values effectively</li>
+<li>Master essential Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ CLI commands</li>
+<li>Create your first complete Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ project</li>
+</ul>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-installing-terraform">Installing Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-macos-homebrew">macOS (Homebrew)</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">brew tap hashicorp/tap
+brew install hashicorp/tap/terraform
+
+# Verify installation
+terraform version
+# Terraform v1.6.0</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-linux-ubuntu-debian">Linux (Ubuntu/Debian)</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+echo &quot;deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main&quot; | sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update
+sudo apt install terraform
+
+# Verify
+terraform -version</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-windows-chocolatey">Windows (Chocolatey)</h5>
+<div class="code-shell"><div class="code-title"><span>powershell</span><span>POWERSHELL</span></div><pre><code class="language-powershell">choco install terraform
+
+# Verify
+terraform -version</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-using-tfenv-version-ma">Using tfenv (Version Manager)</h5>
+<p>Manage multiple Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ versions:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install tfenv
+git clone https://github.com/tfutils/tfenv.git ~/.tfenv
+
+# Add to PATH
+echo 'export PATH=&quot;$HOME/.tfenv/bin:$PATH&quot;' &gt;&gt; ~/.bashrc
+source ~/.bashrc
+
+# Install specific version
+tfenv install 1.6.0
+tfenv use 1.6.0
+
+# Install latest
+tfenv install latest
+tfenv use latest</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-configuratio">Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ Configuration Structure</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-basic-project-layout">Basic Project Layout</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">ml-infrastructure/
+â”œâ”€â”€ main.tf              # Primary resources
+â”œâ”€â”€ variables.tf         # Input variables
+â”œâ”€â”€ outputs.tf           # Output values
+â”œâ”€â”€ versions.tf          # Provider version constraints
+â”œâ”€â”€ terraform.tfvars     # Variable values (don't commit secrets!)
+â””â”€â”€ .gitignore           # Ignore .terraform/ and *.tfstate</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-minimal-working-exampl">Minimal Working Example</h5>
+<p><strong>main.tf</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Configure AWS Provider
+provider &quot;aws&quot; {
+  region = &quot;us-west-2&quot;
+}
+
+# Create S3 bucket for ML datasets
+resource &quot;aws_s3_bucket&quot; &quot;ml_data&quot; {
+  bucket = &quot;my-ml-datasets-unique-name&quot;
+
+  tags = {
+    Name        = &quot;ML Datasets&quot;
+    Environment = &quot;development&quot;
+  }
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-hcl-syntax-basics">HCL Syntax Basics</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-comments">Comments</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Single-line comment
+
+/*
+Multi-line
+comment
+*/
+
+// Also works (C-style)</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-blocks">Blocks</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">&lt;BLOCK_TYPE&gt; &quot;&lt;BLOCK_LABEL&gt;&quot; &quot;&lt;BLOCK_LABEL&gt;&quot; {
+  # Block body
+  &lt;IDENTIFIER&gt; = &lt;EXPRESSION&gt;
+}
+
+# Example:
+resource &quot;aws_instance&quot; &quot;web&quot; {
+  ami           = &quot;ami-12345678&quot;
+  instance_type = &quot;t3.micro&quot;
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-arguments-and-attribut">Arguments and Attributes</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">resource &quot;aws_instance&quot; &quot;ml_server&quot; {
+  ami           = &quot;ami-12345678&quot;  # Argument
+  instance_type = &quot;p3.2xlarge&quot;   # Argument
+
+  # After creation, you can reference attributes:
+  # aws_instance.ml_server.id
+  # aws_instance.ml_server.public_ip
+  # aws_instance.ml_server.private_ip
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-data-types">Data Types</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># String
+variable &quot;region&quot; {
+  type    = string
+  default = &quot;us-west-2&quot;
+}
+
+# Number
+variable &quot;instance_count&quot; {
+  type    = number
+  default = 3
+}
+
+# Boolean
+variable &quot;enable_monitoring&quot; {
+  type    = bool
+  default = true
+}
+
+# List
+variable &quot;availability_zones&quot; {
+  type    = list(string)
+  default = [&quot;us-west-2a&quot;, &quot;us-west-2b&quot;]
+}
+
+# Map
+variable &quot;instance_types&quot; {
+  type = map(string)
+  default = {
+    dev  = &quot;t3.micro&quot;
+    prod = &quot;p3.8xlarge&quot;
+  }
+}
+
+# Object
+variable &quot;server_config&quot; {
+  type = object({
+    instance_type = string
+    disk_size     = number
+    monitoring    = bool
+  })
+  default = {
+    instance_type = &quot;p3.2xlarge&quot;
+    disk_size     = 100
+    monitoring    = true
+  }
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-expressions">Expressions</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># References
+var.region
+aws_instance.ml_server.public_ip
+
+# String interpolation
+&quot;The server IP is ${aws_instance.ml_server.public_ip}&quot;
+
+# String template
+&quot;ml-bucket-${var.environment}-${var.region}&quot;
+
+# Arithmetic
+instance_count * 2
+disk_size + 50
+
+# Comparison
+instance_count &gt; 5
+var.environment == &quot;production&quot;
+
+# Logical
+var.enable_gpu &amp;&amp; var.environment == &quot;prod&quot;</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-providers">Providers</h4>
+<p>Providers are plugins that interact with cloud APIs.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-provider-configuration">Provider Configuration</h5>
+<p><strong>versions.tf</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">terraform {
+  required_version = &quot;&gt;= 1.0&quot;
+
+  required_providers {
+    aws = {
+      source  = &quot;hashicorp/aws&quot;
+      version = &quot;~&gt; 5.0&quot;  # Any 5.x version
+    }
+    google = {
+      source  = &quot;hashicorp/google&quot;
+      version = &quot;&gt;= 4.0, &lt; 6.0&quot;
+    }
+  }
+}</code></pre></div>
+<p><strong>main.tf</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># AWS Provider
+provider &quot;aws&quot; {
+  region  = &quot;us-west-2&quot;
+  profile = &quot;default&quot;  # AWS CLI profile
+
+  default_tags {
+    tags = {
+      ManagedBy = &quot;Terraform&quot;
+      Project   = &quot;ML-Platform&quot;
+    }
+  }
+}
+
+# GCP Provider
+provider &quot;google&quot; {
+  project = &quot;my-ml-project&quot;
+  region  = &quot;us-central1&quot;
+  zone    = &quot;us-central1-a&quot;
+}
+
+# Multiple provider configurations (aliases)
+provider &quot;aws&quot; {
+  alias  = &quot;us-east&quot;
+  region = &quot;us-east-1&quot;
+}
+
+provider &quot;aws&quot; {
+  alias  = &quot;eu-west&quot;
+  region = &quot;eu-west-1&quot;
+}
+
+# Use aliased provider
+resource &quot;aws_instance&quot; &quot;east_server&quot; {
+  provider = aws.us-east
+  # ...
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-provider-authenticatio">Provider Authentication</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># âŒ DON'T: Hardcode credentials
+provider &quot;aws&quot; {
+  access_key = &quot;AKIAIOSFODNN7EXAMPLE&quot;  # Never do this!
+  secret_key = &quot;wJalrXUtnFEMI...&quot;
+}
+
+# âœ… DO: Use environment variables
+# AWS_ACCESS_KEY_ID
+# AWS_SECRET_ACCESS_KEY
+provider &quot;aws&quot; {
+  region = &quot;us-west-2&quot;
+}
+
+# âœ… DO: Use AWS CLI profile
+provider &quot;aws&quot; {
+  region  = &quot;us-west-2&quot;
+  profile = &quot;ml-admin&quot;
+}
+
+# âœ… DO: Use instance profile / IAM role (when running on EC2)
+provider &quot;aws&quot; {
+  region = &quot;us-west-2&quot;
+  # Automatically uses instance metadata
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-resources">èµ„æºï¼ˆResourcesï¼‰</h4>
+<p>Resources are the infrastructure components you want to create.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-basic-resource">Basic Resource</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">resource &quot;aws_instance&quot; &quot;ml_server&quot; {
+  ami           = &quot;ami-0c55b159cbfafe1f0&quot;
+  instance_type = &quot;p3.2xlarge&quot;
+
+  tags = {
+    Name = &quot;ML Training Server&quot;
+  }
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-resource-with-dependen">Resource with Dependencies</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Security group (created first)
+resource &quot;aws_security_group&quot; &quot;ml_sg&quot; {
+  name        = &quot;ml-security-group&quot;
+  description = &quot;Security group for ML servers&quot;
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+}
+
+# Instance (created second, depends on security group)
+resource &quot;aws_instance&quot; &quot;ml_server&quot; {
+  ami           = &quot;ami-0c55b159cbfafe1f0&quot;
+  instance_type = &quot;p3.2xlarge&quot;
+
+  # Implicit dependency (Terraform detects automatically)
+  vpc_security_group_ids = [aws_security_group.ml_sg.id]
+
+  tags = {
+    Name = &quot;ML Training Server&quot;
+  }
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-explicit-dependencies">Explicit Dependencies</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">resource &quot;aws_instance&quot; &quot;ml_server&quot; {
+  ami           = &quot;ami-12345678&quot;
+  instance_type = &quot;p3.2xlarge&quot;
+
+  # Explicit dependency (when implicit doesn't work)
+  depends_on = [
+    aws_iam_role_policy_attachment.ml_policy
+  ]
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-resource-meta-argument">Resource Meta-Arguments</h5>
+<h6 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-count">count</h6>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Create 3 identical GPU instances
+resource &quot;aws_instance&quot; &quot;ml_cluster&quot; {
+  count = 3
+
+  ami           = &quot;ami-12345678&quot;
+  instance_type = &quot;p3.2xlarge&quot;
+
+  tags = {
+    Name = &quot;ML Server ${count.index}&quot;  # ML Server 0, 1, 2
+  }
+}
+
+# Reference specific instance
+output &quot;first_server_ip&quot; {
+  value = aws_instance.ml_cluster[0].public_ip
+}
+
+# Reference all instances
+output &quot;all_server_ips&quot; {
+  value = aws_instance.ml_cluster[*].public_ip
+}</code></pre></div>
+<h6 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-for-each">for_each</h6>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Create buckets for different environments
+variable &quot;environments&quot; {
+  type    = set(string)
+  default = [&quot;dev&quot;, &quot;staging&quot;, &quot;prod&quot;]
+}
+
+resource &quot;aws_s3_bucket&quot; &quot;ml_data&quot; {
+  for_each = var.environments
+
+  bucket = &quot;ml-datasets-${each.value}&quot;
+
+  tags = {
+    Environment = each.value
+  }
+}
+
+# Reference specific bucket
+output &quot;prod_bucket&quot; {
+  value = aws_s3_bucket.ml_data[&quot;prod&quot;].bucket
+}</code></pre></div>
+<h6 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-lifecycle">lifecycle</h6>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">resource &quot;aws_instance&quot; &quot;ml_server&quot; {
+  ami           = &quot;ami-12345678&quot;
+  instance_type = &quot;p3.2xlarge&quot;
+
+  lifecycle {
+    # Prevent accidental destruction
+    prevent_destroy = true
+
+    # Create new before destroying old (zero downtime)
+    create_before_destroy = true
+
+    # Ignore changes to specific attributes
+    ignore_changes = [
+      tags,
+      user_data
+    ]
+  }
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-data-sources">Data Sources</h4>
+<p>Data sources fetch information about existing resources.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-fetching-existing-reso">Fetching Existing Resources</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Get latest Amazon Linux 2 AMI
+data &quot;aws_ami&quot; &quot;amazon_linux&quot; {
+  most_recent = true
+  owners      = [&quot;amazon&quot;]
+
+  filter {
+    name   = &quot;name&quot;
+    values = [&quot;amzn2-ami-hvm-*-x86_64-gp2&quot;]
+  }
+}
+
+# Use the AMI in a resource
+resource &quot;aws_instance&quot; &quot;ml_server&quot; {
+  ami           = data.aws_ami.amazon_linux.id
+  instance_type = &quot;p3.2xlarge&quot;
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-getting-account-inform">Getting Account Information</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Get current AWS account ID and region
+data &quot;aws_caller_identity&quot; &quot;current&quot; {}
+
+data &quot;aws_region&quot; &quot;current&quot; {}
+
+# Use in configurations
+locals {
+  account_id = data.aws_caller_identity.current.account_id
+  region     = data.aws_region.current.name
+}
+
+output &quot;account_info&quot; {
+  value = &quot;Account: ${local.account_id}, Region: ${local.region}&quot;
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-fetching-availability-">Fetching Availability Zones</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Get all available AZs in current region
+data &quot;aws_availability_zones&quot; &quot;available&quot; {
+  state = &quot;available&quot;
+
+  filter {
+    name   = &quot;opt-in-status&quot;
+    values = [&quot;opt-in-not-required&quot;]
+  }
+}
+
+# Use in resource
+resource &quot;aws_subnet&quot; &quot;ml_subnet&quot; {
+  count = length(data.aws_availability_zones.available.names)
+
+  vpc_id            = aws_vpc.main.id
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+  cidr_block        = cidrsubnet(&quot;10.0.0.0/16&quot;, 8, count.index)
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-variables">Variables</h4>
+<p>Variables make your configuration reusable and flexible.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-defining-variables">Defining Variables</h5>
+<p><strong>variables.tf</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Basic variable
+variable &quot;region&quot; {
+  description = &quot;AWS region for ML infrastructure&quot;
+  type        = string
+  default     = &quot;us-west-2&quot;
+}
+
+# Variable with validation
+variable &quot;instance_type&quot; {
+  description = &quot;EC2 instance type for ML training&quot;
+  type        = string
+  default     = &quot;p3.2xlarge&quot;
+
+  validation {
+    condition     = can(regex(&quot;^p3\\.&quot;, var.instance_type))
+    error_message = &quot;Instance type must be a p3 GPU instance.&quot;
+  }
+}
+
+# Variable without default (must be provided)
+variable &quot;project_name&quot; {
+  description = &quot;Name of the ML project&quot;
+  type        = string
+}
+
+# Complex variable
+variable &quot;training_cluster&quot; {
+  description = &quot;Configuration for ML training cluster&quot;
+  type = object({
+    instance_count = number
+    instance_type  = string
+    disk_size_gb   = number
+    enable_spot    = bool
+  })
+  default = {
+    instance_count = 4
+    instance_type  = &quot;p3.8xlarge&quot;
+    disk_size_gb   = 500
+    enable_spot    = true
+  }
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-providing-variable-val">Providing Variable Values</h5>
+<p><strong>Method 1: terraform.tfvars</strong></p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># terraform.tfvars
+region       = &quot;us-east-1&quot;
+project_name = &quot;image-classification&quot;
+
+training_cluster = {
+  instance_count = 8
+  instance_type  = &quot;p3.16xlarge&quot;
+  disk_size_gb   = 1000
+  enable_spot    = false
+}</code></pre></div>
+<p><strong>Method 2: Command line</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">terraform apply \
+  -var=&quot;region=us-east-1&quot; \
+  -var=&quot;project_name=nlp-project&quot;</code></pre></div>
+<p><strong>Method 3: Environment variables</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">export TF_VAR_region=&quot;us-east-1&quot;
+export TF_VAR_project_name=&quot;computer-vision&quot;
+terraform apply</code></pre></div>
+<p><strong>Method 4: Variable files</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># dev.tfvars
+terraform apply -var-file=&quot;dev.tfvars&quot;
+
+# prod.tfvars
+terraform apply -var-file=&quot;prod.tfvars&quot;</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-using-variables">Using Variables</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">resource &quot;aws_instance&quot; &quot;ml_server&quot; {
+  ami           = data.aws_ami.ml_ami.id
+  instance_type = var.instance_type
+
+  tags = {
+    Name    = &quot;${var.project_name}-training&quot;
+    Project = var.project_name
+  }
+}
+
+resource &quot;aws_instance&quot; &quot;training_cluster&quot; {
+  count = var.training_cluster.instance_count
+
+  ami           = data.aws_ami.ml_ami.id
+  instance_type = var.training_cluster.instance_type
+
+  root_block_device {
+    volume_size = var.training_cluster.disk_size_gb
+  }
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-outputs">Outputs</h4>
+<p>Outputs display values after Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ runs.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-defining-outputs">Defining Outputs</h5>
+<p><strong>outputs.tf</strong>:</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl"># Simple output
+output &quot;ml_server_public_ip&quot; {
+  description = &quot;Public IP of ML training server&quot;
+  value       = aws_instance.ml_server.public_ip
+}
+
+# Output with multiple values
+output &quot;cluster_ips&quot; {
+  description = &quot;Public IPs of all training cluster nodes&quot;
+  value       = aws_instance.training_cluster[*].public_ip
+}
+
+# Sensitive output (won't show in CLI, but available programmatically)
+output &quot;database_password&quot; {
+  description = &quot;RDS database password&quot;
+  value       = aws_db_instance.ml_db.password
+  sensitive   = true
+}
+
+# Structured output
+output &quot;infrastructure_info&quot; {
+  description = &quot;Complete infrastructure information&quot;
+  value = {
+    server_ip      = aws_instance.ml_server.public_ip
+    s3_bucket      = aws_s3_bucket.ml_data.bucket
+    cluster_size   = length(aws_instance.training_cluster)
+    total_cost_est = &quot;$${aws_instance.ml_server.instance_type == &quot;p3.2xlarge&quot; ? 3.06 : 12.24}/hour&quot;
+  }
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-using-outputs">Using Outputs</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># After terraform apply
+terraform output
+# ml_server_public_ip = &quot;54.123.45.67&quot;
+# cluster_ips = [&quot;54.123.45.68&quot;, &quot;54.123.45.69&quot;, &quot;54.123.45.70&quot;]
+
+# Get specific output
+terraform output ml_server_public_ip
+# 54.123.45.67
+
+# Get output in JSON
+terraform output -json
+# {&quot;ml_server_public_ip&quot;: {&quot;sensitive&quot;: false, &quot;value&quot;: &quot;54.123.45.67&quot;}}
+
+# Use in scripts
+SERVER_IP=$(terraform output -raw ml_server_public_ip)
+ssh ubuntu@$SERVER_IP</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-local-values">Local Values</h4>
+<p>Local values are internal variables for DRY (Don't Repeat Yourself) code.</p>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">locals {
+  # Common tags for all resources
+  common_tags = {
+    Project     = var.project_name
+    Environment = var.environment
+    ManagedBy   = &quot;Terraform&quot;
+    CostCenter  = &quot;AI-Research&quot;
+  }
+
+  # Computed values
+  cluster_name = &quot;${var.project_name}-${var.environment}-cluster&quot;
+
+  # Conditional logic
+  use_gpu = var.environment == &quot;prod&quot; ? true : false
+
+  instance_type = local.use_gpu ? &quot;p3.8xlarge&quot; : &quot;t3.large&quot;
+
+  # Data transformations
+  availability_zones = slice(
+    data.aws_availability_zones.available.names,
+    0,
+    min(3, length(data.aws_availability_zones.available.names))
+  )
+}
+
+# Use locals in resources
+resource &quot;aws_instance&quot; &quot;ml_server&quot; {
+  ami           = data.aws_ami.ml_ami.id
+  instance_type = local.instance_type
+
+  tags = merge(
+    local.common_tags,
+    {
+      Name = local.cluster_name
+    }
+  )
+}</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-cli-commands">Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ CLI Commands</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-init">terraform init</h5>
+<p>Initialize a Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ working directory.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Initialize (downloads providers)
+terraform init
+
+# Upgrade provider versions
+terraform init -upgrade
+
+# Migrate state backend
+terraform init -migrate-state</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-fmt">terraform fmt</h5>
+<p>Format configuration files to canonical style.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Format all .tf files in current directory
+terraform fmt
+
+# Format recursively
+terraform fmt -recursive
+
+# Check if files are formatted (CI/CD)
+terraform fmt -check</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-validate">terraform validate</h5>
+<p>Validate configuration syntax.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Validate configuration
+terraform validate
+
+# Example output:
+# Success! The configuration is valid.
+
+# Or if there are errors:
+# Error: Unsupported argument
+#   on main.tf line 5, in resource &quot;aws_instance&quot; &quot;ml_server&quot;:
+#   5:   invalid_arg = &quot;value&quot;</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-plan">terraform plan</h5>
+<p>Preview changes before applying.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create execution plan
+terraform plan
+
+# Save plan to file
+terraform plan -out=tfplan
+
+# Show what will be destroyed
+terraform plan -destroy
+
+# Target specific resource
+terraform plan -target=aws_instance.ml_server
+
+# Use variable file
+terraform plan -var-file=&quot;prod.tfvars&quot;</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-apply">terraform apply</h5>
+<p>Apply changes to infrastructure.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Apply changes (will prompt for confirmation)
+terraform apply
+
+# Auto-approve (dangerous, for automation only)
+terraform apply -auto-approve
+
+# Apply saved plan
+terraform apply tfplan
+
+# Apply with variables
+terraform apply -var=&quot;instance_count=5&quot;
+
+# Target specific resource
+terraform apply -target=aws_instance.ml_server</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-destroy">terraform destroy</h5>
+<p>Destroy all managed infrastructure.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Destroy everything (prompts for confirmation)
+terraform destroy
+
+# Auto-approve destruction
+terraform destroy -auto-approve
+
+# Destroy specific resource
+terraform destroy -target=aws_instance.ml_server</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-show">terraform show</h5>
+<p>Show current state or plan.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Show current state
+terraform show
+
+# Show saved plan
+terraform show tfplan
+
+# Output in JSON
+terraform show -json</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-output">terraform output</h5>
+<p>Display output values.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Show all outputs
+terraform output
+
+# Show specific output
+terraform output ml_server_ip
+
+# Output in JSON
+terraform output -json
+
+# Raw output (no quotes, for scripts)
+terraform output -raw ml_server_ip</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-state">terraform state</h5>
+<p>Advanced state management.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># List all resources in state
+terraform state list
+
+# Show specific resource
+terraform state show aws_instance.ml_server
+
+# Remove resource from state (doesn't destroy)
+terraform state rm aws_instance.ml_server
+
+# Move/rename resource
+terraform state mv aws_instance.old aws_instance.new
+
+# Pull remote state
+terraform state pull</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-terraform-console">terraform console</h5>
+<p>Interactive console for testing expressions.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">terraform console
+
+# Try expressions:
+&gt; var.region
+&quot;us-west-2&quot;
+
+&gt; aws_instance.ml_server.public_ip
+&quot;54.123.45.67&quot;
+
+&gt; length(aws_instance.training_cluster)
+3
+
+&gt; [for s in aws_instance.training_cluster : s.id]
+[&quot;i-0abc123&quot;, &quot;i-0def456&quot;, &quot;i-0ghi789&quot;]</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-your-first-terraform-p">Your First Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ Project</h4>
+<p>Let's create a complete ML infrastructure project.</p>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-step-1-project-structu">Step 1: Project Structure</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">mkdir ml-infrastructure
+cd ml-infrastructure
+
+# Create files
+touch main.tf variables.tf outputs.tf versions.tf terraform.tfvars
+touch .gitignore</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-step-2-versions-tf">Step 2: versions.tf</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">terraform {
+  required_version = &quot;&gt;= 1.0&quot;
+
+  required_providers {
+    aws = {
+      source  = &quot;hashicorp/aws&quot;
+      version = &quot;~&gt; 5.0&quot;
+    }
+  }
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-step-3-variables-tf">Step 3: variables.tf</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">variable &quot;region&quot; {
+  description = &quot;AWS region&quot;
+  type        = string
+  default     = &quot;us-west-2&quot;
+}
+
+variable &quot;project_name&quot; {
+  description = &quot;Project name for tagging&quot;
+  type        = string
+  default     = &quot;ml-training&quot;
+}
+
+variable &quot;instance_type&quot; {
+  description = &quot;EC2 instance type&quot;
+  type        = string
+  default     = &quot;p3.2xlarge&quot;
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-step-4-main-tf">Step 4: main.tf</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">provider &quot;aws&quot; {
+  region = var.region
+}
+
+# Data source: Latest Deep Learning AMI
+data &quot;aws_ami&quot; &quot;deep_learning&quot; {
+  most_recent = true
+  owners      = [&quot;amazon&quot;]
+
+  filter {
+    name   = &quot;name&quot;
+    values = [&quot;Deep Learning AMI GPU PyTorch*&quot;]
+  }
+}
+
+# S3 bucket for datasets
+resource &quot;aws_s3_bucket&quot; &quot;datasets&quot; {
+  bucket = &quot;${var.project_name}-datasets-${data.aws_caller_identity.current.account_id}&quot;
+
+  tags = {
+    Name    = &quot;ML Datasets&quot;
+    Project = var.project_name
+  }
+}
+
+# S3 bucket for models
+resource &quot;aws_s3_bucket&quot; &quot;models&quot; {
+  bucket = &quot;${var.project_name}-models-${data.aws_caller_identity.current.account_id}&quot;
+
+  tags = {
+    Name    = &quot;ML Models&quot;
+    Project = var.project_name
+  }
+}
+
+# Security group
+resource &quot;aws_security_group&quot; &quot;ml_sg&quot; {
+  name        = &quot;${var.project_name}-sg&quot;
+  description = &quot;Security group for ML training server&quot;
+
+  # SSH access
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]  # Restrict this in production!
+  }
+
+  # Jupyter notebook
+  ingress {
+    from_port   = 8888
+    to_port     = 8888
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  # All outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = &quot;-1&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  tags = {
+    Name    = &quot;${var.project_name}-sg&quot;
+    Project = var.project_name
+  }
+}
+
+# IAM role for EC2
+resource &quot;aws_iam_role&quot; &quot;ml_role&quot; {
+  name = &quot;${var.project_name}-role&quot;
+
+  assume_role_policy = jsonencode({
+    Version = &quot;2012-10-17&quot;
+    Statement = [{
+      Action = &quot;sts:AssumeRole&quot;
+      Effect = &quot;Allow&quot;
+      Principal = {
+        Service = &quot;ec2.amazonaws.com&quot;
+      }
+    }]
+  })
+}
+
+# Attach S3 read/write policy
+resource &quot;aws_iam_role_policy_attachment&quot; &quot;s3_policy&quot; {
+  role       = aws_iam_role.ml_role.name
+  policy_arn = &quot;arn:aws:iam::aws:policy/AmazonS3FullAccess&quot;
+}
+
+# Instance profile
+resource &quot;aws_iam_instance_profile&quot; &quot;ml_profile&quot; {
+  name = &quot;${var.project_name}-profile&quot;
+  role = aws_iam_role.ml_role.name
+}
+
+# Get current account ID
+data &quot;aws_caller_identity&quot; &quot;current&quot; {}
+
+# EC2 instance for ML training
+resource &quot;aws_instance&quot; &quot;ml_server&quot; {
+  ami           = data.aws_ami.deep_learning.id
+  instance_type = var.instance_type
+
+  iam_instance_profile   = aws_iam_instance_profile.ml_profile.name
+  vpc_security_group_ids = [aws_security_group.ml_sg.id]
+
+  root_block_device {
+    volume_size = 100
+    volume_type = &quot;gp3&quot;
+  }
+
+  user_data = &lt;&lt;-EOF
+              #!/bin/bash
+              echo &quot;Setup complete&quot; &gt; /tmp/setup.log
+              EOF
+
+  tags = {
+    Name    = &quot;${var.project_name}-server&quot;
+    Project = var.project_name
+  }
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-step-5-outputs-tf">Step 5: outputs.tf</h5>
+<div class="code-shell"><div class="code-title"><span>hcl</span><span>HCL</span></div><pre><code class="language-hcl">output &quot;ml_server_public_ip&quot; {
+  description = &quot;Public IP of ML training server&quot;
+  value       = aws_instance.ml_server.public_ip
+}
+
+output &quot;ssh_command&quot; {
+  description = &quot;SSH command to connect to server&quot;
+  value       = &quot;ssh -i your-key.pem ubuntu@${aws_instance.ml_server.public_ip}&quot;
+}
+
+output &quot;datasets_bucket&quot; {
+  description = &quot;S3 bucket for datasets&quot;
+  value       = aws_s3_bucket.datasets.bucket
+}
+
+output &quot;models_bucket&quot; {
+  description = &quot;S3 bucket for models&quot;
+  value       = aws_s3_bucket.models.bucket
+}</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-step-6-gitignore">Step 6: .gitignore</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text"># Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files with secrets
+*.tfvars
+*.tfvars.json
+
+# Ignore override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Lock files (some teams commit this)
+.terraform.lock.hcl</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-step-7-deploy">Step 7: Deploy</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Initialize
+terraform init
+
+# Format code
+terraform fmt
+
+# Validate
+terraform validate
+
+# Plan
+terraform plan
+
+# Apply
+terraform apply
+
+# Get outputs
+terraform output ml_server_public_ip
+
+# Connect
+ssh -i your-key.pem ubuntu@$(terraform output -raw ml_server_public_ip)
+
+# When done, destroy
+terraform destroy</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-best-practices">æœ€ä½³å®žè·µï¼ˆBest Practicesï¼‰</h4>
+<p>âœ… Use version control (Git) for all Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ code âœ… Always run <code>terraform fmt</code> before committing âœ… Use <code>terraform validate</code> to catch syntax errors âœ… Always review <code>terraform plan</code> before <code>apply</code> âœ… Use remote state backends (S3, Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ Cloud) âœ… Never commit <code>.tfstate</code> files or <code>terraform.tfvars</code> with secrets âœ… Use variables for reusability âœ… Tag all resources consistently âœ… Use data sources to reference existing infrastructure âœ… Break large configurations into modules</p>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-common-errors-and-solu">Common Errors and Solutions</h4>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-error-provider-not-fou">Error: Provider not found</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Error: Provider &quot;aws&quot; not found
+# Solution:
+terraform init</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-error-resource-already">Error: Resource already exists</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Error: resource already exists
+# Solution: Import existing resource
+terraform import aws_instance.ml_server i-1234567890abcdef0</code></pre></div>
+<h5 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-error-invalid-syntax">Error: Invalid syntax</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Error: Argument or block definition required
+# Solution: Run validate
+terraform validate
+# Fix syntax based on error message</code></pre></div>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-next-steps">Next Steps</h4>
+<p>Now that you've mastered Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ fundamentals, you're ready to:</p>
+<ul>
+<li><strong>Lesson 03</strong>: Learn state management and team collaboration</li>
+<li><strong>Lesson 04</strong>: Build complete AI infrastructure with Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰</li>
+<li><strong>Lesson 05</strong>: Explore Pulumi å¤šè¯­è¨€ IaCï¼ˆPulumiï¼‰ for Python-based IaC</li>
+</ul>
+<h4 id="lessons-mod-109-infrastructure-as-code-02-terraform-fundamentals-md-key-takeaways">Key Takeaways</h4>
+<p>âœ… Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ uses HCL (HashiCorp Configuration Language) âœ… Providers connect Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ to cloud APIs âœ… Resources are infrastructure components to create âœ… Data sources fetch information about existing resources âœ… Variables make configurations reusable âœ… Outputs display important values âœ… Always: init â†’ fmt â†’ validate â†’ plan â†’ apply â†’ destroy âœ… Never commit secrets or state files to version control</p>
+<hr/>
+<p><strong>Next Lesson</strong>: <a href="#doc-lessons-mod-109-infrastructure-as-code-03-terraform-state-management-md">03-terraform-state-management.md</a></p><p><a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-109-infrastructure-as-code-03-terraform-state-management-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

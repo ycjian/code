@@ -1,0 +1,853 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-resources-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Learning Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lesson 01: Introduction to MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md.html">Lesson 02: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-03-model-registry-versioning-md.html">Lesson 03: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ &amp; Versioning</a><a class="tree-doc active" href="../docs/doc-lessons-mod-106-mlops-04-feature-stores-engineering-md.html">Lesson 04: Feature Stores &amp; Feature Engineering</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-05-cicd-ml-models-md.html">Lesson 05: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for ML Models</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-06-model-deployment-strategies-md.html">Lesson 06: Model éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-07-ab-testing-experimentation-md.html">Lesson 07: A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ &amp; Experimentation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-08-best-practices-governance-md.html">Lesson 08: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Best Practices &amp; æ²»ç†ï¼ˆGovernanceï¼‰</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Module 106 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-01-mlflow-tracking-md.html">Lab 01: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Tracking Server End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-02-model-registry-md.html">Lab 02: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ and Stage Promotion</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-03-feature-store-md.html">Lab 03: Stand Up a Feast ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-04-cicd-models-md.html">Lab 04: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for Models with GitHub Actions</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-05-canary-deployment-md.html">Lab 05: Canary éƒ¨ç½²ï¼ˆDeploymentï¼‰ with Argo Rollouts</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-06-ab-testing-md.html">Lab 06: A/B Test with Traffic Splitting</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-07-drift-monitoring-md.html">Lab 07: Drift ç›‘æŽ§ï¼ˆMonitoringï¼‰ with Evidently</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercise 01: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Maturity Assessment</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-02-mlflow-tracking-deep-dive-readme-md.html">Exercise 02: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Tracking Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-03-model-registry-promotion-readme-md.html">Exercise 03: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ and Promotion Workflow</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md.html">Exercise 04: å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ and æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">Exercise 05: Model ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md.html">Exercise 06: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for ML Pipelines</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-07-feature-store-implementation-readme-md.html">Exercise 07: ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-08-deployment-strategies-readme-md.html">Exercise 08: Model éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-09-ab-testing-infrastructure-readme-md.html">Exercise 09: A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ Infrastructure for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-10-model-governance-readme-md.html">Exercise 10: Model æ²»ç†ï¼ˆGovernanceï¼‰ and Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-11-ml-orchestration-patterns-readme-md.html">Exercise 11: ML Pipeline Orchestration Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-12-model-cost-attribution-readme-md.html">Exercise 12: Per-Model Cost Attribution</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-13-reproducibility-audit-readme-md.html">Exercise 13: ML Reproducibility Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-14-ml-platform-operating-model-readme-md.html">Exercise 14: ML Platform Team Operating Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-readme-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-106-mlops-04-feature-stores-engineering-md"><h3 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-lesson-04-feature-stores-feature-en">Lesson 04: Feature Stores &amp; Feature Engineering</h3>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-overview">æ¦‚è§ˆï¼ˆOverviewï¼‰</h4>
+<p>Feature stores are a critical component of production ML systems that solve the challenge of managing, sharing, and serving features consistently across training and inference. This lesson explores feature store concepts, implementations, and best practices.</p>
+<p><strong>Duration:</strong> 3-4 hours <strong>Prerequisites:</strong> Understanding of ML pipelines, data engineering basics, Python <strong>Learning Objectives:</strong></p>
+<ul>
+<li>Understand the feature store concept and why it's needed</li>
+<li>Learn about feature engineering patterns and best practices</li>
+<li>Implement features using Feast (open-source feature store)</li>
+<li>Handle online and offline feature serving</li>
+<li>Manage feature versioning and monitoring</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-1-introduction-to-feature-stores">1. Introduction to Feature Stores</h4>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-1-1-what-is-a-feature-store">1.1 What is a ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰?</h5>
+<p>A <strong>feature store</strong> is a centralized repository for storing, managing, and serving ML features. It acts as a data layer between raw data sources and ML models.</p>
+<p><strong>Core Capabilities:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    Feature Store                         â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚   Feature   â”‚  â”‚   Feature    â”‚  â”‚   Feature    â”‚  â”‚
+â”‚  â”‚  Registry   â”‚  â”‚ Computation  â”‚  â”‚   Serving    â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚   Feature   â”‚  â”‚   Feature    â”‚  â”‚  Monitoring  â”‚  â”‚
+â”‚  â”‚  Versioning â”‚  â”‚  Validation  â”‚  â”‚  &amp; Alerts    â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+         â”‚                   â”‚                   â”‚
+    Raw Data           Training Pipeline    Inference</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-1-2-problems-feature-stores-solve">1.2 Problems Feature Stores Solve</h5>
+<h6 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-training-serving-skew">Training-Serving Skew</h6>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Training code (Python)
+def get_user_features(user_id):
+    df = spark.sql(f&quot;&quot;&quot;
+        SELECT
+            user_id,
+            COUNT(*) as purchase_count,
+            AVG(amount) as avg_purchase
+        FROM purchases
+        WHERE user_id = {user_id}
+        GROUP BY user_id
+    &quot;&quot;&quot;)
+    return df
+
+# Serving code (Different language/framework)
+# âŒ Inconsistent logic leads to skew
+def get_user_features(user_id):
+    # Different aggregation logic
+    # Different time windows
+    # Different data sources
+    pass</code></pre></div>
+<p><strong>ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Solution:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Define once, use everywhere
+@feast.entity
+class User:
+    user_id: str
+
+@feast.feature_view
+class UserPurchaseFeatures:
+    &quot;&quot;&quot;Consistent feature definition&quot;&quot;&quot;
+    purchase_count: int
+    avg_purchase: float
+
+    # Same logic for training and serving
+    source = PurchaseDataSource
+    ttl = timedelta(days=30)</code></pre></div>
+<h6 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-feature-reusability">Feature Reusability</h6>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Without Feature Store - Duplicate feature engineering
+# Team A
+def calculate_user_ltv(user_data):
+    # Complex LTV calculation
+    pass
+
+# Team B
+def calculate_user_ltv(user_data):
+    # Reimplemented, possibly different
+    pass
+
+# With Feature Store - Share features
+feature_store.get_feature(&quot;user_ltv&quot;)  # Reuse across teams</code></pre></div>
+<h6 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-point-in-time-correctness">Point-in-Time Correctness</h6>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># âŒ Without Feature Store - Data leakage risk
+training_data = db.query(&quot;&quot;&quot;
+    SELECT features, label
+    FROM features JOIN labels
+    ON features.user_id = labels.user_id
+&quot;&quot;&quot;)  # Uses latest features, not point-in-time!
+
+# âœ… With Feature Store - Point-in-time joins
+training_data = feature_store.get_historical_features(
+    entity_df=labels_df,  # Contains event timestamps
+    features=[
+        &quot;user_features:purchase_count&quot;,
+        &quot;user_features:avg_purchase&quot;
+    ]
+)  # Automatically handles point-in-time correctness</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-2-feature-store-architecture">2. ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Architecture</h4>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-2-1-core-components">2.1 Core Components</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                     Feature Store                         â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                            â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚          Feature Registry (Metadata)                â”‚  â”‚
+â”‚  â”‚  - Feature definitions                              â”‚  â”‚
+â”‚  â”‚  - Schemas &amp; types                                  â”‚  â”‚
+â”‚  â”‚  - Data sources                                     â”‚  â”‚
+â”‚  â”‚  - Ownership &amp; lineage                              â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                                                            â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚  Offline Store       â”‚  â”‚   Online Store           â”‚  â”‚
+â”‚  â”‚  (Batch Features)    â”‚  â”‚   (Real-time Features)   â”‚  â”‚
+â”‚  â”‚                      â”‚  â”‚                          â”‚  â”‚
+â”‚  â”‚  - Data Warehouse    â”‚  â”‚   - Redis                â”‚  â”‚
+â”‚  â”‚  - Data Lake         â”‚  â”‚   - DynamoDB             â”‚  â”‚
+â”‚  â”‚  - Historical data   â”‚  â”‚   - Low latency (&lt;10ms)  â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                                                            â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚          Feature Transformation Layer               â”‚  â”‚
+â”‚  â”‚  - Batch transformations (Spark, Beam)              â”‚  â”‚
+â”‚  â”‚  - Stream transformations (Flink, Spark Streaming)  â”‚  â”‚
+â”‚  â”‚  - On-demand transformations                        â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+           â”‚                              â”‚
+           â–¼                              â–¼
+    Training Pipeline              Inference Service</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-2-2-offline-vs-online-stores">2.2 Offline vs Online Stores</h5>
+<div class="table-wrap"><table><thead><tr><th>Aspect</th><th>Offline Store</th><th>Online Store</th></tr></thead><tbody><tr><td><strong>Purpose</strong></td><td>è®­ç»ƒï¼ˆTrainingï¼‰, batch scoring</td><td>Real-time inference</td></tr><tr><td><strong>Latency</strong></td><td>Minutes to hours</td><td>Milliseconds</td></tr><tr><td><strong>Data Volume</strong></td><td>Terabytes+</td><td>Megabytes per key</td></tr><tr><td><strong>Technology</strong></td><td>BigQuery, Snowflake, S3</td><td>Redis, DynamoDB, Cassandra</td></tr><tr><td><strong>Query Pattern</strong></td><td>Batch queries, time ranges</td><td>Single key lookups</td></tr><tr><td><strong>Cost</strong></td><td>Optimized for storage</td><td>Optimized for speed</td></tr></tbody></table></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-3-popular-feature-store-solutions">3. Popular ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Solutions</h4>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-3-1-open-source-options">3.1 Open Source Options</h5>
+<h6 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-feast-feature-store">Feast (Feature Store)</h6>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Feast architecture
+Registry: PostgreSQL / GCS / S3
+Offline Store: BigQuery / Snowflake / Parquet
+Online Store: Redis / DynamoDB / Datastore
+
+Pros:
+- Cloud agnostic
+- Large community
+- Good documentation
+
+Cons:
+- Limited transformation support
+- Manual materialization jobs</code></pre></div>
+<h6 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-tecton">Tecton</h6>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Managed service built on Feast
+
+Pros:
+- Fully managed
+- Real-time feature computation
+- Built-in monitoring
+
+Cons:
+- Commercial (expensive)
+- Vendor lock-in</code></pre></div>
+<h6 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-hopsworks">Hopsworks</h6>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Complete MLOps platform with feature store
+
+Pros:
+- Feature validation
+- Feature monitoring
+- Integrated with ML training
+
+Cons:
+- Complex setup
+- Heavier than pure feature stores</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-3-2-cloud-provider-solutions">3.2 Cloud Provider Solutions</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># AWS SageMaker Feature Store
+import sagemaker
+from sagemaker.feature_store.feature_group import FeatureGroup
+
+feature_group = FeatureGroup(
+    name=&quot;user-features&quot;,
+    sagemaker_session=sagemaker.Session()
+)
+
+# GCP Vertex AI Feature Store
+from google.cloud import aiplatform
+
+feature_store = aiplatform.Featurestore(
+    featurestore_name=&quot;user_features&quot;
+)
+
+# Azure ML Feature Store
+from azureml.featurestore import FeatureStore
+
+fs = FeatureStore(
+    name=&quot;user_features&quot;,
+    workspace=workspace
+)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-4-implementing-features-with-feast">4. Implementing Features with Feast</h4>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-4-1-installation-and-setup">4.1 Installation and Setup</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install Feast
+pip install feast
+
+# Initialize Feast project
+feast init feature_repo
+cd feature_repo
+
+# Project structure
+feature_repo/
+â”œâ”€â”€ feature_store.yaml      # Configuration
+â”œâ”€â”€ features.py             # Feature definitions
+â””â”€â”€ data/                   # Sample data</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-4-2-feature-store-configuration">4.2 ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Configuration</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># feature_store.yaml
+project: ml_project
+registry: data/registry.db
+provider: local
+online_store:
+  type: redis
+  connection_string: &quot;localhost:6379&quot;
+offline_store:
+  type: file  # Use parquet files for local development
+entity_key_serialization_version: 2</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-4-3-defining-entities">4.3 Defining Entities</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># features.py
+from feast import Entity, ValueType
+
+# Define entities (primary keys for features)
+user = Entity(
+    name=&quot;user_id&quot;,
+    value_type=ValueType.STRING,
+    description=&quot;User identifier&quot;
+)
+
+product = Entity(
+    name=&quot;product_id&quot;,
+    value_type=ValueType.STRING,
+    description=&quot;Product identifier&quot;
+)
+
+transaction = Entity(
+    name=&quot;transaction_id&quot;,
+    value_type=ValueType.STRING,
+    description=&quot;Transaction identifier&quot;
+)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-4-4-defining-feature-views">4.4 Defining Feature Views</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from datetime import timedelta
+from feast import FeatureView, Field, FileSource
+from feast.types import Float32, Int64, String
+
+# Define data source
+user_stats_source = FileSource(
+    path=&quot;data/user_statistics.parquet&quot;,
+    timestamp_field=&quot;event_timestamp&quot;,
+    created_timestamp_column=&quot;created_timestamp&quot;,
+)
+
+# Define feature view
+user_statistics = FeatureView(
+    name=&quot;user_statistics&quot;,
+    entities=[user],
+    ttl=timedelta(days=30),
+    schema=[
+        Field(name=&quot;total_purchases&quot;, dtype=Int64),
+        Field(name=&quot;avg_purchase_amount&quot;, dtype=Float32),
+        Field(name=&quot;last_purchase_days_ago&quot;, dtype=Int64),
+        Field(name=&quot;favorite_category&quot;, dtype=String),
+        Field(name=&quot;loyalty_tier&quot;, dtype=String),
+    ],
+    source=user_stats_source,
+    tags={&quot;team&quot;: &quot;recommendations&quot;, &quot;version&quot;: &quot;v1&quot;},
+)
+
+# Stream feature view (for real-time features)
+from feast import StreamFeatureView, PushSource
+
+user_activity_source = PushSource(
+    name=&quot;user_activity_push_source&quot;,
+    batch_source=FileSource(path=&quot;data/user_activity.parquet&quot;),
+)
+
+user_realtime_activity = StreamFeatureView(
+    name=&quot;user_realtime_activity&quot;,
+    entities=[user],
+    ttl=timedelta(hours=1),
+    schema=[
+        Field(name=&quot;page_views_last_hour&quot;, dtype=Int64),
+        Field(name=&quot;clicks_last_hour&quot;, dtype=Int64),
+        Field(name=&quot;session_duration_seconds&quot;, dtype=Int64),
+    ],
+    source=user_activity_source,
+)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-4-5-applying-feature-definitions">4.5 Applying Feature Definitions</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Apply feature definitions to registry
+feast apply
+
+# Output:
+# Registered entity user_id
+# Registered entity product_id
+# Registered feature view user_statistics
+# Registered feature view user_realtime_activity
+
+# View registered features
+feast feature-views list
+feast entities list</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-5-feature-engineering-patterns">5. Feature Engineering Patterns</h4>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-5-1-time-based-aggregations">5.1 Time-Based Aggregations</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Aggregation feature view
+from feast import FeatureView, Field
+from feast.types import Float32, Int64
+import pandas as pd
+
+def create_user_aggregations(transactions_df):
+    &quot;&quot;&quot;Calculate time-windowed aggregations&quot;&quot;&quot;
+
+    features = transactions_df.groupby('user_id').agg({
+        # Count aggregations
+        'transaction_id': [
+            ('purchases_7d', lambda x: x[x.index &gt;= pd.Timestamp.now() - pd.Timedelta(days=7)].count()),
+            ('purchases_30d', lambda x: x[x.index &gt;= pd.Timestamp.now() - pd.Timedelta(days=30)].count()),
+        ],
+
+        # Sum aggregations
+        'amount': [
+            ('revenue_7d', lambda x: x[x.index &gt;= pd.Timestamp.now() - pd.Timedelta(days=7)].sum()),
+            ('revenue_30d', lambda x: x[x.index &gt;= pd.Timestamp.now() - pd.Timedelta(days=30)].sum()),
+        ],
+
+        # Average aggregations
+        'amount': [
+            ('avg_amount_7d', lambda x: x[x.index &gt;= pd.Timestamp.now() - pd.Timedelta(days=7)].mean()),
+            ('avg_amount_30d', lambda x: x[x.index &gt;= pd.Timestamp.now() - pd.Timedelta(days=30)].mean()),
+        ]
+    })
+
+    return features
+
+# Define as feature view
+user_time_aggregations = FeatureView(
+    name=&quot;user_time_aggregations&quot;,
+    entities=[user],
+    ttl=timedelta(days=1),
+    schema=[
+        Field(name=&quot;purchases_7d&quot;, dtype=Int64),
+        Field(name=&quot;purchases_30d&quot;, dtype=Int64),
+        Field(name=&quot;revenue_7d&quot;, dtype=Float32),
+        Field(name=&quot;revenue_30d&quot;, dtype=Float32),
+        Field(name=&quot;avg_amount_7d&quot;, dtype=Float32),
+        Field(name=&quot;avg_amount_30d&quot;, dtype=Float32),
+    ],
+    source=FileSource(path=&quot;data/user_aggregations.parquet&quot;),
+)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-5-2-on-demand-features">5.2 On-Demand Features</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from feast import on_demand_feature_view, RequestSource
+from feast.types import Float64
+
+# Input sources
+user_stats_source = FeatureView(...)  # Existing feature view
+request_source = RequestSource(
+    name=&quot;request_data&quot;,
+    schema=[
+        Field(name=&quot;current_cart_value&quot;, dtype=Float32),
+        Field(name=&quot;current_hour&quot;, dtype=Int64),
+    ]
+)
+
+# On-demand transformation
+@on_demand_feature_view(
+    sources=[user_statistics, request_source],
+    schema=[
+        Field(name=&quot;cart_value_vs_avg&quot;, dtype=Float32),
+        Field(name=&quot;is_peak_hour&quot;, dtype=Int64),
+        Field(name=&quot;discount_eligibility&quot;, dtype=Float32),
+    ]
+)
+def user_derived_features(inputs: pd.DataFrame) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;
+    Calculate features on-demand during inference
+    Use case: Features that require request context
+    &quot;&quot;&quot;
+    output = pd.DataFrame()
+
+    # Compare current cart to historical average
+    output[&quot;cart_value_vs_avg&quot;] = (
+        inputs[&quot;current_cart_value&quot;] / inputs[&quot;avg_purchase_amount&quot;]
+    )
+
+    # Check if peak shopping hour (6-9 PM)
+    output[&quot;is_peak_hour&quot;] = (
+        (inputs[&quot;current_hour&quot;] &gt;= 18) &amp; (inputs[&quot;current_hour&quot;] &lt;= 21)
+    ).astype(int)
+
+    # Calculate discount eligibility
+    output[&quot;discount_eligibility&quot;] = (
+        (inputs[&quot;loyalty_tier&quot;] == &quot;gold&quot;).astype(float) * 0.3 +
+        (inputs[&quot;loyalty_tier&quot;] == &quot;silver&quot;).astype(float) * 0.2 +
+        (output[&quot;cart_value_vs_avg&quot;] &gt; 1.5).astype(float) * 0.1
+    )
+
+    return output</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-5-3-cross-entity-features">5.3 Cross-Entity Features</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Multi-entity feature view
+from feast import FeatureView
+
+user_product_interactions = FeatureView(
+    name=&quot;user_product_interactions&quot;,
+    entities=[user, product],  # Multiple entities
+    ttl=timedelta(days=90),
+    schema=[
+        Field(name=&quot;view_count&quot;, dtype=Int64),
+        Field(name=&quot;purchase_count&quot;, dtype=Int64),
+        Field(name=&quot;last_interaction_days&quot;, dtype=Int64),
+        Field(name=&quot;avg_rating&quot;, dtype=Float32),
+        Field(name=&quot;add_to_cart_count&quot;, dtype=Int64),
+    ],
+    source=FileSource(path=&quot;data/user_product_features.parquet&quot;),
+)
+
+# Retrieval example
+features = feature_store.get_online_features(
+    features=[
+        &quot;user_statistics:total_purchases&quot;,
+        &quot;user_product_interactions:purchase_count&quot;,
+        &quot;product_features:popularity_score&quot;,
+    ],
+    entity_rows=[
+        {
+            &quot;user_id&quot;: &quot;user_123&quot;,
+            &quot;product_id&quot;: &quot;prod_456&quot;,
+        }
+    ],
+).to_dict()</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-6-feature-serving">6. Feature Serving</h4>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-6-1-offline-features-training">6.1 Offline Features (Training)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from feast import FeatureStore
+from datetime import datetime
+import pandas as pd
+
+# Initialize feature store
+fs = FeatureStore(repo_path=&quot;.&quot;)
+
+# Create entity dataframe with timestamps
+entity_df = pd.DataFrame({
+    &quot;user_id&quot;: [&quot;user_1&quot;, &quot;user_2&quot;, &quot;user_3&quot;],
+    &quot;event_timestamp&quot;: [
+        datetime(2024, 1, 15, 10, 0),
+        datetime(2024, 1, 15, 11, 0),
+        datetime(2024, 1, 15, 12, 0),
+    ]
+})
+
+# Get historical features (point-in-time correct)
+training_data = fs.get_historical_features(
+    entity_df=entity_df,
+    features=[
+        &quot;user_statistics:total_purchases&quot;,
+        &quot;user_statistics:avg_purchase_amount&quot;,
+        &quot;user_time_aggregations:purchases_7d&quot;,
+        &quot;user_time_aggregations:revenue_30d&quot;,
+    ],
+).to_df()
+
+print(training_data)
+#   user_id  event_timestamp  total_purchases  avg_purchase_amount  purchases_7d  revenue_30d
+# 0 user_1   2024-01-15 10:00  15              75.50                3             1250.00
+# 1 user_2   2024-01-15 11:00  8               120.00               1             980.00
+# 2 user_3   2024-01-15 12:00  25              45.25                5             2100.00</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-6-2-online-features-inference">6.2 Online Features (Inference)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># First, materialize features to online store
+from datetime import datetime, timedelta
+
+# Materialize historical features to online store
+fs.materialize_incremental(
+    end_date=datetime.now(),
+    feature_views=[&quot;user_statistics&quot;, &quot;user_time_aggregations&quot;]
+)
+
+# Materialize specific date range
+fs.materialize(
+    start_date=datetime.now() - timedelta(days=7),
+    end_date=datetime.now(),
+    feature_views=[&quot;user_statistics&quot;]
+)
+
+# Get online features (low latency)
+online_features = fs.get_online_features(
+    features=[
+        &quot;user_statistics:total_purchases&quot;,
+        &quot;user_statistics:loyalty_tier&quot;,
+        &quot;user_time_aggregations:purchases_7d&quot;,
+    ],
+    entity_rows=[
+        {&quot;user_id&quot;: &quot;user_123&quot;},
+        {&quot;user_id&quot;: &quot;user_456&quot;},
+    ]
+).to_dict()
+
+print(online_features)
+# {
+#     'user_id': ['user_123', 'user_456'],
+#     'total_purchases': [15, 8],
+#     'loyalty_tier': ['gold', 'silver'],
+#     'purchases_7d': [3, 1]
+# }</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-6-3-real-time-feature-updates">6.3 Real-Time Feature Updates</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from feast import FeatureStore
+import pandas as pd
+
+fs = FeatureStore(repo_path=&quot;.&quot;)
+
+# Push real-time features
+fs.push(
+    push_source_name=&quot;user_activity_push_source&quot;,
+    df=pd.DataFrame({
+        &quot;user_id&quot;: [&quot;user_123&quot;],
+        &quot;page_views_last_hour&quot;: [15],
+        &quot;clicks_last_hour&quot;: [8],
+        &quot;session_duration_seconds&quot;: [450],
+        &quot;event_timestamp&quot;: [datetime.now()],
+    })
+)
+
+# Retrieve immediately
+features = fs.get_online_features(
+    features=[&quot;user_realtime_activity:page_views_last_hour&quot;],
+    entity_rows=[{&quot;user_id&quot;: &quot;user_123&quot;}]
+).to_dict()</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-7-feature-versioning-and-management">7. Feature Versioning and Management</h4>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-7-1-feature-versioning">7.1 Feature Versioning</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Version 1: Original features
+user_features_v1 = FeatureView(
+    name=&quot;user_features_v1&quot;,
+    entities=[user],
+    schema=[
+        Field(name=&quot;purchase_count&quot;, dtype=Int64),
+        Field(name=&quot;avg_amount&quot;, dtype=Float32),
+    ],
+    tags={&quot;version&quot;: &quot;v1&quot;, &quot;deprecated&quot;: &quot;false&quot;},
+    source=user_source_v1,
+)
+
+# Version 2: Improved features
+user_features_v2 = FeatureView(
+    name=&quot;user_features_v2&quot;,
+    entities=[user],
+    schema=[
+        Field(name=&quot;purchase_count_7d&quot;, dtype=Int64),    # More specific
+        Field(name=&quot;purchase_count_30d&quot;, dtype=Int64),   # New
+        Field(name=&quot;avg_amount_7d&quot;, dtype=Float32),      # More specific
+        Field(name=&quot;ltv_score&quot;, dtype=Float32),          # New calculated field
+    ],
+    tags={&quot;version&quot;: &quot;v2&quot;, &quot;deprecated&quot;: &quot;false&quot;},
+    source=user_source_v2,
+)
+
+# Gradual migration strategy
+# 1. Deploy v2 alongside v1
+# 2. A/B test model performance
+# 3. Gradually shift traffic
+# 4. Deprecate v1 after validation</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-7-2-feature-metadata-and-documentat">7.2 Feature Metadata and Documentation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from feast import FeatureView, Field
+from feast.types import Float32
+
+user_ltv_features = FeatureView(
+    name=&quot;user_ltv_features&quot;,
+    entities=[user],
+    schema=[
+        Field(
+            name=&quot;ltv_30d&quot;,
+            dtype=Float32,
+            description=&quot;Predicted customer lifetime value over 30 days&quot;,
+            tags={
+                &quot;owner&quot;: &quot;data-science-team&quot;,
+                &quot;pii&quot;: &quot;false&quot;,
+                &quot;business_critical&quot;: &quot;true&quot;,
+                &quot;calculation_method&quot;: &quot;xgboost_model_v3&quot;,
+            }
+        ),
+        Field(
+            name=&quot;ltv_90d&quot;,
+            dtype=Float32,
+            description=&quot;Predicted customer lifetime value over 90 days&quot;,
+            tags={
+                &quot;owner&quot;: &quot;data-science-team&quot;,
+                &quot;pii&quot;: &quot;false&quot;,
+                &quot;business_critical&quot;: &quot;true&quot;,
+            }
+        ),
+    ],
+    tags={
+        &quot;team&quot;: &quot;growth&quot;,
+        &quot;use_case&quot;: &quot;customer_retention&quot;,
+        &quot;sla&quot;: &quot;99.9&quot;,
+        &quot;update_frequency&quot;: &quot;hourly&quot;,
+    },
+    online=True,
+    source=ltv_source,
+)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-8-feature-monitoring">8. Feature ç›‘æŽ§ï¼ˆMonitoringï¼‰</h4>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-8-1-feature-drift-detection">8.1 Feature Drift Detection</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import pandas as pd
+from scipy import stats
+
+def detect_feature_drift(
+    historical_features: pd.DataFrame,
+    current_features: pd.DataFrame,
+    threshold: float = 0.05
+):
+    &quot;&quot;&quot;
+    Detect if feature distributions have drifted
+    &quot;&quot;&quot;
+    drift_report = {}
+
+    for column in historical_features.columns:
+        if column in current_features.columns:
+            # Kolmogorov-Smirnov test
+            statistic, p_value = stats.ks_2samp(
+                historical_features[column].dropna(),
+                current_features[column].dropna()
+            )
+
+            drift_report[column] = {
+                &quot;statistic&quot;: statistic,
+                &quot;p_value&quot;: p_value,
+                &quot;drifted&quot;: p_value &lt; threshold,
+                &quot;drift_severity&quot;: statistic
+            }
+
+    return drift_report
+
+# Example usage
+historical = fs.get_historical_features(
+    entity_df=training_entities,
+    features=[&quot;user_statistics:avg_purchase_amount&quot;]
+).to_df()
+
+current = fs.get_online_features(
+    features=[&quot;user_statistics:avg_purchase_amount&quot;],
+    entity_rows=current_entities
+).to_df()
+
+drift_report = detect_feature_drift(historical, current)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-8-2-feature-quality-metrics">8.2 Feature Quality Metrics</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def monitor_feature_quality(features_df: pd.DataFrame) -&gt; dict:
+    &quot;&quot;&quot;
+    Monitor feature quality metrics
+    &quot;&quot;&quot;
+    quality_metrics = {}
+
+    for column in features_df.columns:
+        quality_metrics[column] = {
+            # Completeness
+            &quot;null_percentage&quot;: features_df[column].isnull().sum() / len(features_df) * 100,
+
+            # Distribution metrics
+            &quot;mean&quot;: features_df[column].mean(),
+            &quot;std&quot;: features_df[column].std(),
+            &quot;min&quot;: features_df[column].min(),
+            &quot;max&quot;: features_df[column].max(),
+
+            # Outliers (beyond 3 std devs)
+            &quot;outlier_percentage&quot;: (
+                (features_df[column] - features_df[column].mean()).abs() &gt;
+                3 * features_df[column].std()
+            ).sum() / len(features_df) * 100,
+
+            # Cardinality
+            &quot;unique_values&quot;: features_df[column].nunique(),
+        }
+
+    return quality_metrics
+
+# Set up alerting
+def check_feature_alerts(quality_metrics: dict):
+    alerts = []
+
+    for feature, metrics in quality_metrics.items():
+        # Alert on high null percentage
+        if metrics[&quot;null_percentage&quot;] &gt; 10:
+            alerts.append(f&quot;âš ï¸ {feature}: High null rate ({metrics['null_percentage']:.1f}%)&quot;)
+
+        # Alert on high outlier percentage
+        if metrics[&quot;outlier_percentage&quot;] &gt; 5:
+            alerts.append(f&quot;âš ï¸ {feature}: High outlier rate ({metrics['outlier_percentage']:.1f}%)&quot;)
+
+    return alerts</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-9-best-practices">9. Best Practices</h4>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-9-1-feature-design-principles">9.1 Feature Design Principles</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># âœ… DO: Use descriptive names
+&quot;user_purchases_30d&quot;         # Clear time window
+&quot;product_avg_rating&quot;         # Clear aggregation
+&quot;user_ltv_predicted&quot;         # Clear this is predicted
+
+# âŒ DON'T: Use ambiguous names
+&quot;user_count&quot;                 # Count of what? Over what time?
+&quot;score&quot;                      # What kind of score?
+&quot;value&quot;                      # Too generic
+
+# âœ… DO: Include units in feature names
+&quot;session_duration_seconds&quot;
+&quot;distance_kilometers&quot;
+&quot;price_usd&quot;
+
+# âŒ DON'T: Leave units ambiguous
+&quot;session_duration&quot;           # Seconds? Minutes?
+&quot;distance&quot;                   # Meters? Miles?
+
+# âœ… DO: Make time windows explicit
+&quot;revenue_7d&quot;
+&quot;pageviews_last_hour&quot;
+
+# âŒ DON'T: Use implicit time windows
+&quot;revenue&quot;
+&quot;pageviews&quot;</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-9-2-feature-store-organization">9.2 ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Organization</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Organize by domain
+feature_repo/
+â”œâ”€â”€ features/
+â”‚   â”œâ”€â”€ user_features.py          # User domain
+â”‚   â”œâ”€â”€ product_features.py       # Product domain
+â”‚   â”œâ”€â”€ transaction_features.py   # Transaction domain
+â”‚   â””â”€â”€ realtime_features.py      # Real-time features
+â”œâ”€â”€ data_sources/
+â”‚   â”œâ”€â”€ warehouse_sources.py      # Data warehouse sources
+â”‚   â””â”€â”€ stream_sources.py         # Stream sources
+â”œâ”€â”€ feature_services/
+â”‚   â”œâ”€â”€ recommendation_service.py # Feature bundles
+â”‚   â””â”€â”€ fraud_detection_service.py
+â””â”€â”€ feature_store.yaml</code></pre></div>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-9-3-performance-optimization">9.3 Performance Optimization</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Use feature services for bundling
+from feast import FeatureService
+
+recommendation_features = FeatureService(
+    name=&quot;recommendation_features&quot;,
+    features=[
+        user_statistics,
+        user_product_interactions,
+        product_features,
+    ],
+    tags={&quot;use_case&quot;: &quot;product_recommendations&quot;}
+)
+
+# Retrieve all features in one call
+features = fs.get_online_features(
+    feature_service=&quot;recommendation_features&quot;,
+    entity_rows=[{&quot;user_id&quot;: &quot;user_123&quot;, &quot;product_id&quot;: &quot;prod_456&quot;}]
+)
+
+# Cache frequently accessed features
+from functools import lru_cache
+
+@lru_cache(maxsize=1000)
+def get_user_features(user_id: str):
+    return fs.get_online_features(
+        features=[&quot;user_statistics:total_purchases&quot;],
+        entity_rows=[{&quot;user_id&quot;: user_id}]
+    ).to_dict()</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-10-hands-on-exercise">10. Hands-On Exercise</h4>
+<h5 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-exercise-build-a-user-recommendatio">Exercise: Build a User Recommendation ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰</h5>
+<p><strong>Objective:</strong> Create a feature store for a recommendation system with user, product, and interaction features.</p>
+<p><strong>Requirements:</strong></p>
+<ol>
+<li>Define entities: user, product</li>
+<li>Create feature views:</li>
+</ol>
+<ul>
+<li>User demographics</li>
+<li>User behavior (purchases, views)</li>
+<li>Product attributes</li>
+<li>User-product interactions</li>
+</ul>
+<ol>
+<li>Implement on-demand features</li>
+<li>Set up online and offline serving</li>
+<li>Add feature monitoring</li>
+</ol>
+<p><strong>Starter Code:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># TODO: Complete this implementation
+
+from feast import Entity, FeatureView, Field, FeatureService
+from feast.types import Float32, Int64, String
+from datetime import timedelta
+
+# Step 1: Define entities
+user = Entity(
+    name=&quot;user_id&quot;,
+    # TODO: Add value_type and description
+)
+
+# Step 2: Define feature views
+user_features = FeatureView(
+    # TODO: Define user demographic and behavioral features
+)
+
+# Step 3: Create on-demand features
+@on_demand_feature_view(
+    # TODO: Calculate personalization score
+)
+def personalization_features(inputs):
+    # TODO: Implement feature transformations
+    pass
+
+# Step 4: Create feature service
+recommendation_service = FeatureService(
+    # TODO: Bundle features for recommendation model
+)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<p>âœ… <strong>ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Concepts:</strong></p>
+<ul>
+<li>Centralized feature management</li>
+<li>Training-serving consistency</li>
+<li>Point-in-time correctness</li>
+</ul>
+<p>âœ… <strong>Feast Implementation:</strong></p>
+<ul>
+<li>Feature definitions and entities</li>
+<li>Offline and online serving</li>
+<li>Real-time feature updates</li>
+</ul>
+<p>âœ… <strong>Feature Engineering:</strong></p>
+<ul>
+<li>Time-based aggregations</li>
+<li>On-demand transformations</li>
+<li>Cross-entity features</li>
+</ul>
+<p>âœ… <strong>ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ Practices:</strong></p>
+<ul>
+<li>Feature versioning</li>
+<li>ç›‘æŽ§ï¼ˆMonitoringï¼‰ and alerting</li>
+<li>Performance optimization</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://docs.feast.dev/">Feast Documentation</a></li>
+<li><a href="https://cloud.google.com/architecture/ml-feature-store">ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ for ML by Google</a></li>
+<li><a href="https://www.uber.com/blog/michelangelo-machine-learning-platform/">Uber's Michelangelo ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰</a></li>
+<li><a href="https://www.youtube.com/watch?v=qJezpxcdoOg">Airbnb's Zipline ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰</a></li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-04-feature-stores-engineering-md-next-lesson">Next Lesson</h4>
+<p><strong>Lesson 05: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for ML Models</strong> - Learn how to build continuous integration and deployment pipelines for machine learning models.</p><p><a class="home" href="../docs/doc-lessons-mod-106-mlops-03-model-registry-versioning-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-05-cicd-ml-models-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

@@ -1,0 +1,629 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-readme-md.html">Lessons</a><a class="tree-doc" href="../docs/doc-resources-readme-md.html">èµ„æºï¼ˆResourcesï¼‰</a><a class="tree-doc" href="../docs/doc-resources-cheat-sheets-docker-cheat-sheet-md.html">Docker å®¹å™¨ï¼ˆDockerï¼‰ Cheat Sheet</a><a class="tree-doc" href="../docs/doc-resources-cheat-sheets-git-cheat-sheet-md.html">Git Cheat Sheet</a><a class="tree-doc" href="../docs/doc-resources-cheat-sheets-kubernetes-cheat-sheet-md.html">Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cheat Sheet</a><a class="tree-doc" href="../docs/doc-resources-cheat-sheets-linux-cheat-sheet-md.html">Linux Commands Cheat Sheet</a><a class="tree-doc active" href="../docs/doc-resources-cheat-sheets-python-infrastructure-cheat-sheet-md.html">Python for Infrastructure Cheat Sheet</a><a class="tree-doc" href="../docs/doc-resources-faq-md.html">å¸¸è§é—®é¢˜ï¼ˆFAQï¼‰</a><a class="tree-doc" href="../docs/doc-resources-reading-lists-advanced-engineer-path-md.html">Reading List â€” Advanced Engineer Path</a><a class="tree-doc" href="../docs/doc-resources-reading-lists-staff-engineer-path-md.html">Reading List â€” Staff Engineer Path</a></details></details></aside></div><main><article class="doc" id="doc-resources-cheat-sheets-python-infrastructure-cheat-sheet-md"><h3 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-python-for-infrastructure-chea">Python for Infrastructure Cheat Sheet</h3>
+<p>Quick reference for Python patterns and libraries commonly used in infrastructure engineering.</p>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-python-basics-for-infrastructu">ðŸ Python Basics for Infrastructure</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-environment-management">Environment Management</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create virtual environment
+python3 -m venv venv
+
+# Activate (Linux/Mac)
+source venv/bin/activate
+
+# Activate (Windows)
+venv\Scripts\activate
+
+# Deactivate
+deactivate
+
+# Install requirements
+pip install -r requirements.txt
+
+# Freeze dependencies
+pip freeze &gt; requirements.txt
+
+# Using poetry (alternative)
+poetry init
+poetry add &lt;package&gt;
+poetry install</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-project-structure">Project Structure</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">project/
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ __init__.py
+â”‚   â”œâ”€â”€ main.py
+â”‚   â””â”€â”€ utils/
+â”‚       â”œâ”€â”€ __init__.py
+â”‚       â””â”€â”€ helpers.py
+â”œâ”€â”€ tests/
+â”‚   â”œâ”€â”€ __init__.py
+â”‚   â””â”€â”€ test_main.py
+â”œâ”€â”€ requirements.txt
+â”œâ”€â”€ setup.py
+â”œâ”€â”€ .env
+â””â”€â”€ README.md</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-common-infrastructure-librarie">ðŸ”§ Common Infrastructure Libraries</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-file-system-operations">File &amp; System Operations</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import os
+import sys
+import shutil
+from pathlib import Path
+
+# Environment variables
+api_key = os.getenv('API_KEY', 'default_value')
+os.environ['NEW_VAR'] = 'value'
+
+# Path operations (pathlib - recommended)
+path = Path('/path/to/file.txt')
+path.exists()
+path.is_file()
+path.is_dir()
+path.mkdir(parents=True, exist_ok=True)
+path.read_text()
+path.write_text('content')
+
+# File operations
+with open('file.txt', 'r') as f:
+    content = f.read()
+
+with open('file.txt', 'w') as f:
+    f.write('content')
+
+# Directory operations
+shutil.copytree('src', 'dest')
+shutil.rmtree('directory')
+shutil.copy2('file.txt', 'dest/')
+
+# Execute commands
+import subprocess
+result = subprocess.run(['ls', '-la'], capture_output=True, text=True)
+print(result.stdout)
+print(result.returncode)</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-logging">Logging</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import logging
+
+# Basic configuration
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log'),
+        logging.StreamHandler()
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+# Usage
+logger.debug('Debug message')
+logger.info('Info message')
+logger.warning('Warning message')
+logger.error('Error message')
+logger.critical('Critical message')
+
+# Structured logging (using structlog)
+import structlog
+
+log = structlog.get_logger()
+log.info('event', user='john', action='login')</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-configuration-management">Configuration Management</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Using environment variables with python-decouple
+from decouple import config
+
+DATABASE_URL = config('DATABASE_URL')
+DEBUG = config('DEBUG', default=False, cast=bool)
+PORT = config('PORT', default=8000, cast=int)
+
+# Using pydantic for settings
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    database_url: str
+    api_key: str
+    debug: bool = False
+
+    class Config:
+        env_file = '.env'
+
+settings = Settings()
+
+# Using YAML config
+import yaml
+
+with open('config.yaml') as f:
+    config = yaml.safe_load(f)</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-api-web-frameworks">ðŸŒ API &amp; Web Frameworks</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-fastapi">FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class Item(BaseModel):
+    name: str
+    price: float
+
+@app.get(&quot;/&quot;)
+async def root():
+    return {&quot;message&quot;: &quot;Hello World&quot;}
+
+@app.get(&quot;/items/{item_id}&quot;)
+async def read_item(item_id: int):
+    return {&quot;item_id&quot;: item_id}
+
+@app.post(&quot;/items/&quot;)
+async def create_item(item: Item):
+    return item
+
+# Run with: uvicorn main:app --reload</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-flask-lightweight-alternative">Flask (lightweight alternative)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return jsonify({&quot;message&quot;: &quot;Hello World&quot;})
+
+@app.route('/api/data', methods=['GET', 'POST'])
+def handle_data():
+    if request.method == 'POST':
+        data = request.get_json()
+        return jsonify({&quot;received&quot;: data}), 201
+    return jsonify({&quot;data&quot;: []})
+
+if __name__ == '__main__':
+    app.run(debug=True)</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-http-requests">HTTP Requests</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import requests
+
+# GET request
+response = requests.get('https://api.example.com/data')
+data = response.json()
+
+# POST request
+payload = {'key': 'value'}
+response = requests.post('https://api.example.com/data', json=payload)
+
+# With headers and auth
+headers = {'Authorization': 'Bearer token'}
+response = requests.get('https://api.example.com/data', headers=headers)
+
+# Error handling
+try:
+    response = requests.get('https://api.example.com/data', timeout=5)
+    response.raise_for_status()  # Raises HTTPError for bad responses
+except requests.exceptions.RequestException as e:
+    logger.error(f&quot;Request failed: {e}&quot;)</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-database-operations">ðŸ—„ï¸ Database Operations</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-postgresql-using-psycopg2">PostgreSQL (using psycopg2)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import psycopg2
+
+# Connect
+conn = psycopg2.connect(
+    host=&quot;localhost&quot;,
+    database=&quot;mydb&quot;,
+    user=&quot;user&quot;,
+    password=&quot;password&quot;
+)
+
+# Execute query
+with conn.cursor() as cur:
+    cur.execute(&quot;SELECT * FROM users WHERE id = %s&quot;, (user_id,))
+    result = cur.fetchone()
+
+# Insert data
+with conn.cursor() as cur:
+    cur.execute(
+        &quot;INSERT INTO users (name, email) VALUES (%s, %s)&quot;,
+        (&quot;John&quot;, &quot;john@example.com&quot;)
+    )
+    conn.commit()
+
+conn.close()</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-sqlalchemy-orm">SQLAlchemy (ORM)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    email = Column(String)
+
+# Create engine and session
+engine = create_engine('postgresql://user:pass@localhost/mydb')
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# Query
+users = session.query(User).filter(User.name == 'John').all()
+
+# Insert
+new_user = User(name='Jane', email='jane@example.com')
+session.add(new_user)
+session.commit()</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-cloud-sdks">â˜ï¸ Cloud SDKs</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-aws-boto3">AWS äº‘ï¼ˆAWSï¼‰ (boto3)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import boto3
+
+# S3 operations
+s3 = boto3.client('s3')
+
+# Upload file
+s3.upload_file('local_file.txt', 'bucket-name', 'remote_file.txt')
+
+# Download file
+s3.download_file('bucket-name', 'remote_file.txt', 'local_file.txt')
+
+# List objects
+response = s3.list_objects_v2(Bucket='bucket-name')
+for obj in response.get('Contents', []):
+    print(obj['Key'])
+
+# EC2 operations
+ec2 = boto3.resource('ec2')
+
+# List instances
+for instance in ec2.instances.all():
+    print(instance.id, instance.state)
+
+# Create instance
+instance = ec2.create_instances(
+    ImageId='ami-12345678',
+    MinCount=1,
+    MaxCount=1,
+    InstanceType='t2.micro'
+)</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-gcp">GCP äº‘ï¼ˆGCPï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from google.cloud import storage
+
+# Storage client
+client = storage.Client()
+
+# Upload file
+bucket = client.get_bucket('bucket-name')
+blob = bucket.blob('remote_file.txt')
+blob.upload_from_filename('local_file.txt')
+
+# Download file
+blob.download_to_filename('local_file.txt')
+
+# List blobs
+blobs = client.list_blobs('bucket-name')
+for blob in blobs:
+    print(blob.name)</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-container-management">ðŸ³ Container Management</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-docker-sdk">Docker å®¹å™¨ï¼ˆDockerï¼‰ SDK</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import docker
+
+client = docker.from_env()
+
+# List containers
+for container in client.containers.list():
+    print(container.name, container.status)
+
+# Run container
+container = client.containers.run(
+    'nginx:latest',
+    detach=True,
+    ports={'80/tcp': 8080},
+    environment={'ENV_VAR': 'value'}
+)
+
+# Stop and remove
+container.stop()
+container.remove()
+
+# Build image
+image, logs = client.images.build(
+    path='.',
+    tag='myimage:latest'
+)
+
+# Execute command in container
+result = container.exec_run('ls -la')
+print(result.output.decode())</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-kubernetes-client">Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Client</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from kubernetes import client, config
+
+# Load config
+config.load_kube_config()
+
+v1 = client.CoreV1Api()
+
+# List pods
+pods = v1.list_namespaced_pod('default')
+for pod in pods.items:
+    print(pod.metadata.name, pod.status.phase)
+
+# Create pod
+pod = client.V1Pod(
+    metadata=client.V1ObjectMeta(name='my-pod'),
+    spec=client.V1PodSpec(
+        containers=[
+            client.V1Container(
+                name='nginx',
+                image='nginx:latest',
+                ports=[client.V1ContainerPort(container_port=80)]
+            )
+        ]
+    )
+)
+v1.create_namespaced_pod('default', pod)
+
+# Delete pod
+v1.delete_namespaced_pod('my-pod', 'default')</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-data-processing">ðŸ“Š Data Processing</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-pandas">Pandas</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import pandas as pd
+
+# Read data
+df = pd.read_csv('data.csv')
+df = pd.read_json('data.json')
+
+# Basic operations
+df.head()
+df.info()
+df.describe()
+
+# Filter
+filtered = df[df['age'] &gt; 30]
+
+# Group by
+grouped = df.groupby('category')['value'].sum()
+
+# Write data
+df.to_csv('output.csv', index=False)
+df.to_json('output.json')</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-data-validation">Data Validation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pydantic import BaseModel, validator
+
+class User(BaseModel):
+    name: str
+    age: int
+    email: str
+
+    @validator('age')
+    def age_must_be_positive(cls, v):
+        if v &lt; 0:
+            raise ValueError('Age must be positive')
+        return v
+
+# Use
+user = User(name='John', age=30, email='john@example.com')</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-async-operations">ðŸ”„ Async Operations</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-asyncio">Asyncio</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import asyncio
+
+async def fetch_data(url):
+    # Simulate async operation
+    await asyncio.sleep(1)
+    return f&quot;Data from {url}&quot;
+
+async def main():
+    # Run sequentially
+    result1 = await fetch_data('url1')
+    result2 = await fetch_data('url2')
+
+    # Run concurrently
+    results = await asyncio.gather(
+        fetch_data('url1'),
+        fetch_data('url2'),
+        fetch_data('url3')
+    )
+
+# Run
+asyncio.run(main())</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-async-http-with-aiohttp">Async HTTP with aiohttp</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import aiohttp
+import asyncio
+
+async def fetch(session, url):
+    async with session.get(url) as response:
+        return await response.json()
+
+async def main():
+    async with aiohttp.ClientSession() as session:
+        result = await fetch(session, 'https://api.example.com/data')
+
+        # Concurrent requests
+        tasks = [
+            fetch(session, 'https://api.example.com/1'),
+            fetch(session, 'https://api.example.com/2'),
+            fetch(session, 'https://api.example.com/3')
+        ]
+        results = await asyncio.gather(*tasks)
+
+asyncio.run(main())</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-testing">ðŸ§ª Testing</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-pytest">Pytest</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import pytest
+
+# Simple test
+def test_addition():
+    assert 1 + 1 == 2
+
+# Test with fixture
+@pytest.fixture
+def sample_data():
+    return {'key': 'value'}
+
+def test_with_fixture(sample_data):
+    assert sample_data['key'] == 'value'
+
+# Parametrized test
+@pytest.mark.parametrize('input,expected', [
+    (1, 2),
+    (2, 4),
+    (3, 6)
+])
+def test_double(input, expected):
+    assert input * 2 == expected
+
+# Test exceptions
+def test_exception():
+    with pytest.raises(ValueError):
+        raise ValueError(&quot;Error&quot;)
+
+# Mock example
+from unittest.mock import Mock, patch
+
+def test_with_mock():
+    mock_func = Mock(return_value=42)
+    assert mock_func() == 42
+    mock_func.assert_called_once()</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-monitoring-metrics">ðŸ“ˆ ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; Metrics</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-prometheus-client">Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Client</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from prometheus_client import Counter, Histogram, Gauge, start_http_server
+import time
+
+# Define metrics
+requests_total = Counter('requests_total', 'Total requests')
+request_duration = Histogram('request_duration_seconds', 'Request duration')
+active_users = Gauge('active_users', 'Active users')
+
+# Use metrics
+requests_total.inc()
+active_users.set(100)
+
+with request_duration.time():
+    # Your code here
+    time.sleep(0.1)
+
+# Start metrics server
+start_http_server(8000)</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-logging-with-context">Logging with Context</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import logging
+from contextlib import contextmanager
+
+@contextmanager
+def log_context(**kwargs):
+    extra = kwargs
+    try:
+        yield logging.LoggerAdapter(logger, extra)
+    finally:
+        pass
+
+# Usage
+with log_context(user_id=123, request_id='abc') as log:
+    log.info('Processing request')</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-best-practices">ðŸ’¡ Best Practices</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-error-handling">Error Handling</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from typing import Optional
+
+def safe_operation(param: str) -&gt; Optional[dict]:
+    &quot;&quot;&quot;
+    Perform operation with proper error handling.
+    &quot;&quot;&quot;
+    try:
+        result = risky_operation(param)
+        return result
+    except ValueError as e:
+        logger.error(f&quot;Value error: {e}&quot;)
+        return None
+    except Exception as e:
+        logger.exception(&quot;Unexpected error occurred&quot;)
+        raise
+    finally:
+        cleanup()
+
+# Custom exceptions
+class InfrastructureError(Exception):
+    &quot;&quot;&quot;Base exception for infrastructure errors&quot;&quot;&quot;
+    pass
+
+class DeploymentError(InfrastructureError):
+    &quot;&quot;&quot;Raised when deployment fails&quot;&quot;&quot;
+    pass</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-type-hints">Type Hints</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from typing import List, Dict, Optional, Union
+
+def process_data(
+    items: List[str],
+    config: Dict[str, any],
+    timeout: Optional[int] = None
+) -&gt; Union[Dict, None]:
+    &quot;&quot;&quot;
+    Process data with type hints for better IDE support.
+    &quot;&quot;&quot;
+    result = {}
+    for item in items:
+        result[item] = process_item(item, config)
+    return result</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-context-managers">Context Managers</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from contextlib import contextmanager
+
+@contextmanager
+def temporary_file(filename):
+    &quot;&quot;&quot;Create and cleanup temporary file&quot;&quot;&quot;
+    f = open(filename, 'w')
+    try:
+        yield f
+    finally:
+        f.close()
+        os.remove(filename)
+
+# Usage
+with temporary_file('temp.txt') as f:
+    f.write('data')</code></pre></div>
+<hr/>
+<h4 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-useful-utilities">ðŸ› ï¸ Useful Utilities</h4>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-retry-decorator">Retry Decorator</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import time
+from functools import wraps
+
+def retry(max_attempts=3, delay=1):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_attempts):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    if attempt == max_attempts - 1:
+                        raise
+                    time.sleep(delay)
+            return None
+        return wrapper
+    return decorator
+
+@retry(max_attempts=3, delay=2)
+def unreliable_api_call():
+    # Your code here
+    pass</code></pre></div>
+<h5 id="resources-cheat-sheets-python-infrastructure-cheat-sheet-md-configuration-dataclass">Configuration Dataclass</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from dataclasses import dataclass, field
+from typing import List
+
+@dataclass
+class AppConfig:
+    host: str = 'localhost'
+    port: int = 8000
+    workers: int = 4
+    allowed_hosts: List[str] = field(default_factory=list)
+    debug: bool = False
+
+config = AppConfig(host='0.0.0.0', workers=8)</code></pre></div>
+<hr/>
+<p><strong>See also:</strong></p>
+<ul>
+<li><a href="#doc-resources-cheat-sheets-docker-cheat-sheet-md">Docker å®¹å™¨ï¼ˆDockerï¼‰ Cheat Sheet</a></li>
+<li><a href="#doc-resources-cheat-sheets-kubernetes-cheat-sheet-md">Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cheat Sheet</a></li>
+<li><a href="#doc-resources-cheat-sheets-git-cheat-sheet-md">Git Cheat Sheet</a></li>
+<li><a href="#doc-resources-cheat-sheets-linux-cheat-sheet-md">Linux Commands Cheat Sheet</a></li>
+</ul><p><a class="home" href="../docs/doc-resources-cheat-sheets-linux-cheat-sheet-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-resources-faq-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

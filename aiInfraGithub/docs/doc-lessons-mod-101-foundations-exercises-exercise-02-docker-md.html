@@ -1,0 +1,594 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Module 01: Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-resources-md.html">Module 101 â€” Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lesson 01: Introduction to æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-02-environment-setup-md.html">Lesson 02: Development Environment Setup</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-03-ml-infrastructure-basics-md.html">Lesson 03: æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Basics</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-04-ml-frameworks-md.html">Lesson 04: ML Frameworks Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-05-cloud-intro-md.html">Lesson 05: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-06-model-serving-basics-md.html">Lesson 06: æ¨¡åž‹æœåŠ¡ï¼ˆModel Servingï¼‰ Basics</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-07-docker-basics-md.html">Lesson 07: Docker å®¹å™¨ï¼ˆDockerï¼‰ Basics for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-08-api-development-md.html">Lesson 08: API Development for ML Services</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Module 101 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-01-python-dev-environment-md.html">Lab 01: Reproducible Python Dev Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-02-first-docker-container-md.html">Lab 02: Build, Run, and Inspect Your First Docker å®¹å™¨ï¼ˆDockerï¼‰ Container</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-03-local-kind-cluster-md.html">Lab 03: Stand Up a Local Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cluster with kind</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-04-serve-sklearn-model-md.html">Lab 04: Serve a Scikit-Learn Model Behind a FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ Endpoint</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-05-instrument-with-prometheus-md.html">Lab 05: Add Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Instrumentation to the FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ Service</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercise 04: Advanced Python Environment Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md.html">Exercise 05: ML Framework Benchmarking Tool</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-06-fastapi-ml-template-generator-readme-md.html">Exercise 06: FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ ML Service Template Generator</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-07-cloud-onboarding-readme-md.html">Exercise 07: Cloud Onboarding for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Engineers</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-08-production-model-serving-readme-md.html">Exercise 08: Production-Grade æ¨¡åž‹æœåŠ¡ï¼ˆModel Servingï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-09-api-integration-tests-readme-md.html">Exercise 09: API Integration &amp; Contract Testing</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-10-end-to-end-mini-project-readme-md.html">Exercise 10: End-to-End Mini-Project (Capstone for Module 101)</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-01-environment-md.html">Exercise 01: Environment Verification</a><a class="tree-doc active" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-02-docker-md.html">Exercise 02: Docker å®¹å™¨ï¼ˆDockerï¼‰ Fundamentals for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-03-kubernetes-md.html">Exercise 03: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰ for ML</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Module 01: Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-101-foundations-exercises-exercise-02-docker-md"><h3 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-exercise-02-docker-fundamental">Exercise 02: Docker å®¹å™¨ï¼ˆDockerï¼‰ Fundamentals for ML</h3>
+<p><strong>Duration:</strong> 2-3 hours <strong>Difficulty:</strong> Intermediate <strong>Prerequisites:</strong> Lesson 07 (Docker Basics)</p>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-learning-objectives">Learning Objectives</h4>
+<p>By completing this exercise, you will:</p>
+<ul>
+<li>Build Docker å®¹å™¨ï¼ˆDockerï¼‰ images for ML applications</li>
+<li>Optimize Dockerfile for size and build speed</li>
+<li>Use multi-stage builds effectively</li>
+<li>Manage Docker å®¹å™¨ï¼ˆDockerï¼‰ volumes and networks</li>
+<li>Understand layer caching</li>
+<li>Deploy a simple ML model in a container</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-part-1-build-your-first-ml-con">Part 1: Build Your First ML Container (30 minutes)</h4>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-task-1-1-create-a-simple-ml-ap">Task 1.1: Create a Simple ML Application</h5>
+<p>Create a directory structure:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">mkdir ml-docker-exercise &amp;&amp; cd ml-docker-exercise
+mkdir src</code></pre></div>
+<p>Create <code>src/app.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Simple ML inference app
+from fastapi import FastAPI
+import torch
+import torchvision.models as models
+
+app = FastAPI()
+
+# Load model on startup
+model = None
+
+@app.on_event(&quot;startup&quot;)
+async def load_model():
+    global model
+    model = models.resnet18(pretrained=True)
+    model.eval()
+    print(&quot;Model loaded successfully!&quot;)
+
+@app.get(&quot;/&quot;)
+def root():
+    return {&quot;message&quot;: &quot;ML Model API&quot;, &quot;model&quot;: &quot;ResNet-18&quot;}
+
+@app.get(&quot;/health&quot;)
+def health():
+    return {
+        &quot;status&quot;: &quot;healthy&quot;,
+        &quot;model_loaded&quot;: model is not None,
+        &quot;torch_version&quot;: torch.__version__
+    }
+
+@app.get(&quot;/info&quot;)
+def info():
+    if model is None:
+        return {&quot;error&quot;: &quot;Model not loaded&quot;}
+
+    # Count parameters
+    params = sum(p.numel() for p in model.parameters())
+
+    return {
+        &quot;model&quot;: &quot;ResNet-18&quot;,
+        &quot;parameters&quot;: params,
+        &quot;device&quot;: &quot;cpu&quot;
+    }</code></pre></div>
+<p>Create <code>requirements.txt</code>:</p>
+<div class="code-shell"><div class="code-title"><span>txt</span><span>TXT</span></div><pre><code class="language-txt">fastapi==0.104.1
+uvicorn[standard]==0.24.0
+torch==2.1.0
+torchvision==0.16.0</code></pre></div>
+<p><strong>âœ… Checkpoint:</strong> Test locally</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn src.app:app --reload
+# Visit http://localhost:8000/docs</code></pre></div>
+<hr/>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-task-1-2-create-a-basic-docker">Task 1.2: Create a Basic Dockerfile</h5>
+<p>Create <code>Dockerfile</code>:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># TODO: Complete this Dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# TODO: Copy requirements and install dependencies
+
+# TODO: Copy application code
+
+# TODO: Expose port 8000
+
+# TODO: Set command to run the application
+# Use: uvicorn src.app:app --host 0.0.0.0 --port 8000</code></pre></div>
+<p><strong>Your Task:</strong></p>
+<ol>
+<li>Complete the Dockerfile</li>
+<li>Build the image: <code>docker build -t ml-app:v1 .</code></li>
+<li>Run the container: <code>docker run -p 8000:8000 ml-app:v1</code></li>
+<li>Test: <code>curl http://localhost:8000/health</code></li>
+</ol>
+<p><strong>Expected Results:</strong></p>
+<ul>
+<li>Image builds successfully</li>
+<li>Container runs without errors</li>
+<li>Health endpoint returns 200</li>
+</ul>
+<p><strong>Questions to Answer:</strong></p>
+<ol>
+<li>What is the size of your Docker å®¹å™¨ï¼ˆDockerï¼‰ image? (<code>docker images ml-app:v1</code>)</li>
+<li>How long did the build take?</li>
+<li>What happens if you change <code>app.py</code> and rebuild?</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-part-2-optimize-with-multi-sta">Part 2: Optimize with Multi-Stage Builds (45 minutes)</h4>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-task-2-1-implement-multi-stage">Task 2.1: Implement Multi-Stage Build</h5>
+<p>The basic Dockerfile creates a large image (~2GB). Let's optimize it!</p>
+<p>Create <code>Dockerfile.optimized</code>:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># ============================================
+# Stage 1: Builder
+# ============================================
+FROM python:3.11-slim as builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update &amp;&amp; apt-get install -y \
+    build-essential \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+# Copy and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user \
+    torch torchvision --index-url https://download.pytorch.org/whl/cpu &amp;&amp; \
+    pip install --no-cache-dir --user -r requirements.txt
+
+# ============================================
+# Stage 2: Runtime
+# ============================================
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Create non-root user
+RUN groupadd -r appuser &amp;&amp; \
+    useradd -r -g appuser appuser &amp;&amp; \
+    chown -R appuser:appuser /app
+
+# Copy Python packages from builder
+COPY --from=builder /root/.local /home/appuser/.local
+
+# Update PATH
+ENV PATH=/home/appuser/.local/bin:$PATH \
+    PYTHONUNBUFFERED=1
+
+# Copy application code
+COPY --chown=appuser:appuser src/ ./src/
+
+# Switch to non-root user
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD python -c &quot;import requests; requests.get('http://localhost:8000/health')&quot; || exit 1
+
+EXPOSE 8000
+
+CMD [&quot;uvicorn&quot;, &quot;src.app:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;]</code></pre></div>
+<p><strong>Your Task:</strong></p>
+<ol>
+<li>Build the optimized image: <code>docker build -f Dockerfile.optimized -t ml-app:v2 .</code></li>
+<li>Compare image sizes:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker images | grep ml-app</code></pre></div>
+<ol>
+<li>Run and test: <code>docker run -p 8000:8000 ml-app:v2</code></li>
+</ol>
+<p><strong>Expected Results:</strong></p>
+<ul>
+<li>v2 image is 30-50% smaller than v1</li>
+<li>Both versions work identically</li>
+<li>Build time might be slightly longer but rebuilds are faster</li>
+</ul>
+<p><strong>Questions:</strong></p>
+<ol>
+<li>Why is the multi-stage image smaller?</li>
+<li>What does <code>--no-cache-dir</code> do?</li>
+<li>Why copy Python packages instead of reinstalling in stage 2?</li>
+</ol>
+<hr/>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-task-2-2-optimize-layer-cachin">Task 2.2: Optimize Layer Caching</h5>
+<p>Modify your Dockerfile to optimize layer caching:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># âŒ Bad: Copies everything first
+COPY . .
+RUN pip install -r requirements.txt
+
+# âœ… Good: Copies requirements first
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .</code></pre></div>
+<p><strong>Your Task:</strong></p>
+<ol>
+<li>Modify <code>src/app.py</code> (change a message)</li>
+<li>Rebuild the image</li>
+<li>Note which steps use cache (look for &quot;CACHED&quot;)</li>
+<li>Now modify <code>requirements.txt</code> (add a comment)</li>
+<li>Rebuild and observe the difference</li>
+</ol>
+<p><strong>Expected Behavior:</strong></p>
+<ul>
+<li>Changing app code only invalidates later layers</li>
+<li>Changing requirements invalidates dependency install and everything after</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-part-3-docker-compose-for-mult">Part 3: Docker å®¹å™¨ï¼ˆDockerï¼‰ Compose å¤šæœåŠ¡ç¼–æŽ’ï¼ˆDocker Composeï¼‰ for Multi-Container Setup (45 minutes)</h4>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-task-3-1-add-monitoring-with-p">Task 3.1: Add ç›‘æŽ§ï¼ˆMonitoringï¼‰ with Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰</h5>
+<p>Create <code>docker-compose.yml</code>:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">version: '3.8'
+
+services:
+  # ML API
+  ml-api:
+    build: .
+    image: ml-app:v2
+    container_name: ml-api
+    ports:
+      - &quot;8000:8000&quot;
+    environment:
+      - LOG_LEVEL=info
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8000/health&quot;]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ml-network
+    restart: unless-stopped
+
+  # Prometheus monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - &quot;9090:9090&quot;
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - ml-network
+    restart: unless-stopped
+
+  # Grafana visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - &quot;3000:3000&quot;
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - ml-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+networks:
+  ml-network:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:</code></pre></div>
+<p>Create <code>prometheus.yml</code>:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'ml-api'
+    static_configs:
+      - targets: ['ml-api:8000']</code></pre></div>
+<p><strong>Your Task:</strong></p>
+<ol>
+<li>Start all services: <code>docker-compose up -d</code></li>
+<li>Check logs: <code>docker-compose logs -f ml-api</code></li>
+<li>Visit services:</li>
+</ol>
+<ul>
+<li>ML API: http://localhost:8000/docs</li>
+<li>Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰: http://localhost:9090</li>
+<li>Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰: http://localhost:3000 (admin/admin)</li>
+</ul>
+<ol>
+<li>Stop services: <code>docker-compose down</code></li>
+</ol>
+<p><strong>Expected Results:</strong></p>
+<ul>
+<li>All three containers start successfully</li>
+<li>ML API is accessible and healthy</li>
+<li>Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ shows ml-api as a target</li>
+<li>Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ can connect to Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-task-3-2-add-prometheus-metric">Task 3.2: Add Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Metrics to ML API</h5>
+<p>Modify <code>src/app.py</code> to add metrics:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from prometheus_client import Counter, Histogram, make_asgi_app
+import time
+
+# Add metrics
+request_count = Counter(
+    'ml_api_requests_total',
+    'Total API requests',
+    ['endpoint', 'status']
+)
+
+request_duration = Histogram(
+    'ml_api_request_duration_seconds',
+    'Request duration in seconds',
+    ['endpoint']
+)
+
+# Add metrics endpoint
+metrics_app = make_asgi_app()
+app.mount(&quot;/metrics&quot;, metrics_app)
+
+# Update endpoints to record metrics
+@app.get(&quot;/info&quot;)
+def info():
+    start_time = time.time()
+
+    try:
+        # ... existing code ...
+
+        request_count.labels(endpoint='info', status='success').inc()
+        return result
+    except Exception as e:
+        request_count.labels(endpoint='info', status='error').inc()
+        raise
+    finally:
+        duration = time.time() - start_time
+        request_duration.labels(endpoint='info').observe(duration)</code></pre></div>
+<p><strong>Your Task:</strong></p>
+<ol>
+<li>Add <code>prometheus-client</code> to requirements.txt</li>
+<li>Rebuild: <code>docker-compose build ml-api</code></li>
+<li>Restart: <code>docker-compose up -d</code></li>
+<li>Make requests to <code>/info</code> endpoint</li>
+<li>Check metrics: http://localhost:8000/metrics</li>
+<li>View in Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰: http://localhost:9090/graph</li>
+</ol>
+<ul>
+<li>Query: <code>ml_api_requests_total</code></li>
+<li>Query: <code>rate(ml_api_requests_total[1m])</code></li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-part-4-docker-volumes-and-pers">Part 4: Docker å®¹å™¨ï¼ˆDockerï¼‰ Volumes and Persistence (30 minutes)</h4>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-task-4-1-mount-model-directory">Task 4.1: Mount Model Directory</h5>
+<p>Models can be large. Instead of including in image, mount from host.</p>
+<p>Modify <code>docker-compose.yml</code>:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">services:
+  ml-api:
+    # ... existing config ...
+    volumes:
+      - ./models:/app/models:ro  # Read-only mount
+    environment:
+      - MODEL_PATH=/app/models/resnet18.pth</code></pre></div>
+<p>Modify <code>src/app.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import os
+
+@app.on_event(&quot;startup&quot;)
+async def load_model():
+    global model
+
+    model_path = os.getenv(&quot;MODEL_PATH&quot;)
+
+    if model_path and os.path.exists(model_path):
+        # Load from file
+        model = torch.load(model_path)
+        print(f&quot;Model loaded from {model_path}&quot;)
+    else:
+        # Load pretrained
+        model = models.resnet18(pretrained=True)
+        print(&quot;Model loaded (pretrained)&quot;)
+
+    model.eval()</code></pre></div>
+<p><strong>Your Task:</strong></p>
+<ol>
+<li>Create <code>models/</code> directory</li>
+<li>Save a model:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch
+import torchvision.models as models
+
+model = models.resnet18(pretrained=True)
+torch.save(model, 'models/resnet18.pth')</code></pre></div>
+<ol>
+<li>Restart services and verify model loads from file</li>
+</ol>
+<hr/>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-task-4-2-persist-logs">Task 4.2: Persist Logs</h5>
+<p>Create a volume for logs:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">services:
+  ml-api:
+    volumes:
+      - ./models:/app/models:ro
+      - ./logs:/app/logs  # Log directory</code></pre></div>
+<p>Add logging to <code>src/app.py</code>:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import logging
+from datetime import datetime
+
+# Setup file logging
+log_dir = &quot;logs&quot;
+os.makedirs(log_dir, exist_ok=True)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(f'{log_dir}/app.log'),
+        logging.StreamHandler()
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+@app.get(&quot;/info&quot;)
+def info():
+    logger.info(&quot;Info endpoint called&quot;)
+    # ... rest of code ...</code></pre></div>
+<p><strong>Your Task:</strong></p>
+<ol>
+<li>Restart services</li>
+<li>Make requests to <code>/info</code></li>
+<li>Check <code>logs/app.log</code> on host</li>
+<li>Verify logs persist after container restart</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-part-5-docker-networks-and-com">Part 5: Docker å®¹å™¨ï¼ˆDockerï¼‰ Networks and Communication (30 minutes)</h4>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-task-5-1-multi-service-communi">Task 5.1: Multi-Service Communication</h5>
+<p>Add a Redis cache service:</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">services:
+  # ... existing services ...
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - &quot;6379:6379&quot;
+    networks:
+      - ml-network
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+
+volumes:
+  # ... existing volumes ...
+  redis-data:</code></pre></div>
+<p>Modify <code>src/app.py</code> to use Redis:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import redis
+import json
+
+# Connect to Redis
+redis_client = redis.Redis(
+    host='redis',  # Service name from docker-compose
+    port=6379,
+    decode_responses=True
+)
+
+@app.get(&quot;/info&quot;)
+def info():
+    # Check cache
+    cache_key = &quot;model_info&quot;
+    cached = redis_client.get(cache_key)
+
+    if cached:
+        logger.info(&quot;Returning cached response&quot;)
+        return json.loads(cached)
+
+    # Generate response
+    if model is None:
+        return {&quot;error&quot;: &quot;Model not loaded&quot;}
+
+    params = sum(p.numel() for p in model.parameters())
+
+    response = {
+        &quot;model&quot;: &quot;ResNet-18&quot;,
+        &quot;parameters&quot;: params,
+        &quot;device&quot;: &quot;cpu&quot;,
+        &quot;cached&quot;: False
+    }
+
+    # Cache for 60 seconds
+    redis_client.setex(cache_key, 60, json.dumps(response))
+
+    logger.info(&quot;Generated and cached response&quot;)
+    return response</code></pre></div>
+<p><strong>Your Task:</strong></p>
+<ol>
+<li>Add <code>redis</code> to requirements.txt</li>
+<li>Rebuild and restart: <code>docker-compose up -d --build</code></li>
+<li>Test caching:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># First request (slow)
+time curl http://localhost:8000/info
+
+# Second request (fast, from cache)
+time curl http://localhost:8000/info</code></pre></div>
+<ol>
+<li>Verify network connectivity:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">docker-compose exec ml-api ping redis</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-part-6-challenge-tasks-optiona">Part 6: Challenge Tasks (Optional, 1-2 hours)</h4>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-challenge-1-gpu-support">Challenge 1: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Support</h5>
+<p>Modify Dockerfile to support both CPU and GPU åŠ é€Ÿï¼ˆGPUï¼‰:</p>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Use a build arg to choose base image
+ARG BASE_IMAGE=python:3.11-slim
+FROM ${BASE_IMAGE}
+
+# For GPU: docker build --build-arg BASE_IMAGE=nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 -t ml-app:gpu .</code></pre></div>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-challenge-2-model-hot-reload">Challenge 2: Model Hot-Reload</h5>
+<p>Implement file watching to reload model when file changes:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+class ModelReloader(FileSystemEventHandler):
+    def on_modified(self, event):
+        if event.src_path.endswith('.pth'):
+            logger.info(f&quot;Model file changed: {event.src_path}&quot;)
+            load_model()</code></pre></div>
+<h5 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-challenge-3-health-check-with-">Challenge 3: Health Check with Dependencies</h5>
+<p>Improve health check to verify all dependencies:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">@app.get(&quot;/health&quot;)
+def health():
+    checks = {
+        &quot;model&quot;: model is not None,
+        &quot;redis&quot;: False,
+        &quot;disk_space&quot;: False
+    }
+
+    # Check Redis
+    try:
+        redis_client.ping()
+        checks[&quot;redis&quot;] = True
+    except:
+        pass
+
+    # Check disk space
+    import shutil
+    disk = shutil.disk_usage(&quot;/&quot;)
+    checks[&quot;disk_space&quot;] = (disk.free / disk.total) &gt; 0.1  # &gt;10% free
+
+    healthy = all(checks.values())
+
+    return {
+        &quot;status&quot;: &quot;healthy&quot; if healthy else &quot;unhealthy&quot;,
+        &quot;checks&quot;: checks
+    }</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-verification-checklist">Verification Checklist</h4>
+<p>After completing this exercise, you should be able to:</p>
+<ul>
+<li>[ ] Build a Docker å®¹å™¨ï¼ˆDockerï¼‰ image for an ML application</li>
+<li>[ ] Use multi-stage builds to reduce image size</li>
+<li>[ ] Optimize Dockerfile for layer caching</li>
+<li>[ ] Create a docker-compose.yml for multi-container apps</li>
+<li>[ ] Use Docker å®¹å™¨ï¼ˆDockerï¼‰ volumes for persistent data</li>
+<li>[ ] Configure Docker å®¹å™¨ï¼ˆDockerï¼‰ networks for service communication</li>
+<li>[ ] Add health checks to containers</li>
+<li>[ ] Integrate Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ metrics</li>
+<li>[ ] Run non-root containers for security</li>
+<li>[ ] Debug container issues using logs</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-submission-if-part-of-course">Submission (If part of course)</h4>
+<p>Create a ZIP file with:</p>
+<ol>
+<li>All Dockerfiles (basic and optimized)</li>
+<li>docker-compose.yml</li>
+<li>Source code (src/app.py)</li>
+<li>Requirements.txt</li>
+<li>Screenshot of running services</li>
+<li>Screenshot of Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ metrics</li>
+<li>Answers to questions throughout exercise</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-101-foundations-exercises-exercise-02-docker-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://docs.docker.com/develop/dev-best-practices/">Docker å®¹å™¨ï¼ˆDockerï¼‰ Best Practices</a></li>
+<li><a href="https://docs.docker.com/build/building/multi-stage/">Multi-stage Build Guide</a></li>
+<li><a href="https://docs.docker.com/compose/">Docker å®¹å™¨ï¼ˆDockerï¼‰ Compose å¤šæœåŠ¡ç¼–æŽ’ï¼ˆDocker Composeï¼‰ Documentation</a></li>
+<li><a href="https://github.com/prometheus/client_python">Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Python Client</a></li>
+</ul>
+<hr/>
+<p><strong>Next Exercise:</strong> <a href="#doc-lessons-mod-101-foundations-exercises-exercise-03-kubernetes-md">Exercise 03: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</a></p><p><a class="home" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-01-environment-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-03-kubernetes-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

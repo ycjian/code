@@ -1,0 +1,406 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc active" href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-resources-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lesson 01: Introduction to å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-02-vllm-deployment-md.html">Lesson 02: vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-03-rag-systems-md.html">Lesson 03: æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ Systems (Retrieval-Augmented Generation)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-04-vector-databases-md.html">Lesson 04: Vector Databases</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-05-llm-fine-tuning-infrastructure-md.html">Lesson 05: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Fine-Tuning Infrastructure</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md.html">Lesson 06: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Serving Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-07-llm-platform-architecture-md.html">Lesson 07: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Platform Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md.html">Lesson 08: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Best Practices</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Module 110 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-01-vllm-deployment-md.html">Lab 01: Deploy an å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ with vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-02-rag-pipeline-md.html">Lab 02: Build a æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ Pipeline End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-03-vector-db-qdrant-md.html">Lab 03: Stand Up a å‘é‡æ•°æ®åº“ï¼ˆVector Databaseï¼‰ (Qdrant)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-04-lora-finetune-md.html">Lab 04: LoRA Fine-Tune a Small Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-05-streaming-responses-md.html">Lab 05: Streaming Responses to Clients</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-06-cost-monitoring-md.html">Lab 06: Cost Tracking and Budget Alerts</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-07-prompt-injection-defense-md.html">Lab 07: Prompt-Injection Defenses</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-08-multi-model-serving-md.html">Lab 08: Multi-Model Serving with Intelligent Routing</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercise 01: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Serving Platform (vLLM + Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md.html">Exercise 02: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ System (Retrieval-Augmented Generation)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-03-vllm-deep-dive-readme-md.html">Exercise 03: vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-04-vector-db-benchmarking-readme-md.html">Exercise 04: å‘é‡æ•°æ®åº“ï¼ˆVector Databaseï¼‰ Benchmarking</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-05-finetuning-at-scale-readme-md.html">Exercise 05: Fine-Tuning at Scale (LoRA + QLoRA + Distributed)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-06-inference-optimization-llm-readme.html">Exercise 06: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ æŽ¨ç†ï¼ˆInferenceï¼‰ Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-07-multi-tenant-llm-platform-readme-.html">Exercise 07: Multi-Tenant å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Platform</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-08-llm-cost-routing-readme-md.html">Exercise 08: Cost-Aware å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Routing</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-09-llm-observability-readme-md.html">Exercise 09: LLM-Specific å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-10-prompt-management-readme-md.html">Exercise 10: Prompt Management and Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-11-llm-guardrails-readme-md.html">Exercise 11: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Guardrails (Injection, Moderation, Output Filtering)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-12-llm-evaluation-harness-readme-md.html">Exercise 12: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Evaluation Infrastructure</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-13-semantic-caching-readme-md.html">Exercise 13: Semantic Caching for LLMs</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-14-hybrid-retrieval-reranking-readme.html">Exercise 14: Hybrid Retrieval + Reranking Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-readme-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-110-llm-infrastructure-readme-md"><h3 id="lessons-mod-110-llm-infrastructure-readme-md-module-10-llm-infrastructure">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</h3>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-module-overview">Module Overview</h4>
+<p>Welcome to the final module of the AI åŸºç¡€è®¾æ–½å·¥ç¨‹å¸ˆï¼ˆAI Infrastructure Engineerï¼‰ curriculum! This module covers Large Language Model (LLM) infrastructure - one of the most rapidly evolving and critical areas in modern AI systems. As organizations increasingly adopt LLMs for chatbots, code generation, document analysis, and countless other applications, the ability to deploy, scale, and optimize å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure has become an essential skill for AI infrastructure engineers.</p>
+<p>å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure presents unique challenges that distinguish it from traditional machine learning infrastructure:</p>
+<ul>
+<li><strong>Massive Model Sizes</strong>: Models ranging from 7B to 70B+ parameters requiring specialized hardware and serving strategies</li>
+<li><strong>High Compute Requirements</strong>: GPU åŠ é€Ÿï¼ˆGPUï¼‰ clusters, memory optimization, and efficient resource allocation</li>
+<li><strong>Complex éƒ¨ç½²ï¼ˆDeploymentï¼‰ Patterns</strong>: æŽ¨ç†ï¼ˆInferenceï¼‰ serving, fine-tuning pipelines, æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ systems, and multi-model platforms</li>
+<li><strong>Cost Considerations</strong>: Balancing performance with infrastructure costs that can quickly escalate</li>
+<li><strong>Rapid Innovation</strong>: New optimization techniques, quantization methods, and serving frameworks emerging constantly</li>
+</ul>
+<p>This module will equip you with the knowledge and hands-on skills to build production-grade å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure, from deploying your first model with vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ to designing complete multi-model platforms with æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ capabilities.</p>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-why-llm-infrastructure-matters">Why å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ Matters</h4>
+<p>The explosion of å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ applications has created unprecedented demand for engineers who can:</p>
+<ol>
+<li><strong>Deploy LLMs Efficiently</strong>: Serve models å¤§è§„æ¨¡ï¼ˆat scaleï¼‰ with optimal latency and throughput</li>
+<li><strong>Build æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ Systems</strong>: Implement retrieval-augmented generation for domain-specific applications</li>
+<li><strong>Optimize Costs</strong>: Reduce infrastructure expenses through quantization, batching, and resource management</li>
+<li><strong>Ensure å¯é æ€§ï¼ˆReliabilityï¼‰</strong>: Create highly available å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ services with proper monitoring and failover</li>
+<li><strong>Enable Fine-Tuning</strong>: Build infrastructure for customizing models with organizational data</li>
+<li><strong>Design Platforms</strong>: Architect complete å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ platforms serving multiple models and use cases</li>
+</ol>
+<p>Companies are investing billions in å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure, and skilled engineers are commanding premium salaries. Understanding å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure opens doors to some of the most exciting projects in tech today.</p>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this module, you will be able to:</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-foundational-skills">Foundational Skills</h5>
+<ul>
+<li>Understand the unique challenges of å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure vs. traditional ML</li>
+<li>Explain different å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ deployment patterns and when to use each</li>
+<li>Identify hardware requirements for various å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ workloads</li>
+<li>Calculate and optimize infrastructure costs for å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ deployments</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-technical-implementation">Technical Implementation</h5>
+<ul>
+<li>Deploy LLMs using vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ with OpenAI-compatible APIs</li>
+<li>Build production æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ (Retrieval-Augmented Generation) systems</li>
+<li>Configure and deploy vector databases (Qdrant, Weaviate å‘é‡æ•°æ®åº“ï¼ˆWeaviateï¼‰, Chroma)</li>
+<li>Implement å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ fine-tuning pipelines with LoRA and QLoRA</li>
+<li>Optimize å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ inference through quantization and batching strategies</li>
+<li>Design and deploy complete å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ platforms on Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-production-engineering">ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ Engineering</h5>
+<ul>
+<li>Monitor and troubleshoot å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ deployments in production</li>
+<li>Implement high availability and fault tolerance for å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ services</li>
+<li>Set up proper observability for å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ performance and costs</li>
+<li>Apply security best practices for å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ APIs</li>
+<li>Conduct A/B testing and gradual rollouts for model updates</li>
+<li>Build cost-effective multi-model serving architectures</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-architecture-design">Architecture &amp; Design</h5>
+<ul>
+<li>Design scalable å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ platform architectures</li>
+<li>Make informed decisions about build vs. buy for å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ components</li>
+<li>Implement caching strategies to reduce costs and improve latency</li>
+<li>Architect æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ systems with proper retrieval and ranking pipelines</li>
+<li>Plan GPU åŠ é€Ÿï¼ˆGPUï¼‰ cluster configurations for different workloads</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-prerequisites">å‰ç½®è¦æ±‚ï¼ˆPrerequisitesï¼‰</h4>
+<p>This module builds upon several previous modules and assumes you have:</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-required-knowledge-from-previous-modules">Required Knowledge (From Previous Modules)</h5>
+<ul>
+<li><strong>Module 03: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</strong>: Docker å®¹å™¨ï¼ˆDockerï¼‰ fundamentals, container orchestration</li>
+<li><strong>Module 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals</strong>: Pod deployments, services, resource management</li>
+<li><strong>Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ and å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</strong>: Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰, Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰, logging infrastructure</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-technical-prerequisites">Technical Prerequisites</h5>
+<ul>
+<li>Proficiency in Python (advanced level)</li>
+<li>Experience with REST APIs and API design</li>
+<li>Understanding of GPU åŠ é€Ÿï¼ˆGPUï¼‰ computing basics</li>
+<li>Familiarity with cloud platforms (AWS, GCP äº‘ï¼ˆGCPï¼‰, or Azure äº‘ï¼ˆAzureï¼‰)</li>
+<li>Git and version control</li>
+<li>Linux command line proficiency</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-recommended-but-not-required">Recommended (But Not Required)</h5>
+<ul>
+<li>Experience with PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ or TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰</li>
+<li>Knowledge of transformer architectures</li>
+<li>Understanding of vector embeddings</li>
+<li>Familiarity with Hugging Face ecosystem</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-hardware-requirements-for-exercises">Hardware Requirements for Exercises</h5>
+<ul>
+<li>Development: CPU with 16GB+ RAM (for smaller models and prototyping)</li>
+<li>GPU åŠ é€Ÿï¼ˆGPUï¼‰ Exercises: Access to cloud GPU åŠ é€Ÿï¼ˆGPUï¼‰ instances (T4, A10G, or A100)</li>
+<li>AWS äº‘ï¼ˆAWSï¼‰: g4dn.xlarge or g5.xlarge</li>
+<li>GCP äº‘ï¼ˆGCPï¼‰: n1-standard-4 with T4 GPU åŠ é€Ÿï¼ˆGPUï¼‰</li>
+<li>Lambda Labs, RunPod, or similar GPU åŠ é€Ÿï¼ˆGPUï¼‰ cloud providers</li>
+<li>Storage: 50GB+ for model downloads and datasets</li>
+</ul>
+<p><strong>Note</strong>: Most exercises can be completed with modest GPU åŠ é€Ÿï¼ˆGPUï¼‰ resources. We'll focus on 7B parameter models that run well on consumer-grade GPUs and provide cost-effective cloud options.</p>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-module-structure-overview">Module Structure Overview</h4>
+<p>This module is organized into nine comprehensive lessons, exercises, and assessments:</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-lesson-01-introduction-to-llm-infrastructure-">Lesson 01: Introduction to å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ (900-1100 lines)</h5>
+<p>Foundation concepts, challenges, deployment patterns, and hardware requirements.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-lesson-02-vllm-deployment-1000-1200-lines">Lesson 02: vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰ (1000-1200 lines)</h5>
+<p>Complete guide to deploying LLMs with vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰, including architecture, optimization, and production deployment.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-lesson-03-rag-systems-1100-1300-lines">Lesson 03: æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ Systems (1100-1300 lines)</h5>
+<p>Building retrieval-augmented generation systems from scratch, including chunking, retrieval, and evaluation.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-lesson-04-vector-databases-900-1100-lines">Lesson 04: Vector Databases (900-1100 lines)</h5>
+<p>Deep dive into vector databases, comparison of options, deployment strategies, and optimization.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-lesson-05-llm-fine-tuning-infrastructure-1000">Lesson 05: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Fine-Tuning Infrastructure (1000-1200 lines)</h5>
+<p>Infrastructure for fine-tuning LLMs using LoRA, QLoRA, and distributed training frameworks.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-lesson-06-llm-serving-optimization-900-1100-l">Lesson 06: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Serving Optimization (900-1100 lines)</h5>
+<p>Advanced optimization techniques including quantization, Flash Attention, batching, and multi-GPU strategies.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-lesson-07-llm-platform-architecture-1000-1200">Lesson 07: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Platform Architecture (1000-1200 lines)</h5>
+<p>Designing complete å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ platforms with multi-model serving, routing, caching, and observability.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-lesson-08-production-llm-best-practices-900-1">Lesson 08: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Best Practices (900-1100 lines)</h5>
+<p>ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ readiness, high availability, security, compliance, and operational excellence.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-supplementary-materials">Supplementary Materials</h5>
+<ul>
+<li><strong>Quiz</strong>: 25 multiple-choice questions + 3 scenario-based questions</li>
+<li><strong>Resources</strong>: Comprehensive list of documentation, tools, and learning materials</li>
+<li><strong>Exercises</strong>: 8 hands-on exercises progressing from basic deployment to complete platforms</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-module-roadmap">Module Roadmap</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-week-1-foundations-and-basic-deployment">Week 1: Foundations and Basic éƒ¨ç½²ï¼ˆDeploymentï¼‰</h5>
+<ul>
+<li><strong>Days 1-2</strong>: Lesson 01 - å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ fundamentals</li>
+<li><strong>Days 3-4</strong>: Lesson 02 - vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ deployment basics</li>
+<li><strong>Day 5</strong>: Exercise 01 - Deploy first å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ with vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-week-2-rag-and-vector-databases">Week 2: æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ and Vector Databases</h5>
+<ul>
+<li><strong>Days 1-2</strong>: Lesson 03 - æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ systems architecture</li>
+<li><strong>Days 3-4</strong>: Lesson 04 - Vector databases</li>
+<li><strong>Day 5</strong>: Exercises 02-03 - Build æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ system, deploy vector database</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-week-3-fine-tuning-and-optimization">Week 3: Fine-Tuning and Optimization</h5>
+<ul>
+<li><strong>Days 1-2</strong>: Lesson 05 - Fine-tuning infrastructure</li>
+<li><strong>Days 3-4</strong>: Lesson 06 - Serving optimization</li>
+<li><strong>Day 5</strong>: Exercises 04-05 - Fine-tune model, optimize inference</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-week-4-platform-architecture-and-production">Week 4: Platform Architecture and ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰</h5>
+<ul>
+<li><strong>Days 1-2</strong>: Lesson 07 - Platform architecture</li>
+<li><strong>Days 3-4</strong>: Lesson 08 - ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ best practices</li>
+<li><strong>Day 5</strong>: Exercises 06-08 - Deploy production platform</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-week-5-integration-and-assessment">Week 5: Integration and Assessment</h5>
+<ul>
+<li><strong>Days 1-3</strong>: Complete remaining exercises and integration projects</li>
+<li><strong>Days 4-5</strong>: Quiz, review, and capstone preparation</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-estimated-time-and-difficulty">Estimated Time and Difficulty</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-time-investment">Time Investment</h5>
+<ul>
+<li><strong>Total Module Time</strong>: 80-100 hours</li>
+<li><strong>Lesson Reading</strong>: 25-30 hours</li>
+<li><strong>Hands-on Exercises</strong>: 40-50 hours</li>
+<li><strong>Quiz and Review</strong>: 5-10 hours</li>
+<li><strong>Independent Practice</strong>: 10-20 hours</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-difficulty-level">Difficulty Level</h5>
+<p><strong>Advanced Intermediate</strong> - This module is challenging but accessible to engineers with the prerequisites. The complexity comes from:</p>
+<ul>
+<li>Managing large models and GPU åŠ é€Ÿï¼ˆGPUï¼‰ resources</li>
+<li>Understanding optimization trade-offs</li>
+<li>Integrating multiple components (vector DBs, LLMs, APIs)</li>
+<li>Production-grade deployment considerations</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-difficulty-progression">Difficulty Progression</h5>
+<ol>
+<li><strong>Lessons 01-02</strong>: Intermediate - Core concepts and basic deployment</li>
+<li><strong>Lessons 03-04</strong>: Intermediate/Advanced - æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ and vector databases</li>
+<li><strong>Lessons 05-06</strong>: Advanced - Fine-tuning and optimization</li>
+<li><strong>Lessons 07-08</strong>: Advanced - Platform architecture and production</li>
+</ol>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-real-world-applications">Real-World Applications</h4>
+<p>This module prepares you for real-world å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure challenges:</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-use-cases-you-ll-learn-to-build">Use Cases You'll Learn to Build</h5>
+<p><strong>1. Enterprise Chat Systems</strong></p>
+<ul>
+<li>Deploy GPT-3.5/4 alternatives using open-source LLMs</li>
+<li>Implement æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ for company-specific knowledge bases</li>
+<li>Scale to thousands of concurrent users</li>
+<li>Maintain conversation history and context</li>
+</ul>
+<p><strong>2. Code Generation Platforms</strong></p>
+<ul>
+<li>Serve code-specialized LLMs (CodeLlama, StarCoder)</li>
+<li>Optimize for low-latency code completion</li>
+<li>Implement context-aware suggestions</li>
+<li>Integrate with IDEs and development tools</li>
+</ul>
+<p><strong>3. Document Analysis Services</strong></p>
+<ul>
+<li>Process and analyze large document collections</li>
+<li>Implement semantic search over documents</li>
+<li>Extract insights and summaries</li>
+<li>Ensure data privacy and security</li>
+</ul>
+<p><strong>4. Customer Support Automation</strong></p>
+<ul>
+<li>Build AI-powered support chatbots</li>
+<li>Integrate with existing knowledge bases</li>
+<li>Handle multi-turn conversations</li>
+<li>Escalate to humans when needed</li>
+</ul>
+<p><strong>5. Content Generation Pipelines</strong></p>
+<ul>
+<li>Deploy models for content creation (marketing, articles, summaries)</li>
+<li>Implement quality filtering and safety checks</li>
+<li>Scale to high-volume batch processing</li>
+<li>Track and optimize costs</li>
+</ul>
+<p><strong>6. Domain-Specific AI Assistants</strong></p>
+<ul>
+<li>Fine-tune models for specialized domains (legal, medical, financial)</li>
+<li>Implement strict compliance and audit logging</li>
+<li>Ensure factual accuracy through æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰</li>
+<li>Handle sensitive data appropriately</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-industry-examples">Industry Examples</h5>
+<p><strong>Technology Companies</strong></p>
+<ul>
+<li>GitHub Copilot infrastructure</li>
+<li>Google Bard/Gemini deployment</li>
+<li>Microsoft Azure äº‘ï¼ˆAzureï¼‰ OpenAI Service</li>
+<li>Anthropic Claude infrastructure</li>
+</ul>
+<p><strong>Startups and Scale-ups</strong></p>
+<ul>
+<li>ChatBot platforms (Intercom, Drift)</li>
+<li>AI writing assistants (Jasper, Copy.ai)</li>
+<li>Code review tools (Sourcegraph Cody)</li>
+<li>Legal AI (Harvey, Casetext)</li>
+</ul>
+<p><strong>Enterprise Deployments</strong></p>
+<ul>
+<li>Internal knowledge management systems</li>
+<li>Automated document processing</li>
+<li>Customer service augmentation</li>
+<li>Data analysis and reporting</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-skills-this-module-develops">Skills This Module Develops</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-technical-skills">Technical Skills</h5>
+<ul>
+<li>å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ deployment and serving</li>
+<li>Vector database management</li>
+<li>GPU åŠ é€Ÿï¼ˆGPUï¼‰ resource optimization</li>
+<li>API design for å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ services</li>
+<li>Model fine-tuning pipelines</li>
+<li>Performance benchmarking</li>
+<li>Cost optimization techniques</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-infrastructure-skills">Infrastructure Skills</h5>
+<ul>
+<li>Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ for GPU åŠ é€Ÿï¼ˆGPUï¼‰ workloads</li>
+<li>Load balancing and routing</li>
+<li>Caching architectures</li>
+<li>High-availability design</li>
+<li>ç›‘æŽ§ï¼ˆMonitoringï¼‰ and alerting</li>
+<li>Capacity planning</li>
+<li>Incident response</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-soft-skills">Soft Skills</h5>
+<ul>
+<li>Cost-performance trade-off analysis</li>
+<li>Technical decision-making</li>
+<li>Documentation for å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ systems</li>
+<li>Stakeholder communication about AI capabilities</li>
+<li>Balancing innovation with reliability</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-learning-approach">Learning Approach</h4>
+<p>This module uses a multi-faceted learning approach:</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-1-conceptual-understanding">1. Conceptual Understanding</h5>
+<p>Each lesson starts with clear explanations of concepts, architectures, and trade-offs before diving into implementation.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-2-hands-on-practice">2. Hands-On Practice</h5>
+<p>Extensive code examples and exercises ensure you can implement what you learn. All examples use production-ready patterns.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-3-real-world-scenarios">3. Real-World Scenarios</h5>
+<p>Case studies and examples drawn from actual å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ deployments in production environments.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-4-progressive-complexity">4. Progressive Complexity</h5>
+<p>Start with simple deployments and gradually build to sophisticated multi-model platforms.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-5-best-practices-focus">5. Best Practices Focus</h5>
+<p>Every lesson includes production best practices, common pitfalls, and optimization strategies.</p>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-what-makes-this-module-unique">What Makes This Module Unique</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-practical-focus">Practical Focus</h5>
+<p>Unlike theoretical courses, this module emphasizes production deployments with real infrastructure, complete code examples, and operational considerations.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-cost-awareness">Cost Awareness</h5>
+<p>Every lesson includes cost analysis and optimization strategies - critical for å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure where expenses can quickly spiral.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-open-source-first">Open Source First</h5>
+<p>Focus on open-source tools and models (vLLM, Llama 2, Mistral, Qdrant å‘é‡æ•°æ®åº“ï¼ˆQdrantï¼‰) that you can use without vendor lock-in.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-production-ready">ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ Ready</h5>
+<p>All examples and architectures are production-grade, not toy demos. Learn to build systems that actually work å¤§è§„æ¨¡ï¼ˆat scaleï¼‰.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-current-and-relevant">Current and Relevant</h5>
+<p>Content updated to reflect the latest tools, techniques, and best practices from 2024-2025.</p>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-success-metrics">Success Metrics</h4>
+<p>You'll know you've mastered this module when you can:</p>
+<ol>
+<li>Deploy a production å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ API with monitoring and è‡ªåŠ¨æ‰©ç¼©å®¹ï¼ˆauto-scalingï¼‰</li>
+<li>Build a æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ system that accurately retrieves and generates responses</li>
+<li>Fine-tune an å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ for a specific domain or task</li>
+<li>Optimize å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ inference to reduce costs by 50%+ through quantization and batching</li>
+<li>Design a complete multi-model å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ platform architecture</li>
+<li>Debug and troubleshoot å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ deployment issues</li>
+<li>Make informed build-vs-buy decisions for å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure</li>
+<li>Estimate costs and resources for å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ projects</li>
+</ol>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-career-impact">Career Impact</h4>
+<p>Completing this module positions you for roles such as:</p>
+<ul>
+<li>AI åŸºç¡€è®¾æ–½å·¥ç¨‹å¸ˆï¼ˆAI Infrastructure Engineerï¼‰ (LLM focus)</li>
+<li>æœºå™¨å­¦ä¹ ï¼ˆMachine Learningï¼‰ Engineer (LLM platforms)</li>
+<li>MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Engineer (Generative AI)</li>
+<li>Platform Engineer (AI/ML teams)</li>
+</ul>
+<p>Salary ranges: $120,000 - $180,000+ depending on location and experience.</p>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-getting-started">å…¥é—¨æŒ‡å—ï¼ˆGetting Startedï¼‰</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-recommended-study-plan">Recommended Study Plan</h5>
+<p><strong>Step 1: Environment Setup</strong></p>
+<ul>
+<li>Set up cloud GPU åŠ é€Ÿï¼ˆGPUï¼‰ access (start with free tiers or credits)</li>
+<li>Install Python 3.11+, Docker å®¹å™¨ï¼ˆDockerï¼‰, and kubectl</li>
+<li>Clone exercise repositories</li>
+<li>Configure your development environment</li>
+</ul>
+<p><strong>Step 2: Follow the Lesson Sequence</strong></p>
+<ul>
+<li>Read each lesson thoroughly</li>
+<li>Take notes on key concepts</li>
+<li>Run all code examples</li>
+<li>Experiment with variations</li>
+</ul>
+<p><strong>Step 3: Complete Exercises</strong></p>
+<ul>
+<li>Attempt exercises before looking at hints</li>
+<li>Document your implementations</li>
+<li>Compare your approach with best practices</li>
+<li>Build a portfolio of å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ projects</li>
+</ul>
+<p><strong>Step 4: Build Your Own Project</strong></p>
+<ul>
+<li>Design a personal å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure project</li>
+<li>Apply multiple concepts from the module</li>
+<li>Deploy to production (or production-like environment)</li>
+<li>Share on GitHub to demonstrate your skills</li>
+</ul>
+<p><strong>Step 5: Continue Learning</strong></p>
+<ul>
+<li>Join å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure communities</li>
+<li>Follow industry leaders and papers</li>
+<li>Contribute to open-source å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ tools</li>
+<li>Stay current with new techniques</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-support-and-resources">Support and Resources</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-getting-help">Getting Help</h5>
+<ul>
+<li>Review the comprehensive resources.md file</li>
+<li>Check lesson-specific troubleshooting sections</li>
+<li>Consult official documentation for tools (vLLM, vector DBs)</li>
+<li>Join community forums (Hugging Face, vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ Discord)</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-additional-practice">Additional Practice</h5>
+<ul>
+<li>Experiment with different å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ models</li>
+<li>Try alternative vector databases</li>
+<li>Implement your own optimizations</li>
+<li>Contribute to open-source projects</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-readme-md-staying-current">Staying Current</h5>
+<p>The å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure space evolves rapidly. We recommend:</p>
+<ul>
+<li>Following vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ and LangChain releases</li>
+<li>Reading papers on new optimization techniques</li>
+<li>ç›‘æŽ§ï¼ˆMonitoringï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ and hardware announcements</li>
+<li>Participating in AI infrastructure communities</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-module-prerequisites-checklist">Module Prerequisites Checklist</h4>
+<p>Before starting this module, ensure you can:</p>
+<ul>
+<li>[ ] Build and deploy Docker å®¹å™¨ï¼ˆDockerï¼‰ containers</li>
+<li>[ ] Deploy applications to Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</li>
+<li>[ ] Configure Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ and Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ monitoring</li>
+<li>[ ] Write Python code with asyncio and FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰</li>
+<li>[ ] Work with REST APIs</li>
+<li>[ ] Understand basic ML concepts (models, inference, training)</li>
+<li>[ ] Navigate cloud platforms (AWS, GCP äº‘ï¼ˆGCPï¼‰, or Azure äº‘ï¼ˆAzureï¼‰)</li>
+<li>[ ] Use git for version control</li>
+<li>[ ] Read and understand YAML configurations</li>
+</ul>
+<p>If any of these are unclear, review the corresponding prerequisite modules before continuing.</p>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-ready-to-begin">Ready to Begin?</h4>
+<p>å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure is one of the most exciting and rapidly growing areas in technology. The skills you'll gain in this module are in high demand and will position you at the forefront of AI infrastructure engineering.</p>
+<p>Let's start with Lesson 01: Introduction to å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ and begin your journey to becoming an å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ infrastructure expert!</p>
+<h4 id="lessons-mod-110-llm-infrastructure-readme-md-module-files">Module Files</h4>
+<ul>
+<li><code>01-introduction-llm-infrastructure.md</code> - Foundation concepts and overview</li>
+<li><code>02-vllm-deployment.md</code> - Deploying LLMs with vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰</li>
+<li><code>03-rag-systems.md</code> - Building æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ systems</li>
+<li><code>04-vector-databases.md</code> - Vector database deep dive</li>
+<li><code>05-llm-fine-tuning-infrastructure.md</code> - Fine-tuning infrastructure</li>
+<li><code>06-llm-serving-optimization.md</code> - Optimization techniques</li>
+<li><code>07-llm-platform-architecture.md</code> - Platform design</li>
+<li><code>08-production-llm-best-practices.md</code> - ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ operations</li>
+<li><code>quiz.md</code> - Assessment questions</li>
+<li><code>resources.md</code> - Learning resources and references</li>
+<li><code>exercises/README.md</code> - Hands-on exercises</li>
+</ul>
+<hr/>
+<p><strong>Next</strong>: Start with <a href="#doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md">01-introduction-llm-infrastructure.md</a></p>
+<p><strong>Questions or Feedback?</strong> This is a living curriculum. Suggestions for improvements are welcome!</p><p> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-resources-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

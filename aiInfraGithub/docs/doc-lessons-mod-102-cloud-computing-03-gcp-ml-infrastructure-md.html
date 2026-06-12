@@ -1,0 +1,1438 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Module 02: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-resources-md.html">Module 02 Resources: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for ML</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lesson 01: Cloud Architecture for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md.html">Lesson 02: AWS äº‘ï¼ˆAWSï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc active" href="../docs/doc-lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md.html">Lesson 03: Google Cloud Platform for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-04-azure-ml-infrastructure-md.html">Lesson 04: Azure äº‘ï¼ˆAzureï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-05-cloud-storage-md.html">Lesson 05: Cloud Storage for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-06-cloud-networking-md.html">Lesson 06: Cloud Networking for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-07-managed-ml-services-md.html">Lesson 07: Managed ML Services Comparison</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-08-multi-cloud-cost-optimization-md.html">Lesson 08: Multi-Cloud &amp; Cost Optimization</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Module 102 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-01-aws-ml-infra-md.html">Lab 01: Provision an ML-Ready AWS äº‘ï¼ˆAWSï¼‰ Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-02-gcp-ml-infra-md.html">Lab 02: Provision an ML-Ready GCP äº‘ï¼ˆGCPï¼‰ Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-03-azure-ml-infra-md.html">Lab 03: Provision an ML-Ready Azure äº‘ï¼ˆAzureï¼‰ Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-04-multi-cloud-deployment-md.html">Lab 04: Multi-Cloud éƒ¨ç½²ï¼ˆDeploymentï¼‰ with a Single Tool</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercise 01: Multi-Cloud Cost Analyzer</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-02-cloud-ml-infrastructure-readme-md.html">Exercise 02: Cloud æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md.html">Exercise 03: Cloud Disaster Recovery System</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-04-cross-region-replication-readme-md.html">Exercise 04: Cross-Region Replication for ML Artifacts</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-05-cloud-networking-for-ml-readme-md.html">Exercise 05: Cloud Networking for ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-06-managed-ml-services-comparison-readm.html">Exercise 06: Managed ML Services Comparison</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-07-multi-account-security-readme-md.html">Exercise 07: Multi-Account / Multi-Project å®‰å…¨ï¼ˆSecurityï¼‰ Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-08-finops-automation-readme-md.html">Exercise 08: FinOps Automation for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-readme-md.html">Module 02 Exercises: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for ML</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Module 02: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ - Final Quiz</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-mid-module-quiz-md.html">Module 02: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ - Mid-Module Quiz</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-module-quiz-md.html">Module 02 Quiz: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for ML</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md"><h3 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-lesson-03-google-cloud-platfor">Lesson 03: Google Cloud Platform for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</h3>
+<p><strong>Duration:</strong> 7 hours <strong>Difficulty:</strong> Intermediate <strong>Prerequisites:</strong> Lesson 01 (Cloud Architecture), Lesson 02 (AWS æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰)</p>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ol>
+<li><strong>Set up and secure</strong> a Google Cloud Platform account with proper IAM</li>
+<li><strong>Deploy and manage</strong> Compute Engine instances for ML workloads</li>
+<li><strong>Use Cloud Storage</strong> for datasets and models with lifecycle management</li>
+<li><strong>Work with TPUs</strong> for accelerated deep learning training</li>
+<li><strong>Deploy ML models</strong> on Google Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Engine (GKE)</li>
+<li><strong>Use Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰</strong> for managed ML training and deployment</li>
+<li><strong>Configure VPC networking</strong> for secure ML infrastructure</li>
+<li><strong>Optimize costs</strong> using GCP äº‘ï¼ˆGCPï¼‰ pricing models and best practices</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-table-of-contents">Table of Contents</h4>
+<ol>
+<li><a href="#introduction-to-gcp-for-ml">Introduction to GCP äº‘ï¼ˆGCPï¼‰ for ML</a></li>
+<li><a href="#gcp-account-setup-and-iam">GCP äº‘ï¼ˆGCPï¼‰ Account Setup and IAM</a></li>
+<li><a href="#compute-engine-for-ml">Compute Engine for ML</a></li>
+<li><a href="#cloud-storage-for-data-and-models">Cloud Storage for Data and Models</a></li>
+<li><a href="#tensor-processing-units-tpus">Tensor Processing Units (TPUs)</a></li>
+<li><a href="#google-kubernetes-engine-gke">Google Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Engine (GKE)</a></li>
+<li><a href="#vertex-ai-platform">Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ Platform</a></li>
+<li><a href="#gcp-networking-for-ml">GCP äº‘ï¼ˆGCPï¼‰ Networking for ML</a></li>
+<li><a href="#cost-optimization-strategies">Cost Optimization Strategies</a></li>
+<li><a href="#hands-on-exercise">Hands-on Exercise</a></li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-introduction-to-gcp-for-ml">Introduction to GCP äº‘ï¼ˆGCPï¼‰ for ML</h4>
+<p>Google Cloud Platform (GCP) is particularly strong for ML workloads because:</p>
+<ul>
+<li><strong>Native ML heritage</strong>: Built by the creators of TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰</li>
+<li><strong>TPU access</strong>: Exclusive access to Tensor Processing Units</li>
+<li><strong>BigQuery ML</strong>: Run ML models directly on data warehouse</li>
+<li><strong>Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰</strong>: Comprehensive managed ML platform</li>
+<li><strong>Strong open-source integration</strong>: TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰, Kubeflow, Ray</li>
+<li><strong>Competitive pricing</strong>: Sustained use discounts, preemptible VMs</li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-gcp-ml-ecosystem">GCP äº‘ï¼ˆGCPï¼‰ ML Ecosystem</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                       GCP ML Ecosystem                          â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                 â”‚
+â”‚  Data Ingestion       Processing           Training/Serving    â”‚
+â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€       â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€           â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€    â”‚
+â”‚  Cloud Storage   â†’    Dataflow        â†’    Vertex AI          â”‚
+â”‚  BigQuery        â†’    Dataproc        â†’    GKE                â”‚
+â”‚  Pub/Sub         â†’    AI Platform     â†’    Cloud Run          â”‚
+â”‚                                                                 â”‚
+â”‚  Infrastructure       Networking           Monitoring          â”‚
+â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€       â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€           â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€          â”‚
+â”‚  Compute Engine       VPC                  Cloud Monitoring   â”‚
+â”‚  GKE                  Cloud Load          Cloud Logging       â”‚
+â”‚  Cloud Run            Balancing           Cloud Trace         â”‚
+â”‚                                                                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-when-to-choose-gcp-for-ml">When to Choose GCP äº‘ï¼ˆGCPï¼‰ for ML</h5>
+<p><strong>Choose GCP äº‘ï¼ˆGCPï¼‰ when:</strong></p>
+<ul>
+<li>You're heavily invested in TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰</li>
+<li>You need TPUs for large-scale training</li>
+<li>You want strong BigQuery integration</li>
+<li>You prefer Google's managed services</li>
+<li>You need strong open-source Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ support</li>
+</ul>
+<p><strong>Consider alternatives when:</strong></p>
+<ul>
+<li>Your team is already on AWS äº‘ï¼ˆAWSï¼‰/Azure äº‘ï¼ˆAzureï¼‰</li>
+<li>You need a wider range of GPU åŠ é€Ÿï¼ˆGPUï¼‰ types</li>
+<li>You require more regional availability</li>
+<li>You need specific enterprise integrations</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-gcp-account-setup-and-iam">GCP äº‘ï¼ˆGCPï¼‰ Account Setup and IAM</h4>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-creating-a-gcp-account">Creating a GCP äº‘ï¼ˆGCPï¼‰ Account</h5>
+<ol>
+<li><strong>Sign up for GCP äº‘ï¼ˆGCPï¼‰</strong>:</li>
+</ol>
+<ul>
+<li>Visit: https://cloud.google.com/free</li>
+<li>Get <strong>$300 free credit</strong> valid for 90 days</li>
+<li>No automatic charges after trial ends</li>
+<li>Credit card required for verification</li>
+</ul>
+<ol>
+<li><strong>Free tier (Always Free)</strong>:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">   Compute Engine:
+   - 1 f1-micro instance (US regions only)
+   - 30 GB standard persistent disk
+   - 1 GB snapshot storage
+
+   Cloud Storage:
+   - 5 GB standard storage
+   - 1 GB network egress (North America)
+
+   BigQuery:
+   - 1 TB queries/month
+   - 10 GB storage
+
+   Cloud Functions:
+   - 2 million invocations/month</code></pre></div>
+<ol>
+<li><strong>Create a project</strong>:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   # Install gcloud CLI
+   # macOS
+   brew install google-cloud-sdk
+
+   # Linux
+   curl https://sdk.cloud.google.com | bash
+   exec -l $SHELL
+
+   # Initialize gcloud
+   gcloud init
+
+   # Create a new project
+   gcloud projects create ml-infrastructure-project --name=&quot;ML Infrastructure&quot;
+
+   # Set as default project
+   gcloud config set project ml-infrastructure-project
+
+   # Enable required APIs
+   gcloud services enable compute.googleapis.com
+   gcloud services enable container.googleapis.com
+   gcloud services enable storage.googleapis.com
+   gcloud services enable aiplatform.googleapis.com</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-iam-best-practices">IAM Best Practices</h5>
+<p>GCP äº‘ï¼ˆGCPï¼‰ uses <strong>Identity and Access Management (IAM)</strong> with a fine-grained permission model.</p>
+<h6 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-key-concepts">Key Concepts</h6>
+<ol>
+<li><strong>Principal</strong>: Who (user, service account, group)</li>
+<li><strong>Role</strong>: What permissions (predefined or custom)</li>
+<li><strong>Resource</strong>: Where (project, folder, organization)</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  Principal   â”‚â”€â”€â”€â”€â–¶â”‚     Role     â”‚â”€â”€â”€â”€â–¶â”‚  Resource    â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤     â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤     â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ - User       â”‚     â”‚ - Primitive  â”‚     â”‚ - Project    â”‚
+â”‚ - SA         â”‚     â”‚ - Predefined â”‚     â”‚ - Bucket     â”‚
+â”‚ - Group      â”‚     â”‚ - Custom     â”‚     â”‚ - VM         â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h6 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-creating-service-accounts">Creating Service Accounts</h6>
+<p>Service accounts are used for application-to-application authentication.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create a service account for ML training
+gcloud iam service-accounts create ml-training-sa \
+  --display-name=&quot;ML Training Service Account&quot; \
+  --description=&quot;Service account for ML training jobs&quot;
+
+# Grant necessary permissions
+gcloud projects add-iam-policy-binding ml-infrastructure-project \
+  --member=&quot;serviceAccount:ml-training-sa@ml-infrastructure-project.iam.gserviceaccount.com&quot; \
+  --role=&quot;roles/aiplatform.user&quot;
+
+gcloud projects add-iam-policy-binding ml-infrastructure-project \
+  --member=&quot;serviceAccount:ml-training-sa@ml-infrastructure-project.iam.gserviceaccount.com&quot; \
+  --role=&quot;roles/storage.objectAdmin&quot;
+
+# Create and download key
+gcloud iam service-accounts keys create ~/ml-training-key.json \
+  --iam-account=ml-training-sa@ml-infrastructure-project.iam.gserviceaccount.com
+
+# Set environment variable
+export GOOGLE_APPLICATION_CREDENTIALS=~/ml-training-key.json</code></pre></div>
+<h6 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-common-ml-roles">Common ML Roles</h6>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Role                            â”‚ Use Case                             â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ roles/aiplatform.user           â”‚ Run Vertex AI training jobs          â”‚
+â”‚ roles/storage.objectAdmin       â”‚ Read/write Cloud Storage             â”‚
+â”‚ roles/compute.instanceAdmin     â”‚ Manage Compute Engine VMs            â”‚
+â”‚ roles/container.admin           â”‚ Manage GKE clusters                  â”‚
+â”‚ roles/monitoring.metricWriter   â”‚ Write custom metrics                 â”‚
+â”‚ roles/logging.logWriter         â”‚ Write application logs               â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h6 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-security-best-practices">å®‰å…¨ï¼ˆSecurityï¼‰ Best Practices</h6>
+<ol>
+<li><strong>Principle of least privilege</strong>: Grant minimum required permissions</li>
+<li><strong>Use service accounts</strong>: Never use personal credentials in code</li>
+<li><strong>Rotate keys regularly</strong>: Set up key rotation policy (90 days)</li>
+<li><strong>Enable audit logs</strong>: Track all IAM changes</li>
+<li><strong>Use organization policies</strong>: Enforce security constraints</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Enable audit logs
+gcloud logging sinks create ml-audit-sink \
+  storage.googleapis.com/ml-audit-logs-bucket \
+  --log-filter='protoPayload.methodName:&quot;iam.googleapis.com&quot;'
+
+# Set key expiration reminder (via monitoring)
+gcloud alpha iam service-accounts keys list \
+  --iam-account=ml-training-sa@ml-infrastructure-project.iam.gserviceaccount.com \
+  --format=&quot;table(name,validAfterTime,validBeforeTime)&quot;</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-compute-engine-for-ml">Compute Engine for ML</h4>
+<p>Compute Engine provides virtual machines with flexible configurations for ML workloads.</p>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-instance-types-for-ml">Instance Types for ML</h5>
+<h6 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-general-purpose-n-series">General Purpose (N-series)</h6>
+<p>Best for: Development, small models, CPU inference</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Machine Type â”‚ vCPUs   â”‚ Memory     â”‚ Network  â”‚ Cost/hour     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ n1-standard-4â”‚ 4       â”‚ 15 GB      â”‚ 10 Gbps  â”‚ $0.190        â”‚
+â”‚ n2-standard-8â”‚ 8       â”‚ 32 GB      â”‚ 32 Gbps  â”‚ $0.389        â”‚
+â”‚ n2d-highmem-16â”‚16      â”‚ 128 GB     â”‚ 32 Gbps  â”‚ $0.777        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h6 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-gpu-instances-accelerator-opti">GPU åŠ é€Ÿï¼ˆGPUï¼‰ Instances (Accelerator-optimized)</h6>
+<p>Best for: è®­ç»ƒï¼ˆTrainingï¼‰, GPU åŠ é€Ÿï¼ˆGPUï¼‰ inference</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Machine Type â”‚ GPU          â”‚ GPU Memory  â”‚ vCPUs   â”‚ Cost/hour    â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ n1 + T4      â”‚ 1x NVIDIA T4 â”‚ 16 GB       â”‚ 4       â”‚ $0.35        â”‚
+â”‚ n1 + V100    â”‚ 1x NVIDIA V100â”‚16 GB       â”‚ 8       â”‚ $2.48        â”‚
+â”‚ n1 + A100    â”‚ 1x NVIDIA A100â”‚40 GB       â”‚ 12      â”‚ $3.67        â”‚
+â”‚ a2 + A100    â”‚ 8x NVIDIA A100â”‚320 GB      â”‚ 96      â”‚ $29.39       â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h6 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-tpu-instances">TPU Instances</h6>
+<p>Best for: TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰ training å¤§è§„æ¨¡ï¼ˆat scaleï¼‰</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ TPU Type     â”‚ Cores        â”‚ Memory      â”‚ Cost/hour    â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ v2-8         â”‚ 8            â”‚ 64 GB HBM   â”‚ $4.50        â”‚
+â”‚ v3-8         â”‚ 8            â”‚ 128 GB HBM  â”‚ $8.00        â”‚
+â”‚ v4-8         â”‚ 8            â”‚ 32 GB HBM2e â”‚ $3.67        â”‚
+â”‚ v4-32        â”‚ 32           â”‚ 128 GB HBM2eâ”‚ $14.69       â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-creating-a-gpu-instance">Creating a GPU åŠ é€Ÿï¼ˆGPUï¼‰ Instance</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># List available GPU types in region
+gcloud compute accelerator-types list --filter=&quot;zone:us-central1-a&quot;
+
+# Create instance with T4 GPU
+gcloud compute instances create ml-training-gpu \
+  --zone=us-central1-a \
+  --machine-type=n1-standard-4 \
+  --accelerator=type=nvidia-tesla-t4,count=1 \
+  --image-family=pytorch-latest-gpu \
+  --image-project=deeplearning-platform-release \
+  --boot-disk-size=100GB \
+  --boot-disk-type=pd-ssd \
+  --maintenance-policy=TERMINATE \
+  --metadata=&quot;install-nvidia-driver=True&quot;
+
+# SSH into instance
+gcloud compute ssh ml-training-gpu --zone=us-central1-a
+
+# Verify GPU
+nvidia-smi</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-deep-learning-vm-images">Deep Learning VM Images</h5>
+<p>GCP äº‘ï¼ˆGCPï¼‰ provides pre-configured images with ML frameworks:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># List available images
+gcloud compute images list \
+  --project deeplearning-platform-release \
+  --no-standard-images
+
+# Create instance with PyTorch
+gcloud compute instances create ml-pytorch \
+  --zone=us-central1-a \
+  --machine-type=n1-standard-8 \
+  --accelerator=type=nvidia-tesla-t4,count=1 \
+  --image-family=pytorch-latest-gpu \
+  --image-project=deeplearning-platform-release \
+  --metadata=&quot;install-nvidia-driver=True,proxy-mode=project_editors&quot;
+
+# Create instance with TensorFlow
+gcloud compute instances create ml-tensorflow \
+  --zone=us-central1-a \
+  --machine-type=n1-standard-8 \
+  --accelerator=type=nvidia-tesla-t4,count=1 \
+  --image-family=tf-latest-gpu \
+  --image-project=deeplearning-platform-release \
+  --metadata=&quot;install-nvidia-driver=True&quot;</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-preemptible-vms-spot-instances">Preemptible VMs (Spot Instances)</h5>
+<p>Save up to <strong>80%</strong> on compute costs with preemptible VMs.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create preemptible instance
+gcloud compute instances create ml-training-preemptible \
+  --zone=us-central1-a \
+  --machine-type=n1-standard-4 \
+  --accelerator=type=nvidia-tesla-t4,count=1 \
+  --preemptible \
+  --image-family=pytorch-latest-gpu \
+  --image-project=deeplearning-platform-release \
+  --metadata=&quot;install-nvidia-driver=True&quot;
+
+# Cost comparison
+# Regular: $0.35/hour
+# Preemptible: $0.07/hour (80% savings)</code></pre></div>
+<p><strong>Important considerations:</strong></p>
+<ul>
+<li>Maximum runtime: 24 hours</li>
+<li>Can be terminated at any time with 30-second warning</li>
+<li>Not always available (capacity-based)</li>
+<li>Perfect for fault-tolerant workloads</li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-checkpointing-for-preemptible-">Checkpointing for Preemptible VMs</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import os
+import signal
+import sys
+import torch
+
+def signal_handler(signum, frame):
+    &quot;&quot;&quot;Handle preemption signal&quot;&quot;&quot;
+    print(&quot;Received preemption signal, saving checkpoint...&quot;)
+    save_checkpoint({
+        'epoch': current_epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'loss': current_loss,
+    }, 'checkpoint_preempted.pth')
+    sys.exit(0)
+
+# Register signal handler
+signal.signal(signal.SIGTERM, signal_handler)
+
+# Training loop with checkpointing
+def train_with_checkpointing(model, train_loader, epochs=10):
+    checkpoint_dir = &quot;/mnt/disks/data/checkpoints&quot;
+    os.makedirs(checkpoint_dir, exist_ok=True)
+
+    # Resume from latest checkpoint
+    start_epoch = 0
+    checkpoint_path = os.path.join(checkpoint_dir, &quot;latest.pth&quot;)
+
+    if os.path.exists(checkpoint_path):
+        print(f&quot;Resuming from checkpoint: {checkpoint_path}&quot;)
+        checkpoint = torch.load(checkpoint_path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epoch = checkpoint['epoch'] + 1
+        print(f&quot;Resuming from epoch {start_epoch}&quot;)
+
+    for epoch in range(start_epoch, epochs):
+        model.train()
+
+        for batch_idx, (data, target) in enumerate(train_loader):
+            # Training step
+            optimizer.zero_grad()
+            output = model(data)
+            loss = criterion(output, target)
+            loss.backward()
+            optimizer.step()
+
+            # Save checkpoint every 100 batches
+            if batch_idx % 100 == 0:
+                save_checkpoint({
+                    'epoch': epoch,
+                    'batch': batch_idx,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'loss': loss.item(),
+                }, checkpoint_path)
+
+        # Save checkpoint after each epoch
+        save_checkpoint({
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': loss.item(),
+        }, checkpoint_path)
+
+        print(f&quot;Epoch {epoch} completed, checkpoint saved&quot;)
+
+def save_checkpoint(state, filename):
+    &quot;&quot;&quot;Save checkpoint to file&quot;&quot;&quot;
+    torch.save(state, filename)
+    print(f&quot;Checkpoint saved: {filename}&quot;)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-startup-scripts">Startup Scripts</h5>
+<p>Automate setup with startup scripts:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create startup script
+cat &gt; startup.sh &lt;&lt; 'EOF'
+#!/bin/bash
+
+# Update system
+apt-get update
+
+# Install Python packages
+pip install torch torchvision wandb
+
+# Download dataset
+mkdir -p /data
+gsutil -m rsync -r gs://my-bucket/datasets/imagenet /data/imagenet
+
+# Clone training code
+cd /home
+git clone https://github.com/myorg/ml-training.git
+
+# Start training
+cd ml-training
+python train.py --data-path /data/imagenet --epochs 100 --checkpoint-dir /data/checkpoints
+EOF
+
+# Create instance with startup script
+gcloud compute instances create ml-training \
+  --zone=us-central1-a \
+  --machine-type=n1-standard-8 \
+  --accelerator=type=nvidia-tesla-t4,count=1 \
+  --preemptible \
+  --image-family=pytorch-latest-gpu \
+  --image-project=deeplearning-platform-release \
+  --metadata-from-file=startup-script=startup.sh \
+  --scopes=storage-rw,logging-write</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-cloud-storage-for-data-and-mod">Cloud Storage for Data and Models</h4>
+<p>Cloud Storage is GCP äº‘ï¼ˆGCPï¼‰'s object storage service, similar to AWS äº‘ï¼ˆAWSï¼‰ S3.</p>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-storage-classes">Storage Classes</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Storage Class      â”‚ Cost/GB/month  â”‚ Retrieval Cost  â”‚ Use Case       â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ Standard           â”‚ $0.020         â”‚ Free            â”‚ Active data    â”‚
+â”‚ Nearline           â”‚ $0.010         â”‚ $0.01/GB        â”‚ &lt;1/month accessâ”‚
+â”‚ Coldline           â”‚ $0.004         â”‚ $0.02/GB        â”‚ &lt;1/quarter     â”‚
+â”‚ Archive            â”‚ $0.0012        â”‚ $0.05/GB        â”‚ &lt;1/year        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-creating-and-managing-buckets">Creating and Managing Buckets</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create a bucket
+gsutil mb -l us-central1 -c STANDARD gs://my-ml-data-bucket
+
+# Upload files
+gsutil cp model.pth gs://my-ml-data-bucket/models/
+
+# Upload directory (parallel)
+gsutil -m cp -r ./datasets gs://my-ml-data-bucket/
+
+# Download files
+gsutil cp gs://my-ml-data-bucket/models/model.pth ./
+
+# Sync directories (like rsync)
+gsutil -m rsync -r ./local-dir gs://my-ml-data-bucket/remote-dir
+
+# List files
+gsutil ls gs://my-ml-data-bucket/models/
+
+# Delete files
+gsutil rm gs://my-ml-data-bucket/models/old-model.pth
+
+# Get bucket info
+gsutil du -sh gs://my-ml-data-bucket</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-versioning-and-lifecycle-manag">Versioning and Lifecycle Management</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Enable versioning
+gsutil versioning set on gs://my-ml-data-bucket
+
+# Create lifecycle policy
+cat &gt; lifecycle.json &lt;&lt; EOF
+{
+  &quot;lifecycle&quot;: {
+    &quot;rule&quot;: [
+      {
+        &quot;action&quot;: {&quot;type&quot;: &quot;SetStorageClass&quot;, &quot;storageClass&quot;: &quot;NEARLINE&quot;},
+        &quot;condition&quot;: {
+          &quot;age&quot;: 30,
+          &quot;matchesStorageClass&quot;: [&quot;STANDARD&quot;]
+        }
+      },
+      {
+        &quot;action&quot;: {&quot;type&quot;: &quot;SetStorageClass&quot;, &quot;storageClass&quot;: &quot;COLDLINE&quot;},
+        &quot;condition&quot;: {
+          &quot;age&quot;: 90,
+          &quot;matchesStorageClass&quot;: [&quot;NEARLINE&quot;]
+        }
+      },
+      {
+        &quot;action&quot;: {&quot;type&quot;: &quot;Delete&quot;},
+        &quot;condition&quot;: {
+          &quot;age&quot;: 365,
+          &quot;matchesStorageClass&quot;: [&quot;COLDLINE&quot;]
+        }
+      }
+    ]
+  }
+}
+EOF
+
+# Apply lifecycle policy
+gsutil lifecycle set lifecycle.json gs://my-ml-data-bucket
+
+# View lifecycle policy
+gsutil lifecycle get gs://my-ml-data-bucket</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-python-sdk-google-cloud-storag">Python SDK (google-cloud-storage)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from google.cloud import storage
+import os
+
+# Initialize client
+client = storage.Client()
+
+# Create bucket
+bucket = client.create_bucket(&quot;my-ml-data-bucket&quot;, location=&quot;us-central1&quot;)
+
+# Upload file
+def upload_file(bucket_name, source_file, destination_blob):
+    &quot;&quot;&quot;Upload file to Cloud Storage&quot;&quot;&quot;
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(destination_blob)
+
+    blob.upload_from_filename(source_file)
+    print(f&quot;File {source_file} uploaded to {destination_blob}&quot;)
+
+# Upload model
+upload_file(&quot;my-ml-data-bucket&quot;, &quot;model.pth&quot;, &quot;models/resnet50-v1.pth&quot;)
+
+# Download file
+def download_file(bucket_name, source_blob, destination_file):
+    &quot;&quot;&quot;Download file from Cloud Storage&quot;&quot;&quot;
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(source_blob)
+
+    blob.download_to_filename(destination_file)
+    print(f&quot;File {source_blob} downloaded to {destination_file}&quot;)
+
+# Download model
+download_file(&quot;my-ml-data-bucket&quot;, &quot;models/resnet50-v1.pth&quot;, &quot;./model.pth&quot;)
+
+# List files with prefix
+def list_files(bucket_name, prefix):
+    &quot;&quot;&quot;List files in bucket with prefix&quot;&quot;&quot;
+    bucket = client.bucket(bucket_name)
+    blobs = bucket.list_blobs(prefix=prefix)
+
+    for blob in blobs:
+        print(blob.name)
+
+# List all models
+list_files(&quot;my-ml-data-bucket&quot;, &quot;models/&quot;)
+
+# Generate signed URL (temporary access)
+def generate_signed_url(bucket_name, blob_name, expiration_minutes=60):
+    &quot;&quot;&quot;Generate signed URL for temporary access&quot;&quot;&quot;
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+
+    url = blob.generate_signed_url(
+        expiration=timedelta(minutes=expiration_minutes),
+        method='GET'
+    )
+
+    return url
+
+# Get temporary URL for model
+url = generate_signed_url(&quot;my-ml-data-bucket&quot;, &quot;models/resnet50-v1.pth&quot;, 120)
+print(f&quot;Temporary URL (valid for 2 hours): {url}&quot;)
+
+# Stream large files
+def download_large_file_in_chunks(bucket_name, source_blob, destination_file):
+    &quot;&quot;&quot;Download large file in chunks&quot;&quot;&quot;
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(source_blob)
+
+    with open(destination_file, 'wb') as f:
+        blob.download_to_file(f)
+
+    print(f&quot;Large file downloaded: {destination_file}&quot;)
+
+# Copy file within Cloud Storage
+def copy_blob(bucket_name, source_blob, destination_bucket, destination_blob):
+    &quot;&quot;&quot;Copy file within Cloud Storage&quot;&quot;&quot;
+    source_bucket = client.bucket(bucket_name)
+    source = source_bucket.blob(source_blob)
+    destination_bucket = client.bucket(destination_bucket)
+
+    source_bucket.copy_blob(source, destination_bucket, destination_blob)
+    print(f&quot;Copied {source_blob} to {destination_blob}&quot;)
+
+# Promote model from staging to production
+copy_blob(
+    &quot;ml-staging-bucket&quot;, &quot;models/resnet50-v2.pth&quot;,
+    &quot;ml-production-bucket&quot;, &quot;models/resnet50-latest.pth&quot;
+)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-best-practices-for-ml-data-sto">Best Practices for ML Data Storage</h5>
+<ol>
+<li><strong>Organize by lifecycle</strong>:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">   gs://my-ml-bucket/
+   â”œâ”€â”€ raw-data/           # Standard storage
+   â”œâ”€â”€ processed-data/     # Standard â†’ Nearline after 30 days
+   â”œâ”€â”€ models/
+   â”‚   â”œâ”€â”€ staging/        # Standard
+   â”‚   â”œâ”€â”€ production/     # Standard
+   â”‚   â””â”€â”€ archived/       # Coldline
+   â””â”€â”€ experiments/        # Delete after 90 days</code></pre></div>
+<ol>
+<li><strong>Use regional buckets</strong>: Keep data close to compute for lower latency</li>
+</ol>
+<ol>
+<li><strong>Enable versioning</strong>: Protect against accidental deletion</li>
+</ol>
+<ol>
+<li><strong>Set up notifications</strong>: Trigger Cloud Functions on new data</li>
+</ol>
+<ol>
+<li><strong>Use requester pays</strong>: For public datasets, make users pay egress costs</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-tensor-processing-units-tpus">Tensor Processing Units (TPUs)</h4>
+<p>TPUs are Google's custom-designed ASICs for accelerating machine learning workloads.</p>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-tpu-vs-gpu">TPU vs GPU åŠ é€Ÿï¼ˆGPUï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Aspect          â”‚ GPU               â”‚ TPU                â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ Architecture    â”‚ General purpose   â”‚ ML-specific        â”‚
+â”‚ Precision       â”‚ FP32, FP16, INT8  â”‚ BFloat16 optimized â”‚
+â”‚ Framework       â”‚ Any framework     â”‚ TensorFlow, JAX    â”‚
+â”‚ Memory          â”‚ 16-80 GB HBM      â”‚ 8-32 GB HBM        â”‚
+â”‚ Performance     â”‚ High              â”‚ Very High (TF)     â”‚
+â”‚ Cost            â”‚ Medium            â”‚ Medium-Low         â”‚
+â”‚ Flexibility     â”‚ Very flexible     â”‚ Less flexible      â”‚
+â”‚ Best for        â”‚ Any ML/DL task    â”‚ Large TF models    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-when-to-use-tpus">When to Use TPUs</h5>
+<p><strong>Use TPUs when:</strong></p>
+<ul>
+<li>è®­ç»ƒï¼ˆTrainingï¼‰ large TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰ models (transformers, large CNNs)</li>
+<li>Using mixed-precision training (bfloat16)</li>
+<li>è®­ç»ƒï¼ˆTrainingï¼‰ for extended periods (cost-effective)</li>
+<li>Need high throughput for inference</li>
+</ul>
+<p><strong>Use GPUs when:</strong></p>
+<ul>
+<li>Using PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ as primary framework</li>
+<li>Prototyping and experimentation</li>
+<li>Need maximum flexibility</li>
+<li>è®­ç»ƒï¼ˆTrainingï¼‰ models with complex custom ops</li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-creating-a-tpu-vm">Creating a TPU VM</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create TPU v2-8 (8 cores)
+gcloud compute tpus tpu-vm create ml-tpu-v2 \
+  --zone=us-central1-a \
+  --accelerator-type=v2-8 \
+  --version=tpu-vm-tf-2.13.0
+
+# Create TPU v3-8 (more memory)
+gcloud compute tpus tpu-vm create ml-tpu-v3 \
+  --zone=us-central1-a \
+  --accelerator-type=v3-8 \
+  --version=tpu-vm-tf-2.13.0
+
+# SSH into TPU VM
+gcloud compute tpus tpu-vm ssh ml-tpu-v2 --zone=us-central1-a
+
+# List TPUs
+gcloud compute tpus tpu-vm list
+
+# Delete TPU
+gcloud compute tpus tpu-vm delete ml-tpu-v2 --zone=us-central1-a</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-training-on-tpus-with-tensorfl">è®­ç»ƒï¼ˆTrainingï¼‰ on TPUs with TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import tensorflow as tf
+import os
+
+# Initialize TPU
+resolver = tf.distribute.cluster_resolver.TPUClusterResolver()
+tf.config.experimental_connect_to_cluster(resolver)
+tf.tpu.experimental.initialize_tpu_system(resolver)
+
+# Create TPU strategy
+strategy = tf.distribute.TPUStrategy(resolver)
+
+print(f&quot;Number of TPU cores: {strategy.num_replicas_in_sync}&quot;)
+
+# Define model inside strategy scope
+with strategy.scope():
+    # Create model
+    model = tf.keras.Sequential([
+        tf.keras.layers.Conv2D(32, 3, activation='relu', input_shape=(224, 224, 3)),
+        tf.keras.layers.MaxPooling2D(),
+        tf.keras.layers.Conv2D(64, 3, activation='relu'),
+        tf.keras.layers.MaxPooling2D(),
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(1000, activation='softmax')
+    ])
+
+    # Compile model
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy']
+    )
+
+# Load dataset
+def load_dataset():
+    # Load from Cloud Storage
+    dataset = tf.data.TFRecordDataset(
+        'gs://my-ml-bucket/datasets/imagenet/train-*.tfrecord'
+    )
+
+    # Parse and preprocess
+    def parse_example(example):
+        features = tf.io.parse_single_example(example, {
+            'image': tf.io.FixedLenFeature([], tf.string),
+            'label': tf.io.FixedLenFeature([], tf.int64),
+        })
+        image = tf.io.decode_jpeg(features['image'], channels=3)
+        image = tf.image.resize(image, [224, 224])
+        image = tf.cast(image, tf.float32) / 255.0
+        return image, features['label']
+
+    dataset = dataset.map(parse_example)
+    dataset = dataset.batch(128)  # Global batch size
+    dataset = dataset.prefetch(tf.data.AUTOTUNE)
+
+    return dataset
+
+train_dataset = load_dataset()
+
+# Train on TPU
+model.fit(
+    train_dataset,
+    epochs=10,
+    steps_per_epoch=1000
+)
+
+# Save model
+model.save('gs://my-ml-bucket/models/resnet-tpu-trained')</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-tpu-pods-multi-tpu-training">TPU Pods (Multi-TPU è®­ç»ƒï¼ˆTrainingï¼‰)</h5>
+<p>For very large models, use TPU Pods (multiple TPUs connected):</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create TPU Pod (v3-32 = 4 TPU v3-8 chips)
+gcloud compute tpus tpu-vm create ml-tpu-pod \
+  --zone=us-central1-a \
+  --accelerator-type=v3-32 \
+  --version=tpu-vm-tf-2.13.0
+
+# Cost: v3-32 = $32/hour (4x the cost of v3-8)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-tpu-best-practices">TPU Best Practices</h5>
+<ol>
+<li><strong>Use bfloat16 for training</strong>: TPUs are optimized for bfloat16</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">   policy = tf.keras.mixed_precision.Policy('mixed_bfloat16')
+   tf.keras.mixed_precision.set_global_policy(policy)</code></pre></div>
+<ol>
+<li><strong>Batch size</strong>: Use large batch sizes (128, 256, 512)</li>
+</ol>
+<ol>
+<li><strong>Data pipeline</strong>: Preprocess data on CPU, use <code>tf.data.Dataset</code></li>
+</ol>
+<ol>
+<li><strong>Checkpointing</strong>: Save to Cloud Storage, not local disk</li>
+</ol>
+<ol>
+<li><strong>Preemptible TPUs</strong>: Save 70% with preemptible TPUs (similar to preemptible VMs)</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-google-kubernetes-engine-gke">Google Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Engine (GKE)</h4>
+<p>GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ is Google's managed Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ service for container orchestration.</p>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-creating-a-gke-cluster">Creating a GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ Cluster</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create standard cluster
+gcloud container clusters create ml-cluster \
+  --zone=us-central1-a \
+  --num-nodes=3 \
+  --machine-type=n1-standard-4 \
+  --disk-size=100GB \
+  --enable-autoscaling \
+  --min-nodes=1 \
+  --max-nodes=10
+
+# Create cluster with GPU nodes
+gcloud container clusters create ml-gpu-cluster \
+  --zone=us-central1-a \
+  --num-nodes=2 \
+  --machine-type=n1-standard-4 \
+  --accelerator=type=nvidia-tesla-t4,count=1 \
+  --addons=GcePersistentDiskCsiDriver \
+  --enable-autoscaling \
+  --min-nodes=0 \
+  --max-nodes=5
+
+# Install NVIDIA device plugin (for GPU support)
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-preloaded.yaml
+
+# Get cluster credentials
+gcloud container clusters get-credentials ml-gpu-cluster --zone=us-central1-a
+
+# Verify nodes
+kubectl get nodes</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-deploying-ml-model-on-gke">Deploying ML Model on GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-model-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ml-model
+  template:
+    metadata:
+      labels:
+        app: ml-model
+    spec:
+      containers:
+      - name: model-server
+        image: gcr.io/my-project/ml-model:v1.0
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MODEL_PATH
+          value: &quot;gs://my-ml-bucket/models/resnet50-latest.pth&quot;
+        - name: WORKERS
+          value: &quot;4&quot;
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 2Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-model-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: ml-model
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000</code></pre></div>
+<p>Deploy:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Apply deployment
+kubectl apply -f deployment.yaml
+
+# Check status
+kubectl get deployments
+kubectl get pods
+kubectl get services
+
+# Get external IP
+kubectl get service ml-model-service</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-gpu-deployment-on-gke">GPU åŠ é€Ÿï¼ˆGPUï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰ on GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># gpu-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-gpu-inference
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ml-gpu-model
+  template:
+    metadata:
+      labels:
+        app: ml-gpu-model
+    spec:
+      containers:
+      - name: gpu-model-server
+        image: gcr.io/my-project/ml-model-gpu:v1.0
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+          limits:
+            nvidia.com/gpu: 1
+        env:
+        - name: CUDA_VISIBLE_DEVICES
+          value: &quot;0&quot;</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-autoscaling-on-gke">Autoscaling on GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ml-model-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ml-model-server
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-gke-autopilot">GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ Autopilot</h5>
+<p>GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ Autopilot is a fully managed mode that handles all cluster management:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create Autopilot cluster
+gcloud container clusters create-auto ml-autopilot-cluster \
+  --region=us-central1
+
+# Benefits:
+# - No node management
+# - Pay per pod (not per node)
+# - Automatic scaling
+# - Security hardening
+# - Lower operational overhead</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-vertex-ai-platform">Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ Platform</h4>
+<p>Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ is GCP äº‘ï¼ˆGCPï¼‰'s unified ML platform for building, training, and deploying models.</p>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-vertex-ai-components">Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ Components</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                      Vertex AI Platform                      â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                              â”‚
+â”‚  Workbench         Training          Prediction             â”‚
+â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€        â”€â”€â”€â”€â”€â”€â”€â”€          â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€             â”‚
+â”‚  - Notebooks       - Custom          - Online               â”‚
+â”‚  - Managed         - AutoML          - Batch                â”‚
+â”‚  - Git integration - Hyperparameter  - Edge                 â”‚
+â”‚                      tuning                                  â”‚
+â”‚                                                              â”‚
+â”‚  Feature Store     Model Registry    Pipelines              â”‚
+â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€     â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€    â”€â”€â”€â”€â”€â”€â”€â”€â”€              â”‚
+â”‚  - Feature mgmt    - Versioning      - Kubeflow             â”‚
+â”‚  - Serving         - Lineage         - TFX                  â”‚
+â”‚  - Monitoring      - Evaluation      - Orchestration        â”‚
+â”‚                                                              â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-training-a-model-on-vertex-ai">è®­ç»ƒï¼ˆTrainingï¼‰ a Model on Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from google.cloud import aiplatform
+
+# Initialize Vertex AI
+aiplatform.init(
+    project='my-project-id',
+    location='us-central1',
+    staging_bucket='gs://my-ml-bucket/staging'
+)
+
+# Create custom training job
+job = aiplatform.CustomTrainingJob(
+    display_name='resnet-training',
+    script_path='train.py',
+    container_uri='gcr.io/cloud-aiplatform/training/pytorch-gpu.1-13:latest',
+    requirements=['torchvision', 'wandb'],
+)
+
+# Run training job
+model = job.run(
+    replica_count=1,
+    machine_type='n1-standard-8',
+    accelerator_type='NVIDIA_TESLA_T4',
+    accelerator_count=1,
+    args=[
+        '--epochs', '100',
+        '--batch-size', '64',
+        '--learning-rate', '0.001',
+    ],
+    environment_variables={
+        'MODEL_NAME': 'resnet50',
+        'DATA_PATH': 'gs://my-ml-bucket/datasets/imagenet',
+    },
+)
+
+print(f&quot;Training job completed: {model.resource_name}&quot;)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-deploying-model-to-vertex-ai-e">Deploying Model to Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ Endpoint</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Upload model
+model = aiplatform.Model.upload(
+    display_name='resnet50-v1',
+    artifact_uri='gs://my-ml-bucket/models/resnet50/',
+    serving_container_image_uri='gcr.io/my-project/model-server:latest',
+)
+
+# Create endpoint
+endpoint = aiplatform.Endpoint.create(
+    display_name='resnet50-endpoint',
+)
+
+# Deploy model to endpoint
+endpoint.deploy(
+    model=model,
+    deployed_model_display_name='resnet50-v1',
+    machine_type='n1-standard-4',
+    min_replica_count=1,
+    max_replica_count=10,
+    accelerator_type='NVIDIA_TESLA_T4',
+    accelerator_count=1,
+)
+
+print(f&quot;Model deployed to endpoint: {endpoint.resource_name}&quot;)
+
+# Make prediction
+instances = [
+    {'image_bytes': base64.b64encode(open('cat.jpg', 'rb').read()).decode()}
+]
+
+prediction = endpoint.predict(instances=instances)
+print(f&quot;Prediction: {prediction.predictions}&quot;)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-automl-on-vertex-ai">AutoML on Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰</h5>
+<p>For quick prototyping without custom training code:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Create AutoML image classification model
+dataset = aiplatform.ImageDataset.create(
+    display_name='my-image-dataset',
+    gcs_source='gs://my-ml-bucket/datasets/images.csv',
+)
+
+job = aiplatform.AutoMLImageTrainingJob(
+    display_name='automl-image-classification',
+    prediction_type='classification',
+    multi_label=False,
+)
+
+model = job.run(
+    dataset=dataset,
+    model_display_name='automl-resnet-v1',
+    training_fraction_split=0.8,
+    validation_fraction_split=0.1,
+    test_fraction_split=0.1,
+    budget_milli_node_hours=8000,  # 8 hours
+)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-vertex-ai-pricing">Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ Pricing</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Training:
+- n1-standard-4: $0.190/hour
+- n1-standard-4 + T4: $0.526/hour
+- n1-standard-8 + V100: $2.67/hour
+
+Prediction (Hosting):
+- n1-standard-2: $0.095/hour
+- n1-standard-4 + T4: $0.526/hour
+
+AutoML:
+- Training: $3.15/hour
+- Prediction: $1.25/hour + $0.10/1000 predictions</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-gcp-networking-for-ml">GCP äº‘ï¼ˆGCPï¼‰ Networking for ML</h4>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-vpc-architecture">VPC Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    VPC Network (Global)                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                             â”‚
+â”‚  us-central1                      us-east1                 â”‚
+â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€                     â”€â”€â”€â”€â”€â”€â”€â”€                 â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”             â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”‚
+â”‚  â”‚ Subnet: 10.0.1.0/24â”‚         â”‚ Subnet: 10.0.2.0/24â”‚   â”‚
+â”‚  â”‚                 â”‚             â”‚                  â”‚     â”‚
+â”‚  â”‚ ML Training     â”‚             â”‚ ML Inference     â”‚     â”‚
+â”‚  â”‚ Instances       â”‚             â”‚ Instances        â”‚     â”‚
+â”‚  â”‚ (GPU VMs)       â”‚             â”‚ (GKE Cluster)    â”‚     â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜             â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚
+â”‚                                                             â”‚
+â”‚  Cloud Storage                   Cloud SQL                 â”‚
+â”‚  (Private endpoint)              (Private IP)              â”‚
+â”‚                                                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+         â–²                               â–²
+         â”‚                               â”‚
+    Cloud NAT                    Cloud Load Balancer
+    (Outbound)                   (Inbound - Public)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-creating-vpc-network">Creating VPC Network</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create VPC network
+gcloud compute networks create ml-vpc \
+  --subnet-mode=custom
+
+# Create subnet for training (us-central1)
+gcloud compute networks subnets create ml-training-subnet \
+  --network=ml-vpc \
+  --region=us-central1 \
+  --range=10.0.1.0/24
+
+# Create subnet for inference (us-east1)
+gcloud compute networks subnets create ml-inference-subnet \
+  --network=ml-vpc \
+  --region=us-east1 \
+  --range=10.0.2.0/24
+
+# Create firewall rule (allow SSH)
+gcloud compute firewall-rules create ml-allow-ssh \
+  --network=ml-vpc \
+  --allow=tcp:22 \
+  --source-ranges=0.0.0.0/0
+
+# Create firewall rule (allow internal)
+gcloud compute firewall-rules create ml-allow-internal \
+  --network=ml-vpc \
+  --allow=tcp,udp,icmp \
+  --source-ranges=10.0.0.0/16</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-cloud-load-balancing">Cloud Load Balancing</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create instance group
+gcloud compute instance-groups managed create ml-inference-group \
+  --base-instance-name=ml-inference \
+  --template=ml-inference-template \
+  --size=3 \
+  --zone=us-central1-a
+
+# Create health check
+gcloud compute health-checks create http ml-health-check \
+  --port=8000 \
+  --request-path=/health
+
+# Create backend service
+gcloud compute backend-services create ml-backend-service \
+  --protocol=HTTP \
+  --health-checks=ml-health-check \
+  --global
+
+# Add instance group to backend
+gcloud compute backend-services add-backend ml-backend-service \
+  --instance-group=ml-inference-group \
+  --instance-group-zone=us-central1-a \
+  --global
+
+# Create URL map
+gcloud compute url-maps create ml-load-balancer \
+  --default-service=ml-backend-service
+
+# Create target HTTP proxy
+gcloud compute target-http-proxies create ml-http-proxy \
+  --url-map=ml-load-balancer
+
+# Create forwarding rule (public IP)
+gcloud compute forwarding-rules create ml-forwarding-rule \
+  --global \
+  --target-http-proxy=ml-http-proxy \
+  --ports=80
+
+# Get public IP
+gcloud compute forwarding-rules describe ml-forwarding-rule --global</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-cloud-cdn">Cloud CDN</h5>
+<p>Enable Cloud CDN for model serving with caching:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Enable Cloud CDN on backend service
+gcloud compute backend-services update ml-backend-service \
+  --enable-cdn \
+  --cache-mode=CACHE_ALL_STATIC \
+  --default-ttl=3600 \
+  --global</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-cost-optimization-strategies">Cost Optimization Strategies</h4>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-1-committed-use-discounts-cuds">1. Committed Use Discounts (CUDs)</h5>
+<p>Save <strong>57%</strong> with 3-year commitment:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Resource           â”‚ On-Demand    â”‚ 1-Year CUD   â”‚ 3-Year CUD   â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ n1-standard-4      â”‚ $0.190/hr    â”‚ $0.128/hr    â”‚ $0.082/hr    â”‚
+â”‚ n1-standard-8      â”‚ $0.380/hr    â”‚ $0.256/hr    â”‚ $0.164/hr    â”‚
+â”‚ T4 GPU             â”‚ $0.35/hr     â”‚ $0.244/hr    â”‚ $0.158/hr    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+Savings:           -              33%           57%</code></pre></div>
+<p>Purchase:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Purchase CUD (via console or API)
+# Console: Billing â†’ Commitments â†’ Purchase commitment</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-2-sustained-use-discounts">2. Sustained Use Discounts</h5>
+<p>Automatic discounts for sustained use (no commitment required):</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Running time per month: Discount
+- 25% of month: 0%
+- 50% of month: 10%
+- 75% of month: 20%
+- 100% of month: 30%</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-3-preemptible-vms-and-spot-vms">3. Preemptible VMs and Spot VMs</h5>
+<p>Save <strong>60-91%</strong> on compute:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Preemptible VM (can be terminated anytime)
+gcloud compute instances create ml-training \
+  --preemptible \
+  --machine-type=n1-standard-8 \
+  --accelerator=type=nvidia-tesla-t4,count=1
+
+# Spot VM (successor to preemptible, with more features)
+gcloud compute instances create ml-training-spot \
+  --provisioning-model=SPOT \
+  --instance-termination-action=STOP \
+  --machine-type=n1-standard-8</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-4-autoscaling">4. Autoscaling</h5>
+<p>Scale down when not in use:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># GKE cluster autoscaling
+gcloud container clusters update ml-cluster \
+  --enable-autoscaling \
+  --min-nodes=0 \
+  --max-nodes=10 \
+  --zone=us-central1-a
+
+# Instance group autoscaling
+gcloud compute instance-groups managed set-autoscaling ml-inference-group \
+  --max-num-replicas=10 \
+  --min-num-replicas=1 \
+  --target-cpu-utilization=0.7 \
+  --zone=us-central1-a</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-5-storage-lifecycle-management">5. Storage Lifecycle Management</h5>
+<p>Automatically move data to cheaper storage:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Lifecycle policy (from earlier)
+# Standard â†’ Nearline (30 days) â†’ Coldline (90 days) â†’ Delete (365 days)
+
+# Savings example:
+# 1 TB for 1 year:
+# - All Standard: $240
+# - With lifecycle: $80 (67% savings)</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-6-budget-alerts">6. Budget Alerts</h5>
+<p>Set up billing alerts:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create budget (via console)
+# Billing â†’ Budgets &amp; alerts â†’ Create budget
+
+# Set thresholds:
+# - 50% of budget: Email alert
+# - 90% of budget: Email alert + Pub/Sub notification
+# - 100% of budget: Emergency notification</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-7-cost-monitoring">7. Cost ç›‘æŽ§ï¼ˆMonitoringï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install cost management tool
+pip install google-cloud-billing
+
+# View current costs
+gcloud billing accounts list
+gcloud billing projects describe my-project-id
+
+# Export billing data to BigQuery for analysis
+gcloud alpha billing accounts describe ACCOUNT_ID \
+  --format=&quot;value(billingAccountName)&quot;</code></pre></div>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-cost-optimization-checklist">Cost Optimization Checklist</h5>
+<ul>
+<li>[ ] Use preemptible/spot VMs for training (60-91% savings)</li>
+<li>[ ] Commit to 1-year or 3-year CUDs (33-57% savings)</li>
+<li>[ ] Enable autoscaling (scale to zero when idle)</li>
+<li>[ ] Use storage lifecycle policies (67% savings on old data)</li>
+<li>[ ] Right-size instances (don't over-provision)</li>
+<li>[ ] Delete unused resources (snapshots, disks, IPs)</li>
+<li>[ ] Use regional resources (cheaper than multi-regional)</li>
+<li>[ ] Leverage free tier (always free resources)</li>
+<li>[ ] Set up budget alerts (prevent surprise bills)</li>
+<li>[ ] Review costs weekly (identify waste early)</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-hands-on-exercise">Hands-on Exercise</h4>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-exercise-deploy-complete-ml-sy">Exercise: Deploy Complete ML System on GCP äº‘ï¼ˆGCPï¼‰</h5>
+<p><strong>Objective</strong>: Deploy an image classification model with the following architecture:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">User Request
+    â†“
+Cloud Load Balancer (with Cloud CDN)
+    â†“
+GKE Cluster (autoscaling 1-10 pods)
+    â†“
+Model Server (T4 GPU, loads model from Cloud Storage)
+    â†“
+Cloud Storage (model weights)</code></pre></div>
+<p><strong>Requirements</strong>:</p>
+<ol>
+<li>Use preemptible GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ nodes</li>
+<li>Enable autoscaling (CPU &gt; 70%)</li>
+<li>Implement health checks</li>
+<li>Enable Cloud CDN for caching</li>
+<li>Set up monitoring with Cloud ç›‘æŽ§ï¼ˆMonitoringï¼‰</li>
+<li>Estimate monthly cost (assume 1M requests/month)</li>
+</ol>
+<p><strong>Steps</strong>:</p>
+<ol>
+<li><strong>Create Cloud Storage bucket and upload model</strong>:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   gsutil mb -l us-central1 gs://my-ml-exercise-bucket
+   gsutil cp model.pth gs://my-ml-exercise-bucket/models/</code></pre></div>
+<ol>
+<li><strong>Build and push Docker å®¹å™¨ï¼ˆDockerï¼‰ image</strong>:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   # Build image
+   docker build -t gcr.io/my-project/ml-model:v1 .
+
+   # Push to Google Container Registry
+   docker push gcr.io/my-project/ml-model:v1</code></pre></div>
+<ol>
+<li><strong>Create GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ cluster with GPU åŠ é€Ÿï¼ˆGPUï¼‰ nodes</strong>:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   gcloud container clusters create ml-exercise-cluster \
+     --zone=us-central1-a \
+     --machine-type=n1-standard-4 \
+     --accelerator=type=nvidia-tesla-t4,count=1 \
+     --num-nodes=2 \
+     --enable-autoscaling \
+     --min-nodes=1 \
+     --max-nodes=10 \
+     --preemptible</code></pre></div>
+<ol>
+<li><strong>Deploy model to GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰</strong>:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   kubectl apply -f deployment.yaml
+   kubectl apply -f service.yaml
+   kubectl apply -f hpa.yaml</code></pre></div>
+<ol>
+<li><strong>Set up load balancer and Cloud CDN</strong>:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   # Follow load balancer setup from earlier
+   # Enable Cloud CDN</code></pre></div>
+<ol>
+<li><strong>Configure monitoring</strong>:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   # Set up Cloud Monitoring dashboard
+   # Create alerts for high CPU, errors, latency</code></pre></div>
+<ol>
+<li><strong>Test and calculate costs</strong>:</li>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   # Load test
+   ab -n 10000 -c 50 http://LOAD_BALANCER_IP/predict
+
+   # Calculate costs:
+   # - GKE: 2 preemptible n1-standard-4 + T4
+   # - Cloud Storage: 1 GB
+   # - Load Balancer: 1M requests
+   # - Cloud CDN: 500 GB egress
+   # - Cloud Monitoring: Basic tier</code></pre></div>
+<p><strong>Expected Cost</strong> (1M requests/month):</p>
+<ul>
+<li>GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ nodes (preemptible): 2 Ã— $0.07/hr Ã— 730hr = $102</li>
+<li>Cloud Storage: 1 GB Ã— $0.020 = $0.02</li>
+<li>Load Balancer: 1M requests Ã— $0.008/1000 = $8</li>
+<li>Cloud CDN: 500 GB Ã— $0.08/GB = $40</li>
+<li><strong>Total: ~$150/month</strong></li>
+</ul>
+<p><strong>Bonus challenges</strong>:</p>
+<ul>
+<li>Add Cloud Armor (DDoS protection)</li>
+<li>Implement A/B testing (split traffic between model versions)</li>
+<li>Set up CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ with Cloud Build</li>
+<li>Add distributed tracing with Cloud Trace</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li><strong>What is the difference between Compute Engine, GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰, and Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ for training models?</strong></li>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt;</p>
+</ol>
+<ul>
+<li><strong>Compute Engine</strong>: Full control, manual management, good for custom setups</li>
+<li><strong>GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰</strong>: Container orchestration, è‡ªåŠ¨æ‰©ç¼©å®¹ï¼ˆauto-scalingï¼‰, good for production serving</li>
+<li><strong>Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰</strong>: Fully managed, automated scaling, good for quick deployment</li>
+<p>&lt;/details&gt;</p>
+</ul>
+<ol>
+<li><strong>When would you choose a TPU over a GPU åŠ é€Ÿï¼ˆGPUï¼‰?</strong></li>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt;</p>
+</ol>
+<p>Choose TPU when:</p>
+<ul>
+<li>è®­ç»ƒï¼ˆTrainingï¼‰ large TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰ models</li>
+<li>Using bfloat16 precision</li>
+<li>è®­ç»ƒï¼ˆTrainingï¼‰ for extended periods (cost-effective)</li>
+<li>Need high matrix multiplication throughput</li>
+</ul>
+<p>Choose GPU åŠ é€Ÿï¼ˆGPUï¼‰ when:</p>
+<ul>
+<li>Using PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰</li>
+<li>Need flexibility for custom operations</li>
+<li>Prototyping and experimentation</li>
+<p>&lt;/details&gt;</p>
+</ul>
+<ol>
+<li><strong>How can you save 80% on compute costs?</strong></li>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt;</p>
+</ol>
+<ul>
+<li>Use preemptible/spot VMs (60-91% savings)</li>
+<li>Implement checkpointing for fault tolerance</li>
+<li>Use autoscaling (scale to zero when idle)</li>
+<li>Purchase committed use discounts (33-57% savings)</li>
+<p>&lt;/details&gt;</p>
+</ul>
+<ol>
+<li><strong>What's the best storage class for archived model checkpoints?</strong></li>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt;</p>
+</ol>
+<p><strong>Coldline</strong> or <strong>Archive</strong> storage:</p>
+<ul>
+<li>Coldline: $0.004/GB/month (access &lt;1/quarter)</li>
+<li>Archive: $0.0012/GB/month (access &lt;1/year)</li>
+<li>Use lifecycle policies to automatically transition</li>
+<p>&lt;/details&gt;</p>
+</ul>
+<ol>
+<li><strong>How do you enable autoscaling on GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰?</strong></li>
+<p>&lt;details&gt; &lt;summary&gt;Answer&lt;/summary&gt;</p>
+</ol>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">   # Cluster autoscaler (nodes)
+   gcloud container clusters update ml-cluster \
+     --enable-autoscaling --min-nodes=1 --max-nodes=10
+
+   # Horizontal Pod Autoscaler (pods)
+   kubectl autoscale deployment ml-model \
+     --cpu-percent=70 --min=2 --max=20</code></pre></div>
+<p>&lt;/details&gt;</p>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-additional-resources">Additional Resources</h4>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-official-documentation">Official Documentation</h5>
+<ul>
+<li><a href="https://cloud.google.com/products/ai">GCP äº‘ï¼ˆGCPï¼‰ ML Documentation</a></li>
+<li><a href="https://cloud.google.com/vertex-ai/docs">Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ Documentation</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs">GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ Documentation</a></li>
+<li><a href="https://cloud.google.com/tpu/docs">TPU Documentation</a></li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-tutorials">Tutorials</h5>
+<ul>
+<li><a href="https://developers.google.com/machine-learning/crash-course">GCP äº‘ï¼ˆGCPï¼‰ ML Crash Course</a></li>
+<li><a href="https://cloud.google.com/vertex-ai/docs/tutorials">Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ Tutorials</a></li>
+<li><a href="https://cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning">GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ ML Serving Guide</a></li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-tools">Tools</h5>
+<ul>
+<li><a href="https://cloud.google.com/sdk/gcloud">gcloud CLI</a></li>
+<li><a href="https://cloud.google.com/storage/docs/gsutil">gsutil</a></li>
+<li><a href="https://kubernetes.io/docs/reference/kubectl/">kubectl</a></li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-cost-management">Cost Management</h5>
+<ul>
+<li><a href="https://cloud.google.com/products/calculator">GCP äº‘ï¼ˆGCPï¼‰ Pricing Calculator</a></li>
+<li><a href="https://cloud.google.com/cost-management">Cost Management Tools</a></li>
+<li><a href="https://cloud.google.com/free">Free Tier Details</a></li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-community">Community</h5>
+<ul>
+<li><a href="https://cloud.google.com/community">GCP äº‘ï¼ˆGCPï¼‰ Community</a></li>
+<li><a href="https://stackoverflow.com/questions/tagged/google-cloud-platform">Stack Overflow</a></li>
+<li><a href="https://www.reddit.com/r/googlecloud/">Reddit: r/googlecloud</a></li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<p>âœ… Set up GCP äº‘ï¼ˆGCPï¼‰ account with proper IAM and security âœ… Deploy Compute Engine instances with GPUs for ML training âœ… Use Cloud Storage for datasets and models with lifecycle management âœ… Work with TPUs for accelerated TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰ training âœ… Deploy models on GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ with autoscaling âœ… Use Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ for managed ML training and serving âœ… Configure VPC networking and load balancing âœ… Optimize costs with preemptible VMs, CUDs, and lifecycle policies</p>
+<p><strong>Key Takeaways</strong>:</p>
+<ul>
+<li>GCP äº‘ï¼ˆGCPï¼‰ is strong for TensorFlow æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆTensorFlowï¼‰ workloads and TPU access</li>
+<li>Preemptible VMs save 60-91% on compute costs</li>
+<li>Use GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ for production model serving with autoscaling</li>
+<li>Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ simplifies ML workflow management</li>
+<li>Cloud Storage lifecycle policies save 67% on old data</li>
+</ul>
+<p><strong>Next Steps</strong>:</p>
+<ul>
+<li>Complete hands-on exercise</li>
+<li>Explore Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰ Pipelines for MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</li>
+<li>Learn about Kubeflow on GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰</li>
+<li>Proceed to Lesson 04: Azure äº‘ï¼ˆAzureï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</li>
+</ul>
+<hr/>
+<p><strong>Estimated Time to Complete</strong>: 7 hours (including hands-on exercise) <strong>Difficulty</strong>: Intermediate <strong>Next Lesson</strong>: <a href="#doc-lessons-mod-102-cloud-computing-04-azure-ml-infrastructure-md">04-azure-ml-infrastructure.md</a></p><p><a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-04-azure-ml-infrastructure-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

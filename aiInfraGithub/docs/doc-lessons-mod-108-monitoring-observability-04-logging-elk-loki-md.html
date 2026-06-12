@@ -1,0 +1,901 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-resources-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lesson 01: Introduction to å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-02-prometheus-metrics-md.html">Lesson 02: Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ for Metrics Collection</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-03-grafana-visualization-md.html">Lesson 03: Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ for Visualization</a><a class="tree-doc active" href="../docs/doc-lessons-mod-108-monitoring-observability-04-logging-elk-loki-md.html">Lesson 04: Logging with ELK Stack and Loki</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-05-distributed-tracing-md.html">Lesson 05: Distributed Tracing with Jaeger é“¾è·¯è¿½è¸ªï¼ˆJaegerï¼‰ and Tempo</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-06-alerting-strategies-md.html">Lesson 06: å‘Šè­¦ï¼ˆAlertingï¼‰ Strategies and Alert Management</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-07-ml-model-observability-md.html">Lesson 07: ML-Specific ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Model å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-08-best-practices-culture-md.html">Lesson 08: Best Practices and å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ Culture</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Module 108 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-01-prometheus-instrumentation-md.html">Lab 01: Instrument a Python Service with Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-02-grafana-dashboards-md.html">Lab 02: Build a Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ Dashboard from Scratch</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-03-loki-logging-md.html">Lab 03: Send Logs to Loki</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-04-distributed-tracing-md.html">Lab 04: Distributed Tracing with OpenTelemetry å¯è§‚æµ‹æ€§ï¼ˆOpenTelemetryï¼‰ + Jaeger é“¾è·¯è¿½è¸ªï¼ˆJaegerï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-labs-lab-05-alerting-rules-md.html">Lab 05: Author Alert Rules with Multi-Window Burn Rates</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercise 01: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ Stack (Prometheus + Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ + Loki)</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-02-ml-model-monitoring-readme-.html">Exercise 02: ML Model ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-03-promql-deep-dive-readme-md.html">Exercise 03: PromQL Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-04-dashboards-as-code-readme-m.html">Exercise 04: Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ Dashboards as Code</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-05-log-pipeline-readme-md.html">Exercise 05: Structured Log Pipeline (Loki + Vector)</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-06-distributed-tracing-otel-re.html">Exercise 06: Distributed Tracing with OpenTelemetry å¯è§‚æµ‹æ€§ï¼ˆOpenTelemetryï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-07-alertmanager-routing-readme.html">Exercise 07: Alertmanager Routing and Notification Strategy</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-08-slo-and-error-budgets-readm.html">Exercise 08: æœåŠ¡æ°´å¹³æŒ‡æ ‡ï¼ˆSLIï¼‰ / æœåŠ¡æ°´å¹³ç›®æ ‡ï¼ˆSLOï¼‰ / Error Budget Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-09-incident-response-gameday-r.html">Exercise 09: äº‹æ•…å“åº”ï¼ˆIncident Responseï¼‰ Game Day</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-10-observability-cost-control-.html">Exercise 10: å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ Cost Control</a><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-readme-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ - Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Module 08: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-108-monitoring-observability-04-logging-elk-loki-md"><h3 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-lesson-04-logging-with-elk">Lesson 04: Logging with ELK Stack and Loki</h3>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+<li>Understand the importance of centralized logging for AI infrastructure</li>
+<li>Set up and configure the ELK Stack (Elasticsearch, Logstash, Kibana)</li>
+<li>Deploy and use Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ Loki for log aggregation</li>
+<li>Implement structured logging in Python applications</li>
+<li>Query and analyze logs effectively</li>
+<li>Design log retention and archival strategies</li>
+<li>Integrate logs with metrics for comprehensive observability</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-prerequisites">å‰ç½®è¦æ±‚ï¼ˆPrerequisitesï¼‰</h4>
+<ul>
+<li>Completion of Lessons 01-03 (Observability, Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰, Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰)</li>
+<li>Understanding of Docker å®¹å™¨ï¼ˆDockerï¼‰ and Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</li>
+<li>Python programming experience</li>
+<li>Basic Linux command-line knowledge</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-introduction">Introduction</h4>
+<p>Logs are the detailed record of events in your systems. For AI infrastructure, logs are crucial for debugging model failures, tracking data pipeline issues, understanding GPU åŠ é€Ÿï¼ˆGPUï¼‰ errors, and auditing ML experiments. Unlike metrics (which are aggregated numbers) and traces (which track requests), logs provide detailed, timestamped records of what happened.</p>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-why-centralized-logging-fo">Why Centralized Logging for ML Systems?</h5>
+<ol>
+<li><strong>Debugging</strong>: Trace errors in training jobs, inference pipelines, and data processing</li>
+<li><strong>Audit trail</strong>: Track who deployed which model, data access patterns, experiment parameters</li>
+<li><strong>Performance analysis</strong>: Identify slow operations, resource contention, I/O bottlenecks</li>
+<li><strong>Compliance</strong>: Maintain records for data governance and model explainability</li>
+<li><strong>Correlation</strong>: Link logs with metrics and traces for root cause analysis</li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-1-logging-fundamentals">1. Logging Fundamentals</h4>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-log-levels">Log Levels</h5>
+<p>Standard log levels (from most to least severe):</p>
+<div class="table-wrap"><table><thead><tr><th>Level</th><th>Purpose</th><th>Example</th></tr></thead><tbody><tr><td><strong>FATAL/CRITICAL</strong></td><td>System is unusable</td><td>GPU åŠ é€Ÿï¼ˆGPUï¼‰ driver crash, OOM killer</td></tr><tr><td><strong>ERROR</strong></td><td>Failure in operation</td><td>Model loading failed, inference error</td></tr><tr><td><strong>WARN</strong></td><td>Potential issue</td><td>High GPU åŠ é€Ÿï¼ˆGPUï¼‰ temperature, slow query</td></tr><tr><td><strong>INFO</strong></td><td>General information</td><td>Model deployed, batch completed</td></tr><tr><td><strong>DEBUG</strong></td><td>Detailed diagnostic</td><td>Function parameters, intermediate values</td></tr><tr><td><strong>TRACE</strong></td><td>Very detailed</td><td>Loop iterations, all function calls</td></tr></tbody></table></div>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-structured-vs-unstructured">Structured vs. Unstructured Logging</h5>
+<p><strong>Unstructured (Plain Text):</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">2025-10-15 10:23:45 Model bert-base processed 1000 requests in 5.2 seconds</code></pre></div>
+<ul>
+<li>Human-readable</li>
+<li>Hard to parse and query</li>
+<li>Difficult to aggregate</li>
+</ul>
+<p><strong>Structured (JSON):</strong></p>
+<div class="code-shell"><div class="code-title"><span>json</span><span>JSON</span></div><pre><code class="language-json">{
+  &quot;timestamp&quot;: &quot;2025-10-15T10:23:45Z&quot;,
+  &quot;level&quot;: &quot;INFO&quot;,
+  &quot;model_name&quot;: &quot;bert-base&quot;,
+  &quot;model_version&quot;: &quot;v1.2&quot;,
+  &quot;requests_processed&quot;: 1000,
+  &quot;duration_seconds&quot;: 5.2,
+  &quot;gpu_id&quot;: 0,
+  &quot;message&quot;: &quot;Batch processing completed&quot;
+}</code></pre></div>
+<ul>
+<li>Machine-parseable</li>
+<li>Easy to query and filter</li>
+<li>Enables aggregation and analysis</li>
+</ul>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-logging-best-practices">Logging Best Practices</h5>
+<ol>
+<li><strong>Use structured logging</strong> (JSON format)</li>
+<li><strong>Include context</strong> (request ID, user ID, model name, etc.)</li>
+<li><strong>Log at appropriate levels</strong> (not everything at INFO)</li>
+<li><strong>Avoid logging sensitive data</strong> (passwords, PII, API keys)</li>
+<li><strong>Use correlation IDs</strong> to track requests across services</li>
+<li><strong>Include timing information</strong> for performance analysis</li>
+<li><strong>Log errors with stack traces</strong></li>
+</ol>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-2-elk-stack-elasticsearch-">2. ELK Stack (Elasticsearch, Logstash, Kibana)</h4>
+<p>The ELK Stack is a powerful suite for log aggregation, processing, storage, and visualization.</p>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-architecture">æž¶æž„ï¼ˆArchitectureï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Application â”‚
+â”‚   (Logs)    â”‚
+â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+       â”‚
+       â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”      â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”      â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  Filebeat/  â”‚â”€â”€â”€â”€â”€&gt;â”‚   Logstash   â”‚â”€â”€â”€â”€â”€&gt;â”‚Elasticsearchâ”‚
+â”‚  Fluentd    â”‚      â”‚  (Process &amp;  â”‚      â”‚  (Store &amp;  â”‚
+â”‚  (Collect)  â”‚      â”‚   Transform) â”‚      â”‚   Index)   â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜      â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜      â””â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+                                                  â”‚
+                                                  â†“
+                                           â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                                           â”‚  Kibana  â”‚
+                                           â”‚(Visualizeâ”‚
+                                           â”‚  Query)  â”‚
+                                           â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<p><strong>Components:</strong></p>
+<ul>
+<li><strong>Elasticsearch</strong>: Distributed search and analytics engine (storage)</li>
+<li><strong>Logstash</strong>: Data processing pipeline (ingestion and transformation)</li>
+<li><strong>Kibana</strong>: Visualization and query interface</li>
+<li><strong>Filebeat/Fluentd</strong>: Lightweight log shippers (collection)</li>
+</ul>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-installing-elk-stack">Installing ELK Stack</h5>
+<p><strong>docker-compose.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">version: '3.8'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - &quot;9200:9200&quot;
+      - &quot;9300:9300&quot;
+    networks:
+      - elk
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:9200&quot;]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.10.0
+    container_name: logstash
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    ports:
+      - &quot;5000:5000/tcp&quot;  # Logstash TCP input
+      - &quot;5000:5000/udp&quot;  # Logstash UDP input
+      - &quot;9600:9600&quot;      # Logstash monitoring
+    environment:
+      - LS_JAVA_OPTS=-Xmx1g -Xms1g
+    networks:
+      - elk
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.10.0
+    container_name: kibana
+    ports:
+      - &quot;5601:5601&quot;
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - elk
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.10.0
+    container_name: filebeat
+    user: root
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: filebeat -e -strict.perms=false
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - logstash
+
+volumes:
+  elasticsearch_data:
+
+networks:
+  elk:
+    driver: bridge</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-logstash-configuration">Logstash Configuration</h5>
+<p><strong>logstash/pipeline/ml-logs.conf:</strong></p>
+<div class="code-shell"><div class="code-title"><span>ruby</span><span>RUBY</span></div><pre><code class="language-ruby">input {
+  # TCP input for structured logs
+  tcp {
+    port =&gt; 5000
+    codec =&gt; json_lines
+    tags =&gt; [&quot;tcp&quot;]
+  }
+
+  # Filebeat input
+  beats {
+    port =&gt; 5044
+    tags =&gt; [&quot;beats&quot;]
+  }
+}
+
+filter {
+  # Parse JSON logs
+  if [message] =~ /^{.*}$/ {
+    json {
+      source =&gt; &quot;message&quot;
+    }
+  }
+
+  # Add timestamp if missing
+  if ![timestamp] {
+    ruby {
+      code =&gt; &quot;event.set('timestamp', Time.now.utc.iso8601)&quot;
+    }
+  }
+
+  # Parse log level
+  if [level] {
+    mutate {
+      uppercase =&gt; [&quot;level&quot;]
+    }
+  }
+
+  # Extract model information
+  if [model_name] {
+    mutate {
+      add_field =&gt; {
+        &quot;[@metadata][index_prefix]&quot; =&gt; &quot;ml-logs-models&quot;
+      }
+    }
+  }
+
+  # Parse GPU logs
+  if [gpu_id] {
+    mutate {
+      convert =&gt; {
+        &quot;gpu_id&quot; =&gt; &quot;integer&quot;
+      }
+      add_field =&gt; {
+        &quot;[@metadata][index_prefix]&quot; =&gt; &quot;ml-logs-gpu&quot;
+      }
+    }
+  }
+
+  # Parse training job logs
+  if [job_type] == &quot;training&quot; {
+    mutate {
+      add_field =&gt; {
+        &quot;[@metadata][index_prefix]&quot; =&gt; &quot;ml-logs-training&quot;
+      }
+    }
+
+    # Extract epoch and loss if present
+    grok {
+      match =&gt; {
+        &quot;message&quot; =&gt; &quot;Epoch %{NUMBER:epoch:int}.*loss[:=]\s*%{NUMBER:loss:float}&quot;
+      }
+      tag_on_failure =&gt; []
+    }
+  }
+
+  # Add environment tags
+  mutate {
+    add_field =&gt; {
+      &quot;environment&quot; =&gt; &quot;${ENV:dev}&quot;
+      &quot;cluster&quot; =&gt; &quot;${CLUSTER:local}&quot;
+    }
+  }
+
+  # Remove unnecessary fields
+  mutate {
+    remove_field =&gt; [&quot;@version&quot;, &quot;host&quot;]
+  }
+}
+
+output {
+  # Output to Elasticsearch
+  elasticsearch {
+    hosts =&gt; [&quot;elasticsearch:9200&quot;]
+    index =&gt; &quot;%{[@metadata][index_prefix]:ml-logs}-%{+YYYY.MM.dd}&quot;
+  }
+
+  # Debug output (optional)
+  # stdout {
+  #   codec =&gt; rubydebug
+  # }
+}</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-filebeat-configuration">Filebeat Configuration</h5>
+<p><strong>filebeat/filebeat.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">filebeat.inputs:
+  # Container logs
+  - type: container
+    paths:
+      - '/var/lib/docker/containers/*/*.log'
+    processors:
+      - add_docker_metadata:
+          host: &quot;unix:///var/run/docker.sock&quot;
+      - decode_json_fields:
+          fields: [&quot;message&quot;]
+          target: &quot;&quot;
+          overwrite_keys: true
+
+  # Application logs from file
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/ml-platform/*.log
+    fields:
+      service: ml-platform
+    json.keys_under_root: true
+    json.add_error_key: true
+
+output.logstash:
+  hosts: [&quot;logstash:5044&quot;]
+  compression_level: 3
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-3-grafana-loki">3. Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ Loki</h4>
+<p>Loki is a log aggregation system designed to be cost-effective and easy to operate, inspired by Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰.</p>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-loki-vs-elk">Loki vs. ELK</h5>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>Loki</th><th>ELK</th></tr></thead><tbody><tr><td><strong>Storage</strong></td><td>Object storage (S3, GCS)</td><td>Elasticsearch</td></tr><tr><td><strong>Indexing</strong></td><td>Labels only (like Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰)</td><td>Full-text indexing</td></tr><tr><td><strong>Query language</strong></td><td>LogQL (similar to PromQL)</td><td>Elasticsearch DSL</td></tr><tr><td><strong>Cost</strong></td><td>Lower (less indexing)</td><td>Higher (full indexing)</td></tr><tr><td><strong>Setup complexity</strong></td><td>Simpler</td><td>More complex</td></tr><tr><td><strong>Search performance</strong></td><td>Slower for unindexed fields</td><td>Faster full-text search</td></tr><tr><td><strong>Integration</strong></td><td>Native Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ integration</td><td>Separate Kibana</td></tr></tbody></table></div>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-installing-loki-with-promt">Installing Loki with Promtail</h5>
+<p><strong>docker-compose.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">version: '3.8'
+
+services:
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki
+    ports:
+      - &quot;3100:3100&quot;
+    volumes:
+      - ./loki-config.yml:/etc/loki/config.yml
+      - loki_data:/loki
+    command: -config.file=/etc/loki/config.yml
+    networks:
+      - monitoring
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: promtail
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yml
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitoring
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: grafana
+    ports:
+      - &quot;3000:3000&quot;
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    networks:
+      - monitoring
+    depends_on:
+      - loki
+
+volumes:
+  loki_data:
+  grafana_data:
+
+networks:
+  monitoring:
+    driver: bridge</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-loki-configuration">Loki Configuration</h5>
+<p><strong>loki-config.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+common:
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2023-01-01
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: /loki/boltdb-shipper-active
+    cache_location: /loki/boltdb-shipper-cache
+    cache_ttl: 24h
+    shared_store: filesystem
+  filesystem:
+    directory: /loki/chunks
+
+limits_config:
+  enforce_metric_name: false
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h  # 7 days
+  ingestion_rate_mb: 10
+  ingestion_burst_size_mb: 20
+  per_stream_rate_limit: 5MB
+  per_stream_rate_limit_burst: 20MB
+
+chunk_store_config:
+  max_look_back_period: 0s
+
+table_manager:
+  retention_deletes_enabled: true
+  retention_period: 30d
+
+compactor:
+  working_directory: /loki/compactor
+  shared_store: filesystem
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-promtail-configuration">Promtail Configuration</h5>
+<p><strong>promtail-config.yml:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Docker container logs
+  - job_name: containers
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      - source_labels: ['__meta_docker_container_log_stream']
+        target_label: 'stream'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            message: message
+            timestamp: timestamp
+            model_name: model_name
+            gpu_id: gpu_id
+      - labels:
+          level:
+          model_name:
+          gpu_id:
+      - timestamp:
+          source: timestamp
+          format: RFC3339
+
+  # ML platform logs
+  - job_name: ml-platform
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: ml-platform
+          __path__: /var/log/ml-platform/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            msg: message
+            model: model_name
+            version: model_version
+      - labels:
+          level:
+          model:
+          version:
+
+  # Training job logs
+  - job_name: training-jobs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: training
+          __path__: /var/log/training/*.log
+    pipeline_stages:
+      - regex:
+          expression: '^.*Epoch (?P&lt;epoch&gt;\d+).*loss[:=]\s*(?P&lt;loss&gt;[\d.]+)'
+      - labels:
+          epoch:
+      - metrics:
+          training_loss:
+            type: Gauge
+            description: &quot;Training loss&quot;
+            source: loss
+            config:
+              action: set</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-4-structured-logging-in-py">4. Structured Logging in Python</h4>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-using-python-s-logging-mod">Using Python's logging Module</h5>
+<p><strong>Basic Structured Logging:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import logging
+import json
+from datetime import datetime
+
+class JSONFormatter(logging.Formatter):
+    &quot;&quot;&quot;Custom formatter for JSON logs&quot;&quot;&quot;
+
+    def format(self, record):
+        log_data = {
+            &quot;timestamp&quot;: datetime.utcnow().isoformat() + &quot;Z&quot;,
+            &quot;level&quot;: record.levelname,
+            &quot;logger&quot;: record.name,
+            &quot;message&quot;: record.getMessage(),
+            &quot;module&quot;: record.module,
+            &quot;function&quot;: record.funcName,
+            &quot;line&quot;: record.lineno
+        }
+
+        # Add extra fields
+        if hasattr(record, 'model_name'):
+            log_data['model_name'] = record.model_name
+        if hasattr(record, 'model_version'):
+            log_data['model_version'] = record.model_version
+        if hasattr(record, 'request_id'):
+            log_data['request_id'] = record.request_id
+
+        # Add exception info if present
+        if record.exc_info:
+            log_data['exception'] = self.formatException(record.exc_info)
+
+        return json.dumps(log_data)
+
+# Configure logging
+def setup_logging(log_file='app.log', log_level=logging.INFO):
+    &quot;&quot;&quot;Configure structured logging&quot;&quot;&quot;
+
+    # Create logger
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
+
+    # File handler with JSON formatting
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setFormatter(JSONFormatter())
+    logger.addHandler(file_handler)
+
+    # Console handler (human-readable for development)
+    console_handler = logging.StreamHandler()
+    console_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+
+    return logger
+
+# Usage
+logger = setup_logging()
+
+logger.info(
+    &quot;Model inference completed&quot;,
+    extra={
+        'model_name': 'bert-base',
+        'model_version': 'v1.2',
+        'batch_size': 32,
+        'latency_ms': 45.2
+    }
+)</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-using-python-json-logger">Using python-json-logger</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">pip install python-json-logger</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pythonjsonlogger import jsonlogger
+import logging
+
+# Setup
+logger = logging.getLogger()
+logHandler = logging.StreamHandler()
+formatter = jsonlogger.JsonFormatter(
+    fmt='%(asctime)s %(name)s %(levelname)s %(message)s',
+    datefmt='%Y-%m-%dT%H:%M:%S'
+)
+logHandler.setFormatter(formatter)
+logger.addHandler(logHandler)
+logger.setLevel(logging.INFO)
+
+# Usage with extra fields
+logger.info(
+    &quot;Processing batch&quot;,
+    extra={
+        'model_name': 'resnet50',
+        'batch_size': 64,
+        'gpu_id': 0
+    }
+)</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-advanced-logging-with-stru">Advanced Logging with structlog</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">pip install structlog</code></pre></div>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import structlog
+
+# Configure structlog
+structlog.configure(
+    processors=[
+        structlog.stdlib.filter_by_level,
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.TimeStamper(fmt=&quot;iso&quot;),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        structlog.processors.JSONRenderer()
+    ],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    cache_logger_on_first_use=True,
+)
+
+logger = structlog.get_logger()
+
+# Bind context that persists across log calls
+logger = logger.bind(
+    model_name=&quot;bert-base&quot;,
+    model_version=&quot;v1.2&quot;,
+    environment=&quot;production&quot;
+)
+
+# Log with additional context
+logger.info(&quot;inference_started&quot;, batch_size=32, request_id=&quot;abc123&quot;)
+logger.info(&quot;inference_completed&quot;, latency_ms=45.2, predictions_count=32)
+logger.error(&quot;inference_failed&quot;, error=&quot;OOM&quot;, gpu_id=0)</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-complete-ml-application-lo">Complete ML Application Logging Example</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import structlog
+from fastapi import FastAPI, Request
+from contextvars import ContextVar
+import uuid
+import time
+
+# Configure structlog
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.stdlib.add_log_level,
+        structlog.processors.TimeStamper(fmt=&quot;iso&quot;),
+        structlog.processors.JSONRenderer()
+    ],
+    logger_factory=structlog.stdlib.LoggerFactory(),
+)
+
+# Context variable for request ID
+request_id_ctx = ContextVar(&quot;request_id&quot;, default=None)
+
+app = FastAPI()
+logger = structlog.get_logger()
+
+@app.middleware(&quot;http&quot;)
+async def logging_middleware(request: Request, call_next):
+    &quot;&quot;&quot;Add request ID to all logs&quot;&quot;&quot;
+    request_id = str(uuid.uuid4())
+    request_id_ctx.set(request_id)
+
+    # Bind request ID to context
+    structlog.contextvars.clear_contextvars()
+    structlog.contextvars.bind_contextvars(
+        request_id=request_id,
+        method=request.method,
+        path=request.url.path,
+        client_ip=request.client.host
+    )
+
+    start_time = time.time()
+
+    logger.info(&quot;request_started&quot;)
+
+    try:
+        response = await call_next(request)
+        duration = time.time() - start_time
+
+        logger.info(
+            &quot;request_completed&quot;,
+            status_code=response.status_code,
+            duration_seconds=duration
+        )
+
+        return response
+
+    except Exception as e:
+        duration = time.time() - start_time
+        logger.error(
+            &quot;request_failed&quot;,
+            error=str(e),
+            error_type=type(e).__name__,
+            duration_seconds=duration
+        )
+        raise
+
+@app.post(&quot;/predict&quot;)
+async def predict(data: dict):
+    &quot;&quot;&quot;ML inference endpoint with comprehensive logging&quot;&quot;&quot;
+
+    logger.info(
+        &quot;inference_started&quot;,
+        model_name=data.get(&quot;model&quot;),
+        batch_size=len(data.get(&quot;inputs&quot;, []))
+    )
+
+    try:
+        # Simulate inference
+        time.sleep(0.1)
+
+        logger.info(
+            &quot;inference_completed&quot;,
+            predictions_count=len(data.get(&quot;inputs&quot;, [])),
+            model_name=data.get(&quot;model&quot;)
+        )
+
+        return {&quot;predictions&quot;: [0.95, 0.87]}
+
+    except Exception as e:
+        logger.error(
+            &quot;inference_error&quot;,
+            error=str(e),
+            error_type=type(e).__name__,
+            model_name=data.get(&quot;model&quot;)
+        )
+        raise</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-5-querying-logs">5. Querying Logs</h4>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-logql-loki">LogQL (Loki)</h5>
+<p>LogQL is similar to PromQL for querying logs.</p>
+<p><strong>Basic Queries:</strong></p>
+<div class="code-shell"><div class="code-title"><span>logql</span><span>LOGQL</span></div><pre><code class="language-logql"># All logs from ml-serving service
+{service=&quot;ml-serving&quot;}
+
+# ERROR level logs
+{service=&quot;ml-serving&quot;} |= &quot;ERROR&quot;
+{service=&quot;ml-serving&quot;} | json | level=&quot;ERROR&quot;
+
+# Logs for specific model
+{service=&quot;ml-serving&quot;} | json | model_name=&quot;bert-base&quot;
+
+# Logs with latency &gt; 1 second
+{service=&quot;ml-serving&quot;} | json | latency_ms &gt; 1000
+
+# Count error logs per minute
+rate({service=&quot;ml-serving&quot;} | json | level=&quot;ERROR&quot;[1m])
+
+# Extract and aggregate numeric fields
+sum by (model_name) (
+  rate({service=&quot;ml-serving&quot;} | json | unwrap latency_ms [5m])
+)</code></pre></div>
+<p><strong>Advanced LogQL:</strong></p>
+<div class="code-shell"><div class="code-title"><span>logql</span><span>LOGQL</span></div><pre><code class="language-logql"># Regex pattern matching
+{service=&quot;training&quot;} |~ &quot;Epoch \\d+ .*loss&quot;
+
+# Multiple conditions
+{service=&quot;ml-serving&quot;, environment=&quot;prod&quot;}
+  | json
+  | model_name=~&quot;bert.*&quot;
+  | latency_ms &gt; 500
+
+# Aggregate by label
+sum by (model_name, model_version) (
+  count_over_time({service=&quot;ml-serving&quot;} | json [5m])
+)
+
+# Calculate percentiles
+quantile_over_time(0.95,
+  {service=&quot;ml-serving&quot;}
+    | json
+    | unwrap latency_ms [5m]
+) by (model_name)</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-elasticsearch-query-dsl">Elasticsearch Query DSL</h5>
+<p><strong>Basic Queries (Kibana Discover):</strong></p>
+<div class="code-shell"><div class="code-title"><span>json</span><span>JSON</span></div><pre><code class="language-json"># Simple text search
+{
+  &quot;query&quot;: {
+    &quot;match&quot;: {
+      &quot;message&quot;: &quot;error&quot;
+    }
+  }
+}
+
+# Filtered search
+{
+  &quot;query&quot;: {
+    &quot;bool&quot;: {
+      &quot;must&quot;: [
+        { &quot;match&quot;: { &quot;level&quot;: &quot;ERROR&quot; } },
+        { &quot;match&quot;: { &quot;model_name&quot;: &quot;bert-base&quot; } }
+      ],
+      &quot;filter&quot;: [
+        {
+          &quot;range&quot;: {
+            &quot;@timestamp&quot;: {
+              &quot;gte&quot;: &quot;now-1h&quot;
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+# Aggregation (count by model)
+{
+  &quot;size&quot;: 0,
+  &quot;aggs&quot;: {
+    &quot;models&quot;: {
+      &quot;terms&quot;: {
+        &quot;field&quot;: &quot;model_name.keyword&quot;,
+        &quot;size&quot;: 10
+      }
+    }
+  }
+}</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-6-log-retention-and-archiv">6. Log Retention and Archival</h4>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-loki-retention">Loki Retention</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># loki-config.yml
+limits_config:
+  retention_period: 30d  # Keep logs for 30 days
+
+compactor:
+  working_directory: /loki/compactor
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150</code></pre></div>
+<h5 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-elasticsearch-index-lifecy">Elasticsearch Index Lifecycle Management (ILM)</h5>
+<div class="code-shell"><div class="code-title"><span>json</span><span>JSON</span></div><pre><code class="language-json">{
+  &quot;policy&quot;: {
+    &quot;phases&quot;: {
+      &quot;hot&quot;: {
+        &quot;actions&quot;: {
+          &quot;rollover&quot;: {
+            &quot;max_size&quot;: &quot;50GB&quot;,
+            &quot;max_age&quot;: &quot;1d&quot;
+          }
+        }
+      },
+      &quot;warm&quot;: {
+        &quot;min_age&quot;: &quot;7d&quot;,
+        &quot;actions&quot;: {
+          &quot;shrink&quot;: {
+            &quot;number_of_shards&quot;: 1
+          },
+          &quot;forcemerge&quot;: {
+            &quot;max_num_segments&quot;: 1
+          }
+        }
+      },
+      &quot;cold&quot;: {
+        &quot;min_age&quot;: &quot;30d&quot;,
+        &quot;actions&quot;: {
+          &quot;freeze&quot;: {}
+        }
+      },
+      &quot;delete&quot;: {
+        &quot;min_age&quot;: &quot;90d&quot;,
+        &quot;actions&quot;: {
+          &quot;delete&quot;: {}
+        }
+      }
+    }
+  }
+}</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<p>âœ… Importance of centralized logging for AI infrastructure âœ… Setting up ELK Stack (Elasticsearch, Logstash, Kibana) âœ… Deploying Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ Loki for cost-effective log aggregation âœ… Implementing structured logging in Python applications âœ… Querying logs with LogQL and Elasticsearch DSL âœ… Designing log retention and archival strategies âœ… Best practices for logging in ML systems</p>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-next-steps">Next Steps</h4>
+<ul>
+<li><strong>Lesson 05</strong>: Learn distributed tracing with Jaeger é“¾è·¯è¿½è¸ªï¼ˆJaegerï¼‰ and Tempo</li>
+<li><strong>Practice</strong>: Implement structured logging in your ML applications</li>
+<li><strong>Exercise</strong>: Set up centralized logging for a multi-service ML platform</li>
+</ul>
+<h4 id="lessons-mod-108-monitoring-observability-04-logging-elk-loki-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html">Elasticsearch Documentation</a></li>
+<li><a href="https://grafana.com/docs/loki/latest/">Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ Loki Documentation</a></li>
+<li><a href="https://grafana.com/docs/loki/latest/logql/">LogQL Guide</a></li>
+<li><a href="https://www.structlog.org/">Structlog Documentation</a></li>
+</ul>
+<hr/>
+<p><strong>Estimated Time:</strong> 4-6 hours <strong>Difficulty:</strong> Intermediate <strong>Prerequisites:</strong> Lessons 01-03, Python, Docker å®¹å™¨ï¼ˆDockerï¼‰</p><p><a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-03-grafana-visualization-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-108-monitoring-observability-05-distributed-tracing-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

@@ -1,0 +1,911 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Module 05: Data Pipelines and Orchestration</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-resources-md.html">Module 05: Data Pipelines - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lesson 01: Data Pipeline Architecture for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-02-apache-airflow-fundamentals-md.html">Lesson 02: Apache Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-03-advanced-airflow-ml-md.html">Lesson 03: Advanced Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-04-data-versioning-dvc-md.html">Lesson 04: Data Versioning with DVC æ•°æ®ç‰ˆæœ¬æŽ§åˆ¶ï¼ˆDVCï¼‰</a><a class="tree-doc active" href="../docs/doc-lessons-mod-105-data-pipelines-05-data-processing-spark-md.html">Lesson 05: Data Processing with Apache Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-06-streaming-data-kafka-md.html">Lesson 06: Streaming Data with Apache Kafka æµå¤„ç†ï¼ˆKafkaï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-07-data-quality-validation-md.html">Lesson 07: Data Quality and Validation</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-08-pipeline-monitoring-errors-md.html">Lesson 08: Pipeline ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Error Handling</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Module 105 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-01-airflow-local-md.html">Lab 01: Run Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ Locally with docker-compose</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-02-dag-development-md.html">Lab 02: Author Your First DAG</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-03-spark-job-md.html">Lab 03: Run a Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ Batch Job Locally</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-04-kafka-streaming-md.html">Lab 04: Stream Events Through Kafka æµå¤„ç†ï¼ˆKafkaï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-05-dvc-versioning-md.html">Lab 05: Version Data and Models with DVC æ•°æ®ç‰ˆæœ¬æŽ§åˆ¶ï¼ˆDVCï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-labs-lab-06-data-quality-md.html">Lab 06: Validate Data with Great Expectations</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercise 01: Data Pipeline Architecture Design</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-02-airflow-fundamentals-readme-md.html">Exercise 02: Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰ Fundamentals â€” Build a Real DAG</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-03-streaming-pipeline-kafka-readme-md.html">Exercise 03: Real-Time ML Feature Pipeline with Kafka æµå¤„ç†ï¼ˆKafkaï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-04-workflow-orchestration-airflow-readme.html">Exercise 04: ML Workflow Orchestration with Airflow å·¥ä½œæµç¼–æŽ’ï¼ˆAirflowï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-05-spark-batch-processing-readme-md.html">Exercise 05: Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ Batch Processing for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-06-data-versioning-dvc-readme-md.html">Exercise 06: Data and Model Versioning with DVC æ•°æ®ç‰ˆæœ¬æŽ§åˆ¶ï¼ˆDVCï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-07-data-quality-great-expectations-readm.html">Exercise 07: Data Quality Validation with Great Expectations</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-08-pipeline-monitoring-lineage-readme-md.html">Exercise 08: Pipeline ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Data Lineage</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-09-backfill-strategies-readme-md.html">Exercise 09: Backfill Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-10-etl-to-elt-migration-readme-md.html">Exercise 10: ETL â†’ ELT Migration with dbt</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-11-lambda-architecture-readme-md.html">Exercise 11: Lambda Architecture â€” Batch + Streaming Hybrid</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-12-pipeline-cost-optimization-readme-md.html">Exercise 12: Pipeline Cost Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-exercises-readme-md.html">Module 05: Data Pipelines - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Module 05: Data Pipelines - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-105-data-pipelines-05-data-processing-spark-md"><h3 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-lesson-05-data-processing-with-">Lesson 05: Data Processing with Apache Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰</h3>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-overview">æ¦‚è§ˆï¼ˆOverviewï¼‰</h4>
+<p>Apache Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ is a unified analytics engine for large-scale data processing. In ML infrastructure, Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ is essential for preprocessing training data, feature engineering å¤§è§„æ¨¡ï¼ˆat scaleï¼‰, and batch inference. This lesson covers Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ fundamentals and integration with ML pipelines.</p>
+<p><strong>Duration:</strong> 8-10 hours <strong>Difficulty:</strong> Intermediate <strong>Prerequisites:</strong> Python, basic SQL, understanding of åˆ†å¸ƒå¼ç³»ç»Ÿï¼ˆdistributed systemsï¼‰</p>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+<li>Understand Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ architecture and execution model</li>
+<li>Use PySpark for data processing and transformation</li>
+<li>Implement efficient data pipelines with DataFrames</li>
+<li>Optimize Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ jobs for ML workloads</li>
+<li>Integrate Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ with ML training pipelines</li>
+<li>Debug and troubleshoot Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ applications</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-1-introduction-to-apache-spark">1. Introduction to Apache Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰</h4>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-1-1-what-is-apache-spark">1.1 What is Apache Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰?</h5>
+<p>Apache Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ is a multi-language engine for executing data engineering, data science, and machine learning on single-node machines or clusters. It provides:</p>
+<ul>
+<li><strong>Speed:</strong> In-memory processing (100x faster than MapReduce)</li>
+<li><strong>Ease of use:</strong> High-level APIs in Python, Scala, Java, R</li>
+<li><strong>Unified engine:</strong> Batch processing, streaming, SQL, ML, graph processing</li>
+<li><strong>å¯æ‰©å±•æ€§ï¼ˆScalabilityï¼‰:</strong> From laptops to thousands of nodes</li>
+</ul>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-1-2-why-spark-for-ml-infrastruc">1.2 Why Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰?</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Traditional approach: Limited by single machine memory
+import pandas as pd
+df = pd.read_csv(&quot;training_data.csv&quot;)  # Fails if data &gt; RAM
+
+# Spark approach: Distributed processing
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.appName(&quot;ML Data Prep&quot;).getOrCreate()
+df = spark.read.csv(&quot;training_data.csv&quot;, header=True)  # Scales to TBs</code></pre></div>
+<p><strong>Use cases in AI infrastructure:</strong></p>
+<ul>
+<li>Large-scale feature engineering (millions of features)</li>
+<li>Data preprocessing for model training</li>
+<li>Batch inference on large datasets</li>
+<li>ETL pipelines for ML data lakes</li>
+<li>Feature store computation</li>
+</ul>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-1-3-spark-architecture">1.3 Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ Architecture</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                     Driver Program                       â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚           SparkContext / SparkSession            â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                      â”‚
+        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+        â”‚             â”‚             â”‚
+        â–¼             â–¼             â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚   Worker 1   â”‚ â”‚   Worker 2   â”‚ â”‚   Worker N   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚ â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚ â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚Executorâ”‚  â”‚ â”‚  â”‚Executorâ”‚  â”‚ â”‚  â”‚Executorâ”‚  â”‚
+â”‚  â”‚ Cache  â”‚  â”‚ â”‚  â”‚ Cache  â”‚  â”‚ â”‚  â”‚ Cache  â”‚  â”‚
+â”‚  â”‚ Task   â”‚  â”‚ â”‚  â”‚ Task   â”‚  â”‚ â”‚  â”‚ Task   â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚ â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚ â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<p><strong>Key components:</strong></p>
+<ul>
+<li><strong>Driver:</strong> Orchestrates job execution, maintains metadata</li>
+<li><strong>Executors:</strong> Distributed workers that execute tasks</li>
+<li><strong>Cluster Manager:</strong> Allocates resources (YARN, Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰, Standalone)</li>
+<li><strong>RDD/DataFrame:</strong> Distributed data abstractions</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-2-setting-up-spark-for-ml-workl">2. Setting Up Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ for ML Workloads</h4>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-2-1-installation-and-configurat">2.1 Installation and Configuration</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install PySpark
+pip install pyspark==3.5.0 pyarrow pandas
+
+# Set up environment variables
+export SPARK_HOME=/opt/spark
+export PYSPARK_PYTHON=python3
+export PYSPARK_DRIVER_PYTHON=python3</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-2-2-creating-a-sparksession">2.2 Creating a SparkSession</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pyspark.sql import SparkSession
+from pyspark.conf import SparkConf
+
+# Configure Spark for ML workloads
+conf = SparkConf() \
+    .setAppName(&quot;ML Data Processing&quot;) \
+    .set(&quot;spark.executor.memory&quot;, &quot;4g&quot;) \
+    .set(&quot;spark.driver.memory&quot;, &quot;2g&quot;) \
+    .set(&quot;spark.executor.cores&quot;, &quot;2&quot;) \
+    .set(&quot;spark.sql.shuffle.partitions&quot;, &quot;200&quot;) \
+    .set(&quot;spark.default.parallelism&quot;, &quot;100&quot;) \
+    .set(&quot;spark.sql.adaptive.enabled&quot;, &quot;true&quot;)
+
+# Create SparkSession
+spark = SparkSession.builder \
+    .config(conf=conf) \
+    .getOrCreate()
+
+print(f&quot;Spark version: {spark.version}&quot;)
+print(f&quot;Spark UI available at: {spark.sparkContext.uiWebUrl}&quot;)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-2-3-understanding-configuration">2.3 Understanding Configuration Parameters</h5>
+<div class="table-wrap"><table><thead><tr><th>Parameter</th><th>Purpose</th><th>Recommended Value</th></tr></thead><tbody><tr><td><code>spark.executor.memory</code></td><td>Memory per executor</td><td>4-8GB for ML</td></tr><tr><td><code>spark.executor.cores</code></td><td>Cores per executor</td><td>2-5 (balance parallelism)</td></tr><tr><td><code>spark.sql.shuffle.partitions</code></td><td>Shuffle parallelism</td><td>2-3x cores</td></tr><tr><td><code>spark.sql.adaptive.enabled</code></td><td>Dynamic optimization</td><td>true</td></tr><tr><td><code>spark.serializer</code></td><td>Object serialization</td><td>KryoSerializer</td></tr></tbody></table></div>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Optimized configuration for ML workloads
+ml_optimized_conf = SparkConf() \
+    .set(&quot;spark.serializer&quot;, &quot;org.apache.spark.serializer.KryoSerializer&quot;) \
+    .set(&quot;spark.kryoserializer.buffer.max&quot;, &quot;512m&quot;) \
+    .set(&quot;spark.sql.execution.arrow.pyspark.enabled&quot;, &quot;true&quot;) \
+    .set(&quot;spark.sql.adaptive.coalescePartitions.enabled&quot;, &quot;true&quot;)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-3-pyspark-dataframes-and-sql">3. PySpark DataFrames and SQL</h4>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-3-1-creating-dataframes">3.1 Creating DataFrames</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pyspark.sql import Row
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType
+
+# Method 1: From Python list
+data = [
+    Row(user_id=1, age=25, country=&quot;US&quot;, spend=150.0),
+    Row(user_id=2, age=30, country=&quot;UK&quot;, spend=200.0),
+    Row(user_id=3, age=22, country=&quot;US&quot;, spend=120.0)
+]
+df = spark.createDataFrame(data)
+
+# Method 2: From CSV with schema inference
+df_csv = spark.read.csv(
+    &quot;s3://ml-data/training_data.csv&quot;,
+    header=True,
+    inferSchema=True
+)
+
+# Method 3: With explicit schema (recommended for production)
+schema = StructType([
+    StructField(&quot;user_id&quot;, IntegerType(), nullable=False),
+    StructField(&quot;age&quot;, IntegerType(), nullable=True),
+    StructField(&quot;country&quot;, StringType(), nullable=True),
+    StructField(&quot;spend&quot;, FloatType(), nullable=True)
+])
+
+df_with_schema = spark.read.csv(
+    &quot;s3://ml-data/training_data.csv&quot;,
+    header=True,
+    schema=schema
+)
+
+# Method 4: From Parquet (most efficient for ML)
+df_parquet = spark.read.parquet(&quot;s3://ml-data/features/*.parquet&quot;)
+
+# Show DataFrame info
+df.printSchema()
+df.show(5)
+print(f&quot;Total rows: {df.count()}&quot;)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-3-2-dataframe-operations">3.2 DataFrame Operations</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pyspark.sql import functions as F
+from pyspark.sql.window import Window
+
+# SELECT: Column selection
+selected_df = df.select(&quot;user_id&quot;, &quot;age&quot;, &quot;spend&quot;)
+
+# FILTER: Row filtering
+filtered_df = df.filter(
+    (F.col(&quot;age&quot;) &gt;= 25) &amp;
+    (F.col(&quot;country&quot;) == &quot;US&quot;)
+)
+
+# WITH COLUMN: Add/modify columns
+enriched_df = df \
+    .withColumn(&quot;age_group&quot;,
+                F.when(F.col(&quot;age&quot;) &lt; 25, &quot;young&quot;)
+                 .when(F.col(&quot;age&quot;) &lt; 40, &quot;adult&quot;)
+                 .otherwise(&quot;senior&quot;)) \
+    .withColumn(&quot;spend_category&quot;,
+                F.when(F.col(&quot;spend&quot;) &lt; 100, &quot;low&quot;)
+                 .when(F.col(&quot;spend&quot;) &lt; 200, &quot;medium&quot;)
+                 .otherwise(&quot;high&quot;))
+
+# AGGREGATIONS
+agg_df = df.groupBy(&quot;country&quot;) \
+    .agg(
+        F.count(&quot;*&quot;).alias(&quot;user_count&quot;),
+        F.avg(&quot;spend&quot;).alias(&quot;avg_spend&quot;),
+        F.max(&quot;spend&quot;).alias(&quot;max_spend&quot;),
+        F.stddev(&quot;spend&quot;).alias(&quot;spend_stddev&quot;)
+    )
+
+# WINDOW FUNCTIONS: Useful for feature engineering
+window_spec = Window.partitionBy(&quot;country&quot;).orderBy(F.desc(&quot;spend&quot;))
+
+ranked_df = df.withColumn(
+    &quot;spend_rank&quot;,
+    F.row_number().over(window_spec)
+).withColumn(
+    &quot;running_total&quot;,
+    F.sum(&quot;spend&quot;).over(window_spec.rowsBetween(Window.unboundedPreceding, 0))
+)
+
+# JOINS: Combining datasets
+user_profiles = spark.read.parquet(&quot;s3://ml-data/user_profiles.parquet&quot;)
+transactions = spark.read.parquet(&quot;s3://ml-data/transactions.parquet&quot;)
+
+# Inner join
+combined_df = user_profiles.join(
+    transactions,
+    on=&quot;user_id&quot;,
+    how=&quot;inner&quot;
+)
+
+# Broadcast join (for small dimension tables)
+from pyspark.sql.functions import broadcast
+
+country_mapping = spark.read.csv(&quot;country_codes.csv&quot;, header=True)
+enriched_df = df.join(
+    broadcast(country_mapping),
+    on=&quot;country&quot;,
+    how=&quot;left&quot;
+)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-3-3-sql-interface">3.3 SQL Interface</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Register DataFrame as temporary view
+df.createOrReplaceTempView(&quot;users&quot;)
+
+# Execute SQL queries
+sql_result = spark.sql(&quot;&quot;&quot;
+    SELECT
+        country,
+        age_group,
+        COUNT(*) as user_count,
+        AVG(spend) as avg_spend,
+        PERCENTILE_APPROX(spend, 0.5) as median_spend,
+        PERCENTILE_APPROX(spend, 0.95) as p95_spend
+    FROM (
+        SELECT
+            *,
+            CASE
+                WHEN age &lt; 25 THEN 'young'
+                WHEN age &lt; 40 THEN 'adult'
+                ELSE 'senior'
+            END as age_group
+        FROM users
+    )
+    GROUP BY country, age_group
+    HAVING user_count &gt; 10
+    ORDER BY country, avg_spend DESC
+&quot;&quot;&quot;)
+
+sql_result.show()</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-4-feature-engineering-with-spar">4. Feature Engineering with Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰</h4>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-4-1-numerical-features">4.1 Numerical Features</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pyspark.sql import functions as F
+from pyspark.sql.window import Window
+
+# Statistical transformations
+features_df = df \
+    .withColumn(&quot;spend_log&quot;, F.log1p(F.col(&quot;spend&quot;))) \
+    .withColumn(&quot;spend_sqrt&quot;, F.sqrt(F.col(&quot;spend&quot;))) \
+    .withColumn(&quot;spend_squared&quot;, F.pow(F.col(&quot;spend&quot;), 2))
+
+# Scaling (manual approach)
+spend_stats = df.agg(
+    F.mean(&quot;spend&quot;).alias(&quot;spend_mean&quot;),
+    F.stddev(&quot;spend&quot;).alias(&quot;spend_std&quot;)
+).collect()[0]
+
+normalized_df = df.withColumn(
+    &quot;spend_normalized&quot;,
+    (F.col(&quot;spend&quot;) - spend_stats.spend_mean) / spend_stats.spend_std
+)
+
+# Rolling aggregations
+window_7d = Window.partitionBy(&quot;user_id&quot;) \
+    .orderBy(&quot;date&quot;) \
+    .rowsBetween(-6, 0)
+
+df_with_rolling = df \
+    .withColumn(&quot;spend_7d_avg&quot;, F.avg(&quot;spend&quot;).over(window_7d)) \
+    .withColumn(&quot;spend_7d_sum&quot;, F.sum(&quot;spend&quot;).over(window_7d)) \
+    .withColumn(&quot;spend_7d_max&quot;, F.max(&quot;spend&quot;).over(window_7d))
+
+# Percentile ranks for outlier detection
+df_with_percentiles = df.withColumn(
+    &quot;spend_percentile&quot;,
+    F.percent_rank().over(Window.orderBy(&quot;spend&quot;))
+)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-4-2-categorical-features">4.2 Categorical Features</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pyspark.ml.feature import StringIndexer, OneHotEncoder
+from pyspark.ml import Pipeline
+
+# String indexing
+indexer = StringIndexer(
+    inputCol=&quot;country&quot;,
+    outputCol=&quot;country_index&quot;,
+    handleInvalid=&quot;keep&quot;
+)
+
+# One-hot encoding
+encoder = OneHotEncoder(
+    inputCols=[&quot;country_index&quot;],
+    outputCols=[&quot;country_onehot&quot;]
+)
+
+# Create pipeline
+pipeline = Pipeline(stages=[indexer, encoder])
+model = pipeline.fit(df)
+encoded_df = model.transform(df)
+
+# Manual one-hot with SQL
+df.createOrReplaceTempView(&quot;data&quot;)
+onehot_df = spark.sql(&quot;&quot;&quot;
+    SELECT
+        *,
+        CASE WHEN country = 'US' THEN 1 ELSE 0 END as country_us,
+        CASE WHEN country = 'UK' THEN 1 ELSE 0 END as country_uk,
+        CASE WHEN country = 'CA' THEN 1 ELSE 0 END as country_ca
+    FROM data
+&quot;&quot;&quot;)
+
+# Frequency encoding
+country_freq = df.groupBy(&quot;country&quot;).count()
+freq_encoded_df = df.join(
+    country_freq.withColumnRenamed(&quot;count&quot;, &quot;country_freq&quot;),
+    on=&quot;country&quot;
+)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-4-3-temporal-features">4.3 Temporal Features</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pyspark.sql.functions import to_timestamp, date_format, dayofweek, hour
+
+# Parse timestamps
+temporal_df = df \
+    .withColumn(&quot;timestamp&quot;, to_timestamp(&quot;event_time&quot;, &quot;yyyy-MM-dd HH:mm:ss&quot;)) \
+    .withColumn(&quot;date&quot;, F.to_date(&quot;timestamp&quot;)) \
+    .withColumn(&quot;year&quot;, F.year(&quot;timestamp&quot;)) \
+    .withColumn(&quot;month&quot;, F.month(&quot;timestamp&quot;)) \
+    .withColumn(&quot;day&quot;, F.dayofmonth(&quot;timestamp&quot;)) \
+    .withColumn(&quot;hour&quot;, F.hour(&quot;timestamp&quot;)) \
+    .withColumn(&quot;day_of_week&quot;, F.dayofweek(&quot;timestamp&quot;)) \
+    .withColumn(&quot;is_weekend&quot;,
+                F.when(F.dayofweek(&quot;timestamp&quot;).isin([1, 7]), 1)
+                 .otherwise(0))
+
+# Time-based aggregations for ML
+user_temporal_features = temporal_df.groupBy(&quot;user_id&quot;) \
+    .agg(
+        F.countDistinct(&quot;date&quot;).alias(&quot;active_days&quot;),
+        F.min(&quot;timestamp&quot;).alias(&quot;first_seen&quot;),
+        F.max(&quot;timestamp&quot;).alias(&quot;last_seen&quot;),
+        F.avg(&quot;hour&quot;).alias(&quot;avg_activity_hour&quot;)
+    ) \
+    .withColumn(&quot;days_since_first&quot;,
+                F.datediff(F.current_date(), F.col(&quot;first_seen&quot;))) \
+    .withColumn(&quot;days_since_last&quot;,
+                F.datediff(F.current_date(), F.col(&quot;last_seen&quot;)))</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-4-4-text-features">4.4 Text Features</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pyspark.ml.feature import Tokenizer, HashingTF, IDF
+
+# Tokenization
+tokenizer = Tokenizer(inputCol=&quot;description&quot;, outputCol=&quot;words&quot;)
+words_df = tokenizer.transform(df)
+
+# TF-IDF
+hashingTF = HashingTF(inputCol=&quot;words&quot;, outputCol=&quot;raw_features&quot;, numFeatures=1000)
+tf_df = hashingTF.transform(words_df)
+
+idf = IDF(inputCol=&quot;raw_features&quot;, outputCol=&quot;tfidf_features&quot;)
+idf_model = idf.fit(tf_df)
+tfidf_df = idf_model.transform(tf_df)
+
+# Simple text statistics
+text_stats_df = df \
+    .withColumn(&quot;text_length&quot;, F.length(&quot;description&quot;)) \
+    .withColumn(&quot;word_count&quot;, F.size(F.split(&quot;description&quot;, &quot; &quot;))) \
+    .withColumn(&quot;contains_urgent&quot;,
+                F.when(F.lower(&quot;description&quot;).contains(&quot;urgent&quot;), 1)
+                 .otherwise(0))</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-5-ml-pipeline-integration">5. ML Pipeline Integration</h4>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-5-1-preparing-data-for-model-tr">5.1 Preparing Data for Model è®­ç»ƒï¼ˆTrainingï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.linalg import Vectors
+
+# Assemble features into a single vector column
+feature_columns = [
+    &quot;age&quot;, &quot;spend&quot;, &quot;spend_log&quot;, &quot;spend_7d_avg&quot;,
+    &quot;country_index&quot;, &quot;spend_percentile&quot;, &quot;active_days&quot;
+]
+
+assembler = VectorAssembler(
+    inputCols=feature_columns,
+    outputCol=&quot;features&quot;,
+    handleInvalid=&quot;skip&quot;
+)
+
+# Create feature vector
+ml_ready_df = assembler.transform(df)
+
+# Select only necessary columns for training
+training_df = ml_ready_df.select(&quot;features&quot;, &quot;label&quot;)
+
+# Split data
+train_df, test_df = training_df.randomSplit([0.8, 0.2], seed=42)
+
+print(f&quot;Training samples: {train_df.count()}&quot;)
+print(f&quot;Test samples: {test_df.count()}&quot;)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-5-2-feature-store-pattern">5.2 ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Pattern</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from datetime import datetime
+
+class SparkFeatureStore:
+    &quot;&quot;&quot;Simple feature store implementation with Spark&quot;&quot;&quot;
+
+    def __init__(self, base_path: str):
+        self.base_path = base_path
+
+    def compute_features(self, raw_df):
+        &quot;&quot;&quot;Compute features from raw data&quot;&quot;&quot;
+        features_df = raw_df \
+            .withColumn(&quot;spend_log&quot;, F.log1p(F.col(&quot;spend&quot;))) \
+            .withColumn(&quot;age_normalized&quot;,
+                       (F.col(&quot;age&quot;) - 30) / 15) \
+            .withColumn(&quot;created_at&quot;, F.current_timestamp())
+
+        return features_df
+
+    def write_features(self, features_df, feature_group: str):
+        &quot;&quot;&quot;Write features to storage (versioned)&quot;&quot;&quot;
+        version = datetime.now().strftime(&quot;%Y%m%d_%H%M%S&quot;)
+        output_path = f&quot;{self.base_path}/{feature_group}/v_{version}&quot;
+
+        features_df.write \
+            .mode(&quot;overwrite&quot;) \
+            .partitionBy(&quot;country&quot;) \
+            .parquet(output_path)
+
+        # Update latest pointer
+        latest_path = f&quot;{self.base_path}/{feature_group}/latest&quot;
+        features_df.write \
+            .mode(&quot;overwrite&quot;) \
+            .partitionBy(&quot;country&quot;) \
+            .parquet(latest_path)
+
+        return output_path
+
+    def read_features(self, feature_group: str, version: str = &quot;latest&quot;):
+        &quot;&quot;&quot;Read features from storage&quot;&quot;&quot;
+        path = f&quot;{self.base_path}/{feature_group}/{version}&quot;
+        return spark.read.parquet(path)
+
+# Usage
+feature_store = SparkFeatureStore(&quot;s3://ml-features&quot;)
+features = feature_store.compute_features(raw_df)
+version_path = feature_store.write_features(features, &quot;user_features&quot;)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-5-3-data-quality-checks">5.3 Data Quality Checks</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def validate_ml_data(df, config):
+    &quot;&quot;&quot;
+    Validate data quality for ML training
+
+    Args:
+        df: Input DataFrame
+        config: Validation configuration
+
+    Returns:
+        Validation report
+    &quot;&quot;&quot;
+    validation_results = {}
+
+    # Check for null values
+    null_counts = df.select([
+        F.sum(F.col(c).isNull().cast(&quot;int&quot;)).alias(c)
+        for c in df.columns
+    ]).collect()[0]
+
+    validation_results[&quot;null_counts&quot;] = null_counts.asDict()
+
+    # Check for duplicates
+    total_rows = df.count()
+    unique_rows = df.dropDuplicates().count()
+    validation_results[&quot;duplicate_rows&quot;] = total_rows - unique_rows
+
+    # Check value ranges
+    for col, (min_val, max_val) in config.get(&quot;ranges&quot;, {}).items():
+        out_of_range = df.filter(
+            (F.col(col) &lt; min_val) | (F.col(col) &gt; max_val)
+        ).count()
+        validation_results[f&quot;{col}_out_of_range&quot;] = out_of_range
+
+    # Check for outliers using IQR
+    for col in config.get(&quot;numeric_columns&quot;, []):
+        quantiles = df.approxQuantile(col, [0.25, 0.75], 0.01)
+        if len(quantiles) == 2:
+            q1, q3 = quantiles
+            iqr = q3 - q1
+            lower_bound = q1 - 1.5 * iqr
+            upper_bound = q3 + 1.5 * iqr
+
+            outlier_count = df.filter(
+                (F.col(col) &lt; lower_bound) | (F.col(col) &gt; upper_bound)
+            ).count()
+
+            validation_results[f&quot;{col}_outliers&quot;] = outlier_count
+
+    return validation_results
+
+# Usage
+config = {
+    &quot;ranges&quot;: {
+        &quot;age&quot;: (0, 120),
+        &quot;spend&quot;: (0, 10000)
+    },
+    &quot;numeric_columns&quot;: [&quot;age&quot;, &quot;spend&quot;]
+}
+
+validation_report = validate_ml_data(df, config)
+print(validation_report)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-6-performance-optimization">6. Performance Optimization</h4>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-6-1-partitioning-strategies">6.1 Partitioning Strategies</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Repartition for better parallelism
+df_repartitioned = df.repartition(200)
+
+# Partition by column for efficient joins
+df_partitioned = df.repartition(&quot;country&quot;)
+
+# Coalesce to reduce partitions (no shuffle)
+df_coalesced = df_repartitioned.coalesce(50)
+
+# Check partition distribution
+print(f&quot;Number of partitions: {df.rdd.getNumPartitions()}&quot;)
+
+# Custom partitioning for skewed data
+from pyspark.sql.functions import hash
+
+df_custom_partitioned = df.repartition(
+    100,
+    F.hash(F.col(&quot;user_id&quot;))
+)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-6-2-caching-and-persistence">6.2 Caching and Persistence</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Cache frequently accessed DataFrames
+df_cached = df.cache()
+df_cached.count()  # Materialize cache
+
+# Different storage levels
+from pyspark import StorageLevel
+
+df.persist(StorageLevel.MEMORY_AND_DISK)
+df.persist(StorageLevel.DISK_ONLY)
+
+# Unpersist when done
+df.unpersist()
+
+# Example: Iterative feature engineering
+base_features = compute_base_features(df).cache()
+
+for iteration in range(5):
+    enhanced = add_interaction_features(base_features, iteration)
+    model = train_model(enhanced)
+
+base_features.unpersist()</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-6-3-broadcast-variables">6.3 Broadcast Variables</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Broadcast small lookup tables
+country_mapping_dict = {
+    &quot;US&quot;: &quot;United States&quot;,
+    &quot;UK&quot;: &quot;United Kingdom&quot;,
+    &quot;CA&quot;: &quot;Canada&quot;
+}
+
+broadcast_mapping = spark.sparkContext.broadcast(country_mapping_dict)
+
+# Use in UDF
+from pyspark.sql.functions import udf
+from pyspark.sql.types import StringType
+
+@udf(StringType())
+def expand_country_code(code):
+    return broadcast_mapping.value.get(code, &quot;Unknown&quot;)
+
+df_expanded = df.withColumn(
+    &quot;country_name&quot;,
+    expand_country_code(F.col(&quot;country&quot;))
+)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-6-4-avoiding-common-performance">6.4 Avoiding Common Performance Pitfalls</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># BAD: Collect large datasets
+# large_data = df.collect()  # DON'T DO THIS
+
+# GOOD: Sample for inspection
+sample_data = df.sample(fraction=0.01).collect()
+
+# BAD: Multiple passes over data
+# count_us = df.filter(F.col(&quot;country&quot;) == &quot;US&quot;).count()
+# count_uk = df.filter(F.col(&quot;country&quot;) == &quot;UK&quot;).count()
+
+# GOOD: Single pass with aggregation
+country_counts = df.groupBy(&quot;country&quot;).count().collect()
+
+# BAD: UDFs (slow Python serialization)
+@udf(StringType())
+def slow_processing(value):
+    return value.upper()
+
+# GOOD: Built-in functions
+df_fast = df.withColumn(&quot;country_upper&quot;, F.upper(F.col(&quot;country&quot;)))
+
+# BAD: Wide transformations without partitioning
+# result = df1.join(df2, on=&quot;key&quot;)
+
+# GOOD: Repartition before expensive operations
+result = df1.repartition(&quot;key&quot;).join(
+    df2.repartition(&quot;key&quot;),
+    on=&quot;key&quot;
+)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-7-monitoring-and-debugging">7. ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Debugging</h4>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-7-1-spark-ui-analysis">7.1 Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ UI Analysis</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Access Spark UI
+print(f&quot;Spark UI: {spark.sparkContext.uiWebUrl}&quot;)
+
+# Key metrics to monitor:
+# - Job execution time
+# - Stage timing
+# - Task skew
+# - Shuffle read/write
+# - GC time</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-7-2-logging-and-metrics">7.2 Logging and Metrics</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def process_with_logging(df):
+    &quot;&quot;&quot;Process data with comprehensive logging&quot;&quot;&quot;
+    start_time = time.time()
+
+    logger.info(f&quot;Starting processing. Input rows: {df.count()}&quot;)
+    logger.info(f&quot;Input partitions: {df.rdd.getNumPartitions()}&quot;)
+
+    # Processing steps
+    processed = df.filter(F.col(&quot;age&quot;) &gt; 18)
+    logger.info(f&quot;After filtering: {processed.count()} rows&quot;)
+
+    features = compute_features(processed)
+    logger.info(f&quot;Features computed: {features.columns}&quot;)
+
+    # Execution stats
+    elapsed = time.time() - start_time
+    logger.info(f&quot;Processing completed in {elapsed:.2f}s&quot;)
+
+    return features</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-7-3-query-execution-plans">7.3 Query Execution Plans</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Explain query execution plan
+df.explain()
+
+# More detailed explanation
+df.explain(extended=True)
+
+# Analyze specific transformations
+filtered_df = df.filter(F.col(&quot;age&quot;) &gt; 25)
+aggregated_df = filtered_df.groupBy(&quot;country&quot;).count()
+
+print(&quot;=== Physical Plan ===&quot;)
+aggregated_df.explain(mode=&quot;formatted&quot;)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-8-real-world-ml-example">8. Real-World ML Example</h4>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-8-1-complete-feature-engineerin">8.1 Complete Feature Engineering Pipeline</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pyspark.sql import SparkSession, Window
+from pyspark.sql import functions as F
+from pyspark.ml.feature import VectorAssembler, StandardScaler
+from pyspark.ml import Pipeline
+
+class MLDataProcessor:
+    &quot;&quot;&quot;Production-grade ML data processing with Spark&quot;&quot;&quot;
+
+    def __init__(self, spark: SparkSession):
+        self.spark = spark
+
+    def load_raw_data(self, path: str):
+        &quot;&quot;&quot;Load and validate raw data&quot;&quot;&quot;
+        df = self.spark.read.parquet(path)
+
+        # Basic validation
+        assert df.count() &gt; 0, &quot;Empty dataset&quot;
+        assert &quot;user_id&quot; in df.columns, &quot;Missing user_id&quot;
+
+        return df
+
+    def create_temporal_features(self, df):
+        &quot;&quot;&quot;Create time-based features&quot;&quot;&quot;
+        window_7d = Window.partitionBy(&quot;user_id&quot;) \
+            .orderBy(&quot;date&quot;) \
+            .rowsBetween(-6, 0)
+
+        window_30d = Window.partitionBy(&quot;user_id&quot;) \
+            .orderBy(&quot;date&quot;) \
+            .rowsBetween(-29, 0)
+
+        return df \
+            .withColumn(&quot;spend_7d_avg&quot;, F.avg(&quot;spend&quot;).over(window_7d)) \
+            .withColumn(&quot;spend_30d_avg&quot;, F.avg(&quot;spend&quot;).over(window_30d)) \
+            .withColumn(&quot;transaction_7d_count&quot;,
+                       F.count(&quot;*&quot;).over(window_7d)) \
+            .withColumn(&quot;spend_volatility&quot;,
+                       F.stddev(&quot;spend&quot;).over(window_30d))
+
+    def create_user_features(self, df):
+        &quot;&quot;&quot;Create user-level aggregations&quot;&quot;&quot;
+        user_features = df.groupBy(&quot;user_id&quot;).agg(
+            F.count(&quot;*&quot;).alias(&quot;total_transactions&quot;),
+            F.sum(&quot;spend&quot;).alias(&quot;lifetime_spend&quot;),
+            F.avg(&quot;spend&quot;).alias(&quot;avg_spend&quot;),
+            F.stddev(&quot;spend&quot;).alias(&quot;spend_std&quot;),
+            F.min(&quot;date&quot;).alias(&quot;first_transaction&quot;),
+            F.max(&quot;date&quot;).alias(&quot;last_transaction&quot;),
+            F.countDistinct(&quot;category&quot;).alias(&quot;unique_categories&quot;)
+        )
+
+        # Add derived features
+        user_features = user_features \
+            .withColumn(&quot;days_active&quot;,
+                       F.datediff(&quot;last_transaction&quot;, &quot;first_transaction&quot;)) \
+            .withColumn(&quot;avg_daily_spend&quot;,
+                       F.col(&quot;lifetime_spend&quot;) / F.greatest(F.col(&quot;days_active&quot;), F.lit(1))) \
+            .withColumn(&quot;spend_cv&quot;,
+                       F.col(&quot;spend_std&quot;) / F.col(&quot;avg_spend&quot;))
+
+        return user_features
+
+    def prepare_for_training(self, df, feature_cols, label_col):
+        &quot;&quot;&quot;Prepare final dataset for model training&quot;&quot;&quot;
+        # Assemble features
+        assembler = VectorAssembler(
+            inputCols=feature_cols,
+            outputCol=&quot;features_raw&quot;,
+            handleInvalid=&quot;skip&quot;
+        )
+
+        # Scale features
+        scaler = StandardScaler(
+            inputCol=&quot;features_raw&quot;,
+            outputCol=&quot;features&quot;,
+            withStd=True,
+            withMean=True
+        )
+
+        pipeline = Pipeline(stages=[assembler, scaler])
+        model = pipeline.fit(df)
+
+        transformed = model.transform(df)
+        return transformed.select(&quot;user_id&quot;, &quot;features&quot;, label_col)
+
+    def run_pipeline(self, input_path: str, output_path: str):
+        &quot;&quot;&quot;Execute complete pipeline&quot;&quot;&quot;
+        # Load data
+        raw_df = self.load_raw_data(input_path)
+
+        # Create features
+        temporal_features = self.create_temporal_features(raw_df)
+        user_features = self.create_user_features(temporal_features)
+
+        # Join back to get final dataset
+        final_df = temporal_features.join(user_features, on=&quot;user_id&quot;)
+
+        # Prepare for training
+        feature_columns = [
+            &quot;spend_7d_avg&quot;, &quot;spend_30d_avg&quot;, &quot;transaction_7d_count&quot;,
+            &quot;spend_volatility&quot;, &quot;lifetime_spend&quot;, &quot;avg_spend&quot;,
+            &quot;unique_categories&quot;, &quot;spend_cv&quot;
+        ]
+
+        training_ready = self.prepare_for_training(
+            final_df,
+            feature_columns,
+            &quot;label&quot;
+        )
+
+        # Write output
+        training_ready.write \
+            .mode(&quot;overwrite&quot;) \
+            .partitionBy(&quot;date&quot;) \
+            .parquet(output_path)
+
+        return training_ready
+
+# Execute pipeline
+processor = MLDataProcessor(spark)
+result = processor.run_pipeline(
+    &quot;s3://ml-data/raw/transactions&quot;,
+    &quot;s3://ml-data/processed/training_data&quot;
+)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-9-best-practices">9. Best Practices</h4>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-9-1-data-processing">9.1 Data Processing</h5>
+<p>âœ… <strong>DO:</strong></p>
+<ul>
+<li>Use explicit schemas for production pipelines</li>
+<li>Partition data appropriately for your access patterns</li>
+<li>Cache intermediate results that are reused</li>
+<li>Use built-in functions instead of UDFs</li>
+<li>Test on sample data before running on full dataset</li>
+</ul>
+<p>âŒ <strong>DON'T:</strong></p>
+<ul>
+<li>Collect large datasets to driver</li>
+<li>Use wide transformations without repartitioning</li>
+<li>Create too many small files (&lt; 128MB)</li>
+<li>Ignore data skew</li>
+<li>Mix batch and streaming logic unnecessarily</li>
+</ul>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-9-2-performance">9.2 Performance</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Optimize joins
+df1.repartition(&quot;key&quot;).join(df2.repartition(&quot;key&quot;), on=&quot;key&quot;)
+
+# Use broadcast for small tables
+df.join(broadcast(small_table), on=&quot;key&quot;)
+
+# Avoid shuffles when possible
+df.filter(...).select(...).withColumn(...)  # Good: narrow transformations
+
+# Coalesce before writing
+df.coalesce(10).write.parquet(path)</code></pre></div>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-9-3-resource-management">9.3 Resource Management</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Set appropriate resources
+conf = SparkConf() \
+    .set(&quot;spark.executor.memory&quot;, &quot;8g&quot;) \
+    .set(&quot;spark.executor.cores&quot;, &quot;4&quot;) \
+    .set(&quot;spark.dynamicAllocation.enabled&quot;, &quot;true&quot;) \
+    .set(&quot;spark.dynamicAllocation.minExecutors&quot;, &quot;2&quot;) \
+    .set(&quot;spark.dynamicAllocation.maxExecutors&quot;, &quot;20&quot;)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-10-hands-on-exercise">10. Hands-On Exercise</h4>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-exercise-build-an-ml-feature-pi">Exercise: Build an ML Feature Pipeline</h5>
+<p><strong>Objective:</strong> Create a complete feature engineering pipeline for a churn prediction model.</p>
+<p><strong>Dataset:</strong> User transaction logs (CSV)</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">user_id, transaction_date, amount, category, device_type</code></pre></div>
+<p><strong>Requirements:</strong></p>
+<ol>
+<li>Load data from CSV with appropriate schema</li>
+<li>Create temporal features (7d, 30d aggregations)</li>
+<li>Create user-level features (lifetime stats)</li>
+<li>Handle missing values appropriately</li>
+<li>Assemble features into vectors</li>
+<li>Split into train/test sets (80/20)</li>
+<li>Write output to Parquet with partitioning</li>
+</ol>
+<p><strong>Starter Code:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+
+# TODO: Create SparkSession with appropriate configuration
+
+# TODO: Define schema for input data
+
+# TODO: Load data with schema
+
+# TODO: Create temporal features
+# - transaction_count_7d
+# - total_spend_7d
+# - avg_spend_7d
+# - transaction_count_30d
+
+# TODO: Create user-level features
+# - total_transactions
+# - lifetime_spend
+# - days_since_first_transaction
+# - favorite_category
+
+# TODO: Handle missing values
+
+# TODO: Assemble features and split data
+
+# TODO: Write output</code></pre></div>
+<p><strong>Solution available in:</strong> <a href="https://github.com/ai-infra-curriculum/ai-infra-engineer-solutions/tree/main/modules/mod-105-data-pipelines/exercise-05-spark-batch-processing"><code>ai-infra-engineer-solutions/modules/mod-105-data-pipelines/exercise-05-spark-batch-processing/</code></a></p>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-11-additional-resources">11. Additional Resources</h4>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-documentation">Documentation</h5>
+<ul>
+<li><a href="https://spark.apache.org/docs/latest/">Apache Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ Documentation</a></li>
+<li><a href="https://spark.apache.org/docs/latest/api/python/">PySpark API Reference</a></li>
+<li><a href="https://spark.apache.org/docs/latest/sql-programming-guide.html">Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ SQL Guide</a></li>
+</ul>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-books">Books</h5>
+<ul>
+<li>&quot;Learning Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰, 2nd Edition&quot; by Damji et al.</li>
+<li>&quot;High Performance Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰&quot; by Karau &amp; Warren</li>
+<li>&quot;Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰: The Definitive Guide&quot; by Chambers &amp; Zaharia</li>
+</ul>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-online-courses">Online Courses</h5>
+<ul>
+<li>Databricks Academy: Apache Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ Programming</li>
+<li>Coursera: Big Data Analysis with Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰</li>
+<li>LinkedIn Learning: Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ for ML</li>
+</ul>
+<h5 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-tools">Tools</h5>
+<ul>
+<li>Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ UI: Monitor job execution</li>
+<li>Ganglia: Cluster monitoring</li>
+<li>Databricks: Managed Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ platform</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-105-data-pipelines-05-data-processing-spark-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<ul>
+<li>âœ… Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ architecture and execution model</li>
+<li>âœ… PySpark DataFrame operations for data processing</li>
+<li>âœ… Feature engineering å¤§è§„æ¨¡ï¼ˆat scaleï¼‰</li>
+<li>âœ… ML pipeline integration</li>
+<li>âœ… Performance optimization techniques</li>
+<li>âœ… ç›‘æŽ§ï¼ˆMonitoringï¼‰ and debugging strategies</li>
+<li>âœ… ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ best practices</li>
+</ul>
+<p><strong>Next Steps:</strong></p>
+<ul>
+<li>Complete the hands-on exercise</li>
+<li>Experiment with different partitioning strategies</li>
+<li>Profile a Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ job using the Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ UI</li>
+<li>Read about Spark åˆ†å¸ƒå¼è®¡ç®—ï¼ˆSparkï¼‰ Structured Streaming for real-time features</li>
+</ul>
+<p><strong>Next Lesson:</strong> <a href="#doc-lessons-mod-105-data-pipelines-06-streaming-data-kafka-md">06 - Streaming Data with Apache Kafka æµå¤„ç†ï¼ˆKafkaï¼‰</a></p><p><a class="home" href="../docs/doc-lessons-mod-105-data-pipelines-04-data-versioning-dvc-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-105-data-pipelines-06-streaming-data-kafka-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

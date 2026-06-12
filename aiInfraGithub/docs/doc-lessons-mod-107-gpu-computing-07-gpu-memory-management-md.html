@@ -1,0 +1,603 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-resources-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lesson 01: Introduction to GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ for AI</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-02-cuda-programming-fundamentals-md.html">Lesson 02: CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Programming Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-03-pytorch-gpu-acceleration-md.html">Lesson 03: PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ Acceleration</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-04-distributed-training-fundamentals-md.html">Lesson 04: åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-05-multi-gpu-training-strategies-md.html">Lesson 05: Multi-GPU è®­ç»ƒï¼ˆTrainingï¼‰ Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-06-model-pipeline-parallelism-md.html">Lesson 06: Model and Pipeline Parallelism</a><a class="tree-doc active" href="../docs/doc-lessons-mod-107-gpu-computing-07-gpu-memory-management-md.html">Lesson 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Management &amp; Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-08-advanced-gpu-optimization-md.html">Lesson 08: Advanced GPU åŠ é€Ÿï¼ˆGPUï¼‰ Optimization</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Module 107 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-01-cuda-hello-world-md.html">Lab 01: CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Hello-World and Device Introspection</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-02-pytorch-gpu-inference-md.html">Lab 02: PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ æŽ¨ç†ï¼ˆInferenceï¼‰ and Benchmarking</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-03-multi-gpu-training-md.html">Lab 03: Multi-GPU è®­ç»ƒï¼ˆTrainingï¼‰ with DistributedDataParallel</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-04-gpu-cluster-on-k8s-md.html">Lab 04: Run a GPU åŠ é€Ÿï¼ˆGPUï¼‰ Pod on Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-05-mixed-precision-md.html">Lab 05: Mixed-Precision è®­ç»ƒï¼ˆTrainingï¼‰ with `torch.amp`</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-labs-lab-06-memory-profiling-md.html">Lab 06: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Profiling and OOM Diagnosis</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercise 01: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Introspection and First CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Op</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-02-cuda-kernel-readme-md.html">Exercise 02: Write Your First CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Kernel</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-03-pytorch-gpu-pipeline-readme-md.html">Exercise 03: End-to-End PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ GPU åŠ é€Ÿï¼ˆGPUï¼‰ Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-04-gpu-cluster-management-readme-md.html">Exercise 04: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Cluster Management and Scheduling</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-05-gpu-performance-optimization-readme-md.html">Exercise 05: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Performance Optimization and Profiling</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-06-distributed-gpu-training-readme-md.html">Exercise 06: Distributed GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®­ç»ƒï¼ˆTrainingï¼‰ at Scale</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-07-gpu-memory-profiling-readme-md.html">Exercise 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Profiling and OOM Diagnosis</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-08-mixed-precision-readme-md.html">Exercise 08: Mixed Precision è®­ç»ƒï¼ˆTrainingï¼‰ Benchmarks</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-09-inference-optimization-readme-md.html">Exercise 09: GPU åŠ é€Ÿï¼ˆGPUï¼‰ æŽ¨ç†ï¼ˆInferenceï¼‰ Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-10-gpu-sharing-strategies-readme-md.html">Exercise 10: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Sharing Strategies (MIG, MPS, Time-Slicing)</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-11-gpu-cost-optimization-readme-md.html">Exercise 11: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Cost Optimization Playbook</a><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-exercises-readme-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ - Hands-on Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Module 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ &amp; åˆ†å¸ƒå¼è®­ç»ƒï¼ˆDistributed è®­ç»ƒï¼ˆTrainingï¼‰ï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-107-gpu-computing-07-gpu-memory-management-md"><h3 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-lesson-07-gpu-memory-management-">Lesson 07: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Management &amp; Optimization</h3>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-learning-objectives">Learning Objectives</h4>
+<p>By the end of this lesson, you will be able to:</p>
+<ol>
+<li>Profile and analyze GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory usage in PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰</li>
+<li>Implement gradient checkpointing to reduce memory consumption</li>
+<li>Optimize activation memory with various techniques</li>
+<li>Diagnose and fix Out of Memory (OOM) errors</li>
+<li>Use memory-efficient attention mechanisms</li>
+<li>Apply advanced memory optimization strategies</li>
+</ol>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-introduction">Introduction</h4>
+<p>GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory is often the limiting factor in training large models. Understanding memory usage patterns and optimization techniques is critical for AI infrastructure engineers. This lesson provides practical strategies for managing and optimizing GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory.</p>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-understanding-gpu-memory-usage">Understanding GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Usage</h4>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-memory-components-during-trainin">Memory Components During è®­ç»ƒï¼ˆTrainingï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚         GPU Memory Breakdown (Training)              â”‚
+â”‚                                                      â”‚
+â”‚ 1. Model Parameters             â”‚  ~M bytes         â”‚
+â”‚    - Weights, biases                                â”‚
+â”‚                                                      â”‚
+â”‚ 2. Gradients                    â”‚  ~M bytes         â”‚
+â”‚    - Same size as parameters                        â”‚
+â”‚                                                      â”‚
+â”‚ 3. Optimizer States             â”‚  ~2M bytes (Adam) â”‚
+â”‚    - Momentum: M bytes                              â”‚
+â”‚    - Variance: M bytes                              â”‚
+â”‚                                                      â”‚
+â”‚ 4. Activations/Intermediates    â”‚  Variable (large!)â”‚
+â”‚    - Forward pass activations                       â”‚
+â”‚    - Depends on: batch size, sequence length        â”‚
+â”‚                                                      â”‚
+â”‚ 5. Temporary Buffers            â”‚  Variable         â”‚
+â”‚    - Workspace for operations                       â”‚
+â”‚    - cuDNN, cuBLAS buffers                         â”‚
+â”‚                                                      â”‚
+â”‚ Total â‰ˆ 4M + Activations                           â”‚
+â”‚                                                      â”‚
+â”‚ Example: 7B parameter model                         â”‚
+â”‚   Parameters: 7B Ã— 4 bytes = 28 GB                 â”‚
+â”‚   Total (FP32): ~120 GB                            â”‚
+â”‚   Total (FP16): ~60 GB                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-profiling-memory-usage">Profiling Memory Usage</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import torch
+
+def profile_memory():
+    &quot;&quot;&quot;Profile current GPU memory usage&quot;&quot;&quot;
+    if not torch.cuda.is_available():
+        print(&quot;CUDA not available&quot;)
+        return
+
+    device = 0
+
+    # Currently allocated memory
+    allocated = torch.cuda.memory_allocated(device) / 1024**3
+    print(f&quot;Allocated: {allocated:.2f} GB&quot;)
+
+    # Reserved by caching allocator
+    reserved = torch.cuda.memory_reserved(device) / 1024**3
+    print(f&quot;Reserved: {reserved:.2f} GB&quot;)
+
+    # Peak memory usage
+    peak = torch.cuda.max_memory_allocated(device) / 1024**3
+    print(f&quot;Peak: {peak:.2f} GB&quot;)
+
+    # Total GPU memory
+    total = torch.cuda.get_device_properties(device).total_memory / 1024**3
+    print(f&quot;Total: {total:.2f} GB&quot;)
+
+    # Utilization
+    print(f&quot;Utilization: {allocated/total*100:.1f}%&quot;)
+
+    return {
+        'allocated': allocated,
+        'reserved': reserved,
+        'peak': peak,
+        'total': total
+    }
+
+# Usage
+profile_memory()
+
+# Reset peak statistics
+torch.cuda.reset_peak_memory_stats()</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-detailed-memory-snapshot">Detailed Memory Snapshot</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def detailed_memory_profile():
+    &quot;&quot;&quot;Get detailed memory breakdown&quot;&quot;&quot;
+    if not torch.cuda.is_available():
+        return
+
+    # Get memory summary
+    print(torch.cuda.memory_summary())
+
+    # Get memory statistics
+    stats = torch.cuda.memory_stats()
+
+    print(f&quot;\nAllocations:&quot;)
+    print(f&quot;  Active: {stats['active.all.current'] / 1024**2:.1f} MB&quot;)
+    print(f&quot;  Peak: {stats['active.all.peak'] / 1024**2:.1f} MB&quot;)
+
+    print(f&quot;\nAllocated:&quot;)
+    print(f&quot;  Current: {stats['allocated_bytes.all.current'] / 1024**3:.2f} GB&quot;)
+    print(f&quot;  Peak: {stats['allocated_bytes.all.peak'] / 1024**3:.2f} GB&quot;)
+
+    print(f&quot;\nReserved:&quot;)
+    print(f&quot;  Current: {stats['reserved_bytes.all.current'] / 1024**3:.2f} GB&quot;)
+    print(f&quot;  Peak: {stats['reserved_bytes.all.peak'] / 1024**3:.2f} GB&quot;)
+
+detailed_memory_profile()</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-gradient-checkpointing">Gradient Checkpointing</h4>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-the-problem-activation-memory">The Problem: Activation Memory</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Forward pass without checkpointing:
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Layer 1 â†’ Act1 (store for backward)   â”‚
+â”‚ Layer 2 â†’ Act2 (store)                â”‚
+â”‚ Layer 3 â†’ Act3 (store)                â”‚
+â”‚ ...                                    â”‚
+â”‚ Layer N â†’ ActN (store)                â”‚
+â”‚                                        â”‚
+â”‚ Memory: O(N Ã— batch_size Ã— hidden)    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+For large models:
+- BERT-Large: 24 layers
+- GPT-3: 96 layers
+- Activation memory &gt;&gt; parameter memory!</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-gradient-checkpointing-solution">Gradient Checkpointing Solution</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from torch.utils.checkpoint import checkpoint
+
+class CheckpointedModel(nn.Module):
+    &quot;&quot;&quot;Model with gradient checkpointing&quot;&quot;&quot;
+    def __init__(self):
+        super().__init__()
+        self.layers = nn.ModuleList([
+            TransformerLayer() for _ in range(24)
+        ])
+
+    def forward(self, x):
+        # Without checkpointing (high memory)
+        # for layer in self.layers:
+        #     x = layer(x)
+
+        # With checkpointing (low memory, slower)
+        for layer in self.layers:
+            x = checkpoint(layer, x)
+
+        return x
+
+# How it works:
+# 1. Forward: Only store inputs to checkpointed functions
+# 2. Backward: Recompute activations on-the-fly
+#
+# Trade-off:
+#   Memory: â†“ (store ~âˆšN instead of N activations)
+#   Speed: â†“ (~33% slower due to recomputation)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-selective-checkpointing">Selective Checkpointing</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">class SmartCheckpointedModel(nn.Module):
+    &quot;&quot;&quot;Checkpoint only expensive layers&quot;&quot;&quot;
+    def __init__(self):
+        super().__init__()
+        self.layers = nn.ModuleList([
+            TransformerLayer() for _ in range(24)
+        ])
+
+    def forward(self, x):
+        # Checkpoint every Nth layer
+        checkpoint_frequency = 4
+
+        for i, layer in enumerate(self.layers):
+            if i % checkpoint_frequency == 0:
+                # Checkpoint this layer
+                x = checkpoint(layer, x)
+            else:
+                # Normal forward
+                x = layer(x)
+
+        return x
+
+# Balance memory savings vs speed
+# Checkpoint frequency: 1 (all) â†’ N (none)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-measuring-checkpoint-impact">Measuring Checkpoint Impact</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import time
+import torch
+
+def benchmark_checkpointing(model, input_data, use_checkpoint=False):
+    &quot;&quot;&quot;Compare with/without checkpointing&quot;&quot;&quot;
+
+    torch.cuda.reset_peak_memory_stats()
+
+    # Forward + Backward
+    start = time.time()
+
+    output = model(input_data)
+    loss = output.sum()
+    loss.backward()
+
+    torch.cuda.synchronize()
+    elapsed = time.time() - start
+
+    # Memory
+    peak_memory = torch.cuda.max_memory_allocated() / 1024**3
+
+    print(f&quot;Checkpointing: {use_checkpoint}&quot;)
+    print(f&quot;  Time: {elapsed:.3f}s&quot;)
+    print(f&quot;  Peak Memory: {peak_memory:.2f} GB&quot;)
+
+    return elapsed, peak_memory
+
+# Compare
+model_normal = MyModel()
+model_checkpointed = CheckpointedModel()
+
+data = torch.randn(32, 512, 768).cuda()
+
+print(&quot;Without checkpointing:&quot;)
+t1, m1 = benchmark_checkpointing(model_normal, data, False)
+
+print(&quot;\nWith checkpointing:&quot;)
+t2, m2 = benchmark_checkpointing(model_checkpointed, data, True)
+
+print(f&quot;\nMemory savings: {m1/m2:.2f}x&quot;)
+print(f&quot;Speed penalty: {t2/t1:.2f}x slower&quot;)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-memory-efficient-attention">Memory-Efficient Attention</h4>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-standard-attention-memory-proble">Standard Attention Memory Problem</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def standard_attention(Q, K, V):
+    &quot;&quot;&quot;
+    Standard attention: O(NÂ²) memory
+
+    Q, K, V: [batch, seq_len, hidden]
+    Attention matrix: [batch, seq_len, seq_len]
+    &quot;&quot;&quot;
+    # Compute attention scores: Q @ K^T
+    # Shape: [batch, seq_len, seq_len]
+    scores = torch.matmul(Q, K.transpose(-2, -1))  # O(NÂ²) memory!
+
+    # Softmax
+    attn_weights = torch.softmax(scores / (Q.size(-1) ** 0.5), dim=-1)
+
+    # Apply attention: attn_weights @ V
+    output = torch.matmul(attn_weights, V)
+
+    return output
+
+# Problem: Attention matrix is O(NÂ²)
+# For seq_len=4096: 4096Â² = 16M elements
+# With batch=8, heads=16: 2GB just for attention!</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-flash-attention">Flash Attention</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Flash Attention: Memory-efficient attention
+# Paper: https://arxiv.org/abs/2205.14135
+
+try:
+    from flash_attn import flash_attn_func
+
+    def flash_attention(Q, K, V):
+        &quot;&quot;&quot;
+        Flash Attention: O(N) memory
+
+        - Fused kernel (faster)
+        - Recomputes attention on-the-fly (less memory)
+        - No O(NÂ²) matrix materialization
+        &quot;&quot;&quot;
+        # Q, K, V: [batch, seq_len, num_heads, head_dim]
+        output = flash_attn_func(Q, K, V, causal=False)
+        return output
+
+    # Benefits:
+    # - 3-4x faster than standard attention
+    # - 10-20x less memory
+    # - Enables longer sequences
+
+except ImportError:
+    print(&quot;Flash Attention not installed&quot;)
+    print(&quot;pip install flash-attn&quot;)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-memory-efficient-attention-xform">Memory-Efficient Attention (xFormers)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Alternative: xFormers memory-efficient attention
+try:
+    from xformers.ops import memory_efficient_attention
+
+    def efficient_attention(Q, K, V):
+        &quot;&quot;&quot;
+        xFormers memory-efficient attention
+
+        - Automatic algorithm selection
+        - Supports various attention variants
+        - Easy drop-in replacement
+        &quot;&quot;&quot;
+        output = memory_efficient_attention(
+            Q, K, V,
+            attn_bias=None,  # Optional attention mask
+            scale=1.0 / (Q.size(-1) ** 0.5)
+        )
+        return output
+
+except ImportError:
+    print(&quot;xFormers not installed&quot;)
+    print(&quot;pip install xformers&quot;)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-optimization-techniques">Optimization Techniques</h4>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-1-reduce-batch-size">1. Reduce Batch Size</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Simple but effective
+# Problem: Batch too large for GPU memory
+
+# Solution 1: Reduce batch size
+batch_size = 16  # Instead of 32
+
+# Solution 2: Gradient accumulation (simulate larger batch)
+accumulation_steps = 4
+effective_batch_size = batch_size * accumulation_steps  # 64
+
+for i, (data, target) in enumerate(train_loader):
+    output = model(data)
+    loss = criterion(output, target) / accumulation_steps
+    loss.backward()
+
+    if (i + 1) % accumulation_steps == 0:
+        optimizer.step()
+        optimizer.zero_grad()</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-2-mixed-precision-training">2. Mixed Precision è®­ç»ƒï¼ˆTrainingï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">from torch.cuda.amp import autocast, GradScaler
+
+# Reduce memory by 2x with minimal accuracy loss
+scaler = GradScaler()
+
+for data, target in train_loader:
+    optimizer.zero_grad()
+
+    # Forward in FP16
+    with autocast():
+        output = model(data)
+        loss = criterion(output, target)
+
+    # Backward with scaling
+    scaler.scale(loss).backward()
+    scaler.step(optimizer)
+    scaler.update()
+
+# Memory savings:
+# - FP32: 4 bytes per parameter
+# - FP16: 2 bytes per parameter
+# - 2x memory reduction!</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-3-empty-cache-strategically">3. Empty Cache Strategically</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Clear unused cached memory
+# Use sparingly (overhead)
+
+for epoch in range(num_epochs):
+    # Training
+    for batch in train_loader:
+        train_step(batch)
+
+    # Validation (different memory pattern)
+    torch.cuda.empty_cache()  # Free cached memory
+
+    for batch in val_loader:
+        val_step(batch)
+
+    torch.cuda.empty_cache()  # Before next epoch
+
+# Don't use empty_cache() in tight loops!
+# Only between major phases</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-4-delete-unnecessary-tensors">4. Delete Unnecessary Tensors</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def train_step_memory_efficient(model, data, target):
+    &quot;&quot;&quot;Explicitly delete intermediate tensors&quot;&quot;&quot;
+
+    output = model(data)
+    loss = criterion(output, target)
+
+    # Delete output tensor (not needed after loss)
+    del output
+
+    loss.backward()
+
+    # Delete loss (not needed after backward)
+    del loss
+
+    optimizer.step()
+    optimizer.zero_grad()
+
+# Python garbage collector + CUDA allocator
+# will free memory faster with explicit del</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-5-model-sharding-zero">5. Model Sharding (ZeRO)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Use DeepSpeed ZeRO to partition model
+import deepspeed
+
+ds_config = {
+    &quot;zero_optimization&quot;: {
+        &quot;stage&quot;: 2,  # Partition gradients + optimizer
+        # Memory reduction: ~8x
+    }
+}
+
+model_engine, optimizer, _, _ = deepspeed.initialize(
+    model=model,
+    config=ds_config
+)
+
+# ZeRO stages:
+# Stage 1: Partition optimizer states (4x reduction)
+# Stage 2: + partition gradients (8x reduction)
+# Stage 3: + partition parameters (linear reduction)</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-diagnosing-oom-errors">Diagnosing OOM Errors</h4>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-common-oom-scenarios">Common OOM Scenarios</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># 1. Forward pass OOM (activations too large)
+try:
+    output = model(large_batch)
+except RuntimeError as e:
+    if &quot;out of memory&quot; in str(e):
+        print(&quot;OOM during forward pass&quot;)
+        print(&quot;Solutions:&quot;)
+        print(&quot;- Reduce batch size&quot;)
+        print(&quot;- Enable gradient checkpointing&quot;)
+        print(&quot;- Reduce sequence length&quot;)
+
+# 2. Backward pass OOM (gradient computation)
+try:
+    loss.backward()
+except RuntimeError as e:
+    if &quot;out of memory&quot; in str(e):
+        print(&quot;OOM during backward pass&quot;)
+        print(&quot;Solutions:&quot;)
+        print(&quot;- Gradient checkpointing&quot;)
+        print(&quot;- Reduce batch size&quot;)
+        print(&quot;- Use gradient accumulation&quot;)
+
+# 3. Optimizer step OOM (optimizer states)
+try:
+    optimizer.step()
+except RuntimeError as e:
+    if &quot;out of memory&quot; in str(e):
+        print(&quot;OOM during optimizer step&quot;)
+        print(&quot;Solutions:&quot;)
+        print(&quot;- Use different optimizer (SGD instead of Adam)&quot;)
+        print(&quot;- Use ZeRO optimizer&quot;)
+        print(&quot;- Offload optimizer to CPU&quot;)</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-memory-debugging-tool">Memory Debugging Tool</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def debug_memory_usage():
+    &quot;&quot;&quot;Debug memory allocation&quot;&quot;&quot;
+    print(&quot;\n&quot; + &quot;=&quot;*50)
+    print(&quot;Memory Debug Info&quot;)
+    print(&quot;=&quot;*50)
+
+    if not torch.cuda.is_available():
+        print(&quot;CUDA not available&quot;)
+        return
+
+    # Current state
+    allocated = torch.cuda.memory_allocated() / 1024**3
+    reserved = torch.cuda.memory_reserved() / 1024**3
+    peak = torch.cuda.max_memory_allocated() / 1024**3
+    total = torch.cuda.get_device_properties(0).total_memory / 1024**3
+
+    print(f&quot;\nCurrent State:&quot;)
+    print(f&quot;  Allocated: {allocated:.2f} GB ({allocated/total*100:.1f}%)&quot;)
+    print(f&quot;  Reserved:  {reserved:.2f} GB ({reserved/total*100:.1f}%)&quot;)
+    print(f&quot;  Peak:      {peak:.2f} GB ({peak/total*100:.1f}%)&quot;)
+    print(f&quot;  Total:     {total:.2f} GB&quot;)
+
+    # Fragmentation
+    fragmentation = (reserved - allocated) / reserved * 100 if reserved &gt; 0 else 0
+    print(f&quot;\nFragmentation: {fragmentation:.1f}%&quot;)
+
+    if fragmentation &gt; 20:
+        print(&quot;âš  High fragmentation detected!&quot;)
+        print(&quot;Consider calling torch.cuda.empty_cache()&quot;)
+
+    # Allocations
+    stats = torch.cuda.memory_stats()
+    num_allocs = stats.get('num_alloc_retries', 0)
+    print(f&quot;\nAllocation retries: {num_allocs}&quot;)
+
+    if num_allocs &gt; 0:
+        print(&quot;âš  Memory pressure detected!&quot;)
+
+    print(&quot;=&quot;*50 + &quot;\n&quot;)
+
+# Use during training
+debug_memory_usage()</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-advanced-optimization-strategies">Advanced Optimization Strategies</h4>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-cpu-offloading">CPU Offloading</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Offload to CPU when not actively used
+class CPUOffloadModel(nn.Module):
+    &quot;&quot;&quot;Offload layers to CPU between forward passes&quot;&quot;&quot;
+    def __init__(self):
+        super().__init__()
+        self.layers = nn.ModuleList([
+            HugeLayer().cpu() for _ in range(10)
+        ])
+
+    def forward(self, x):
+        for layer in self.layers:
+            # Move layer to GPU
+            layer = layer.cuda()
+
+            # Forward
+            x = layer(x)
+
+            # Move back to CPU
+            layer = layer.cpu()
+
+            torch.cuda.empty_cache()
+
+        return x
+
+# Trade-off:
+# + Enables very large models
+# - Very slow (CPU-GPU transfer overhead)
+# Use only when necessary!</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-automatic-memory-management">Automatic Memory Management</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># PyTorch 2.0+ automatic memory management
+import torch._dynamo as dynamo
+
+@dynamo.optimize(&quot;inductor&quot;)
+def optimized_forward(model, x):
+    &quot;&quot;&quot;Automatically optimized by PyTorch compiler&quot;&quot;&quot;
+    return model(x)
+
+# Compiler can:
+# - Fuse operations (reduce intermediates)
+# - Optimize memory layout
+# - Remove unnecessary copies</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-practical-exercises">Practical Exercises</h4>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-exercise-1-profile-memory-usage">Exercise 1: Profile Memory Usage</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># TODO: Profile memory usage of this training loop
+def profile_training_memory(model, train_loader):
+    &quot;&quot;&quot;
+    Profile memory at each stage:
+    - Before forward
+    - After forward
+    - After backward
+    - After optimizer step
+
+    Identify memory bottlenecks
+    &quot;&quot;&quot;
+    pass</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-exercise-2-implement-gradient-ch">Exercise 2: Implement Gradient Checkpointing</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># TODO: Add gradient checkpointing to reduce memory
+class MemoryHungryModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.layers = nn.ModuleList([
+            nn.Linear(4096, 4096) for _ in range(48)
+        ])
+
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        return x
+
+# Modify to use checkpointing
+# Measure memory savings</code></pre></div>
+<h5 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-exercise-3-fix-oom-error">Exercise 3: Fix OOM Error</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># TODO: This code causes OOM - fix it!
+def oom_prone_training():
+    model = VeryLargeModel().cuda()
+    optimizer = torch.optim.Adam(model.parameters())
+
+    for epoch in range(100):
+        for batch in large_dataloader:  # batch_size=128
+            data, target = batch
+            data, target = data.cuda(), target.cuda()
+
+            output = model(data)
+            loss = criterion(output, target)
+            loss.backward()
+            optimizer.step()
+
+# Apply multiple techniques to fix:
+# - Reduce batch size
+# - Gradient accumulation
+# - Mixed precision
+# - Gradient checkpointing</code></pre></div>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<ol>
+<li><strong>Memory Profiling</strong>: Tools to monitor and analyze GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory usage</li>
+<li><strong>Gradient Checkpointing</strong>: Trade compute for memory (âˆšN activations)</li>
+<li><strong>Memory-Efficient Attention</strong>: Flash Attention, xFormers for O(N) memory</li>
+<li><strong>Optimization Techniques</strong>: Mixed precision, batching, caching, sharding</li>
+<li><strong>OOM Debugging</strong>: Diagnose and fix out-of-memory errors</li>
+<li><strong>Advanced Strategies</strong>: CPU offloading, compiler optimizations</li>
+</ol>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-key-takeaways">Key Takeaways</h4>
+<ul>
+<li><strong>Activations are often the memory bottleneck</strong> - use gradient checkpointing</li>
+<li><strong>Mixed precision training</strong> provides easy 2x memory savings</li>
+<li><strong>Gradient accumulation</strong> simulates larger batches without OOM</li>
+<li><strong>Profile before optimizing</strong> - measure to find actual bottlenecks</li>
+<li><strong>Flash Attention</strong> is essential for long sequence models</li>
+<li><strong>ZeRO</strong> enables training models N times larger</li>
+<li><strong>empty_cache() sparingly</strong> - use between phases, not in loops</li>
+</ul>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-further-reading">Further Reading</h4>
+<ul>
+<li><a href="https://pytorch.org/docs/stable/notes/cuda.html#memory-management">PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ Memory Management</a></li>
+<li><a href="https://arxiv.org/abs/2205.14135">Flash Attention Paper</a></li>
+<li><a href="https://pytorch.org/docs/stable/checkpoint.html">Gradient Checkpointing</a></li>
+<li><a href="https://www.deepspeed.ai/tutorials/zero/">DeepSpeed ZeRO</a></li>
+</ul>
+<h4 id="lessons-mod-107-gpu-computing-07-gpu-memory-management-md-next-steps">Next Steps</h4>
+<p>In the final lesson, <strong>Advanced GPU åŠ é€Ÿï¼ˆGPUï¼‰ Optimization</strong>, we'll cover performance profiling, kernel optimization, and production deployment best practices for GPU-accelerated ML systems.</p>
+<hr/>
+<p><strong>Ready to maximize GPU åŠ é€Ÿï¼ˆGPUï¼‰ performance? Let's dive into advanced optimization!</strong></p><p><a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-06-model-pipeline-parallelism-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-107-gpu-computing-08-advanced-gpu-optimization-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

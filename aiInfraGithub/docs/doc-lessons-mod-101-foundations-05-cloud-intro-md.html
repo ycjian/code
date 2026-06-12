@@ -1,0 +1,617 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Module 01: Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-resources-md.html">Module 101 â€” Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lesson 01: Introduction to æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-02-environment-setup-md.html">Lesson 02: Development Environment Setup</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-03-ml-infrastructure-basics-md.html">Lesson 03: æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Basics</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-04-ml-frameworks-md.html">Lesson 04: ML Frameworks Fundamentals</a><a class="tree-doc active" href="../docs/doc-lessons-mod-101-foundations-05-cloud-intro-md.html">Lesson 05: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-06-model-serving-basics-md.html">Lesson 06: æ¨¡åž‹æœåŠ¡ï¼ˆModel Servingï¼‰ Basics</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-07-docker-basics-md.html">Lesson 07: Docker å®¹å™¨ï¼ˆDockerï¼‰ Basics for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-08-api-development-md.html">Lesson 08: API Development for ML Services</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Module 101 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-01-python-dev-environment-md.html">Lab 01: Reproducible Python Dev Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-02-first-docker-container-md.html">Lab 02: Build, Run, and Inspect Your First Docker å®¹å™¨ï¼ˆDockerï¼‰ Container</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-03-local-kind-cluster-md.html">Lab 03: Stand Up a Local Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cluster with kind</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-04-serve-sklearn-model-md.html">Lab 04: Serve a Scikit-Learn Model Behind a FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ Endpoint</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-labs-lab-05-instrument-with-prometheus-md.html">Lab 05: Add Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ Instrumentation to the FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ Service</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercise 04: Advanced Python Environment Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-05-ml-framework-benchmark-readme-md.html">Exercise 05: ML Framework Benchmarking Tool</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-06-fastapi-ml-template-generator-readme-md.html">Exercise 06: FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ ML Service Template Generator</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-07-cloud-onboarding-readme-md.html">Exercise 07: Cloud Onboarding for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Engineers</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-08-production-model-serving-readme-md.html">Exercise 08: Production-Grade æ¨¡åž‹æœåŠ¡ï¼ˆModel Servingï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-09-api-integration-tests-readme-md.html">Exercise 09: API Integration &amp; Contract Testing</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-10-end-to-end-mini-project-readme-md.html">Exercise 10: End-to-End Mini-Project (Capstone for Module 101)</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-01-environment-md.html">Exercise 01: Environment Verification</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-02-docker-md.html">Exercise 02: Docker å®¹å™¨ï¼ˆDockerï¼‰ Fundamentals for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-03-kubernetes-md.html">Exercise 03: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰ for ML</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Module 01: Foundations of æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-101-foundations-05-cloud-intro-md"><h3 id="lessons-mod-101-foundations-05-cloud-intro-md-lesson-05-cloud-computing-for-ml-infrastruct">Lesson 05: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</h3>
+<p><strong>Duration:</strong> 5 hours <strong>Objectives:</strong> Understand cloud computing fundamentals and how to leverage cloud platforms for ML infrastructure</p>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-introduction">Introduction</h4>
+<p>As an ML infrastructure engineer, you'll spend most of your time working with cloud platforms. Understanding cloud computing fundamentals is essential for:</p>
+<ul>
+<li>Deploying ML models å¤§è§„æ¨¡ï¼ˆat scaleï¼‰</li>
+<li>Managing compute resources efficiently</li>
+<li>Storing and processing large datasets</li>
+<li>Building cost-effective infrastructure</li>
+<li>Ensuring high availability and reliability</li>
+</ul>
+<p>This lesson covers cloud computing basics and introduces the three major cloud providers: AWS äº‘ï¼ˆAWSï¼‰, GCP äº‘ï¼ˆGCPï¼‰, and Azure äº‘ï¼ˆAzureï¼‰.</p>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-what-is-cloud-computing">What is äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰?</h4>
+<p>Cloud computing is the delivery of computing servicesâ€”including servers, storage, databases, networking, software, and analyticsâ€”over the internet (&quot;the cloud&quot;) to offer faster innovation, flexible resources, and economies of scale.</p>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-key-characteristics">Key Characteristics</h5>
+<ol>
+<li><strong>On-Demand Self-Service</strong>: Provision resources automatically without human interaction</li>
+<li><strong>Broad Network Access</strong>: Access from anywhere via standard mechanisms</li>
+<li><strong>Resource Pooling</strong>: Multi-tenant model with dynamic resource assignment</li>
+<li><strong>Rapid Elasticity</strong>: Scale up or down quickly based on demand</li>
+<li><strong>Measured Service</strong>: Pay only for what you use</li>
+</ol>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-cloud-service-models">Cloud Service Models</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                     You Manage Everything               â”‚
+â”‚  On-Premises                                            â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚ Applications â”‚ Data â”‚ Runtime â”‚ Middleware â”‚   â”‚    â”‚
+â”‚  â”‚ OS â”‚ Virtualization â”‚ Servers â”‚ Storage â”‚     â”‚    â”‚
+â”‚  â”‚ Networking                                      â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  IaaS (Infrastructure as a Service)                     â”‚
+â”‚  Examples: AWS EC2, GCP Compute Engine, Azure VMs       â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚ Applications â”‚ Data â”‚ Runtime â”‚ Middleware â”‚   â”‚ â†Youâ”‚
+â”‚  â”‚ OS                                              â”‚    â”‚
+â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤    â”‚
+â”‚  â”‚ Virtualization â”‚ Servers â”‚ Storage â”‚ Networkingâ”‚â†Providerâ”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  PaaS (Platform as a Service)                           â”‚
+â”‚  Examples: AWS Elastic Beanstalk, GCP App Engine        â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚ Applications â”‚ Data                            â”‚ â†Youâ”‚
+â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤    â”‚
+â”‚  â”‚ Runtime â”‚ Middleware â”‚ OS â”‚ Virtualization â”‚   â”‚â†Providerâ”‚
+â”‚  â”‚ Servers â”‚ Storage â”‚ Networking                 â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  SaaS (Software as a Service)                           â”‚
+â”‚  Examples: Gmail, Salesforce, Dropbox                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚ Everything managed by provider                  â”‚    â”‚
+â”‚  â”‚ You just use the application                    â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-for-ml-infrastructure">For æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</h5>
+<p><strong>Most Common</strong>: IaaS (full control over compute resources) <strong>Growing</strong>: Managed ML services (SageMaker, Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰, Azure äº‘ï¼ˆAzureï¼‰ ML)</p>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-the-big-three-cloud-providers">The Big Three Cloud Providers</h4>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-market-share-2025">Market Share (2025)</h5>
+<div class="table-wrap"><table><thead><tr><th>Provider</th><th>Market Share</th><th>Strengths</th><th>ML Services</th></tr></thead><tbody><tr><td><strong>AWS äº‘ï¼ˆAWSï¼‰</strong></td><td>~32%</td><td>Mature, most services</td><td>SageMaker æ‰˜ç®¡ MLï¼ˆSageMakerï¼‰, Bedrock</td></tr><tr><td><strong>Azure äº‘ï¼ˆAzureï¼‰</strong></td><td>~23%</td><td>Enterprise integration</td><td>Azure äº‘ï¼ˆAzureï¼‰ ML, OpenAI</td></tr><tr><td><strong>GCP äº‘ï¼ˆGCPï¼‰</strong></td><td>~11%</td><td>ML/AI innovation</td><td>Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰, TPUs</td></tr><tr><td><strong>Others</strong></td><td>~34%</td><td>Alibaba, Oracle, IBM</td><td>Various</td></tr></tbody></table></div>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-aws-amazon-web-services">AWS äº‘ï¼ˆAWSï¼‰ (Amazon Web Services)</h5>
+<p><strong>Founded:</strong> 2006 <strong>Headquarters:</strong> Seattle, WA</p>
+<p><strong>Strengths:</strong></p>
+<ul>
+<li>Most mature platform with widest service range</li>
+<li>Largest ecosystem and community</li>
+<li>Best documentation and learning resources</li>
+<li>Most third-party integrations</li>
+<li>Global infrastructure (30+ regions)</li>
+</ul>
+<p><strong>ML-Relevant Services:</strong></p>
+<ul>
+<li><strong>EC2</strong>: Virtual machines (including GPU åŠ é€Ÿï¼ˆGPUï¼‰ instances)</li>
+<li><strong>S3</strong>: Object storage for datasets and models</li>
+<li><strong>EKS æ‰˜ç®¡ Kubernetesï¼ˆEKSï¼‰</strong>: Managed Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</li>
+<li><strong>SageMaker æ‰˜ç®¡ MLï¼ˆSageMakerï¼‰</strong>: End-to-end ML platform</li>
+<li><strong>Lambda</strong>: Serverless compute</li>
+<li><strong>ECR</strong>: Container registry</li>
+<li><strong>CloudWatch</strong>: ç›‘æŽ§ï¼ˆMonitoringï¼‰ and logging</li>
+</ul>
+<p><strong>Pricing Model:</strong></p>
+<ul>
+<li>Pay-as-you-go (per second/hour billing)</li>
+<li>Reserved instances (up to 75% discount)</li>
+<li>Spot instances (up to 90% discount)</li>
+<li>Savings plans for committed usage</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-gcp-google-cloud-platform">GCP äº‘ï¼ˆGCPï¼‰ (Google Cloud Platform)</h5>
+<p><strong>Founded:</strong> 2008 <strong>Headquarters:</strong> Mountain View, CA</p>
+<p><strong>Strengths:</strong></p>
+<ul>
+<li>Best for ML/AI (built on Google's ML infrastructure)</li>
+<li>Custom ML hardware (TPUs)</li>
+<li>Superior networking and data analytics</li>
+<li>BigQuery for large-scale data processing</li>
+<li>Strong Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ support (created Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰)</li>
+</ul>
+<p><strong>ML-Relevant Services:</strong></p>
+<ul>
+<li><strong>Compute Engine</strong>: Virtual machines</li>
+<li><strong>GCS</strong> (Cloud Storage): Object storage</li>
+<li><strong>GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰</strong>: Managed Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ (best-in-class)</li>
+<li><strong>Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰</strong>: Unified ML platform</li>
+<li><strong>Cloud Functions</strong>: Serverless compute</li>
+<li><strong>Cloud Run</strong>: Containerized applications</li>
+<li><strong>Artifact Registry</strong>: Container and package registry</li>
+<li><strong>Cloud ç›‘æŽ§ï¼ˆMonitoringï¼‰</strong>: å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</li>
+</ul>
+<p><strong>Pricing Model:</strong></p>
+<ul>
+<li>Per-second billing (most granular)</li>
+<li>Committed use discounts (automatic)</li>
+<li>Sustained use discounts (automatic)</li>
+<li>Preemptible VMs (like AWS äº‘ï¼ˆAWSï¼‰ Spot)</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-azure-microsoft-azure">Azure äº‘ï¼ˆAzureï¼‰ (Microsoft Azure äº‘ï¼ˆAzureï¼‰)</h5>
+<p><strong>Founded:</strong> 2010 <strong>Headquarters:</strong> Redmond, WA</p>
+<p><strong>Strengths:</strong></p>
+<ul>
+<li>Best enterprise integration (Active Directory, Office 365)</li>
+<li>Strong hybrid cloud support</li>
+<li>Partnership with OpenAI</li>
+<li>Good Windows support</li>
+<li>Global presence in regulated industries</li>
+</ul>
+<p><strong>ML-Relevant Services:</strong></p>
+<ul>
+<li><strong>Virtual Machines</strong>: Compute instances</li>
+<li><strong>Blob Storage</strong>: Object storage</li>
+<li><strong>AKS æ‰˜ç®¡ Kubernetesï¼ˆAKSï¼‰</strong>: Managed Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</li>
+<li><strong>Azure äº‘ï¼ˆAzureï¼‰ ML</strong>: ML platform</li>
+<li><strong>Azure äº‘ï¼ˆAzureï¼‰ Functions</strong>: Serverless</li>
+<li><strong>Container Registry</strong>: Container storage</li>
+<li><strong>Azure äº‘ï¼ˆAzureï¼‰ Monitor</strong>: ç›‘æŽ§ï¼ˆMonitoringï¼‰ and diagnostics</li>
+<li><strong>Azure äº‘ï¼ˆAzureï¼‰ OpenAI</strong>: GPT models as a service</li>
+</ul>
+<p><strong>Pricing Model:</strong></p>
+<ul>
+<li>Pay-as-you-go</li>
+<li>Reserved VM instances</li>
+<li>Spot VMs</li>
+<li>Azure äº‘ï¼ˆAzureï¼‰ Hybrid Benefit (use existing licenses)</li>
+</ul>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-core-cloud-services-for-ml">Core Cloud Services for ML</h4>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-1-compute-services">1. Compute Services</h5>
+<p><strong>Purpose</strong>: Run your code, train models, serve predictions</p>
+<p><strong>VM Types for ML:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Instance Type   â”‚ CPU          â”‚ Memory      â”‚ Use Case      â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ General Purpose â”‚ 2-64 vCPUs   â”‚ 8-256 GB    â”‚ API servers   â”‚
+â”‚ Compute Opt.    â”‚ 2-120 vCPUs  â”‚ 4-240 GB    â”‚ Batch jobs    â”‚
+â”‚ Memory Opt.     â”‚ 2-128 vCPUs  â”‚ 16-4096 GB  â”‚ Large models  â”‚
+â”‚ GPU             â”‚ 8-96 vCPUs   â”‚ 61-1440 GB  â”‚ Training      â”‚
+â”‚ TPU (GCP only)  â”‚ Custom       â”‚ Custom      â”‚ Large trainingâ”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<p><strong>GPU åŠ é€Ÿï¼ˆGPUï¼‰ Instance Examples:</strong></p>
+<p>AWS äº‘ï¼ˆAWSï¼‰:</p>
+<ul>
+<li><code>p3.2xlarge</code>: 1x V100 GPU åŠ é€Ÿï¼ˆGPUï¼‰, 8 vCPUs, 61 GB RAM (~$3/hour)</li>
+<li><code>p4d.24xlarge</code>: 8x A100 GPUs, 96 vCPUs, 1152 GB RAM (~$32/hour)</li>
+<li><code>g5.xlarge</code>: 1x A10G GPU åŠ é€Ÿï¼ˆGPUï¼‰, 4 vCPUs, 16 GB RAM (~$1/hour)</li>
+</ul>
+<p>GCP äº‘ï¼ˆGCPï¼‰:</p>
+<ul>
+<li><code>n1-standard-8</code> + 1x V100: 8 vCPUs, 30 GB RAM (~$2.50/hour)</li>
+<li><code>a2-highgpu-1g</code>: 1x A100, 12 vCPUs, 85 GB RAM (~$3.50/hour)</li>
+</ul>
+<p>Azure äº‘ï¼ˆAzureï¼‰:</p>
+<ul>
+<li><code>NC6s_v3</code>: 1x V100, 6 vCPUs, 112 GB RAM (~$3/hour)</li>
+<li><code>ND40rs_v2</code>: 8x V100, 40 vCPUs, 672 GB RAM (~$22/hour)</li>
+</ul>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-2-storage-services">2. Storage Services</h5>
+<p><strong>Purpose</strong>: Store datasets, models, logs, artifacts</p>
+<p><strong>Storage Types:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Object Storage (S3/GCS/Blob):
+- Unlimited capacity
+- Pay per GB stored + data transfer
+- Best for: Datasets, models, logs
+- Example: $0.023/GB/month
+
+Block Storage (EBS/Persistent Disk/Managed Disk):
+- Attached to VMs
+- Fast, low-latency
+- Best for: Databases, application data
+- Example: $0.10/GB/month
+
+File Storage (EFS/Filestore/Azure Files):
+- Shared file systems
+- NFS protocol
+- Best for: Shared training data
+- Example: $0.30/GB/month</code></pre></div>
+<p><strong>Storage Classes for ML:</strong></p>
+<div class="table-wrap"><table><thead><tr><th>Storage Class</th><th>Use Case</th><th>Cost</th><th>Retrieval Time</th></tr></thead><tbody><tr><td>Hot/Standard</td><td>Active datasets</td><td>$$</td><td>Instant</td></tr><tr><td>Cool/Nearline</td><td>Infrequent access</td><td>$</td><td>Instant</td></tr><tr><td>Archive</td><td>Long-term backup</td><td>Â¢</td><td>Hours</td></tr></tbody></table></div>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-3-networking-services">3. Networking Services</h5>
+<p><strong>Purpose</strong>: Connect resources, expose services, secure traffic</p>
+<p><strong>Key Concepts:</strong></p>
+<ul>
+<li><strong>VPC (Virtual Private Cloud)</strong>: Isolated network</li>
+<li><strong>Subnets</strong>: Network segments within VPC</li>
+<li><strong>å®‰å…¨ï¼ˆSecurityï¼‰ Groups</strong>: Firewall rules</li>
+<li><strong>Load Balancers</strong>: Distribute traffic</li>
+<li><strong>CDN</strong>: Content delivery network</li>
+</ul>
+<p><strong>Network Costs:</strong></p>
+<ul>
+<li>Within same region: Free or very cheap</li>
+<li>Between regions: $0.01-0.02/GB</li>
+<li>To internet: $0.05-0.09/GB</li>
+<li><strong>Important</strong>: Data transfer is often the hidden cost!</li>
+</ul>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-setting-up-your-first-cloud-environment">Setting Up Your First Cloud Environment</h4>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-aws-setup">AWS äº‘ï¼ˆAWSï¼‰ Setup</h5>
+<p><strong>Step 1: Create Account</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Sign up at: https://aws.amazon.com/
+# Free tier: 12 months of free services
+# - 750 hours/month t2.micro (1 vCPU, 1GB RAM)
+# - 5GB S3 storage
+# - Various other services</code></pre></div>
+<p><strong>Step 2: Install AWS äº‘ï¼ˆAWSï¼‰ CLI</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install
+curl &quot;https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip&quot; -o &quot;awscliv2.zip&quot;
+unzip awscliv2.zip
+sudo ./aws/install
+
+# Verify
+aws --version
+
+# Configure (requires Access Key ID and Secret Access Key)
+aws configure
+# AWS Access Key ID: [your key]
+# AWS Secret Access Key: [your secret]
+# Default region name: us-east-1
+# Default output format: json</code></pre></div>
+<p><strong>Step 3: Create First EC2 Instance</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># List available images
+aws ec2 describe-images --owners amazon --filters &quot;Name=name,Values=amzn2-ami-hvm-*&quot; --query 'Images[0].[ImageId,Name]'
+
+# Create security group
+aws ec2 create-security-group \
+  --group-name ml-serving \
+  --description &quot;ML model serving security group&quot;
+
+# Allow SSH and HTTP
+aws ec2 authorize-security-group-ingress \
+  --group-name ml-serving \
+  --protocol tcp \
+  --port 22 \
+  --cidr 0.0.0.0/0
+
+aws ec2 authorize-security-group-ingress \
+  --group-name ml-serving \
+  --protocol tcp \
+  --port 8000 \
+  --cidr 0.0.0.0/0
+
+# Launch instance
+aws ec2 run-instances \
+  --image-id ami-0c55b159cbfafe1f0 \
+  --instance-type t2.micro \
+  --key-name my-key-pair \
+  --security-groups ml-serving \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ml-server}]'
+
+# Get instance IP
+aws ec2 describe-instances \
+  --filters &quot;Name=tag:Name,Values=ml-server&quot; \
+  --query 'Reservations[0].Instances[0].PublicIpAddress'
+
+# SSH into instance
+ssh -i my-key-pair.pem ec2-user@&lt;instance-ip&gt;</code></pre></div>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-gcp-setup">GCP äº‘ï¼ˆGCPï¼‰ Setup</h5>
+<p><strong>Step 1: Create Account</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Sign up at: https://cloud.google.com/
+# Free tier: $300 credit for 90 days + always-free tier
+# - 1x e2-micro VM (0.25-1 vCPU, 1GB RAM)
+# - 30GB HDD storage
+# - 5GB Cloud Storage</code></pre></div>
+<p><strong>Step 2: Install gcloud CLI</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install
+curl https://sdk.cloud.google.com | bash
+exec -l $SHELL
+
+# Initialize
+gcloud init
+# Follow prompts to authenticate and select project
+
+# Verify
+gcloud --version</code></pre></div>
+<p><strong>Step 3: Create First VM</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># List available images
+gcloud compute images list
+
+# Create instance
+gcloud compute instances create ml-server \
+  --zone=us-central1-a \
+  --machine-type=e2-medium \
+  --image-family=ubuntu-2004-lts \
+  --image-project=ubuntu-os-cloud \
+  --boot-disk-size=30GB \
+  --tags=http-server,https-server
+
+# Allow firewall
+gcloud compute firewall-rules create allow-ml-serving \
+  --allow=tcp:8000 \
+  --target-tags=http-server
+
+# SSH into instance
+gcloud compute ssh ml-server --zone=us-central1-a
+
+# Stop instance (to save costs)
+gcloud compute instances stop ml-server --zone=us-central1-a
+
+# Delete instance
+gcloud compute instances delete ml-server --zone=us-central1-a</code></pre></div>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-azure-setup">Azure äº‘ï¼ˆAzureï¼‰ Setup</h5>
+<p><strong>Step 1: Create Account</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Sign up at: https://azure.microsoft.com/
+# Free tier: $200 credit for 30 days + always-free services
+# - 750 hours/month B1S VM (1 vCPU, 1GB RAM)
+# - 5GB Blob storage</code></pre></div>
+<p><strong>Step 2: Install Azure äº‘ï¼ˆAzureï¼‰ CLI</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# Login
+az login
+
+# Verify
+az --version</code></pre></div>
+<p><strong>Step 3: Create First VM</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create resource group
+az group create --name ml-infra-rg --location eastus
+
+# Create VM
+az vm create \
+  --resource-group ml-infra-rg \
+  --name ml-server \
+  --image UbuntuLTS \
+  --size Standard_B2s \
+  --admin-username azureuser \
+  --generate-ssh-keys
+
+# Open port
+az vm open-port \
+  --resource-group ml-infra-rg \
+  --name ml-server \
+  --port 8000
+
+# Get IP address
+az vm list-ip-addresses \
+  --resource-group ml-infra-rg \
+  --name ml-server \
+  --output table
+
+# SSH into VM
+ssh azureuser@&lt;vm-ip&gt;
+
+# Stop VM
+az vm deallocate --resource-group ml-infra-rg --name ml-server
+
+# Delete resources
+az group delete --name ml-infra-rg --yes</code></pre></div>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-cloud-cost-management">Cloud Cost Management</h4>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-understanding-cloud-costs">Understanding Cloud Costs</h5>
+<p><strong>Typical æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ Costs:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Monthly Cost Breakdown (Example):
+
+Compute (VMs/GPUs):        $5,000  (60%)
+Storage (S3/GCS):          $1,000  (12%)
+Data Transfer:             $800    (10%)
+Load Balancers:            $500    (6%)
+Kubernetes (managed):      $500    (6%)
+Monitoring/Logging:        $300    (4%)
+Other services:            $200    (2%)
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+Total:                     $8,300/month</code></pre></div>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-cost-optimization-strategies">Cost Optimization Strategies</h5>
+<p><strong>1. Right-Sizing</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Don't over-provision!
+# Start small, monitor, scale up if needed
+
+# Example: Model serving
+# âŒ Bad: 8 vCPUs, 32GB RAM ($200/month)
+# âœ… Good: 2 vCPUs, 4GB RAM ($50/month)
+# Monitor CPU/memory usage, adjust if needed</code></pre></div>
+<p><strong>2. Use Spot/Preemptible Instances</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Up to 90% cheaper than on-demand
+# Suitable for:
+# - Batch inference
+# - Training (with checkpointing)
+# - Development environments
+
+# AWS Spot
+aws ec2 run-instances \
+  --instance-market-options 'MarketType=spot' \
+  --instance-type p3.2xlarge
+
+# GCP Preemptible
+gcloud compute instances create ml-trainer \
+  --preemptible \
+  --machine-type=n1-standard-8
+
+# Risk: Can be terminated with 30-second notice</code></pre></div>
+<p><strong>3. Auto-Shutdown Idle Resources</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Schedule shutdown of dev environments
+# AWS Lambda example
+# Stop instances with tag Environment=dev at 6 PM
+# Start at 8 AM on weekdays
+
+# Simple cron approach
+# Add to instance's crontab:
+0 18 * * * sudo shutdown -h now  # Shutdown at 6 PM</code></pre></div>
+<p><strong>4. Use Reserved Instances for Steady Workloads</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># 1-year commitment: ~30-40% discount
+# 3-year commitment: ~50-60% discount
+
+# Suitable for:
+# - Production serving (always running)
+# - Persistent services
+
+# Not suitable for:
+# - Training (sporadic)
+# - Development (part-time)</code></pre></div>
+<p><strong>5. Monitor and Alert on Costs</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># AWS Cost Explorer
+# GCP Cost Management
+# Azure Cost Management
+
+# Set budget alerts:
+# - Daily budget: $100
+# - Monthly budget: $3,000
+# - Alert at 50%, 80%, 100%</code></pre></div>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-cost-monitoring-tools">Cost ç›‘æŽ§ï¼ˆMonitoringï¼‰ Tools</h5>
+<p><strong>Cloud-Native:</strong></p>
+<ul>
+<li>AWS äº‘ï¼ˆAWSï¼‰ Cost Explorer</li>
+<li>GCP äº‘ï¼ˆGCPï¼‰ Cost Management</li>
+<li>Azure äº‘ï¼ˆAzureï¼‰ Cost Management</li>
+</ul>
+<p><strong>Third-Party:</strong></p>
+<ul>
+<li>CloudHealth</li>
+<li>Cloudability</li>
+<li>Kubecost (for Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰)</li>
+</ul>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-basic-cloud-deployment-example">Basic Cloud éƒ¨ç½²ï¼ˆDeploymentï¼‰ Example</h4>
+<p><strong>Deploy a Simple Web Server:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># 1. Launch instance (using GCP as example)
+gcloud compute instances create web-server \
+  --zone=us-central1-a \
+  --machine-type=e2-medium \
+  --image-family=ubuntu-2004-lts \
+  --image-project=ubuntu-os-cloud \
+  --tags=http-server
+
+# 2. SSH into instance
+gcloud compute ssh web-server --zone=us-central1-a
+
+# 3. Install dependencies
+sudo apt update
+sudo apt install -y python3-pip
+pip3 install fastapi uvicorn
+
+# 4. Create simple app
+cat &gt; app.py &lt;&lt; 'EOF'
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get(&quot;/&quot;)
+def read_root():
+    return {&quot;message&quot;: &quot;Hello from the cloud!&quot;}
+
+@app.get(&quot;/health&quot;)
+def health():
+    return {&quot;status&quot;: &quot;healthy&quot;}
+EOF
+
+# 5. Run server
+uvicorn app:app --host 0.0.0.0 --port 8000 &amp;
+
+# 6. Test locally
+curl http://localhost:8000
+
+# 7. Exit SSH and test externally
+# Get external IP
+EXTERNAL_IP=$(gcloud compute instances describe web-server \
+  --zone=us-central1-a \
+  --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+
+# Create firewall rule
+gcloud compute firewall-rules create allow-http-8000 \
+  --allow=tcp:8000 \
+  --target-tags=http-server
+
+# Test from your machine
+curl http://$EXTERNAL_IP:8000</code></pre></div>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-cloud-best-practices-for-ml">Cloud Best Practices for ML</h4>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-1-security">1. å®‰å…¨ï¼ˆSecurityï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># âœ… Use IAM roles (not access keys)
+# âœ… Enable MFA on root/admin accounts
+# âœ… Use security groups to limit access
+# âœ… Encrypt data at rest and in transit
+# âœ… Regularly rotate credentials
+# âœ… Use private subnets for databases
+# âœ… Enable logging and monitoring
+# âŒ Never commit credentials to Git
+# âŒ Don't use root account for daily tasks
+# âŒ Avoid public S3 buckets with sensitive data</code></pre></div>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-2-reliability">2. å¯é æ€§ï¼ˆReliabilityï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># âœ… Use multiple availability zones
+# âœ… Implement health checks
+# âœ… Set up auto-scaling
+# âœ… Use managed services when possible
+# âœ… Regular backups
+# âœ… Disaster recovery plan</code></pre></div>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-3-performance">3. Performance</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># âœ… Choose region close to users
+# âœ… Use CDN for static assets
+# âœ… Implement caching
+# âœ… Monitor latency and throughput
+# âœ… Use appropriate instance types</code></pre></div>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-4-cost-optimization">4. Cost Optimization</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># âœ… Right-size instances
+# âœ… Use spot/preemptible for non-critical
+# âœ… Delete unused resources
+# âœ… Use lifecycle policies for storage
+# âœ… Monitor and set budget alerts
+# âœ… Review costs monthly</code></pre></div>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-comparing-cloud-providers-for-ml">Comparing Cloud Providers for ML</h4>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>AWS äº‘ï¼ˆAWSï¼‰</th><th>GCP äº‘ï¼ˆGCPï¼‰</th><th>Azure äº‘ï¼ˆAzureï¼‰</th></tr></thead><tbody><tr><td><strong>ML Platform</strong></td><td>SageMaker æ‰˜ç®¡ MLï¼ˆSageMakerï¼‰</td><td>Vertex AI æ‰˜ç®¡ MLï¼ˆVertex AIï¼‰</td><td>Azure äº‘ï¼ˆAzureï¼‰ ML</td></tr><tr><td><strong>Best For</strong></td><td>Versatility</td><td>ML/AI Innovation</td><td>Enterprise</td></tr><tr><td><strong>GPU åŠ é€Ÿï¼ˆGPUï¼‰ Options</strong></td><td>Excellent</td><td>Excellent + TPU</td><td>Good</td></tr><tr><td><strong>Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</strong></td><td>EKS æ‰˜ç®¡ Kubernetesï¼ˆEKSï¼‰</td><td>GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰ (best)</td><td>AKS æ‰˜ç®¡ Kubernetesï¼ˆAKSï¼‰</td></tr><tr><td><strong>Pricing</strong></td><td>Complex</td><td>Simple</td><td>Medium</td></tr><tr><td><strong>Free Tier</strong></td><td>12 months</td><td>$300 credit</td><td>$200 credit</td></tr><tr><td><strong>Documentation</strong></td><td>Excellent</td><td>Good</td><td>Good</td></tr><tr><td><strong>Market Share</strong></td><td>#1</td><td>#3</td><td>#2</td></tr><tr><td><strong>Learning Curve</strong></td><td>Medium</td><td>Easy</td><td>Medium</td></tr></tbody></table></div>
+<h5 id="lessons-mod-101-foundations-05-cloud-intro-md-recommendation-for-learning">Recommendation for Learning</h5>
+<p><strong>Start with GCP äº‘ï¼ˆGCPï¼‰</strong> because:</p>
+<ol>
+<li>Simpler pricing and interface</li>
+<li>Best Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ support (critical for ML)</li>
+<li>$300 free credit</li>
+<li>Strong ML/AI focus</li>
+<li>Easier to understand</li>
+</ol>
+<p><strong>Then learn AWS äº‘ï¼ˆAWSï¼‰</strong> because:</p>
+<ol>
+<li>Most job postings require it</li>
+<li>Largest ecosystem</li>
+<li>Most comprehensive services</li>
+</ol>
+<p><strong>Learn Azure äº‘ï¼ˆAzureï¼‰ if:</strong></p>
+<ol>
+<li>Working in enterprise environment</li>
+<li>Need Microsoft integration</li>
+<li>Specific Azure äº‘ï¼ˆAzureï¼‰ ML features needed</li>
+</ol>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-practical-exercise">Practical Exercise</h4>
+<p><strong>Task</strong>: Deploy a simple FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ application to a cloud VM</p>
+<p><strong>Steps:</strong></p>
+<ol>
+<li>Choose a cloud provider (GCP recommended for beginners)</li>
+<li>Create a free account</li>
+<li>Launch a small VM instance (e2-micro for GCP äº‘ï¼ˆGCPï¼‰, t2.micro for AWS äº‘ï¼ˆAWSï¼‰)</li>
+<li>SSH into the instance</li>
+<li>Install Python and FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰</li>
+<li>Create a simple health check endpoint</li>
+<li>Run the server</li>
+<li>Configure firewall to allow external access</li>
+<li>Test from your local machine</li>
+<li><strong>Important</strong>: Shut down or delete the instance when done!</li>
+</ol>
+<p><strong>Success Criteria:</strong></p>
+<ul>
+<li>Can access health endpoint from local browser</li>
+<li>Understand basic VM lifecycle (create, start, stop, delete)</li>
+<li>Can estimate monthly cost for keeping it running</li>
+</ul>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-key-takeaways">Key Takeaways</h4>
+<ol>
+<li><strong>Cloud computing</strong> provides on-demand, scalable infrastructure</li>
+<li><strong>Three models</strong>: IaaS (most control), PaaS (less management), SaaS (just use it)</li>
+<li><strong>Big three</strong>: AWS äº‘ï¼ˆAWSï¼‰ (most mature), GCP äº‘ï¼ˆGCPï¼‰ (best for ML), Azure äº‘ï¼ˆAzureï¼‰ (best for enterprise)</li>
+<li><strong>Core services</strong>: Compute (VMs), Storage (S3/GCS), Networking (VPC, load balancers)</li>
+<li><strong>Cost management</strong> is critical: right-size, use spot instances, monitor usage</li>
+<li><strong>Free tiers</strong> exist for learning: AWS äº‘ï¼ˆAWSï¼‰ (12 months), GCP äº‘ï¼ˆGCPï¼‰ ($300), Azure äº‘ï¼ˆAzureï¼‰ ($200)</li>
+<li><strong>Start with GCP äº‘ï¼ˆGCPï¼‰</strong> for learning, then learn AWS äº‘ï¼ˆAWSï¼‰ for career</li>
+</ol>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li>What are the three cloud service models and their differences?</li>
+<li>What are the key differences between AWS äº‘ï¼ˆAWSï¼‰, GCP äº‘ï¼ˆGCPï¼‰, and Azure äº‘ï¼ˆAzureï¼‰?</li>
+<li>What is a GPU åŠ é€Ÿï¼ˆGPUï¼‰ instance and when would you use it?</li>
+<li>What's the difference between object storage (S3) and block storage (EBS)?</li>
+<li>How can you reduce cloud costs by 90% for batch workloads?</li>
+<li>What is a spot/preemptible instance and when should you use it?</li>
+<li>What are the main cost components in cloud ML infrastructure?</li>
+</ol>
+<h4 id="lessons-mod-101-foundations-05-cloud-intro-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://aws.amazon.com/free/">AWS äº‘ï¼ˆAWSï¼‰ Free Tier</a></li>
+<li><a href="https://cloud.google.com/free">GCP äº‘ï¼ˆGCPï¼‰ Free Tier</a></li>
+<li><a href="https://azure.microsoft.com/free/">Azure äº‘ï¼ˆAzureï¼‰ Free Account</a></li>
+<li><a href="https://aws.amazon.com/training/learn-about/machine-learning/">AWS äº‘ï¼ˆAWSï¼‰ ML å­¦ä¹ è·¯å¾„ï¼ˆLearning Pathï¼‰</a></li>
+<li><a href="https://cloud.google.com/learn/training/machinelearning-ai">GCP äº‘ï¼ˆGCPï¼‰ ML Guides</a></li>
+<li><a href="https://cloud.google.com/cost-management">Cloud Cost Optimization Guide</a></li>
+<li><a href="https://kubernetes.io/docs/setup/production-environment/turnkey-solutions/">Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ on Cloud Comparison</a></li>
+</ul>
+<hr/>
+<p><strong>Next Lesson:</strong> <a href="#doc-lessons-mod-101-foundations-06-model-serving-basics-md">06-model-serving-basics.md</a> - Understanding model serving fundamentals</p><p><a class="home" href="../docs/doc-lessons-mod-101-foundations-04-ml-frameworks-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-101-foundations-06-model-serving-basics-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

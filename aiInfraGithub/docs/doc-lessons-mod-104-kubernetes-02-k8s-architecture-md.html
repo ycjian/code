@@ -1,0 +1,833 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Module 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-resources-md.html">Module 04 Resources: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-module-completion-status-md.html">Module 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals - Completion Status</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lesson 01: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Introduction</a><a class="tree-doc active" href="../docs/doc-lessons-mod-104-kubernetes-02-k8s-architecture-md.html">Lesson 02: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-03-core-resources-md.html">Lesson 03: Core Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Resources</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-04-deployments-services-md.html">Lesson 04: Deployments and Services Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-05-networking-ingress-md.html">Lesson 05: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Networking and Ingress</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-06-storage-persistence-md.html">Lesson 06: Storage and Persistence in Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-07-helm-package-manager-md.html">Lesson 07: Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Package Manager</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-08-gpu-scheduling-md.html">Lesson 08: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Scheduling in Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-09-monitoring-troubleshooting-md.html">Lesson 09: ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Troubleshooting Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Module 104 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-01-pod-deployment-md.html">Lab 01: Your First Pod and éƒ¨ç½²ï¼ˆDeploymentï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-02-service-discovery-md.html">Lab 02: Service Discovery â€” ClusterIP, NodePort, LoadBalancer</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-03-configmaps-secrets-md.html">Lab 03: ConfigMaps and Secrets</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-04-persistent-volumes-md.html">Lab 04: Persistent Volumes for Stateful Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-05-helm-chart-md.html">Lab 05: Package an App with Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-06-hpa-md.html">Lab 06: Horizontal Pod Autoscaler under Load</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-07-network-policies-md.html">Lab 07: NetworkPolicies for East-West Isolation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-labs-lab-08-debugging-md.html">Lab 08: Debug a Broken éƒ¨ç½²ï¼ˆDeploymentï¼‰ from Scratch</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercise 01: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals â€” Build a Working Service</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-02-control-plane-tour-readme-md.html">Exercise 02: Control Plane Tour</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-03-core-resources-mastery-readme-md.html">Exercise 03: Core Resources Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-04-k8s-cluster-autoscaler-readme-md.html">Exercise 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cluster Autoscaler with Custom Metrics</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-05-service-mesh-observability-readme-md.html">Exercise 05: Service Mesh å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ with Istio</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-06-k8s-operator-framework-readme-md.html">Exercise 06: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Operator for ML Model Lifecycle</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-07-helm-chart-authoring-readme-md.html">Exercise 07: Author a Production-Grade Helm åŒ…ç®¡ç†ï¼ˆHelmï¼‰ Chart</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-08-gpu-scheduling-readme-md.html">Exercise 08: GPU åŠ é€Ÿï¼ˆGPUï¼‰ Scheduling Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-09-monitoring-troubleshooting-readme-md.html">Exercise 09: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Troubleshooting Mastery</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-10-multi-cluster-federation-readme-md.html">Exercise 10: Multi-Cluster Federation</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-11-custom-operator-readme-md.html">Exercise 11: Build a Custom Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Operator</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-12-stateful-postgres-readme-md.html">Exercise 12: Stateful Postgres on Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-13-cluster-upgrade-readme-md.html">Exercise 13: Cluster Upgrade Procedure</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-14-resource-quotas-multitenancy-readme-md.html">Exercise 14: Resource Quotas and Multi-Tenancy</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-15-cluster-cost-optimization-readme-md.html">Exercise 15: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Cluster Cost Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-exercises-readme-md.html">Module 04: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ - Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Module 04 Quiz: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Fundamentals</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-104-kubernetes-02-k8s-architecture-md"><h3 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-lesson-02-kubernetes-architecture">Lesson 02: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Architecture</h3>
+<p><strong>Duration:</strong> 8 hours <strong>Objectives:</strong> Understand Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ architecture, control plane components, node components, and how they work together</p>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-introduction">Introduction</h4>
+<p>In Lesson 01, you deployed your first application to Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰. Now it's time to understand what's happening under the hood.</p>
+<p>Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ is a distributed system with multiple components working together to orchestrate containers. Understanding this architecture is crucial for:</p>
+<ul>
+<li><strong>Troubleshooting</strong> production issues</li>
+<li><strong>Optimizing</strong> performance</li>
+<li><strong>Designing</strong> scalable ML infrastructure</li>
+<li><strong>Passing</strong> CKA/CKAD certifications</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-high-level-architecture">High-Level Architecture</h4>
+<p>Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ follows a <strong>master-worker architecture</strong> (now called <strong>control plane-worker nodes</strong>):</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                     KUBERNETES CLUSTER                          â”‚
+â”‚                                                                 â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚              CONTROL PLANE (Master)                      â”‚  â”‚
+â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”            â”‚  â”‚
+â”‚  â”‚  â”‚ API Server â”‚  â”‚  etcd   â”‚  â”‚ Scheduler â”‚            â”‚  â”‚
+â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜            â”‚  â”‚
+â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚  â”‚
+â”‚  â”‚  â”‚ Controller Manager   â”‚  â”‚ Cloud Controller     â”‚    â”‚  â”‚
+â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                              â”‚                                  â”‚
+â”‚                              â”‚ (API calls)                      â”‚
+â”‚                              â”‚                                  â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚  Worker Node 1 â”‚   Worker Node 2      â”‚  Worker Node 3 â”‚    â”‚
+â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”      â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”â”‚    â”‚
+â”‚  â”‚ â”‚  kubelet   â”‚ â”‚  â”‚  kubelet   â”‚      â”‚ â”‚  kubelet   â”‚â”‚    â”‚
+â”‚  â”‚ â”‚ kube-proxy â”‚ â”‚  â”‚ kube-proxy â”‚      â”‚ â”‚ kube-proxy â”‚â”‚    â”‚
+â”‚  â”‚ â”‚ Container  â”‚ â”‚  â”‚ Container  â”‚      â”‚ â”‚ Container  â”‚â”‚    â”‚
+â”‚  â”‚ â”‚  Runtime   â”‚ â”‚  â”‚  Runtime   â”‚      â”‚ â”‚  Runtime   â”‚â”‚    â”‚
+â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜      â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜â”‚    â”‚
+â”‚  â”‚  [Pods...]     â”‚   [Pods...]          â”‚  [Pods...]    â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-key-principles">Key Principles</h5>
+<ol>
+<li><strong>Declarative Configuration:</strong> You declare desired state, K8s maintains it</li>
+<li><strong>Controller Pattern:</strong> Controllers watch state and reconcile differences</li>
+<li><strong>API-Driven:</strong> All components communicate via the API server</li>
+<li><strong>Distributed and Resilient:</strong> No single point of failure</li>
+<li><strong>Pluggable:</strong> Many components can be swapped (CNI, CSI, CRI)</li>
+</ol>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-control-plane-components">Control Plane Components</h4>
+<p>The <strong>control plane</strong> makes global decisions about the cluster (scheduling, responding to events, maintaining desired state).</p>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-1-api-server-kube-apiserver">1. API Server (kube-apiserver)</h5>
+<p><strong>The brain of Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</strong> - central management entity.</p>
+<p><strong>Purpose:</strong></p>
+<ul>
+<li>Exposes Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ API (REST API)</li>
+<li>Front-end for control plane</li>
+<li>All cluster communication goes through API server</li>
+<li>Validates and configures data for API objects</li>
+</ul>
+<p><strong>Key Responsibilities:</strong></p>
+<ul>
+<li>Authentication and authorization</li>
+<li>Admission control (webhooks, policies)</li>
+<li>API resource validation</li>
+<li>Serves as gateway to etcd</li>
+<li>Provides watch mechanism for changes</li>
+</ul>
+<p><strong>How it works:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">kubectl â†’ API Server â†’ etcd (store)
+                     â†“
+              Controllers watch API
+                     â†“
+              Take actions</code></pre></div>
+<p><strong>Interaction Example:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># When you run:
+kubectl apply -f deployment.yaml
+
+# What happens:
+# 1. kubectl sends HTTP POST to API server
+# 2. API server authenticates and authorizes request
+# 3. API server validates deployment spec
+# 4. API server runs admission controllers
+# 5. API server writes to etcd
+# 6. Deployment controller watches API, sees new deployment
+# 7. Controller creates ReplicaSet
+# 8. ReplicaSet controller creates Pods
+# 9. Scheduler assigns Pods to nodes
+# 10. Kubelet on nodes start containers</code></pre></div>
+<p><strong>API Server as Bottleneck:</strong> For large ML platforms (100+ nodes, 1000+ pods):</p>
+<ul>
+<li>API server can become a bottleneck</li>
+<li>Horizontal scaling: run multiple API server instances</li>
+<li>Use caching and reduce API calls</li>
+</ul>
+<p><strong>ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ Configuration:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># High-availability API server
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+spec:
+  containers:
+  - name: kube-apiserver
+    command:
+    - kube-apiserver
+    - --etcd-servers=https://etcd1:2379,https://etcd2:2379,https://etcd3:2379
+    - --enable-admission-plugins=NodeRestriction,PodSecurityPolicy
+    - --audit-log-path=/var/log/kubernetes/audit.log
+    - --audit-log-maxage=30</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-2-etcd">2. etcd</h5>
+<p><strong>Distributed key-value store</strong> - the cluster's database.</p>
+<p><strong>Purpose:</strong></p>
+<ul>
+<li>Stores all cluster state</li>
+<li>Consistent and highly-available</li>
+<li>Source of truth for cluster</li>
+</ul>
+<p><strong>What's stored in etcd:</strong></p>
+<ul>
+<li>Cluster configuration</li>
+<li>Pod specifications</li>
+<li>Secrets and ConfigMaps</li>
+<li>Service endpoints</li>
+<li>Resource quotas</li>
+<li>All Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ objects</li>
+</ul>
+<p><strong>Key Properties:</strong></p>
+<ul>
+<li><strong>Consistency:</strong> Uses Raft consensus algorithm</li>
+<li><strong>å¯é æ€§ï¼ˆReliabilityï¼‰:</strong> Requires 3 or 5 instances for HA</li>
+<li><strong>Watch:</strong> Clients can watch for changes</li>
+<li><strong>Performance:</strong> Critical path for cluster operations</li>
+</ul>
+<p><strong>Architecture:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚         etcd Cluster (HA)            â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚etcd-1â”‚ â†â†’ â”‚etcd-2â”‚ â†â†’ â”‚etcd-3â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚     â†‘            â†‘           â†‘       â”‚
+â””â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”˜
+      â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+               â”‚
+         API Server (reads/writes)</code></pre></div>
+<p><strong>Backup and Disaster Recovery:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Backup etcd (CRITICAL for production)
+ETCDCTL_API=3 etcdctl snapshot save snapshot.db \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key
+
+# Verify snapshot
+ETCDCTL_API=3 etcdctl snapshot status snapshot.db
+
+# Restore (disaster recovery)
+ETCDCTL_API=3 etcdctl snapshot restore snapshot.db \
+  --data-dir=/var/lib/etcd-restore</code></pre></div>
+<p><strong>Performance Considerations for ML:</strong></p>
+<ul>
+<li>etcd has ~8GB default storage limit</li>
+<li>Large ConfigMaps (datasets) can fill etcd</li>
+<li>Store large data externally (S3, NFS)</li>
+<li>Monitor etcd size and performance</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-3-scheduler-kube-scheduler">3. Scheduler (kube-scheduler)</h5>
+<p><strong>Assigns pods to nodes</strong> based on resource requirements and constraints.</p>
+<p><strong>Purpose:</strong></p>
+<ul>
+<li>Watch for newly created pods with no assigned node</li>
+<li>Select best node for each pod</li>
+<li>Update pod with node assignment</li>
+</ul>
+<p><strong>Scheduling Process:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">1. Filter: Remove nodes that don't meet requirements
+   - Insufficient CPU/memory
+   - GPU not available
+   - Node selectors don't match
+   - Taints/tolerations
+
+2. Score: Rank remaining nodes
+   - Resource balance
+   - Pod affinity/anti-affinity
+   - Spread across zones
+   - Custom scoring
+
+3. Bind: Assign pod to highest-scored node</code></pre></div>
+<p><strong>Scheduling Factors:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Example: ML training pod with GPU requirement
+apiVersion: v1
+kind: Pod
+metadata:
+  name: training-job
+spec:
+  # Node selector: only GPU nodes
+  nodeSelector:
+    accelerator: nvidia-tesla-v100
+
+  # Resource requirements
+  containers:
+  - name: trainer
+    resources:
+      requests:
+        memory: &quot;32Gi&quot;
+        cpu: &quot;8&quot;
+        nvidia.com/gpu: &quot;1&quot;
+      limits:
+        memory: &quot;64Gi&quot;
+        cpu: &quot;16&quot;
+        nvidia.com/gpu: &quot;1&quot;
+
+  # Affinity: prefer nodes in same zone as data
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+          - key: topology.kubernetes.io/zone
+            operator: In
+            values:
+            - us-west-1a
+
+  # Toleration: allow scheduling on tainted GPU nodes
+  tolerations:
+  - key: &quot;nvidia.com/gpu&quot;
+    operator: &quot;Exists&quot;
+    effect: &quot;NoSchedule&quot;</code></pre></div>
+<p><strong>Custom Schedulers:</strong> For specialized ML workloads:</p>
+<ul>
+<li><strong>Gang scheduling:</strong> Schedule all pods of distributed training job together</li>
+<li><strong>Bin packing:</strong> Maximize node utilization</li>
+<li><strong>Priority scheduling:</strong> High-priority inference over batch training</li>
+</ul>
+<p>Example: Using custom scheduler</p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-training
+spec:
+  schedulerName: gpu-aware-scheduler  # Custom scheduler
+  containers:
+  - name: trainer
+    image: training-image:latest</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-4-controller-manager-kube-controller-man">4. Controller Manager (kube-controller-manager)</h5>
+<p><strong>Runs controller processes</strong> that regulate cluster state.</p>
+<p><strong>Purpose:</strong></p>
+<ul>
+<li>Watch desired state (from API server)</li>
+<li>Observe current state</li>
+<li>Make changes to reach desired state</li>
+</ul>
+<p><strong>Built-in Controllers:</strong></p>
+<p><strong>Node Controller:</strong></p>
+<ul>
+<li>Monitor node health</li>
+<li>Respond to node failures</li>
+<li>Evict pods from unhealthy nodes</li>
+</ul>
+<p><strong>ReplicaSet Controller:</strong></p>
+<ul>
+<li>Ensure correct number of pod replicas</li>
+<li>Create/delete pods as needed</li>
+</ul>
+<p><strong>éƒ¨ç½²ï¼ˆDeploymentï¼‰ Controller:</strong></p>
+<ul>
+<li>Manage rolling updates</li>
+<li>Handle rollbacks</li>
+</ul>
+<p><strong>Job Controller:</strong></p>
+<ul>
+<li>Create pods for batch jobs</li>
+<li>Track job completion</li>
+</ul>
+<p><strong>Service Controller:</strong></p>
+<ul>
+<li>Create/update load balancers</li>
+<li>Manage endpoint objects</li>
+</ul>
+<p><strong>Namespace Controller:</strong></p>
+<ul>
+<li>Delete all objects when namespace deleted</li>
+</ul>
+<p><strong>Example: ReplicaSet Controller Logic</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Loop:
+  1. Watch ReplicaSet objects
+  2. For each ReplicaSet:
+     a. Count current pods with matching labels
+     b. Compare to desired replica count
+     c. If current &lt; desired: Create pods
+     d. If current &gt; desired: Delete extra pods
+     e. Update ReplicaSet status
+  3. Sleep/wait for changes</code></pre></div>
+<p><strong>Custom Controllers for ML:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Pseudocode: Model Deployment Controller
+while True:
+    for model_deployment in watch_model_deployments():
+        desired_version = model_deployment.spec.version
+        current_version = get_current_version(model_deployment)
+
+        if desired_version != current_version:
+            # Rolling update to new model version
+            create_new_pods(desired_version)
+            wait_for_health_checks()
+            delete_old_pods(current_version)
+            update_status(model_deployment)</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-5-cloud-controller-manager">5. Cloud Controller Manager</h5>
+<p><strong>Integrates with cloud provider APIs</strong> (AWS, GCP äº‘ï¼ˆGCPï¼‰, Azure äº‘ï¼ˆAzureï¼‰).</p>
+<p><strong>Purpose:</strong></p>
+<ul>
+<li>Manage cloud-specific resources</li>
+<li>Route traffic</li>
+<li>Provision storage</li>
+<li>Manage load balancers</li>
+</ul>
+<p><strong>Cloud-Specific Controllers:</strong></p>
+<p><strong>Node Controller:</strong></p>
+<ul>
+<li>Check if node deleted in cloud</li>
+<li>Get node metadata (instance type, zone, IP)</li>
+</ul>
+<p><strong>Route Controller:</strong></p>
+<ul>
+<li>Set up routes in cloud VPC</li>
+<li>Enable pod-to-pod networking across nodes</li>
+</ul>
+<p><strong>Service Controller:</strong></p>
+<ul>
+<li>Create cloud load balancers for LoadBalancer services</li>
+<li>Update load balancer backends</li>
+</ul>
+<p><strong>Volume Controller:</strong></p>
+<ul>
+<li>Create/attach/mount cloud volumes</li>
+<li>Handle volume snapshots</li>
+</ul>
+<p><strong>Example: AWS äº‘ï¼ˆAWSï¼‰ Integration</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Service creates AWS ELB
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-api
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: &quot;nlb&quot;
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: &quot;arn:aws:acm:...&quot;
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 443
+    targetPort: 8080
+  selector:
+    app: ml-api</code></pre></div>
+<p>Cloud controller automatically:</p>
+<ol>
+<li>Creates Network Load Balancer in AWS äº‘ï¼ˆAWSï¼‰</li>
+<li>Configures SSL certificate</li>
+<li>Updates target groups with pod IPs</li>
+<li>Manages health checks</li>
+</ol>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-worker-node-components">Worker Node Components</h4>
+<p>Worker nodes run containerized applications.</p>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-1-kubelet">1. kubelet</h5>
+<p><strong>Primary node agent</strong> - ensures containers are running.</p>
+<p><strong>Purpose:</strong></p>
+<ul>
+<li>Register node with API server</li>
+<li>Watch for pod assignments to node</li>
+<li>Ensure pod containers are running and healthy</li>
+<li>Report node and pod status</li>
+</ul>
+<p><strong>Key Responsibilities:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">1. Pod Lifecycle Management:
+   - Pull container images
+   - Start containers via CRI
+   - Monitor container health
+   - Restart failed containers
+
+2. Volume Management:
+   - Mount volumes into pods
+   - Manage volume lifecycles
+
+3. Health Monitoring:
+   - Run liveness probes
+   - Run readiness probes
+   - Report status to API server
+
+4. Resource Management:
+   - Enforce resource limits
+   - Monitor resource usage</code></pre></div>
+<p><strong>kubelet Configuration for ML Workloads:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># /var/lib/kubelet/config.yaml
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+
+# Increase image pull timeout for large ML images
+imageGCHighThresholdPercent: 85
+imageGCLowThresholdPercent: 80
+
+# Resource reservation for system
+systemReserved:
+  cpu: &quot;1000m&quot;
+  memory: &quot;2Gi&quot;
+
+# Kubelet resource reservation
+kubeReserved:
+  cpu: &quot;500m&quot;
+  memory: &quot;1Gi&quot;
+
+# Eviction thresholds (prevent OOM)
+evictionHard:
+  memory.available: &quot;500Mi&quot;
+  nodefs.available: &quot;10%&quot;
+
+# GPU support
+featureGates:
+  DevicePlugins: true</code></pre></div>
+<p><strong>Interaction with Container Runtime:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">kubelet â†’ CRI (Container Runtime Interface)
+            â†“
+      containerd / CRI-O
+            â†“
+      Container (running app)</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-2-kube-proxy">2. kube-proxy</h5>
+<p><strong>Network proxy</strong> running on each node.</p>
+<p><strong>Purpose:</strong></p>
+<ul>
+<li>Implement Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Service abstraction</li>
+<li>Maintain network rules for pod communication</li>
+<li>Enable load balancing across pod replicas</li>
+</ul>
+<p><strong>How Services Work:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Client â†’ Service IP (virtual) â†’ kube-proxy rules â†’ Pod IP (actual)</code></pre></div>
+<p><strong>Proxy Modes:</strong></p>
+<p><strong>1. iptables mode (most common):</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># kube-proxy creates iptables rules
+# Example: Service at 10.96.0.1:80 â†’ Pods at 10.244.1.5:8080, 10.244.2.6:8080
+
+# iptables rules (simplified):
+-A KUBE-SERVICES -d 10.96.0.1/32 -p tcp -m tcp --dport 80 -j KUBE-SVC-XXXXX
+-A KUBE-SVC-XXXXX -m statistic --mode random --probability 0.5 -j KUBE-SEP-POD1
+-A KUBE-SVC-XXXXX -j KUBE-SEP-POD2
+-A KUBE-SEP-POD1 -p tcp -j DNAT --to-destination 10.244.1.5:8080
+-A KUBE-SEP-POD2 -p tcp -j DNAT --to-destination 10.244.2.6:8080</code></pre></div>
+<p><strong>2. IPVS mode (better performance):</strong></p>
+<ul>
+<li>Uses Linux IPVS (IP Virtual Server)</li>
+<li>Better for 1000+ services</li>
+<li>More load balancing algorithms</li>
+</ul>
+<p><strong>3. userspace mode (legacy):</strong></p>
+<ul>
+<li>kube-proxy proxies traffic</li>
+<li>Slower, but works everywhere</li>
+</ul>
+<p><strong>Configuration for ML:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># kube-proxy config for high-performance ML serving
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: &quot;ipvs&quot;  # Better for many services
+ipvs:
+  scheduler: &quot;lc&quot;  # Least connection (good for long ML requests)
+  minSyncPeriod: 5s
+  syncPeriod: 30s
+conntrack:
+  maxPerCore: 131072  # Increase for high traffic</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-3-container-runtime">3. Container Runtime</h5>
+<p><strong>Runs containers</strong> on the node.</p>
+<p><strong>Container Runtime Interface (CRI):</strong></p>
+<ul>
+<li>Standardized interface between kubelet and runtime</li>
+<li>Pluggable architecture</li>
+</ul>
+<p><strong>Popular Runtimes:</strong></p>
+<p><strong>containerd (most common):</strong></p>
+<ul>
+<li>CNCF graduated project</li>
+<li>Used by GKE æ‰˜ç®¡ Kubernetesï¼ˆGKEï¼‰, EKS æ‰˜ç®¡ Kubernetesï¼ˆEKSï¼‰, AKS æ‰˜ç®¡ Kubernetesï¼ˆAKSï¼‰</li>
+<li>Lightweight and efficient</li>
+</ul>
+<p><strong>CRI-O:</strong></p>
+<ul>
+<li>Designed specifically for Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</li>
+<li>OCI-compliant</li>
+<li>Used by OpenShift</li>
+</ul>
+<p><strong>Docker å®¹å™¨ï¼ˆDockerï¼‰ (via dockershim, deprecated):</strong></p>
+<ul>
+<li>Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ 1.24+ removed dockershim</li>
+<li>Use containerd instead</li>
+</ul>
+<p><strong>GPU åŠ é€Ÿï¼ˆGPUï¼‰ Support:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># NVIDIA Container Runtime integration
+# Allows containers to access GPUs
+
+# Install NVIDIA Container Toolkit
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \
+  sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+
+# Configure containerd
+sudo nvidia-ctk runtime configure --runtime=containerd
+sudo systemctl restart containerd</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-add-ons">Add-ons</h4>
+<p>Optional components that provide cluster features.</p>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-dns-coredns">DNS (CoreDNS)</h5>
+<p><strong>Purpose:</strong></p>
+<ul>
+<li>Service discovery via DNS</li>
+<li>Pods can find services by name</li>
+</ul>
+<p><strong>How it works:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Pod can access service by name
+curl http://ml-api-service.default.svc.cluster.local/predict
+
+# DNS resolution:
+# ml-api-service â†’ Service IP â†’ Pod IPs</code></pre></div>
+<p><strong>CoreDNS Configuration:</strong></p>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+data:
+  Corefile: |
+    .:53 {
+        errors
+        health
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
+          pods insecure
+          fallthrough in-addr.arpa ip6.arpa
+        }
+        prometheus :9153
+        forward . /etc/resolv.conf
+        cache 30
+        loop
+        reload
+        loadbalance
+    }</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-dashboard">Dashboard</h5>
+<p><strong>Web UI</strong> for Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ cluster.</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Deploy dashboard
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+
+# Access dashboard
+kubectl proxy
+# Visit: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/</code></pre></div>
+<p><strong>Alternative: Lens (Desktop App)</strong></p>
+<ul>
+<li>More user-friendly</li>
+<li>Better visualizations</li>
+<li>Multi-cluster management</li>
+</ul>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-metrics-server">Metrics Server</h5>
+<p><strong>Collects resource metrics</strong> (CPU, memory) from kubelets.</p>
+<p><strong>Purpose:</strong></p>
+<ul>
+<li>Enable <code>kubectl top nodes</code> and <code>kubectl top pods</code></li>
+<li>Required for Horizontal Pod Autoscaler (HPA)</li>
+</ul>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Install metrics server
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# View node metrics
+kubectl top nodes
+
+# View pod metrics
+kubectl top pods --all-namespaces
+
+# View pod metrics with containers
+kubectl top pods --containers</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-ingress-controller">Ingress Controller</h5>
+<p><strong>HTTP/HTTPS routing</strong> to services.</p>
+<p>Popular options:</p>
+<ul>
+<li><strong>NGINX Ingress:</strong> Most popular</li>
+<li><strong>Traefik:</strong> Cloud-native, automatic HTTPS</li>
+<li><strong>Istio:</strong> Service mesh with ingress</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-how-components-work-together">How Components Work Together</h4>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-example-deploying-an-ml-model">Example: Deploying an ML Model</h5>
+<p><strong>Step-by-step flow:</strong></p>
+<p><strong>1. You run:</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">kubectl apply -f ml-deployment.yaml</code></pre></div>
+<p><strong>2. kubectl â†’ API Server:</strong></p>
+<ul>
+<li>Sends HTTP POST with deployment spec</li>
+<li>API server authenticates and authorizes</li>
+</ul>
+<p><strong>3. API Server â†’ etcd:</strong></p>
+<ul>
+<li>Stores deployment object in etcd</li>
+</ul>
+<p><strong>4. éƒ¨ç½²ï¼ˆDeploymentï¼‰ Controller (watching API):</strong></p>
+<ul>
+<li>Sees new deployment</li>
+<li>Creates ReplicaSet object</li>
+<li>Writes to API server</li>
+</ul>
+<p><strong>5. ReplicaSet Controller (watching API):</strong></p>
+<ul>
+<li>Sees new ReplicaSet</li>
+<li>Creates 3 Pod objects (replicas: 3)</li>
+<li>Writes to API server</li>
+</ul>
+<p><strong>6. Scheduler (watching for unscheduled pods):</strong></p>
+<ul>
+<li>Sees 3 new pods without node assignment</li>
+<li>Filters nodes (GPU available? Memory sufficient?)</li>
+<li>Scores remaining nodes</li>
+<li>Assigns each pod to best node</li>
+<li>Updates pod spec with node name</li>
+</ul>
+<p><strong>7. kubelet on Node-1 (watching for pods assigned to it):</strong></p>
+<ul>
+<li>Sees new pod assignment</li>
+<li>Pulls container image</li>
+<li>Tells container runtime to start container</li>
+<li>Reports status to API server</li>
+</ul>
+<p><strong>8. kube-proxy on Node-1:</strong></p>
+<ul>
+<li>Sees new pod IP</li>
+<li>Updates iptables rules</li>
+<li>Enables service routing</li>
+</ul>
+<p><strong>9. Service Controller (if LoadBalancer service):</strong></p>
+<ul>
+<li>Creates cloud load balancer</li>
+<li>Configures backend pool with pod IPs</li>
+</ul>
+<p><strong>10. CoreDNS:</strong></p>
+<ul>
+<li>Service name â†’ Service IP mapping available</li>
+</ul>
+<p><strong>Result:</strong> ML model is serving traffic!</p>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-example-pod-failure-and-recovery">Example: Pod Failure and Recovery</h5>
+<p><strong>1. Container crashes:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">Application error â†’ Container exits</code></pre></div>
+<p><strong>2. kubelet detects:</strong></p>
+<ul>
+<li>Liveness probe fails</li>
+<li>kubelet restarts container</li>
+</ul>
+<p><strong>3. If restart fails repeatedly:</strong></p>
+<ul>
+<li>Pod enters CrashLoopBackOff</li>
+<li>kubelet backs off restart attempts</li>
+</ul>
+<p><strong>4. If node fails:</strong></p>
+<ul>
+<li>Node Controller detects (no heartbeat)</li>
+<li>Marks node as NotReady</li>
+<li>Evicts pods after timeout (default: 5 minutes)</li>
+</ul>
+<p><strong>5. ReplicaSet Controller:</strong></p>
+<ul>
+<li>Sees replica count &lt; desired</li>
+<li>Creates replacement pod</li>
+</ul>
+<p><strong>6. Scheduler:</strong></p>
+<ul>
+<li>Assigns new pod to healthy node</li>
+</ul>
+<p><strong>7. New pod starts:</strong></p>
+<ul>
+<li>Service automatically includes new pod</li>
+<li>Traffic routes to healthy pods</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-hands-on-explore-cluster-components">Hands-On: Explore Cluster Components</h4>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-view-control-plane-pods">View Control Plane Pods</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># List all system pods
+kubectl get pods -n kube-system
+
+# Expected output:
+# NAME                               READY   STATUS    RESTARTS   AGE
+# coredns-xxxxx                      1/1     Running   0          1h
+# etcd-minikube                      1/1     Running   0          1h
+# kube-apiserver-minikube            1/1     Running   0          1h
+# kube-controller-manager-minikube   1/1     Running   0          1h
+# kube-proxy-xxxxx                   1/1     Running   0          1h
+# kube-scheduler-minikube            1/1     Running   0          1h
+# storage-provisioner                1/1     Running   0          1h</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-view-component-logs">View Component Logs</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># API server logs
+kubectl logs -n kube-system kube-apiserver-minikube
+
+# Scheduler logs
+kubectl logs -n kube-system kube-scheduler-minikube
+
+# Controller manager logs
+kubectl logs -n kube-system kube-controller-manager-minikube
+
+# CoreDNS logs
+kubectl logs -n kube-system coredns-xxxxx</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-check-component-health">Check Component Health</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Component status (deprecated in newer versions)
+kubectl get componentstatuses
+
+# Alternative: check pod health
+kubectl get pods -n kube-system
+
+# Check API server health
+kubectl get --raw /healthz
+
+# Check API server livez
+kubectl get --raw /livez
+
+# Check API server readyz
+kubectl get --raw /readyz</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-explore-node-details">Explore Node Details</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># List nodes
+kubectl get nodes
+
+# Detailed node information
+kubectl describe node minikube
+
+# Key sections:
+# - Conditions: Ready, MemoryPressure, DiskPressure
+# - Capacity: CPU, memory, pods
+# - Allocatable: Available for pods
+# - Allocated resources: What's in use
+# - Events: Recent node events</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-view-cluster-info">View Cluster Info</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Cluster information
+kubectl cluster-info
+
+# Cluster configuration
+kubectl config view
+
+# API server address
+kubectl cluster-info | grep master
+
+# Kubernetes version
+kubectl version</code></pre></div>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-architecture-best-practices-for-ml">Architecture Best Practices for ML</h4>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-1-high-availability-control-plane">1. High Availability Control Plane</h5>
+<p>For production ML infrastructure:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">- 3 or 5 control plane nodes (odd number for quorum)
+- 3 or 5 etcd instances
+- Load balancer in front of API servers
+- Distributed across availability zones</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-2-dedicated-node-pools">2. Dedicated Node Pools</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Example: Separate node pools for different workloads
+
+# CPU-only inference nodes
+- name: cpu-inference
+  machineType: n1-standard-8
+  taints:
+    - key: workload-type
+      value: inference
+      effect: NoSchedule
+
+# GPU training nodes
+- name: gpu-training
+  machineType: n1-standard-16
+  accelerators:
+    - type: nvidia-tesla-v100
+      count: 4
+  taints:
+    - key: workload-type
+      value: training
+      effect: NoSchedule
+
+# Spot/preemptible nodes for batch jobs
+- name: spot-batch
+  machineType: n1-standard-16
+  spot: true
+  taints:
+    - key: workload-type
+      value: batch
+      effect: NoSchedule</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-3-resource-quotas-and-limits">3. Resource Quotas and Limits</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># Namespace-level quotas for teams
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: ml-team-quota
+  namespace: ml-team
+spec:
+  hard:
+    requests.cpu: &quot;100&quot;
+    requests.memory: &quot;200Gi&quot;
+    requests.nvidia.com/gpu: &quot;8&quot;
+    pods: &quot;50&quot;</code></pre></div>
+<h5 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-4-monitoring-and-alerting">4. ç›‘æŽ§ï¼ˆMonitoringï¼‰ and å‘Šè­¦ï¼ˆAlertingï¼‰</h5>
+<ul>
+<li>Prometheus æŒ‡æ ‡ç›‘æŽ§ï¼ˆPrometheusï¼‰ for metrics</li>
+<li>Grafana å¯è§†åŒ–ï¼ˆGrafanaï¼‰ for dashboards</li>
+<li>Alert on control plane health</li>
+<li>Alert on node resource pressure</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-summary">Summary</h4>
+<p>In this lesson, you've learned:</p>
+<ul>
+<li>âœ… Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ architecture (control plane + worker nodes)</li>
+<li>âœ… Control plane components: API server, etcd, scheduler, controllers</li>
+<li>âœ… Worker node components: kubelet, kube-proxy, container runtime</li>
+<li>âœ… Add-ons: DNS, metrics server, dashboard</li>
+<li>âœ… How components work together to orchestrate containers</li>
+<li>âœ… ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ architecture patterns for ML workloads</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-what-s-next">What's Next?</h4>
+<p>In <strong>Lesson 03: Core Resources</strong>, you'll learn:</p>
+<ul>
+<li>Pods in depth</li>
+<li>ReplicaSets and Deployments</li>
+<li>Services for networking</li>
+<li>ConfigMaps and Secrets</li>
+<li>Namespaces for organization</li>
+</ul>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-self-check-questions">Self-Check Questions</h4>
+<ol>
+<li>What is the role of the API server?</li>
+<li>What does etcd store and why is it critical?</li>
+<li>How does the scheduler decide where to place pods?</li>
+<li>What's the difference between kubelet and kube-proxy?</li>
+<li>Describe the flow when you create a deployment.</li>
+<li>Why is high availability important for the control plane?</li>
+</ol>
+<h4 id="lessons-mod-104-kubernetes-02-k8s-architecture-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/overview/components/">Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Components Documentation</a></li>
+<li><a href="https://github.com/kubernetes/community/blob/master/contributors/design-proposals/architecture/architecture.md">Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Architecture Deep Dive</a></li>
+<li><a href="https://etcd.io/docs/">etcd Documentation</a></li>
+<li><a href="https://raft.github.io/">The Raft Consensus Algorithm</a></li>
+</ul>
+<hr/>
+<p><strong>Next Lesson:</strong> <a href="#doc-lessons-mod-104-kubernetes-03-core-resources-md">03-core-resources.md</a> - Pods, Deployments, Services, and ConfigMaps</p><p><a class="home" href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-104-kubernetes-03-core-resources-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

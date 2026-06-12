@@ -1,0 +1,1531 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-resources-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ - Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lesson 01: Introduction to å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a><a class="tree-doc active" href="../docs/doc-lessons-mod-110-llm-infrastructure-02-vllm-deployment-md.html">Lesson 02: vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-03-rag-systems-md.html">Lesson 03: æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ Systems (Retrieval-Augmented Generation)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-04-vector-databases-md.html">Lesson 04: Vector Databases</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-05-llm-fine-tuning-infrastructure-md.html">Lesson 05: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Fine-Tuning Infrastructure</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-06-llm-serving-optimization-md.html">Lesson 06: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Serving Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-07-llm-platform-architecture-md.html">Lesson 07: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Platform Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-08-production-llm-best-practices-md.html">Lesson 08: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Best Practices</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Module 110 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-01-vllm-deployment-md.html">Lab 01: Deploy an å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ with vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-02-rag-pipeline-md.html">Lab 02: Build a æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ Pipeline End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-03-vector-db-qdrant-md.html">Lab 03: Stand Up a å‘é‡æ•°æ®åº“ï¼ˆVector Databaseï¼‰ (Qdrant)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-04-lora-finetune-md.html">Lab 04: LoRA Fine-Tune a Small Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-05-streaming-responses-md.html">Lab 05: Streaming Responses to Clients</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-06-cost-monitoring-md.html">Lab 06: Cost Tracking and Budget Alerts</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-07-prompt-injection-defense-md.html">Lab 07: Prompt-Injection Defenses</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-lab-08-multi-model-serving-md.html">Lab 08: Multi-Model Serving with Intelligent Routing</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercise 01: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Serving Platform (vLLM + Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-02-production-rag-system-readme-md.html">Exercise 02: ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ System (Retrieval-Augmented Generation)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-03-vllm-deep-dive-readme-md.html">Exercise 03: vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-04-vector-db-benchmarking-readme-md.html">Exercise 04: å‘é‡æ•°æ®åº“ï¼ˆVector Databaseï¼‰ Benchmarking</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-05-finetuning-at-scale-readme-md.html">Exercise 05: Fine-Tuning at Scale (LoRA + QLoRA + Distributed)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-06-inference-optimization-llm-readme.html">Exercise 06: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ æŽ¨ç†ï¼ˆInferenceï¼‰ Optimization</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-07-multi-tenant-llm-platform-readme-.html">Exercise 07: Multi-Tenant å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Platform</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-08-llm-cost-routing-readme-md.html">Exercise 08: Cost-Aware å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Routing</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-09-llm-observability-readme-md.html">Exercise 09: LLM-Specific å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-10-prompt-management-readme-md.html">Exercise 10: Prompt Management and Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-11-llm-guardrails-readme-md.html">Exercise 11: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Guardrails (Injection, Moderation, Output Filtering)</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-12-llm-evaluation-harness-readme-md.html">Exercise 12: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ Evaluation Infrastructure</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-13-semantic-caching-readme-md.html">Exercise 13: Semantic Caching for LLMs</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-14-hybrid-retrieval-reranking-readme.html">Exercise 14: Hybrid Retrieval + Reranking Pipeline</a><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-readme-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Module 10: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-110-llm-infrastructure-02-vllm-deployment-md"><h3 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-lesson-02-vllm-deployment">Lesson 02: vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</h3>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-table-of-contents">Table of Contents</h4>
+<ol>
+<li><a href="#introduction-to-vllm">Introduction to vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰</a></li>
+<li><a href="#vllm-architecture-and-features">vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ Architecture and Features</a></li>
+<li><a href="#installation-and-setup">Installation and Setup</a></li>
+<li><a href="#basic-vllm-usage">Basic vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ Usage</a></li>
+<li><a href="#deploying-llms-with-vllm">Deploying LLMs with vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰</a></li>
+<li><a href="#openai-compatible-api-server">OpenAI-Compatible API Server</a></li>
+<li><a href="#performance-optimization">Performance Optimization</a></li>
+<li><a href="#monitoring-vllm-deployments">ç›‘æŽ§ï¼ˆMonitoringï¼‰ vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ Deployments</a></li>
+<li><a href="#docker-deployment">Docker å®¹å™¨ï¼ˆDockerï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</a></li>
+<li><a href="#kubernetes-deployment">Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</a></li>
+<li><a href="#production-best-practices">ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ Best Practices</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#summary">Summary</a></li>
+</ol>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-introduction-to-vllm">Introduction to vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰</h4>
+<p>vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ (Virtual å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰) is a high-throughput, memory-efficient inference engine specifically designed for Large Language Models. Developed by researchers at UC Berkeley, vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ has become the de facto standard for production å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ serving due to its exceptional performance and ease of use.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-why-vllm">Why vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰?</h5>
+<p><strong>Performance Advantages:</strong></p>
+<ul>
+<li><strong>10-20x higher throughput</strong> compared to Hugging Face Transformers</li>
+<li><strong>PagedAttention</strong>: Revolutionary memory management technique</li>
+<li><strong>Continuous batching</strong>: Efficient request processing</li>
+<li><strong>Optimized CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ kernels</strong>: Maximum GPU åŠ é€Ÿï¼ˆGPUï¼‰ utilization</li>
+</ul>
+<p><strong>Production-Ready Features:</strong></p>
+<ul>
+<li>OpenAI-compatible API server</li>
+<li>Streaming responses</li>
+<li>Multi-model support</li>
+<li>Quantization support (AWQ, GPTQ)</li>
+<li>Tensor parallelism for large models</li>
+</ul>
+<p><strong>Developer Experience:</strong></p>
+<ul>
+<li>Simple Python API</li>
+<li>Easy integration with existing code</li>
+<li>Extensive model support</li>
+<li>Active community and development</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-learning-objectives">Learning Objectives</h5>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+<li>Understand vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ architecture and PagedAttention</li>
+<li>Install and configure vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ for different environments</li>
+<li>Deploy LLMs using vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰'s Python API</li>
+<li>Set up OpenAI-compatible API servers</li>
+<li>Optimize vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ performance for production workloads</li>
+<li>Deploy vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ in Docker å®¹å™¨ï¼ˆDockerï¼‰ and Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</li>
+<li>Monitor and troubleshoot vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ deployments</li>
+<li>Implement production best practices</li>
+</ul>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-vllm-architecture-and-features">vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ Architecture and Features</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-core-architecture">Core Architecture</h5>
+<p>vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰'s architecture is built around several key innovations:</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    vLLM Architecture                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                          â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚         Request Scheduler (Front-end)          â”‚    â”‚
+â”‚  â”‚  - Request queuing and prioritization          â”‚    â”‚
+â”‚  â”‚  - Continuous batching logic                   â”‚    â”‚
+â”‚  â”‚  - Token budget management                     â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â”‚                    â”‚                                     â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚         Memory Manager (PagedAttention)        â”‚    â”‚
+â”‚  â”‚  - Dynamic KV cache allocation                 â”‚    â”‚
+â”‚  â”‚  - Memory block management                     â”‚    â”‚
+â”‚  â”‚  - Efficient memory sharing                    â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â”‚                    â”‚                                     â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚         Model Executor (Back-end)              â”‚    â”‚
+â”‚  â”‚  - Model inference                             â”‚    â”‚
+â”‚  â”‚  - Optimized CUDA kernels                      â”‚    â”‚
+â”‚  â”‚  - Tensor parallelism support                  â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â”‚                                                          â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-pagedattention-the-key-innovation">PagedAttention: The Key Innovation</h5>
+<p>PagedAttention is vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰'s breakthrough memory management technique, inspired by operating system paging.</p>
+<p><strong>Traditional Approach:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  Request 1: [KV Cache: 100 tokens]    â”‚  Wastes space
+â”‚  Allocated: 2048 tokens               â”‚  if request is
+â”‚  Wasted: 1948 tokens                  â”‚  shorter
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<p><strong>PagedAttention Approach:</strong></p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  Memory divided into blocks (e.g., 16) â”‚
+â”‚  Allocate only needed blocks           â”‚
+â”‚  Share blocks across requests          â”‚
+â”‚  Dynamic allocation as tokens generate â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li><strong>Near-zero waste</strong>: Only allocate what's needed</li>
+<li><strong>Memory sharing</strong>: Parallel sampling shares KV cache</li>
+<li><strong>Dynamic growth</strong>: Allocate blocks as sequence grows</li>
+<li><strong>Higher batch sizes</strong>: More requests fit in memory</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-continuous-batching">Continuous Batching</h5>
+<p>Unlike static batching, continuous batching allows vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ to add new requests to a batch as soon as slots become available.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Traditional static batching
+# Batch 1: [Req A, Req B, Req C, Req D]
+# Wait for ALL to complete before starting Batch 2
+# Problem: If Req A finishes early, GPU sits idle
+
+# Continuous batching (vLLM)
+# Iteration 1: [Req A, Req B, Req C, Req D]
+# Iteration 2: [Req B, Req C, Req D, Req E]  # A done, E added
+# Iteration 3: [Req C, Req D, Req E, Req F]  # B done, F added
+# Result: GPU never idle!</code></pre></div>
+<p><strong>Impact:</strong></p>
+<ul>
+<li>2-10x higher throughput</li>
+<li>Better GPU åŠ é€Ÿï¼ˆGPUï¼‰ utilization (60-90%)</li>
+<li>Lower average latency</li>
+<li>Smoother performance under variable load</li>
+</ul>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-model-support">Model Support</h5>
+<p>vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ supports a wide range of å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ architectures:</p>
+<p><strong>Fully Supported:</strong></p>
+<ul>
+<li>LLaMA / LLaMA 2 / LLaMA 3</li>
+<li>Mistral / Mixtral</li>
+<li>Falcon</li>
+<li>GPT-2 / GPT-J / GPT-NeoX</li>
+<li>OPT</li>
+<li>BLOOM</li>
+<li>CodeLlama</li>
+<li>Yi</li>
+<li>Qwen</li>
+</ul>
+<p><strong>Quantization Support:</strong></p>
+<ul>
+<li>AWQ (4-bit)</li>
+<li>GPTQ (4-bit, 8-bit)</li>
+<li>SqueezeLLM</li>
+</ul>
+<p><strong>Check latest compatibility:</strong> https://docs.vllm.ai/en/latest/models/supported_models.html</p>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-installation-and-setup">Installation and Setup</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-prerequisites">å‰ç½®è¦æ±‚ï¼ˆPrerequisitesï¼‰</h5>
+<p>Before installing vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰, ensure you have:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># System requirements
+# - Linux OS (Ubuntu 20.04+ recommended)
+# - Python 3.8 or higher
+# - NVIDIA GPU with compute capability 7.0+ (V100, T4, A10, A100, etc.)
+# - CUDA 11.8 or higher
+# - 16GB+ system RAM
+
+# Check CUDA version
+nvidia-smi
+
+# Check Python version
+python --version</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-installation-methods">Installation Methods</h5>
+<h6 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-method-1-pip-install-recommended-">Method 1: pip Install (Recommended for Quick Start)</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Create virtual environment
+python -m venv vllm-env
+source vllm-env/bin/activate
+
+# Install vLLM
+pip install vllm
+
+# Verify installation
+python -c &quot;import vllm; print(vllm.__version__)&quot;</code></pre></div>
+<h6 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-method-2-install-with-specific-cu">Method 2: Install with Specific CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Version</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># For CUDA 11.8
+pip install vllm
+
+# For CUDA 12.1
+export VLLM_VERSION=0.2.7  # Check latest version
+export PYTHON_VERSION=310
+pip install https://github.com/vllm-project/vllm/releases/download/v${VLLM_VERSION}/vllm-${VLLM_VERSION}+cu121-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-manylinux1_x86_64.whl</code></pre></div>
+<h6 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-method-3-build-from-source-for-de">Method 3: Build from Source (For Development)</h6>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Clone repository
+git clone https://github.com/vllm-project/vllm.git
+cd vllm
+
+# Install build dependencies
+pip install -e .</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-post-installation-verification">Post-Installation Verification</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># test_vllm.py
+from vllm import LLM, SamplingParams
+
+# This test uses a small model - should work with 4GB+ GPU
+def test_vllm_installation():
+    &quot;&quot;&quot;Test vLLM installation with a small model&quot;&quot;&quot;
+
+    # Initialize with a small model
+    llm = LLM(
+        model=&quot;facebook/opt-125m&quot;,  # Small 125M parameter model
+        max_model_len=512,
+        gpu_memory_utilization=0.3
+    )
+
+    # Simple generation test
+    prompts = [&quot;Hello, how are you?&quot;]
+    sampling_params = SamplingParams(temperature=0.8, max_tokens=50)
+
+    outputs = llm.generate(prompts, sampling_params)
+
+    for output in outputs:
+        print(f&quot;Prompt: {output.prompt}&quot;)
+        print(f&quot;Generated: {output.outputs[0].text}&quot;)
+        print(&quot;âœ“ vLLM installation successful!&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    test_vllm_installation()</code></pre></div>
+<p>Run the test:</p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash">python test_vllm.py</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-basic-vllm-usage">Basic vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ Usage</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-python-api-offline-inference">Python API - Offline æŽ¨ç†ï¼ˆInferenceï¼‰</h5>
+<p>The simplest way to use vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ is through its Python API for offline batch inference.</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># basic_usage.py
+from vllm import LLM, SamplingParams
+
+def basic_generation_example():
+    &quot;&quot;&quot;Basic vLLM generation example&quot;&quot;&quot;
+
+    # Initialize the LLM
+    llm = LLM(
+        model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+        # Download from Hugging Face Hub
+        # Requires HF token for gated models
+    )
+
+    # Define sampling parameters
+    sampling_params = SamplingParams(
+        temperature=0.7,    # Randomness (0.0 = deterministic, 1.0 = creative)
+        top_p=0.9,         # Nucleus sampling
+        max_tokens=256,    # Maximum tokens to generate
+        stop=[&quot;&lt;/s&gt;&quot;]      # Stop sequences
+    )
+
+    # Single prompt
+    prompt = &quot;Explain quantum computing in simple terms:&quot;
+    outputs = llm.generate([prompt], sampling_params)
+
+    print(outputs[0].outputs[0].text)
+
+def batch_generation_example():
+    &quot;&quot;&quot;Batch generation - vLLM's strength&quot;&quot;&quot;
+
+    llm = LLM(model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;)
+
+    # Multiple prompts - processed efficiently in batch
+    prompts = [
+        &quot;What is machine learning?&quot;,
+        &quot;Explain neural networks.&quot;,
+        &quot;What is deep learning?&quot;,
+        &quot;Describe transformers architecture.&quot;,
+        &quot;What are LLMs?&quot;
+    ]
+
+    sampling_params = SamplingParams(temperature=0.7, max_tokens=100)
+
+    # All prompts processed in single call
+    outputs = llm.generate(prompts, sampling_params)
+
+    for prompt, output in zip(prompts, outputs):
+        print(f&quot;\nPrompt: {prompt}&quot;)
+        print(f&quot;Response: {output.outputs[0].text}&quot;)
+        print(f&quot;Tokens: {len(output.outputs[0].token_ids)}&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    basic_generation_example()
+    # batch_generation_example()</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-advanced-sampling-parameters">Advanced Sampling Parameters</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># advanced_sampling.py
+from vllm import SamplingParams
+
+class SamplingConfigurations:
+    &quot;&quot;&quot;Different sampling configurations for various use cases&quot;&quot;&quot;
+
+    @staticmethod
+    def deterministic():
+        &quot;&quot;&quot;For consistent, deterministic outputs&quot;&quot;&quot;
+        return SamplingParams(
+            temperature=0.0,
+            top_p=1.0,
+            max_tokens=512
+        )
+
+    @staticmethod
+    def creative():
+        &quot;&quot;&quot;For creative, diverse outputs&quot;&quot;&quot;
+        return SamplingParams(
+            temperature=1.0,
+            top_p=0.95,
+            top_k=50,
+            max_tokens=1024
+        )
+
+    @staticmethod
+    def balanced():
+        &quot;&quot;&quot;Balanced between creativity and coherence&quot;&quot;&quot;
+        return SamplingParams(
+            temperature=0.7,
+            top_p=0.9,
+            max_tokens=512,
+            frequency_penalty=0.1,  # Reduce repetition
+            presence_penalty=0.1    # Encourage diversity
+        )
+
+    @staticmethod
+    def code_generation():
+        &quot;&quot;&quot;Optimized for code generation&quot;&quot;&quot;
+        return SamplingParams(
+            temperature=0.2,  # Lower for more accurate code
+            top_p=0.95,
+            max_tokens=2048,
+            stop=[&quot;```\n&quot;, &quot;\n\n\n&quot;]  # Stop at code block end
+        )
+
+    @staticmethod
+    def chat():
+        &quot;&quot;&quot;Optimized for chat applications&quot;&quot;&quot;
+        return SamplingParams(
+            temperature=0.7,
+            top_p=0.9,
+            max_tokens=512,
+            repetition_penalty=1.1,  # Discourage repetition
+            stop=[&quot;User:&quot;, &quot;Human:&quot;]  # Stop at user turn
+        )
+
+# Usage example
+llm = LLM(model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;)
+
+prompt = &quot;Write a Python function to calculate fibonacci:&quot;
+outputs = llm.generate(
+    [prompt],
+    SamplingConfigurations.code_generation()
+)
+
+print(outputs[0].outputs[0].text)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-multi-turn-conversations">Multi-Turn Conversations</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># conversation.py
+from vllm import LLM, SamplingParams
+
+class ConversationManager:
+    &quot;&quot;&quot;Manage multi-turn conversations with vLLM&quot;&quot;&quot;
+
+    def __init__(self, model_name: str):
+        self.llm = LLM(model=model_name)
+        self.conversations = {}  # Track conversation history
+
+    def format_llama2_prompt(self, messages: list) -&gt; str:
+        &quot;&quot;&quot;Format messages for Llama 2 chat format&quot;&quot;&quot;
+        prompt = &quot;&lt;s&gt;[INST] &quot;
+
+        for i, msg in enumerate(messages):
+            if msg[&quot;role&quot;] == &quot;user&quot;:
+                if i &gt; 0:
+                    prompt += f&quot;[INST] {msg['content']} [/INST] &quot;
+                else:
+                    prompt += f&quot;{msg['content']} [/INST] &quot;
+            elif msg[&quot;role&quot;] == &quot;assistant&quot;:
+                prompt += f&quot;{msg['content']} &lt;/s&gt;&quot;
+
+        return prompt
+
+    def chat(self, conversation_id: str, user_message: str) -&gt; str:
+        &quot;&quot;&quot;Process a chat message and return response&quot;&quot;&quot;
+
+        # Initialize conversation if new
+        if conversation_id not in self.conversations:
+            self.conversations[conversation_id] = []
+
+        # Add user message
+        self.conversations[conversation_id].append({
+            &quot;role&quot;: &quot;user&quot;,
+            &quot;content&quot;: user_message
+        })
+
+        # Format prompt
+        prompt = self.format_llama2_prompt(
+            self.conversations[conversation_id]
+        )
+
+        # Generate response
+        sampling_params = SamplingParams(
+            temperature=0.7,
+            max_tokens=512,
+            stop=[&quot;&lt;/s&gt;&quot;]
+        )
+
+        outputs = self.llm.generate([prompt], sampling_params)
+        response = outputs[0].outputs[0].text.strip()
+
+        # Add assistant response to history
+        self.conversations[conversation_id].append({
+            &quot;role&quot;: &quot;assistant&quot;,
+            &quot;content&quot;: response
+        })
+
+        return response
+
+# Example usage
+manager = ConversationManager(&quot;meta-llama/Llama-2-7b-chat-hf&quot;)
+
+# Conversation 1
+print(manager.chat(&quot;user123&quot;, &quot;Hello! What's your name?&quot;))
+print(manager.chat(&quot;user123&quot;, &quot;Can you help me with Python?&quot;))
+print(manager.chat(&quot;user123&quot;, &quot;Show me a for loop example.&quot;))
+
+# Conversation 2 (separate context)
+print(manager.chat(&quot;user456&quot;, &quot;Tell me about machine learning.&quot;))</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-deploying-llms-with-vllm">Deploying LLMs with vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-model-selection-and-download">Model Selection and Download</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># model_downloader.py
+from huggingface_hub import snapshot_download
+import os
+
+class ModelDownloader:
+    &quot;&quot;&quot;Download and manage LLM models&quot;&quot;&quot;
+
+    def __init__(self, cache_dir: str = &quot;./models&quot;):
+        self.cache_dir = cache_dir
+        os.makedirs(cache_dir, exist_ok=True)
+
+    def download_model(
+        self,
+        model_id: str,
+        token: str = None,
+        quantization: str = None
+    ):
+        &quot;&quot;&quot;Download model from Hugging Face Hub&quot;&quot;&quot;
+
+        print(f&quot;Downloading {model_id}...&quot;)
+
+        # For gated models (Llama 2, etc.), you need a HF token
+        model_path = snapshot_download(
+            repo_id=model_id,
+            cache_dir=self.cache_dir,
+            token=token,
+            # Optionally download specific files
+            allow_patterns=[&quot;*.json&quot;, &quot;*.safetensors&quot;, &quot;*.model&quot;, &quot;*.bin&quot;]
+        )
+
+        print(f&quot;Model downloaded to: {model_path}&quot;)
+        return model_path
+
+    def list_downloaded_models(self):
+        &quot;&quot;&quot;List all downloaded models&quot;&quot;&quot;
+        models = []
+        for item in os.listdir(self.cache_dir):
+            model_path = os.path.join(self.cache_dir, item)
+            if os.path.isdir(model_path):
+                models.append(item)
+        return models
+
+# Example usage
+downloader = ModelDownloader()
+
+# Download popular open models
+models_to_download = [
+    &quot;meta-llama/Llama-2-7b-chat-hf&quot;,  # Requires HF token
+    &quot;mistralai/Mistral-7B-Instruct-v0.1&quot;,
+    &quot;codellama/CodeLlama-7b-hf&quot;
+]
+
+# Set your Hugging Face token
+HF_TOKEN = os.getenv(&quot;HF_TOKEN&quot;)
+
+for model_id in models_to_download:
+    downloader.download_model(model_id, token=HF_TOKEN)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-production-deployment-configurati">ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰ Configuration</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># production_config.py
+from vllm import LLM, SamplingParams
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class vLLMConfig:
+    &quot;&quot;&quot;Production-ready vLLM configuration&quot;&quot;&quot;
+
+    # Model settings
+    model: str
+    tokenizer: Optional[str] = None
+
+    # Memory settings
+    gpu_memory_utilization: float = 0.90  # Use 90% of GPU memory
+    max_model_len: int = 4096            # Maximum sequence length
+
+    # Performance settings
+    tensor_parallel_size: int = 1         # Number of GPUs for tensor parallelism
+    trust_remote_code: bool = False       # For custom model code
+
+    # Quantization
+    quantization: Optional[str] = None    # &quot;awq&quot;, &quot;gptq&quot;, or None
+
+    # Engine settings
+    max_num_seqs: int = 256              # Max concurrent sequences
+    max_num_batched_tokens: Optional[int] = None
+
+    # Logging
+    disable_log_stats: bool = False
+    disable_log_requests: bool = False
+
+class ProductionLLM:
+    &quot;&quot;&quot;Production-ready LLM wrapper&quot;&quot;&quot;
+
+    def __init__(self, config: vLLMConfig):
+        self.config = config
+        self.llm = self._initialize_llm()
+
+    def _initialize_llm(self):
+        &quot;&quot;&quot;Initialize vLLM with production settings&quot;&quot;&quot;
+        return LLM(
+            model=self.config.model,
+            tokenizer=self.config.tokenizer,
+            tensor_parallel_size=self.config.tensor_parallel_size,
+            gpu_memory_utilization=self.config.gpu_memory_utilization,
+            max_model_len=self.config.max_model_len,
+            trust_remote_code=self.config.trust_remote_code,
+            quantization=self.config.quantization,
+            max_num_seqs=self.config.max_num_seqs,
+            disable_log_stats=self.config.disable_log_stats
+        )
+
+    def generate(self, prompts, sampling_params):
+        &quot;&quot;&quot;Generate with error handling&quot;&quot;&quot;
+        try:
+            outputs = self.llm.generate(prompts, sampling_params)
+            return outputs
+        except Exception as e:
+            print(f&quot;Generation error: {e}&quot;)
+            raise
+
+# Example configurations
+
+# Small model config (for T4, development)
+small_config = vLLMConfig(
+    model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    gpu_memory_utilization=0.85,
+    max_model_len=2048,
+    tensor_parallel_size=1
+)
+
+# Medium model config (for A10G, production)
+medium_config = vLLMConfig(
+    model=&quot;meta-llama/Llama-2-13b-chat-hf&quot;,
+    gpu_memory_utilization=0.90,
+    max_model_len=4096,
+    tensor_parallel_size=1
+)
+
+# Large model config (for multi-GPU A100)
+large_config = vLLMConfig(
+    model=&quot;meta-llama/Llama-2-70b-chat-hf&quot;,
+    gpu_memory_utilization=0.95,
+    max_model_len=4096,
+    tensor_parallel_size=4  # 4 GPUs
+)
+
+# Quantized model config (for cost optimization)
+quantized_config = vLLMConfig(
+    model=&quot;TheBloke/Llama-2-7B-Chat-AWQ&quot;,
+    quantization=&quot;awq&quot;,
+    gpu_memory_utilization=0.90,
+    max_model_len=4096
+)
+
+# Usage
+llm = ProductionLLM(medium_config)
+outputs = llm.generate(
+    [&quot;Hello, how are you?&quot;],
+    SamplingParams(temperature=0.7, max_tokens=100)
+)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-tensor-parallelism-for-large-mode">Tensor Parallelism for Large Models</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># tensor_parallel.py
+from vllm import LLM
+
+def deploy_large_model_multi_gpu():
+    &quot;&quot;&quot;Deploy 70B model across multiple GPUs&quot;&quot;&quot;
+
+    # Llama 2 70B requires ~140GB in FP16
+    # With 4x A100-40GB, we can distribute the model
+
+    llm = LLM(
+        model=&quot;meta-llama/Llama-2-70b-chat-hf&quot;,
+        tensor_parallel_size=4,  # Use 4 GPUs
+        gpu_memory_utilization=0.95,
+        max_model_len=4096,
+        # vLLM automatically splits model across GPUs
+    )
+
+    return llm
+
+# GPU allocation visualization:
+&quot;&quot;&quot;
+GPU 0: [Layers 0-19]  + [Attention heads 0-15]
+GPU 1: [Layers 20-39] + [Attention heads 16-31]
+GPU 2: [Layers 40-59] + [Attention heads 32-47]
+GPU 3: [Layers 60-79] + [Attention heads 48-63]
+
+Communication: All-reduce for attention, point-to-point for layers
+&quot;&quot;&quot;</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-openai-compatible-api-server">OpenAI-Compatible API Server</h4>
+<p>One of vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰'s most powerful features is its built-in OpenAI-compatible API server.</p>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-starting-the-api-server">Starting the API Server</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Basic server start
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-2-7b-chat-hf \
+    --host 0.0.0.0 \
+    --port 8000
+
+# Production server with optimizations
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-2-7b-chat-hf \
+    --host 0.0.0.0 \
+    --port 8000 \
+    --tensor-parallel-size 1 \
+    --gpu-memory-utilization 0.90 \
+    --max-model-len 4096 \
+    --disable-log-requests \
+    --served-model-name llama-2-7b-chat</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-api-server-configuration-script">API Server Configuration Script</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># api_server.py
+import subprocess
+import argparse
+from typing import Optional
+
+class vLLMAPIServer:
+    &quot;&quot;&quot;Manage vLLM API server&quot;&quot;&quot;
+
+    def __init__(
+        self,
+        model: str,
+        host: str = &quot;0.0.0.0&quot;,
+        port: int = 8000,
+        tensor_parallel_size: int = 1,
+        gpu_memory_utilization: float = 0.90,
+        max_model_len: int = 4096,
+        served_model_name: Optional[str] = None
+    ):
+        self.model = model
+        self.host = host
+        self.port = port
+        self.tensor_parallel_size = tensor_parallel_size
+        self.gpu_memory_utilization = gpu_memory_utilization
+        self.max_model_len = max_model_len
+        self.served_model_name = served_model_name or model.split(&quot;/&quot;)[-1]
+
+    def build_command(self) -&gt; list:
+        &quot;&quot;&quot;Build server startup command&quot;&quot;&quot;
+        cmd = [
+            &quot;python&quot;, &quot;-m&quot;, &quot;vllm.entrypoints.openai.api_server&quot;,
+            &quot;--model&quot;, self.model,
+            &quot;--host&quot;, self.host,
+            &quot;--port&quot;, str(self.port),
+            &quot;--tensor-parallel-size&quot;, str(self.tensor_parallel_size),
+            &quot;--gpu-memory-utilization&quot;, str(self.gpu_memory_utilization),
+            &quot;--max-model-len&quot;, str(self.max_model_len),
+            &quot;--served-model-name&quot;, self.served_model_name
+        ]
+        return cmd
+
+    def start(self):
+        &quot;&quot;&quot;Start the API server&quot;&quot;&quot;
+        cmd = self.build_command()
+        print(f&quot;Starting vLLM API server...&quot;)
+        print(f&quot;Command: {' '.join(cmd)}&quot;)
+        print(f&quot;API will be available at http://{self.host}:{self.port}&quot;)
+
+        # Run server (blocks)
+        subprocess.run(cmd)
+
+if __name__ == &quot;__main__&quot;:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(&quot;--model&quot;, required=True)
+    parser.add_argument(&quot;--port&quot;, type=int, default=8000)
+    parser.add_argument(&quot;--tensor-parallel-size&quot;, type=int, default=1)
+
+    args = parser.parse_args()
+
+    server = vLLMAPIServer(
+        model=args.model,
+        port=args.port,
+        tensor_parallel_size=args.tensor_parallel_size
+    )
+
+    server.start()</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-using-the-openai-compatible-api">Using the OpenAI-Compatible API</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># client.py
+from openai import OpenAI
+
+# Point to vLLM server instead of OpenAI
+client = OpenAI(
+    base_url=&quot;http://localhost:8000/v1&quot;,
+    api_key=&quot;dummy&quot;  # vLLM doesn't require real key by default
+)
+
+# Chat completions (matches OpenAI API)
+def chat_completion_example():
+    response = client.chat.completions.create(
+        model=&quot;llama-2-7b-chat&quot;,  # Use served-model-name
+        messages=[
+            {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a helpful assistant.&quot;},
+            {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Explain quantum computing.&quot;}
+        ],
+        temperature=0.7,
+        max_tokens=512
+    )
+
+    print(response.choices[0].message.content)
+
+# Streaming completions
+def streaming_example():
+    stream = client.chat.completions.create(
+        model=&quot;llama-2-7b-chat&quot;,
+        messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Count from 1 to 10&quot;}],
+        stream=True,
+        max_tokens=100
+    )
+
+    for chunk in stream:
+        if chunk.choices[0].delta.content:
+            print(chunk.choices[0].delta.content, end=&quot;&quot;, flush=True)
+    print()
+
+# Text completions (non-chat)
+def text_completion_example():
+    response = client.completions.create(
+        model=&quot;llama-2-7b-chat&quot;,
+        prompt=&quot;Once upon a time,&quot;,
+        max_tokens=100,
+        temperature=0.8
+    )
+
+    print(response.choices[0].text)
+
+if __name__ == &quot;__main__&quot;:
+    chat_completion_example()
+    streaming_example()
+    text_completion_example()</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-custom-fastapi-wrapper">Custom FastAPI æœåŠ¡æ¡†æž¶ï¼ˆFastAPIï¼‰ Wrapper</h5>
+<p>For more control, you can build a custom API around vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># custom_api.py
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from vllm import LLM, SamplingParams
+from typing import List, Optional
+import uvicorn
+
+app = FastAPI(title=&quot;Custom vLLM API&quot;)
+
+# Initialize vLLM
+llm = LLM(
+    model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    gpu_memory_utilization=0.90
+)
+
+# Request/Response models
+class GenerationRequest(BaseModel):
+    prompt: str
+    max_tokens: int = 256
+    temperature: float = 0.7
+    top_p: float = 0.9
+    stop: Optional[List[str]] = None
+
+class GenerationResponse(BaseModel):
+    text: str
+    tokens_generated: int
+    finish_reason: str
+
+class BatchRequest(BaseModel):
+    prompts: List[str]
+    max_tokens: int = 256
+    temperature: float = 0.7
+
+# Endpoints
+@app.post(&quot;/generate&quot;, response_model=GenerationResponse)
+async def generate(request: GenerationRequest):
+    &quot;&quot;&quot;Single generation endpoint&quot;&quot;&quot;
+    try:
+        sampling_params = SamplingParams(
+            temperature=request.temperature,
+            top_p=request.top_p,
+            max_tokens=request.max_tokens,
+            stop=request.stop
+        )
+
+        outputs = llm.generate([request.prompt], sampling_params)
+        output = outputs[0].outputs[0]
+
+        return GenerationResponse(
+            text=output.text,
+            tokens_generated=len(output.token_ids),
+            finish_reason=output.finish_reason
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post(&quot;/batch_generate&quot;)
+async def batch_generate(request: BatchRequest):
+    &quot;&quot;&quot;Batch generation endpoint - vLLM's strength&quot;&quot;&quot;
+    try:
+        sampling_params = SamplingParams(
+            temperature=request.temperature,
+            max_tokens=request.max_tokens
+        )
+
+        outputs = llm.generate(request.prompts, sampling_params)
+
+        results = []
+        for output in outputs:
+            results.append({
+                &quot;text&quot;: output.outputs[0].text,
+                &quot;tokens&quot;: len(output.outputs[0].token_ids)
+            })
+
+        return {&quot;results&quot;: results}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get(&quot;/health&quot;)
+async def health():
+    &quot;&quot;&quot;Health check endpoint&quot;&quot;&quot;
+    return {&quot;status&quot;: &quot;healthy&quot;, &quot;model&quot;: &quot;llama-2-7b-chat&quot;}
+
+@app.get(&quot;/model_info&quot;)
+async def model_info():
+    &quot;&quot;&quot;Model information&quot;&quot;&quot;
+    return {
+        &quot;model&quot;: &quot;llama-2-7b-chat&quot;,
+        &quot;max_model_len&quot;: 4096,
+        &quot;tensor_parallel_size&quot;: 1
+    }
+
+if __name__ == &quot;__main__&quot;:
+    uvicorn.run(app, host=&quot;0.0.0.0&quot;, port=8000)</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-performance-optimization">Performance Optimization</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-gpu-memory-optimization">GPU åŠ é€Ÿï¼ˆGPUï¼‰ Memory Optimization</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># memory_optimization.py
+
+def optimize_for_throughput(model_name: str):
+    &quot;&quot;&quot;Maximize throughput - use most GPU memory&quot;&quot;&quot;
+    return LLM(
+        model=model_name,
+        gpu_memory_utilization=0.95,  # Use 95% of GPU memory
+        max_num_seqs=256,             # High concurrency
+        max_model_len=2048            # Shorter sequences = more batch
+    )
+
+def optimize_for_latency(model_name: str):
+    &quot;&quot;&quot;Minimize latency - reduce batch size&quot;&quot;&quot;
+    return LLM(
+        model=model_name,
+        gpu_memory_utilization=0.80,  # Leave room for bursty traffic
+        max_num_seqs=32,              # Lower concurrency
+        max_model_len=4096            # Support longer sequences
+    )
+
+def optimize_for_long_context(model_name: str):
+    &quot;&quot;&quot;Support very long contexts&quot;&quot;&quot;
+    return LLM(
+        model=model_name,
+        gpu_memory_utilization=0.90,
+        max_model_len=8192,           # Longer sequences
+        max_num_seqs=16               # Fewer concurrent requests
+    )</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-batching-strategies">Batching Strategies</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># batching.py
+from vllm import LLM, SamplingParams
+import asyncio
+from collections import deque
+import time
+
+class AdaptiveBatchProcessor:
+    &quot;&quot;&quot;Adaptive batching for optimal throughput&quot;&quot;&quot;
+
+    def __init__(
+        self,
+        llm: LLM,
+        max_batch_size: int = 32,
+        max_wait_ms: int = 100
+    ):
+        self.llm = llm
+        self.max_batch_size = max_batch_size
+        self.max_wait_ms = max_wait_ms
+        self.queue = deque()
+        self.processing = False
+
+    async def add_request(self, prompt: str, sampling_params: SamplingParams):
+        &quot;&quot;&quot;Add request to queue&quot;&quot;&quot;
+        future = asyncio.Future()
+        self.queue.append((prompt, sampling_params, future))
+
+        # Trigger processing if not already running
+        if not self.processing:
+            asyncio.create_task(self._process_batch())
+
+        return await future
+
+    async def _process_batch(self):
+        &quot;&quot;&quot;Process queued requests in batches&quot;&quot;&quot;
+        self.processing = True
+        start_time = time.time()
+
+        while self.queue:
+            batch = []
+            prompts = []
+            params_list = []
+            futures = []
+
+            # Collect batch
+            while (len(batch) &lt; self.max_batch_size and
+                   self.queue and
+                   (time.time() - start_time) * 1000 &lt; self.max_wait_ms):
+                prompt, params, future = self.queue.popleft()
+                prompts.append(prompt)
+                params_list.append(params)
+                futures.append(future)
+                batch.append((prompt, params, future))
+
+            if not batch:
+                break
+
+            # Process batch
+            # Note: vLLM handles different sampling params per request
+            outputs = self.llm.generate(prompts, params_list[0])
+
+            # Resolve futures
+            for future, output in zip(futures, outputs):
+                future.set_result(output.outputs[0].text)
+
+            start_time = time.time()
+
+        self.processing = False
+
+# Usage
+llm = LLM(model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;)
+processor = AdaptiveBatchProcessor(llm)
+
+async def handle_request(prompt: str):
+    params = SamplingParams(temperature=0.7, max_tokens=100)
+    result = await processor.add_request(prompt, params)
+    return result</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-benchmarking">Benchmarking</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># benchmark.py
+import time
+import statistics
+from vllm import LLM, SamplingParams
+from typing import List
+
+class vLLMBenchmark:
+    &quot;&quot;&quot;Benchmark vLLM performance&quot;&quot;&quot;
+
+    def __init__(self, model: str):
+        self.llm = LLM(
+            model=model,
+            gpu_memory_utilization=0.90
+        )
+        self.model = model
+
+    def benchmark_throughput(
+        self,
+        num_requests: int = 100,
+        prompt_length: int = 100,
+        output_length: int = 100
+    ):
+        &quot;&quot;&quot;Measure throughput (requests/second)&quot;&quot;&quot;
+
+        # Generate test prompts
+        test_prompt = &quot;Hello &quot; * prompt_length
+        prompts = [test_prompt] * num_requests
+
+        sampling_params = SamplingParams(
+            temperature=0.0,
+            max_tokens=output_length
+        )
+
+        # Warm-up
+        self.llm.generate([test_prompt], sampling_params)
+
+        # Benchmark
+        start_time = time.time()
+        outputs = self.llm.generate(prompts, sampling_params)
+        end_time = time.time()
+
+        duration = end_time - start_time
+        throughput = num_requests / duration
+
+        # Calculate tokens
+        total_tokens = sum(
+            len(output.outputs[0].token_ids) for output in outputs
+        )
+        tokens_per_second = total_tokens / duration
+
+        return {
+            &quot;num_requests&quot;: num_requests,
+            &quot;duration_seconds&quot;: round(duration, 2),
+            &quot;requests_per_second&quot;: round(throughput, 2),
+            &quot;tokens_per_second&quot;: round(tokens_per_second, 2),
+            &quot;average_latency_ms&quot;: round((duration / num_requests) * 1000, 2)
+        }
+
+    def benchmark_latency(
+        self,
+        num_trials: int = 50,
+        prompt_length: int = 100,
+        output_length: int = 100
+    ):
+        &quot;&quot;&quot;Measure latency distribution&quot;&quot;&quot;
+
+        test_prompt = &quot;Hello &quot; * prompt_length
+        sampling_params = SamplingParams(
+            temperature=0.0,
+            max_tokens=output_length
+        )
+
+        latencies = []
+
+        for _ in range(num_trials):
+            start_time = time.time()
+            self.llm.generate([test_prompt], sampling_params)
+            end_time = time.time()
+            latencies.append((end_time - start_time) * 1000)  # ms
+
+        return {
+            &quot;num_trials&quot;: num_trials,
+            &quot;mean_latency_ms&quot;: round(statistics.mean(latencies), 2),
+            &quot;median_latency_ms&quot;: round(statistics.median(latencies), 2),
+            &quot;p95_latency_ms&quot;: round(sorted(latencies)[int(num_trials * 0.95)], 2),
+            &quot;p99_latency_ms&quot;: round(sorted(latencies)[int(num_trials * 0.99)], 2),
+            &quot;min_latency_ms&quot;: round(min(latencies), 2),
+            &quot;max_latency_ms&quot;: round(max(latencies), 2)
+        }
+
+# Run benchmarks
+benchmark = vLLMBenchmark(&quot;meta-llama/Llama-2-7b-chat-hf&quot;)
+
+print(&quot;Throughput Benchmark:&quot;)
+print(benchmark.benchmark_throughput(num_requests=100))
+
+print(&quot;\nLatency Benchmark:&quot;)
+print(benchmark.benchmark_latency(num_trials=50))</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-monitoring-vllm-deployments">ç›‘æŽ§ï¼ˆMonitoringï¼‰ vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ Deployments</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-metrics-collection">Metrics Collection</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># monitoring.py
+from prometheus_client import Counter, Histogram, Gauge, start_http_server
+from vllm import LLM, SamplingParams
+import time
+from functools import wraps
+
+# Prometheus metrics
+REQUEST_COUNT = Counter(
+    'vllm_requests_total',
+    'Total number of requests',
+    ['model', 'status']
+)
+
+REQUEST_DURATION = Histogram(
+    'vllm_request_duration_seconds',
+    'Request duration in seconds',
+    ['model']
+)
+
+TOKENS_GENERATED = Counter(
+    'vllm_tokens_generated_total',
+    'Total tokens generated',
+    ['model']
+)
+
+ACTIVE_REQUESTS = Gauge(
+    'vllm_active_requests',
+    'Number of active requests',
+    ['model']
+)
+
+GPU_MEMORY_USAGE = Gauge(
+    'vllm_gpu_memory_bytes',
+    'GPU memory usage in bytes',
+    ['gpu_id']
+)
+
+class MonitoredLLM:
+    &quot;&quot;&quot;vLLM wrapper with monitoring&quot;&quot;&quot;
+
+    def __init__(self, model: str):
+        self.model_name = model
+        self.llm = LLM(model=model)
+
+        # Start Prometheus metrics server
+        start_http_server(8001)
+
+    def generate(self, prompts, sampling_params):
+        &quot;&quot;&quot;Generate with monitoring&quot;&quot;&quot;
+
+        ACTIVE_REQUESTS.labels(model=self.model_name).inc()
+
+        start_time = time.time()
+        status = &quot;success&quot;
+
+        try:
+            outputs = self.llm.generate(prompts, sampling_params)
+
+            # Count tokens
+            total_tokens = sum(
+                len(output.outputs[0].token_ids) for output in outputs
+            )
+            TOKENS_GENERATED.labels(model=self.model_name).inc(total_tokens)
+
+            return outputs
+
+        except Exception as e:
+            status = &quot;error&quot;
+            raise
+
+        finally:
+            duration = time.time() - start_time
+
+            REQUEST_DURATION.labels(model=self.model_name).observe(duration)
+            REQUEST_COUNT.labels(model=self.model_name, status=status).inc()
+            ACTIVE_REQUESTS.labels(model=self.model_name).dec()
+
+# Usage
+monitored_llm = MonitoredLLM(&quot;meta-llama/Llama-2-7b-chat-hf&quot;)
+
+# Metrics available at http://localhost:8001/metrics</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-logging-configuration">Logging Configuration</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># logging_config.py
+import logging
+import sys
+from datetime import datetime
+
+def setup_vllm_logging(log_level=logging.INFO):
+    &quot;&quot;&quot;Configure comprehensive logging for vLLM&quot;&quot;&quot;
+
+    # Create logger
+    logger = logging.getLogger(&quot;vllm_service&quot;)
+    logger.setLevel(log_level)
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(log_level)
+
+    # File handler
+    file_handler = logging.FileHandler(
+        f&quot;vllm_service_{datetime.now().strftime('%Y%m%d')}.log&quot;
+    )
+    file_handler.setLevel(log_level)
+
+    # Format
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    console_handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+
+    return logger
+
+# Usage
+logger = setup_vllm_logging()
+
+logger.info(&quot;vLLM service starting...&quot;)
+logger.info(&quot;Model loaded successfully&quot;)
+logger.warning(&quot;High GPU memory usage detected&quot;)
+logger.error(&quot;Request failed with error: ...&quot;)</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-docker-deployment">Docker å®¹å™¨ï¼ˆDockerï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-dockerfile-for-vllm">Dockerfile for vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>dockerfile</span><span>DOCKERFILE</span></div><pre><code class="language-dockerfile"># Dockerfile
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
+
+# Install Python and dependencies
+RUN apt-get update &amp;&amp; apt-get install -y \
+    python3.10 \
+    python3-pip \
+    git \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+# Create app directory
+WORKDIR /app
+
+# Install vLLM
+RUN pip3 install vllm
+
+# Copy application code
+COPY api_server.py /app/
+COPY requirements.txt /app/
+RUN pip3 install -r requirements.txt
+
+# Expose port
+EXPOSE 8000
+
+# Set environment variables
+ENV MODEL_NAME=&quot;meta-llama/Llama-2-7b-chat-hf&quot;
+ENV HOST=&quot;0.0.0.0&quot;
+ENV PORT=&quot;8000&quot;
+
+# Run server
+CMD python3 -m vllm.entrypoints.openai.api_server \
+    --model ${MODEL_NAME} \
+    --host ${HOST} \
+    --port ${PORT} \
+    --tensor-parallel-size 1</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-docker-compose">Docker å®¹å™¨ï¼ˆDockerï¼‰ Compose å¤šæœåŠ¡ç¼–æŽ’ï¼ˆDocker Composeï¼‰</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># docker-compose.yml
+version: '3.8'
+
+services:
+  vllm-server:
+    build: .
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+      - MODEL_NAME=meta-llama/Llama-2-7b-chat-hf
+      - HF_TOKEN=${HF_TOKEN}
+    ports:
+      - &quot;8000:8000&quot;
+    volumes:
+      - ./models:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8000/health&quot;]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - &quot;9090:9090&quot;
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - &quot;3000:3000&quot;
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  grafana-storage:</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-build-and-run">Build and Run</h5>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Build image
+docker build -t vllm-server:latest .
+
+# Run container
+docker run --gpus all \
+  -p 8000:8000 \
+  -e MODEL_NAME=&quot;meta-llama/Llama-2-7b-chat-hf&quot; \
+  -v $(pwd)/models:/root/.cache/huggingface \
+  vllm-server:latest
+
+# Or use docker-compose
+docker-compose up -d</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-kubernetes-deployment">Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-kubernetes-manifests">Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Manifests</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-serving
+  labels:
+    app: vllm-serving
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vllm-serving
+  template:
+    metadata:
+      labels:
+        app: vllm-serving
+    spec:
+      containers:
+      - name: vllm-server
+        image: vllm-server:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MODEL_NAME
+          value: &quot;meta-llama/Llama-2-7b-chat-hf&quot;
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: huggingface-token
+              key: token
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+            memory: &quot;32Gi&quot;
+            cpu: &quot;8&quot;
+          limits:
+            nvidia.com/gpu: 1
+            memory: &quot;32Gi&quot;
+        volumeMounts:
+        - name: model-cache
+          mountPath: /root/.cache/huggingface
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+      volumes:
+      - name: model-cache
+        persistentVolumeClaim:
+          claimName: model-cache-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-service
+spec:
+  selector:
+    app: vllm-serving
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-cache-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: fast-ssd</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-horizontal-pod-autoscaler">Horizontal Pod Autoscaler</h5>
+<div class="code-shell"><div class="code-title"><span>yaml</span><span>YAML</span></div><pre><code class="language-yaml"># hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: vllm-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: vllm-serving
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: nvidia.com/gpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Pods
+    pods:
+      metric:
+        name: vllm_active_requests
+      target:
+        type: AverageValue
+        averageValue: &quot;50&quot;
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-production-best-practices">ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ Best Practices</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-1-model-caching-strategy">1. Model Caching Strategy</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># model_cache.py
+import os
+from pathlib import Path
+
+class ModelCache:
+    &quot;&quot;&quot;Manage model caching for fast startup&quot;&quot;&quot;
+
+    def __init__(self, cache_dir: str = &quot;/data/models&quot;):
+        self.cache_dir = Path(cache_dir)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+    def preload_models(self, model_list: list):
+        &quot;&quot;&quot;Preload models to cache&quot;&quot;&quot;
+        from huggingface_hub import snapshot_download
+
+        for model_id in model_list:
+            print(f&quot;Preloading {model_id}...&quot;)
+            snapshot_download(
+                repo_id=model_id,
+                cache_dir=self.cache_dir,
+                token=os.getenv(&quot;HF_TOKEN&quot;)
+            )
+
+    def get_model_path(self, model_id: str) -&gt; str:
+        &quot;&quot;&quot;Get cached model path&quot;&quot;&quot;
+        # vLLM will automatically use cached models
+        return str(self.cache_dir)
+
+# In init container or startup script
+cache = ModelCache()
+cache.preload_models([
+    &quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    &quot;meta-llama/Llama-2-13b-chat-hf&quot;
+])</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-2-graceful-shutdown">2. Graceful Shutdown</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># graceful_shutdown.py
+import signal
+import sys
+
+class GracefulShutdown:
+    &quot;&quot;&quot;Handle graceful shutdown of vLLM server&quot;&quot;&quot;
+
+    def __init__(self, server):
+        self.server = server
+        self.is_shutting_down = False
+
+        # Register signal handlers
+        signal.signal(signal.SIGTERM, self.handle_signal)
+        signal.signal(signal.SIGINT, self.handle_signal)
+
+    def handle_signal(self, signum, frame):
+        &quot;&quot;&quot;Handle shutdown signal&quot;&quot;&quot;
+        if self.is_shutting_down:
+            return
+
+        print(&quot;Received shutdown signal, starting graceful shutdown...&quot;)
+        self.is_shutting_down = True
+
+        # Stop accepting new requests
+        # Complete in-flight requests
+        # Clean up resources
+
+        print(&quot;Shutdown complete&quot;)
+        sys.exit(0)</code></pre></div>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-3-health-checks">3. Health Checks</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># health_checks.py
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+class HealthStatus(BaseModel):
+    status: str
+    model_loaded: bool
+    gpu_available: bool
+    active_requests: int
+
+@app.get(&quot;/health&quot;, response_model=HealthStatus)
+async def health_check():
+    &quot;&quot;&quot;Comprehensive health check&quot;&quot;&quot;
+    import torch
+
+    return HealthStatus(
+        status=&quot;healthy&quot;,
+        model_loaded=True,  # Check if model is loaded
+        gpu_available=torch.cuda.is_available(),
+        active_requests=get_active_request_count()
+    )
+
+@app.get(&quot;/ready&quot;)
+async def readiness_check():
+    &quot;&quot;&quot;Readiness check for K8s&quot;&quot;&quot;
+    # Check if server is ready to handle requests
+    if not model_loaded():
+        return {&quot;ready&quot;: False}, 503
+    return {&quot;ready&quot;: True}</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-troubleshooting">æ•…éšœæŽ’æŸ¥ï¼ˆTroubleshootingï¼‰</h4>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-common-issues-and-solutions">Common Issues and Solutions</h5>
+<p><strong>Issue 1: Out of Memory (OOM)</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Solution: Reduce GPU memory utilization or max_model_len
+llm = LLM(
+    model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    gpu_memory_utilization=0.85,  # Reduce from 0.90
+    max_model_len=2048            # Reduce from 4096
+)</code></pre></div>
+<p><strong>Issue 2: Slow Cold Start</strong></p>
+<div class="code-shell"><div class="code-title"><span>bash</span><span>BASH</span></div><pre><code class="language-bash"># Solution: Preload models in init container
+# Use persistent volume for model cache</code></pre></div>
+<p><strong>Issue 3: Low Throughput</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Solution: Increase max_num_seqs
+llm = LLM(
+    model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    max_num_seqs=256  # Increase batch size
+)</code></pre></div>
+<p><strong>Issue 4: High Latency</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Solution: Reduce batch size for lower latency
+llm = LLM(
+    model=&quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+    max_num_seqs=32  # Smaller batches = lower latency
+)</code></pre></div>
+<h4 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-summary">Summary</h4>
+<p>This lesson covered comprehensive vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ deployment:</p>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-key-takeaways">Key Takeaways</h5>
+<ol>
+<li><strong>vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰'s PagedAttention</strong> provides 10-20x throughput improvement</li>
+<li><strong>Continuous batching</strong> maximizes GPU åŠ é€Ÿï¼ˆGPUï¼‰ utilization</li>
+<li><strong>OpenAI-compatible API</strong> makes integration seamless</li>
+<li><strong>Tensor parallelism</strong> enables serving large models</li>
+<li><strong>ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ deployments</strong> require monitoring, health checks, and graceful shutdown</li>
+<li><strong>Container orchestration</strong> with Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ enables scalable deployments</li>
+</ol>
+<h5 id="lessons-mod-110-llm-infrastructure-02-vllm-deployment-md-next-steps">Next Steps</h5>
+<p>In the next lesson, we'll explore æ£€ç´¢å¢žå¼ºç”Ÿæˆï¼ˆRAGï¼‰ (Retrieval-Augmented Generation) systems, building on the vLLM æŽ¨ç†æœåŠ¡ï¼ˆvLLMï¼‰ deployment knowledge to create intelligent document-based question answering systems.</p>
+<hr/>
+<p><strong>Next Lesson</strong>: <a href="#doc-lessons-mod-110-llm-infrastructure-03-rag-systems-md">03-rag-systems.md</a></p><p><a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-110-llm-infrastructure-03-rag-systems-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

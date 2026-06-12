@@ -1,0 +1,912 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Module 02: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-resources-md.html">Module 02 Resources: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for ML</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lesson 01: Cloud Architecture for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-02-aws-ml-infrastructure-md.html">Lesson 02: AWS äº‘ï¼ˆAWSï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-03-gcp-ml-infrastructure-md.html">Lesson 03: Google Cloud Platform for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-04-azure-ml-infrastructure-md.html">Lesson 04: Azure äº‘ï¼ˆAzureï¼‰ for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-05-cloud-storage-md.html">Lesson 05: Cloud Storage for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-06-cloud-networking-md.html">Lesson 06: Cloud Networking for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-07-managed-ml-services-md.html">Lesson 07: Managed ML Services Comparison</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-08-multi-cloud-cost-optimization-md.html">Lesson 08: Multi-Cloud &amp; Cost Optimization</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Module 102 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-01-aws-ml-infra-md.html">Lab 01: Provision an ML-Ready AWS äº‘ï¼ˆAWSï¼‰ Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-02-gcp-ml-infra-md.html">Lab 02: Provision an ML-Ready GCP äº‘ï¼ˆGCPï¼‰ Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-03-azure-ml-infra-md.html">Lab 03: Provision an ML-Ready Azure äº‘ï¼ˆAzureï¼‰ Environment</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-labs-lab-04-multi-cloud-deployment-md.html">Lab 04: Multi-Cloud éƒ¨ç½²ï¼ˆDeploymentï¼‰ with a Single Tool</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercise 01: Multi-Cloud Cost Analyzer</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-02-cloud-ml-infrastructure-readme-md.html">Exercise 02: Cloud æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰ éƒ¨ç½²ï¼ˆDeploymentï¼‰</a><a class="tree-doc active" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md.html">Exercise 03: Cloud Disaster Recovery System</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-04-cross-region-replication-readme-md.html">Exercise 04: Cross-Region Replication for ML Artifacts</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-05-cloud-networking-for-ml-readme-md.html">Exercise 05: Cloud Networking for ML Workloads</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-06-managed-ml-services-comparison-readm.html">Exercise 06: Managed ML Services Comparison</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-07-multi-account-security-readme-md.html">Exercise 07: Multi-Account / Multi-Project å®‰å…¨ï¼ˆSecurityï¼‰ Architecture</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-08-finops-automation-readme-md.html">Exercise 08: FinOps Automation for æœºå™¨å­¦ä¹ åŸºç¡€è®¾æ–½ï¼ˆML Infrastructureï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-readme-md.html">Module 02 Exercises: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for ML</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Module 02: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ - Final Quiz</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-mid-module-quiz-md.html">Module 02: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ - Mid-Module Quiz</a><a class="tree-doc" href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-module-quiz-md.html">Module 02 Quiz: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for ML</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md"><h3 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-exercise">Exercise 03: Cloud Disaster Recovery System</h3>
+<h4 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-learning">Learning Objectives</h4>
+<p>By completing this exercise, you will:</p>
+<ul>
+<li>Design and implement disaster recovery (DR) strategies</li>
+<li>Build automated backup and restore systems</li>
+<li>Implement multi-region failover</li>
+<li>Test recovery time objectives (RTO) and recovery point objectives (RPO)</li>
+<li>Create runbooks for disaster scenarios</li>
+</ul>
+<h4 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-overview">æ¦‚è§ˆï¼ˆOverviewï¼‰</h4>
+<p>ç”Ÿäº§çŽ¯å¢ƒï¼ˆProductionï¼‰ ML systems require robust disaster recovery to handle outages, data loss, and regional failures. This exercise builds a comprehensive DR system with automated backups, multi-region replication, and failover capabilities.</p>
+<h4 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-prerequi">å‰ç½®è¦æ±‚ï¼ˆPrerequisitesï¼‰</h4>
+<ul>
+<li>Multi-cloud or multi-region cloud account</li>
+<li>Understanding of RTO/RPO concepts</li>
+<li>Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ knowledge</li>
+<li>Terraform åŸºç¡€è®¾æ–½ç¼–æŽ’ï¼ˆTerraformï¼‰ experience</li>
+<li>Python 3.11+</li>
+</ul>
+<h4 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-problem-">Problem Statement</h4>
+<p>Build a disaster recovery system that:</p>
+<ol>
+<li><strong>Automatically backs up</strong> critical data and configurations</li>
+<li><strong>Replicates across regions</strong> for geographic redundancy</li>
+<li><strong>Detects failures</strong> and triggers failover automatically</li>
+<li><strong>Restores services</strong> with minimal downtime</li>
+<li><strong>Tests DR procedures</strong> regularly</li>
+<li><strong>Maintains compliance</strong> with backup retention policies</li>
+</ol>
+<h4 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-requirem">è¦æ±‚ï¼ˆRequirementsï¼‰</h4>
+<h5 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-function">Functional Requirements</h5>
+<h6 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-fr1-back">FR1: Backup Management</h6>
+<ul>
+<li>Automated backups for:</li>
+<li>Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ cluster configuration (etcd backups)</li>
+<li>Persistent volumes (ML models, datasets)</li>
+<li>Database (PostgreSQL dumps)</li>
+<li>Application configuration (ConfigMaps, Secrets)</li>
+<li>Container images</li>
+<li>Configurable backup frequency (hourly, daily, weekly)</li>
+<li>Retention policies (7 days, 30 days, 90 days, 1 year)</li>
+<li>Incremental and full backups</li>
+<li>Encrypted backups</li>
+</ul>
+<h6 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-fr2-cros">FR2: Cross-Region Replication</h6>
+<ul>
+<li>Replicate backups to secondary region</li>
+<li>Asynchronous replication for performance</li>
+<li>Integrity verification</li>
+<li>Bandwidth throttling</li>
+<li>Replication lag monitoring</li>
+</ul>
+<h6 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-fr3-auto">FR3: Automated Failover</h6>
+<ul>
+<li>Health check monitoring</li>
+<li>Automatic failover triggers</li>
+<li>DNS update automation</li>
+<li>Traffic routing to DR site</li>
+<li>Notification system</li>
+</ul>
+<h6 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-fr4-rest">FR4: Restore Procedures</h6>
+<ul>
+<li>Point-in-time recovery</li>
+<li>Automated restore testing</li>
+<li>Rollback capabilities</li>
+<li>Data validation post-restore</li>
+</ul>
+<h6 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-fr5-moni">FR5: ç›‘æŽ§ï¼ˆMonitoringï¼‰ and å‘Šè­¦ï¼ˆAlertingï¼‰</h6>
+<ul>
+<li>Backup success/failure alerts</li>
+<li>Replication lag alerts</li>
+<li>DR test results</li>
+<li>RTO/RPO compliance tracking</li>
+</ul>
+<h5 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-non-func">Non-Functional Requirements</h5>
+<h6 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-nfr1-rec">NFR1: Recovery Time Objective (RTO)</h6>
+<ul>
+<li>Critical services: &lt; 1 hour</li>
+<li>Non-critical services: &lt; 4 hours</li>
+<li>Data services: &lt; 30 minutes</li>
+</ul>
+<h6 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-nfr2-rec">NFR2: Recovery Point Objective (RPO)</h6>
+<ul>
+<li>Critical data: &lt; 15 minutes</li>
+<li>Standard data: &lt; 1 hour</li>
+<li>Archival data: &lt; 24 hours</li>
+</ul>
+<h6 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-nfr3-rel">NFR3: å¯é æ€§ï¼ˆReliabilityï¼‰</h6>
+<ul>
+<li>Backup success rate: &gt; 99.9%</li>
+<li>Restore success rate: &gt; 99%</li>
+<li>Failover time: &lt; 5 minutes</li>
+</ul>
+<h6 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-nfr4-sec">NFR4: å®‰å…¨ï¼ˆSecurityï¼‰</h6>
+<ul>
+<li>Encrypted backups (AES-256)</li>
+<li>Access control for restore operations</li>
+<li>Audit logging</li>
+<li>Compliance (SOC 2, HIPAA, GDPR)</li>
+</ul>
+<h4 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-implemen">Implementation Tasks</h4>
+<h5 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-task-1-b">Task 1: Backup Architecture Design (3-4 hours)</h5>
+<p>Design the DR architecture:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/dr_config.py
+
+from dataclasses import dataclass
+from typing import List, Dict, Optional
+from enum import Enum
+from datetime import timedelta
+
+class BackupType(Enum):
+    &quot;&quot;&quot;Backup types&quot;&quot;&quot;
+    FULL = &quot;full&quot;
+    INCREMENTAL = &quot;incremental&quot;
+    DIFFERENTIAL = &quot;differential&quot;
+
+class BackupFrequency(Enum):
+    &quot;&quot;&quot;Backup frequency&quot;&quot;&quot;
+    HOURLY = &quot;hourly&quot;
+    DAILY = &quot;daily&quot;
+    WEEKLY = &quot;weekly&quot;
+    MONTHLY = &quot;monthly&quot;
+
+@dataclass
+class RetentionPolicy:
+    &quot;&quot;&quot;Backup retention policy&quot;&quot;&quot;
+    hourly_keep: int = 24  # Keep 24 hourly backups
+    daily_keep: int = 7    # Keep 7 daily backups
+    weekly_keep: int = 4   # Keep 4 weekly backups
+    monthly_keep: int = 12  # Keep 12 monthly backups
+
+@dataclass
+class BackupTarget:
+    &quot;&quot;&quot;What to backup&quot;&quot;&quot;
+    name: str
+    type: str  # &quot;kubernetes&quot;, &quot;database&quot;, &quot;storage&quot;, &quot;configuration&quot;
+    source_location: str
+    backup_type: BackupType
+    frequency: BackupFrequency
+    retention: RetentionPolicy
+    encryption_enabled: bool = True
+    compression_enabled: bool = True
+    priority: int = 1  # 1=critical, 2=high, 3=medium, 4=low
+
+@dataclass
+class DRConfig:
+    &quot;&quot;&quot;Disaster recovery configuration&quot;&quot;&quot;
+    primary_region: str
+    secondary_region: str
+    backup_storage_bucket: str
+    rto_target_minutes: int  # Recovery Time Objective
+    rpo_target_minutes: int  # Recovery Point Objective
+
+    backup_targets: List[BackupTarget]
+    notification_channels: List[str]  # Email, Slack, PagerDuty
+
+    # Failover settings
+    auto_failover_enabled: bool = False
+    health_check_interval_seconds: int = 60
+    failover_threshold_failures: int = 3
+
+    def validate(self) -&gt; List[str]:
+        &quot;&quot;&quot;
+        TODO: Validate DR configuration
+
+        Check:
+        - RTO/RPO are reasonable
+        - Backup targets don't conflict
+        - Regions are valid
+        - Storage bucket exists
+        &quot;&quot;&quot;
+        pass
+
+# Example configuration
+DEFAULT_DR_CONFIG = DRConfig(
+    primary_region=&quot;us-east-1&quot;,
+    secondary_region=&quot;us-west-2&quot;,
+    backup_storage_bucket=&quot;ml-infra-dr-backups&quot;,
+    rto_target_minutes=60,
+    rpo_target_minutes=15,
+    backup_targets=[
+        BackupTarget(
+            name=&quot;kubernetes-etcd&quot;,
+            type=&quot;kubernetes&quot;,
+            source_location=&quot;etcd://cluster&quot;,
+            backup_type=BackupType.FULL,
+            frequency=BackupFrequency.HOURLY,
+            retention=RetentionPolicy(hourly_keep=24, daily_keep=7),
+            priority=1
+        ),
+        BackupTarget(
+            name=&quot;ml-models&quot;,
+            type=&quot;storage&quot;,
+            source_location=&quot;s3://ml-models-prod&quot;,
+            backup_type=BackupType.INCREMENTAL,
+            frequency=BackupFrequency.DAILY,
+            retention=RetentionPolicy(daily_keep=30, weekly_keep=12),
+            priority=1
+        ),
+        BackupTarget(
+            name=&quot;metadata-db&quot;,
+            type=&quot;database&quot;,
+            source_location=&quot;postgresql://metadata-db&quot;,
+            backup_type=BackupType.FULL,
+            frequency=BackupFrequency.HOURLY,
+            retention=RetentionPolicy(hourly_keep=48, daily_keep=7),
+            priority=1
+        ),
+    ],
+    notification_channels=[&quot;email:ops@company.com&quot;, &quot;slack:#infrastructure&quot;],
+    auto_failover_enabled=False  # Manual failover for safety
+)</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] DR configuration model defined</li>
+<li>[ ] RTO/RPO targets specified</li>
+<li>[ ] Backup targets configured</li>
+<li>[ ] Retention policies defined</li>
+<li>[ ] Validation logic implemented</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-task-2-k">Task 2: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ Backup System (6-7 hours)</h5>
+<p>Implement Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ cluster backups:</p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/backup/kubernetes.py
+
+import subprocess
+import boto3
+from kubernetes import client, config
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+import json
+import yaml
+
+class KubernetesBackup:
+    &quot;&quot;&quot;Backup Kubernetes resources&quot;&quot;&quot;
+
+    def __init__(
+        self,
+        cluster_name: str,
+        backup_bucket: str,
+        region: str = &quot;us-east-1&quot;
+    ):
+        self.cluster_name = cluster_name
+        self.backup_bucket = backup_bucket
+        self.region = region
+        self.s3_client = boto3.client('s3', region_name=region)
+
+        # Load kubeconfig
+        config.load_kube_config()
+        self.core_v1 = client.CoreV1Api()
+        self.apps_v1 = client.AppsV1Api()
+
+    def backup_etcd(
+        self,
+        output_dir: Path
+    ) -&gt; Optional[Path]:
+        &quot;&quot;&quot;
+        TODO: Backup etcd database
+
+        For managed Kubernetes (EKS, GKE, AKS), etcd is managed by provider.
+        Backup via:
+        - AWS: EKS snapshots
+        - GCP: GKE backup for GKE
+        - Azure: AKS snapshots
+
+        For self-managed:</code></pre></div>
+<p>backup_path = output_dir / f&quot;etcd-backup-{datetime.now().isoformat()}.db&quot;</p>
+<p># Run etcdctl snapshot cmd = [ &quot;etcdctl&quot;, &quot;--endpoints=https://127.0.0.1:2379&quot;, &quot;--cacert=/etc/kubernetes/pki/etcd/ca.crt&quot;, &quot;--cert=/etc/kubernetes/pki/etcd/server.crt&quot;, &quot;--key=/etc/kubernetes/pki/etcd/server.key&quot;, &quot;snapshot&quot;, &quot;save&quot;, str(backup_path) ]</p>
+<p>result = subprocess.run(cmd, capture_output=True, text=True)</p>
+<p>if result.returncode == 0: # Upload to S3 self._upload_to_s3(backup_path, f&quot;etcd/{backup_path.name}&quot;) return backup_path</p>
+<p>return None</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def backup_all_resources(
+        self,
+        output_dir: Path,
+        namespaces: Optional[List[str]] = None
+    ) -&gt; Dict[str, int]:
+        &quot;&quot;&quot;
+        TODO: Backup all Kubernetes resources</code></pre></div>
+<p>if namespaces is None: # Get all namespaces ns_list = self.core_v1.list_namespace() namespaces = [ns.metadata.name for ns in ns_list.items]</p>
+<p>backup_counts = {}</p>
+<p>for namespace in namespaces: ns_dir = output_dir / namespace ns_dir.mkdir(parents=True, exist_ok=True)</p>
+<p># Backup deployments deployments = self.apps_v1.list_namespaced_deployment(namespace) for deploy in deployments.items: self._save_resource( deploy.to_dict(), ns_dir / f&quot;deployment-{deploy.metadata.name}.yaml&quot; )</p>
+<p># Backup services services = self.core_v1.list_namespaced_service(namespace) for svc in services.items: self._save_resource( svc.to_dict(), ns_dir / f&quot;service-{svc.metadata.name}.yaml&quot; )</p>
+<p># Backup ConfigMaps configmaps = self.core_v1.list_namespaced_config_map(namespace) for cm in configmaps.items: self._save_resource( cm.to_dict(), ns_dir / f&quot;configmap-{cm.metadata.name}.yaml&quot; )</p>
+<p># Backup Secrets (encrypted!) secrets = self.core_v1.list_namespaced_secret(namespace) for secret in secrets.items: self._save_resource( secret.to_dict(), ns_dir / f&quot;secret-{secret.metadata.name}.yaml&quot;, encrypt=True )</p>
+<p># Count resources backup_counts[namespace] = ( len(deployments.items) + len(services.items) + len(configmaps.items) + len(secrets.items) )</p>
+<p># Upload entire directory to S3 timestamp = datetime.now().strftime(&quot;%Y%m%d-%H%M%S&quot;) self._upload_directory( output_dir, f&quot;kubernetes/{self.cluster_name}/{timestamp}/&quot; )</p>
+<p>return backup_counts</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def backup_persistent_volumes(
+        self,
+        namespace: Optional[str] = None
+    ) -&gt; List[str]:
+        &quot;&quot;&quot;
+        TODO: Backup PersistentVolumes
+
+        For cloud volumes:
+        - Create snapshots using cloud provider APIs
+        - AWS: EBS snapshots
+        - GCP: Persistent Disk snapshots
+        - Azure: Disk snapshots</code></pre></div>
+<p>pvcs = self.core_v1.list_namespaced_persistent_volume_claim(namespace)</p>
+<p>snapshot_ids = []</p>
+<p>for pvc in pvcs.items: volume_id = self._get_volume_id(pvc)</p>
+<p># Create snapshot (cloud-specific) snapshot_id = self._create_volume_snapshot(volume_id) snapshot_ids.append(snapshot_id)</p>
+<p># Tag snapshot self._tag_snapshot( snapshot_id, { &quot;Name&quot;: f&quot;{pvc.metadata.namespace}/{pvc.metadata.name}&quot;, &quot;BackupDate&quot;: datetime.now().isoformat(), &quot;Cluster&quot;: self.cluster_name } )</p>
+<p>return snapshot_ids</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def restore_resources(
+        self,
+        backup_path: Path,
+        dry_run: bool = False
+    ) -&gt; Dict[str, List[str]]:
+        &quot;&quot;&quot;
+        TODO: Restore Kubernetes resources from backup</code></pre></div>
+<p>restored = { &quot;deployments&quot;: [], &quot;services&quot;: [], &quot;configmaps&quot;: [], &quot;secrets&quot;: [] }</p>
+<p># Read all YAML files for yaml_file in backup_path.rglob(&quot;*.yaml&quot;): with open(yaml_file) as f: resource = yaml.safe_load(f)</p>
+<p># Determine resource type and restore kind = resource.get(&quot;kind&quot;, &quot;&quot;).lower()</p>
+<p>if kind == &quot;deployment&quot;: if not dry_run: self.apps_v1.create_namespaced_deployment( namespace=resource[&quot;metadata&quot;][&quot;namespace&quot;], body=resource ) restored[&quot;deployments&quot;].append(resource[&quot;metadata&quot;][&quot;name&quot;])</p>
+<p># Similar for other resource types...</p>
+<p>return restored</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def _save_resource(
+        self,
+        resource: Dict,
+        path: Path,
+        encrypt: bool = False
+    ) -&gt; None:
+        &quot;&quot;&quot;TODO: Save resource to YAML file, optionally encrypt&quot;&quot;&quot;
+        pass
+
+    def _upload_to_s3(
+        self,
+        local_path: Path,
+        s3_key: str
+    ) -&gt; None:
+        &quot;&quot;&quot;TODO: Upload file to S3&quot;&quot;&quot;
+        pass
+
+    def _upload_directory(
+        self,
+        local_dir: Path,
+        s3_prefix: str
+    ) -&gt; None:
+        &quot;&quot;&quot;TODO: Upload entire directory to S3&quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] Backs up all Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ resources</li>
+<li>[ ] Handles etcd backups (or managed equivalent)</li>
+<li>[ ] Creates volume snapshots</li>
+<li>[ ] Encrypts sensitive data</li>
+<li>[ ] Uploads to S3/GCS/Blob</li>
+<li>[ ] Implements restore functionality</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-task-3-d">Task 3: Database Backup System (5-6 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/backup/database.py
+
+import subprocess
+import psycopg2
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+import gzip
+import boto3
+
+class DatabaseBackup:
+    &quot;&quot;&quot;Backup PostgreSQL databases&quot;&quot;&quot;
+
+    def __init__(
+        self,
+        db_host: str,
+        db_port: int,
+        db_name: str,
+        db_user: str,
+        db_password: str,
+        backup_bucket: str
+    ):
+        self.db_host = db_host
+        self.db_port = db_port
+        self.db_name = db_name
+        self.db_user = db_user
+        self.db_password = db_password
+        self.backup_bucket = backup_bucket
+        self.s3_client = boto3.client('s3')
+
+    def create_full_backup(
+        self,
+        output_dir: Path,
+        compress: bool = True
+    ) -&gt; Optional[Path]:
+        &quot;&quot;&quot;
+        TODO: Create full database backup</code></pre></div>
+<p>timestamp = datetime.now().strftime(&quot;%Y%m%d-%H%M%S&quot;) backup_file = output_dir / f&quot;{self.db_name}-{timestamp}.sql&quot;</p>
+<p># Run pg_dump env = { &quot;PGPASSWORD&quot;: self.db_password }</p>
+<p>cmd = [ &quot;pg_dump&quot;, &quot;-h&quot;, self.db_host, &quot;-p&quot;, str(self.db_port), &quot;-U&quot;, self.db_user, &quot;-F&quot;, &quot;c&quot;,  # Custom format (for pg_restore) &quot;-b&quot;,  # Include BLOBs &quot;-v&quot;,  # Verbose &quot;-f&quot;, str(backup_file), self.db_name ]</p>
+<p>result = subprocess.run( cmd, env=env, capture_output=True, text=True )</p>
+<p>if result.returncode != 0: raise RuntimeError(f&quot;pg_dump failed: {result.stderr}&quot;)</p>
+<p># Compress if compress: compressed_file = self._compress_file(backup_file) backup_file.unlink()  # Remove uncompressed backup_file = compressed_file</p>
+<p># Upload to S3 s3_key = f&quot;database/{self.db_name}/{backup_file.name}&quot; self.s3_client.upload_file( str(backup_file), self.backup_bucket, s3_key )</p>
+<p># Add metadata self.s3_client.put_object_tagging( Bucket=self.backup_bucket, Key=s3_key, Tagging={ 'TagSet': [ {'Key': 'BackupType', 'Value': 'full'}, {'Key': 'Database', 'Value': self.db_name}, {'Key': 'Timestamp', 'Value': timestamp} ] } )</p>
+<p>return backup_file</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def create_incremental_backup(
+        self,
+        last_backup_time: datetime,
+        output_dir: Path
+    ) -&gt; Optional[Path]:
+        &quot;&quot;&quot;
+        TODO: Create incremental backup (WAL-based)
+
+        PostgreSQL Write-Ahead Logging (WAL) for incremental backups</code></pre></div>
+<p># Enable continuous archiving # Configure postgresql.conf: # wal_level = replica # archive_mode = on # archive_command = 'cp %p /backup/wal/%f'</p>
+<p># Collect WAL files since last backup wal_files = self._get_wal_files_since(last_backup_time)</p>
+<p>timestamp = datetime.now().strftime(&quot;%Y%m%d-%H%M%S&quot;) incremental_file = output_dir / f&quot;{self.db_name}-incremental-{timestamp}.tar.gz&quot;</p>
+<p># Tar and compress WAL files self._create_archive(wal_files, incremental_file)</p>
+<p># Upload s3_key = f&quot;database/{self.db_name}/incremental/{incremental_file.name}&quot; self.s3_client.upload_file( str(incremental_file), self.backup_bucket, s3_key )</p>
+<p>return incremental_file</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def restore_database(
+        self,
+        backup_file: Path,
+        target_db_name: Optional[str] = None,
+        point_in_time: Optional[datetime] = None
+    ) -&gt; bool:
+        &quot;&quot;&quot;
+        TODO: Restore database from backup</code></pre></div>
+<p>target_db = target_db_name or self.db_name</p>
+<p># Drop existing database (if exists) if self._database_exists(target_db): self._drop_database(target_db)</p>
+<p># Create new database self._create_database(target_db)</p>
+<p># Download from S3 if needed if not backup_file.exists(): s3_key = f&quot;database/{self.db_name}/{backup_file.name}&quot; self.s3_client.download_file( self.backup_bucket, s3_key, str(backup_file) )</p>
+<p># Decompress if needed if backup_file.suffix == '.gz': backup_file = self._decompress_file(backup_file)</p>
+<p># Run pg_restore env = {&quot;PGPASSWORD&quot;: self.db_password}</p>
+<p>cmd = [ &quot;pg_restore&quot;, &quot;-h&quot;, self.db_host, &quot;-p&quot;, str(self.db_port), &quot;-U&quot;, self.db_user, &quot;-d&quot;, target_db, &quot;-v&quot;, str(backup_file) ]</p>
+<p>result = subprocess.run( cmd, env=env, capture_output=True, text=True )</p>
+<p># Point-in-time recovery (if WAL available) if point_in_time: self._apply_wal_until(target_db, point_in_time)</p>
+<p>return result.returncode == 0</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def test_backup(
+        self,
+        backup_file: Path
+    ) -&gt; Dict[str, any]:
+        &quot;&quot;&quot;
+        TODO: Test backup integrity</code></pre></div>
+<p>test_db = f&quot;{self.db_name}_test_{datetime.now().strftime('%Y%m%d%H%M%S')}&quot;</p>
+<p>try: # Restore to test database success = self.restore_database(backup_file, test_db)</p>
+<p>if not success: return {&quot;valid&quot;: False, &quot;error&quot;: &quot;Restore failed&quot;}</p>
+<p># Verify tables exist tables = self._list_tables(test_db)</p>
+<p># Count rows row_counts = {} for table in tables: count = self._count_rows(test_db, table) row_counts[table] = count</p>
+<p># Drop test database self._drop_database(test_db)</p>
+<p>return { &quot;valid&quot;: True, &quot;tables&quot;: len(tables), &quot;row_counts&quot;: row_counts }</p>
+<p>except Exception as e: return {&quot;valid&quot;: False, &quot;error&quot;: str(e)}</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def _compress_file(self, file_path: Path) -&gt; Path:
+        &quot;&quot;&quot;TODO: Compress file with gzip&quot;&quot;&quot;
+        pass
+
+    def _decompress_file(self, file_path: Path) -&gt; Path:
+        &quot;&quot;&quot;TODO: Decompress gzip file&quot;&quot;&quot;
+        pass
+
+    def _database_exists(self, db_name: str) -&gt; bool:
+        &quot;&quot;&quot;TODO: Check if database exists&quot;&quot;&quot;
+        pass
+
+    def _create_database(self, db_name: str) -&gt; None:
+        &quot;&quot;&quot;TODO: Create database&quot;&quot;&quot;
+        pass
+
+    def _drop_database(self, db_name: str) -&gt; None:
+        &quot;&quot;&quot;TODO: Drop database&quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] Creates full database backups</li>
+<li>[ ] Supports incremental (WAL-based) backups</li>
+<li>[ ] Restores from backups</li>
+<li>[ ] Point-in-time recovery</li>
+<li>[ ] Tests backup integrity</li>
+<li>[ ] Compresses and encrypts</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-task-4-c">Task 4: Cross-Region Replication (5-6 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/replication/cross_region.py
+
+import boto3
+from typing import Dict, List
+from datetime import datetime, timedelta
+import hashlib
+
+class CrossRegionReplicator:
+    &quot;&quot;&quot;Replicate backups across regions&quot;&quot;&quot;
+
+    def __init__(
+        self,
+        primary_bucket: str,
+        primary_region: str,
+        secondary_bucket: str,
+        secondary_region: str
+    ):
+        self.primary_bucket = primary_bucket
+        self.primary_region = primary_region
+        self.secondary_bucket = secondary_bucket
+        self.secondary_region = secondary_region
+
+        self.primary_s3 = boto3.client('s3', region_name=primary_region)
+        self.secondary_s3 = boto3.client('s3', region_name=secondary_region)
+
+    def setup_replication(self) -&gt; None:
+        &quot;&quot;&quot;
+        TODO: Set up S3 cross-region replication</code></pre></div>
+<p># Enable versioning (required for replication) self.primary_s3.put_bucket_versioning( Bucket=self.primary_bucket, VersioningConfiguration={'Status': 'Enabled'} )</p>
+<p>self.secondary_s3.put_bucket_versioning( Bucket=self.secondary_bucket, VersioningConfiguration={'Status': 'Enabled'} )</p>
+<p># Create replication role role_arn = self._create_replication_role()</p>
+<p># Configure replication rule replication_config = { 'Role': role_arn, 'Rules': [ { 'ID': 'ReplicateAll', 'Priority': 1, 'Filter': {}, 'Status': 'Enabled', 'Destination': { 'Bucket': f'arn:aws:s3:::{self.secondary_bucket}', 'ReplicationTime': { 'Status': 'Enabled', 'Time': {'Minutes': 15} }, 'Metrics': { 'Status': 'Enabled', 'EventThreshold': {'Minutes': 15} } }, 'DeleteMarkerReplication': {'Status': 'Enabled'} } ] }</p>
+<p>self.primary_s3.put_bucket_replication( Bucket=self.primary_bucket, ReplicationConfiguration=replication_config )</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def check_replication_status(self) -&gt; Dict[str, any]:
+        &quot;&quot;&quot;
+        TODO: Check replication status</code></pre></div>
+<p># Get replication metrics response = self.primary_s3.get_bucket_replication( Bucket=self.primary_bucket )</p>
+<p># Check for pending objects pending = self._count_pending_replication()</p>
+<p># Check replication lag lag_minutes = self._calculate_replication_lag()</p>
+<p>return { &quot;status&quot;: &quot;healthy&quot; if lag_minutes &lt; 30 else &quot;degraded&quot;, &quot;pending_objects&quot;: pending, &quot;replication_lag_minutes&quot;: lag_minutes, &quot;last_check&quot;: datetime.now().isoformat() }</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def manual_sync(
+        self,
+        prefix: Optional[str] = None,
+        max_objects: int = 1000
+    ) -&gt; Dict[str, int]:
+        &quot;&quot;&quot;
+        TODO: Manually sync objects (for testing or catch-up)</code></pre></div>
+<p># List objects in primary paginator = self.primary_s3.get_paginator('list_objects_v2') pages = paginator.paginate( Bucket=self.primary_bucket, Prefix=prefix or '' )</p>
+<p>synced = 0 failed = 0</p>
+<p>for page in pages: if 'Contents' not in page: continue</p>
+<p>for obj in page['Contents']: if synced &gt;= max_objects: break</p>
+<p>try: # Check if object exists in secondary if self._object_needs_sync(obj['Key'], obj['ETag']): # Copy object copy_source = { 'Bucket': self.primary_bucket, 'Key': obj['Key'] }</p>
+<p>self.secondary_s3.copy_object( CopySource=copy_source, Bucket=self.secondary_bucket, Key=obj['Key'] )</p>
+<p>synced += 1</p>
+<p>except Exception as e: failed += 1</p>
+<p>return { &quot;synced&quot;: synced, &quot;failed&quot;: failed }</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def verify_integrity(
+        self,
+        sample_size: int = 100
+    ) -&gt; Dict[str, any]:
+        &quot;&quot;&quot;
+        TODO: Verify replicated objects match source
+
+        Compare checksums of random sample
+        &quot;&quot;&quot;
+        pass
+
+    def _create_replication_role(self) -&gt; str:
+        &quot;&quot;&quot;TODO: Create IAM role for replication&quot;&quot;&quot;
+        pass
+
+    def _count_pending_replication(self) -&gt; int:
+        &quot;&quot;&quot;TODO: Count objects pending replication&quot;&quot;&quot;
+        pass
+
+    def _calculate_replication_lag(self) -&gt; float:
+        &quot;&quot;&quot;TODO: Calculate replication lag in minutes&quot;&quot;&quot;
+        pass
+
+    def _object_needs_sync(self, key: str, etag: str) -&gt; bool:
+        &quot;&quot;&quot;TODO: Check if object needs syncing&quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] Sets up cross-region replication</li>
+<li>[ ] Monitors replication status</li>
+<li>[ ] Manual sync capability</li>
+<li>[ ] Verifies integrity</li>
+<li>[ ] Handles replication failures</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-task-5-f">Task 5: Failover Automation (5-6 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/failover/orchestrator.py
+
+from typing import Dict, List, Optional
+from datetime import datetime, timedelta
+import boto3
+import time
+
+class FailoverOrchestrator:
+    &quot;&quot;&quot;Orchestrate disaster recovery failover&quot;&quot;&quot;
+
+    def __init__(self, dr_config: DRConfig):
+        self.config = dr_config
+        self.primary_healthy = True
+        self.failover_in_progress = False
+
+    def check_health(self) -&gt; Dict[str, any]:
+        &quot;&quot;&quot;
+        TODO: Check primary region health</code></pre></div>
+<p>checks = { &quot;kubernetes&quot;: self._check_kubernetes_health(), &quot;database&quot;: self._check_database_health(), &quot;storage&quot;: self._check_storage_health(), &quot;network&quot;: self._check_network_connectivity() }</p>
+<p>all_healthy = all(check[&quot;healthy&quot;] for check in checks.values())</p>
+<p>return { &quot;healthy&quot;: all_healthy, &quot;checks&quot;: checks, &quot;timestamp&quot;: datetime.now().isoformat() }</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def initiate_failover(
+        self,
+        reason: str,
+        dry_run: bool = False
+    ) -&gt; Dict[str, any]:
+        &quot;&quot;&quot;
+        TODO: Initiate failover to secondary region
+
+        Steps:
+        1. Verify secondary is healthy
+        2. Stop writes to primary
+        3. Restore latest backups to secondary
+        4. Update DNS to point to secondary
+        5. Start services in secondary
+        6. Verify functionality
+        7. Notify stakeholders</code></pre></div>
+<p>if self.failover_in_progress: return {&quot;status&quot;: &quot;error&quot;, &quot;message&quot;: &quot;Failover already in progress&quot;}</p>
+<p>self.failover_in_progress = True steps = []</p>
+<p>try: # Step 1: Verify secondary steps.append(self._verify_secondary_region())</p>
+<p># Step 2: Stop primary writes if not dry_run: steps.append(self._stop_primary_writes())</p>
+<p># Step 3: Restore to secondary steps.append(self._restore_to_secondary())</p>
+<p># Step 4: Update DNS if not dry_run: steps.append(self._update_dns_to_secondary())</p>
+<p># Step 5: Start services steps.append(self._start_secondary_services())</p>
+<p># Step 6: Verify steps.append(self._verify_secondary_functionality())</p>
+<p># Step 7: Notify steps.append(self._send_notifications(reason))</p>
+<p>return { &quot;status&quot;: &quot;success&quot;, &quot;steps&quot;: steps, &quot;failover_time&quot;: datetime.now().isoformat() }</p>
+<p>except Exception as e: # Rollback if possible self._rollback_failover(steps) return { &quot;status&quot;: &quot;failed&quot;, &quot;error&quot;: str(e), &quot;completed_steps&quot;: steps }</p>
+<p>finally: self.failover_in_progress = False</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def failback(
+        self,
+        dry_run: bool = False
+    ) -&gt; Dict[str, any]:
+        &quot;&quot;&quot;
+        TODO: Failback to primary region
+
+        Similar to failover but reverse direction
+        &quot;&quot;&quot;
+        pass
+
+    def test_failover(self) -&gt; Dict[str, any]:
+        &quot;&quot;&quot;
+        TODO: Test failover procedure (dry run)
+
+        Run all failover steps without actually switching production traffic
+        &quot;&quot;&quot;
+        pass
+
+    def _check_kubernetes_health(self) -&gt; Dict[str, bool]:
+        &quot;&quot;&quot;TODO: Check K8s cluster health&quot;&quot;&quot;
+        pass
+
+    def _check_database_health(self) -&gt; Dict[str, bool]:
+        &quot;&quot;&quot;TODO: Check database health&quot;&quot;&quot;
+        pass
+
+    def _check_storage_health(self) -&gt; Dict[str, bool]:
+        &quot;&quot;&quot;TODO: Check storage availability&quot;&quot;&quot;
+        pass
+
+    def _check_network_connectivity(self) -&gt; Dict[str, bool]:
+        &quot;&quot;&quot;TODO: Check network connectivity&quot;&quot;&quot;
+        pass
+
+    def _verify_secondary_region(self) -&gt; Dict:
+        &quot;&quot;&quot;TODO: Verify secondary region is ready&quot;&quot;&quot;
+        pass
+
+    def _stop_primary_writes(self) -&gt; Dict:
+        &quot;&quot;&quot;TODO: Stop writes to primary (read-only mode)&quot;&quot;&quot;
+        pass
+
+    def _restore_to_secondary(self) -&gt; Dict:
+        &quot;&quot;&quot;TODO: Restore latest backups to secondary&quot;&quot;&quot;
+        pass
+
+    def _update_dns_to_secondary(self) -&gt; Dict:
+        &quot;&quot;&quot;
+        TODO: Update Route53/Cloud DNS to point to secondary</code></pre></div>
+<p># Update Route53 record route53 = boto3.client('route53')</p>
+<p>response = route53.change_resource_record_sets( HostedZoneId=self.config.hosted_zone_id, ChangeBatch={ 'Changes': [ { 'Action': 'UPSERT', 'ResourceRecordSet': { 'Name': self.config.service_domain, 'Type': 'A', 'TTL': 60, 'ResourceRecords': [ {'Value': self.config.secondary_lb_ip} ] } } ] } )</p>
+<p># Wait for DNS propagation time.sleep(120)</p>
+<p>return {&quot;status&quot;: &quot;success&quot;, &quot;change_id&quot;: response['ChangeInfo']['Id']}</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def _start_secondary_services(self) -&gt; Dict:
+        &quot;&quot;&quot;TODO: Start services in secondary region&quot;&quot;&quot;
+        pass
+
+    def _verify_secondary_functionality(self) -&gt; Dict:
+        &quot;&quot;&quot;TODO: Verify secondary is functioning&quot;&quot;&quot;
+        pass
+
+    def _send_notifications(self, reason: str) -&gt; Dict:
+        &quot;&quot;&quot;TODO: Send notifications via email/Slack/PagerDuty&quot;&quot;&quot;
+        pass
+
+    def _rollback_failover(self, completed_steps: List[Dict]) -&gt; None:
+        &quot;&quot;&quot;TODO: Rollback failover if it fails&quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] Health checking implemented</li>
+<li>[ ] Failover procedure automated</li>
+<li>[ ] Failback procedure implemented</li>
+<li>[ ] DNS updates automated</li>
+<li>[ ] Notifications sent</li>
+<li>[ ] Rollback capability</li>
+</ul>
+<hr/>
+<h5 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-task-6-d">Task 6: DR Testing Framework (4-5 hours)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># src/testing/dr_test.py
+
+from typing import Dict, List
+from datetime import datetime
+import schedule
+import time
+
+class DRTestFramework:
+    &quot;&quot;&quot;Test disaster recovery procedures&quot;&quot;&quot;
+
+    def __init__(self, dr_config: DRConfig):
+        self.config = dr_config
+        self.test_results = []
+
+    def run_full_dr_test(self) -&gt; Dict[str, any]:
+        &quot;&quot;&quot;
+        TODO: Run complete DR test</code></pre></div>
+<p>results = { &quot;test_date&quot;: datetime.now().isoformat(), &quot;tests&quot;: {}, &quot;overall_status&quot;: &quot;pass&quot; }</p>
+<p># Test backup creation results[&quot;tests&quot;][&quot;backup&quot;] = self._test_backup_creation()</p>
+<p># Test restore results[&quot;tests&quot;][&quot;restore&quot;] = self._test_restore_procedure()</p>
+<p># Test replication results[&quot;tests&quot;][&quot;replication&quot;] = self._test_replication()</p>
+<p># Test failover (dry run) results[&quot;tests&quot;][&quot;failover&quot;] = self._test_failover_procedure()</p>
+<p># Test RTO/RPO compliance results[&quot;tests&quot;][&quot;rto_rpo&quot;] = self._test_rto_rpo_compliance()</p>
+<p># Determine overall status if any(test[&quot;status&quot;] == &quot;fail&quot; for test in results[&quot;tests&quot;].values()): results[&quot;overall_status&quot;] = &quot;fail&quot;</p>
+<p># Save results self.test_results.append(results)</p>
+<p># Generate report self._generate_test_report(results)</p>
+<p>return results</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def schedule_regular_tests(self) -&gt; None:
+        &quot;&quot;&quot;
+        TODO: Schedule regular DR tests</code></pre></div>
+<p># Weekly backup test schedule.every().monday.at(&quot;02:00&quot;).do(self._test_backup_creation)</p>
+<p># Monthly restore test schedule.every().month.at(&quot;03:00&quot;).do(self._test_restore_procedure)</p>
+<p># Quarterly full DR test schedule.every(3).months.do(self.run_full_dr_test)</p>
+<p># Run scheduler while True: schedule.run_pending() time.sleep(60)</p>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">        &quot;&quot;&quot;
+        pass
+
+    def _test_backup_creation(self) -&gt; Dict:
+        &quot;&quot;&quot;
+        TODO: Test backup creation
+
+        Create backups and verify:
+        - Backup completes successfully
+        - Backup file exists
+        - Backup is uploaded to storage
+        - Backup metadata is correct
+        &quot;&quot;&quot;
+        pass
+
+    def _test_restore_procedure(self) -&gt; Dict:
+        &quot;&quot;&quot;
+        TODO: Test restore from backup
+
+        Restore to test environment and verify:
+        - Restore completes successfully
+        - Data integrity maintained
+        - All resources restored
+        - Application functions correctly
+        &quot;&quot;&quot;
+        pass
+
+    def _test_replication(self) -&gt; Dict:
+        &quot;&quot;&quot;
+        TODO: Test cross-region replication
+
+        Verify:
+        - Replication is active
+        - Replication lag &lt; threshold
+        - All objects replicated
+        - Integrity verified
+        &quot;&quot;&quot;
+        pass
+
+    def _test_failover_procedure(self) -&gt; Dict:
+        &quot;&quot;&quot;
+        TODO: Test failover (dry run)
+
+        Run failover without switching production:
+        - Secondary region can be activated
+        - DNS can be updated
+        - Services start correctly
+        - Health checks pass
+        &quot;&quot;&quot;
+        pass
+
+    def _test_rto_rpo_compliance(self) -&gt; Dict:
+        &quot;&quot;&quot;
+        TODO: Test RTO/RPO compliance
+
+        Measure actual RTO and RPO vs targets
+        &quot;&quot;&quot;
+        pass
+
+    def _generate_test_report(self, results: Dict) -&gt; None:
+        &quot;&quot;&quot;TODO: Generate HTML test report&quot;&quot;&quot;
+        pass</code></pre></div>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[ ] Full DR test suite</li>
+<li>[ ] Regular test scheduling</li>
+<li>[ ] RTO/RPO compliance testing</li>
+<li>[ ] Test result reporting</li>
+<li>[ ] Automated test execution</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-delivera">äº¤ä»˜ç‰©ï¼ˆDeliverablesï¼‰</h4>
+<ol>
+<li><strong>Backup Systems</strong></li>
+</ol>
+<ul>
+<li>Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ backup</li>
+<li>Database backup</li>
+<li>Storage backup</li>
+<li>Configuration backup</li>
+</ul>
+<ol>
+<li><strong>Replication</strong></li>
+</ol>
+<ul>
+<li>Cross-region replication</li>
+<li>Integrity verification</li>
+</ul>
+<ol>
+<li><strong>Failover</strong></li>
+</ol>
+<ul>
+<li>Automated failover</li>
+<li>DNS updates</li>
+<li>Health checking</li>
+</ul>
+<ol>
+<li><strong>Testing</strong></li>
+</ol>
+<ul>
+<li>DR test framework</li>
+<li>Scheduled tests</li>
+<li>Compliance reporting</li>
+</ul>
+<ol>
+<li><strong>Documentation</strong></li>
+</ol>
+<ul>
+<li>Runbooks</li>
+<li>Recovery procedures</li>
+<li>Test reports</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-evaluati">Evaluation Criteria</h4>
+<div class="table-wrap"><table><thead><tr><th>Criterion</th><th>Weight</th></tr></thead><tbody><tr><td><strong>Completeness</strong></td><td>30%</td></tr><tr><td><strong>RTO/RPO Compliance</strong></td><td>25%</td></tr><tr><td><strong>Automation</strong></td><td>20%</td></tr><tr><td><strong>Testing</strong></td><td>15%</td></tr><tr><td><strong>Documentation</strong></td><td>10%</td></tr></tbody></table></div>
+<p><strong>Passing</strong>: 70%+ <strong>Excellence</strong>: 90%+</p>
+<hr/>
+<h4 id="lessons-mod-102-cloud-computing-exercises-exercise-03-disaster-recovery-readme-md-estimate">Estimated Time</h4>
+<ul>
+<li>Task 1: 3-4 hours</li>
+<li>Task 2: 6-7 hours</li>
+<li>Task 3: 5-6 hours</li>
+<li>Task 4: 5-6 hours</li>
+<li>Task 5: 5-6 hours</li>
+<li>Task 6: 4-5 hours</li>
+<li>Testing: 5-6 hours</li>
+<li>Documentation: 3-4 hours</li>
+</ul>
+<p><strong>Total</strong>: 36-44 hours</p>
+<hr/>
+<p><strong>This exercise provides critical skills for building reliable, resilient ML infrastructure with proper disaster recovery.</strong></p><p><a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-02-cloud-ml-infrastructure-readme-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-04-cross-region-replication-readme-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

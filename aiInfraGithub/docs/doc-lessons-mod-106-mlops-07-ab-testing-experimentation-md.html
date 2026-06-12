@@ -1,0 +1,985 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-resources-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Learning Resources</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lesson 01: Introduction to MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-02-mlflow-experiment-tracking-md.html">Lesson 02: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-03-model-registry-versioning-md.html">Lesson 03: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ &amp; Versioning</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-04-feature-stores-engineering-md.html">Lesson 04: Feature Stores &amp; Feature Engineering</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-05-cicd-ml-models-md.html">Lesson 05: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for ML Models</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-06-model-deployment-strategies-md.html">Lesson 06: Model éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</a><a class="tree-doc active" href="../docs/doc-lessons-mod-106-mlops-07-ab-testing-experimentation-md.html">Lesson 07: A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ &amp; Experimentation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-08-best-practices-governance-md.html">Lesson 08: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Best Practices &amp; æ²»ç†ï¼ˆGovernanceï¼‰</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Module 106 â€” Labs</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-01-mlflow-tracking-md.html">Lab 01: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Tracking Server End-to-End</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-02-model-registry-md.html">Lab 02: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ and Stage Promotion</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-03-feature-store-md.html">Lab 03: Stand Up a Feast ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-04-cicd-models-md.html">Lab 04: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for Models with GitHub Actions</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-05-canary-deployment-md.html">Lab 05: Canary éƒ¨ç½²ï¼ˆDeploymentï¼‰ with Argo Rollouts</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-06-ab-testing-md.html">Lab 06: A/B Test with Traffic Splitting</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-labs-lab-07-drift-monitoring-md.html">Lab 07: Drift ç›‘æŽ§ï¼ˆMonitoringï¼‰ with Evidently</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercise 01: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Maturity Assessment</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-02-mlflow-tracking-deep-dive-readme-md.html">Exercise 02: MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰ Tracking Deep Dive</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-03-model-registry-promotion-readme-md.html">Exercise 03: æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ and Promotion Workflow</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-04-experiment-tracking-mlflow-readme-md.html">Exercise 04: å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ and æ¨¡åž‹æ³¨å†Œè¡¨ï¼ˆModel Registryï¼‰ with MLflow å®žéªŒè¿½è¸ªï¼ˆMLflowï¼‰</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-05-model-monitoring-drift-readme-md.html">Exercise 05: Model ç›‘æŽ§ï¼ˆMonitoringï¼‰ and Drift Detection</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-06-ci-cd-ml-pipelines-readme-md.html">Exercise 06: CI/CD æŒç»­é›†æˆä¸Žäº¤ä»˜ï¼ˆCI/CDï¼‰ for ML Pipelines</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-07-feature-store-implementation-readme-md.html">Exercise 07: ç‰¹å¾å¹³å°ï¼ˆFeature Storeï¼‰ Implementation</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-08-deployment-strategies-readme-md.html">Exercise 08: Model éƒ¨ç½²ï¼ˆDeploymentï¼‰ Strategies</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-09-ab-testing-infrastructure-readme-md.html">Exercise 09: A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ Infrastructure for ML</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-10-model-governance-readme-md.html">Exercise 10: Model æ²»ç†ï¼ˆGovernanceï¼‰ and Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-11-ml-orchestration-patterns-readme-md.html">Exercise 11: ML Pipeline Orchestration Patterns</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-12-model-cost-attribution-readme-md.html">Exercise 12: Per-Model Cost Attribution</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-13-reproducibility-audit-readme-md.html">Exercise 13: ML Reproducibility Audit</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-14-ml-platform-operating-model-readme-md.html">Exercise 14: ML Platform Team Operating Model</a><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-exercises-readme-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Hands-On Exercises</a></details><details class="tree-section" open><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary><a class="tree-doc" href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Module 06: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ &amp; å®žéªŒè¿½è¸ªï¼ˆExperiment Trackingï¼‰ - Quiz</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-lessons-mod-106-mlops-07-ab-testing-experimentation-md"><h3 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-lesson-07-a-b-testing-experimentati">Lesson 07: A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ &amp; Experimentation</h3>
+<h4 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-overview">æ¦‚è§ˆï¼ˆOverviewï¼‰</h4>
+<p>A/B testing and experimentation are critical for validating ML model improvements in production. This lesson covers designing, running, and analyzing experiments to measure model performance and business impact.</p>
+<p><strong>Duration:</strong> 2-3 hours <strong>Prerequisites:</strong> Understanding of statistical testing, ML metrics, production deployments <strong>Learning Objectives:</strong></p>
+<ul>
+<li>Design statistically sound ML experiments</li>
+<li>Implement A/B testing infrastructure</li>
+<li>Analyze experiment results and make decisions</li>
+<li>Handle common pitfalls and challenges</li>
+<li>Measure business impact of ML models</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-1-introduction-to-ml-experimentatio">1. Introduction to ML Experimentation</h4>
+<h5 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-1-1-why-a-b-testing-for-ml">1.1 Why A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ for ML?</h5>
+<p><strong>Traditional ML Evaluation:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Offline evaluation
+accuracy = 0.92  # On test set
+precision = 0.89
+recall = 0.91
+
+# âŒ Problem: Doesn't measure real-world impact
+# - Test set may not represent production distribution
+# - Metrics may not correlate with business outcomes
+# - No measurement of user behavior changes</code></pre></div>
+<p><strong>A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># Online evaluation with real users
+control_group = {
+    'model': 'v1',
+    'accuracy': 0.92,
+    'click_through_rate': 0.15,  # 15% of recommendations clicked
+    'revenue_per_user': 45.20
+}
+
+treatment_group = {
+    'model': 'v2',
+    'accuracy': 0.94,  # Better accuracy
+    'click_through_rate': 0.18,  # 20% improvement!
+    'revenue_per_user': 52.30  # 15.7% revenue increase
+}
+
+# âœ… Measures actual business impact</code></pre></div>
+<h5 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-1-2-experiment-design-framework">1.2 Experiment Design Framework</h5>
+<div class="code-shell"><div class="code-title"><span>text</span><span>TEXT</span></div><pre><code class="language-text">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚              ML Experiment Lifecycle                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                           â”‚
+â”‚  1. Hypothesis Formation                                 â”‚
+â”‚     â””â”€ &quot;New model will increase CTR by 10%&quot;             â”‚
+â”‚                                                           â”‚
+â”‚  2. Experiment Design                                    â”‚
+â”‚     â”œâ”€ Sample size calculation                          â”‚
+â”‚     â”œâ”€ Traffic allocation (90% control, 10% treatment)  â”‚
+â”‚     â””â”€ Success metrics definition                       â”‚
+â”‚                                                           â”‚
+â”‚  3. Implementation                                       â”‚
+â”‚     â”œâ”€ Feature flags / routing logic                    â”‚
+â”‚     â”œâ”€ Instrumentation / logging                        â”‚
+â”‚     â””â”€ Guardrail metrics                                â”‚
+â”‚                                                           â”‚
+â”‚  4. Execution &amp; Monitoring                              â”‚
+â”‚     â”œâ”€ Data quality checks                              â”‚
+â”‚     â”œâ”€ Real-time dashboards                             â”‚
+â”‚     â””â”€ Anomaly detection                                â”‚
+â”‚                                                           â”‚
+â”‚  5. Analysis &amp; Decision                                  â”‚
+â”‚     â”œâ”€ Statistical significance testing                  â”‚
+â”‚     â”œâ”€ Business impact assessment                       â”‚
+â”‚     â””â”€ Launch decision                                   â”‚
+â”‚                                                           â”‚
+â”‚  6. Post-Launch Monitoring                              â”‚
+â”‚     â””â”€ Continued metric tracking                        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-2-designing-ml-experiments">2. Designing ML Experiments</h4>
+<h5 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-2-1-hypothesis-and-metrics">2.1 Hypothesis and Metrics</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># experiments/experiment_config.py
+from dataclasses import dataclass
+from typing import List, Dict
+from enum import Enum
+
+class MetricType(Enum):
+    PRIMARY = &quot;primary&quot;
+    SECONDARY = &quot;secondary&quot;
+    GUARDRAIL = &quot;guardrail&quot;
+
+@dataclass
+class Metric:
+    name: str
+    metric_type: MetricType
+    direction: str  # &quot;increase&quot; or &quot;decrease&quot;
+    threshold: float  # Minimum detectable effect
+    description: str
+
+@dataclass
+class ExperimentConfig:
+    &quot;&quot;&quot;Configuration for an ML experiment&quot;&quot;&quot;
+
+    # Experiment metadata
+    experiment_id: str
+    name: str
+    hypothesis: str
+    owner: str
+
+    # Variants
+    control_variant: str = &quot;control&quot;
+    treatment_variants: List[str] = None
+
+    # Traffic allocation
+    traffic_allocation: Dict[str, float] = None
+
+    # Metrics
+    primary_metrics: List[Metric] = None
+    secondary_metrics: List[Metric] = None
+    guardrail_metrics: List[Metric] = None
+
+    # Statistical parameters
+    significance_level: float = 0.05  # Alpha
+    statistical_power: float = 0.80   # 1 - Beta
+    minimum_sample_size: int = 10000
+
+    # Duration
+    planned_duration_days: int = 14
+
+# Example experiment configuration
+recommendation_model_experiment = ExperimentConfig(
+    experiment_id=&quot;rec_model_v2_2024_01&quot;,
+    name=&quot;Recommendation Model V2 Launch&quot;,
+    hypothesis=&quot;New collaborative filtering model will increase CTR by 10%&quot;,
+    owner=&quot;ml-team@example.com&quot;,
+
+    control_variant=&quot;model_v1&quot;,
+    treatment_variants=[&quot;model_v2&quot;],
+
+    traffic_allocation={
+        &quot;model_v1&quot;: 0.90,  # 90% control
+        &quot;model_v2&quot;: 0.10   # 10% treatment
+    },
+
+    primary_metrics=[
+        Metric(
+            name=&quot;click_through_rate&quot;,
+            metric_type=MetricType.PRIMARY,
+            direction=&quot;increase&quot;,
+            threshold=0.10,  # 10% relative increase
+            description=&quot;Percentage of recommendations clicked&quot;
+        )
+    ],
+
+    secondary_metrics=[
+        Metric(
+            name=&quot;revenue_per_user&quot;,
+            metric_type=MetricType.SECONDARY,
+            direction=&quot;increase&quot;,
+            threshold=0.05,  # 5% relative increase
+            description=&quot;Average revenue per user during experiment&quot;
+        ),
+        Metric(
+            name=&quot;session_duration&quot;,
+            metric_type=MetricType.SECONDARY,
+            direction=&quot;increase&quot;,
+            threshold=0.03,
+            description=&quot;Average session duration in minutes&quot;
+        )
+    ],
+
+    guardrail_metrics=[
+        Metric(
+            name=&quot;error_rate&quot;,
+            metric_type=MetricType.GUARDRAIL,
+            direction=&quot;decrease&quot;,
+            threshold=0.01,  # Must stay below 1%
+            description=&quot;API error rate&quot;
+        ),
+        Metric(
+            name=&quot;p99_latency&quot;,
+            metric_type=MetricType.GUARDRAIL,
+            direction=&quot;decrease&quot;,
+            threshold=100,  # Must stay below 100ms
+            description=&quot;99th percentile latency&quot;
+        )
+    ],
+
+    significance_level=0.05,
+    statistical_power=0.80,
+    minimum_sample_size=10000,
+    planned_duration_days=14
+)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-2-2-sample-size-calculation">2.2 Sample Size Calculation</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># experiments/sample_size.py
+import numpy as np
+from scipy import stats
+from typing import Tuple
+
+def calculate_sample_size(
+    baseline_rate: float,
+    minimum_detectable_effect: float,
+    significance_level: float = 0.05,
+    statistical_power: float = 0.80
+) -&gt; Tuple[int, dict]:
+    &quot;&quot;&quot;
+    Calculate required sample size for A/B test
+
+    Args:
+        baseline_rate: Current conversion/click rate
+        minimum_detectable_effect: Minimum effect to detect (e.g., 0.10 for 10% improvement)
+        significance_level: Alpha (Type I error rate)
+        statistical_power: 1 - Beta (Type II error rate)
+
+    Returns:
+        Required sample size per variant
+    &quot;&quot;&quot;
+
+    # Expected treatment rate
+    treatment_rate = baseline_rate * (1 + minimum_detectable_effect)
+
+    # Pooled standard deviation
+    pooled_std = np.sqrt(
+        baseline_rate * (1 - baseline_rate) +
+        treatment_rate * (1 - treatment_rate)
+    )
+
+    # Z-scores
+    z_alpha = stats.norm.ppf(1 - significance_level / 2)  # Two-tailed
+    z_beta = stats.norm.ppf(statistical_power)
+
+    # Sample size per variant
+    n = (
+        (z_alpha + z_beta) ** 2 *
+        pooled_std ** 2 /
+        (treatment_rate - baseline_rate) ** 2
+    )
+
+    sample_size = int(np.ceil(n))
+
+    # Calculate expected duration
+    daily_users = 100000  # Example
+    days_required = np.ceil(sample_size * 2 / daily_users)
+
+    return sample_size, {
+        'sample_size_per_variant': sample_size,
+        'total_sample_size': sample_size * 2,
+        'estimated_days': int(days_required),
+        'baseline_rate': baseline_rate,
+        'expected_treatment_rate': treatment_rate,
+        'minimum_detectable_effect': minimum_detectable_effect,
+        'significance_level': significance_level,
+        'statistical_power': statistical_power
+    }
+
+# Example usage
+sample_size, details = calculate_sample_size(
+    baseline_rate=0.15,  # Current CTR of 15%
+    minimum_detectable_effect=0.10,  # Detect 10% improvement
+    significance_level=0.05,
+    statistical_power=0.80
+)
+
+print(f&quot;Required sample size: {sample_size:,} per variant&quot;)
+print(f&quot;Total users needed: {details['total_sample_size']:,}&quot;)
+print(f&quot;Estimated duration: {details['estimated_days']} days&quot;)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-3-implementing-a-b-testing-infrastr">3. Implementing A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ Infrastructure</h4>
+<h5 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-3-1-user-assignment-and-routing">3.1 User Assignment and Routing</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># experiments/assignment.py
+import hashlib
+from typing import Dict, Optional
+from dataclasses import dataclass
+import redis
+
+@dataclass
+class Assignment:
+    user_id: str
+    experiment_id: str
+    variant: str
+    timestamp: int
+
+class ExperimentAssigner:
+    &quot;&quot;&quot;Assign users to experiment variants&quot;&quot;&quot;
+
+    def __init__(self, redis_client: redis.Redis):
+        self.redis = redis_client
+
+    def assign_variant(
+        self,
+        user_id: str,
+        experiment_id: str,
+        traffic_allocation: Dict[str, float]
+    ) -&gt; str:
+        &quot;&quot;&quot;
+        Assign user to a variant using consistent hashing
+
+        Ensures:
+        - Same user always gets same variant
+        - Traffic split matches allocation percentages
+        &quot;&quot;&quot;
+
+        # Check if user already assigned
+        cache_key = f&quot;assignment:{experiment_id}:{user_id}&quot;
+        cached = self.redis.get(cache_key)
+
+        if cached:
+            return cached.decode('utf-8')
+
+        # Hash user_id + experiment_id for consistent assignment
+        hash_input = f&quot;{experiment_id}:{user_id}&quot;
+        hash_value = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+
+        # Normalize to [0, 1]
+        assignment_value = (hash_value % 10000) / 10000.0
+
+        # Determine variant based on traffic allocation
+        cumulative = 0.0
+        for variant, allocation in sorted(traffic_allocation.items()):
+            cumulative += allocation
+            if assignment_value &lt; cumulative:
+                # Cache assignment
+                self.redis.setex(
+                    cache_key,
+                    86400 * 30,  # 30 days TTL
+                    variant
+                )
+                return variant
+
+        # Fallback to control
+        return &quot;control&quot;
+
+    def get_assignment(
+        self,
+        user_id: str,
+        experiment_id: str
+    ) -&gt; Optional[str]:
+        &quot;&quot;&quot;Get existing assignment if any&quot;&quot;&quot;
+        cache_key = f&quot;assignment:{experiment_id}:{user_id}&quot;
+        cached = self.redis.get(cache_key)
+        return cached.decode('utf-8') if cached else None
+
+# Usage in model serving
+class ExperimentAwareModelServer:
+    &quot;&quot;&quot;Model server with A/B testing support&quot;&quot;&quot;
+
+    def __init__(self):
+        self.assigner = ExperimentAssigner(redis.Redis(host='localhost'))
+        self.models = {
+            'model_v1': load_model('models:/model/v1'),
+            'model_v2': load_model('models:/model/v2')
+        }
+
+    async def predict(self, user_id: str, features: Dict):
+        &quot;&quot;&quot;Make prediction with A/B testing&quot;&quot;&quot;
+
+        # Get or assign variant
+        variant = self.assigner.assign_variant(
+            user_id=user_id,
+            experiment_id=&quot;rec_model_v2_2024_01&quot;,
+            traffic_allocation={
+                'model_v1': 0.90,
+                'model_v2': 0.10
+            }
+        )
+
+        # Get corresponding model
+        model = self.models[variant]
+
+        # Make prediction
+        prediction = model.predict(features)
+
+        # Log for analysis
+        log_prediction(
+            user_id=user_id,
+            experiment_id=&quot;rec_model_v2_2024_01&quot;,
+            variant=variant,
+            prediction=prediction,
+            features=features
+        )
+
+        return {
+            'prediction': prediction,
+            'variant': variant
+        }</code></pre></div>
+<h5 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-3-2-event-logging-and-tracking">3.2 Event Logging and Tracking</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># experiments/logging.py
+from dataclasses import dataclass, asdict
+from datetime import datetime
+import json
+import boto3
+from typing import Dict, Any
+
+@dataclass
+class ExperimentEvent:
+    &quot;&quot;&quot;Event logged during experiment&quot;&quot;&quot;
+    event_id: str
+    timestamp: datetime
+    user_id: str
+    experiment_id: str
+    variant: str
+    event_type: str  # &quot;impression&quot;, &quot;click&quot;, &quot;conversion&quot;, etc.
+    properties: Dict[str, Any]
+
+class ExperimentLogger:
+    &quot;&quot;&quot;Log experiment events to analytics system&quot;&quot;&quot;
+
+    def __init__(self, kinesis_stream: str):
+        self.kinesis = boto3.client('kinesis')
+        self.stream_name = kinesis_stream
+
+    def log_event(self, event: ExperimentEvent):
+        &quot;&quot;&quot;Log event to Kinesis&quot;&quot;&quot;
+        record = {
+            'Data': json.dumps(asdict(event), default=str),
+            'PartitionKey': event.user_id
+        }
+
+        self.kinesis.put_record(
+            StreamName=self.stream_name,
+            **record
+        )
+
+    def log_impression(
+        self,
+        user_id: str,
+        experiment_id: str,
+        variant: str,
+        items: list
+    ):
+        &quot;&quot;&quot;Log when user sees recommendations&quot;&quot;&quot;
+        event = ExperimentEvent(
+            event_id=f&quot;{user_id}_{datetime.now().timestamp()}&quot;,
+            timestamp=datetime.now(),
+            user_id=user_id,
+            experiment_id=experiment_id,
+            variant=variant,
+            event_type=&quot;impression&quot;,
+            properties={
+                'items': items,
+                'num_items': len(items)
+            }
+        )
+        self.log_event(event)
+
+    def log_click(
+        self,
+        user_id: str,
+        experiment_id: str,
+        variant: str,
+        item_id: str,
+        position: int
+    ):
+        &quot;&quot;&quot;Log when user clicks recommendation&quot;&quot;&quot;
+        event = ExperimentEvent(
+            event_id=f&quot;{user_id}_{datetime.now().timestamp()}&quot;,
+            timestamp=datetime.now(),
+            user_id=user_id,
+            experiment_id=experiment_id,
+            variant=variant,
+            event_type=&quot;click&quot;,
+            properties={
+                'item_id': item_id,
+                'position': position
+            }
+        )
+        self.log_event(event)
+
+    def log_conversion(
+        self,
+        user_id: str,
+        experiment_id: str,
+        variant: str,
+        revenue: float
+    ):
+        &quot;&quot;&quot;Log when user makes purchase&quot;&quot;&quot;
+        event = ExperimentEvent(
+            event_id=f&quot;{user_id}_{datetime.now().timestamp()}&quot;,
+            timestamp=datetime.now(),
+            user_id=user_id,
+            experiment_id=experiment_id,
+            variant=variant,
+            event_type=&quot;conversion&quot;,
+            properties={
+                'revenue': revenue
+            }
+        )
+        self.log_event(event)
+
+# Integration with model serving
+@app.post(&quot;/recommend&quot;)
+async def recommend(user_id: str):
+    # Get variant assignment
+    variant = assigner.assign_variant(user_id, &quot;rec_model_v2_2024_01&quot;, {...})
+
+    # Get recommendations
+    items = model.predict(user_id)
+
+    # Log impression
+    logger.log_impression(
+        user_id=user_id,
+        experiment_id=&quot;rec_model_v2_2024_01&quot;,
+        variant=variant,
+        items=items
+    )
+
+    return {&quot;items&quot;: items}
+
+@app.post(&quot;/track/click&quot;)
+async def track_click(user_id: str, item_id: str, position: int):
+    # Get user's variant
+    variant = assigner.get_assignment(user_id, &quot;rec_model_v2_2024_01&quot;)
+
+    # Log click
+    logger.log_click(
+        user_id=user_id,
+        experiment_id=&quot;rec_model_v2_2024_01&quot;,
+        variant=variant,
+        item_id=item_id,
+        position=position
+    )
+
+    return {&quot;status&quot;: &quot;logged&quot;}</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-4-analyzing-experiment-results">4. Analyzing Experiment Results</h4>
+<h5 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-4-1-statistical-significance-testin">4.1 Statistical Significance Testing</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># experiments/analysis.py
+import pandas as pd
+import numpy as np
+from scipy import stats
+from typing import Dict, Tuple
+
+class ExperimentAnalyzer:
+    &quot;&quot;&quot;Analyze A/B test results&quot;&quot;&quot;
+
+    def __init__(self, significance_level: float = 0.05):
+        self.significance_level = significance_level
+
+    def proportion_test(
+        self,
+        control_conversions: int,
+        control_total: int,
+        treatment_conversions: int,
+        treatment_total: int
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Two-proportion z-test for binary metrics (CTR, conversion rate, etc.)
+        &quot;&quot;&quot;
+
+        # Calculate proportions
+        p1 = control_conversions / control_total
+        p2 = treatment_conversions / treatment_total
+
+        # Pooled proportion
+        p_pool = (control_conversions + treatment_conversions) / (control_total + treatment_total)
+
+        # Standard error
+        se = np.sqrt(p_pool * (1 - p_pool) * (1/control_total + 1/treatment_total))
+
+        # Z-score
+        z_score = (p2 - p1) / se
+
+        # P-value (two-tailed)
+        p_value = 2 * (1 - stats.norm.cdf(abs(z_score)))
+
+        # Confidence interval
+        se_diff = np.sqrt(p1 * (1 - p1) / control_total + p2 * (1 - p2) / treatment_total)
+        ci_lower = (p2 - p1) - 1.96 * se_diff
+        ci_upper = (p2 - p1) + 1.96 * se_diff
+
+        # Relative lift
+        relative_lift = (p2 - p1) / p1 if p1 &gt; 0 else 0
+
+        return {
+            'control_rate': p1,
+            'treatment_rate': p2,
+            'absolute_difference': p2 - p1,
+            'relative_lift': relative_lift,
+            'z_score': z_score,
+            'p_value': p_value,
+            'is_significant': p_value &lt; self.significance_level,
+            'confidence_interval': (ci_lower, ci_upper),
+            'sample_sizes': {
+                'control': control_total,
+                'treatment': treatment_total
+            }
+        }
+
+    def continuous_metric_test(
+        self,
+        control_values: np.ndarray,
+        treatment_values: np.ndarray
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        T-test for continuous metrics (revenue, session duration, etc.)
+        &quot;&quot;&quot;
+
+        # Welch's t-test (doesn't assume equal variances)
+        t_stat, p_value = stats.ttest_ind(
+            treatment_values,
+            control_values,
+            equal_var=False
+        )
+
+        control_mean = np.mean(control_values)
+        treatment_mean = np.mean(treatment_values)
+        relative_lift = (treatment_mean - control_mean) / control_mean if control_mean &gt; 0 else 0
+
+        # Confidence interval
+        se = np.sqrt(
+            np.var(control_values) / len(control_values) +
+            np.var(treatment_values) / len(treatment_values)
+        )
+        ci_lower = (treatment_mean - control_mean) - 1.96 * se
+        ci_upper = (treatment_mean - control_mean) + 1.96 * se
+
+        return {
+            'control_mean': control_mean,
+            'treatment_mean': treatment_mean,
+            'absolute_difference': treatment_mean - control_mean,
+            'relative_lift': relative_lift,
+            't_statistic': t_stat,
+            'p_value': p_value,
+            'is_significant': p_value &lt; self.significance_level,
+            'confidence_interval': (ci_lower, ci_upper),
+            'sample_sizes': {
+                'control': len(control_values),
+                'treatment': len(treatment_values)
+            }
+        }
+
+    def analyze_experiment(
+        self,
+        experiment_data: pd.DataFrame,
+        metrics_config: List[Metric]
+    ) -&gt; Dict:
+        &quot;&quot;&quot;
+        Complete experiment analysis
+        &quot;&quot;&quot;
+        results = {}
+
+        for metric in metrics_config:
+            if metric.name in ['click_through_rate', 'conversion_rate']:
+                # Binary metric - use proportion test
+                control = experiment_data[experiment_data['variant'] == 'control']
+                treatment = experiment_data[experiment_data['variant'] == 'treatment']
+
+                result = self.proportion_test(
+                    control_conversions=control[f'{metric.name}_converted'].sum(),
+                    control_total=len(control),
+                    treatment_conversions=treatment[f'{metric.name}_converted'].sum(),
+                    treatment_total=len(treatment)
+                )
+
+            else:
+                # Continuous metric - use t-test
+                control_values = experiment_data[
+                    experiment_data['variant'] == 'control'
+                ][metric.name].values
+
+                treatment_values = experiment_data[
+                    experiment_data['variant'] == 'treatment'
+                ][metric.name].values
+
+                result = self.continuous_metric_test(control_values, treatment_values)
+
+            results[metric.name] = result
+
+        return results
+
+# Usage
+analyzer = ExperimentAnalyzer(significance_level=0.05)
+
+# Load experiment data
+experiment_data = pd.read_parquet('s3://experiments/rec_model_v2_2024_01/data.parquet')
+
+# Analyze
+results = analyzer.analyze_experiment(
+    experiment_data=experiment_data,
+    metrics_config=recommendation_model_experiment.primary_metrics
+)
+
+# Print results
+for metric_name, result in results.items():
+    print(f&quot;\n{'='*60}&quot;)
+    print(f&quot;Metric: {metric_name}&quot;)
+    print(f&quot;Control: {result['control_rate']:.4f}&quot;)
+    print(f&quot;Treatment: {result['treatment_rate']:.4f}&quot;)
+    print(f&quot;Relative Lift: {result['relative_lift']*100:+.2f}%&quot;)
+    print(f&quot;P-value: {result['p_value']:.4f}&quot;)
+    print(f&quot;Significant: {'âœ… YES' if result['is_significant'] else 'âŒ NO'}&quot;)
+    print(f&quot;95% CI: [{result['confidence_interval'][0]:.4f}, {result['confidence_interval'][1]:.4f}]&quot;)</code></pre></div>
+<h5 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-4-2-sequential-testing-and-early-st">4.2 Sequential Testing and Early Stopping</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># experiments/sequential_testing.py
+import numpy as np
+from scipy import stats
+
+class SequentialTester:
+    &quot;&quot;&quot;
+    Sequential testing for early stopping decisions
+    Uses alpha spending approach
+    &quot;&quot;&quot;
+
+    def __init__(
+        self,
+        significance_level: float = 0.05,
+        num_looks: int = 5
+    ):
+        self.significance_level = significance_level
+        self.num_looks = num_looks
+        self.alpha_spent = self._calculate_alpha_spending()
+
+    def _calculate_alpha_spending(self) -&gt; list:
+        &quot;&quot;&quot;
+        Calculate alpha spending at each look (O'Brien-Fleming)
+        &quot;&quot;&quot;
+        alphas = []
+        for k in range(1, self.num_looks + 1):
+            z = stats.norm.ppf(1 - self.significance_level / 2)
+            z_k = z * np.sqrt(self.num_looks / k)
+            alpha_k = 2 * (1 - stats.norm.cdf(z_k))
+            alphas.append(alpha_k)
+        return alphas
+
+    def should_stop(
+        self,
+        look_number: int,
+        p_value: float
+    ) -&gt; Tuple[bool, str]:
+        &quot;&quot;&quot;
+        Decide if experiment should stop at this look
+
+        Returns:
+            (should_stop, reason)
+        &quot;&quot;&quot;
+
+        if look_number &gt; len(self.alpha_spent):
+            return False, &quot;exceeded_max_looks&quot;
+
+        threshold = self.alpha_spent[look_number - 1]
+
+        if p_value &lt; threshold:
+            return True, &quot;significant_result&quot;
+
+        if look_number == self.num_looks:
+            return True, &quot;max_duration_reached&quot;
+
+        return False, &quot;continue&quot;
+
+# Usage
+tester = SequentialTester(significance_level=0.05, num_looks=5)
+
+# Check at each analysis point
+for look in range(1, 6):
+    # Run analysis
+    p_value = analyzer.proportion_test(...)['p_value']
+
+    should_stop, reason = tester.should_stop(look, p_value)
+
+    print(f&quot;Look {look}: p-value={p_value:.4f}, threshold={tester.alpha_spent[look-1]:.4f}&quot;)
+
+    if should_stop:
+        print(f&quot;âœ… Stop experiment: {reason}&quot;)
+        break</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-5-common-pitfalls-and-solutions">5. Common Pitfalls and Solutions</h4>
+<h5 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-5-1-novelty-effect">5.1 Novelty Effect</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def detect_novelty_effect(experiment_data: pd.DataFrame):
+    &quot;&quot;&quot;
+    Check if treatment effect changes over time (novelty effect)
+    &quot;&quot;&quot;
+    # Split experiment into time cohorts
+    experiment_data['cohort'] = pd.qcut(
+        experiment_data['days_since_start'],
+        q=4,
+        labels=['week1', 'week2', 'week3', 'week4']
+    )
+
+    # Analyze each cohort
+    for cohort in ['week1', 'week2', 'week3', 'week4']:
+        cohort_data = experiment_data[experiment_data['cohort'] == cohort]
+
+        result = analyzer.proportion_test(
+            control_conversions=cohort_data[
+                cohort_data['variant'] == 'control'
+            ]['converted'].sum(),
+            control_total=len(cohort_data[cohort_data['variant'] == 'control']),
+            treatment_conversions=cohort_data[
+                cohort_data['variant'] == 'treatment'
+            ]['converted'].sum(),
+            treatment_total=len(cohort_data[cohort_data['variant'] == 'treatment'])
+        )
+
+        print(f&quot;{cohort}: Lift = {result['relative_lift']*100:+.2f}%&quot;)
+
+    # If lift decreases significantly over time â†’ novelty effect</code></pre></div>
+<h5 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-5-2-sample-ratio-mismatch-srm">5.2 Sample Ratio Mismatch (SRM)</h5>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">def check_sample_ratio_mismatch(
+    control_count: int,
+    treatment_count: int,
+    expected_ratio: float = 0.5
+) -&gt; Dict:
+    &quot;&quot;&quot;
+    Check if observed traffic split matches expected
+
+    Sample Ratio Mismatch can indicate:
+    - Bugs in assignment logic
+    - Bot traffic
+    - Performance issues causing user drop-off
+    &quot;&quot;&quot;
+
+    total = control_count + treatment_count
+    expected_control = total * expected_ratio
+    expected_treatment = total * (1 - expected_ratio)
+
+    # Chi-square test
+    chi_square = (
+        (control_count - expected_control) ** 2 / expected_control +
+        (treatment_count - expected_treatment) ** 2 / expected_treatment
+    )
+
+    p_value = 1 - stats.chi2.cdf(chi_square, df=1)
+
+    return {
+        'control_count': control_count,
+        'treatment_count': treatment_count,
+        'expected_ratio': expected_ratio,
+        'observed_ratio': control_count / total,
+        'chi_square': chi_square,
+        'p_value': p_value,
+        'has_srm': p_value &lt; 0.001,  # Very low threshold
+        'warning': 'âš ï¸ Sample Ratio Mismatch detected!' if p_value &lt; 0.001 else 'âœ… No SRM'
+    }
+
+# Check for SRM
+srm_result = check_sample_ratio_mismatch(
+    control_count=89500,
+    treatment_count=10800,  # Expected 10000
+    expected_ratio=0.9
+)
+
+if srm_result['has_srm']:
+    print(&quot;âŒ SRM detected - investigate before trusting results!&quot;)</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-6-experiment-dashboard">6. Experiment Dashboard</h4>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python"># experiments/dashboard.py
+import streamlit as st
+import plotly.graph_objects as go
+import plotly.express as px
+
+def create_experiment_dashboard(experiment_id: str):
+    &quot;&quot;&quot;
+    Real-time experiment monitoring dashboard
+    &quot;&quot;&quot;
+    st.title(f&quot;Experiment: {experiment_id}&quot;)
+
+    # Load latest data
+    data = load_experiment_data(experiment_id)
+
+    # Overview metrics
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric(
+            &quot;Total Users&quot;,
+            f&quot;{len(data):,}&quot;,
+            delta=f&quot;+{len(data) - len(data.shift(1)):,}&quot;
+        )
+
+    with col2:
+        control_ctr = data[data['variant'] == 'control']['ctr'].mean()
+        treatment_ctr = data[data['variant'] == 'treatment']['ctr'].mean()
+        lift = (treatment_ctr - control_ctr) / control_ctr * 100
+
+        st.metric(
+            &quot;CTR Lift&quot;,
+            f&quot;{lift:+.2f}%&quot;,
+            delta=f&quot;{treatment_ctr:.4f} vs {control_ctr:.4f}&quot;
+        )
+
+    with col3:
+        result = analyzer.proportion_test(...)
+        st.metric(
+            &quot;P-value&quot;,
+            f&quot;{result['p_value']:.4f}&quot;,
+            delta=&quot;Significant âœ…&quot; if result['is_significant'] else &quot;Not sig â³&quot;
+        )
+
+    with col4:
+        days_running = (datetime.now() - experiment_start_date).days
+        st.metric(
+            &quot;Days Running&quot;,
+            days_running,
+            delta=f&quot;{planned_duration - days_running} days remaining&quot;
+        )
+
+    # Time series plot
+    st.subheader(&quot;Metric Over Time&quot;)
+
+    fig = go.Figure()
+
+    for variant in ['control', 'treatment']:
+        variant_data = data[data['variant'] == variant]
+        daily = variant_data.groupby('date')['ctr'].mean()
+
+        fig.add_trace(go.Scatter(
+            x=daily.index,
+            y=daily.values,
+            name=variant,
+            mode='lines+markers'
+        ))
+
+    fig.update_layout(
+        xaxis_title=&quot;Date&quot;,
+        yaxis_title=&quot;Click-Through Rate&quot;,
+        hovermode='x unified'
+    )
+
+    st.plotly_chart(fig)
+
+    # Guardrail metrics
+    st.subheader(&quot;Guardrail Metrics&quot;)
+
+    guardrail_status = check_guardrails(data)
+
+    for metric, status in guardrail_status.items():
+        if status['healthy']:
+            st.success(f&quot;âœ… {metric}: {status['value']:.4f} (threshold: {status['threshold']})&quot;)
+        else:
+            st.error(f&quot;âŒ {metric}: {status['value']:.4f} exceeds threshold {status['threshold']}&quot;)
+
+    # Statistical analysis
+    st.subheader(&quot;Statistical Analysis&quot;)
+
+    results = analyzer.analyze_experiment(data, metrics_config)
+
+    for metric_name, result in results.items():
+        with st.expander(f&quot;{metric_name}&quot;):
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.write(f&quot;**Control:** {result['control_rate']:.4f}&quot;)
+                st.write(f&quot;**Treatment:** {result['treatment_rate']:.4f}&quot;)
+                st.write(f&quot;**Lift:** {result['relative_lift']*100:+.2f}%&quot;)
+
+            with col2:
+                st.write(f&quot;**P-value:** {result['p_value']:.4f}&quot;)
+                st.write(f&quot;**Significant:** {'âœ… Yes' if result['is_significant'] else 'âŒ No'}&quot;)
+                st.write(f&quot;**95% CI:** [{result['confidence_interval'][0]:.4f}, {result['confidence_interval'][1]:.4f}]&quot;)
+
+# Run dashboard
+# streamlit run experiments/dashboard.py</code></pre></div>
+<hr/>
+<h4 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-summary">Summary</h4>
+<p>In this lesson, you learned:</p>
+<p>âœ… <strong>Experiment Design:</strong></p>
+<ul>
+<li>Hypothesis formation and metrics selection</li>
+<li>Sample size calculation</li>
+<li>Traffic allocation strategies</li>
+</ul>
+<p>âœ… <strong>Implementation:</strong></p>
+<ul>
+<li>User assignment with consistent hashing</li>
+<li>Event logging and tracking</li>
+<li>Integration with model serving</li>
+</ul>
+<p>âœ… <strong>Analysis:</strong></p>
+<ul>
+<li>Statistical significance testing</li>
+<li>Sequential testing for early stopping</li>
+<li>Detecting common pitfalls (SRM, novelty effect)</li>
+</ul>
+<p>âœ… <strong>ç›‘æŽ§ï¼ˆMonitoringï¼‰:</strong></p>
+<ul>
+<li>Real-time experiment dashboards</li>
+<li>Guardrail metrics</li>
+<li>Decision making frameworks</li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-additional-resources">Additional Resources</h4>
+<ul>
+<li><a href="https://experimentguide.com/">Trustworthy Online Controlled Experiments</a> - Comprehensive guide to A/B testing</li>
+<li><a href="https://www.evanmiller.org/ab-testing/">Evan Miller's A/B æµ‹è¯•ï¼ˆA/B Testingï¼‰ Tools</a> - Sample size calculators</li>
+<li><a href="https://netflixtechblog.com/its-all-a-bout-testing-the-netflix-experimentation-platform-4e1ca458c15">Netflix Experimentation Platform</a></li>
+</ul>
+<hr/>
+<h4 id="lessons-mod-106-mlops-07-ab-testing-experimentation-md-next-lesson">Next Lesson</h4>
+<p><strong>Lesson 08: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ Best Practices &amp; æ²»ç†ï¼ˆGovernanceï¼‰</strong> - Learn best practices for running ML systems in production and governance frameworks.</p><p><a class="home" href="../docs/doc-lessons-mod-106-mlops-06-model-deployment-strategies-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-lessons-mod-106-mlops-08-best-practices-governance-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>

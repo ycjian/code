@@ -1,0 +1,373 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</title><link rel="icon" type="image/svg+xml" href="../assets/ai-infra-github-logo.svg"/><style>
+:root{color-scheme:dark;--bg:#070b14;--panel:rgba(15,23,42,.82);--panel2:rgba(17,24,39,.72);--text:#e5eefb;--muted:#9fb0ca;--line:rgba(148,163,184,.24);--cyan:#67e8f9;--green:#86efac;--orange:#fdba74;--rose:#fda4af;--blue:#93c5fd;--violet:#c4b5fd;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{background:var(--bg);overflow-x:hidden;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(103,232,249,.14),transparent 30%),radial-gradient(circle at 82% 10%,rgba(134,239,172,.11),transparent 28%),linear-gradient(135deg,#070b14 0%,#0b1020 46%,#07111f 100%);overflow-x:hidden}a{color:inherit;text-decoration:none}.shell{width:min(1220px,calc(100% - 36px));margin:0 auto;padding:22px 0 34px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#07111f;font:900 15px/1 "Cascadia Code",monospace}.logo img{width:38px;height:38px;display:block}.brand h1{margin:0;font-size:24px;line-height:1.1}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.home{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(15,23,42,.78);font-size:12px;font-weight:800}.hero,.panel,.doc{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:14px}.hero{padding:18px;margin-bottom:14px}.hero h2{margin:0 0 8px;font-size:28px;line-height:1.12}.hero p{margin:6px 0;color:#dbe7f7}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat{border:1px solid rgba(148,163,184,.20);border-radius:10px;padding:10px;background:rgba(2,6,23,.24)}.stat strong{display:block;font-size:22px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card{min-height:148px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));padding:14px;position:relative;overflow:hidden;transition:transform 160ms ease,border-color 160ms ease}.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.54)}.card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,var(--cyan)) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent,var(--cyan)) 34%,transparent);font:900 12px/1 "Cascadia Code",monospace}.open{color:var(--muted)}.card h3{margin:0 0 7px;font-size:16px;line-height:1.18;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.tag{padding:4px 7px;border-radius:999px;border:1px solid rgba(148,163,184,.19);background:rgba(2,6,23,.28);color:#cbd5e1;font-size:10.5px}.reader-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}.toc{position:sticky;top:14px;padding:12px}.toc h2{font-size:13px;margin:0 0 10px;color:#fff}.toc a{display:block;padding:7px 8px;border-radius:8px;color:#dbe7f7;font-size:12px;line-height:1.3;overflow-wrap:anywhere}.toc a:hover{background:#1a2740}.course-tree details{border-top:1px solid rgba(148,163,184,.18);margin-top:6px;padding-top:6px}.course-tree summary{cursor:pointer;list-style:none}.course-tree summary::-webkit-details-marker{display:none}.course-tree summary>a{font-weight:850;color:#eef6ff}.course-tree .tree-section{margin-left:8px;border-top-color:rgba(148,163,184,.12)}.course-tree .tree-section summary>a{font-weight:720;color:#d7e5f7}.course-tree .tree-section summary>a span{float:right;color:var(--green);font:10px/1.3 "Cascadia Code",monospace}.course-tree .tree-doc{margin-left:18px;padding:5px 6px;color:var(--muted);font-size:11px;border-left:1px solid rgba(148,163,184,.16);border-radius:0 8px 8px 0}.course-tree .tree-doc.active{background:rgba(103,232,249,.14);color:#fff;border-left-color:var(--cyan)}.doc{padding:16px 18px;margin-bottom:12px;box-shadow:none;scroll-margin-top:12px}.doc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.chip{display:inline-flex;padding:3px 8px;border:1px solid rgba(103,232,249,.26);border-radius:999px;background:rgba(14,165,233,.10);color:#bae6fd;font:11px/1.3 "Cascadia Code",monospace;font-weight:800}.path{color:var(--muted);font:11px/1.3 "Cascadia Code",monospace;overflow-wrap:anywhere}.doc h2{margin:0 0 12px;border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:8px;font-size:22px}.doc h3{font-size:20px}.doc h4{font-size:17px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th{overflow-wrap:anywhere;word-break:break-word}p{color:#e8eefb}code{color:#dce7f8;background:#07101d;border:1px solid rgba(148,163,184,.24);border-radius:7px;padding:2px 6px;font:12.5px/1.55 "JetBrains Mono","Cascadia Code",Consolas,monospace;white-space:normal;overflow-wrap:anywhere}.code-shell{margin:12px 0 4px;border:1px solid rgba(148,163,184,.22);border-radius:12px;overflow:hidden;background:#07101d;max-width:100%}.code-title{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.18);background:#0d1728;color:var(--muted);font-size:12px;font-weight:800}.code-title span{overflow-wrap:anywhere}pre{margin:0;padding:16px;overflow:auto;max-width:100%;font:12.5px/1.62 "JetBrains Mono","Cascadia Code",Consolas,monospace;color:#dce7f8;tab-size:4;background:transparent;white-space:pre}pre code{padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:pre}blockquote{border-left:3px solid rgba(103,232,249,.55);margin:14px 0;padding:4px 0 4px 14px;color:#dbeafe;background:rgba(103,232,249,.06)}.table-wrap{overflow:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;max-width:100%}table{width:100%;border-collapse:collapse;background:rgba(15,23,42,.65)}th,td{border:1px solid rgba(148,163,184,.22);padding:8px 10px;vertical-align:top}th{background:#172238;color:#fff;text-align:left}.image-ref{display:inline-flex;padding:2px 7px;border:1px solid rgba(253,186,116,.28);border-radius:999px;background:rgba(253,186,116,.09);color:#fed7aa;font-size:12px}.doc h3{margin-top:26px;color:var(--cyan);border-left:4px solid rgba(103,232,249,.75);padding:6px 0 6px 12px;background:linear-gradient(90deg,rgba(103,232,249,.10),transparent 72%);border-radius:8px}.doc h4{margin-top:22px;color:var(--green);padding-bottom:4px;border-bottom:1px dashed rgba(134,239,172,.30)}.doc h5,.doc h6{color:var(--orange)}.doc p{line-height:1.74}.doc p:first-of-type{color:#f8fbff}.doc a:not(.home){color:#7dd3fc;border-bottom:1px solid rgba(125,211,252,.35);font-weight:750}.doc a:not(.home):hover{color:#bbf7d0;border-bottom-color:rgba(187,247,208,.60)}.doc strong{color:#fde68a;font-weight:850}.doc em{color:#bfdbfe;font-style:normal}.doc ul,.doc ol{margin:12px 0;padding:10px 14px 10px 28px;border:1px solid rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(135deg,rgba(103,232,249,.055),rgba(134,239,172,.035) 48%,rgba(253,186,116,.045))}.doc li{margin:6px 0;line-height:1.65}.doc li::marker{color:var(--green);font-weight:900}.doc li:nth-child(3n+1)::marker{color:var(--cyan)}.doc li:nth-child(3n+2)::marker{color:var(--orange)}.doc hr{border:0;height:1px;margin:24px 0;background:linear-gradient(90deg,transparent,rgba(103,232,249,.52),rgba(134,239,172,.42),transparent)}tbody tr:nth-child(odd){background:rgba(103,232,249,.035)}tbody tr:nth-child(even){background:rgba(134,239,172,.030)}td:first-child{color:#d9f99d;font-weight:750}blockquote{border-left-color:rgba(253,186,116,.85);background:linear-gradient(90deg,rgba(253,186,116,.12),rgba(103,232,249,.04));color:#fff7ed;border-radius:0 10px 10px 0}.code-shell{border-color:rgba(125,211,252,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}.code-title{background:linear-gradient(90deg,#102033,#13261d);color:#d1fae5}.code-title span:last-child{color:#fef3c7}.hidden{display:none!important}.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reader-layout{display:block}.toc{position:static;margin-bottom:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.shell{width:min(100% - 24px,1220px)}.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.hero,.doc{padding:14px}.brand h1{font-size:20px}.doc h2,.doc h3,.doc h4,.doc h5,.doc h6,p,li,td,th,.path{line-break:anywhere}}</style></head><body><div class="shell"><header class="topbar"><div class="brand"><div class="logo" aria-hidden="true"><img src="../assets/ai-infra-github-logo.svg" alt=""/></div><div><h1>AI åŸºç¡€è®¾æ–½è¯¾ç¨‹ææ–™</h1></div></div><a class="home" href="../index.html">å…¥å£ï¼ˆHomeï¼‰</a></header><div class="reader-layout"><div><aside class="toc panel course-tree"><h2>è¯¾ç¨‹æ ‘ï¼ˆCourse Treeï¼‰</h2><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter 1 Â· Module 101: åŸºç¡€ï¼ˆFoundationsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-01-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-exercises-exercise-04-python-env-manager-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>10</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-101-foundations-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter 2 Â· Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-01-cloud-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-exercises-exercise-01-multi-cloud-cost-analyzer-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-102-cloud-computing-quizzes-final-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>3</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter 3 Â· Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-01-docker-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-exercises-exercise-04-container-security-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-103-containerization-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter 4 Â· Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>3</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-01-k8s-introduction-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-exercises-exercise-01-k8s-fundamentals-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>16</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-104-kubernetes-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter 5 Â· Module 105: æ•°æ®ç®¡é“ï¼ˆData Pipelinesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-01-data-pipeline-architecture-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-exercises-exercise-01-pipeline-architecture-design-readme-m.html">Exercises: è¯¾åŽç»ƒä¹  <span>13</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-105-data-pipelines-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter 6 Â· Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-01-introduction-to-mlops-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-exercises-exercise-01-mlops-maturity-assessment-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-106-mlops-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter 7 Â· Module 107: GPU è®¡ç®—ï¼ˆGPU Computingï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-01-introduction-gpu-computing-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>7</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-exercises-exercise-01-gpu-introspection-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>12</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter 8 Â· Module 108: ç›‘æŽ§ä¸Žå¯è§‚æµ‹æ€§ï¼ˆMonitoring &amp; Observabilityï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-01-introduction-observability-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>6</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-exercises-exercise-01-observability-stack-readme-.html">Exercises: è¯¾åŽç»ƒä¹  <span>11</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-108-monitoring-observability-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter 9 Â· Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-01-introduction-to-iac-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-exercises-exercise-01-terraform-ml-infrastructure-r.html">Exercises: è¯¾åŽç»ƒä¹  <span>14</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-109-infrastructure-as-code-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter 10 Â· Module 110: LLM åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-readme-md.html">Chapter Overview: æœ¬ç« å¯¼è¯» <span>2</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-01-introduction-llm-infrastructure-md.html">Lectures: è¯¾å ‚è®²ä¹‰ <span>8</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-labs-readme-md.html">Labs: åŠ¨æ‰‹å®žéªŒ <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-exercises-exercise-01-production-llm-serving-readme-md.html">Exercises: è¯¾åŽç»ƒä¹  <span>15</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-lessons-mod-110-llm-infrastructure-quizzes-module-quiz-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>1</span></a></summary></details></details><details class="tree-group" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Workshop Â· å®žæˆ˜é¡¹ç›®ï¼ˆProjectsï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-projects-project-101-basic-model-serving-readme-md.html">Project 1: Model Serving <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-102-mlops-pipeline-readme-md.html">Project 2: MLOps Pipeline <span>5</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-project-103-llm-deployment-notebooks-readme-md.html">Project 3: LLM Deployment <span>9</span></a></summary></details><details class="tree-section" ><summary><a href="../docs/doc-projects-readme-md.html">References: å¤ç›˜èµ„æº <span>1</span></a></summary></details></details><details class="tree-group" open><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Workshop Â· æµ‹éªŒä¸Žè¯„ä¼°ï¼ˆAssessmentsï¼‰</a></summary><details class="tree-section" open><summary><a href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Assessment: æµ‹éªŒä¸Žç­”æ¡ˆ <span>13</span></a></summary><a class="tree-doc" href="../docs/doc-assessments-quizzes-answer-keys-readme-md.html">Quiz Answer Keys</a><a class="tree-doc" href="../docs/doc-assessments-coding-challenges-challenge-01-model-api-md.html">Coding Challenge 01: Build a æ¨¡åž‹æœåŠ¡ï¼ˆModel Servingï¼‰ API</a><a class="tree-doc" href="../docs/doc-assessments-practical-exams-midterm-practical-exam-md.html">Midterm Practical Exam: AI åŸºç¡€è®¾æ–½å·¥ç¨‹å¸ˆï¼ˆAI Infrastructure Engineerï¼‰</a><a class="tree-doc" href="../docs/doc-assessments-quizzes-answer-keys-module-01-answers-md.html">Module 101: Foundations â€” Answer Key</a><a class="tree-doc" href="../docs/doc-assessments-quizzes-answer-keys-module-02-answers-md.html">Module 102: äº‘è®¡ç®—ï¼ˆCloud Computingï¼‰ for ML â€” Answer Key</a><a class="tree-doc" href="../docs/doc-assessments-quizzes-answer-keys-module-03-answers-md.html">Module 103: å®¹å™¨åŒ–ï¼ˆContainerizationï¼‰ â€” Answer Key</a><a class="tree-doc" href="../docs/doc-assessments-quizzes-answer-keys-module-04-answers-md.html">Module 104: Kubernetes å®¹å™¨ç¼–æŽ’ï¼ˆKubernetesï¼‰ â€” Answer Key</a><a class="tree-doc" href="../docs/doc-assessments-quizzes-answer-keys-module-05-answers-md.html">Module 105: Data Pipelines â€” Answer Key</a><a class="tree-doc" href="../docs/doc-assessments-quizzes-answer-keys-module-06-answers-md.html">Module 106: MLOps æœºå™¨å­¦ä¹ è¿ç»´ï¼ˆMLOpsï¼‰ â€” Answer Key</a><a class="tree-doc active" href="../docs/doc-assessments-quizzes-answer-keys-module-07-answers-md.html">Module 107: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ â€” Answer Key</a><a class="tree-doc" href="../docs/doc-assessments-quizzes-answer-keys-module-08-answers-md.html">Module 108: ç›‘æŽ§ï¼ˆMonitoringï¼‰ &amp; å¯è§‚æµ‹æ€§ï¼ˆObservabilityï¼‰ â€” Answer Key</a><a class="tree-doc" href="../docs/doc-assessments-quizzes-answer-keys-module-09-answers-md.html">Module 109: åŸºç¡€è®¾æ–½å³ä»£ç ï¼ˆInfrastructure as Codeï¼‰ â€” Answer Key</a><a class="tree-doc" href="../docs/doc-assessments-quizzes-answer-keys-module-10-answers-md.html">Module 110: å¤§è¯­è¨€æ¨¡åž‹ï¼ˆLLMï¼‰ åŸºç¡€è®¾æ–½ï¼ˆLLM Infrastructureï¼‰ â€” Answer Key</a></details><details class="tree-section" open><summary><a href="../docs/doc-assessments-readme-md.html">References: å¤ç›˜èµ„æº <span>2</span></a></summary><a class="tree-doc" href="../docs/doc-assessments-readme-md.html">Assessments</a><a class="tree-doc" href="../docs/doc-assessments-rubrics-project-assessment-rubric-md.html">Project Assessment Rubric</a></details></details><details class="tree-group" ><summary><a href="../docs/doc-lessons-readme-md.html">Workshop Â· èµ„æºä¸Žç‰ˆæœ¬ï¼ˆResourcesï¼‰</a></summary><details class="tree-section" ><summary><a href="../docs/doc-lessons-readme-md.html">References: å¤ç›˜èµ„æº <span>10</span></a></summary></details></details></aside></div><main><article class="doc" id="doc-assessments-quizzes-answer-keys-module-07-answers-md"><h3 id="assessments-quizzes-answer-keys-module-07-answers-md-module-107-gpu-computing-answer-key">Module 107: GPU åŠ é€Ÿï¼ˆGPUï¼‰ è®¡ç®—ï¼ˆGPU Computingï¼‰ â€” Answer Key</h3>
+<blockquote>Detailed answer key with rationale, common mistakes, and lesson references for the <a href="#doc-lessons-mod-107-gpu-computing-quizzes-module-quiz-md">module quiz</a>.</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>Academic integrity:</strong> For self-study after attempting the quiz.</blockquote>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-1">Question 1</h4>
+<p><strong>Q:</strong> What is the primary difference between GPU åŠ é€Ÿï¼ˆGPUï¼‰ and CPU architecture that makes GPUs suitable for machine learning?</p>
+<p><strong>Answer:</strong> B) GPUs have thousands of simpler cores optimized for parallel operations</p>
+<p><strong>Explanation:</strong> GPUs are throughput-oriented processors built around massive Single-Instruction-Multiple-Thread (SIMT) parallelism, with thousands of small ALUs that can perform the same operation across many data elements simultaneously. CPUs, by contrast, are latency-oriented with a few powerful cores. Deep learning workloads (matrix multiplies, convolutions, elementwise ops) decompose naturally into parallel work, which maps onto a GPU åŠ é€Ÿï¼ˆGPUï¼‰'s wide compute fabric.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) Higher clock speeds: CPUs typically have higher clock speeds than GPUs; raw frequency is not the GPU åŠ é€Ÿï¼ˆGPUï¼‰ advantage.</li>
+<li>Choosing C) Larger cache memory: CPUs actually have larger per-core caches; GPUs trade cache size for more compute.</li>
+<li>Choosing D) Better branch prediction: CPUs have far more sophisticated branch prediction; warp divergence is a known GPU åŠ é€Ÿï¼ˆGPUï¼‰ weakness.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/01-introduction-gpu-computing.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-2">Question 2</h4>
+<p><strong>Q:</strong> What is the main advantage of Tensor Cores over CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ Cores for deep learning?</p>
+<p><strong>Answer:</strong> C) Accelerated matrix multiply-accumulate operations with mixed precision</p>
+<p><strong>Explanation:</strong> Tensor Cores are specialized hardware units that perform a fused matrix-multiply-accumulate (D = A*B + C) on small tile sizes in a single clock, typically with FP16/BF16/TF32 inputs and FP32 accumulation. This delivers up to ~8x throughput over general-purpose CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ cores doing the same MMA. They are the reason mixed-precision training is so much faster on modern NVIDIA GPUs.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) Higher clock speeds: Tensor Cores share the SM clock; the speedup comes from throughput per cycle, not frequency.</li>
+<li>Choosing B) Larger memory bandwidth: Tensor Cores do not change HBM bandwidth; they consume on-chip operands from registers/shared memory.</li>
+<li>Choosing D) Better support for integer operations: Tensor Cores do support INT8, but their headline benefit is FP16/BF16 GEMM acceleration for training.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/01-introduction-gpu-computing.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-3">Question 3</h4>
+<p><strong>Q:</strong> Which GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory type has the FASTEST access speed?</p>
+<p><strong>Answer:</strong> C) Registers (~1 cycle latency)</p>
+<p><strong>Explanation:</strong> Registers sit directly inside each SM and are the fastest storage in the GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory hierarchy, with effectively single-cycle latency and per-thread private scope. Shared memory is the next tier (low tens of cycles), followed by L2 cache, and finally global HBM (hundreds of cycles). Kernel performance often hinges on keeping hot data in registers and shared memory.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) Global Memory (VRAM): This is the slowest tier with hundreds of cycles of latency.</li>
+<li>Choosing B) Shared Memory: Fast, but still slower than registers and shared across a thread block.</li>
+<li>Choosing D) L2 Cache: Sits between SMs and global memory; faster than HBM but much slower than registers.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/01-introduction-gpu-computing.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-4">Question 4</h4>
+<p><strong>Q:</strong> A warp consists of how many threads that execute together in SIMT fashion?</p>
+<p><strong>Answer:</strong> C) 32 threads</p>
+<p><strong>Explanation:</strong> On all current NVIDIA architectures, a warp is exactly 32 threads that execute the same instruction in lockstep under SIMT. Block sizes are typically chosen as multiples of 32 so that warps are fully populated, avoiding wasted lanes. Branch divergence within a warp serializes the divergent paths, which is why warp size matters for performance.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) 8 threads: Too small; this is closer to an AVX SIMD lane width on CPUs.</li>
+<li>Choosing B) 16 threads: Half a warp; sometimes referenced as a &quot;half-warp&quot; in older architectures but not the warp size itself.</li>
+<li>Choosing D) 64 threads: AMD GCN wavefronts are 64, but CUDA å¹¶è¡Œè®¡ç®—ï¼ˆCUDAï¼‰ warps are 32.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/02-cuda-programming-fundamentals.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-5">Question 5</h4>
+<p><strong>Q:</strong> What is the typical memory reduction when using FP16 mixed precision training compared to FP32?</p>
+<p><strong>Answer:</strong> B) 2x (FP16 uses 2 bytes vs FP32's 4 bytes per parameter)</p>
+<p><strong>Explanation:</strong> FP16 and BF16 are 16-bit formats (2 bytes), while FP32 is 32-bit (4 bytes), so storing tensors in half precision halves their footprint. Real-world mixed-precision training keeps a master FP32 copy of weights for stability, so the overall memory savings depend on what you measure, but per-tensor activation/gradient memory is cut roughly 2x. Combined with Tensor Cores, this also yields major speedups.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) 1.5x: Underestimates the byte ratio; FP16 is half of FP32, not three-quarters.</li>
+<li>Choosing C) 4x: This would correspond to going from FP32 to INT8/FP8, not FP16.</li>
+<li>Choosing D) 8x: Would require 4-bit quantization, used only for inference.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/03-pytorch-gpu-acceleration.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-6">Question 6</h4>
+<p><strong>Q:</strong> Which statement about DataParallel (DP) vs DistributedDataParallel (DDP) is TRUE?</p>
+<p><strong>Answer:</strong> D) DDP åˆ†å¸ƒå¼æ•°æ®å¹¶è¡Œï¼ˆDDPï¼‰ is faster and uses multiple processes (no GIL contention, no GPU åŠ é€Ÿï¼ˆGPUï¼‰ 0 bottleneck)</p>
+<p><strong>Explanation:</strong> <code>DataParallel</code> runs in a single Python process and scatters inputs/gathers outputs through GPU åŠ é€Ÿï¼ˆGPUï¼‰ 0, which becomes both a memory and compute bottleneck and is throttled by Python's GIL. <code>DistributedDataParallel</code> spawns one process per GPU åŠ é€Ÿï¼ˆGPUï¼‰ and uses NCCL AllReduce to average gradients in a ring, avoiding both bottlenecks. PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ recommends DDP åˆ†å¸ƒå¼æ•°æ®å¹¶è¡Œï¼ˆDDPï¼‰ for all multi-GPU training, even on a single node.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) DP is faster than DDP åˆ†å¸ƒå¼æ•°æ®å¹¶è¡Œï¼ˆDDPï¼‰: Reverses the truth; DP is consistently slower due to scatter/gather and the GIL.</li>
+<li>Choosing B) DP uses multiple processes, DDP åˆ†å¸ƒå¼æ•°æ®å¹¶è¡Œï¼ˆDDPï¼‰ uses a single process: Exactly backwards.</li>
+<li>Choosing C) DDP åˆ†å¸ƒå¼æ•°æ®å¹¶è¡Œï¼ˆDDPï¼‰ has a GPU åŠ é€Ÿï¼ˆGPUï¼‰ 0 bottleneck, DP does not: The bottleneck belongs to DP; DDP åˆ†å¸ƒå¼æ•°æ®å¹¶è¡Œï¼ˆDDPï¼‰ uses a symmetric ring.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/05-multi-gpu-training-strategies.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-7">Question 7</h4>
+<p><strong>Q:</strong> In distributed training, what does the AllReduce operation do?</p>
+<p><strong>Answer:</strong> B) Combines values from all ranks and distributes the result to all ranks</p>
+<p><strong>Explanation:</strong> AllReduce performs an associative reduction (typically sum or average) over a tensor that exists on every rank, then broadcasts the reduced result back to every rank so they all end up with identical values. In DDP åˆ†å¸ƒå¼æ•°æ®å¹¶è¡Œï¼ˆDDPï¼‰ it is used to average gradients across workers after each backward pass. It is logically equivalent to Reduce followed by Broadcast, but implementations like Ring or Tree AllReduce are far more bandwidth-efficient.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) Sends data from rank 0 to all other ranks: That is Broadcast, not AllReduce.</li>
+<li>Choosing C) Gathers data from all ranks to rank 0: That is Reduce (or Gather), which leaves only rank 0 with the result.</li>
+<li>Choosing D) Scatters data from rank 0 to all ranks: That is Scatter, which splits data, not combines it.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/04-distributed-training-fundamentals.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-8">Question 8</h4>
+<p><strong>Q:</strong> In data parallelism, what is replicated across GPUs?</p>
+<p><strong>Answer:</strong> B) The model is replicated; data is split across GPUs</p>
+<p><strong>Explanation:</strong> Data parallelism puts a full copy of the model (and its optimizer state) on each GPU åŠ é€Ÿï¼ˆGPUï¼‰ and splits the global batch into shards, one per worker. Each GPU åŠ é€Ÿï¼ˆGPUï¼‰ computes the forward and backward pass on its shard, then gradients are AllReduced so every replica sees the same averaged gradient before stepping the optimizer. This keeps the replicas in sync and is the workhorse scaling pattern for models that still fit on one GPU åŠ é€Ÿï¼ˆGPUï¼‰.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) The data: The data is split (sharded), not replicated; that is the whole point of &quot;data&quot; parallelism.</li>
+<li>Choosing C) The optimizer: Optimizer state is replicated as a consequence of the model being replicated, but the defining property is model replication.</li>
+<li>Choosing D) The loss function: The loss function is just code; it isn't the unit of replication.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/05-multi-gpu-training-strategies.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-9">Question 9</h4>
+<p><strong>Q:</strong> When is model parallelism necessary instead of data parallelism?</p>
+<p><strong>Answer:</strong> B) When the model is too large to fit on a single GPU åŠ é€Ÿï¼ˆGPUï¼‰'s memory</p>
+<p><strong>Explanation:</strong> Data parallelism requires every GPU åŠ é€Ÿï¼ˆGPUï¼‰ to hold a full copy of the model, gradients, and optimizer state. Once the model exceeds the memory of a single device, you must shard the model itself â€” via tensor parallelism, pipeline parallelism, or ZeRO-3 â€” so that each GPU åŠ é€Ÿï¼ˆGPUï¼‰ only stores a slice. Model parallelism is fundamentally about fitting the model, not about going faster.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) When you want faster training: Model parallelism usually adds communication overhead and is often slower per step than pure data parallelism.</li>
+<li>Choosing C) When you have a large dataset: A large dataset is handled by data parallelism (more shards), not model parallelism.</li>
+<li>Choosing D) When you want better accuracy: Parallelism strategy does not change model accuracy.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/06-model-pipeline-parallelism.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-10">Question 10</h4>
+<p><strong>Q:</strong> What is the memory vs speed trade-off of gradient checkpointing?</p>
+<p><strong>Answer:</strong> D) Less memory (store ~âˆšN activations instead of N), slower training (~33% slower due to recomputation)</p>
+<p><strong>Explanation:</strong> Gradient checkpointing saves only a subset of activations during the forward pass and recomputes the rest on demand during backprop. This drops activation memory from O(N) to roughly O(âˆšN) layers but adds an extra partial forward pass per backward, typically ~30% step-time overhead. It is a key technique when activation memory dominates, especially for long sequences or deep transformers.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) More memory, faster training: Wrong on both axes; checkpointing reduces memory and slows training.</li>
+<li>Choosing B) Less memory, faster training: Correct on memory, wrong on speed â€” recomputation costs time.</li>
+<li>Choosing C) More memory, slower training: Inverted memory trade-off; checkpointing exists specifically to save memory.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/07-gpu-memory-management.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-11">Question 11</h4>
+<p><strong>Q:</strong> What is the communication complexity (bandwidth per GPU åŠ é€Ÿï¼ˆGPUï¼‰) of Ring AllReduce?</p>
+<p><strong>Answer:</strong> D) O(1) - constant</p>
+<p><strong>Explanation:</strong> Ring AllReduce splits the gradient tensor into N chunks and uses a reduce-scatter followed by an all-gather around a ring of N GPUs. Each GPU åŠ é€Ÿï¼ˆGPUï¼‰ sends and receives 2<em>(N-1)/N </em> tensor_size bytes total â€” which approaches a constant (2 * tensor_size) as N grows, independent of GPU åŠ é€Ÿï¼ˆGPUï¼‰ count. That bandwidth-optimality is precisely why Horovod and NCCL popularized the ring pattern for large-scale training.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) O(N): Describes a naive parameter-server / Reduce + Broadcast pattern where the central node's bandwidth grows linearly.</li>
+<li>Choosing B) O(NÂ²): That would be an all-to-all without aggregation; far worse than ring.</li>
+<li>Choosing C) O(log N): Closer to a tree AllReduce's latency term, not the per-GPU bandwidth of a ring.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/04-distributed-training-fundamentals.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-12">Question 12</h4>
+<p><strong>Q:</strong> What is the main overhead/inefficiency in pipeline parallelism?</p>
+<p><strong>Answer:</strong> C) Pipeline &quot;bubble&quot; at start and end</p>
+<p><strong>Explanation:</strong> In pipeline parallelism, layers are partitioned across GPUs and micro-batches flow through the stages. At the start of a batch the later stages are idle waiting for the first micro-batch to reach them, and at the end the early stages are idle waiting for the last micro-batch to finish â€” these idle periods are the pipeline &quot;bubble.&quot; Increasing the number of micro-batches (e.g., GPipe, 1F1B schedules) reduces but never fully eliminates the bubble.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) Communication overhead: Inter-stage sends exist, but they are small (just activations between adjacent stages) compared to the bubble cost.</li>
+<li>Choosing B) Memory fragmentation: Not a pipeline-specific issue.</li>
+<li>Choosing D) Gradient synchronization: Pipeline parallelism does not require an AllReduce across stages on the partitioned layers.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/06-model-pipeline-parallelism.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-13">Question 13</h4>
+<p><strong>Q:</strong> What does DeepSpeed ZeRO Stage 3 partition across GPUs?</p>
+<p><strong>Answer:</strong> C) Optimizer states, gradients, and model parameters</p>
+<p><strong>Explanation:</strong> ZeRO (Zero Redundancy Optimizer) progressively shards training state across data-parallel workers: Stage 1 partitions optimizer states, Stage 2 adds gradient partitioning, and Stage 3 additionally partitions model parameters themselves. With Stage 3, each GPU åŠ é€Ÿï¼ˆGPUï¼‰ only holds 1/N of every tensor and parameters are gathered on demand for forward/backward, giving the maximum memory reduction at the cost of extra communication.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) Only optimizer states: That is ZeRO Stage 1.</li>
+<li>Choosing B) Optimizer states and gradients: That is ZeRO Stage 2.</li>
+<li>Choosing D) Only model parameters: ZeRO always partitions optimizer state first; partitioning only parameters is not a ZeRO stage.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/07-gpu-memory-management.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-14">Question 14</h4>
+<p><strong>Q:</strong> What is the memory complexity of Flash Attention compared to standard attention?</p>
+<p><strong>Answer:</strong> C) O(N)</p>
+<p><strong>Explanation:</strong> Standard attention materializes the full NÃ—N attention score matrix in HBM, which is O(NÂ²) memory and bandwidth-bound. Flash Attention tiles Q, K, V into blocks that fit in SRAM and computes softmax-weighted sums incrementally with online softmax, never writing the full attention matrix to global memory. This drops memory to O(N) and also speeds up the kernel by being IO-aware.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) O(NÂ²) same as standard: Misses the entire point of Flash Attention; it explicitly avoids the O(NÂ²) matrix.</li>
+<li>Choosing B) O(N log N): No log factor appears in the analysis.</li>
+<li>Choosing D) O(âˆšN): Confuses Flash Attention with gradient checkpointing's âˆšN activation savings.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/08-advanced-gpu-optimization.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-15">Question 15</h4>
+<p><strong>Q:</strong> If GPU åŠ é€Ÿï¼ˆGPUï¼‰ utilization is consistently &lt;50%, what is the MOST LIKELY bottleneck?</p>
+<p><strong>Answer:</strong> B) Data loading or CPU preprocessing</p>
+<p><strong>Explanation:</strong> Persistently low GPU åŠ é€Ÿï¼ˆGPUï¼‰ utilization almost always means the GPU åŠ é€Ÿï¼ˆGPUï¼‰ is starved â€” it finishes its batch and then waits for the next one. The usual culprits are slow disk reads, single-worker DataLoaders, heavy CPU augmentation, missing <code>pin_memory</code>, or <code>.cpu()</code>/<code>.item()</code> syncs in the training loop. Fix it by overlapping IO with compute: more <code>num_workers</code>, <code>pin_memory=True</code>, prefetching, and moving augmentations to GPU åŠ é€Ÿï¼ˆGPUï¼‰ when possible.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) GPU åŠ é€Ÿï¼ˆGPUï¼‰ compute is too slow: If compute were the bottleneck you would see high (â‰ˆ100%) utilization, not low.</li>
+<li>Choosing C) Not enough GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory: OOM manifests as crashes, not as low utilization.</li>
+<li>Choosing D) Network bandwidth: Only relevant in multi-node training, and even there it typically shows up as high &quot;comm&quot; time, not idle GPUs.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/08-advanced-gpu-optimization.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-16">Question 16</h4>
+<p><strong>Q:</strong> For a model with M parameters trained with Adam optimizer in FP32, approximately how much memory is needed (excluding activations)?</p>
+<p><strong>Answer:</strong> D) 16M bytes</p>
+<p><strong>Explanation:</strong> With FP32 (4 bytes/element), parameters take 4M bytes, gradients another 4M bytes, and Adam keeps two moment buffers (m and v) at 4M bytes each, adding 8M bytes â€” totaling 16M bytes before activations. That is why a 7B-parameter model needs roughly 112 GB just for weights+grads+optimizer state in FP32, and is the motivation for mixed precision and ZeRO sharding.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) M bytes: Counts only one byte per parameter, which assumes INT8 and ignores grads/optimizer entirely.</li>
+<li>Choosing B) 2M bytes: Forgets that FP32 is 4 bytes and ignores gradients and optimizer state.</li>
+<li>Choosing C) 4M bytes: Counts only the parameters; misses gradients (4M) and Adam moments (8M).</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/07-gpu-memory-management.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-17">Question 17</h4>
+<p><strong>Q:</strong> What is the main benefit of using pinned memory in PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ DataLoader?</p>
+<p><strong>Answer:</strong> C) Faster CPU-to-GPU memory transfers (2-3x faster via DMA)</p>
+<p><strong>Explanation:</strong> Pinned (page-locked) memory cannot be paged out by the OS, which allows the GPU åŠ é€Ÿï¼ˆGPUï¼‰'s DMA engine to copy directly from host RAM without an intermediate staging buffer. Combined with <code>non_blocking=True</code>, this lets the H2D transfer overlap with GPU åŠ é€Ÿï¼ˆGPUï¼‰ compute. The result is faster and more deterministic data transfer, typically 2â€“3x over pageable memory.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) Faster CPU processing: Pinning does not change CPU throughput; it only affects the hostâ†’device path.</li>
+<li>Choosing B) Larger batch sizes: Batch size is bounded by GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory, not host pinning.</li>
+<li>Choosing D) Lower memory usage: Pinned memory actually constrains the OS more and can increase pressure on host RAM.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/03-pytorch-gpu-acceleration.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-18">Question 18</h4>
+<p><strong>Q:</strong> Why is DistributedSampler necessary in DDP åˆ†å¸ƒå¼æ•°æ®å¹¶è¡Œï¼ˆDDPï¼‰ training?</p>
+<p><strong>Answer:</strong> A) To ensure each GPU åŠ é€Ÿï¼ˆGPUï¼‰ processes different data samples (no overlap)</p>
+<p><strong>Explanation:</strong> By default every DDP åˆ†å¸ƒå¼æ•°æ®å¹¶è¡Œï¼ˆDDPï¼‰ rank would create the same DataLoader and iterate the dataset identically, so every GPU åŠ é€Ÿï¼ˆGPUï¼‰ would train on the same samples â€” defeating the purpose of data parallelism. <code>DistributedSampler</code> deterministically partitions indices by rank so each worker sees a disjoint shard of the dataset per epoch. You also need to call <code>sampler.set_epoch(epoch)</code> so shuffling is consistent across ranks but varies between epochs.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing B) To increase batch size: Effective batch size grows because of having multiple GPUs, not because of the sampler.</li>
+<li>Choosing C) To improve data loading speed: That is what <code>num_workers</code>/<code>pin_memory</code> do; the sampler is about correctness.</li>
+<li>Choosing D) To reduce memory usage: The sampler does not change per-GPU memory footprint.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/05-multi-gpu-training-strategies.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-19">Question 19</h4>
+<p><strong>Q:</strong> If batch_size=16, accumulation_steps=4, world_size=8, what is the effective batch size?</p>
+<p><strong>Answer:</strong> D) 512</p>
+<p><strong>Explanation:</strong> Effective batch size = per-GPU micro-batch Ã— accumulation steps Ã— number of GPUs = 16 Ã— 4 Ã— 8 = 512. Gradient accumulation simulates a larger batch by deferring the optimizer step, and data parallelism multiplies it again across workers. This is the number to use when scaling the learning rate (e.g., linear or square-root scaling rules).</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) 16: Only the per-GPU micro-batch; ignores accumulation and world size.</li>
+<li>Choosing B) 64: Multiplies micro-batch by accumulation but forgets the 8 GPUs.</li>
+<li>Choosing C) 128: Multiplies micro-batch by world size but forgets the accumulation factor.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/07-gpu-memory-management.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-20">Question 20</h4>
+<p><strong>Q:</strong> In tensor parallelism with column-wise weight splitting, what operation is needed after computation?</p>
+<p><strong>Answer:</strong> B) Concatenation</p>
+<p><strong>Explanation:</strong> In Megatron-style column-parallel linear layers, the weight matrix is split along its output (column) dimension and each GPU åŠ é€Ÿï¼ˆGPUï¼‰ computes a slice of the output features from the full input. To assemble the complete output activation, the per-GPU partial outputs are concatenated along the feature dimension (typically via an AllGather collective). Row-parallel layers are the dual case: they require an AllReduce sum because each GPU åŠ é€Ÿï¼ˆGPUï¼‰ computes a partial sum over a subset of input features.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Choosing A) AllReduce (sum): That is required after a <em>row-wise</em> split, where each GPU åŠ é€Ÿï¼ˆGPUï¼‰ produces a partial sum, not after a column-wise split where outputs are disjoint.</li>
+<li>Choosing C) Broadcast: Broadcast sends one rank's data to all; it does not assemble distributed outputs.</li>
+<li>Choosing D) Scatter: Scatter splits data outward; the column-wise pattern needs to combine outputs, not split them further.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/06-model-pipeline-parallelism.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-21">Question 21</h4>
+<p><strong>Q:</strong> List the 4 main components that consume GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory during training and give approximate size for each (assuming M parameters).</p>
+<p><strong>Answer:</strong></p>
+<ol>
+<li><strong>Model parameters</strong> â€” M Ã— 4 bytes = <strong>4M bytes</strong> in FP32 (2M in FP16/BF16).</li>
+<li><strong>Gradients</strong> â€” one gradient per parameter, M Ã— 4 bytes = <strong>4M bytes</strong> in FP32.</li>
+<li><strong>Optimizer states (Adam)</strong> â€” momentum + variance buffers, 2 Ã— M Ã— 4 bytes = <strong>8M bytes</strong> in FP32 (Adam alone; SGD-momentum is only 4M).</li>
+<li><strong>Activations</strong> â€” saved intermediate tensors for backprop; <strong>scales with batch size, sequence length, and depth</strong> and is often the <em>largest</em> term for transformers/long sequences.</li>
+</ol>
+<p>Total fixed cost â‰ˆ <strong>16M bytes</strong> (params + grads + Adam states), plus a variable activations term.</p>
+<p><strong>Explanation:</strong> The 16M-byte &quot;training tax&quot; on top of the model itself is why naive FP32 training of a 7B model needs ~112 GB before activations, and motivates mixed precision, ZeRO sharding, and gradient checkpointing. Knowing the breakdown lets you predict which optimization (FP16, ZeRO-1/2/3, checkpointing, smaller batch) attacks which term.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Reporting only parameters (4M) and forgetting that gradients and optimizer state each add comparable amounts.</li>
+<li>Reporting Adam optimizer state as 4M instead of 8M (forgetting it stores both first and second moments).</li>
+<li>Omitting activations entirely â€” they are variable but frequently dominate for long-context transformers.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/07-gpu-memory-management.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-22">Question 22</h4>
+<p><strong>Q:</strong> Describe the steps you would take to diagnose why a training job has low GPU åŠ é€Ÿï¼ˆGPUï¼‰ utilization (&lt;50%).</p>
+<p><strong>Answer:</strong></p>
+<ol>
+<li><strong>Observe baseline</strong> with <code>nvidia-smi dmon</code> / <code>nvtop</code> to confirm sustained low SM utilization and check memory throughput.</li>
+<li><strong>Time the data pipeline vs the step</strong>: wrap the DataLoader iterator and the forward/backward to compare seconds-per-batch on each side. If the loader dominates, the GPU åŠ é€Ÿï¼ˆGPUï¼‰ is starved.</li>
+<li><strong>Inspect DataLoader config</strong>: increase <code>num_workers</code>, enable <code>pin_memory=True</code>, set <code>persistent_workers=True</code>, and use <code>non_blocking=True</code> on <code>.to(device)</code> so H2D transfers overlap compute.</li>
+<li><strong>Profile</strong> with the PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰ Profiler (with <code>record_shapes</code> and <code>with_stack</code>) or Nsight Systems to see the actual kernel timeline and any gaps.</li>
+<li><strong>Hunt for host-device syncs</strong>: <code>.item()</code>, <code>.cpu()</code>, <code>torch.cuda.synchronize()</code>, Python prints/logging in the hot loop â€” each one stalls the GPU åŠ é€Ÿï¼ˆGPUï¼‰.</li>
+<li><strong>Check batch size and kernel size</strong>: tiny batches or shapes that fall off Tensor Core tile boundaries (not multiples of 8/16) leave compute on the floor.</li>
+<li><strong>Verify storage and preprocessing</strong>: shard sizes, decoding cost (JPEG/audio), and disk vs network IO; consider moving augmentations to GPU åŠ é€Ÿï¼ˆGPUï¼‰ (Kornia, DALI).</li>
+<li><strong>Re-measure</strong> after each change so you can attribute improvements.</li>
+</ol>
+<p><strong>Explanation:</strong> The diagnostic mindset is &quot;if util is low, the GPU åŠ é€Ÿï¼ˆGPUï¼‰ is waiting&quot; â€” find what it is waiting for (data, sync, Python). A profiler timeline beats guessing because it makes the gap between kernels visible and tells you whether it is host code, IO, or comm. Most &lt;50% utilization cases trace back to the input pipeline, not the model.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Jumping to &quot;buy a faster GPU åŠ é€Ÿï¼ˆGPUï¼‰&quot; or &quot;use mixed precision&quot; before confirming compute is actually the bottleneck.</li>
+<li>Forgetting that <code>.item()</code> / Python-side logging inside the loop forces a full device sync each iteration.</li>
+<li>Increasing <code>num_workers</code> without <code>pin_memory</code> or <code>non_blocking=True</code>, so transfers still serialize against compute.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/08-advanced-gpu-optimization.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-23">Question 23</h4>
+<p><strong>Q:</strong> Write the minimal code to set up a DistributedDataParallel model in PyTorch æ·±åº¦å­¦ä¹ æ¡†æž¶ï¼ˆPyTorchï¼‰. Include process group initialization and model wrapping.</p>
+<p><strong>Answer:</strong></p>
+<div class="code-shell"><div class="code-title"><span>python</span><span>PYTHON</span></div><pre><code class="language-python">import os
+import torch
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+def setup(rank: int, world_size: int) -&gt; None:
+    os.environ.setdefault(&quot;MASTER_ADDR&quot;, &quot;localhost&quot;)
+    os.environ.setdefault(&quot;MASTER_PORT&quot;, &quot;12355&quot;)
+    dist.init_process_group(backend=&quot;nccl&quot;, rank=rank, world_size=world_size)
+    torch.cuda.set_device(rank)
+
+def cleanup() -&gt; None:
+    dist.destroy_process_group()
+
+def train(rank: int, world_size: int) -&gt; None:
+    setup(rank, world_size)
+
+    model = MyModel().to(rank)
+    ddp_model = DDP(model, device_ids=[rank], output_device=rank)
+
+    # Use a DistributedSampler so each rank sees a unique shard.
+    # optimizer = torch.optim.AdamW(ddp_model.parameters(), lr=1e-4)
+    # for epoch in range(num_epochs):
+    #     sampler.set_epoch(epoch)
+    #     for batch in loader:
+    #         ...
+
+    cleanup()</code></pre></div>
+<p>Launch with <code>torchrun --nproc_per_node=&lt;N&gt; train.py</code> (which sets <code>RANK</code>, <code>WORLD_SIZE</code>, <code>LOCAL_RANK</code> for you).</p>
+<p><strong>Explanation:</strong> The four essentials are: (1) initialize a process group with the NCCL backend on GPUs, (2) pin each process to its own device with <code>torch.cuda.set_device(rank)</code>, (3) wrap the model with <code>DDP(..., device_ids=[rank])</code> so gradient AllReduce is registered, and (4) destroy the process group at the end. In production you should pair this with <code>DistributedSampler</code> and use <code>torchrun</code> rather than hand-managing env vars.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Omitting <code>torch.cuda.set_device(rank)</code>, which can cause all ranks to land on GPU åŠ é€Ÿï¼ˆGPUï¼‰ 0 and silently serialize.</li>
+<li>Using the <code>gloo</code> backend on GPUs (it works but is much slower than NCCL for GPU åŠ é€Ÿï¼ˆGPUï¼‰ collectives).</li>
+<li>Forgetting <code>dist.destroy_process_group()</code>, leaving NCCL communicators dangling at shutdown.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/05-multi-gpu-training-strategies.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-24">Question 24</h4>
+<p><strong>Q:</strong> List 5 techniques to reduce GPU åŠ é€Ÿï¼ˆGPUï¼‰ memory usage during training and briefly explain each.</p>
+<p><strong>Answer:</strong></p>
+<ol>
+<li><strong>Mixed precision (FP16/BF16)</strong> â€” store activations, gradients, and (with <code>autocast</code>) compute in 16-bit. Roughly halves activation/grad memory and unlocks Tensor Core throughput; pair with a loss scaler for FP16.</li>
+<li><strong>Gradient checkpointing</strong> â€” keep only a subset of activations from the forward pass and recompute the rest in backward. Drops activation memory from O(N) to â‰ˆO(âˆšN) layers in exchange for ~30% extra compute.</li>
+<li><strong>Gradient accumulation</strong> â€” run K micro-batches before stepping the optimizer. Lets you train at an effective batch size of K Ã— micro-batch without holding K batches of activations at once.</li>
+<li><strong>ZeRO / FSDP å…¨åˆ†ç‰‡æ•°æ®å¹¶è¡Œï¼ˆFSDPï¼‰ sharding</strong> â€” partition optimizer states (Stage 1), gradients (Stage 2), and parameters (Stage 3) across data-parallel ranks so each GPU åŠ é€Ÿï¼ˆGPUï¼‰ holds only 1/N of the training state.</li>
+<li><strong>Flash Attention</strong> â€” IO-aware, tiled attention kernel that avoids materializing the NÃ—N attention matrix, turning attention memory from O(NÂ²) into O(N) and speeding it up at the same time.</li>
+</ol>
+<p>Honorable mentions: CPU/NVMe offloading (DeepSpeed offload, FSDP å…¨åˆ†ç‰‡æ•°æ®å¹¶è¡Œï¼ˆFSDPï¼‰ CPU offload), reducing batch size or sequence length, parameter-efficient fine-tuning (LoRA), activation/weight quantization for inference.</p>
+<p><strong>Explanation:</strong> The right tool depends on which term in the memory budget (parameters, gradients, optimizer state, activations) is biggest. Mixed precision and checkpointing attack activations; ZeRO/FSDP å…¨åˆ†ç‰‡æ•°æ®å¹¶è¡Œï¼ˆFSDPï¼‰ attacks the fixed 16M-byte training tax; gradient accumulation lets you trade time for memory without changing the optimization. Combine them â€” they are mostly orthogonal.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Listing both &quot;smaller batch&quot; and &quot;gradient accumulation&quot; as if they save different memory (they attack the same axis differently).</li>
+<li>Confusing gradient checkpointing with gradient accumulation â€” different mechanisms, different trade-offs.</li>
+<li>Calling FP16 a &quot;free&quot; 2x savings without mentioning the FP32 master-weights and loss-scaling overhead.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/07-gpu-memory-management.md</code></p>
+<hr/>
+<h4 id="assessments-quizzes-answer-keys-module-07-answers-md-question-25">Question 25</h4>
+<p><strong>Q:</strong> Explain the difference between strong scaling and weak scaling in distributed training. Which is more commonly used in deep learning and why?</p>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>Strong scaling</strong>: hold the <em>total</em> problem size fixed (same dataset, same global batch) and add GPUs to finish faster. Ideal speedup is NÃ— on N GPUs; in practice, communication and synchronization overhead eat into this and per-GPU work shrinks, hurting kernel efficiency.</li>
+<li><strong>Weak scaling</strong>: hold the <em>per-GPU</em> problem size fixed (same local batch) and let the global batch grow with N. Ideal time-per-step stays constant as N grows, and per-GPU kernels remain large enough to keep the device busy.</li>
+</ul>
+<p><strong>More common in deep learning: weak scaling.</strong></p>
+<p>Why:</p>
+<ul>
+<li>Keeps Tensor Core utilization high because each GPU åŠ é€Ÿï¼ˆGPUï¼‰ still sees a healthy local batch.</li>
+<li>Amortizes communication: the larger the local compute per step, the smaller the relative AllReduce cost.</li>
+<li>Matches how teams actually scale â€” they buy more GPUs to train bigger models or push more tokens, not to shrink a fixed job.</li>
+<li>Caveat: a growing global batch needs a learning-rate adjustment (linear scaling rule, LARS/LAMB, warmup) and may eventually hurt convergence at extreme batch sizes.</li>
+</ul>
+<p><strong>Explanation:</strong> Strong scaling is the &quot;shrink the wall-clock&quot; framing; weak scaling is the &quot;fill more iron&quot; framing. Deep learning workloads are throughput-bound and respond well to bigger effective batches (with proper LR tuning), so the field defaults to weak scaling. Strong scaling matters mostly for latency-critical retraining or when batch size cannot grow further.</p>
+<p><strong>Common Mistakes:</strong></p>
+<ul>
+<li>Swapping the definitions (saying weak scaling holds total work fixed).</li>
+<li>Claiming strong scaling is more common because &quot;we want training to be faster&quot; â€” ignoring that shrinking per-GPU work breaks kernel efficiency.</li>
+<li>Forgetting the LR-scaling caveat: weak scaling without adjusting the learning rate often diverges or generalizes worse.</li>
+</ul>
+<p><strong>Related Material:</strong> <code>lessons/mod-107-gpu-computing/04-distributed-training-fundamentals.md</code></p>
+<hr/><p><a class="home" href="../docs/doc-assessments-quizzes-answer-keys-module-06-answers-md.html">â† ä¸Šä¸€ç¯‡ï¼ˆPreviousï¼‰</a> <a class="home" href="../index.html">è¯¾ç¨‹åˆ—è¡¨ï¼ˆCourse listï¼‰</a> <a class="home" href="../docs/doc-assessments-quizzes-answer-keys-module-08-answers-md.html">ä¸‹ä¸€ç¯‡ï¼ˆNextï¼‰ â†’</a></p></article></main></div><footer class="foot">ycjian.github.io/code Â· AI Infra interview reader</footer></div></body></html>
