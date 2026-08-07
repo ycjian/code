@@ -34,7 +34,6 @@ const pages = [
     sidebarDefault: "expanded",
     sidebarStorageKey: "interview-reader-sidebar:pytorch-learn:v1",
     tabGroups: [
-      { title: "开始学习", from: "学习方法" },
       { title: "基础张量 / Attention", from: "01. Implement ReLU" },
       { title: "模型组件 / 训练", from: "15. SwiGLU MLP" },
       { title: "优化 / 解码 / 对齐", from: "29. Adam Optimizer" },

@@ -1,27 +1,5 @@
 # PyTorch 练习题与答案：从张量基础到 LLM 对齐
 
-> 来源：`TorchCode-master/TorchCode-master/templates` 与 `solutions`。本讲义覆盖全部 41 道题。答案经过静态知识审查，没有运行代码。
-
-## 学习方法
-
-1. 先只看 Problem 和中文题意，自己写答案。
-2. 写出每一步 tensor shape，再检查边界条件。
-3. 对照 Reviewed Solution，理解中文注释。
-4. 最后用中文复述“为什么正确”，再回到原 notebook 实战。
-
-通用导入：
-
-```python
-# 本讲义所有答案共用这些 PyTorch、数学与类型工具
-import math
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch import Tensor
-```
-
----
-
 ## 01. Implement ReLU
 
 **Problem.** Implement `ReLU(x) = max(0, x)` without built-in activation functions. Autograd must still work.
