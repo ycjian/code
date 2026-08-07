@@ -20,9 +20,11 @@ $$
 
 ```python
 def relu(x: torch.Tensor) -> torch.Tensor:
+# [变化示例] 调用该单行函数时：执行状态：调用 torch.Tensor) -> torch.Tensor: 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
     # 条件成立时选择 x，否则选择与 x 同设备、同 dtype 的 0
     # 图示：[-2, 0, 3] -> [0, 0, 3]
     return torch.where(x > 0, x, torch.zeros_like(x))
+    # [变化示例] 函数内部：按条件逐元素选择；例如 x=[-2,0,3]、条件 x>0 -> [0,0,3] -> 调用方收到该输出。
 ```
 
 **中文解释。** `torch.where` 只在条件选中的分支上传递梯度。`zeros_like` 保证输出不会意外改变 dtype 或 device。在 `x=0` 处数学导数不存在，这里选择梯度 0，与 PyTorch ReLU 一致。
@@ -58,11 +60,15 @@ $$
 
 ```python
 def my_softmax(x: torch.Tensor, dim: int = -1) -> torch.Tensor:
+# [变化示例] 调用该单行函数时：torch.Tensor, dim: int=未定义/旧值 -> torch.Tensor, dim: int=-1) -> torch.Tensor:；这是一次重新绑定/状态更新，右侧值决定新状态。
     # 每一行减去自己的最大值；概率不变，但 exp 更稳定
     shifted = x - x.amax(dim=dim, keepdim=True)
+    # [变化示例] shifted=未定义/旧值 -> shifted=输入减去目标维最大值；例如 [1000,1001] -> [-1,0]。
     exp_x = shifted.exp()
+    # [变化示例] exp_x=未定义/旧值 -> exp_x=逐元素指数；例如 [0,1] -> [1,2.718]。
     # keepdim=True 使分母可以广播回原 tensor
     return exp_x / exp_x.sum(dim=dim, keepdim=True)
+    # [变化示例] 函数内部：exp_x / exp_x.sum(dim=dim, keepdim=True)；数值示例：6 / 3 -> 2 -> 调用方收到该输出。
 ```
 
 **中文解释。** 同时减去常数不会改变 Softmax，因为分子与分母中的公共因子会抵消。最大元素变成 0，因此最大的指数值是 1，可避免 `exp(1000)` 产生无穷大。
@@ -103,14 +109,19 @@ class SimpleLinear:
     def __init__(self, in_features: int, out_features: int):
         # 缩放初始化，避免输入维度增大时输出方差过大
         scale = 1.0 / math.sqrt(in_features)
+        # [变化示例] scale=未定义/旧值 -> scale=1.0 / math.sqrt(in_features)；数值示例：6 / 3 -> 2。
         self.weight = (
             torch.randn(out_features, in_features) * scale
         ).requires_grad_()
+        # [变化示例] self.weight=未定义/旧值 -> self.weight=计算得到的张量并开启梯度追踪；例如参数 shape 保持不变，requires_grad False -> True。
         self.bias = torch.zeros(out_features, requires_grad=True)
+        # [变化示例] self.bias=未定义/旧值 -> self.bias=全 0 张量；shape 由 out_features 指定。
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+    # [变化示例] 调用该单行函数时：执行状态：调用 torch.Tensor) -> torch.Tensor: 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         # (..., Din) @ (Din, Dout) + (Dout,) -> (..., Dout)
         return x @ self.weight.T + self.bias
+        # [变化示例] 函数内部：矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N) -> 调用方收到该输出。
 ```
 
 **中文解释。** `weight.T` 把权重变成 `(Din,Dout)` 以便矩阵乘法。偏置会自动广播到 batch 和其他前导维度。生产代码通常继承 `nn.Module` 并使用 `nn.Parameter`，这样优化器能自动发现参数。
@@ -153,10 +164,14 @@ $$
 def my_layer_norm(x, gamma, beta, eps=1e-5):
     # (B,S,D) -> 均值和方差形状都是 (B,S,1)
     mean = x.mean(dim=-1, keepdim=True)
+    # [变化示例] mean=未定义/旧值 -> mean=沿指定维求均值；例如 [1,2,3] -> 2。
     var = x.var(dim=-1, keepdim=True, unbiased=False)
+    # [变化示例] var=未定义/旧值 -> var=方差；例如 [1,2,3] 的总体方差 -> 2/3。
     normalized = (x - mean) * torch.rsqrt(var + eps)
+    # [变化示例] normalized=未定义/旧值 -> normalized=(x - mean) * torch.rsqrt(var + eps)；数值示例：2 * 3 -> 6。
     # gamma/beta 的 (D,) 自动广播到所有 token
     return normalized * gamma + beta
+    # [变化示例] 函数内部：normalized * gamma + beta；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** LayerNorm 对每个 token 独立归一化，不依赖 batch 中其他样本。必须使用总体方差 `unbiased=False`。`eps` 防止方差为 0 时除零。
@@ -193,13 +208,18 @@ $$
 ```python
 def scaled_dot_product_attention(Q, K, V):
     if Q.size(-1) != K.size(-1) or K.size(1) != V.size(1):
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         raise ValueError("incompatible Q, K, V shapes")
+        # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
     # 先计算每个 query 与所有 keys 的相似度
     # (B,Sq,Dk) @ (B,Dk,Sk) -> (B,Sq,Sk)
     scores = torch.bmm(Q, K.transpose(1, 2)) / math.sqrt(Q.size(-1))
+    # [变化示例] scores=未定义/旧值 -> scores=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
     weights = torch.softmax(scores, dim=-1)
+    # [变化示例] weights=未定义/旧值 -> weights=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
     # (B,Sq,Sk) @ (B,Sk,Dv) -> (B,Sq,Dv)
     return torch.bmm(weights, V)
+    # [变化示例] 函数内部：矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N) -> 调用方收到该输出。
 ```
 
 **中文解释。** `QK^T` 衡量每个 query 与每个 key 的相似度。除以 `sqrt(Dk)` 可控制点积分布的方差，避免 Softmax 过早饱和。最后用注意力概率对 V 做加权求和。
@@ -242,30 +262,49 @@ $$
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, num_heads):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if d_model % num_heads:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("d_model must be divisible by num_heads")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         self.num_heads = num_heads
+        # [变化示例] self.num_heads=未定义/旧值 -> self.num_heads=num_heads；这是一次重新绑定/状态更新，右侧值决定新状态。
         self.d_head = d_model // num_heads
+        # [变化示例] self.d_head=未定义/旧值 -> self.d_head=d_model // num_heads；数值示例：7 // 3 -> 2。
         self.W_q = nn.Linear(d_model, d_model)
+        # [变化示例] self.W_q=未定义/旧值 -> self.W_q=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
         self.W_k = nn.Linear(d_model, d_model)
+        # [变化示例] self.W_k=未定义/旧值 -> self.W_k=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
         self.W_v = nn.Linear(d_model, d_model)
+        # [变化示例] self.W_v=未定义/旧值 -> self.W_v=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
         self.W_o = nn.Linear(d_model, d_model)
+        # [变化示例] self.W_o=未定义/旧值 -> self.W_o=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
 
     def _split(self, x):
         b, s, _ = x.shape
+        # [变化示例] b, s, _=未定义/旧值 -> b, s, _=x.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         # (B,S,D) -> (B,S,H,Dh) -> (B,H,S,Dh)
         return x.view(b, s, self.num_heads, self.d_head).transpose(1, 2)
+        # [变化示例] 函数内部：result 重排为 b, s, self.num_heads, self.d_head；元素数量与顺序保持不变（若布局允许则共享 storage） -> 调用方收到该输出。
 
     def forward(self, Q, K, V):
         q = self._split(self.W_q(Q))
+        # [变化示例] q=未定义/旧值 -> q 接收 self._split(self.W_q(Q)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         k = self._split(self.W_k(K))
+        # [变化示例] k=未定义/旧值 -> k 接收 self._split(self.W_k(K)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         v = self._split(self.W_v(V))
+        # [变化示例] v=未定义/旧值 -> v 接收 self._split(self.W_v(V)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         scores = q @ k.transpose(-2, -1) / math.sqrt(self.d_head)
+        # [变化示例] scores=未定义/旧值 -> scores=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
         context = torch.softmax(scores, dim=-1) @ v
+        # [变化示例] context=未定义/旧值 -> 先把 scores 归一化为每行和为 1 的权重，再与 V 相乘得到 context；shape (...,Sq,Sk) @ (...,Sk,D) -> (...,Sq,D)。
         b, _, sq, _ = context.shape
+        # [变化示例] b, _, sq, _=未定义/旧值 -> b, _, sq, _=context.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         # (B,H,Sq,Dh) -> (B,Sq,D)，contiguous 后才能安全 view
         merged = context.transpose(1, 2).contiguous().view(b, sq, -1)
+        # [变化示例] merged=未定义/旧值 -> merged 的轴按 1, 2 重排；例如 (B,S,D) 交换后可变为 (B,D,S)，数值不复制。
         return self.W_o(merged)
+        # [变化示例] 函数内部：执行 self.W_o(merged) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 多头机制让不同 head 学习不同的关系子空间。拆头后分数形状是 `(B,H,Sq,Sk)`。`transpose` 改变 stride，因此拼接前使用 `contiguous()`。
@@ -310,17 +349,27 @@ $$
 def my_batch_norm(x, gamma, beta, running_mean, running_var,
                   eps=1e-5, momentum=0.1, training=True):
     if training:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         # 对 N 个样本统计每个特征，结果形状为 (D,)
         mean = x.mean(dim=0)
+        # [变化示例] mean=未定义/旧值 -> mean=沿指定维求均值；例如 [1,2,3] -> 2。
         var = x.var(dim=0, correction=0)  # forward 使用有偏总体方差
+        # [变化示例] var=未定义/旧值 -> var=方差；例如 [1,2,3] 的总体方差 -> 2/3。
         running_var_sample = x.var(dim=0, correction=1)  # running_var 使用无偏样本方差
+        # [变化示例] running_var_sample=未定义/旧值 -> running_var_sample=方差；例如 [1,2,3] 的无偏样本方差 -> 1。
         with torch.no_grad():
+            # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
             # running = (1-m)*running + m*batch_stat
             running_mean.lerp_(mean, momentum)
+            # [变化示例] 执行状态：调用 running_mean.lerp_(mean, momentum) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
             running_var.lerp_(running_var_sample, momentum)
+            # [变化示例] 执行状态：调用 running_var.lerp_(running_var_sample, momentum) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
     else:
+        # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
         mean, var = running_mean, running_var
+        # [变化示例] mean, var=未定义/旧值 -> mean, var=tuple (running_mean, running_var)；多个值按位置传递/解包，元素本身不被复制。
     return gamma * (x - mean) * torch.rsqrt(var + eps) + beta
+    # [变化示例] 函数内部：gamma * (x - mean) * torch.rsqrt(var + eps) + beta；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** BatchNorm 让同一特征在当前 batch 中标准化。PyTorch 的精确语义是：训练输出使用 `correction=0` 的有偏方差，但 `running_var` 更新使用 `correction=1` 的无偏方差。原 notebook 把同一个有偏方差用于两处，因此不能与 `nn.BatchNorm1d` 的状态完全对齐；这里已修正。训练时每个特征必须有多于一个统计值，否则无偏方差无定义。
@@ -361,7 +410,9 @@ $$
 def rms_norm(x, weight, eps=1e-6):
     # RMS = sqrt(mean(x^2) + eps)，形状保留为 (...,1)
     inv_rms = torch.rsqrt(x.square().mean(dim=-1, keepdim=True) + eps)
+    # [变化示例] inv_rms=未定义/旧值 -> inv_rms=倒平方根；例如 [1,4] -> [1,0.5]。
     return x * inv_rms * weight
+    # [变化示例] 函数内部：x * inv_rms * weight；数值示例：2 * 3 -> 6 -> 调用方收到该输出。
 ```
 
 **中文解释。** RMSNorm 只控制向量尺度，不改变中心位置，计算量比 LayerNorm 小。`weight` 对最后一维逐元素缩放。
@@ -398,14 +449,19 @@ $$
 ```python
 def causal_attention(Q, K, V):
     scores = torch.bmm(Q, K.transpose(1, 2)) / math.sqrt(Q.size(-1))
+    # [变化示例] scores=未定义/旧值 -> scores=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
     s = Q.size(1)
+    # [变化示例] s=未定义/旧值 -> s=指定轴长度；例如 shape=(2,3,4)，size(1) -> 3。
     # 上三角 j>i 为 True：未来位置全部屏蔽
     future = torch.triu(
         torch.ones(s, s, dtype=torch.bool, device=Q.device), diagonal=1
     )
+    # [变化示例] future=未定义/旧值 -> future=上三角部分；例如 3x3 全 1 且 diagonal=1 -> 仅严格上三角为 1。
     scores = scores.masked_fill(future, float("-inf"))
+    # [变化示例] scores=未定义/旧值 -> scores=mask 后张量；例如 values=[1,2]、mask=[False,True]、fill=-inf -> [1,-inf]。
     # exp(-inf)=0，所以未来 token 的注意力概率为 0
     return torch.bmm(torch.softmax(scores, dim=-1), V)
+    # [变化示例] 函数内部：矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N) -> 调用方收到该输出。
 ```
 
 **中文解释。** Mask 必须在 Softmax 之前应用。第一行只有位置 0 可见，因此它的输出等于 `V[:,0]`。这是自注意力版本，默认 Q/K/V 序列长度一致。
@@ -451,26 +507,44 @@ $$
 class GroupQueryAttention(nn.Module):
     def __init__(self, d_model, num_heads, num_kv_heads):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if d_model % num_heads or num_heads % num_kv_heads:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("invalid head configuration")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         self.h, self.h_kv = num_heads, num_kv_heads
+        # [变化示例] self.h, self.h_kv=未定义/旧值 -> self.h, self.h_kv=tuple (num_heads, num_kv_heads)；多个值按位置传递/解包，元素本身不被复制。
         self.dh = d_model // num_heads
+        # [变化示例] self.dh=未定义/旧值 -> self.dh=d_model // num_heads；数值示例：7 // 3 -> 2。
         self.W_q = nn.Linear(d_model, d_model)
+        # [变化示例] self.W_q=未定义/旧值 -> self.W_q=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
         self.W_k = nn.Linear(d_model, num_kv_heads * self.dh)
+        # [变化示例] self.W_k=未定义/旧值 -> self.W_k=线性映射模块；输入最后一维 d_model -> 输出最后一维 num_kv_heads * self.dh。
         self.W_v = nn.Linear(d_model, num_kv_heads * self.dh)
+        # [变化示例] self.W_v=未定义/旧值 -> self.W_v=线性映射模块；输入最后一维 d_model -> 输出最后一维 num_kv_heads * self.dh。
         self.W_o = nn.Linear(d_model, d_model)
+        # [变化示例] self.W_o=未定义/旧值 -> self.W_o=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
 
     def forward(self, x):
         b, s, _ = x.shape
+        # [变化示例] b, s, _=未定义/旧值 -> b, s, _=x.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         q = self.W_q(x).view(b, s, self.h, self.dh).transpose(1, 2)
+        # [变化示例] q=未定义/旧值 -> q=先拆分 shape 再交换轴；例如 (B,S,H*D) -> (B,S,H,D) -> (B,H,S,D)。
         k = self.W_k(x).view(b, s, self.h_kv, self.dh).transpose(1, 2)
+        # [变化示例] k=未定义/旧值 -> k=先拆分 shape 再交换轴；例如 (B,S,H*D) -> (B,S,H,D) -> (B,H,S,D)。
         v = self.W_v(x).view(b, s, self.h_kv, self.dh).transpose(1, 2)
+        # [变化示例] v=未定义/旧值 -> v=先拆分 shape 再交换轴；例如 (B,S,H*D) -> (B,S,H,D) -> (B,H,S,D)。
         # 例：8 个 Q heads / 2 个 KV heads -> 每个 KV head 复制 4 次
         repeats = self.h // self.h_kv
+        # [变化示例] repeats=未定义/旧值 -> repeats=self.h // self.h_kv；数值示例：7 // 3 -> 2。
         k = k.repeat_interleave(repeats, dim=1)
+        # [变化示例] k=未定义/旧值 -> k=沿指定轴重复；例如 head 轴 H=2、repeats=3 -> H=6。
         v = v.repeat_interleave(repeats, dim=1)
+        # [变化示例] v=未定义/旧值 -> v=沿指定轴重复；例如 head 轴 H=2、repeats=3 -> H=6。
         attn = torch.softmax(q @ k.transpose(-2, -1) / math.sqrt(self.dh), -1) @ v
+        # [变化示例] attn=未定义/旧值 -> 先把 scores 归一化为每行和为 1 的权重，再与 V 相乘得到 attn；shape (...,Sq,Sk) @ (...,Sk,D) -> (...,Sq,D)。
         return self.W_o(attn.transpose(1, 2).contiguous().view(b, s, -1))
+        # [变化示例] 函数内部：执行 self.W_o(attn.transpose(1, 2).contiguous().view(b, s, -1)) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** GQA 的 K/V 参数量和 cache 大约缩小为 `Hkv/H`。当 `Hkv=H` 时退化为普通 MHA；当 `Hkv=1` 时接近 Multi-Query Attention。原题未要求 causal mask，真正的 decoder 还需加 mask。
@@ -515,14 +589,22 @@ $$
 ```python
 def sliding_window_attention(Q, K, V, window_size):
     if window_size < 0:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         raise ValueError("window_size must be non-negative")
+        # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
     scores = torch.bmm(Q, K.transpose(1, 2)) / math.sqrt(Q.size(-1))
+    # [变化示例] scores=未定义/旧值 -> scores=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
     s = Q.size(1)
+    # [变化示例] s=未定义/旧值 -> s=指定轴长度；例如 shape=(2,3,4)，size(1) -> 3。
     pos = torch.arange(s, device=Q.device)
+    # [变化示例] pos=未定义/旧值 -> pos=等差序列 arange(s, device=Q.device)；例如 arange(4) 为 [0,1,2,3]。
     # 距离超过 w 的格子为 True，例如 w=1 时每行最多看 3 个位置
     outside = (pos[:, None] - pos[None, :]).abs() > window_size
+    # [变化示例] outside=未定义/旧值 -> outside 接收 (pos[:, None] - pos[None, :]).abs() > window_size 的返回值；用 shape/dtype/device 与示例输入核对变化。
     weights = torch.softmax(scores.masked_fill(outside, float("-inf")), -1)
+    # [变化示例] weights=未定义/旧值 -> weights=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
     return torch.bmm(weights, V)
+    # [变化示例] 函数内部：矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N) -> 调用方收到该输出。
 ```
 
 **中文解释。** 该答案在数值上正确，但仍创建了完整的 `S x S` 分数矩阵，所以只是教学用 masking，并没有获得真正稀疏实现的 `O(Sw)` 内存优势。
@@ -567,11 +649,16 @@ $$
 ```python
 def linear_attention(Q, K, V, eps=1e-6):
     q, k = F.elu(Q) + 1.0, F.elu(K) + 1.0
+    # [变化示例] q, k=未定义/旧值 -> q, k=ELU(input)+1；例如 [-1,0,1] -> 约 [0.368,1,2]，结果保持为正。
     # (B,Dk,S) @ (B,S,Dv) -> (B,Dk,Dv)，不创建 SxS
     kv = torch.bmm(k.transpose(1, 2), V)
+    # [变化示例] kv=未定义/旧值 -> kv=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
     numerator = torch.bmm(q, kv)
+    # [变化示例] numerator=未定义/旧值 -> numerator=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
     denominator = torch.bmm(q, k.sum(1, keepdim=True).transpose(1, 2))
+    # [变化示例] denominator=未定义/旧值 -> denominator=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
     return numerator / denominator.clamp_min(eps)
+    # [变化示例] 函数内部：numerator / denominator.clamp_min(eps)；数值示例：6 / 3 -> 2 -> 调用方收到该输出。
 ```
 
 **中文解释。** 通过矩阵乘法结合律先聚合 K/V，可避免完整注意力矩阵。它不是 Softmax attention 的严格等价实现，而是一种具有不同归纳偏置的核近似。
@@ -612,29 +699,46 @@ $$
 class GPT2Block(nn.Module):
     def __init__(self, d_model, num_heads):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if d_model % num_heads:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("d_model must be divisible by num_heads")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         self.h, self.dh = num_heads, d_model // num_heads
+        # [变化示例] self.h, self.dh=未定义/旧值 -> self.h, self.dh=tuple (num_heads, d_model // num_heads)；多个值按位置传递/解包，元素本身不被复制。
         self.ln1, self.ln2 = nn.LayerNorm(d_model), nn.LayerNorm(d_model)
+        # [变化示例] self.ln1, self.ln2=未定义/旧值 -> self.ln1, self.ln2=LayerNorm 模块；例如输入 (...,D) -> 输出仍为 (...,D)，最后一维被归一化。
         self.q, self.k = nn.Linear(d_model, d_model), nn.Linear(d_model, d_model)
+        # [变化示例] self.q, self.k=未定义/旧值 -> self.q, self.k=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
         self.v, self.o = nn.Linear(d_model, d_model), nn.Linear(d_model, d_model)
+        # [变化示例] self.v, self.o=未定义/旧值 -> self.v, self.o=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
         self.mlp = nn.Sequential(
             nn.Linear(d_model, 4*d_model), nn.GELU(), nn.Linear(4*d_model, d_model)
         )
+        # [变化示例] self.mlp=未定义/旧值 -> self.mlp=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
 
     def _attention(self, x):
         b, s, _ = x.shape
+        # [变化示例] b, s, _=未定义/旧值 -> b, s, _=x.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         split = lambda z: z.view(b, s, self.h, self.dh).transpose(1, 2)
+        # [变化示例] split=未定义/旧值 -> split=可调用函数；例如传入 z 后，按 z: z.view(b, s, self.h, self.dh).transpose(1, 2) 生成输出。
         q, k, v = split(self.q(x)), split(self.k(x)), split(self.v(x))
+        # [变化示例] q, k, v=未定义/旧值 -> q, k, v 接收 split(self.q(x)), split(self.k(x)), split(self.v(x)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         scores = q @ k.transpose(-2, -1) / math.sqrt(self.dh)
+        # [变化示例] scores=未定义/旧值 -> scores=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
         future = torch.triu(torch.ones(s, s, dtype=torch.bool, device=x.device), 1)
+        # [变化示例] future=未定义/旧值 -> future=上三角部分；例如 3x3 全 1 且 diagonal=1 -> 仅严格上三角为 1。
         ctx = torch.softmax(scores.masked_fill(future, float("-inf")), -1) @ v
+        # [变化示例] ctx=未定义/旧值 -> 先把 scores 归一化为每行和为 1 的权重，再与 V 相乘得到 ctx；shape (...,Sq,Sk) @ (...,Sk,D) -> (...,Sq,D)。
         return self.o(ctx.transpose(1, 2).contiguous().view(b, s, -1))
+        # [变化示例] 函数内部：执行 self.o(ctx.transpose(1, 2).contiguous().view(b, s, -1)) 得到结果 -> 调用方收到该输出。
 
     def forward(self, x):
         # Pre-Norm + 两条 residual 路径
         x = x + self._attention(self.ln1(x))
+        # [变化示例] x=未定义/旧值 -> x=x + self._attention(self.ln1(x))；数值示例：2 + 3 -> 5。
         return x + self.mlp(self.ln2(x))
+        # [变化示例] 函数内部：x + self.mlp(self.ln2(x))；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** Pre-Norm 让 residual stream 保持直接梯度路径，深层训练通常更稳定。注意力负责 token 间信息交换，MLP 负责每个 token 内的非线性特征变换。
@@ -686,30 +790,52 @@ $$
 class KVCacheAttention(nn.Module):
     def __init__(self, d_model, num_heads):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if d_model % num_heads:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("invalid head count")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         self.h, self.dh = num_heads, d_model // num_heads
+        # [变化示例] self.h, self.dh=未定义/旧值 -> self.h, self.dh=tuple (num_heads, d_model // num_heads)；多个值按位置传递/解包，元素本身不被复制。
         self.q, self.k = nn.Linear(d_model, d_model), nn.Linear(d_model, d_model)
+        # [变化示例] self.q, self.k=未定义/旧值 -> self.q, self.k=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
         self.v, self.o = nn.Linear(d_model, d_model), nn.Linear(d_model, d_model)
+        # [变化示例] self.v, self.o=未定义/旧值 -> self.v, self.o=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
 
     def forward(self, x, cache=None):
         b, s_new, _ = x.shape
+        # [变化示例] b, s_new, _=未定义/旧值 -> b, s_new, _=x.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         split = lambda z: z.view(b, s_new, self.h, self.dh).transpose(1, 2)
+        # [变化示例] split=未定义/旧值 -> split=可调用函数；例如传入 z 后，按 z: z.view(b, s_new, self.h, self.dh).transpose(1, 2) 生成输出。
         q, k_new, v_new = split(self.q(x)), split(self.k(x)), split(self.v(x))
+        # [变化示例] q, k_new, v_new=未定义/旧值 -> q, k_new, v_new 接收 split(self.q(x)), split(self.k(x)), split(self.v(x)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         if cache is None:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             k, v, s_past = k_new, v_new, 0
+            # [变化示例] k, v, s_past=未定义/旧值 -> k, v, s_past=tuple (k_new, v_new, 0)；多个值按位置传递/解包，元素本身不被复制。
         else:
+            # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
             s_past = cache[0].size(2)
+            # [变化示例] s_past=未定义/旧值 -> s_past=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
             k = torch.cat((cache[0], k_new), dim=2)
+            # [变化示例] k=未定义/旧值 -> k 沿指定 dim 拼接且该维长度相加；例如 (B,3)+(B,1) -> (B,4)。
             v = torch.cat((cache[1], v_new), dim=2)
+            # [变化示例] v=未定义/旧值 -> v 沿指定 dim 拼接且该维长度相加；例如 (B,3)+(B,1) -> (B,4)。
         scores = q @ k.transpose(-2, -1) / math.sqrt(self.dh)
+        # [变化示例] scores=未定义/旧值 -> scores=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
         # query 的绝对位置从 s_past 开始，兼容单 token 和 chunk decode
         q_pos = s_past + torch.arange(s_new, device=x.device)
+        # [变化示例] q_pos=未定义/旧值 -> q_pos=s_past + torch.arange(s_new, device=x.device)；数值示例：2 + 3 -> 5。
         k_pos = torch.arange(k.size(2), device=x.device)
+        # [变化示例] k_pos=未定义/旧值 -> k_pos=等差序列 arange(k.size(2)；例如 arange(4) 为 [0,1,2,3]。
         future = k_pos[None, :] > q_pos[:, None]
+        # [变化示例] future=未定义/旧值 -> future 新增长度为 1 的轴；例如 (B,D) -> (B,1,D)，元素值不变。
         ctx = torch.softmax(scores.masked_fill(future, float("-inf")), -1) @ v
+        # [变化示例] ctx=未定义/旧值 -> 先把 scores 归一化为每行和为 1 的权重，再与 V 相乘得到 ctx；shape (...,Sq,Sk) @ (...,Sk,D) -> (...,Sq,D)。
         out = self.o(ctx.transpose(1, 2).contiguous().view(b, s_new, -1))
+        # [变化示例] out=未定义/旧值 -> out 接收 self.o(ctx.transpose(1, 2).contiguous().view(b, s_new, -1)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         return out, (k, v)
+        # [变化示例] 函数内部：out, (k, v)；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
 ```
 
 **中文解释。** Cache 形状是 `(B,H,S_cached,Dh)`。它减少的是历史 K/V 投影和历史 attention 输入准备；注意单 token 的 query 仍需与全部历史 keys 做点积，因此普通 attention 的每步计算仍随上下文长度增长。
@@ -759,15 +885,22 @@ $$
 class SwiGLUMLP(nn.Module):
     def __init__(self, d_model, d_ff):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.gate_proj = nn.Linear(d_model, d_ff)
+        # [变化示例] self.gate_proj=未定义/旧值 -> self.gate_proj=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_ff。
         self.up_proj = nn.Linear(d_model, d_ff)
+        # [变化示例] self.up_proj=未定义/旧值 -> self.up_proj=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_ff。
         self.down_proj = nn.Linear(d_ff, d_model)
+        # [变化示例] self.down_proj=未定义/旧值 -> self.down_proj=线性映射模块；输入最后一维 d_ff -> 输出最后一维 d_model。
 
     def forward(self, x):
         # 两条分支都是 (...,Dff)，逐元素门控后回到 (...,Dmodel)
         gate = F.silu(self.gate_proj(x))
+        # [变化示例] gate=未定义/旧值 -> gate=SiLU 激活；例如 [-1,0,1] -> 约 [-0.269,0,0.731]。
         content = self.up_proj(x)
+        # [变化示例] content=未定义/旧值 -> content 接收 self.up_proj(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         return self.down_proj(gate * content)
+        # [变化示例] 函数内部：执行 self.down_proj(gate * content) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** `up_proj` 提供内容，`gate_proj` 决定哪些扩展特征通过。相比单一路径 GELU MLP，门控机制通常提供更强表达能力。
@@ -805,9 +938,12 @@ $$
 def cross_entropy_loss(logits, targets):
     # log_softmax(x) = x - logsumexp(x)
     log_probs = logits - torch.logsumexp(logits, dim=-1, keepdim=True)
+    # [变化示例] log_probs=未定义/旧值 -> log_probs=logits - torch.logsumexp(logits, dim=-1, keepdim=True)；数值示例：3 - 2 -> 1。
     rows = torch.arange(targets.numel(), device=targets.device)
+    # [变化示例] rows=未定义/旧值 -> rows=等差序列 arange(targets.numel()；例如 arange(4) 为 [0,1,2,3]。
     # 取出每个样本真实类别的 log probability，再取负均值
     return -log_probs[rows, targets].mean()
+    # [变化示例] 函数内部：执行 -log_probs[rows, targets].mean() 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 不需要先计算 Softmax 再取 log，因为那样更容易发生下溢。`logsumexp` 将两步合并为稳定计算。`targets` 必须是整数类别索引。
@@ -846,18 +982,28 @@ $$
 class MyDropout(nn.Module):
     def __init__(self, p=0.5):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if not 0.0 <= p <= 1.0:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("p must be in [0,1]")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         self.p = p
+        # [变化示例] self.p=未定义/旧值 -> self.p=p；这是一次重新绑定/状态更新，右侧值决定新状态。
 
     def forward(self, x):
         if not self.training or self.p == 0.0:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             return x
+            # [变化示例] 函数内部：x；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
         if self.p == 1.0:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             return torch.zeros_like(x)
+            # [变化示例] 函数内部：全 0 张量；shape 与参照张量相同 -> 调用方收到该输出。
         # keep 概率为 1-p；除以 1-p 后 E[output]=x
         keep = (torch.rand_like(x) >= self.p).to(x.dtype)
+        # [变化示例] keep=未定义/旧值 -> keep 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
         return x * keep / (1.0 - self.p)
+        # [变化示例] 函数内部：x * keep / (1.0 - self.p)；数值示例：2 * 3 -> 6 -> 调用方收到该输出。
 ```
 
 **中文解释。** 这是 inverted dropout。训练时已经完成期望值校正，因此 eval 阶段直接返回输入。额外处理 `p=1` 可避免除零。
@@ -897,12 +1043,15 @@ $$
 class MyEmbedding(nn.Module):
     def __init__(self, num_embeddings, embedding_dim):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         # 每一行对应一个 token 的 D 维向量
         self.weight = nn.Parameter(torch.randn(num_embeddings, embedding_dim))
+        # [变化示例] self.weight=未定义/旧值 -> self.weight=注册后的可训练参数；原 tensor shape/dtype/device 保持，默认 requires_grad -> True。
 
     def forward(self, indices):
         # (B,S) 索引 -> (B,S,D) embedding
         return self.weight[indices]
+        # [变化示例] 函数内部：索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,) -> 调用方收到该输出。
 ```
 
 **中文解释。** 索引操作仍支持 autograd。梯度只更新本批次出现过的行；重复 token 的梯度会累加到同一行。
@@ -941,6 +1090,7 @@ def my_gelu(x):
     # Phi 是标准高斯分布的累积分布函数
     # Phi(x)=0.5*(1+erf(x/sqrt(2)))
     return 0.5 * x * (1.0 + torch.erf(x / math.sqrt(2.0)))
+    # [变化示例] 函数内部：0.5 * x * (1.0 + torch.erf(x / math.sqrt(2.0)))；数值示例：2 * 3 -> 6 -> 调用方收到该输出。
 ```
 
 **中文解释。** GELU 根据输入在标准高斯分布下的累计概率进行平滑门控，不像 ReLU 那样硬截断负数。部分模型使用 tanh 近似以加速计算。
@@ -978,13 +1128,20 @@ $$
 ```python
 def kaiming_init(weight):
     if weight.dim() < 2:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         raise ValueError("weight must have at least two dimensions")
+        # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
     # 输入连接数：Linear 为 Din；卷积为 Cin*kH*kW
     fan_in = weight[0].numel()
+    # [变化示例] fan_in=未定义/旧值 -> fan_in=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
     std = math.sqrt(2.0 / fan_in)
+    # [变化示例] std=未定义/旧值 -> std 接收 math.sqrt(2.0 / fan_in) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     with torch.no_grad():
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
         weight.normal_(0.0, std)
+        # [变化示例] 执行状态：调用 weight.normal_(0.0, std) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
     return weight
+    # [变化示例] 函数内部：weight；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
 ```
 
 **中文解释。** Kaiming 初始化针对 ReLU 类激活保持前向信号方差。仓库答案只使用 `shape[1]`，对 Linear 正确，但对卷积会漏掉 kernel 面积；这里改为更通用的 fan-in。
@@ -1025,18 +1182,30 @@ $$
 ```python
 def clip_grad_norm(parameters, max_norm):
     if max_norm < 0:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         raise ValueError("max_norm must be non-negative")
+        # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
     grads = [p.grad for p in parameters if p.grad is not None]
+    # [变化示例] grads=未定义/旧值 -> grads=[p.grad for p in parameters if p.grad is not None]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
     if not grads:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         return 0.0
+        # [变化示例] 函数内部：0.0；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
     # 先算每个参数的 norm，再合成为全局 norm
     norms = torch.stack([torch.linalg.vector_norm(g.detach(), 2) for g in grads])
+    # [变化示例] norms=未定义/旧值 -> norms 在新轴堆叠；例如两个 (B,D) -> (2,B,D)（dim=0）。
     total = torch.linalg.vector_norm(norms, 2)
+    # [变化示例] total=未定义/旧值 -> total=全局向量范数；例如 [3,4] 的 L2 norm -> 5。
     coef = (max_norm / (total + 1e-6)).clamp(max=1.0)
+    # [变化示例] coef=未定义/旧值 -> coef 接收 (max_norm / (total + 1e-6)).clamp(max=1.0) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     with torch.no_grad():
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
         for grad in grads:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
             grad.mul_(coef.to(grad.device))
+            # [变化示例] 原地状态：目标 tensor=旧值 -> 执行 grad.mul_(coef.to(grad.device)) 后直接覆盖同一 storage。
     return total.item()
+    # [变化示例] 函数内部：单元素 tensor 转成 Python 标量；例如 tensor(2.5) -> 2.5 -> 调用方收到该输出。
 ```
 
 **中文解释。** 所有梯度乘同一系数，因此方向保持不变，只缩短长度。若没有梯度，应直接返回 0。`1e-6` 防止总 norm 为 0 时除零。
@@ -1079,16 +1248,25 @@ $$
 ```python
 def my_conv2d(x, weight, bias=None, stride=1, padding=0):
     if padding:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         x = F.pad(x, (padding, padding, padding, padding))
+        # [变化示例] x=未定义/旧值 -> x=padding 后张量；二维每侧补 p 时 (H,W) -> (H+2p,W+2p)。
     _, _, h, w = x.shape
+    # [变化示例] _, _, h, w=未定义/旧值 -> _, _, h, w=x.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
     _, _, kh, kw = weight.shape
+    # [变化示例] _, _, kh, kw=未定义/旧值 -> _, _, kh, kw=weight.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
     # patches: (B,Cin,Hout,Wout,kH,kW)
     patches = x.unfold(2, kh, stride).unfold(3, kw, stride)
+    # [变化示例] patches=未定义/旧值 -> patches=滑动窗口 view；输入空间维 -> 窗口位置轴与 kernel 轴。
     # 对 Cin、kH、kW 三个维度求和 -> (B,Cout,Hout,Wout)
     out = torch.einsum("bihwjk,oijk->bohw", patches, weight)
+    # [变化示例] out=未定义/旧值 -> out=按 einsum 下标收缩；相同字母维相乘/求和，输出只保留箭头右侧字母。
     if bias is not None:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         out = out + bias.view(1, -1, 1, 1)
+        # [变化示例] out=未定义/旧值 -> out=out + bias.view(1, -1, 1, 1)；数值示例：2 + 3 -> 5。
     return out
+    # [变化示例] 函数内部：out；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
 ```
 
 **中文解释。** `unfold` 不直接计算卷积，而是创建窗口视图。`einsum` 明确表达卷积核与每个 patch 的 contraction。该实现清晰但不是高性能卷积内核。
@@ -1128,6 +1306,7 @@ class MultiHeadCrossAttention(MultiHeadAttention):
     def forward(self, x_q, x_kv):
         # Q: (B,Sq,D)，K/V: (B,Skv,D)，输出长度跟随 Sq
         return super().forward(x_q, x_kv, x_kv)
+        # [变化示例] 函数内部：执行 super().forward(x_q, x_kv, x_kv) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** Cross-attention 与 self-attention 的核心计算相同，区别只在 Q 与 K/V 的来源。这里复用第 06 题经过审查的实现，可避免重复代码。
@@ -1166,20 +1345,30 @@ $$
 ```python
 def apply_rope(q, k):
     if q.shape != k.shape or q.size(-1) % 2:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         raise ValueError("q/k must match and D must be even")
+        # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
     _, s, d = q.shape
+    # [变化示例] _, s, d=未定义/旧值 -> _, s, d=q.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
     pos = torch.arange(s, device=q.device, dtype=torch.float32)[:, None]
+    # [变化示例] pos=未定义/旧值 -> pos=等差序列 arange(s, device=q.device, dtype=torch.float32)；例如 arange(4) 为 [0,1,2,3]。
     dims = torch.arange(0, d, 2, device=q.device, dtype=torch.float32)
+    # [变化示例] dims=未定义/旧值 -> dims=等差序列 arange(0, d, 2, device=q.device, dtype=torch...)；例如 arange(4) 为 [0,1,2,3]。
     # 不同维度使用不同旋转频率，angles 形状为 (S,D/2)
     angles = pos * (10000.0 ** (-dims / d))
+    # [变化示例] angles=未定义/旧值 -> angles=pos * (10000.0 ** (-dims / d))；数值示例：2 * 3 -> 6。
     cos, sin = angles.cos().to(q.dtype), angles.sin().to(q.dtype)
+    # [变化示例] cos, sin=未定义/旧值 -> cos, sin 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
 
     def rotate(x):
         even, odd = x[..., 0::2], x[..., 1::2]
+        # [变化示例] even, odd=未定义/旧值 -> even, odd=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
         # [a,b] -> [a*cos-b*sin, a*sin+b*cos]
         return torch.stack((even*cos - odd*sin, even*sin + odd*cos), -1).flatten(-2)
+        # [变化示例] 函数内部：result 在新轴堆叠；例如两个 (B,D) -> (2,B,D)（dim=0） -> 调用方收到该输出。
 
     return rotate(q), rotate(k)
+    # [变化示例] 函数内部：执行 rotate(q), rotate(k) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 对 Q/K 应用相同频率体系后，它们的点积依赖位置差而不是绝对位置。生产实现还会支持 `(B,H,S,Dh)` 和 KV-cache 的 position offset。
@@ -1223,26 +1412,46 @@ $$
 ```python
 def flash_attention(Q, K, V, block_size=32):
     b, sq, d = Q.shape
+    # [变化示例] b, sq, d=未定义/旧值 -> b, sq, d=Q.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
     dv = V.size(-1)
+    # [变化示例] dv=未定义/旧值 -> dv=指定轴长度；例如 shape=(2,3,4)，size(-1) -> 对应维长度。
     output = Q.new_empty(b, sq, dv)
+    # [变化示例] output=未定义/旧值 -> output=按给定 shape 创建且继承模板 dtype/device；例如模板在 CUDA float16 -> 新张量也在 CUDA float16。
     for i in range(0, sq, block_size):
+        # [变化示例] 循环示例：range(0, sq, block_size) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
         qi = Q[:, i:i+block_size]
+        # [变化示例] qi=未定义/旧值 -> qi=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
         rows = qi.size(1)
+        # [变化示例] rows=未定义/旧值 -> rows=指定轴长度；例如 shape=(2,3,4)，size(1) -> 3。
         row_max = Q.new_full((b, rows, 1), float("-inf"))
+        # [变化示例] row_max=未定义/旧值 -> row_max=按给定 shape 创建且继承模板 dtype/device；例如模板在 CUDA float16 -> 新张量也在 CUDA float16。
         row_sum = Q.new_zeros(b, rows, 1)
+        # [变化示例] row_sum=未定义/旧值 -> row_sum=按给定 shape 创建且继承模板 dtype/device；例如模板在 CUDA float16 -> 新张量也在 CUDA float16。
         acc = V.new_zeros(b, rows, dv)
+        # [变化示例] acc=未定义/旧值 -> acc=按给定 shape 创建且继承模板 dtype/device；例如模板在 CUDA float16 -> 新张量也在 CUDA float16。
         for j in range(0, K.size(1), block_size):
+            # [变化示例] 循环示例：range(0, K.size(1) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
             kj, vj = K[:, j:j+block_size], V[:, j:j+block_size]
+            # [变化示例] kj, vj=未定义/旧值 -> kj, vj=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
             scores = torch.bmm(qi, kj.transpose(1, 2)) / math.sqrt(d)
+            # [变化示例] scores=未定义/旧值 -> scores=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
             new_max = torch.maximum(row_max, scores.amax(-1, keepdim=True))
+            # [变化示例] new_max=未定义/旧值 -> new_max=逐元素较小/较大值；例如 minimum([2,5],[3,4]) -> [2,4]。
             # 新最大值出现时，旧 exp 和旧 numerator 都要同比缩放
             correction = torch.exp(row_max - new_max)
+            # [变化示例] correction=未定义/旧值 -> correction=逐元素指数；例如 [0,1] -> [1,2.718]。
             exp_scores = torch.exp(scores - new_max)
+            # [变化示例] exp_scores=未定义/旧值 -> exp_scores=逐元素指数；例如 [0,1] -> [1,2.718]。
             acc = acc * correction + torch.bmm(exp_scores, vj)
+            # [变化示例] acc=未定义/旧值 -> acc=acc * correction + torch.bmm(exp_scores, vj)；数值示例：2 + 3 -> 5。
             row_sum = row_sum * correction + exp_scores.sum(-1, keepdim=True)
+            # [变化示例] row_sum=未定义/旧值 -> row_sum=row_sum * correction + exp_scores.sum(-1, keepdim=True)；数值示例：2 + 3 -> 5。
             row_max = new_max
+            # [变化示例] row_max=未定义/旧值 -> row_max=new_max；这是一次重新绑定/状态更新，右侧值决定新状态。
         output[:, i:i+block_size] = acc / row_sum
+        # [变化示例] output[:, i:i+block_size]=未定义/旧值 -> output[:, i:i+block_size]=acc / row_sum；数值示例：6 / 3 -> 2。
     return output
+    # [变化示例] 函数内部：output；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
 ```
 
 **中文解释。** Online Softmax 允许逐块处理时仍得到与完整 Softmax 相同的结果。此 Python 版本展示算法原理，但不是 fused GPU kernel，实际速度可能比 PyTorch 内置 attention 慢。
@@ -1292,18 +1501,27 @@ $$
 class LoRALinear(nn.Module):
     def __init__(self, in_features, out_features, rank, alpha=1.0):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if rank <= 0:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("rank must be positive")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         self.linear = nn.Linear(in_features, out_features)
+        # [变化示例] self.linear=未定义/旧值 -> self.linear=线性映射模块；输入最后一维 in_features -> 输出最后一维 out_features。
         self.linear.requires_grad_(False)  # 冻结 W0 和 bias
         self.lora_A = nn.Parameter(torch.randn(rank, in_features) * 0.01)
+        # [变化示例] self.lora_A=未定义/旧值 -> self.lora_A=注册后的可训练参数；原 tensor shape/dtype/device 保持，默认 requires_grad -> True。
         self.lora_B = nn.Parameter(torch.zeros(out_features, rank))
+        # [变化示例] self.lora_B=未定义/旧值 -> self.lora_B=注册后的可训练参数；原 tensor shape/dtype/device 保持，默认 requires_grad -> True。
         self.scaling = alpha / rank
+        # [变化示例] self.scaling=未定义/旧值 -> self.scaling=alpha / rank；数值示例：6 / 3 -> 2。
 
     def forward(self, x):
         # (...,Din) @ (Din,r) @ (r,Dout) -> (...,Dout)
         update = (x @ self.lora_A.T) @ self.lora_B.T
+        # [变化示例] update=未定义/旧值 -> update=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
         return self.linear(x) + self.scaling * update
+        # [变化示例] 函数内部：self.linear(x) + self.scaling * update；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** B 初始化为 0，使训练开始时 LoRA 输出严格为 0，不改变预训练模型行为。低秩参数量从 `Din*Dout` 降为 `r*(Din+Dout)`。
@@ -1347,23 +1565,37 @@ $$
 class PatchEmbedding(nn.Module):
     def __init__(self, img_size, patch_size, in_channels, embed_dim):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if img_size % patch_size:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("image size must divide patch size")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         self.p = patch_size
+        # [变化示例] self.p=未定义/旧值 -> self.p=patch_size；这是一次重新绑定/状态更新，右侧值决定新状态。
         self.num_patches = (img_size // patch_size) ** 2
+        # [变化示例] self.num_patches=未定义/旧值 -> self.num_patches=(img_size // patch_size) ** 2；数值示例：2 ** 3 -> 8。
         self.proj = nn.Linear(in_channels * patch_size**2, embed_dim)
+        # [变化示例] self.proj=未定义/旧值 -> self.proj=线性映射模块；输入最后一维 in_channels * patch_size**2 -> 输出最后一维 embed_dim。
 
     def forward(self, x):
         b, c, h, w = x.shape
+        # [变化示例] b, c, h, w=未定义/旧值 -> b, c, h, w=x.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         if h % self.p or w % self.p:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("H and W must be divisible by patch size")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         nh, nw = h // self.p, w // self.p
+        # [变化示例] nh, nw=未定义/旧值 -> nh, nw=h // self.p, w // self.p；数值示例：7 // 3 -> 2。
         # 先拆出 patch 网格，再把每个 patch 展平成一个 token
         # (B,C,Nh,P,Nw,P) -> (B,Nh,Nw,C,P,P) -> (B,N,C*P*P)
         patches = x.reshape(b, c, nh, self.p, nw, self.p)
+        # [变化示例] patches=未定义/旧值 -> patches 重排为 b, c, nh, self.p, nw, self.p；元素数量与顺序保持不变（若布局允许则共享 storage）。
         patches = patches.permute(0, 2, 4, 1, 3, 5)
+        # [变化示例] patches=未定义/旧值 -> patches 的轴按 0, 2, 4, 1, 3, 5 重排；例如 (B,S,D) 交换后可变为 (B,D,S)，数值不复制。
         patches = patches.reshape(b, nh*nw, c*self.p*self.p)
+        # [变化示例] patches=未定义/旧值 -> patches 重排为 b, nh*nw, c*self.p*self.p；元素数量与顺序保持不变（若布局允许则共享 storage）。
         return self.proj(patches)
+        # [变化示例] 函数内部：执行 self.proj(patches) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 最关键的是 `permute`：把 patch 网格维度移到前面、channel 和 patch 内部维度移到后面。使用 `Conv2d(kernel=P,stride=P)` 可以等价并更高效地实现。
@@ -1402,27 +1634,44 @@ $$
 class MixtureOfExperts(nn.Module):
     def __init__(self, d_model, d_ff, num_experts, top_k=2):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if not 1 <= top_k <= num_experts:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("invalid top_k")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         self.top_k = top_k
+        # [变化示例] self.top_k=未定义/旧值 -> self.top_k=top_k；这是一次重新绑定/状态更新，右侧值决定新状态。
         self.router = nn.Linear(d_model, num_experts)
+        # [变化示例] self.router=未定义/旧值 -> self.router=线性映射模块；输入最后一维 d_model -> 输出最后一维 num_experts。
         self.experts = nn.ModuleList([
             nn.Sequential(nn.Linear(d_model, d_ff), nn.ReLU(), nn.Linear(d_ff, d_model))
             for _ in range(num_experts)
         ])
+        # [变化示例] self.experts=未定义/旧值 -> self.experts=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
 
     def forward(self, x):
         original = x.shape
+        # [变化示例] original=未定义/旧值 -> original=x.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         flat = x.reshape(-1, x.size(-1))  # 每行是一个 token
+        # [变化示例] flat=未定义/旧值 -> flat 重排为 -1, x.size(-1；元素数量与顺序保持不变（若布局允许则共享 storage）。
         top_logits, top_ids = self.router(flat).topk(self.top_k, dim=-1)
+        # [变化示例] top_logits, top_ids=未定义/旧值 -> top_logits, top_ids 接收 self.router(flat).topk(self.top_k, dim=-1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         gates = torch.softmax(top_logits, dim=-1)
+        # [变化示例] gates=未定义/旧值 -> gates=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
         output = torch.zeros_like(flat)
+        # [变化示例] output=未定义/旧值 -> output=全 0 张量；shape 与参照张量相同。
         for slot in range(self.top_k):
+            # [变化示例] 循环示例：range(self.top_k) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
             for expert_id, expert in enumerate(self.experts):
+                # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
                 selected = top_ids[:, slot] == expert_id
+                # [变化示例] selected=未定义/旧值 -> selected=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
                 if selected.any():
+                    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
                     output[selected] += gates[selected, slot, None] * expert(flat[selected])
+                    # [变化示例] output[selected]=旧值 -> output[selected]=旧值 + (gates[selected, slot, None] * expert(flat[selected]))；数值示例：2 + 3 -> 5，并写回 output[selected]。
         return output.reshape(original)
+        # [变化示例] 函数内部：result 重排为 original；元素数量与顺序保持不变（若布局允许则共享 storage） -> 调用方收到该输出。
 ```
 
 **中文解释。** 这是功能正确的教学实现。生产 MoE 还需要 capacity、load-balancing loss、高效 token dispatch、跨设备 expert 并行和 dropped-token 策略。
@@ -1472,29 +1721,45 @@ $$
 class MyAdam:
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8):
         self.params = list(params)
+        # [变化示例] self.params=未定义/旧值 -> self.params 接收 list(params) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         self.lr, self.beta1, self.beta2, self.eps = lr, betas[0], betas[1], eps
+        # [变化示例] self.lr, self.beta1, self.beta2, self.eps=未定义/旧值 -> self.lr, self.beta1, self.beta2, self.eps=tuple (lr, betas[0], betas[1], eps)；多个值按位置传递/解包，元素本身不被复制。
         self.steps = [0] * len(self.params)
+        # [变化示例] self.steps=未定义/旧值 -> self.steps=[0] * len(self.params)；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
         self.m = [torch.zeros_like(p) for p in self.params]
+        # [变化示例] self.m=未定义/旧值 -> self.m=[torch.zeros_like(p) for p in self.params]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
         self.v = [torch.zeros_like(p) for p in self.params]
+        # [变化示例] self.v=未定义/旧值 -> self.v=[torch.zeros_like(p) for p in self.params]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
 
     def step(self):
         with torch.no_grad():
+            # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
             for i, p in enumerate(self.params):
+                # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
                 if p.grad is None:
+                    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
                     continue
                 self.steps[i] += 1
+                # [变化示例] self.steps[i]=旧值 -> self.steps[i]=旧值 + (1)；数值示例：2 + 3 -> 5，并写回 self.steps[i]。
                 t, g = self.steps[i], p.grad
+                # [变化示例] t, g=未定义/旧值 -> t, g=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
                 # m=beta1*m+(1-beta1)*g；v 同理累计 g^2
                 self.m[i].lerp_(g, 1.0 - self.beta1)
                 self.v[i].mul_(self.beta2).addcmul_(g, g, value=1.0-self.beta2)
+                # [变化示例] 原地状态：目标 tensor=旧值 -> 执行 self.v[i].mul_(self.beta2).addcmul_(g, g, value=1.0-sel... 后直接覆盖同一 storage。
                 m_hat = self.m[i] / (1.0 - self.beta1**t)
+                # [变化示例] m_hat=未定义/旧值 -> m_hat=self.m[i] / (1.0 - self.beta1**t)；数值示例：6 / 3 -> 2。
                 v_hat = self.v[i] / (1.0 - self.beta2**t)
+                # [变化示例] v_hat=未定义/旧值 -> v_hat=self.v[i] / (1.0 - self.beta2**t)；数值示例：6 / 3 -> 2。
                 p.addcdiv_(m_hat, v_hat.sqrt().add_(self.eps), value=-self.lr)
+                # [变化示例] 原地状态：目标 tensor=旧值 -> 执行 p.addcdiv_(m_hat, v_hat.sqrt().add_(self.eps), value=-s... 后直接覆盖同一 storage。
 
     def zero_grad(self):
         # 设为 None 通常比填充 0 更省内存
         for p in self.params:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
             p.grad = None
+            # [变化示例] p.grad=未定义/旧值 -> p.grad=None；这是一次重新绑定/状态更新，右侧值决定新状态。
 ```
 
 **中文解释。** 因为 m/v 从 0 开始，早期会偏小，所以必须除以 `1-beta^t`。这里为每个参数维护 step，比所有参数共享 step 更适合存在缺失梯度的情况。
@@ -1538,15 +1803,24 @@ $$
 ```python
 def cosine_lr_schedule(step, total_steps, warmup_steps, max_lr, min_lr=0.0):
     if not 0 <= warmup_steps < total_steps:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         raise ValueError("invalid schedule lengths")
+        # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
     if step < warmup_steps:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         # 0 -> max_lr 的线性预热
         return max_lr * step / max(warmup_steps, 1)
+        # [变化示例] 函数内部：max_lr * step / max(warmup_steps, 1)；数值示例：2 * 3 -> 6 -> 调用方收到该输出。
     if step >= total_steps:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         return min_lr
+        # [变化示例] 函数内部：min_lr；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
     progress = (step - warmup_steps) / (total_steps - warmup_steps)
+    # [变化示例] progress=未定义/旧值 -> progress=(step - warmup_steps) / (total_steps - warmup_steps)；数值示例：6 / 3 -> 2。
     cosine = 0.5 * (1.0 + math.cos(math.pi * progress))
+    # [变化示例] cosine=未定义/旧值 -> cosine=0.5 * (1.0 + math.cos(math.pi * progress))；数值示例：2 * 3 -> 6。
     return min_lr + (max_lr - min_lr) * cosine
+    # [变化示例] 函数内部：min_lr + (max_lr - min_lr) * cosine；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** Warmup 防止随机初始化阶段的大更新破坏训练；Cosine decay 在后期逐渐减小更新幅度。`progress` 从 0 走到 1。
@@ -1587,17 +1861,28 @@ $$
 ```python
 def accumulated_step(model, optimizer, loss_fn, micro_batches):
     if not micro_batches:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         raise ValueError("micro_batches cannot be empty")
+        # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
     optimizer.zero_grad()
+    # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
     scale = 1.0 / len(micro_batches)
+    # [变化示例] scale=未定义/旧值 -> scale=1.0 / len(micro_batches)；数值示例：6 / 3 -> 2。
     average_loss = 0.0
+    # [变化示例] average_loss=未定义/旧值 -> average_loss=0.0；这是一次重新绑定/状态更新，右侧值决定新状态。
     for x, y in micro_batches:
+        # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
         raw_loss = loss_fn(model(x), y)
+        # [变化示例] raw_loss=未定义/旧值 -> raw_loss 接收 loss_fn(model(x), y) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         # 先除以 micro-batch 数，使累积梯度成为平均梯度
         (raw_loss * scale).backward()
+        # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
         average_loss += raw_loss.detach().item() * scale
+        # [变化示例] average_loss=旧值 -> average_loss=旧值 + (raw_loss.detach().item() * scale)；数值示例：2 + 3 -> 5，并写回 average_loss。
     optimizer.step()  # 所有梯度累积完成后只更新一次
+    # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
     return average_loss
+    # [变化示例] 函数内部：average_loss；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
 ```
 
 **中文解释。** PyTorch 默认不会在 backward 时清空已有梯度，因此可自然累加。只有 micro-batch 大小相同时，简单除以数量才严格等价于大 batch mean；大小不同时应按样本数加权。
@@ -1637,20 +1922,34 @@ $$
 ```python
 def sample_top_k_top_p(logits, top_k=0, top_p=1.0, temperature=1.0):
     if temperature <= 0 or not 0.0 < top_p <= 1.0:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         raise ValueError("invalid sampling parameters")
+        # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
     filtered = logits.clone() / temperature  # clone 避免修改调用者输入
+    # [变化示例] filtered=未定义/旧值 -> filtered=logits.clone() / temperature；数值示例：6 / 3 -> 2。
     if top_k > 0:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         k = min(top_k, filtered.numel())
+        # [变化示例] k=未定义/旧值 -> k 接收 min(top_k, filtered.numel()) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         threshold = filtered.topk(k).values[-1]
+        # [变化示例] threshold=未定义/旧值 -> threshold=最大 k 个值/索引；例如 [0.2,0.9,0.4], k=2 -> [0.9,0.4]。
         filtered.masked_fill_(filtered < threshold, float("-inf"))
+        # [变化示例] 执行状态：调用 filtered.masked_fill_(filtered < threshold, float("-inf")) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
     if top_p < 1.0:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         sorted_logits, ids = filtered.sort(descending=True)
+        # [变化示例] sorted_logits, ids=未定义/旧值 -> sorted_logits, ids=排序后的值与原索引；例如 [3,1,2] 升序 -> values=[1,2,3], ids=[1,2,0]。
         probs = torch.softmax(sorted_logits, -1)
+        # [变化示例] probs=未定义/旧值 -> probs=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
         # 保留使累计概率首次越过 p 的那个 token
         remove = probs.cumsum(-1) - probs > top_p
+        # [变化示例] remove=未定义/旧值 -> remove=probs.cumsum(-1) - probs > top_p；数值示例：3 - 2 -> 1。
         sorted_logits.masked_fill_(remove, float("-inf"))
+        # [变化示例] 执行状态：调用 sorted_logits.masked_fill_(remove, float("-inf")) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         filtered = torch.empty_like(filtered).scatter(0, ids, sorted_logits)
+        # [变化示例] filtered=未定义/旧值 -> filtered=按 index 写回的新张量；例如 index=[2,0]、src=[7,8] -> 位置 2/0 分别变为 7/8。
     return torch.multinomial(torch.softmax(filtered, -1), 1).item()
+    # [变化示例] 函数内部：按概率采样的索引；例如 [0.1,0.9] -> 更可能得到索引 1 -> 调用方收到该输出。
 ```
 
 **中文解释。** 低 temperature 使分布更尖锐，高 temperature 增加随机性。Top-k 固定候选数量；top-p 根据当前分布动态决定候选数量。
@@ -1697,22 +1996,37 @@ $$
 ```python
 def beam_search(log_prob_fn, start_token, max_len, beam_width, eos_token):
     active, completed = [(0.0, [start_token])], []
+    # [变化示例] active, completed=未定义/旧值 -> active, completed=[(0.0, [start_token])], []；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
     while active and len(active[0][1]) < max_len:
+        # [变化示例] 循环示例：条件 True -> 再执行一轮；条件 False -> 退出循环。
         candidates = []
+        # [变化示例] candidates=未定义/旧值 -> candidates=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
         for score, seq in active:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
             log_probs = log_prob_fn(torch.tensor(seq))
+            # [变化示例] log_probs=未定义/旧值 -> log_probs 接收 log_prob_fn(torch.tensor(seq)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
             width = min(beam_width, log_probs.numel())
+            # [变化示例] width=未定义/旧值 -> width 接收 min(beam_width, log_probs.numel()) 的返回值；用 shape/dtype/device 与示例输入核对变化。
             values, ids = log_probs.topk(width)
+            # [变化示例] values, ids=未定义/旧值 -> values, ids=最大 k 个值/索引；例如 [0.2,0.9,0.4], k=2 -> [0.9,0.4]。
             for value, token in zip(values.tolist(), ids.tolist()):
+                # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
                 item = (score + value, seq + [token])
+                # [变化示例] item=未定义/旧值 -> item=score + value, seq + [token]；数值示例：2 + 3 -> 5。
                 (completed if token == eos_token else candidates).append(item)
+                # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
         # 只保留最好的 beam_width 个活跃序列
         active = sorted(candidates, key=lambda z: z[0], reverse=True)[:beam_width]
+        # [变化示例] active=未定义/旧值 -> active 接收 sorted(candidates, key=lambda z: z[0], reverse=True)[:beam_... 的返回值；用 shape/dtype/device 与示例输入核对变化。
         completed = sorted(completed, key=lambda z: z[0], reverse=True)[:beam_width]
+        # [变化示例] completed=未定义/旧值 -> completed 接收 sorted(completed, key=lambda z: z[0], reverse=True)[:beam_w... 的返回值；用 shape/dtype/device 与示例输入核对变化。
         if completed and (not active or completed[0][0] >= active[0][0]):
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             break
     pool = completed or active
+    # [变化示例] pool=未定义/旧值 -> pool=completed or active；这是一次重新绑定/状态更新，右侧值决定新状态。
     return max(pool, key=lambda z: z[0])[1]
+    # [变化示例] 函数内部：执行 max(pool, key=lambda z: z[0])[1] 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库原答案可能让未完成序列压过已完成序列，并把 `max_len` 当作扩展次数。这里将其定义为总长度并优先返回完成序列。实际生成常增加 length penalty，避免偏爱短句。
@@ -1752,21 +2066,34 @@ $$
 ```python
 def speculative_decode(target_probs, draft_probs, draft_tokens):
     accepted = []
+    # [变化示例] accepted=未定义/旧值 -> accepted=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
     for i, token_tensor in enumerate(draft_tokens):
+        # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
         token = token_tensor.item()
+        # [变化示例] token=未定义/旧值 -> token=单元素 tensor 转成 Python 标量；例如 tensor(2.5) -> 2.5。
         p = target_probs[i, token]
+        # [变化示例] p=未定义/旧值 -> p=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
         q = draft_probs[i, token].clamp_min(1e-10)
+        # [变化示例] q=未定义/旧值 -> q=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
         accept_prob = torch.minimum(p / q, p.new_tensor(1.0))
+        # [变化示例] accept_prob=未定义/旧值 -> accept_prob=逐元素较小/较大值；例如 minimum([2,5],[3,4]) -> [2,4]。
         if torch.rand((), device=p.device) < accept_prob:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             accepted.append(token)
+            # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
             continue
         # 拒绝后用校正分布采样，并结束本轮 speculation
         residual = (target_probs[i] - draft_probs[i]).clamp_min(0)
+        # [变化示例] residual=未定义/旧值 -> residual=max(左值-右值,0)；例如 [0.7,0.2]-[0.4,0.5] -> [0.3,0]。
         if residual.sum() <= 0:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             residual = target_probs[i]
+            # [变化示例] residual=未定义/旧值 -> residual=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
         accepted.append(torch.multinomial(residual / residual.sum(), 1).item())
+        # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
         break
     return accepted
+    # [变化示例] 函数内部：accepted；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
 ```
 
 **中文解释。** 该接受/纠正规则保证最终采样仍服从 target model，而不是 draft model。完整算法在所有 K 个草稿均接受后，还会从 target 多采样一个 token；原题只要求接受/拒绝部分。
@@ -1809,49 +2136,87 @@ $$
 class SimpleBPE:
     def __init__(self):
         self.merges = []
+        # [变化示例] self.merges=未定义/旧值 -> self.merges=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
 
     def train(self, corpus, num_merges):
         vocab = {}
+        # [变化示例] vocab=未定义/旧值 -> vocab={}；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
         for word in corpus:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
             symbols = tuple(word) + ("</w>",)
+            # [变化示例] symbols=未定义/旧值 -> symbols=tuple(word) + ("</w>",)；数值示例：2 + 3 -> 5。
             vocab[symbols] = vocab.get(symbols, 0) + 1
+            # [变化示例] vocab[symbols]=未定义/旧值 -> vocab[symbols]=vocab.get(symbols, 0) + 1；数值示例：2 + 3 -> 5。
         self.merges = []
+        # [变化示例] self.merges=未定义/旧值 -> self.merges=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
         for _ in range(num_merges):
+            # [变化示例] 循环示例：range(num_merges) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
             counts = {}
+            # [变化示例] counts=未定义/旧值 -> counts={}；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
             for symbols, freq in vocab.items():
+                # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
                 for pair in zip(symbols, symbols[1:]):
+                # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
                     counts[pair] = counts.get(pair, 0) + freq
+                    # [变化示例] counts[pair]=未定义/旧值 -> counts[pair]=counts.get(pair, 0) + freq；数值示例：2 + 3 -> 5。
             if not counts:
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
                 break
             best = max(counts, key=counts.get)
+            # [变化示例] best=未定义/旧值 -> best 接收 max(counts, key=counts.get) 的返回值；用 shape/dtype/device 与示例输入核对变化。
             self.merges.append(best)
+            # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
             new_vocab = {}
+            # [变化示例] new_vocab=未定义/旧值 -> new_vocab={}；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
             for symbols, freq in vocab.items():
+                # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
                 merged, i = [], 0
+                # [变化示例] merged, i=未定义/旧值 -> merged, i=[], 0；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
                 while i < len(symbols):
+                    # [变化示例] 循环示例：条件 True -> 再执行一轮；条件 False -> 退出循环。
                     if i+1 < len(symbols) and (symbols[i], symbols[i+1]) == best:
+                        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
                         merged.append(symbols[i] + symbols[i+1]); i += 2
+                        # [变化示例] merged.append(symbols[i] + symbols[i+1]); i=旧值 -> merged.append(symbols[i] + symbols[i+1]); i=旧值 + (2)；数值示例：2 + 3 -> 5，并写回 merged.append(symbols[i] + symbols[i+1]); i。
                     else:
+                        # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
                         merged.append(symbols[i]); i += 1
+                        # [变化示例] merged.append(symbols[i]); i=旧值 -> merged.append(symbols[i]); i=旧值 + (1)；数值示例：2 + 3 -> 5，并写回 merged.append(symbols[i]); i。
                 key = tuple(merged)
+                # [变化示例] key=未定义/旧值 -> key 接收 tuple(merged) 的返回值；用 shape/dtype/device 与示例输入核对变化。
                 # 合并后相同的词形必须累加频率，不能覆盖
                 new_vocab[key] = new_vocab.get(key, 0) + freq
+                # [变化示例] new_vocab[key]=未定义/旧值 -> new_vocab[key]=new_vocab.get(key, 0) + freq；数值示例：2 + 3 -> 5。
             vocab = new_vocab
+            # [变化示例] vocab=未定义/旧值 -> vocab=new_vocab；这是一次重新绑定/状态更新，右侧值决定新状态。
 
     def encode(self, text):
         result = []
+        # [变化示例] result=未定义/旧值 -> result=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
         for word in text.split():
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
             symbols = list(word) + ["</w>"]
+            # [变化示例] symbols=未定义/旧值 -> symbols=list(word) + ["</w>"]；数值示例：2 + 3 -> 5。
             for left, right in self.merges:
+                # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
                 merged, i = [], 0
+                # [变化示例] merged, i=未定义/旧值 -> merged, i=[], 0；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
                 while i < len(symbols):
+                    # [变化示例] 循环示例：条件 True -> 再执行一轮；条件 False -> 退出循环。
                     if i+1 < len(symbols) and symbols[i:i+2] == [left, right]:
+                    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
                         merged.append(left + right); i += 2
+                        # [变化示例] merged.append(left + right); i=旧值 -> merged.append(left + right); i=旧值 + (2)；数值示例：2 + 3 -> 5，并写回 merged.append(left + right); i。
                     else:
+                        # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
                         merged.append(symbols[i]); i += 1
+                        # [变化示例] merged.append(symbols[i]); i=旧值 -> merged.append(symbols[i]); i=旧值 + (1)；数值示例：2 + 3 -> 5，并写回 merged.append(symbols[i]); i。
                 symbols = merged
+                # [变化示例] symbols=未定义/旧值 -> symbols=merged；这是一次重新绑定/状态更新，右侧值决定新状态。
             result.extend(symbols)
+            # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
         return result
+        # [变化示例] 函数内部：result；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
 ```
 
 **中文解释。** Pair 频率必须乘词频，而非只统计不同词形。仓库答案在合并后可能覆盖相同 key 的频率；这里改为累加。真实 GPT tokenizer 通常基于 bytes，并处理空格和特殊 token。
@@ -1889,17 +2254,25 @@ $$
 class Int8Linear(nn.Module):
     def __init__(self, weight, bias=None):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         # 每一行一个 scale，保持不同输出通道的动态范围
         scale = (weight.abs().amax(dim=1, keepdim=True) / 127.0).clamp_min(1e-10)
+        # [变化示例] scale=未定义/旧值 -> scale 接收 (weight.abs().amax(dim=1, keepdim=True) / 127.0).clamp_min(... 的返回值；用 shape/dtype/device 与示例输入核对变化。
         quantized = (weight / scale).round().clamp(-127, 127).to(torch.int8)
+        # [变化示例] quantized=未定义/旧值 -> quantized 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
         self.register_buffer("weight_int8", quantized)
+        # [变化示例] 执行状态：调用 self.register_buffer("weight_int8", quantized) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.register_buffer("scale", scale)
+        # [变化示例] 执行状态：调用 self.register_buffer("scale", scale) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.bias = nn.Parameter(bias.clone()) if bias is not None else None
+        # [变化示例] self.bias=未定义/旧值 -> self.bias=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
 
     def forward(self, x):
         # INT8 -> 输入 dtype；(Dout,Din) 用 F.linear 自动转置
         weight = self.weight_int8.to(x.dtype) * self.scale.to(x.dtype)
+        # [变化示例] weight=未定义/旧值 -> weight=self.weight_int8.to(x.dtype) * self.scale.to(x.dtype)；数值示例：2 * 3 -> 6。
         return F.linear(x, weight, self.bias)
+        # [变化示例] 函数内部：执行 F.linear(x, weight, self.bias) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 对称 INT8 使用 `[-127,127]`，无需使用不对称的 `-128`。这份教学实现会完整反量化，因此展示的是存储与量化误差，不会带来真正 INT8 kernel 的计算加速。
@@ -1948,9 +2321,13 @@ def dpo_loss(policy_chosen_logps, policy_rejected_logps,
              ref_chosen_logps, ref_rejected_logps, beta=0.1):
     # policy 希望 chosen-rejected margin 比 reference 更大
     policy_margin = policy_chosen_logps - policy_rejected_logps
+    # [变化示例] policy_margin=未定义/旧值 -> policy_margin=policy_chosen_logps - policy_rejected_logps；数值示例：3 - 2 -> 1。
     ref_margin = ref_chosen_logps.detach() - ref_rejected_logps.detach()
+    # [变化示例] ref_margin=未定义/旧值 -> ref_margin=ref_chosen_logps.detach() - ref_rejected_logps.detach()；数值示例：3 - 2 -> 1。
     logits = beta * (policy_margin - ref_margin)
+    # [变化示例] logits=未定义/旧值 -> logits=beta * (policy_margin - ref_margin)；数值示例：2 * 3 -> 6。
     return -F.logsigmoid(logits).mean()
+    # [变化示例] 函数内部：执行 -F.logsigmoid(logits).mean() 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** DPO 不显式训练 reward model 或执行在线 RL。`beta` 控制相对 reference 的移动强度。Reference 是固定基准，因此应 detach。
@@ -1987,13 +2364,19 @@ $$
 ```python
 def grpo_loss(logps, rewards, group_ids, eps=1e-5):
     advantages = torch.empty_like(rewards)
+    # [变化示例] advantages=未定义/旧值 -> advantages 接收 torch.empty_like(rewards) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     for group_id in group_ids.unique():
+        # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
         selected = group_ids == group_id
+        # [变化示例] selected=未定义/旧值 -> 链式赋值 selected=group_ids == group_id；等号两侧目标最终引用同一给定值。
         r = rewards[selected]
+        # [变化示例] r=未定义/旧值 -> r=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
         # 每个 prompt 组独立计算 baseline 和尺度
         advantages[selected] = (r - r.mean()) / (r.std(unbiased=False) + eps)
+        # [变化示例] advantages[selected]=未定义/旧值 -> advantages[selected]=(r - r.mean()) / (r.std(unbiased=False) + eps)；数值示例：6 / 3 -> 2。
     # reward/advantage 不参与梯度，只有 logps 回传到 policy
     return -(advantages.detach() * logps).mean()
+    # [变化示例] 函数内部：数值相同但与当前 autograd 图断开的 tensor；grad_fn -> None -> 调用方收到该输出。
 ```
 
 **中文解释。** 组内均值充当 prompt-specific baseline，可降低梯度方差。若组内 reward 全相同，advantage 为 0。严格来说原题实现的是简化的 group-normalized REINFORCE；完整 GRPO 常包含 old-policy ratio、clipping、KL、token mask 等。
@@ -2034,13 +2417,20 @@ $$
 ```python
 def ppo_loss(new_logps, old_logps, advantages, clip_ratio=0.2):
     if clip_ratio < 0:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         raise ValueError("clip_ratio must be non-negative")
+        # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
     ratio = torch.exp(new_logps - old_logps.detach())
+    # [变化示例] ratio=未定义/旧值 -> ratio=逐元素指数；例如 [0,1] -> [1,2.718]。
     advantage = advantages.detach()
+    # [变化示例] advantage=未定义/旧值 -> advantage=数值相同但与当前 autograd 图断开的 tensor；grad_fn -> None。
     unclipped = ratio * advantage
+    # [变化示例] unclipped=未定义/旧值 -> unclipped=ratio * advantage；数值示例：2 * 3 -> 6。
     clipped = ratio.clamp(1.0-clip_ratio, 1.0+clip_ratio) * advantage
+    # [变化示例] clipped=未定义/旧值 -> clipped=ratio.clamp(1.0-clip_ratio, 1.0+clip_ratio) * advantage；数值示例：2 * 3 -> 6。
     # 取 minimum，再取负号转成要最小化的 loss
     return -torch.minimum(unclipped, clipped).mean()
+    # [变化示例] 函数内部：执行 -torch.minimum(unclipped, clipped).mean() 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 对正 advantage，限制概率增加过多；对负 advantage，限制概率下降过多。这里只实现 policy loss，完整 PPO 还包括 value loss、entropy bonus、mask 和 KL/clip fraction 监控。
@@ -2082,31 +2472,50 @@ $$
 class LinearRegression:
     def closed_form(self, X, y):
         n, d = X.shape
+        # [变化示例] n, d=未定义/旧值 -> n, d=X.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         # 添加全 1 列，把 bias 合并进 theta；new_ones 保持 device/dtype
         X_aug = torch.cat([X, X.new_ones(n, 1)], dim=1)
+        # [变化示例] X_aug=未定义/旧值 -> X_aug 沿指定 dim 拼接且该维长度相加；例如 (B,3)+(B,1) -> (B,4)。
         theta = torch.linalg.lstsq(X_aug, y).solution
+        # [变化示例] theta=未定义/旧值 -> theta 接收 torch.linalg.lstsq(X_aug, y).solution 的返回值；用 shape/dtype/device 与示例输入核对变化。
         return theta[:d].detach(), theta[d].detach()
+        # [变化示例] 函数内部：索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,) -> 调用方收到该输出。
 
     def gradient_descent(self, X, y, lr=0.01, steps=1000):
         n, d = X.shape
+        # [变化示例] n, d=未定义/旧值 -> n, d=X.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         w, b = X.new_zeros(d), X.new_zeros(())
+        # [变化示例] w, b=未定义/旧值 -> w, b=按给定 shape 创建且继承模板 dtype/device；例如模板在 CUDA float16 -> 新张量也在 CUDA float16。
         for _ in range(steps):
+            # [变化示例] 循环示例：range(steps) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
             error = X @ w + b - y
+            # [变化示例] error=未定义/旧值 -> error=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
             # MSE 对 w/b 的解析梯度，不使用 autograd
             w = w - lr * (2.0/n) * (X.T @ error)
+            # [变化示例] w=未定义/旧值 -> w=w - lr * (2.0/n) * (X.T @ error)；数值示例：3 - 2 -> 1。
             b = b - lr * (2.0/n) * error.sum()
+            # [变化示例] b=未定义/旧值 -> b=b - lr * (2.0/n) * error.sum()；数值示例：3 - 2 -> 1。
         return w, b
+        # [变化示例] 函数内部：tuple (w, b)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
 
     def nn_linear(self, X, y, lr=0.01, steps=1000):
         layer = nn.Linear(X.size(1), 1, device=X.device, dtype=X.dtype)
+        # [变化示例] layer=未定义/旧值 -> layer=线性映射模块；输入最后一维 X.size(1) -> 输出最后一维 1。
         optimizer = torch.optim.SGD(layer.parameters(), lr=lr)
+        # [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
         for _ in range(steps):
+            # [变化示例] 循环示例：range(steps) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
             optimizer.zero_grad()
+            # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
             loss = F.mse_loss(layer(X).squeeze(-1), y)
+            # [变化示例] loss=未定义/旧值 -> loss=均方误差；例如 prediction=[1,3]、target=[1,1] -> mean([0,4])=2。
             loss.backward()
+            # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
             optimizer.step()
+            # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
         return (layer.weight.detach().squeeze(0).clone(),
                 layer.bias.detach().squeeze(0).clone())
+        # [变化示例] 函数内部：独立副本；数值相同，但后续原地修改不再共享同一 storage -> 调用方收到该输出。
 ```
 
 **中文解释。** `lstsq` 比显式求 `(X^TX)^-1` 更稳定，也能处理秩不足。手写梯度展示 MSE 数学；`nn.Linear` 展示 autograd 和 optimizer 工作流。仓库答案创建 CPU tensor，这里修正为跟随 X 的 device/dtype。
@@ -2161,40 +2570,67 @@ $$
 def opd_loss(student_logits, teacher_logits, teacher_weights=None,
              mask=None, temperature=1.0):
     if temperature <= 0:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         raise ValueError("temperature must be positive")
+        # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
     # 单 teacher (...,V) -> (1,...,V)，统一 teacher 维度
     if teacher_logits.dim() == student_logits.dim():
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         teacher_logits = teacher_logits.unsqueeze(0)
+        # [变化示例] teacher_logits=未定义/旧值 -> teacher_logits 新增长度为 1 的轴；例如 (B,D) -> (B,1,D)，元素值不变。
     elif teacher_logits.dim() != student_logits.dim() + 1:
+        # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
         raise ValueError("invalid teacher shape")
+        # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
 
     t = float(temperature)
+    # [变化示例] t=未定义/旧值 -> t 接收 float(temperature) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     student_logp = F.log_softmax(student_logits / t, dim=-1)
+    # [变化示例] student_logp=未定义/旧值 -> student_logp=log 概率；例如 logits=[0,0] -> 约 [-0.693,-0.693]。
     student_prob = student_logp.exp()
+    # [变化示例] student_prob=未定义/旧值 -> student_prob=逐元素指数；例如 [0,1] -> [1,2.718]。
     teacher_logp = F.log_softmax(teacher_logits.detach() / t, dim=-1)
+    # [变化示例] teacher_logp=未定义/旧值 -> teacher_logp=数值相同但与当前 autograd 图断开的 tensor；grad_fn -> None。
     # 对 vocab 求和：sum_v p_s(v)[log p_s(v)-log p_t(v)]
     kl = (student_prob.unsqueeze(0) *
           (student_logp.unsqueeze(0) - teacher_logp)).sum(-1)
+    # [变化示例] kl=未定义/旧值 -> kl 接收 (student_prob.unsqueeze(0) * (student_logp.unsqueeze(0) - t... 的返回值；用 shape/dtype/device 与示例输入核对变化。
 
     teacher_count = kl.size(0)
+    # [变化示例] teacher_count=未定义/旧值 -> teacher_count=指定轴长度；例如 shape=(2,3,4)，size(0) -> 对应维长度。
     if teacher_weights is None:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         weights = kl.new_full((teacher_count,), 1.0 / teacher_count)
+        # [变化示例] weights=未定义/旧值 -> weights=按给定 shape 创建且继承模板 dtype/device；例如模板在 CUDA float16 -> 新张量也在 CUDA float16。
     else:
+        # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
         weights = teacher_weights.to(device=kl.device, dtype=kl.dtype)
+        # [变化示例] weights=未定义/旧值 -> weights 移到目标 device并按参数转换 dtype；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
         if (weights.shape != (teacher_count,) or not torch.isfinite(weights).all()
                 or (weights < 0).any() or weights.sum() <= 0):
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("teacher weights 必须有限、非负且总和为正")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         weights = weights / weights.sum()
+        # [变化示例] weights=未定义/旧值 -> weights=weights / weights.sum()；数值示例：6 / 3 -> 2。
     shape = (teacher_count,) + (1,) * (kl.dim()-1)
+    # [变化示例] shape=未定义/旧值 -> shape=(teacher_count,) + (1,) * (kl.dim()-1)；数值示例：2 + 3 -> 5。
     per_token = (weights.view(shape) * kl).sum(0)
+    # [变化示例] per_token=未定义/旧值 -> per_token 接收 (weights.view(shape) * kl).sum(0) 的返回值；用 shape/dtype/device 与示例输入核对变化。
 
     if mask is None:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         loss = per_token.mean()
+        # [变化示例] loss=未定义/旧值 -> loss=沿指定维求均值；例如 [1,2,3] -> 2。
     else:
+        # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
         mask = mask.to(device=per_token.device, dtype=per_token.dtype)
+        # [变化示例] mask=未定义/旧值 -> mask 移到目标 device并按参数转换 dtype；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
         # 只平均有效 token，clamp 防止全 mask 时除零
         loss = (per_token * mask).sum() / mask.sum().clamp_min(1.0)
+        # [变化示例] loss=未定义/旧值 -> loss=(per_token * mask).sum() / mask.sum().clamp_min(1.0)；数值示例：6 / 3 -> 2。
     return loss * t**2
+    # [变化示例] 函数内部：loss * t**2；数值示例：2 ** 3 -> 8 -> 调用方收到该输出。
 ```
 
 **中文解释。** Reverse KL 的期望由 student 分布加权，倾向于 mode-seeking：student 若把概率放在 teacher 几乎不支持的位置，会受到强惩罚。Teacher logits 必须 detach。乘 `T^2` 用于补偿温度导致的梯度缩放，是蒸馏中的常见约定。
@@ -2271,28 +2707,49 @@ from collections import Counter
 def byte_pair_encoding(corpus, num_merges=10):
     # 原 solution 仍是省略号；这里补全可学习的核心算法
     vocab = Counter(tuple(word) + ("</w>",) for word in corpus)
+    # [变化示例] vocab=未定义/旧值 -> vocab 接收 Counter(tuple(word) + ("</w>",) for word in corpus) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     merges = []
+    # [变化示例] merges=未定义/旧值 -> merges=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
     for _ in range(num_merges):
+        # [变化示例] 循环示例：range(num_merges) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
         pairs = Counter()
+        # [变化示例] pairs=未定义/旧值 -> pairs=Counter()；这是一次重新绑定/状态更新，右侧值决定新状态。
         for symbols, freq in vocab.items():
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
             # 同一单词中同一个 pair 可能出现多次，不能用 dict comprehension 覆盖
             for pair in zip(symbols, symbols[1:]):
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
                 pairs[pair] += freq
+                # [变化示例] pairs[pair]=旧值 -> pairs[pair]=旧值 + (freq)；数值示例：2 + 3 -> 5，并写回 pairs[pair]。
         if not pairs:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             break
         best = pairs.most_common(1)[0][0]
+        # [变化示例] best=未定义/旧值 -> best 接收 pairs.most_common(1)[0][0] 的返回值；用 shape/dtype/device 与示例输入核对变化。
         merges.append(best)
+        # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
         new_vocab = Counter()
+        # [变化示例] new_vocab=未定义/旧值 -> new_vocab=Counter()；这是一次重新绑定/状态更新，右侧值决定新状态。
         for symbols, freq in vocab.items():
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
             out, i = [], 0
+            # [变化示例] out, i=未定义/旧值 -> out, i=[], 0；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
             while i < len(symbols):
+                # [变化示例] 循环示例：条件 True -> 再执行一轮；条件 False -> 退出循环。
                 if i+1 < len(symbols) and symbols[i:i+2] == best:
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
                     out.append(best[0] + best[1]); i += 2
+                    # [变化示例] out.append(best[0] + best[1]); i=旧值 -> out.append(best[0] + best[1]); i=旧值 + (2)；数值示例：2 + 3 -> 5，并写回 out.append(best[0] + best[1]); i。
                 else:
+                    # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
                     out.append(symbols[i]); i += 1
+                    # [变化示例] out.append(symbols[i]); i=旧值 -> out.append(symbols[i]); i=旧值 + (1)；数值示例：2 + 3 -> 5，并写回 out.append(symbols[i]); i。
             new_vocab[tuple(out)] += freq
+            # [变化示例] new_vocab[tuple(out)]=旧值 -> new_vocab[tuple(out)]=旧值 + (freq)；数值示例：2 + 3 -> 5，并写回 new_vocab[tuple(out)]。
         vocab = new_vocab
+        # [变化示例] vocab=未定义/旧值 -> vocab=new_vocab；这是一次重新绑定/状态更新，右侧值决定新状态。
     return dict(vocab), merges
+    # [变化示例] 函数内部：执行 dict(vocab), merges 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 原答案 notebook 中函数体仍为 `...`，不能算完成解。修正版保留词频，并在不同词形合并到同一个 key 时累加频率。
@@ -2333,24 +2790,40 @@ $$
 class TorchLeetGQA(nn.Module):
     def __init__(self, d_model, q_heads, kv_heads):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if d_model % q_heads or q_heads % kv_heads:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("head 数不兼容")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         self.hq, self.hkv, self.dh = q_heads, kv_heads, d_model // q_heads
+        # [变化示例] self.hq, self.hkv, self.dh=未定义/旧值 -> self.hq, self.hkv, self.dh=tuple (q_heads, kv_heads, d_model // q_heads)；多个值按位置传递/解包，元素本身不被复制。
         self.q = nn.Linear(d_model, d_model, bias=False)
+        # [变化示例] self.q=未定义/旧值 -> self.q=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
         self.k = nn.Linear(d_model, kv_heads*self.dh, bias=False)
+        # [变化示例] self.k=未定义/旧值 -> self.k=线性映射模块；输入最后一维 d_model -> 输出最后一维 kv_heads*self.dh。
         self.v = nn.Linear(d_model, kv_heads*self.dh, bias=False)
+        # [变化示例] self.v=未定义/旧值 -> self.v=线性映射模块；输入最后一维 d_model -> 输出最后一维 kv_heads*self.dh。
         self.o = nn.Linear(d_model, d_model, bias=False)
+        # [变化示例] self.o=未定义/旧值 -> self.o=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
 
     def forward(self, x):
         b, s, _ = x.shape
+        # [变化示例] b, s, _=未定义/旧值 -> b, s, _=x.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         q = self.q(x).view(b,s,self.hq,self.dh).transpose(1,2)
+        # [变化示例] q=未定义/旧值 -> q=先拆分 shape 再交换轴；例如 (B,S,H*D) -> (B,S,H,D) -> (B,H,S,D)。
         k = self.k(x).view(b,s,self.hkv,self.dh).transpose(1,2)
+        # [变化示例] k=未定义/旧值 -> k=先拆分 shape 再交换轴；例如 (B,S,H*D) -> (B,S,H,D) -> (B,H,S,D)。
         v = self.v(x).view(b,s,self.hkv,self.dh).transpose(1,2)
+        # [变化示例] v=未定义/旧值 -> v=先拆分 shape 再交换轴；例如 (B,S,H*D) -> (B,S,H,D) -> (B,H,S,D)。
         # KV head 按组复制到 Q head 数量
         repeat = self.hq // self.hkv
+        # [变化示例] repeat=未定义/旧值 -> repeat=self.hq // self.hkv；数值示例：7 // 3 -> 2。
         k, v = k.repeat_interleave(repeat,1), v.repeat_interleave(repeat,1)
+        # [变化示例] k, v=未定义/旧值 -> k, v=沿指定轴重复；例如 head 轴 H=2、repeats=3 -> H=6。
         y = torch.softmax(q @ k.transpose(-2,-1) / math.sqrt(self.dh), -1) @ v
+        # [变化示例] y=未定义/旧值 -> 先把 scores 归一化为每行和为 1 的权重，再与 V 相乘得到 y；shape (...,Sq,Sk) @ (...,Sk,D) -> (...,Sq,D)。
         return self.o(y.transpose(1,2).contiguous().view(b,s,-1))
+        # [变化示例] 函数内部：执行 self.o(y.transpose(1,2).contiguous().view(b,s,-1)) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库答案每次函数调用都新建随机 Linear，而且 K/V reshape 维度错误；修正版把投影注册为持久参数，并统一每个 head 的宽度为 `Dh`。
@@ -2396,10 +2869,15 @@ $$
 def attention_with_weights(q, k, v, mask=None):
     # 使用 Python 标量缩放，避免创建 CPU tensor 导致 GPU device mismatch
     scores = q @ k.transpose(-2, -1) / math.sqrt(q.size(-1))
+    # [变化示例] scores=未定义/旧值 -> scores=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
     if mask is not None:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         scores = scores.masked_fill(~mask.to(torch.bool), float("-inf"))
+        # [变化示例] scores=未定义/旧值 -> scores 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
     weights = torch.softmax(scores, dim=-1)
+    # [变化示例] weights=未定义/旧值 -> weights=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
     return weights @ v, weights
+    # [变化示例] 函数内部：矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N) -> 调用方收到该输出。
 ```
 
 **中文解释。** 原逻辑基本正确，但 `torch.tensor(d_k)` 默认在 CPU；GPU 输入时可能报 device mismatch。使用 `math.sqrt` 最简单安全。
@@ -2445,12 +2923,19 @@ class TorchLeetMHA(MultiHeadAttention):
     def forward(self, x, mask=None):
         # 复用第 06 题的持久 nn.Module 参数，而不是在 forward 内新建 Linear
         q, k, v = self._split(self.W_q(x)), self._split(self.W_k(x)), self._split(self.W_v(x))
+        # [变化示例] q, k, v=未定义/旧值 -> q, k, v 接收 self._split(self.W_q(x)), self._split(self.W_k(x)), self._s... 的返回值；用 shape/dtype/device 与示例输入核对变化。
         scores = q @ k.transpose(-2,-1) / math.sqrt(self.d_head)
+        # [变化示例] scores=未定义/旧值 -> scores=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
         if mask is not None:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             scores = scores.masked_fill(~mask.to(torch.bool), float("-inf"))
+            # [变化示例] scores=未定义/旧值 -> scores 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
         ctx = torch.softmax(scores, -1) @ v
+        # [变化示例] ctx=未定义/旧值 -> 先把 scores 归一化为每行和为 1 的权重，再与 V 相乘得到 ctx；shape (...,Sq,Sk) @ (...,Sk,D) -> (...,Sq,D)。
         b, _, s, _ = ctx.shape
+        # [变化示例] b, _, s, _=未定义/旧值 -> b, _, s, _=ctx.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         return self.W_o(ctx.transpose(1,2).contiguous().view(b,s,-1))
+        # [变化示例] 函数内部：执行 self.W_o(ctx.transpose(1,2).contiguous().view(b,s,-1)) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库函数还依赖未定义的 `device`，并在每次 forward 随机重建四个 Linear，导致参数无法学习。这里改为标准 `nn.Module` 语义。
@@ -2497,17 +2982,26 @@ $$
 class RotaryEmbedding(nn.Module):
     def __init__(self, dim, base=10000.0):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if dim % 2:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
             raise ValueError("RoPE 维度必须为偶数")
+            # [变化示例] 控制流：正常执行路径 -> 抛出异常并停止当前函数，用于拒绝非法输入。
         self.register_buffer("inv_freq", base ** (-torch.arange(0,dim,2).float()/dim))
+        # [变化示例] 执行状态：调用 self.register_buffer("inv_freq", base ** (-torch.arange(0,d... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
 
     def forward(self, x, offset=0):
         # x: (B,H,S,D)，offset 支持 KV-cache 解码
         pos = torch.arange(offset, offset+x.size(-2), device=x.device, dtype=self.inv_freq.dtype)
+        # [变化示例] pos=未定义/旧值 -> pos=等差序列 arange(offset, offset+x.size(-2)；例如 arange(4) 为 [0,1,2,3]。
         angle = torch.outer(pos, self.inv_freq)
+        # [变化示例] angle=未定义/旧值 -> angle=外积；shape (M,) 与 (N,) -> (M,N)。
         angle = torch.cat((angle, angle), -1).to(x.dtype)[None,None]
+        # [变化示例] angle=未定义/旧值 -> angle 沿指定 dim 拼接且该维长度相加；例如 (B,3)+(B,1) -> (B,4)。
         half = torch.cat((-x[..., x.size(-1)//2:], x[..., :x.size(-1)//2]), -1)
+        # [变化示例] half=未定义/旧值 -> half 沿指定 dim 拼接且该维长度相加；例如 (B,3)+(B,1) -> (B,4)。
         return x*angle.cos() + half*angle.sin()
+        # [变化示例] 函数内部：x*angle.cos() + half*angle.sin()；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** 原实现的缓存布局依赖特定输入维度，且没有 offset。修正版明确使用 `(B,H,S,D)`，适合训练和增量解码。
@@ -2554,16 +3048,24 @@ $$
 class SinusoidalPosition(nn.Module):
     def __init__(self, max_len, d_model):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         pe = torch.zeros(max_len, d_model)
+        # [变化示例] pe=未定义/旧值 -> pe=全 0 张量；shape 由 max_len, d_model 指定。
         pos = torch.arange(max_len).float()[:,None]
+        # [变化示例] pos=未定义/旧值 -> pos=等差序列 arange(max_len)；例如 arange(4) 为 [0,1,2,3]。
         freq = torch.exp(torch.arange(0,d_model,2).float()*(-math.log(10000.0)/d_model))
+        # [变化示例] freq=未定义/旧值 -> freq=逐元素指数；例如 [0,1] -> [1,2.718]。
         pe[:,0::2] = torch.sin(pos*freq)
+        # [变化示例] 目标切片 pe[:,0::2]=旧值 -> torch.sin(pos*freq)；base tensor 对应位置同步被写入。
         # odd d_model 时，cos 列比 sin 少一列
         pe[:,1::2] = torch.cos(pos*freq[:pe[:,1::2].shape[1]])
+        # [变化示例] 目标切片 pe[:,1::2]=旧值 -> torch.cos(pos*freq[:pe[:,1::2].shape[1]])；base tensor 对应位置同步被写入。
         self.register_buffer("pe", pe[None])
+        # [变化示例] 执行状态：调用 self.register_buffer("pe", pe[None]) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
 
     def forward(self, x):
         return x + self.pe[:,:x.size(1)].to(x.dtype)
+        # [变化示例] 函数内部：x + self.pe[:,:x.size(1)].to(x.dtype)；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库答案对偶数 `d_model` 正确；这里额外兼容奇数维，并直接返回“输入加位置编码”的常见模块行为。
@@ -2615,63 +3117,105 @@ $$
 def rope_heads(x, offset=0):
     # x:(B,H,S,Dh)，相邻偶/奇维组成二维旋转对
     d = x.size(-1)
+    # [变化示例] d=未定义/旧值 -> d=指定轴长度；例如 shape=(2,3,4)，size(-1) -> 对应维长度。
     if d % 2: raise ValueError("RoPE head_dim 必须为偶数")
+    # [变化示例] 分支示例：条件 True -> 抛出异常并停止；False -> 输入通过检查并继续。
     pos = torch.arange(offset, offset+x.size(-2), device=x.device, dtype=torch.float32)
+    # [变化示例] pos=未定义/旧值 -> pos=等差序列 arange(offset, offset+x.size(-2)；例如 arange(4) 为 [0,1,2,3]。
     inv = 10000.0 ** (-torch.arange(0,d,2,device=x.device,dtype=torch.float32)/d)
+    # [变化示例] inv=未定义/旧值 -> inv=10000.0 ** (-torch.arange(0,d,2,device=x.device,dtype=torch.flo...；数值示例：2 ** 3 -> 8。
     angle = torch.outer(pos, inv).to(x.dtype)[None,None]
+    # [变化示例] angle=未定义/旧值 -> angle 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
     even, odd = x[...,0::2], x[...,1::2]
+    # [变化示例] even, odd=未定义/旧值 -> even, odd=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
     return torch.stack((even*angle.cos()-odd*angle.sin(),
                         even*angle.sin()+odd*angle.cos()),-1).flatten(-2)
+    # [变化示例] 函数内部：result 在新轴堆叠；例如两个 (B,D) -> (2,B,D)（dim=0） -> 调用方收到该输出。
 
 class SmolAttention(nn.Module):
     def __init__(self, d_model, q_heads, kv_heads):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if d_model % q_heads or q_heads % kv_heads: raise ValueError("head 配置无效")
+        # [变化示例] 分支示例：条件 True -> 抛出异常并停止；False -> 输入通过检查并继续。
         self.hq, self.hkv, self.dh = q_heads, kv_heads, d_model//q_heads
+        # [变化示例] self.hq, self.hkv, self.dh=未定义/旧值 -> self.hq, self.hkv, self.dh=tuple (q_heads, kv_heads, d_model//q_heads)；多个值按位置传递/解包，元素本身不被复制。
         self.q = nn.Linear(d_model,d_model,bias=False)
+        # [变化示例] self.q=未定义/旧值 -> self.q=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
         self.k = nn.Linear(d_model,kv_heads*self.dh,bias=False)
+        # [变化示例] self.k=未定义/旧值 -> self.k=线性映射模块；输入最后一维 d_model -> 输出最后一维 kv_heads*self.dh。
         self.v = nn.Linear(d_model,kv_heads*self.dh,bias=False)
+        # [变化示例] self.v=未定义/旧值 -> self.v=线性映射模块；输入最后一维 d_model -> 输出最后一维 kv_heads*self.dh。
         self.o = nn.Linear(d_model,d_model,bias=False)
+        # [变化示例] self.o=未定义/旧值 -> self.o=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_model。
     def forward(self,x):
         b,s,_=x.shape
+        # [变化示例] b,s,_=未定义/旧值 -> b,s,_=x.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
         q=self.q(x).view(b,s,self.hq,self.dh).transpose(1,2)
+        # [变化示例] q=未定义/旧值 -> q=先拆分 shape 再交换轴；例如 (B,S,H*D) -> (B,S,H,D) -> (B,H,S,D)。
         k=self.k(x).view(b,s,self.hkv,self.dh).transpose(1,2)
+        # [变化示例] k=未定义/旧值 -> k=先拆分 shape 再交换轴；例如 (B,S,H*D) -> (B,S,H,D) -> (B,H,S,D)。
         v=self.v(x).view(b,s,self.hkv,self.dh).transpose(1,2)
+        # [变化示例] v=未定义/旧值 -> v=先拆分 shape 再交换轴；例如 (B,S,H*D) -> (B,S,H,D) -> (B,H,S,D)。
         q,k=rope_heads(q),rope_heads(k)
+        # [变化示例] q,k=未定义/旧值 -> q,k 接收 rope_heads(q),rope_heads(k) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         repeat=self.hq//self.hkv
+        # [变化示例] repeat=未定义/旧值 -> repeat=self.hq//self.hkv；数值示例：7 // 3 -> 2。
         k,v=k.repeat_interleave(repeat,1),v.repeat_interleave(repeat,1)
+        # [变化示例] k,v=未定义/旧值 -> k,v=沿指定轴重复；例如 head 轴 H=2、repeats=3 -> H=6。
         scores=q@k.transpose(-2,-1)/math.sqrt(self.dh)
+        # [变化示例] scores=未定义/旧值 -> scores=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
         future=torch.triu(torch.ones(s,s,device=x.device,dtype=torch.bool),1)
+        # [变化示例] future=未定义/旧值 -> future=上三角部分；例如 3x3 全 1 且 diagonal=1 -> 仅严格上三角为 1。
         y=torch.softmax(scores.masked_fill(future,-torch.inf),-1)@v
+        # [变化示例] y=未定义/旧值 -> 先把 scores 归一化为每行和为 1 的权重，再与 V 相乘得到 y；shape (...,Sq,Sk) @ (...,Sk,D) -> (...,Sq,D)。
         return self.o(y.transpose(1,2).contiguous().view(b,s,-1))
+        # [变化示例] 函数内部：执行 self.o(y.transpose(1,2).contiguous().view(b,s,-1)) 得到结果 -> 调用方收到该输出。
 
 class SmolBlock(nn.Module):
     def __init__(self,d_model,q_heads,kv_heads,d_ff):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.n1,self.n2=nn.RMSNorm(d_model),nn.RMSNorm(d_model)
+        # [变化示例] self.n1,self.n2=未定义/旧值 -> self.n1,self.n2 接收 nn.RMSNorm(d_model),nn.RMSNorm(d_model) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         self.attn=SmolAttention(d_model,q_heads,kv_heads)
+        # [变化示例] self.attn=未定义/旧值 -> self.attn 接收 SmolAttention(d_model,q_heads,kv_heads) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         self.gate,self.up=nn.Linear(d_model,d_ff,bias=False),nn.Linear(d_model,d_ff,bias=False)
+        # [变化示例] self.gate,self.up=未定义/旧值 -> self.gate,self.up=线性映射模块；输入最后一维 d_model -> 输出最后一维 d_ff。
         self.down=nn.Linear(d_ff,d_model,bias=False)
+        # [变化示例] self.down=未定义/旧值 -> self.down=线性映射模块；输入最后一维 d_ff -> 输出最后一维 d_model。
     def forward(self,x):
         # Pre-Norm residual：先 attention，再 SwiGLU
         x=x+self.attn(self.n1(x))
+        # [变化示例] x=未定义/旧值 -> x=x+self.attn(self.n1(x))；数值示例：2 + 3 -> 5。
         z=self.n2(x)
+        # [变化示例] z=未定义/旧值 -> z 接收 self.n2(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         return x+self.down(F.silu(self.gate(z))*self.up(z))
+        # [变化示例] 函数内部：x+self.down(F.silu(self.gate(z))*self.up(z))；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 
 class SmolLM(nn.Module):
     def __init__(self, vocab, d_model, layers, q_heads, kv_heads, d_ff):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.embed = nn.Embedding(vocab, d_model)
+        # [变化示例] self.embed=未定义/旧值 -> self.embed=Embedding 查表模块；token ids shape (B,S) -> 输出 (B,S,D)。
         self.blocks = nn.ModuleList([SmolBlock(d_model,q_heads,kv_heads,d_ff)
                                      for _ in range(layers)])
+        # [变化示例] self.blocks=未定义/旧值 -> self.blocks=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
         self.norm = nn.RMSNorm(d_model)
+        # [变化示例] self.norm=未定义/旧值 -> self.norm 接收 nn.RMSNorm(d_model) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         self.lm_head = nn.Linear(d_model, vocab, bias=False)
+        # [变化示例] self.lm_head=未定义/旧值 -> self.lm_head=线性映射模块；输入最后一维 d_model -> 输出最后一维 vocab。
         self.lm_head.weight = self.embed.weight
+        # [变化示例] self.lm_head.weight=未定义/旧值 -> self.lm_head.weight=self.embed.weight；这是一次重新绑定/状态更新，右侧值决定新状态。
 
     def forward(self, ids):
         x = self.embed(ids)
+        # [变化示例] x=未定义/旧值 -> x 接收 self.embed(ids) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         for block in self.blocks: x=block(x)
+        # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
         return self.lm_head(self.norm(x))  # (B,S,V) raw logits
+        # [变化示例] 函数内部：执行 self.lm_head(self.norm(x)) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库完整答案存在 device buffer、`attention_mask=None`、外部权重文件和生成输入原地修改等问题，不能独立稳定运行。修正版真正包含 RMSNorm、RoPE、GQA、causal mask、SwiGLU、Pre-Norm residual 和 tied embedding/LM head。面试时要能从 `(B,S,D)` 一直追踪到 attention 的 `(B,H,S,Dh)`，并解释为什么 KV heads 少于 Q heads 能降低 cache 内存。
@@ -2736,11 +3280,15 @@ $$
 class CustomActivationModel(nn.Module):
     def __init__(self, in_features=1, out_features=1):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.linear = nn.Linear(in_features, out_features)
+        # [变化示例] self.linear=未定义/旧值 -> self.linear=线性映射模块；输入最后一维 in_features -> 输出最后一维 out_features。
 
     def forward(self, x):
         z = self.linear(x)
+        # [变化示例] z=未定义/旧值 -> z 接收 self.linear(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         return torch.tanh(z) + z  # 平滑非线性 + residual
+        # [变化示例] 函数内部：torch.tanh(z) + z；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库答案正确。该激活没有参数，且所有操作都由 autograd 支持。
@@ -2780,13 +3328,19 @@ $$
 class CSVDataset(torch.utils.data.Dataset):
     def __init__(self, csv_file):
         frame = pd.read_csv(csv_file)
+        # [变化示例] frame=未定义/旧值 -> frame 接收 pd.read_csv(csv_file) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         # 预先转 tensor，避免每次 __getitem__ 重复转换
         self.x = torch.as_tensor(frame[["X"]].to_numpy(), dtype=torch.float32)
+        # [变化示例] self.x=未定义/旧值 -> self.x 接收 torch.as_tensor(frame[["X"]].to_numpy(), dtype=torch.float32) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         self.y = torch.as_tensor(frame[["y"]].to_numpy(), dtype=torch.float32)
+        # [变化示例] self.y=未定义/旧值 -> self.y 接收 torch.as_tensor(frame[["y"]].to_numpy(), dtype=torch.float32) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     def __len__(self): return self.x.size(0)
+    # [变化示例] 调用该单行函数时：函数内部：指定轴长度；例如 shape=(2,3,4)，size(0) -> 对应维长度 -> 调用方收到该输出。
     def __getitem__(self, index): return self.x[index], self.y[index]
+    # [变化示例] 调用该单行函数时：函数内部：索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,) -> 调用方收到该输出。
 
 loader = DataLoader(CSVDataset("data.csv"), batch_size=32, shuffle=True)
+# [变化示例] loader=未定义/旧值 -> loader=批数据迭代器；N 个样本按 batch_size=B -> 约 ceil(N/B) 个 batch。
 ```
 
 **中文解释。** 仓库实现正确，但类名与题目要求不一致。核心 contract 是长度和单样本索引；DataLoader 再负责 shuffle、batch 和 worker。
@@ -2825,12 +3379,15 @@ $$
 class DNNModel(nn.Module):
     def __init__(self, in_features=2, hidden=32):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.net = nn.Sequential(
             nn.Linear(in_features, hidden), nn.ReLU(), nn.Linear(hidden, 1)
         )
+        # [变化示例] self.net=未定义/旧值 -> self.net=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
     def forward(self, x):
         # 两层线性映射之间加入 ReLU，才能拟合非线性关系
         return self.net(x)  # (B,2) -> (B,H) -> (B,1)
+        # [变化示例] 函数内部：执行 self.net(x) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库模型正确。回归末层不加 Softmax/Sigmoid，才能输出任意实数。
@@ -2869,13 +3426,18 @@ $$
 class HuberLoss(nn.Module):
     def __init__(self, delta=1.0):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         if delta <= 0: raise ValueError("delta 必须为正")
+        # [变化示例] 分支示例：条件 True -> 抛出异常并停止；False -> 输入通过检查并继续。
         self.delta = delta
+        # [变化示例] self.delta=未定义/旧值 -> self.delta=delta；这是一次重新绑定/状态更新，右侧值决定新状态。
     def forward(self, pred, target):
         e = (pred-target).abs()
+        # [变化示例] e=未定义/旧值 -> e 接收 (pred-target).abs() 的返回值；用 shape/dtype/device 与示例输入核对变化。
         # 两段在 e=delta 处函数值和一阶导数都连续
         return torch.where(e <= self.delta, 0.5*e.square(),
                            self.delta*(e-0.5*self.delta)).mean()
+        # [变化示例] 函数内部：按条件逐元素选择；例如 x=[-2,0,3]、条件 x>0 -> [0,0,3] -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库公式正确；修正版增加 delta 校验。Huber 在小误差处保留 MSE 的平滑性，在大误差处像 L1 一样稳健。
@@ -2915,10 +3477,13 @@ $$
 class LinearRegressionModel(nn.Module):
     def __init__(self, input_dim=1):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.linear = nn.Linear(input_dim, 1)
+        # [变化示例] self.linear=未定义/旧值 -> self.linear=线性映射模块；输入最后一维 input_dim -> 输出最后一维 1。
     def forward(self, x):
         # Linear 内部完成矩阵乘法与 bias 广播
         return self.linear(x)  # y_hat = XW^T + b
+        # [变化示例] 函数内部：执行 self.linear(x) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库答案正确。标准循环顺序是 `zero_grad -> forward -> loss -> backward -> step`。
@@ -2957,10 +3522,15 @@ $$
 ```python
 # 保存参数，不序列化整个 Python 对象
 torch.save(model.state_dict(), "model.pth")
+# [变化示例] 执行状态：调用 torch.save(model.state_dict(), "model.pth") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
 loaded = SimpleModel()
+# [变化示例] loaded=未定义/旧值 -> loaded=SimpleModel()；这是一次重新绑定/状态更新，右侧值决定新状态。
 state = torch.load("model.pth", map_location="cpu", weights_only=True)
+# [变化示例] state=未定义/旧值 -> state 接收 torch.load("model.pth", map_location="cpu", weights_only=True) 的返回值；用 shape/dtype/device 与示例输入核对变化。
 loaded.load_state_dict(state)
+# [变化示例] 执行状态：调用 loaded.load_state_dict(state) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
 loaded.eval()  # 关闭 Dropout，并让 BatchNorm 使用 running stats
+# [变化示例] 模块模式：旧 train/eval 标志 -> 评估模式，影响 Dropout/BatchNorm。
 ```
 
 **中文解释。** 仓库主流程正确。修正版增加 `map_location` 和 `weights_only=True`，更安全且能从 GPU checkpoint 加载到 CPU。
@@ -3001,11 +3571,17 @@ $$
 from torch.utils.tensorboard import SummaryWriter
 
 with SummaryWriter("runs/linear_regression") as writer:
+    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
     for epoch in range(epochs):
+        # [变化示例] 循环示例：range(epochs) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
         optimizer.zero_grad()
+        # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
         loss = criterion(model(X), y)
+        # [变化示例] loss=未定义/旧值 -> loss 接收 criterion(model(X), y) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         loss.backward(); optimizer.step()
+        # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
         writer.add_scalar("loss/train", loss.item(), epoch)
+        # [变化示例] 执行状态：调用 writer.add_scalar("loss/train", loss.item(), epoch) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         # flush/close 由 with 自动处理，日志不会丢失
 ```
 
@@ -3050,10 +3626,12 @@ train_tf = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.4914,0.4822,0.4465),(0.2470,0.2435,0.2616)),
 ])
+# [变化示例] train_tf=未定义/旧值 -> train_tf 接收 transforms.Compose([ transforms.RandomHorizontalFlip(0.5), ... 的返回值；用 shape/dtype/device 与示例输入核对变化。
 test_tf = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.4914,0.4822,0.4465),(0.2470,0.2435,0.2616)),
 ])  # 测试集不能使用随机 crop/flip
+# [变化示例] test_tf=未定义/旧值 -> test_tf 接收 transforms.Compose([ transforms.ToTensor(), transforms.Norm... 的返回值；用 shape/dtype/device 与示例输入核对变化。
 ```
 
 **中文解释。** 仓库答案把随机训练增强也用于 test set，评估会随机波动；题面还写 28x28 而代码使用 CIFAR 常见的 padded 32x32 crop。修正版按 CIFAR-10 语义统一。
@@ -3095,15 +3673,20 @@ $$
 class Autoencoder(nn.Module):
     def __init__(self):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.encoder = nn.Sequential(nn.Conv2d(1,32,3,padding=1), nn.ReLU(),
                                      nn.MaxPool2d(2), nn.Conv2d(32,64,3,padding=1),
                                      nn.ReLU(), nn.MaxPool2d(2))
+        # [变化示例] self.encoder=未定义/旧值 -> self.encoder=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
         self.decoder = nn.Sequential(nn.ConvTranspose2d(64,32,4,2,1), nn.ReLU(),
                                      nn.ConvTranspose2d(32,1,4,2,1), nn.Sigmoid())
+        # [变化示例] self.decoder=未定义/旧值 -> self.decoder=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
     def forward(self, x): return self.decoder(self.encoder(x))
+    # [变化示例] 调用该单行函数时：函数内部：执行 self.decoder(self.encoder(x)) 得到结果 -> 调用方收到该输出。
 
 # 输入只用 ToTensor() 保持 [0,1]，与 Sigmoid 输出范围一致
 anomaly_score = (model(images)-images).square().flatten(1).mean(1)
+# [变化示例] anomaly_score=未定义/旧值 -> anomaly_score 接收 (model(images)-images).square().flatten(1).mean(1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
 ```
 
 **中文解释。** 仓库将输入归一化到 `[-1,1]`，但 decoder 用 Sigmoid 限制到 `[0,1]`，目标范围不匹配。要么只 `ToTensor`，要么末层改 Tanh。
@@ -3148,15 +3731,25 @@ $$
 def timed_epoch(model, loader, train=False):
     # train=False 时同时关闭训练模式和梯度记录
     model.train(train)
+    # [变化示例] 执行状态：调用 model.train(train) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
     if torch.cuda.is_available(): torch.cuda.synchronize()
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
     start = time.perf_counter()
+    # [变化示例] start=未定义/旧值 -> start=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
     with torch.set_grad_enabled(train):
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
         for x, y in loader:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
             logits = model(x.to(device)); loss = F.cross_entropy(logits, y.to(device))
+            # [变化示例] logits=未定义/旧值 -> logits 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
             if train:
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
                 optimizer.zero_grad(); loss.backward(); optimizer.step()
+                # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
     if torch.cuda.is_available(): torch.cuda.synchronize()
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
     return time.perf_counter()-start
+    # [变化示例] 函数内部：time.perf_counter()-start；数值示例：3 - 2 -> 1 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库 CPU 计时逻辑可用，但题目要求至少两个 hidden layers，模型实际只有一个；GPU benchmark 还需同步。严谨微基准可用 `torch.utils.benchmark` 或 CUDA Events。
@@ -3202,13 +3795,17 @@ $$
 class CIFAR10CNN(nn.Module):
     def __init__(self):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.features = nn.Sequential(
             nn.Conv2d(3,32,3,padding=1), nn.ReLU(), nn.MaxPool2d(2),
             nn.Conv2d(32,64,3,padding=1), nn.ReLU(), nn.MaxPool2d(2),
         )
+        # [变化示例] self.features=未定义/旧值 -> self.features=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
         self.head = nn.Sequential(nn.Flatten(), nn.Linear(64*8*8,128),
                                   nn.ReLU(), nn.Linear(128,10))
+        # [变化示例] self.head=未定义/旧值 -> self.head=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
     def forward(self, x): return self.head(self.features(x))
+    # [变化示例] 调用该单行函数时：函数内部：执行 self.head(self.features(x)) 得到结果 -> 调用方收到该输出。
 # 尺寸图示：32x32 -> 16x16 -> 8x8 -> 10 类 logits
 ```
 
@@ -3249,16 +3846,25 @@ $$
 
 ```python
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# [变化示例] device=未定义/旧值 -> device=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
 scaler = torch.amp.GradScaler("cuda", enabled=device.type=="cuda")
+# [变化示例] scaler=未定义/旧值 -> scaler 接收 torch.amp.GradScaler("cuda", enabled=device.type=="cuda") 的返回值；用 shape/dtype/device 与示例输入核对变化。
 for x, y in loader:
+    # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
     x, y = x.to(device), y.to(device)
+    # [变化示例] x, y=未定义/旧值 -> x, y 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
     optimizer.zero_grad(set_to_none=True)
+    # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
     with torch.autocast(device_type=device.type, dtype=torch.float16,
                         enabled=device.type=="cuda"):
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
         loss = criterion(model(x), y)
+        # [变化示例] loss=未定义/旧值 -> loss 接收 criterion(model(x), y) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     # 先缩放 loss 保护小梯度，再由 scaler 安全执行参数更新
     scaler.scale(loss).backward()
+    # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
     scaler.step(optimizer); scaler.update()
+    # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
 ```
 
 **中文解释。** 仓库 CUDA 版本逻辑正确但使用旧 API，并强制 `.cuda()`，无 GPU 时无法运行。修正版可按设备启停 AMP。
@@ -3305,16 +3911,24 @@ $$
 class LanguageModel(nn.Module):
     def __init__(self, vocab, embed, hidden):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.embedding = nn.Embedding(vocab, embed)
+        # [变化示例] self.embedding=未定义/旧值 -> self.embedding=Embedding 查表模块；token ids shape (B,S) -> 输出 (B,S,D)。
         self.lstm = nn.LSTM(embed, hidden, batch_first=True)
+        # [变化示例] self.lstm=未定义/旧值 -> self.lstm 接收 nn.LSTM(embed, hidden, batch_first=True) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         self.fc = nn.Linear(hidden, vocab)
+        # [变化示例] self.fc=未定义/旧值 -> self.fc=线性映射模块；输入最后一维 hidden -> 输出最后一维 vocab。
     def forward(self, ids):
         out, _ = self.lstm(self.embedding(ids))
+        # [变化示例] out, _=未定义/旧值 -> out, _ 接收 self.lstm(self.embedding(ids)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         return self.fc(out[:,-1])  # 返回 logits，不在模型里 Softmax
+        # [变化示例] 函数内部：执行 self.fc(out[:,-1]) 得到结果 -> 调用方收到该输出。
 
 model.eval().cpu()
+# [变化示例] 模块模式：旧 train/eval 标志 -> 评估模式，影响 Dropout/BatchNorm。
 quantized = torch.ao.quantization.quantize_dynamic(model, {nn.LSTM,nn.Linear},
                                                    dtype=torch.qint8)
+# [变化示例] quantized=未定义/旧值 -> quantized 接收 torch.ao.quantization.quantize_dynamic(model, {nn.LSTM,nn.L... 的返回值；用 shape/dtype/device 与示例输入核对变化。
 ```
 
 **中文解释。** 仓库在模型中先 Softmax，再交给 `CrossEntropyLoss`，这是错误组合，因为该 loss 需要 raw logits。动态量化主要面向 CPU inference，不用于继续训练。
@@ -3359,17 +3973,27 @@ $$
 class ManualRNN(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.hidden_dim = hidden_dim
+        # [变化示例] self.hidden_dim=未定义/旧值 -> self.hidden_dim=hidden_dim；这是一次重新绑定/状态更新，右侧值决定新状态。
         self.Wx = nn.Parameter(torch.randn(input_dim,hidden_dim)*0.1)
+        # [变化示例] self.Wx=未定义/旧值 -> self.Wx=注册后的可训练参数；原 tensor shape/dtype/device 保持，默认 requires_grad -> True。
         self.Wh = nn.Parameter(torch.randn(hidden_dim,hidden_dim)*0.1)
+        # [变化示例] self.Wh=未定义/旧值 -> self.Wh=注册后的可训练参数；原 tensor shape/dtype/device 保持，默认 requires_grad -> True。
         self.b = nn.Parameter(torch.zeros(hidden_dim))
+        # [变化示例] self.b=未定义/旧值 -> self.b=注册后的可训练参数；原 tensor shape/dtype/device 保持，默认 requires_grad -> True。
         self.out = nn.Linear(hidden_dim, output_dim)
+        # [变化示例] self.out=未定义/旧值 -> self.out=线性映射模块；输入最后一维 hidden_dim -> 输出最后一维 output_dim。
     def forward(self, x):
         # 初始 hidden state 必须与输入同 device、同 dtype
         h = x.new_zeros(x.size(0), self.hidden_dim)
+        # [变化示例] h=未定义/旧值 -> h=指定轴长度；例如 shape=(2,3,4)，size(0) -> 对应维长度。
         for t in range(x.size(1)):
+            # [变化示例] 循环示例：range(x.size(1) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
             h = torch.tanh(x[:,t] @ self.Wx + h @ self.Wh + self.b)
+            # [变化示例] h=未定义/旧值 -> h 接收 torch.tanh(x[:,t] @ self.Wx + h @ self.Wh + self.b) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         return self.out(h)
+        # [变化示例] 函数内部：执行 self.out(h) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库答案正确，并正确让初始 hidden state 跟随输入 device。长序列中普通 RNN 容易梯度消失，LSTM/GRU 用门控缓解。
@@ -3417,15 +4041,22 @@ class LearnedSiLU(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, slope):
         ctx.save_for_backward(x, slope)
+        # [变化示例] 执行状态：调用 ctx.save_for_backward(x, slope) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         return slope * x * torch.sigmoid(x)
+        # [变化示例] 函数内部：slope * x * torch.sigmoid(x)；数值示例：2 * 3 -> 6 -> 调用方收到该输出。
     @staticmethod
     def backward(ctx, grad_out):
         x, slope = ctx.saved_tensors
+        # [变化示例] x, slope=未定义/旧值 -> x, slope=ctx.saved_tensors；这是一次重新绑定/状态更新，右侧值决定新状态。
         s = torch.sigmoid(x)
+        # [变化示例] s=未定义/旧值 -> s=逐元素 Sigmoid；例如 [-1,0,1] -> 约 [0.269,0.5,0.731]。
         grad_x = grad_out * slope * (s + x*s*(1-s))
+        # [变化示例] grad_x=未定义/旧值 -> grad_x=grad_out * slope * (s + x*s*(1-s))；数值示例：2 * 3 -> 6。
         # slope 可能是标量参数，必须把广播后的梯度求和回原形状
         grad_slope = (grad_out*x*s).sum_to_size(slope.shape)
+        # [变化示例] grad_slope=未定义/旧值 -> grad_slope 接收 (grad_out*x*s).sum_to_size(slope.shape) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         return grad_x, grad_slope
+        # [变化示例] 函数内部：tuple (grad_x, grad_slope)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库未正确保存 slope tensor，且 `grad_slope` 形状可能与参数不符，后面还访问不存在的 `model.linear`。修正版满足 autograd 的形状 contract。
@@ -3467,15 +4098,23 @@ $$
 ```python
 # 判别器末层返回 logits，使用更稳定的 BCEWithLogitsLoss
 loss_fn = nn.BCEWithLogitsLoss()
+# [变化示例] loss_fn=未定义/旧值 -> loss_fn 接收 nn.BCEWithLogitsLoss() 的返回值；用 shape/dtype/device 与示例输入核对变化。
 optimizer_D.zero_grad()
+# [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
 d_loss = loss_fn(D(real), torch.ones_like(D(real))) + \
          loss_fn(D(G(z).detach()), torch.zeros_like(D(real)))
+# [变化示例] d_loss=未定义/旧值 -> d_loss=loss_fn(D(real), torch.ones_like(D(real))) + \ loss_fn(D(G(z).d...；数值示例：2 + 3 -> 5。
 d_loss.backward(); optimizer_D.step()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
 
 optimizer_G.zero_grad()
+# [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
 fake_logits = D(G(z))  # 此处不能 detach，梯度需要回到 G
+# [变化示例] fake_logits=未定义/旧值 -> fake_logits 接收 D(G(z)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
 g_loss = loss_fn(fake_logits, torch.ones_like(fake_logits))
+# [变化示例] g_loss=未定义/旧值 -> g_loss 接收 loss_fn(fake_logits, torch.ones_like(fake_logits)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
 g_loss.backward(); optimizer_G.step()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
 ```
 
 **中文解释。** 仓库 Sigmoid+BCELoss 在数学上正确，但 logits 版本数值更稳定。训练 D 时 detach G 输出；训练 G 时保留完整图。
@@ -3517,16 +4156,24 @@ $$
 class AdditiveAttention(nn.Module):
     def __init__(self, hidden):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.energy = nn.Linear(2*hidden, hidden)
+        # [变化示例] self.energy=未定义/旧值 -> self.energy=线性映射模块；输入最后一维 2*hidden -> 输出最后一维 hidden。
         self.score = nn.Linear(hidden, 1, bias=False)
+        # [变化示例] self.score=未定义/旧值 -> self.score=线性映射模块；输入最后一维 hidden -> 输出最后一维 1。
     def forward(self, query, memory, src_mask=None):
         # 将 decoder query 复制到每个 source 位置后逐位置打分
         # query:(B,H), memory:(B,S,H) -> scores:(B,S)
         q = query[:,None].expand(-1,memory.size(1),-1)
+        # [变化示例] q=未定义/旧值 -> q 新增长度为 1 的轴；例如 (B,D) -> (B,1,D)，元素值不变。
         scores = self.score(torch.tanh(self.energy(torch.cat((q,memory),-1)))).squeeze(-1)
+        # [变化示例] scores=未定义/旧值 -> scores 接收 self.score(torch.tanh(self.energy(torch.cat((q,memory),-1))... 的返回值；用 shape/dtype/device 与示例输入核对变化。
         if src_mask is not None: scores = scores.masked_fill(~src_mask, float("-inf"))
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         weights = torch.softmax(scores,-1)
+        # [变化示例] weights=未定义/旧值 -> weights=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
         return torch.bmm(weights[:,None], memory).squeeze(1), weights
+        # [变化示例] 函数内部：矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N) -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库实现对固定 source length 可用，但把注意力输出维度写死为 `src_seq_length`，无法自然支持变长与 padding。修正版逐位置打分并支持 mask。
@@ -3575,15 +4222,22 @@ $$
 class EncoderBlock(nn.Module):
     def __init__(self, d_model, heads, d_ff):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.attn = nn.MultiheadAttention(d_model, heads, batch_first=True)
+        # [变化示例] self.attn=未定义/旧值 -> self.attn 接收 nn.MultiheadAttention(d_model, heads, batch_first=True) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         self.ff = nn.Sequential(nn.Linear(d_model,d_ff),nn.ReLU(),nn.Linear(d_ff,d_model))
+        # [变化示例] self.ff=未定义/旧值 -> self.ff=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
         self.n1, self.n2 = nn.LayerNorm(d_model), nn.LayerNorm(d_model)
+        # [变化示例] self.n1, self.n2=未定义/旧值 -> self.n1, self.n2=LayerNorm 模块；例如输入 (...,D) -> 输出仍为 (...,D)，最后一维被归一化。
     def forward(self, x, padding_mask=None):
         # key_padding_mask=True 表示该 key 不可见
         a, _ = self.attn(self.n1(x),self.n1(x),self.n1(x),
                          key_padding_mask=padding_mask, need_weights=False)
+        # [变化示例] a, _=未定义/旧值 -> a, _ 接收 self.attn(self.n1(x),self.n1(x),self.n1(x), key_padding_mas... 的返回值；用 shape/dtype/device 与示例输入核对变化。
         x = x + a
+        # [变化示例] x=未定义/旧值 -> x=x + a；数值示例：2 + 3 -> 5。
         return x + self.ff(self.n2(x))
+        # [变化示例] 函数内部：x + self.ff(self.n2(x))；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库核心 block 正确，但题面要求 padding 支持，答案却没有把 mask 传入 attention。修正版补上这一关键路径。
@@ -3622,18 +4276,28 @@ $$
 
 ```python
 activations = gradients = None
+# [变化示例] activations=未定义/旧值 -> 链式赋值 activations=gradients = None；等号两侧目标最终引用同一给定值。
 def forward_hook(_m,_i,out):
     global activations, gradients
     activations = out
+    # [变化示例] activations=未定义/旧值 -> activations=out；这是一次重新绑定/状态更新，右侧值决定新状态。
     out.register_hook(lambda g: globals().__setitem__("gradients", g))
+    # [变化示例] 执行状态：调用 out.register_hook(lambda g: globals().__setitem__("gradient... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
 
 handle = model.layer4[-1].register_forward_hook(forward_hook)
+# [变化示例] handle=未定义/旧值 -> handle=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
 logits = model(image)
+# [变化示例] logits=未定义/旧值 -> logits 接收 model(image) 的返回值；用 shape/dtype/device 与示例输入核对变化。
 model.zero_grad(set_to_none=True)
+# [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
 logits[0, logits.argmax(1)].backward()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
 weights = gradients.mean((2,3), keepdim=True)
+# [变化示例] weights=未定义/旧值 -> weights=沿指定维求均值；例如 [1,2,3] -> 2。
 cam = (weights*activations).sum(1).relu()
+# [变化示例] cam=未定义/旧值 -> cam 接收 (weights*activations).sum(1).relu() 的返回值；用 shape/dtype/device 与示例输入核对变化。
 cam = cam / cam.amax((1,2), keepdim=True).clamp_min(1e-8)
+# [变化示例] cam=未定义/旧值 -> cam=cam / cam.amax((1,2), keepdim=True).clamp_min(1e-8)；数值示例：6 / 3 -> 2。
 handle.remove()  # hook 用完必须移除
 ```
 
@@ -3681,16 +4345,23 @@ $$
 class Small3DSegmenter(nn.Module):
     def __init__(self, in_channels=1):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.net = nn.Sequential(nn.Conv3d(in_channels,16,3,padding=1),nn.ReLU(),
                                  nn.Conv3d(16,16,3,padding=1),nn.ReLU(),
                                  nn.Conv3d(16,1,1))
+        # [变化示例] self.net=未定义/旧值 -> self.net=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
     def forward(self,x): return self.net(x)  # 返回 logits
+    # [变化示例] 调用该单行函数时：函数内部：执行 self.net(x) 得到结果 -> 调用方收到该输出。
 
 def dice_loss(logits, target, eps=1e-6):
     pred = logits.sigmoid()
+    # [变化示例] pred=未定义/旧值 -> pred=逐元素 Sigmoid；例如 [-1,0,1] -> 约 [0.269,0.5,0.731]。
     dims = tuple(range(1,pred.ndim))
+    # [变化示例] dims=未定义/旧值 -> dims 接收 tuple(range(1,pred.ndim)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     dice = (2*(pred*target).sum(dims)+eps)/(pred.sum(dims)+target.sum(dims)+eps)
+    # [变化示例] dice=未定义/旧值 -> dice=(2*(pred*target).sum(dims)+eps)/(pred.sum(dims)+target.sum(dims...；数值示例：6 / 3 -> 2。
     return 1-dice.mean()  # 最小化 1-Dice，不是 Dice coefficient
+    # [变化示例] 函数内部：1-dice.mean()；数值示例：3 - 2 -> 1 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库 mask 布局为 `(B,D,1,H,W)`、输出为 `(B,1,D,H,W)`，会错误广播；还把 Dice coefficient 当 loss 最小化，方向相反。这里修正两处严重错误。
@@ -3733,18 +4404,22 @@ $$
 class AlexNetCompact(nn.Module):
     def __init__(self, classes=10):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.features = nn.Sequential(
             nn.Conv2d(3,96,11,4,2),nn.ReLU(),nn.MaxPool2d(3,2),
             nn.Conv2d(96,256,5,padding=2),nn.ReLU(),nn.MaxPool2d(3,2),
             nn.Conv2d(256,384,3,padding=1),nn.ReLU(),
             nn.Conv2d(384,384,3,padding=1),nn.ReLU(),
             nn.Conv2d(384,256,3,padding=1),nn.ReLU(),nn.MaxPool2d(3,2))
+        # [变化示例] self.features=未定义/旧值 -> self.features=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
         self.head = nn.Sequential(nn.Flatten(),nn.Dropout(),nn.Linear(256*6*6,4096),
                                   nn.ReLU(),nn.Dropout(),nn.Linear(4096,4096),
                                   nn.ReLU(),nn.Linear(4096,classes))
+        # [变化示例] self.head=未定义/旧值 -> self.head=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
     def forward(self,x):
         # 卷积提取空间特征，展平后由三层分类头输出 logits
         return self.head(self.features(x))
+        # [变化示例] 函数内部：执行 self.head(self.features(x)) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库架构正确。CIFAR-10 必须先 resize 到 224；500 epochs 很昂贵，只是示例配置而非必要条件。
@@ -3786,13 +4461,20 @@ $$
 ```python
 def init_weights(module, kind="kaiming"):
     if not isinstance(module,(nn.Conv2d,nn.Linear)): return
+    # [变化示例] 分支示例：条件 True -> 立即返回 返回值；False -> 继续执行下一行。
     if kind == "zero": nn.init.zeros_(module.weight)
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
     elif kind == "random": nn.init.normal_(module.weight,0,0.01)
+    # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
     elif kind == "xavier": nn.init.xavier_normal_(module.weight)
+    # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
     elif kind == "kaiming": nn.init.kaiming_normal_(module.weight,mode="fan_in",
                                                     nonlinearity="relu")
+    # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
     else: raise ValueError("未知初始化")
+    # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
     if module.bias is not None: nn.init.zeros_(module.bias)
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
 ```
 
 **中文解释。** 仓库总体正确，但 random 默认标准差 1 往往过大，Kaiming Conv 使用 `fan_out` 与前向方差目标不一致。全零初始化让同层神经元保持对称，无法学出不同特征。
@@ -3836,14 +4518,20 @@ $$
 class ScratchCNN(nn.Module):
     def __init__(self):
         super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         self.conv1 = Conv2dCustom(3,32,3,padding=1)
+        # [变化示例] self.conv1=未定义/旧值 -> self.conv1 接收 Conv2dCustom(3,32,3,padding=1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         self.conv2 = Conv2dCustom(32,64,3,padding=1)
+        # [变化示例] self.conv2=未定义/旧值 -> self.conv2 接收 Conv2dCustom(32,64,3,padding=1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         self.pool = MaxPool2dCustom(2,2)
+        # [变化示例] self.pool=未定义/旧值 -> self.pool 接收 MaxPool2dCustom(2,2) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         self.head = nn.Sequential(nn.Flatten(),nn.Linear(64*16*16,128),
                                   nn.ReLU(),nn.Linear(128,10))
+        # [变化示例] self.head=未定义/旧值 -> self.head=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
     def forward(self,x):
         # 修复仓库最终模型误用内置 Conv/Pool 的问题
         return self.head(self.pool(torch.relu(self.conv2(torch.relu(self.conv1(x))))))
+        # [变化示例] 函数内部：执行 self.head(self.pool(torch.relu(self.conv2(torch.relu(self.c... 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库自定义层本身基本正确，但最后 `CNNModel` 仍使用内置层，违反题目核心约束。自定义输出还应使用 `x.new_zeros` 以保持 dtype。
@@ -3886,15 +4574,23 @@ $$
 def lstm_step(x, h, c, Wx, Wh, b):
     # 一次算出 4H，再沿最后维拆门，效率高于四次独立 matmul
     gates = x @ Wx + h @ Wh + b
+    # [变化示例] gates=未定义/旧值 -> gates=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
     i, f, o, g = gates.chunk(4, dim=-1)
+    # [变化示例] i, f, o, g=未定义/旧值 -> i, f, o, g 接收 gates.chunk(4, dim=-1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     i, f, o, g = i.sigmoid(), f.sigmoid(), o.sigmoid(), g.tanh()
+    # [变化示例] i, f, o, g=未定义/旧值 -> i, f, o, g=逐元素 Sigmoid；例如 [-1,0,1] -> 约 [0.269,0.5,0.731]。
     c = f*c + i*g
+    # [变化示例] c=未定义/旧值 -> c=f*c + i*g；数值示例：2 + 3 -> 5。
     h = o*c.tanh()
+    # [变化示例] h=未定义/旧值 -> h=o*c.tanh()；数值示例：2 * 3 -> 6。
     return h, c
+    # [变化示例] 函数内部：tuple (h, c)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
 
 # 初始状态必须确定且跟随输入设备
 h = x.new_zeros(x.size(0), hidden_size)
+# [变化示例] h=未定义/旧值 -> h=指定轴长度；例如 shape=(2,3,4)，size(0) -> 对应维长度。
 c = x.new_zeros(x.size(0), hidden_size)
+# [变化示例] c=未定义/旧值 -> c=指定轴长度；例如 shape=(2,3,4)，size(0) -> 对应维长度。
 ```
 
 **中文解释。** 仓库 gate 公式正确，但每次 forward 随机初始化 h/c，导致相同输入输出不确定，并在 GPU 上 device mismatch。应从零初始化或显式传入状态。
@@ -3936,13 +4632,19 @@ $$
 def sequence_logps(logits, labels, mask=None):
     # token t 的 logits 预测 token t+1
     logp = F.log_softmax(logits[:,:-1],-1)
+    # [变化示例] logp=未定义/旧值 -> logp=log 概率；例如 logits=[0,0] -> 约 [-0.693,-0.693]。
     chosen = logp.gather(-1,labels[:,1:,None]).squeeze(-1)
+    # [变化示例] chosen=未定义/旧值 -> chosen 接收 logp.gather(-1,labels[:,1:,None]).squeeze(-1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     if mask is not None: chosen = chosen*mask[:,1:]
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
     return chosen.sum(-1)
+    # [变化示例] 函数内部：沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留 -> 调用方收到该输出。
 
 def full_dpo(pc, pr, rc, rr, beta=.1):
     margin = (pc-pr) - (rc-rr).detach()
+    # [变化示例] margin=未定义/旧值 -> margin=(pc-pr) - (rc-rr).detach()；数值示例：3 - 2 -> 1。
     return -F.logsigmoid(beta*margin).mean()
+    # [变化示例] 函数内部：执行 -F.logsigmoid(beta*margin).mean() 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 仓库实现符合公式。关键是 sequence shift、padding mask 和 token log-prob 求和，而不是平均。
@@ -3987,23 +4689,35 @@ class CheckpointFn(torch.autograd.Function):
     def forward(ctx, fn, *args):
         # forward 不建立中间激活图，只保存重算所需输入
         ctx.fn = fn
+        # [变化示例] ctx.fn=未定义/旧值 -> ctx.fn=fn；这是一次重新绑定/状态更新，右侧值决定新状态。
         ctx.needs = tuple(x.requires_grad for x in args)
+        # [变化示例] ctx.needs=未定义/旧值 -> ctx.needs 接收 tuple(x.requires_grad for x in args) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         ctx.save_for_backward(*args)
+        # [变化示例] 执行状态：调用 ctx.save_for_backward(*args) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
         with torch.no_grad(): return fn(*args)
+        # [变化示例] 上下文状态：进入前未启用 -> 启用上下文并执行 return fn(*args)，随后自动恢复。
     @staticmethod
     def backward(ctx, grad_out):
         args = tuple(x.detach().requires_grad_(need)
                      for x,need in zip(ctx.saved_tensors,ctx.needs))
+        # [变化示例] args=未定义/旧值 -> args=逐个 detach 后按 need 开启梯度的新叶子 tensor tuple；原 saved tensor -> 可重算反向的独立输入。
         with torch.enable_grad(): out = ctx.fn(*args)
+        # [变化示例] 上下文状态：进入前未启用 -> 启用上下文并执行 out = ctx.fn(*args)，随后自动恢复。
         grad_args=[x for x,need in zip(args,ctx.needs) if need]
+        # [变化示例] grad_args=未定义/旧值 -> grad_args=[x for x,need in zip(args,ctx.needs) if need]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
         computed=torch.autograd.grad(out,grad_args,grad_out,allow_unused=True)
+        # [变化示例] computed=未定义/旧值 -> computed=指定输出对输入的梯度 tuple；例如 y=x^2,x=3,grad_out=1 -> grad=6。
         it=iter(computed)
+        # [变化示例] it=未定义/旧值 -> it 接收 iter(computed) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         grads=tuple(next(it) if need else None for need in ctx.needs)
+        # [变化示例] grads=未定义/旧值 -> grads=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
         return (None,*grads)
+        # [变化示例] 函数内部：tuple (None,*grads)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
 
 def checkpoint_from_scratch(fn,*tensor_args):
     # fn 使用的所有可训练 tensor（包括 functional parameters）都必须显式传入
     return CheckpointFn.apply(fn,*tensor_args)
+    # [变化示例] 函数内部：执行 CheckpointFn.apply(fn,*tensor_args) 得到结果 -> 调用方收到该输出。
 
 # 生产代码推荐官方非 reentrant 版本，它会处理参数、嵌套结构和 RNG 状态
 # y = torch.utils.checkpoint.checkpoint(module, x, use_reentrant=False)
@@ -4051,14 +4765,21 @@ $$
 def full_grpo(new_logp, old_logp, ref_logp, rewards, group_size,
               clip=.2, beta=.01):
     grouped = rewards.view(-1,group_size)
+    # [变化示例] grouped=未定义/旧值 -> grouped 重排为 -1,group_size；元素数量与顺序保持不变（若布局允许则共享 storage）。
     adv = ((grouped-grouped.mean(1,keepdim=True)) /
            grouped.std(1,unbiased=False,keepdim=True).clamp_min(1e-6)).reshape(-1).detach()
+    # [变化示例] adv=未定义/旧值 -> adv=数值相同但与当前 autograd 图断开的 tensor；grad_fn -> None。
     ratio = torch.exp(new_logp-old_logp.detach())
+    # [变化示例] ratio=未定义/旧值 -> ratio=逐元素指数；例如 [0,1] -> [1,2.718]。
     pg = -torch.minimum(ratio*adv, ratio.clamp(1-clip,1+clip)*adv).mean()
+    # [变化示例] pg=未定义/旧值 -> pg 接收 -torch.minimum(ratio*adv, ratio.clamp(1-clip,1+clip)*adv).m... 的返回值；用 shape/dtype/device 与示例输入核对变化。
     # Schulman 非负 KL estimator：令 r=pi_ref/pi_policy，r-log(r)-1 >= 0
     log_r = ref_logp.detach()-new_logp
+    # [变化示例] log_r=未定义/旧值 -> log_r=ref_logp.detach()-new_logp；数值示例：3 - 2 -> 1。
     kl = (torch.exp(log_r)-log_r-1).mean()
+    # [变化示例] kl=未定义/旧值 -> kl 接收 (torch.exp(log_r)-log_r-1).mean() 的返回值；用 shape/dtype/device 与示例输入核对变化。
     return pg + beta*kl
+    # [变化示例] 函数内部：pg + beta*kl；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** 组内 advantage 必须按 prompt 分组，不能跨 prompt 标准化。旧策略用于 PPO ratio，reference 策略用于 KL 约束，两者角色不同。简单的 `(new_logp-ref_logp).mean()` 在有限样本上可为负，不适合作为逐样本 penalty；修正版使用常见的非负 KL estimator。若有完整 vocabulary logits，直接计算 `sum p_policy(log p_policy-log p_ref)` 更清晰。
@@ -4106,11 +4827,16 @@ class MergeableLoRA(LoRALinear):
         merged = nn.Linear(self.linear.in_features,self.linear.out_features,
                            bias=self.linear.bias is not None,
                            device=self.linear.weight.device,dtype=self.linear.weight.dtype)
+        # [变化示例] merged=未定义/旧值 -> merged=线性映射模块；输入最后一维 self.linear.in_features -> 输出最后一维 self.linear.out_features。
         with torch.no_grad():
+            # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
             # Linear weight 布局是 (Dout,Din)：delta_W = B @ A
             merged.weight.copy_(self.linear.weight + self.scaling*self.lora_B@self.lora_A)
+            # [变化示例] 原地状态：目标 tensor=旧值 -> 执行 merged.weight.copy_(self.linear.weight + self.scaling*s... 后直接覆盖同一 storage。
             if merged.bias is not None: merged.bias.copy_(self.linear.bias)
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         return merged
+        # [变化示例] 函数内部：merged；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 方案总体正确。合并前后应在 eval mode 下比较输出，尤其当外围模型含 Dropout 时；替换嵌套模块时要保留 device/dtype。
@@ -4150,13 +4876,21 @@ $$
 def compute_gae(rewards, values, dones, gamma=.99, lam=.95):
     # 从最后时间步向前递推，done 位置会截断 bootstrap
     adv = torch.zeros_like(rewards); last = 0
+    # [变化示例] adv=未定义/旧值 -> adv=全 0 张量；shape 与参照张量相同。
     next_value = torch.zeros_like(values[:,0])
+    # [变化示例] next_value=未定义/旧值 -> next_value=全 0 张量；shape 与参照张量相同。
     for t in reversed(range(rewards.size(1))):
+        # [变化示例] 循环示例：range(rewards.size(1) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
         alive = 1.0-dones[:,t]
+        # [变化示例] alive=未定义/旧值 -> alive=1.0-dones[:,t]；数值示例：3 - 2 -> 1。
         delta = rewards[:,t] + gamma*next_value*alive - values[:,t]
+        # [变化示例] delta=未定义/旧值 -> delta=rewards[:,t] + gamma*next_value*alive - values[:,t]；数值示例：2 + 3 -> 5。
         last = delta + gamma*lam*alive*last
+        # [变化示例] last=未定义/旧值 -> last=delta + gamma*lam*alive*last；数值示例：2 + 3 -> 5。
         adv[:,t] = last; next_value = values[:,t]
+        # [变化示例] 目标切片 adv[:,t]=旧值 -> last; next_value = values[:,t]；base tensor 对应位置同步被写入。
     return adv, adv+values
+    # [变化示例] 函数内部：tuple (adv, adv+values)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
 
 # loss = clipped policy loss + c_v*MSE(value,return) + beta*KL - c_e*entropy
 ```
@@ -4202,14 +4936,22 @@ $$
 ```python
 def kmeans(x,k,max_iters=100,tol=1e-4):
     if not 1 <= k <= x.size(0): raise ValueError("k 超出范围")
+    # [变化示例] 分支示例：条件 True -> 抛出异常并停止；False -> 输入通过检查并继续。
     centers = x[torch.randperm(x.size(0),device=x.device)[:k]].clone()
+    # [变化示例] centers=未定义/旧值 -> centers=独立副本；数值相同，但后续原地修改不再共享同一 storage。
     for _ in range(max_iters):
+        # [变化示例] 循环示例：range(max_iters) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
         labels = torch.cdist(x,centers).argmin(1)
+        # [变化示例] labels=未定义/旧值 -> labels 接收 torch.cdist(x,centers).argmin(1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
         new = torch.stack([x[labels==i].mean(0) if (labels==i).any()
                            else centers[i] for i in range(k)])
+        # [变化示例] new=未定义/旧值 -> new=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
         if (new-centers).norm(dim=1).max() <= tol: break
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         centers = new
+        # [变化示例] centers=未定义/旧值 -> centers=new；这是一次重新绑定/状态更新，右侧值决定新状态。
     return centers, labels
+    # [变化示例] 函数内部：tuple (centers, labels)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 解法基本正确。空 cluster 是重要边界条件；初始化质量还可用 k-means++ 改善。
@@ -4255,9 +4997,12 @@ $$
 ```python
 def knn_predict(x_train,y_train,x_test,k=3):
     if not 1 <= k <= x_train.size(0): raise ValueError("k 超出范围")
+    # [变化示例] 分支示例：条件 True -> 抛出异常并停止；False -> 输入通过检查并继续。
     ids = torch.cdist(x_test,x_train).topk(k,largest=False).indices
+    # [变化示例] ids=未定义/旧值 -> ids 接收 torch.cdist(x_test,x_train).topk(k,largest=False).indices 的返回值；用 shape/dtype/device 与示例输入核对变化。
     # (Ntest,k) -> 每行众数
     return y_train[ids].mode(dim=1).values
+    # [变化示例] 函数内部：索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,) -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 答案正确。`torch.mode` 平票时有固定但可能不符合业务需求的规则；可改用距离加权投票。
@@ -4294,14 +5039,22 @@ $$
 ```python
 def train_logistic(X,y,lr=.1,steps=1000):
     w,b = X.new_zeros(X.size(1)), X.new_zeros(())
+    # [变化示例] w,b=未定义/旧值 -> w,b=指定轴长度；例如 shape=(2,3,4)，size(1) -> 3。
     for _ in range(steps):
+        # [变化示例] 循环示例：range(steps) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
         logits = X@w+b
+        # [变化示例] logits=未定义/旧值 -> logits=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
         p = torch.sigmoid(logits)
+        # [变化示例] p=未定义/旧值 -> p=逐元素 Sigmoid；例如 [-1,0,1] -> 约 [0.269,0.5,0.731]。
         error = p-y
+        # [变化示例] error=未定义/旧值 -> error=p-y；数值示例：3 - 2 -> 1。
         # BCE+sigmoid 的解析梯度
         w -= lr*(X.T@error)/X.size(0)
+        # [变化示例] w=旧值 -> w=旧值 - (lr*(X.T@error)/X.size(0))；数值示例：3 - 2 -> 1，并写回 w。
         b -= lr*error.mean()
+        # [变化示例] b=旧值 -> b=旧值 - (lr*error.mean())；数值示例：3 - 2 -> 1，并写回 b。
     return w,b
+    # [变化示例] 函数内部：tuple (w,b)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 公式正确。计算报告 loss 时优先使用稳定形式 `softplus(logits)-y*logits`，比对概率取 log 更不易溢出。
@@ -4342,8 +5095,11 @@ $$
 ```python
 def stable_softmax(x,dim=-1):
     shifted = x-x.amax(dim=dim,keepdim=True)
+    # [变化示例] shifted=未定义/旧值 -> shifted=输入减去目标维最大值；例如 [1000,1001] -> [-1,0]。
     exp_x = shifted.exp()
+    # [变化示例] exp_x=未定义/旧值 -> exp_x=逐元素指数；例如 [0,1] -> [1,2.718]。
     return exp_x/exp_x.sum(dim=dim,keepdim=True)  # 指定维和为 1
+    # [变化示例] 函数内部：exp_x/exp_x.sum(dim=dim,keepdim=True)；数值示例：6 / 3 -> 2 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 答案正确，与第 02 题一致。若输入含整型，应先转浮点；若整行都是 `-inf`，Softmax 数学上未定义并会产生 NaN。
@@ -4383,17 +5139,28 @@ $$
 ```python
 def tiled_attention(q,k,v,bq=64,bk=64):
     out = v.new_empty(q.size(0),q.size(1),v.size(-1)); scale=q.size(-1)**-0.5
+    # [变化示例] out=未定义/旧值 -> out=v.new_empty(q.size(0),q.size(1),v.size(-1)); scale=q.size(-1)**...；数值示例：2 ** 3 -> 8。
     for i in range(0,q.size(1),bq):
+        # [变化示例] 循环示例：range(0,q.size(1) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
         qi=q[:,i:i+bq]; m=qi.new_full((*qi.shape[:2],1),-torch.inf)
+        # [变化示例] qi=未定义/旧值 -> qi=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
         l=qi.new_zeros(*qi.shape[:2],1); acc=v.new_zeros(*qi.shape[:2],v.size(-1))
+        # [变化示例] l=未定义/旧值 -> l=指定轴长度；例如 shape=(2,3,4)，size(-1) -> 对应维长度。
         for j in range(0,k.size(1),bk):
+            # [变化示例] 循环示例：range(0,k.size(1) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
             s=(qi@k[:,j:j+bk].transpose(-2,-1))*scale
+            # [变化示例] s=未定义/旧值 -> s=(qi@k[:,j:j+bk].transpose(-2,-1))*scale；数值示例：2 * 3 -> 6。
             m_new=torch.maximum(m,s.amax(-1,keepdim=True))
+            # [变化示例] m_new=未定义/旧值 -> m_new=逐元素较小/较大值；例如 minimum([2,5],[3,4]) -> [2,4]。
             correction=(m-m_new).exp(); p=(s-m_new).exp()
+            # [变化示例] correction=未定义/旧值 -> correction 接收 (m-m_new).exp(); p=(s-m_new).exp() 的返回值；用 shape/dtype/device 与示例输入核对变化。
             # 最大值变化时，旧分子和分母必须一起缩放
             acc=acc*correction+p@v[:,j:j+bk]; l=l*correction+p.sum(-1,keepdim=True); m=m_new
+            # [变化示例] acc=未定义/旧值 -> acc=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
         out[:,i:i+bq]=acc/l
+        # [变化示例] out[:,i:i+bq]=未定义/旧值 -> out[:,i:i+bq]=acc/l；数值示例：6 / 3 -> 2。
     return out
+    # [变化示例] 函数内部：out；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 PyTorch 算法正确。题名包含 Triton，但 notebook 主要可靠部分是在线 Softmax 原理；真正 FlashAttention-2 还涉及并行映射、mask、反向 kernel 和数值累加精度。
@@ -4441,14 +5208,18 @@ $$
 def shard_flat(tensor,world_size):
     # 简化前提：元素数可整除；真实 FSDP 会 padding 并记录原 shape
     return tensor.flatten().chunk(world_size)
+    # [变化示例] 函数内部：result 重排为 目标 shape；元素数量与顺序保持不变（若布局允许则共享 storage） -> 调用方收到该输出。
 
 def all_gather(shards,shape):
     return torch.cat(shards).view(shape)
+    # [变化示例] 函数内部：result 沿指定 dim 拼接且该维长度相加；例如 (B,3)+(B,1) -> (B,4) -> 调用方收到该输出。
 
 def reduce_scatter(rank_grads,world_size):
     # 先跨 rank 求和，再分片；训练若要平均梯度还需除 world_size
     reduced=torch.stack(rank_grads).sum(0)
+    # [变化示例] reduced=未定义/旧值 -> reduced 在新轴堆叠；例如两个 (B,D) -> (2,B,D)（dim=0）。
     return reduced.flatten().chunk(world_size)
+    # [变化示例] 函数内部：result 重排为 目标 shape；元素数量与顺序保持不变（若布局允许则共享 storage） -> 调用方收到该输出。
 ```
 
 **中文解释。** 仓库 FakeDistributed 能说明通信语义，但不是真正多进程 FSDP。生产系统还需参数 flatten/padding、通信 overlap、mixed precision、optimizer state sharding 和 autograd hooks。
@@ -4488,10 +5259,14 @@ $$
 ```python
 def ring_update(q,k_block,v_block,m,l,acc,scale):
     scores=(q@k_block.transpose(-2,-1))*scale
+    # [变化示例] scores=未定义/旧值 -> scores=(q@k_block.transpose(-2,-1))*scale；数值示例：2 * 3 -> 6。
     new_m=torch.maximum(m,scores.amax(-1,keepdim=True))
+    # [变化示例] new_m=未定义/旧值 -> new_m=逐元素较小/较大值；例如 minimum([2,5],[3,4]) -> [2,4]。
     old_scale=(m-new_m).exp(); p=(scores-new_m).exp()
+    # [变化示例] old_scale=未定义/旧值 -> old_scale 接收 (m-new_m).exp(); p=(scores-new_m).exp() 的返回值；用 shape/dtype/device 与示例输入核对变化。
     # 与 FlashAttention 相同的跨 block 合并公式
     return new_m, l*old_scale+p.sum(-1,keepdim=True), acc*old_scale+p@v_block
+    # [变化示例] 函数内部：矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N) -> 调用方收到该输出。
 
 # 每个 rank 重复 world_size 次：计算本地 block -> send/recv 下一块 K/V
 # 最后 output = acc / l
@@ -4535,8 +5310,11 @@ $$
 # Triton kernel 的等价数学，用于先验证正确性
 def fused_softmax_reference(x):
     row_max=x.amax(-1,keepdim=True)
+    # [变化示例] row_max=未定义/旧值 -> row_max=目标维最大值；例如 [-1,3,2] -> 3。
     numerator=torch.exp(x-row_max)
+    # [变化示例] numerator=未定义/旧值 -> numerator=逐元素指数；例如 [0,1] -> [1,2.718]。
     return numerator/numerator.sum(-1,keepdim=True)
+    # [变化示例] 函数内部：numerator/numerator.sum(-1,keepdim=True)；数值示例：6 / 3 -> 2 -> 调用方收到该输出。
 
 # kernel 图示：load 一行 -> tl.max -> tl.exp -> tl.sum -> tl.store
 # 超过列数的 lane 用 mask=False，并以 -inf 填充
@@ -4579,6 +5357,7 @@ $$
 def normalized_score(logp,length,alpha=.6):
     # Google NMT 风格长度惩罚；alpha=0 退化为原始分数
     return logp/(((5+length)/6)**alpha)
+    # [变化示例] 函数内部：logp/(((5+length)/6)**alpha)；数值示例：6 / 3 -> 2 -> 调用方收到该输出。
 
 # candidates 排序键：normalized_score(total_logp, len(sequence))
 # completed 与 active 分开保存，只有活跃 beam 继续调用模型
@@ -4620,10 +5399,14 @@ $$
 ```python
 def temperature_sample(logits,temperature=1.0):
     if temperature<=0: raise ValueError("temperature 必须大于 0")
+    # [变化示例] 分支示例：条件 True -> 抛出异常并停止；False -> 输入通过检查并继续。
     probs=torch.softmax(logits/temperature,dim=-1)
+    # [变化示例] probs=未定义/旧值 -> probs=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
     # multinomial 只接受 1D/2D；先把任意前导维展平成 batch
     flat=probs.reshape(-1,probs.size(-1))
+    # [变化示例] flat=未定义/旧值 -> flat 重排为 -1,probs.size(-1；元素数量与顺序保持不变（若布局允许则共享 storage）。
     return torch.multinomial(flat,1).reshape(probs.shape[:-1])
+    # [变化示例] 函数内部：按概率采样的索引；例如 [0.1,0.9] -> 更可能得到索引 1 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 答案正确。若想完全贪心，应显式 `argmax`，而不是传接近 0 的 temperature 造成数值极端。
@@ -4664,12 +5447,18 @@ $$
 ```python
 def top_k_sample(logits,k=50,temperature=1.0):
     if temperature<=0: raise ValueError("temperature 必须为正")
+    # [变化示例] 分支示例：条件 True -> 抛出异常并停止；False -> 输入通过检查并继续。
     k=min(max(int(k),1),logits.size(-1))
+    # [变化示例] k=未定义/旧值 -> k=指定轴长度；例如 shape=(2,3,4)，size(-1) -> 对应维长度。
     values,indices=(logits/temperature).topk(k,dim=-1)
+    # [变化示例] values,indices=未定义/旧值 -> values,indices 接收 (logits/temperature).topk(k,dim=-1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     probs=torch.softmax(values,-1)
+    # [变化示例] probs=未定义/旧值 -> probs=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
     local=torch.multinomial(probs.reshape(-1,k),1).reshape(*probs.shape[:-1],1)
+    # [变化示例] local=未定义/旧值 -> local=按概率采样的索引；例如 [0.1,0.9] -> 更可能得到索引 1。
     # 从 top-k 局部下标映射回原 vocabulary id
     return indices.gather(-1,local).squeeze(-1)
+    # [变化示例] 函数内部：执行 indices.gather(-1,local).squeeze(-1) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 思路正确。直接在 top-k 子集采样比构建完整 `-inf` tensor 更节省操作。
@@ -4713,13 +5502,21 @@ $$
 ```python
 def top_p_sample(logits,p=.9,temperature=1.0):
     if not 0<p<=1 or temperature<=0: raise ValueError("采样参数无效")
+    # [变化示例] 分支示例：条件 True -> 抛出异常并停止；False -> 输入通过检查并继续。
     sorted_logits,ids=(logits/temperature).sort(descending=True)
+    # [变化示例] sorted_logits,ids=未定义/旧值 -> sorted_logits,ids=排序后的值与原索引；例如 [3,1,2] 升序 -> values=[1,2,3], ids=[1,2,0]。
     probs=torch.softmax(sorted_logits,-1)
+    # [变化示例] probs=未定义/旧值 -> probs=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
     remove=probs.cumsum(-1)-probs>p  # 保留 crossing token
+    # [变化示例] remove=未定义/旧值 -> remove=probs.cumsum(-1)-probs>p；数值示例：3 - 2 -> 1。
     sorted_logits=sorted_logits.masked_fill(remove,-torch.inf)
+    # [变化示例] sorted_logits=未定义/旧值 -> sorted_logits=mask 后张量；例如 values=[1,2]、mask=[False,True]、fill=-inf -> [1,-inf]。
     probs=torch.softmax(sorted_logits,-1)
+    # [变化示例] probs=未定义/旧值 -> probs=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
     local=torch.multinomial(probs.reshape(-1,probs.size(-1)),1).reshape(*probs.shape[:-1],1)
+    # [变化示例] local=未定义/旧值 -> local=按概率采样的索引；例如 [0.1,0.9] -> 更可能得到索引 1。
     return ids.gather(-1,local).squeeze(-1)
+    # [变化示例] 函数内部：执行 ids.gather(-1,local).squeeze(-1) 得到结果 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 解法正确。先减去当前 token 概率再比较，等价于把 remove mask 右移一位。
@@ -4768,16 +5565,24 @@ from collections import deque
 
 class Scheduler:
     def __init__(self,max_batch): self.max_batch=max_batch; self.waiting=deque(); self.active=[]
+    # [变化示例] 调用该单行函数时：self.max_batch=未定义/旧值 -> self.max_batch=max_batch; self.waiting=deque(); self.active=[]；这是一次重新绑定/状态更新，右侧值决定新状态。
     def refill(self):
         while self.waiting and len(self.active)<self.max_batch:
+            # [变化示例] 循环示例：条件 True -> 再执行一轮；条件 False -> 退出循环。
             self.active.append(self.waiting.popleft())
+            # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
     def step(self,decode_one):
         self.refill(); survivors=[]
+        # [变化示例] self.refill(); survivors=未定义/旧值 -> self.refill(); survivors=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
         for req in self.active:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
             token=decode_one(req); req.tokens.append(token)
+            # [变化示例] token=未定义/旧值 -> token 接收 decode_one(req); req.tokens.append(token) 的返回值；用 shape/dtype/device 与示例输入核对变化。
             # 完成请求不进入 survivors，slot 下一轮被新请求使用
             if token!=req.eos and len(req.tokens)<req.max_tokens: survivors.append(req)
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
         self.active=survivors
+        # [变化示例] self.active=未定义/旧值 -> self.active=survivors；这是一次重新绑定/状态更新，右侧值决定新状态。
 ```
 
 **中文解释。** v3 调度概念正确。生产引擎不是逐请求 Python loop，而是将 active requests 合并成一次 batched forward，并维护每请求 KV pages、position 和采样状态。
@@ -4818,16 +5623,23 @@ $$
 class GenerationState:
     def __init__(self,input_ids,layers):
         self.ids=input_ids; self.cache=[None]*layers; self.finished=False
+        # [变化示例] self.ids=未定义/旧值 -> self.ids=input_ids; self.cache=[None]*layers; self.finished=False；数值示例：2 * 3 -> 6。
 
 @torch.inference_mode()
 def decode_step(model,state):
     # 首次输入完整 prompt；以后只输入最后一个 token
     ids=state.ids if state.cache[0] is None else state.ids[:,-1:]
+    # [变化示例] ids=未定义/旧值 -> ids=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
     logits,new_cache=model(ids,past_key_values=state.cache,use_cache=True)
+    # [变化示例] logits,new_cache=未定义/旧值 -> logits,new_cache 接收 model(ids,past_key_values=state.cache,use_cache=True) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     state.cache=new_cache
+    # [变化示例] state.cache=未定义/旧值 -> state.cache=new_cache；这是一次重新绑定/状态更新，右侧值决定新状态。
     token=top_p_sample(logits[:,-1],p=.9)
+    # [变化示例] token=未定义/旧值 -> token 接收 top_p_sample(logits[:,-1],p=.9) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     state.ids=torch.cat((state.ids,token[:,None]),1)
+    # [变化示例] state.ids=未定义/旧值 -> state.ids 沿指定 dim 拼接且该维长度相加；例如 (B,3)+(B,1) -> (B,4)。
     return token
+    # [变化示例] 函数内部：token；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 mini-engine 适合教学，但“production-grade”还需 paged KV cache、动态 batching、并发安全、取消请求、显存预算、流式输出和故障处理。
@@ -4864,11 +5676,16 @@ $$
 ```python
 class KVCache:
     def __init__(self): self.k=self.v=None
+    # [变化示例] 调用该单行函数时：self.k=未定义/旧值 -> 链式赋值 self.k=self.v=None；等号两侧目标最终引用同一给定值。
     def update(self,k,v):
         self.k=k if self.k is None else torch.cat((self.k,k),dim=-2)
+        # [变化示例] self.k=未定义/旧值 -> self.k=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
         self.v=v if self.v is None else torch.cat((self.v,v),dim=-2)
+        # [变化示例] self.v=未定义/旧值 -> self.v=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
         return self.k,self.v
+        # [变化示例] 函数内部：self.k,self.v；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
     def reset(self): self.k=self.v=None
+    # [变化示例] 调用该单行函数时：self.k=未定义/旧值 -> 链式赋值 self.k=self.v=None；等号两侧目标最终引用同一给定值。
 
 # 验证必须复用同一 attention module 权重，并比较 full[:, -1] 与 cached token output
 ```
@@ -4909,11 +5726,16 @@ $$
 ```python
 def accept_or_correct(p,q,token):
     accept=torch.minimum(p[token]/q[token].clamp_min(1e-12),p.new_tensor(1.0))
+    # [变化示例] accept=未定义/旧值 -> accept=min(p[token]/q[token],1)；例如 p=0.6,q=0.8 -> 0.75。
     if torch.rand((),device=p.device)<accept: return token,True
+    # [变化示例] 分支示例：条件 True -> 立即返回 token,True；False -> 继续执行下一行。
     residual=(p-q).clamp_min(0)
+    # [变化示例] residual=未定义/旧值 -> residual=max(左值-右值,0)；例如 [0.7,0.2]-[0.4,0.5] -> [0.3,0]。
     # 理论拒绝事件下 residual 应有正质量；数值边界使用 p 兜底
     dist=residual if residual.sum()>0 else p
+    # [变化示例] dist=未定义/旧值 -> dist=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
     return torch.multinomial(dist/dist.sum(),1).item(),False
+    # [变化示例] 函数内部：按概率采样的索引；例如 [0.1,0.9] -> 更可能得到索引 1 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 目标正确。索引对齐很关键：目标在 prefix+i 位置的 logits 预测第 i 个 draft；全部接受后还应从目标的下一位置额外采样一个 token。
@@ -4955,16 +5777,24 @@ $$
 ```python
 def positional_2d(height,width,d_model,device=None,dtype=torch.float32):
     if d_model%4: raise ValueError("d_model 必须能被 4 整除")
+    # [变化示例] 分支示例：条件 True -> 抛出异常并停止；False -> 输入通过检查并继续。
     half=d_model//2
+    # [变化示例] half=未定义/旧值 -> half=d_model//2；数值示例：7 // 3 -> 2。
     freq=torch.exp(torch.arange(0,half,2,device=device,dtype=torch.float32)*
                    (-math.log(10000.)/half))
+    # [变化示例] freq=未定义/旧值 -> freq=逐元素指数；例如 [0,1] -> [1,2.718]。
     rows=torch.arange(height,device=device,dtype=torch.float32)[:,None]*freq
+    # [变化示例] rows=未定义/旧值 -> rows=torch.arange(height,device=device,dtype=torch.float32)[:,None]*...；数值示例：2 * 3 -> 6。
     cols=torch.arange(width,device=device,dtype=torch.float32)[:,None]*freq
+    # [变化示例] cols=未定义/旧值 -> cols=torch.arange(width,device=device,dtype=torch.float32)[:,None]*freq；数值示例：2 * 3 -> 6。
     r=torch.stack((rows.sin(),rows.cos()),-1).flatten(1)
+    # [变化示例] r=未定义/旧值 -> r 在新轴堆叠；例如两个 (B,D) -> (2,B,D)（dim=0）。
     c=torch.stack((cols.sin(),cols.cos()),-1).flatten(1)
+    # [变化示例] c=未定义/旧值 -> c 在新轴堆叠；例如两个 (B,D) -> (2,B,D)（dim=0）。
     # 网格展开顺序：(row0,col0..W-1), (row1,...)
     return torch.cat((r[:,None].expand(-1,width,-1),
                       c[None].expand(height,-1,-1)),-1).reshape(height*width,d_model).to(dtype)
+    # [变化示例] 函数内部：result 沿指定 dim 拼接且该维长度相加；例如 (B,3)+(B,1) -> (B,4) -> 调用方收到该输出。
 ```
 
 **中文解释。** 题面只说 d_model 为偶数，但每个 half 还需成对 sin/cos，因此最清晰约束是能被 4 整除。v3 公式方向正确。
@@ -5013,9 +5843,13 @@ $$
 ```python
 def clip_loss(image_features,text_features,logit_scale):
     image=F.normalize(image_features,dim=-1); text=F.normalize(text_features,dim=-1)
+    # [变化示例] image=未定义/旧值 -> image 接收 F.normalize(image_features,dim=-1); text=F.normalize(text_f... 的返回值；用 shape/dtype/device 与示例输入核对变化。
     scale=logit_scale.exp().clamp(max=100)  # 学习 log scale，保证温度为正
+    # [变化示例] scale=未定义/旧值 -> scale=逐元素指数；例如 [0,1] -> [1,2.718]。
     logits=scale*(image@text.T); labels=torch.arange(logits.size(0),device=logits.device)
+    # [变化示例] logits=未定义/旧值 -> logits=scale*(image@text.T); labels=torch.arange(logits.size(0),device...；数值示例：2 * 3 -> 6。
     return (F.cross_entropy(logits,labels)+F.cross_entropy(logits.T,labels))/2
+    # [变化示例] 函数内部：(F.cross_entropy(logits,labels)+F.cross_entropy(logits.T,labels...；数值示例：6 / 3 -> 2 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 对称 InfoNCE 正确。参数最好存为 `logit_scale=log(1/T)` 而不是直接 temperature，并限制指数上界防止训练爆炸。
@@ -5057,12 +5891,16 @@ $$
 ```python
 def cfg_eps(model,x,t,label,scale):
     eps_u=model(x,t,None); eps_c=model(x,t,label)
+    # [变化示例] eps_u=未定义/旧值 -> eps_u 接收 model(x,t,None); eps_c=model(x,t,label) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     return eps_u+scale*(eps_c-eps_u)
+    # [变化示例] 函数内部：eps_u+scale*(eps_c-eps_u)；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 
 def ddim_step(x,eps,a_t,a_prev):
     # eta=0：给定初始噪声后路径确定
     x0=(x-(1-a_t).sqrt()*eps)/a_t.sqrt()
+    # [变化示例] x0=未定义/旧值 -> x0=(x-(1-a_t).sqrt()*eps)/a_t.sqrt()；数值示例：6 / 3 -> 2。
     return a_prev.sqrt()*x0+(1-a_prev).sqrt()*eps
+    # [变化示例] 函数内部：a_prev.sqrt()*x0+(1-a_prev).sqrt()*eps；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 eta=0 核心公式正确。模型训练时必须随机丢弃条件，才能学会 unconditional 分支；最后一步 `a_prev` 应按约定设为 1。
@@ -5103,23 +5941,36 @@ $$
 def extract(schedule,t,x):
     # 从长度 T 的 schedule 取出每个样本时间步，并扩展为 (B,1,...,1)
     return schedule.to(x.device).gather(0,t).view(t.size(0),*([1]*(x.ndim-1)))
+    # [变化示例] 函数内部：result 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32 -> 调用方收到该输出。
 
 def q_sample(x0,t,alpha_bar,noise=None):
     noise=torch.randn_like(x0) if noise is None else noise
+    # [变化示例] noise=未定义/旧值 -> noise=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
     a=extract(alpha_bar,t,x0)
+    # [变化示例] a=未定义/旧值 -> a 接收 extract(alpha_bar,t,x0) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     return a.sqrt()*x0+(1-a).sqrt()*noise,noise
+    # [变化示例] 函数内部：a.sqrt()*x0+(1-a).sqrt()*noise,noise；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 
 def p_sample(x_t,eps,t,alpha,alpha_bar,beta):
     a,ab,b=extract(alpha,t,x_t),extract(alpha_bar,t,x_t),extract(beta,t,x_t)
+    # [变化示例] a,ab,b=未定义/旧值 -> a,ab,b 接收 extract(alpha,t,x_t),extract(alpha_bar,t,x_t),extract(beta,... 的返回值；用 shape/dtype/device 与示例输入核对变化。
     mean=(x_t-b/(1-ab).sqrt()*eps)/a.sqrt()  # epsilon parameterization
+    # [变化示例] mean=未定义/旧值 -> mean=(x_t-b/(1-ab).sqrt()*eps)/a.sqrt()；数值示例：6 / 3 -> 2。
     prev_t=(t-1).clamp_min(0)
+    # [变化示例] prev_t=未定义/旧值 -> prev_t=max(左值-右值,0)；例如 [0.7,0.2]-[0.4,0.5] -> [0.3,0]。
     ab_prev=extract(alpha_bar,prev_t,x_t)
+    # [变化示例] ab_prev=未定义/旧值 -> ab_prev 接收 extract(alpha_bar,prev_t,x_t) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     ab_prev=torch.where((t==0).view(-1,*([1]*(x_t.ndim-1))),
                         torch.ones_like(ab_prev),ab_prev)
+    # [变化示例] ab_prev=未定义/旧值 -> ab_prev=按条件逐元素选择；例如 x=[-2,0,3]、条件 x>0 -> [0,0,3]。
     posterior_var=b*(1-ab_prev)/(1-ab)
+    # [变化示例] posterior_var=未定义/旧值 -> posterior_var=b*(1-ab_prev)/(1-ab)；数值示例：2 * 3 -> 6。
     noise=torch.randn_like(x_t)
+    # [变化示例] noise=未定义/旧值 -> noise 接收 torch.randn_like(x_t) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     nonzero=(t>0).to(x_t.dtype).view(-1,*([1]*(x_t.ndim-1)))
+    # [变化示例] nonzero=未定义/旧值 -> nonzero 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
     return mean+nonzero*posterior_var.clamp_min(0).sqrt()*noise
+    # [变化示例] 函数内部：mean+nonzero*posterior_var.clamp_min(0).sqrt()*noise；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** 前向闭式公式允许直接从 `x0` 采样任意 `xt`，所以训练不必逐步加噪。反向均值来自 `epsilon` 参数化；随机项应使用后验方差 `beta_t*(1-alpha_bar_{t-1})/(1-alpha_bar_t)`，而不是直接使用 beta。`t=0` 时不再加噪。原简写只给均值且没有正确处理 batch 形式的 t；修正版补齐了完整随机采样和 broadcasting。
@@ -5165,8 +6016,11 @@ def distillation_loss(student,teacher,labels,T=4.,alpha=.7):
     # 软目标传递类别关系，硬目标保证真实标签监督
     soft=F.kl_div(F.log_softmax(student/T,-1),
                   F.softmax(teacher.detach()/T,-1),reduction="batchmean")*(T*T)
+    # [变化示例] soft=未定义/旧值 -> soft=F.kl_div(F.log_softmax(student/T,-1), F.softmax(teacher.detach(...；数值示例：2 * 3 -> 6。
     hard=F.cross_entropy(student,labels)
+    # [变化示例] hard=未定义/旧值 -> hard=分类损失/损失模块；例如 logits (B,C) 与 labels (B,) -> 标量平均 loss。
     return alpha*soft+(1-alpha)*hard
+    # [变化示例] 函数内部：alpha*soft+(1-alpha)*hard；数值示例：2 + 3 -> 5 -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 答案正确。`F.kl_div` 第一个参数必须是 student log-prob，第二个是 teacher probability；`T^2` 补偿梯度缩放。
@@ -5208,13 +6062,21 @@ $$
 def selective_scan(x,delta,A,B,C,D):
     # x:(B,L,D)，A:(D,N)，B/C:(B,L,N)，以下为教学版广播
     h=x.new_zeros(x.size(0),x.size(2),A.size(1)); ys=[]
+    # [变化示例] h=未定义/旧值 -> h=指定轴长度；例如 shape=(2,3,4)，size(0) -> 对应维长度。
     for t in range(x.size(1)):
+        # [变化示例] 循环示例：range(x.size(1) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
         dt=F.softplus(delta[:,t])[:, :, None]
+        # [变化示例] dt=未定义/旧值 -> dt 接收 F.softplus(delta[:,t])[:, :, None] 的返回值；用 shape/dtype/device 与示例输入核对变化。
         Abar=torch.exp(dt*A[None])
+        # [变化示例] Abar=未定义/旧值 -> Abar=逐元素指数；例如 [0,1] -> [1,2.718]。
         Bbar=dt*B[:,t,None,:]
+        # [变化示例] Bbar=未定义/旧值 -> Bbar=dt*B[:,t,None,:]；数值示例：2 * 3 -> 6。
         h=Abar*h+Bbar*x[:,t,:,None]
+        # [变化示例] h=未定义/旧值 -> h=Abar*h+Bbar*x[:,t,:,None]；数值示例：2 + 3 -> 5。
         ys.append((h*C[:,t,None,:]).sum(-1)+D*x[:,t])
+        # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
     return torch.stack(ys,1)
+    # [变化示例] 函数内部：result 在新轴堆叠；例如两个 (B,D) -> (2,B,D)（dim=0） -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 是 Mamba 思想的简化教学版，不是官方 selective-scan kernel。真实 Mamba 的 B/C 维度、并行 scan、卷积路径、门控和 discretization 更复杂；A 应参数化为负值保证稳定。
@@ -5258,9 +6120,13 @@ $$
 def moe_balance(router_probs,top_ids,num_experts):
     # fraction: 实际被选择的 token 比例；prob: router 软概率均值
     one_hot=F.one_hot(top_ids,num_experts).float().sum(1)
+    # [变化示例] one_hot=未定义/旧值 -> one_hot 接收 F.one_hot(top_ids,num_experts).float().sum(1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     fraction=one_hot.mean(0)/top_ids.size(1)
+    # [变化示例] fraction=未定义/旧值 -> fraction=one_hot.mean(0)/top_ids.size(1)；数值示例：6 / 3 -> 2。
     mean_prob=router_probs.mean(0)
+    # [变化示例] mean_prob=未定义/旧值 -> mean_prob=沿指定维求均值；例如 [1,2,3] -> 2。
     return num_experts*(fraction*mean_prob).sum()
+    # [变化示例] 函数内部：num_experts*(fraction*mean_prob).sum()；数值示例：2 * 3 -> 6 -> 调用方收到该输出。
 
 # total_loss = task_loss + aux_weight * moe_balance(...)
 ```
@@ -5301,13 +6167,18 @@ $$
 ```python
 def sliding_mask(seq_len,window,device=None):
     pos=torch.arange(seq_len,device=device)
+    # [变化示例] pos=未定义/旧值 -> pos=等差序列 arange(seq_len,device=device)；例如 arange(4) 为 [0,1,2,3]。
     return (pos[:,None]-pos[None,:]).abs()<=window
+    # [变化示例] 函数内部：执行 (pos[:,None]-pos[None,:]).abs()<=window 得到结果 -> 调用方收到该输出。
 
 def masked_local_attention(q,k,v,window):
     # 窗口外位置在 Softmax 前设为负无穷，概率因此变成 0
     scores=q@k.transpose(-2,-1)/math.sqrt(q.size(-1))
+    # [变化示例] scores=未定义/旧值 -> scores=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
     mask=sliding_mask(q.size(-2),window,q.device)
+    # [变化示例] mask=未定义/旧值 -> mask=指定轴长度；例如 shape=(2,3,4)，size(-2) -> 对应维长度。
     return torch.softmax(scores.masked_fill(~mask,-torch.inf),-1)@v
+    # [变化示例] 函数内部：先把 scores 归一化为每行和为 1 的权重，再与 V 相乘得到 result；shape (...,Sq,Sk) @ (...,Sk,D) -> (...,Sq,D) -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 数值实现正确，但仍创建 NxN 分数和 mask，所以实际内存仍是 O(N²)。只有 sparse/block kernel 才真正达到题面所说 O(Nw)。
@@ -5353,13 +6224,18 @@ $$
 def mae_loss(pred,target,mask):
     # pred/target:(B,N,patch_dim)，mask:(B,N)，1 表示被遮挡
     per_patch=(pred-target).square().mean(-1)
+    # [变化示例] per_patch=未定义/旧值 -> per_patch 接收 (pred-target).square().mean(-1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
     return (per_patch*mask).sum()/mask.sum().clamp_min(1)
+    # [变化示例] 函数内部：(per_patch*mask).sum()/mask.sum().clamp_min(1)；数值示例：6 / 3 -> 2 -> 调用方收到该输出。
 
 def patchify(x,p):
     b,c,h,w=x.shape
+    # [变化示例] b,c,h,w=未定义/旧值 -> b,c,h,w=x.shape；这是一次重新绑定/状态更新，右侧值决定新状态。
     if h%p or w%p: raise ValueError("图像尺寸必须整除 patch size")
+    # [变化示例] 分支示例：条件 True -> 抛出异常并停止；False -> 输入通过检查并继续。
     # (B,C,H,W) -> (B,Nh*Nw,C*P*P)
     return x.reshape(b,c,h//p,p,w//p,p).permute(0,2,4,1,3,5).reshape(b,-1,c*p*p)
+    # [变化示例] 函数内部：result 重排为 b,c,h//p,p,w//p,p；元素数量与顺序保持不变（若布局允许则共享 storage） -> 调用方收到该输出。
 ```
 
 **中文解释。** v3 整体架构合理。最容易出错的是 restore indices：decoder 输出必须回到原 patch 顺序；loss 只算 masked patches，否则模型会把容量浪费在复制可见输入。
@@ -5624,3 +6500,8693 @@ def patchify(x,p):
 ## 验证边界
 
 本文件已完成逐题数学、shape、autograd、device/dtype、API contract 和代码语法的静态审查。当前本地 Python runtime 没有安装 `torch`，因此没有执行 102 题的 tensor 数值测试；Triton、FSDP、Ring Attention、FlashAttention 等还需要对应 GPU/多进程环境做动态验证。面试学习时应把“静态正确”“数值测试通过”“生产性能验证通过”视为三个不同层级。
+
+<!-- LEARN_PYTORCH_APPENDIX_START -->
+
+# learn-pyTorch 课程源码逐项深挖
+
+> 本附录覆盖 `C:/Users/yjian/Desktop/learn-pyTorch` 中全部 123 个可读源文件。图片、JSON profiler traces、pickle memory profiles、CIFAR 压缩包、许可证和 1.1 MB 字符训练语料只作为配套资产，不直接展开为代码题。
+
+> 阅读顺序：先理解问题与性能/数学不变量，再读原始代码，最后按 API 解释和验证清单检查。标为“错误示例”或“环境相关”的内容用于学习边界，不代表可在任意机器直接运行。
+
+## 103. 训练成本与规模 | 1_plot_cost_time.py
+
+**学习问题。** 如何可视化模型训练成本与时间？
+
+**中文讲解。** 双 y 轴和对数尺度可以同时展示跨多个数量级的费用与天数；图表表达的是给定假设下的估算，不应被误读为固定行业价格。 把模型规模、训练时间和费用放到同一张图中，建立性能工程的成本意识。
+
+**来源文件。** `chapter_01_intro/1_plot_cost_time.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+C_{train}\approx N_{GPU}\cdot t_{hours}\cdot price_{GPU/hour}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import os
+
+import matplotlib
+matplotlib.use('Agg')
+# [变化示例] 执行状态：调用 matplotlib.use('Agg') 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+import matplotlib.pyplot as plt
+import numpy as np
+
+plt.rcParams['font.family'] = [ 'sans-serif']
+# [变化示例] plt.rcParams['font.family']=未定义/旧值 -> plt.rcParams['font.family']=[ 'sans-serif']；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+
+models = ["GPT-1.3B", "GPT-2.7B", "GPT-6.7B", "GPT-13B", "GPT-30B", "GPT-70B"]
+# [变化示例] models=未定义/旧值 -> models=["GPT-1.3B", "GPT-2.7B", "GPT-6.7B", "GPT-13B", "GPT-30B", ...；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+costs = [2000, 6000, 30000, 100000, 450000, 2500000]
+# [变化示例] costs=未定义/旧值 -> costs=[2000, 6000, 30000, 100000, 450000, 2500000]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+training_days = [0.14, 0.48, 2.32, 7.43, 35.98, 176.55]
+# [变化示例] training_days=未定义/旧值 -> training_days=[0.14, 0.48, 2.32, 7.43, 35.98, 176.55]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+model_indices = np.arange(len(models))
+# [变化示例] model_indices=未定义/旧值 -> model_indices 接收 np.arange(len(models)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+
+# Plotting the bar chart with cost and training time using a more optimized approach with Chinese labels and units for training days
+fig, ax1 = plt.subplots(figsize=(12, 6))
+# [变化示例] fig, ax1=未定义/旧值 -> fig, ax1 接收 plt.subplots(figsize=(12, 6)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+# Creating the first bar chart for costs
+bars1 = ax1.bar(model_indices, costs, width=0.4, label='训练成本 (美元)', color='skyblue', align='center')
+# [变化示例] bars1=未定义/旧值 -> bars1 接收 ax1.bar(model_indices, costs, width=0.4, label='训练成本 (美元)',... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+ax1.set_xlabel('模型')
+# [变化示例] 执行状态：调用 ax1.set_xlabel('模型') 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+ax1.set_ylabel('训练成本 (美元)')
+# [变化示例] 执行状态：调用 ax1.set_ylabel('训练成本 (美元)') 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+ax1.set_yscale('log')
+# [变化示例] 执行状态：调用 ax1.set_yscale('log') 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+ax1.set_title('GPT系列模型训练成本和时间')
+# [变化示例] 执行状态：调用 ax1.set_title('GPT系列模型训练成本和时间') 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+ax1.set_xticks(model_indices)
+# [变化示例] 执行状态：调用 ax1.set_xticks(model_indices) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+ax1.set_xticklabels(models)
+# [变化示例] 执行状态：调用 ax1.set_xticklabels(models) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+# Adding text on top of the cost bars with shortened numbers
+for bar in bars1:
+    # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+    height = bar.get_height()
+    # [变化示例] height=未定义/旧值 -> height 接收 bar.get_height() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    if height >= 1e6:
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+        label = f'${height/1e6:.1f}M'
+        # [变化示例] label=未定义/旧值 -> label=f'${height/1e6:.1f}M'；这是一次重新绑定/状态更新，右侧值决定新状态。
+    elif height >= 1e3:
+        # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+        label = f'${height/1e3:.1f}k'
+        # [变化示例] label=未定义/旧值 -> label=f'${height/1e3:.1f}k'；这是一次重新绑定/状态更新，右侧值决定新状态。
+    else:
+        # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+        label = f'${height:.0f}'
+        # [变化示例] label=未定义/旧值 -> label=f'${height:.0f}'；这是一次重新绑定/状态更新，右侧值决定新状态。
+    ax1.text(bar.get_x() + bar.get_width() / 2.0, height, label, ha='center', va='bottom')
+    # [变化示例] 执行状态：调用 ax1.text(bar.get_x() + bar.get_width() / 2.0, height, label... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+# Creating the second bar chart for training days on the same x-axis
+ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+# [变化示例] ax2=未定义/旧值 -> ax2 接收 ax1.twinx() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+bars2 = ax2.bar(model_indices + 0.4, training_days, width=0.4, label='训练时间 (天)', color='lightcoral', align='center')
+# [变化示例] bars2=未定义/旧值 -> bars2 接收 ax2.bar(model_indices + 0.4, training_days, width=0.4, labe... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+ax2.set_yscale('log')
+# [变化示例] 执行状态：调用 ax2.set_yscale('log') 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+ax2.set_ylabel('训练时间 (天)')
+# [变化示例] 执行状态：调用 ax2.set_ylabel('训练时间 (天)') 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+# Adding text on top of the training days bars with "天" unit
+for bar in bars2:
+    # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+    height = bar.get_height()
+    # [变化示例] height=未定义/旧值 -> height 接收 bar.get_height() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    ax2.text(bar.get_x() + bar.get_width() / 2.0, height, f'{height:.2f} 天', ha='center', va='bottom')
+    # [变化示例] 执行状态：调用 ax2.text(bar.get_x() + bar.get_width() / 2.0, height, f'{he... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+# Adding legends
+fig.legend(loc='upper left', bbox_to_anchor=(0.1, 0.9), bbox_transform=ax1.transAxes)
+# [变化示例] 执行状态：调用 fig.legend(loc='upper left', bbox_to_anchor=(0.1, 0.9), bbo... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+output_path = os.path.join(os.path.dirname(__file__), 'gpt_training_cost_time.png')
+# [变化示例] output_path=未定义/旧值 -> output_path 接收 os.path.join(os.path.dirname(__file__), 'gpt_training_cost_... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+# [变化示例] 执行状态：调用 plt.savefig(output_path, dpi=300, bbox_inches='tight') 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+print(f'Plot saved to {output_path}')
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+
+#### 输入、输出与验证
+
+- **验证方法。** 核对图表输入数组长度、单位和对数坐标，再确认输出文件路径与图例表达一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 104. 张量语义与 Autograd | 1_tensor_creation.py
+
+**学习问题。** 创建张量时为什么要同时关注 dtype、device 和 shape？
+
+**中文讲解。** 这三个属性决定数值精度、算子执行位置和维度语义；跨设备或 dtype 不一致是最常见的运行时错误之一。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/1_tensor_creation.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+numel(X)=\prod_k shape_k,\qquad device(X)=device(Y)\ \text{for most binary ops}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+if torch.cuda.is_available():
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+    device = torch.device("cuda")
+    # [变化示例] device=未定义/旧值 -> device 接收 torch.device("cuda") 的返回值；用 shape/dtype/device 与示例输入核对变化。
+else:
+    # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+    device = torch.device("cpu")
+    # [变化示例] device=未定义/旧值 -> device 接收 torch.device("cpu") 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+x = torch.rand((3, 2), dtype=torch.float32, device=device)
+# [变化示例] x=未定义/旧值 -> x=按 (3, 2) 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+print(x.dtype)  # torch.float32
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+print(x.device)  # cuda:0 or cpu
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+print(x.shape)  # torch.Size([3, 2])
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 105. 张量语义与 Autograd | 2_torch_indexing.py
+
+**学习问题。** 基础索引、切片、Ellipsis 和 None 如何改变张量？
+
+**中文讲解。** 整数索引删除一个轴，切片保留轴，省略号补齐中间轴，None 插入长度为 1 的新轴。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/2_torch_indexing.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+offset=storage\_offset+\sum_{k=1}^{d}i_k\,stride_k
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+# 创建一个10*20的张量, 使用contiguous()确保其连续性
+x = torch.arange(200).reshape(10, 20).contiguous()
+# [变化示例] x=未定义/旧值 -> x=等差序列 arange(200)；例如 arange(4) 为 [0,1,2,3]。
+
+# 访问单个元素，返回第0行的第0个元素
+x[0, 0]  # tensor(0)
+
+# 支持负数索引，返回第0行的最后一个元素
+x[0, -1]  # tensor(19)
+
+# 切片索引，单独一个冒号表示选择该维度的所有元素，返回第2行的整行数据
+x[2, :]
+# [变化示例] 读取示例：原 tensor -> 选出指定位置/切片；基础切片通常共享 storage。
+# tensor([40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59])
+
+# 切片索引，返回从索引为1的列开始，到索引为9的列（不包含），每隔3个索引选择一个元素，即第0行的第1、4、7列数据
+x[0, 1:9:3]  # tensor([[  1,   4,   7])
+
+# 省略号是一个特殊的索引符号，代表"在这个位置选择所有可能的索引"，返回第1列的所有元素
+x[..., 1]
+# [变化示例] 读取示例：原 tensor -> 选出指定位置/切片；基础切片通常共享 storage。
+# tensor([  1,  21,  41,  61,  81, 101, 121, 141, 161, 181])
+
+# 与 NumPy 类似，None 表示加入一个新的维度，常用于调整张量的形状以满足某些特定操作的需求。
+# 这里我们在第二个维度（即行和列之间）插入一个新的维度。
+x[:, None, :]  # 返回张量的形状为(10, 1, 20)
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- view/reshape/flatten：保持元素总数不变；non-contiguous 输入上 view 可能失败，reshape 可在必要时复制。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 106. 张量语义与 Autograd | 3_assign_via_basic.py
+
+**学习问题。** 基础索引赋值为什么会修改原张量？
+
+**中文讲解。** 基础索引通常返回共享 storage 的 view；对该 view 或对应切片写入会直接更新底层存储。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/3_assign_via_basic.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+numel(X)=\prod_k shape_k,\qquad device(X)=device(Y)\ \text{for most binary ops}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+# 创建一个10*20的张量, 使用contiguous()确保其连续性
+x = torch.arange(200).reshape(10, 20).contiguous()
+# [变化示例] x=未定义/旧值 -> x=等差序列 arange(200)；例如 arange(4) 为 [0,1,2,3]。
+print(x)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# 通过基础索引对x的[0, 0]元素进行赋值
+x[0, 0] = -1.0
+# [变化示例] 目标切片 x[0, 0]=旧值 -> -1.0；base tensor 对应位置同步被写入。
+print(x[0, 0])  # x[0, 0]被更新成-1.0
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 通过切片索引对x[2, :]的所有元素进行赋值
+x[2, :] = 10
+# [变化示例] 目标切片 x[2, :]=旧值 -> 10；base tensor 对应位置同步被写入。
+print(x)  # x的第2行(从0计数）的所有元素被更新成10
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- view/reshape/flatten：保持元素总数不变；non-contiguous 输入上 view 可能失败，reshape 可在必要时复制。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 107. 张量语义与 Autograd | 4_transpose.py
+
+**学习问题。** transpose 为什么通常不复制数据？
+
+**中文讲解。** 转置可以只交换 size 与 stride 来重新解释同一 storage；因此结果常为 non-contiguous view。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/4_transpose.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+offset=storage\_offset+\sum_{k=1}^{d}i_k\,stride_k
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+# 创建一个3*4的张量, 使用contiguous()确保其连续性
+x = torch.arange(12).reshape(3, 4).contiguous()
+# [变化示例] x=未定义/旧值 -> x=等差序列 arange(12)；例如 arange(4) 为 [0,1,2,3]。
+
+print(f"x = {x}\nx.stride = {x.stride()}")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# x = tensor([[ 0,  1,  2,  3],
+#         [ 4,  5,  6,  7],
+#         [ 8,  9, 10, 11]])
+# x.stride = (4, 1)
+
+y = torch.as_strided(x, size=(4, 3), stride=(1, 4))
+# [变化示例] y=未定义/旧值 -> y 接收 torch.as_strided(x, size=(4, 3), stride=(1, 4)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+print(f"y = {y}\ny.stride = {y.stride()}")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# y = tensor([[ 0,  4,  8],
+#         [ 1,  5,  9],
+#         [ 2,  6, 10],
+#         [ 3,  7, 11]])
+# y.stride = (1, 4)
+
+# 张量x和y共享同一块底层存储
+assert id(x.untyped_storage()) == id(y.untyped_storage())
+# [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- view/reshape/flatten：保持元素总数不变；non-contiguous 输入上 view 可能失败，reshape 可在必要时复制。
+- stride/view API：只改变索引到 storage 的映射时不复制数据；as_strided 越界或重叠写入非常危险。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 108. 张量语义与 Autograd | 5_basic_index_view.py
+
+**学习问题。** 如何证明基础索引结果与原张量共享内存？
+
+**中文讲解。** 修改 view 后观察 base 同步变化，或比较 storage/data_ptr，可以验证别名关系。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/5_basic_index_view.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+offset=storage\_offset+\sum_{k=1}^{d}i_k\,stride_k
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+a = torch.zeros(3, 3)
+# [变化示例] a=未定义/旧值 -> a=全 0 张量；shape 由 3, 3 指定。
+
+# 张量b是张量a的一个视图，共享底层内存
+b = a[0]
+# [变化示例] b=未定义/旧值 -> b=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+print(b)  # tensor([0., 0., 0.])
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 修改张量b的内容也会影响张量a
+b[0] = 1
+# [变化示例] 目标切片 b[0]=旧值 -> 1；base tensor 对应位置同步被写入。
+print(a)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# tensor([[1., 0., 0.],
+#         [0., 0., 0.],
+#         [0., 0., 0.]])
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 109. 张量语义与 Autograd | 6_reshape.py
+
+**学习问题。** view/reshape 如何改变形状而不改变元素数？
+
+**中文讲解。** 合法 reshape 必须保持 numel 不变；view 还要求 stride 能表达目标布局，否则需要 contiguous 或 reshape 的复制后备。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/6_reshape.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+offset=storage\_offset+\sum_{k=1}^{d}i_k\,stride_k
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+original = torch.rand((2, 12))
+# [变化示例] original=未定义/旧值 -> original=按 (2, 12) 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+reshaped = original.view(2, 3, 4)
+# [变化示例] reshaped=未定义/旧值 -> reshaped 重排为 2, 3, 4；元素数量与顺序保持不变（若布局允许则共享 storage）。
+print("reshaped shape:", reshaped.shape)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# reshaped shape: torch.Size([2, 3, 4])
+
+
+flattened = reshaped.view(-1)
+# [变化示例] flattened=未定义/旧值 -> flattened 重排为 -1；元素数量与顺序保持不变（若布局允许则共享 storage）。
+print("flattened shape:", flattened.shape)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# flattened shape: torch.Size([24])
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- view/reshape/flatten：保持元素总数不变；non-contiguous 输入上 view 可能失败，reshape 可在必要时复制。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 110. 张量语义与 Autograd | 7_basic_op.py
+
+**学习问题。** PyTorch 基本算子如何组成计算图？
+
+**中文讲解。** 逐元素运算、归约、线性代数和索引共同构成 tensor 程序；需要梯度的浮点输入会让可微算子进入 autograd 图。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/7_basic_op.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+numel(X)=\prod_k shape_k,\qquad device(X)=device(Y)\ \text{for most binary ops}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+x = torch.ones(4, 4)
+# [变化示例] x=未定义/旧值 -> x=全 1 张量；例如 shape=(2,3) 时得到 6 个 1。
+
+# 数学运算
+y1 = x + x
+# [变化示例] y1=未定义/旧值 -> y1=x + x；数值示例：2 + 3 -> 5。
+y2 = x * x
+# [变化示例] y2=未定义/旧值 -> y2=x * x；数值示例：2 * 3 -> 6。
+
+# 线性代数运算
+y3 = x.sum()
+# [变化示例] y3=未定义/旧值 -> y3=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+
+# 索引
+x1 = x[1, 1]
+# [变化示例] x1=未定义/旧值 -> x1=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 111. 张量语义与 Autograd | 8_add_op.py
+
+**学习问题。** 函数式、方法式和运算符加法有何关系？
+
+**中文讲解。** x.add(y)、torch.add(x,y) 与 x+y 最终分派到同类 ATen 运算；API 风格不同但数学语义一致。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/8_add_op.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\frac{\partial L}{\partial x}=\frac{\partial L}{\partial y}\frac{\partial y}{\partial x}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+x = torch.ones(4, 4)
+# [变化示例] x=未定义/旧值 -> x=全 1 张量；例如 shape=(2,3) 时得到 6 个 1。
+
+# torch命名空间下的加法操作
+y1 = x.add(x)
+# [变化示例] y1=未定义/旧值 -> y1 接收 x.add(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+# 重载运算符"+"，与x.add(x)等价
+y2 = x + x
+# [变化示例] y2=未定义/旧值 -> y2=x + x；数值示例：2 + 3 -> 5。
+
+# Tensor类的加法操作
+y3 = torch.add(x, x)
+# [变化示例] y3=未定义/旧值 -> y3 接收 torch.add(x, x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+assert (y1 == y2).all()
+# [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+assert (y2 == y3).all()
+# [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 112. 张量语义与 Autograd | 9_inplace_add.py
+
+**学习问题。** 原地加法与非原地加法有什么区别？
+
+**中文讲解。** 带下划线的算子复用已有 storage 并更新 version counter；非原地算子创建新结果并重新绑定 Python 变量。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/9_inplace_add.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\frac{\partial L}{\partial x}=\frac{\partial L}{\partial y}\frac{\partial y}{\partial x}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+x = torch.ones((4, 4))
+# [变化示例] x=未定义/旧值 -> x=全 1 张量；例如 shape=(2,3) 时得到 6 个 1。
+
+# 原位加法操作
+y1 = x.add_(x)
+# [变化示例] y1=未定义/旧值 -> y1 接收 x.add_(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+print(y1)  # 张量x所有元素更新为2，张量y1是张量x的一个别名，是同一个张量
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 原位加法操作
+x += y1
+# [变化示例] x=旧值 -> x=旧值 + (y1)；数值示例：2 + 3 -> 5，并写回 x。
+print(x)  # 张量x所有元素更新为4
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 非原位加法操作
+x = x + y1
+# [变化示例] x=未定义/旧值 -> x=x + y1；数值示例：2 + 3 -> 5。
+print(x)  # 张量x所有元素更新为8
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 原地操作：复用 storage 并更新 version counter；可能破坏 backward 所需中间值或影响别名。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 113. 张量语义与 Autograd | 10_adv_index.py
+
+**学习问题。** 高级索引为什么通常会产生副本？
+
+**中文讲解。** 整数 tensor 或布尔 mask 的读取需要收集不规则位置，结果一般拥有独立 storage；但高级索引赋值会散射写回原张量。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/10_adv_index.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+offset=storage\_offset+\sum_{k=1}^{d}i_k\,stride_k
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+# 创建一个10*20的张量, 使用contiguous()确保其连续性
+x = torch.arange(200).reshape(10, 20).contiguous()
+# [变化示例] x=未定义/旧值 -> x=等差序列 arange(200)；例如 arange(4) 为 [0,1,2,3]。
+
+# 基础索引，读取x的第0行
+y_basic_index = x[0]
+# [变化示例] y_basic_index=未定义/旧值 -> y_basic_index=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+
+# (1) 基于基础索引进行读取的返回张量和x共享底层存储
+assert y_basic_index.data_ptr() == x.data_ptr()
+# [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+
+# 使用整数张量对x进行高级索引，返回位置在[0, 2], [1, 3], [2, 4]位置的元素
+z_adv_index_int = x[torch.tensor([0, 1, 2]), torch.tensor([2, 3, 4])]
+# [变化示例] z_adv_index_int=未定义/旧值 -> z_adv_index_int=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+# z_adv_index_int = tensor([ 2, 23, 44])
+
+# 对张量x中的每个元素进行判断，如果元素的值小于10，则对应位置的ind为True，否则为False
+ind = x < 10
+# [变化示例] ind=未定义/旧值 -> ind=x < 10；这是一次重新绑定/状态更新，右侧值决定新状态。
+# 使用布尔张量对x进行高级索引，返回x中所有对应ind位置为True的元素
+z_adv_index_bool = x[ind]
+# [变化示例] z_adv_index_bool=未定义/旧值 -> z_adv_index_bool=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+# z_adv_index_bool = tensor([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+# (2) 基于高级索引进行读取的返回张量和x的底层存储是分开的
+assert z_adv_index_int.data_ptr() != x.data_ptr()
+# [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+assert z_adv_index_bool.data_ptr() != x.data_ptr()
+# [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- view/reshape/flatten：保持元素总数不变；non-contiguous 输入上 view 可能失败，reshape 可在必要时复制。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 114. 张量语义与 Autograd | 11_assign_adv.py
+
+**学习问题。** 布尔 mask 赋值如何工作？
+
+**中文讲解。** 先构造与输入可广播的布尔条件，再把右侧值 scatter 到 True 位置；右侧也必须满足广播规则。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/11_assign_adv.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\frac{\partial L}{\partial x}=\frac{\partial L}{\partial y}\frac{\partial y}{\partial x}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+# 创建一个10*20的张量, 使用contiguous()确保其连续性
+x = torch.arange(200).reshape(10, 20).contiguous()
+# [变化示例] x=未定义/旧值 -> x=等差序列 arange(200)；例如 arange(4) 为 [0,1,2,3]。
+
+# 对张量x中的每个元素进行判断，如果元素的值小于10，则对应位置的ind为 True，否则为False
+ind = x < 10
+# [变化示例] ind=未定义/旧值 -> ind=x < 10；这是一次重新绑定/状态更新，右侧值决定新状态。
+# 通过高级索引对x的部分元素进行赋值
+x[ind] = 1.0
+# [变化示例] 目标切片 x[ind]=旧值 -> 1.0；base tensor 对应位置同步被写入。
+
+print(x)  # x的对应位置也被更新成1.0
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- view/reshape/flatten：保持元素总数不变；non-contiguous 输入上 view 可能失败，reshape 可在必要时复制。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 115. 张量语义与 Autograd | 12_matmul.py
+
+**学习问题。** GPU 矩阵乘法的 shape 约束是什么？
+
+**中文讲解。** 左矩阵最后一维必须等于右矩阵倒数第二维；矩阵乘法通常是深度学习中算力占比最高的内核。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/12_matmul.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+numel(X)=\prod_k shape_k,\qquad device(X)=device(Y)\ \text{for most binary ops}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+x1 = torch.rand(32, 32, dtype=torch.float32, device="cuda:0")
+# [变化示例] x1=未定义/旧值 -> x1=按 32, 32 创建的随机张量；shape 固定，具体值由 RNG 决定。
+x2 = torch.rand(32, 32, dtype=torch.float32, device="cuda:0")
+# [变化示例] x2=未定义/旧值 -> x2=按 32, 32 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+y = x1 @ x2
+# [变化示例] y=未定义/旧值 -> y=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 融合/矩阵 API：优先用批量 tensor 算子表达计算，减少 Python 循环、中间分配和 kernel launch。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 116. 张量语义与 Autograd | 13_dynamic_graph.py
+
+**学习问题。** PyTorch 动态图怎样支持 Python 控制流？
+
+**中文讲解。** forward 每次执行时即时构图，因此 if/for 可以由当前 tensor 值决定路径；只有实际执行的可微分支进入本轮图。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/13_dynamic_graph.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+numel(X)=\prod_k shape_k,\qquad device(X)=device(Y)\ \text{for most binary ops}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+x = torch.tensor(2)  # 可以尝试不同的值，如 torch.tensor(1.0)
+# [变化示例] x=未定义/旧值 -> x=2，并采用显式/推断的 dtype 与 device。
+
+y = x % 2
+# [变化示例] y=未定义/旧值 -> y=x % 2；数值示例：7 % 3 -> 1。
+
+if y == 0:
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+    z = x * 10
+    # [变化示例] z=未定义/旧值 -> z=x * 10；数值示例：2 * 3 -> 6。
+else:
+    # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+    z = x + 10
+    # [变化示例] z=未定义/旧值 -> z=x + 10；数值示例：2 + 3 -> 5。
+
+print(z)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 117. 张量语义与 Autograd | 14_static_graph.py
+
+**学习问题。** 静态图控制流与 PyTorch eager 有何差异？
+
+**中文讲解。** 静态图先声明 placeholder 与条件节点，再在 Session 中执行；此文件用 TensorFlow 1.x 对照 PyTorch 的 define-by-run。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/14_static_graph.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+numel(X)=\prod_k shape_k,\qquad device(X)=device(Y)\ \text{for most binary ops}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import tensorflow.compat.v1 as tf
+
+x = tf.placeholder(tf.float32, shape=())
+# [变化示例] x=未定义/旧值 -> x 接收 tf.placeholder(tf.float32, shape=()) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+
+def true_fn():
+    return tf.multiply(x, 10)
+    # [变化示例] 函数内部：执行 tf.multiply(x, 10) 得到结果 -> 调用方收到该输出。
+
+
+def false_fn():
+    return tf.add(x, 10)
+    # [变化示例] 函数内部：执行 tf.add(x, 10) 得到结果 -> 调用方收到该输出。
+
+
+y = x % 2
+# [变化示例] y=未定义/旧值 -> y=x % 2；数值示例：7 % 3 -> 1。
+z = tf.cond(tf.equal(y, 0), true_fn, false_fn)
+# [变化示例] z=未定义/旧值 -> z 接收 tf.cond(tf.equal(y, 0), true_fn, false_fn) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+with tf.Session() as sess:
+    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+    print(sess.run(z, feed_dict={x: 2}))  # 输出 20 (2 * 10)
+    # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+    print(sess.run(z, feed_dict={x: 1}))  # 输出 11 (1 + 10)
+    # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 依赖 TensorFlow 1.x compatibility API，仅用于概念对照，不属于 PyTorch 运行路径。
+
+## 118. 张量语义与 Autograd | 15_ad.py
+
+**学习问题。** loss.backward 如何计算叶子张量梯度？
+
+**中文讲解。** autograd 从标量 loss 反向遍历图，把每条路径的局部 Jacobian 与上游梯度相乘并累加到叶子张量的 grad。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/15_ad.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\frac{\partial L}{\partial x}=\frac{\partial L}{\partial y}\frac{\partial y}{\partial x}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+# 创建一个需要计算梯度的张量
+x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+# [变化示例] x=未定义/旧值 -> x=[1.0, 2.0, 3.0]，并采用显式/推断的 dtype 与 device。
+
+# 前向传播：
+# 1. 构建并执行前向图
+# 2. 构建反向图
+t = x * 10
+# [变化示例] t=未定义/旧值 -> t=x * 10；数值示例：2 * 3 -> 6。
+z = t * t
+# [变化示例] z=未定义/旧值 -> z=t * t；数值示例：2 * 3 -> 6。
+
+loss = z.mean()
+# [变化示例] loss=未定义/旧值 -> loss=沿指定维求均值；例如 [1,2,3] -> 2。
+
+# 反向传播，计算梯度
+loss.backward()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+
+# 查看x的梯度
+print(x.grad)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 119. 张量语义与 Autograd | 16_ad_inplace.py
+
+**学习问题。** 为什么原地修改会破坏反向传播？
+
+**中文讲解。** 若 backward 保存了某个中间值，原地写入会改变其 version；autograd 检测到版本不匹配后会拒绝给出错误梯度。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/16_ad_inplace.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\frac{\partial L}{\partial x}=\frac{\partial L}{\partial y}\frac{\partial y}{\partial x}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+# 创建一个需要计算梯度的张量
+x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+# [变化示例] x=未定义/旧值 -> x=[1.0, 2.0, 3.0]，并采用显式/推断的 dtype 与 device。
+
+t = x * 10
+# [变化示例] t=未定义/旧值 -> t=x * 10；数值示例：2 * 3 -> 6。
+z = t * t
+# [变化示例] z=未定义/旧值 -> z=t * t；数值示例：2 * 3 -> 6。
+
+# 原位加法破坏了反向计算图需要的中间结果
+t.add_(1)
+# [变化示例] 原地状态：目标 tensor=旧值 -> 执行 t.add_(1) 后直接覆盖同一 storage。
+# 触发报错
+#     return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+#           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# RuntimeError: one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]], which is output 0 of AddBackward0, is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True).
+
+
+loss = z.mean()
+# [变化示例] loss=未定义/旧值 -> loss=沿指定维求均值；例如 [1,2,3] -> 2。
+
+loss.backward()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+
+print(x.grad)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 原地操作：复用 storage 并更新 version counter；可能破坏 backward 所需中间值或影响别名。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 此文件故意触发 autograd version mismatch，用于展示错误，不是可成功训练的实现。
+
+## 120. 张量语义与 Autograd | 17_custom_ad.py
+
+**学习问题。** 如何实现自定义 autograd.Function？
+
+**中文讲解。** forward 保存 backward 真正需要的张量；backward 接收上游梯度并按链式法则返回每个输入的梯度。 理解张量的 shape、stride、storage、索引、原地操作和动态计算图，是排查 PyTorch 正确性问题的基础。
+
+**来源文件。** `chapter_03_pytorch/17_custom_ad.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\frac{\partial L}{\partial x}=\frac{\partial L}{\partial y}\frac{\partial y}{\partial x}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+
+class MyMul(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, input1, input2):
+        ctx.save_for_backward(input1, input2)
+        # [变化示例] 执行状态：调用 ctx.save_for_backward(input1, input2) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        return input1 * input1 * input2
+        # [变化示例] 函数内部：input1 * input1 * input2；数值示例：2 * 3 -> 6 -> 调用方收到该输出。
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        input1, input2 = ctx.saved_tensors
+        # [变化示例] input1, input2=未定义/旧值 -> input1, input2=ctx.saved_tensors；这是一次重新绑定/状态更新，右侧值决定新状态。
+        grad_input1 = grad_output * 2 * input1 * input2
+        # [变化示例] grad_input1=未定义/旧值 -> grad_input1=grad_output * 2 * input1 * input2；数值示例：2 * 3 -> 6。
+        grad_input2 = grad_output * input1 * input1
+        # [变化示例] grad_input2=未定义/旧值 -> grad_input2=grad_output * input1 * input1；数值示例：2 * 3 -> 6。
+        return grad_input1, grad_input2
+        # [变化示例] 函数内部：tuple (grad_input1, grad_input2)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
+
+
+# 使用自定义的乘法操作
+x = torch.tensor([2.0, 3.0], requires_grad=True)
+# [变化示例] x=未定义/旧值 -> x=[2.0, 3.0]，并采用显式/推断的 dtype 与 device。
+y = torch.tensor([3.0, 4.0], requires_grad=True)
+# [变化示例] y=未定义/旧值 -> y=[3.0, 4.0]，并采用显式/推断的 dtype 与 device。
+z = MyMul.apply(x, y)
+# [变化示例] z=未定义/旧值 -> z 接收 MyMul.apply(x, y) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+z.backward(torch.tensor([1.0, 1.0]))
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+
+print(f"x.grad={x.grad}, y.grad={y.grad}")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# x.grad=tensor([12., 24.]), y.grad=tensor([4., 9.])
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 验证 shape、stride、contiguous、storage/data_ptr、dtype/device；涉及梯度时再检查 grad_fn、叶子 grad 与有限差分。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 121. 可靠计时与性能分析 | 1_ps.sh
+
+**学习问题。** 如何定位正在运行的训练进程？
+
+**中文讲解。** ps 与过滤命令可定位 PID、CPU 时间和启动参数；原文件中的 ps aus 是拼写问题，常用写法是 ps aux。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/1_ps.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+ps aus | grep <PID>
+# [变化示例] 进程表 -> 输出匹配 PID/命令行；本例应使用 ps aux，再用 grep 缩小结果。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 原文件的 ps aus 应改为常见的 ps aux；尖括号 PID 只是占位符。
+
+## 122. 可靠计时与性能分析 | 2_kill.sh
+
+**学习问题。** 如何安全终止异常训练进程？
+
+**中文讲解。** 优先发送 SIGTERM 让程序清理资源；kill -9 是不可捕获的 SIGKILL，只应在进程无法正常退出时使用。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/2_kill.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+kill -9 <PID>
+# [变化示例] 目标进程=运行中 -> 收到信号后退出；-9 会强制终止且不执行清理。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** kill -9 会跳过清理逻辑；优先尝试 kill <PID> 或 SIGTERM。
+
+## 123. 可靠计时与性能分析 | 3_seed_pt.py
+
+**学习问题。** torch.manual_seed 能保证什么？
+
+**中文讲解。** 它固定 PyTorch 随机数生成器的起点；完整复现还需要控制 Python、NumPy、CUDA 算法和数据加载顺序。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/3_seed_pt.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+
+def generate_random_seq(device):
+    return torch.rand((3, 3), device=device)
+    # [变化示例] 函数内部：按 (3, 3) 创建的随机张量；shape 固定，具体值由 RNG 决定 -> 调用方收到该输出。
+
+
+print(
+    f"""不设置随机种子时，每次运行生成的序列都是不同的
+CPU: {generate_random_seq('cpu')}
+CUDA: {generate_random_seq('cuda')}"""
+)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 为所有PyTorch后端设置生成随机数的种子
+seed = 32
+# [变化示例] seed=未定义/旧值 -> seed=32；这是一次重新绑定/状态更新，右侧值决定新状态。
+torch.manual_seed(seed)
+# [变化示例] RNG 状态：旧随机序列起点 -> 指定 seed 的确定起点；后续相同调用顺序可重放。
+
+print(
+    f"""设置随机种子后，每次运行都会生成相同的序列
+CPU: {generate_random_seq('cpu')}
+CUDA: {generate_random_seq('cuda')}"""
+)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 第一次运行代码结果
+# 不设置随机种子时，每次运行生成的序列都是不同的
+# CPU: tensor([[0.8485, 0.6379, 0.6855],
+#         [0.0954, 0.7357, 0.3545],
+#         [0.9822, 0.1272, 0.9752]])
+# CUDA: tensor([[0.5688, 0.7038, 0.6558],
+#         [0.1524, 0.8050, 0.7368],
+#         [0.5904, 0.2899, 0.4835]], device='cuda:0')
+# 设置随机种子后，每次运行都会生成相同的序列
+# CPU: tensor([[0.8757, 0.2721, 0.4141],
+#         [0.7857, 0.1130, 0.5793],
+#         [0.6481, 0.0229, 0.5874]])
+# CUDA: tensor([[0.6619, 0.2778, 0.7292],
+#         [0.8970, 0.0063, 0.7033],
+#         [0.9305, 0.2407, 0.3767]], device='cuda:0')
+
+# 相同代码，第二次运行结果
+# 不设置随机种子时，每次运行生成的序列都是不同的
+# CPU: tensor([[0.3968, 0.4038, 0.7816],
+#         [0.1577, 0.8753, 0.8638],
+#         [0.3971, 0.2644, 0.1432]])
+# CUDA: tensor([[0.4933, 0.2223, 0.5825],
+#         [0.6528, 0.9796, 0.3861],
+#         [0.7478, 0.2834, 0.7953]], device='cuda:0')
+# 设置随机种子后，每次运行都会生成相同的序列
+# CPU: tensor([[0.8757, 0.2721, 0.4141],
+#         [0.7857, 0.1130, 0.5793],
+#         [0.6481, 0.0229, 0.5874]])
+# CUDA: tensor([[0.6619, 0.2778, 0.7292],
+#         [0.8970, 0.0063, 0.7033],
+#         [0.9305, 0.2407, 0.3767]], device='cuda:0')
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 复现配置：Python、NumPy、PyTorch 和 CUDA 算法选择需要一起控制，seed 不是完全确定性的充分条件。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 124. 可靠计时与性能分析 | 4_seed_np.py
+
+**学习问题。** 如何固定 NumPy 随机序列？
+
+**中文讲解。** 设置相同 seed 可重放同一伪随机序列，但全局 RNG 会受调用顺序影响；新代码可考虑显式 Generator。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/4_seed_np.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import numpy as np
+
+
+def generate_random_seq():
+    return ", ".join([f"{np.random.random():.2f}" for _ in range(10)])
+    # [变化示例] 函数内部：执行 ", ".join([f"{np.random.random():.2f}" for _ in range(10)]) 得到结果 -> 调用方收到该输出。
+
+
+print(f"不设置随机种子时，每次运行生成的序列都是不同的: {generate_random_seq()}")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+np.random.seed(32)
+# [变化示例] 执行状态：调用 np.random.seed(32) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+print(f"设置随机种子后，每次运行都会生成相同的序列: {generate_random_seq()}")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 第一次运行结果
+# 不设置随机种子时，每次运行生成的序列都是不同的: 0.11, 0.98, 0.96, 0.29, 0.80, 0.21, 0.49, 0.36, 0.41, 0.64
+# 设置随机种子后，每次运行都会生成相同的序列: 0.86, 0.37, 0.56, 0.96, 0.74, 0.82, 0.10, 0.93, 0.61, 0.60
+
+# 第二次运行结果
+# 不设置随机种子时，每次运行生成的序列都是不同的: 0.19, 0.32, 0.09, 0.94, 0.03, 0.04, 0.32, 0.19, 0.10, 0.64
+# 设置随机种子后，每次运行都会生成相同的序列: 0.86, 0.37, 0.56, 0.96, 0.74, 0.82, 0.10, 0.93, 0.61, 0.60
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 复现配置：Python、NumPy、PyTorch 和 CUDA 算法选择需要一起控制，seed 不是完全确定性的充分条件。
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 125. 可靠计时与性能分析 | 5_seed_py.py
+
+**学习问题。** Python random 如何复现？
+
+**中文讲解。** random.seed 固定标准库 RNG；它与 NumPy、PyTorch 的 RNG 状态相互独立。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/5_seed_py.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import os
+import random
+
+
+def generate_random_seq():
+    return ", ".join([f"{random.random():.2f}" for _ in range(10)])
+    # [变化示例] 函数内部：执行 ", ".join([f"{random.random():.2f}" for _ in range(10)]) 得到结果 -> 调用方收到该输出。
+
+
+print(f"不设置随机种子时，每次运行生成的序列都是不同的: {generate_random_seq()}")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+seed = 32
+# [变化示例] seed=未定义/旧值 -> seed=32；这是一次重新绑定/状态更新，右侧值决定新状态。
+random.seed(seed)
+# [变化示例] 执行状态：调用 random.seed(seed) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+print(f"设置随机种子后，每次运行都会生成相同的序列: {generate_random_seq()}")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 第一次运行结果
+# 不设置随机种子时，每次运行生成的序列都是不同的: 0.66, 0.21, 0.71, 0.37, 0.17, 0.85, 0.29, 0.66, 0.36, 0.68
+# 设置随机种子后，每次运行都会生成相同的序列: 0.08, 0.21, 0.30, 0.90, 0.50, 0.72, 0.10, 0.51, 0.84, 0.52
+
+# 第二次运行结果
+# 不设置随机种子时，每次运行生成的序列都是不同的: 0.26, 0.33, 0.47, 0.53, 0.13, 0.03, 0.49, 0.99, 0.11, 0.43
+# 设置随机种子后，每次运行都会生成相同的序列: 0.08, 0.21, 0.30, 0.90, 0.50, 0.72, 0.10, 0.51, 0.84, 0.52
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 复现配置：Python、NumPy、PyTorch 和 CUDA 算法选择需要一起控制，seed 不是完全确定性的充分条件。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 126. 可靠计时与性能分析 | 6_hash.sh
+
+**学习问题。** PYTHONHASHSEED 为什么影响复现？
+
+**中文讲解。** 哈希随机化可能改变依赖 hash 顺序的集合/字典遍历行为；应在启动 Python 进程前设置环境变量。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/6_hash.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+python -c 'print(hash("hello"))' # 跑多次结果是不一样的
+# [变化示例] 命令状态：执行 python -c 'print(hash("hello"))' 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+PYTHONHASHSEED=0 python -c 'print(hash("hello"))' #跑多次结果是一样的
+# [变化示例] 哈希种子=随机/未固定 -> 新 Python 进程使用指定哈希种子。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 127. 可靠计时与性能分析 | 7_cudnn.py
+
+**学习问题。** cuDNN benchmark 与 deterministic 如何取舍？
+
+**中文讲解。** benchmark 会为固定 shape 搜索更快算法，deterministic 限制为可复现实现；性能与严格复现往往不能同时最大化。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/7_cudnn.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+torch.backends.cudnn.deterministic = True
+# [变化示例] torch.backends.cudnn.deterministic=未定义/旧值 -> torch.backends.cudnn.deterministic=True；这是一次重新绑定/状态更新，右侧值决定新状态。
+torch.backends.cudnn.benchmark = False
+# [变化示例] torch.backends.cudnn.benchmark=未定义/旧值 -> torch.backends.cudnn.benchmark=False；这是一次重新绑定/状态更新，右侧值决定新状态。
+```
+
+#### 代码/API 逐项解释
+
+- 复现配置：Python、NumPy、PyTorch 和 CUDA 算法选择需要一起控制，seed 不是完全确定性的充分条件。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 128. 可靠计时与性能分析 | 8_set_seed.py
+
+**学习问题。** 如何集中配置端到端随机种子？
+
+**中文讲解。** 一个可靠 helper 应覆盖 Python、NumPy、PyTorch CPU/CUDA，并明确 deterministic 与 benchmark 策略。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/8_set_seed.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+def set_seed(seed: int = 37) -> None:
+# [变化示例] 调用该单行函数时：int=未定义/旧值 -> int=37) -> None:；这是一次重新绑定/状态更新，右侧值决定新状态。
+    np.random.seed(seed)
+    # [变化示例] 执行状态：调用 np.random.seed(seed) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    random.seed(seed)
+    # [变化示例] 执行状态：调用 random.seed(seed) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    torch.manual_seed(seed)  # 适用于所有PyTorch后端，包括CPU和所有CUDA设备
+    # [变化示例] RNG 状态：旧随机序列起点 -> 指定 seed 的确定起点；后续相同调用顺序可重放。
+    torch.backends.cudnn.deterministic = True
+    # [变化示例] torch.backends.cudnn.deterministic=未定义/旧值 -> torch.backends.cudnn.deterministic=True；这是一次重新绑定/状态更新，右侧值决定新状态。
+    torch.backends.cudnn.benchmark = False
+    # [变化示例] torch.backends.cudnn.benchmark=未定义/旧值 -> torch.backends.cudnn.benchmark=False；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    # [变化示例] 目标切片 os.environ["PYTHONHASHSEED"]=旧值 -> str(seed)；base tensor 对应位置同步被写入。
+    print(f"设置随机数种子为{seed}")
+    # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 复现配置：Python、NumPy、PyTorch 和 CUDA 算法选择需要一起控制，seed 不是完全确定性的充分条件。
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 129. 可靠计时与性能分析 | 9_fix_gpu_clock.sh
+
+**学习问题。** 为什么性能测试会固定 GPU 时钟？
+
+**中文讲解。** 动态频率会让相同 kernel 的延迟漂移；锁频可降低噪声，但需要权限、硬件支持并会改变功耗/散热条件。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/9_fix_gpu_clock.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+# 查询
+nvidia-smi --query-gpu=pstate,clocks.mem,clocks.sm,clocks.gr --format=csv
+# [变化示例] GPU 时钟=动态 -> 请求锁定/查询指定频率；不支持时会返回错误而不改变时钟。
+
+# clocks.current.memory [MHz], clocks.current.sm [MHz], clocks.current.graphics [MHz]
+# 9751 MHz, 1695 MHz, 1695 MHz
+
+# 查询GPU支持的clock组合
+nvidia-smi --query-supported-clocks=gpu_name,mem,gr --format=csv
+# [变化示例] GPU 时钟=动态 -> 请求锁定/查询指定频率；不支持时会返回错误而不改变时钟。
+
+# 设置persistent mode
+sudo nvidia-smi -pm 1
+# [变化示例] GPU 时钟=动态 -> 请求锁定/查询指定频率；不支持时会返回错误而不改变时钟。
+
+# 固定GPU时钟
+nvidia-smi -ac 9751,1530 # <memory, graphics>
+# [变化示例] GPU 时钟=动态 -> 请求锁定/查询指定频率；不支持时会返回错误而不改变时钟。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 命令依赖 Linux、权限、GPU/驱动或多节点环境；在 Windows 本机不能原样运行。
+
+## 130. 可靠计时与性能分析 | 10_clock_not_supported.sh
+
+**学习问题。** 为什么性能测试会固定 GPU 时钟？
+
+**中文讲解。** 动态频率会让相同 kernel 的延迟漂移；锁频可降低噪声，但需要权限、硬件支持并会改变功耗/散热条件。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/10_clock_not_supported.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+Setting applications clocks is not supported for GPU 00000000:1A:00.0.
+# [变化示例] 命令状态：执行 Setting applications clocks is not supported for GPU 000000... 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+Treating as warning and moving on.
+# [变化示例] 命令状态：执行 Treating as warning and moving on. 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 这是 nvidia-smi 的错误输出示例，不是可执行 shell 命令。
+
+## 131. 可靠计时与性能分析 | 11_fix_cpu_clock.sh
+
+**学习问题。** CPU 频率、C-state 和 Turbo 如何影响测量？
+
+**中文讲解。** CPU 调频与睡眠状态会改变 host 侧延迟；严谨 benchmark 要记录 governor、频率和 Turbo/C-state 设置。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/11_fix_cpu_clock.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+# 安装
+sudo apt install cpufrequtils
+# [变化示例] 系统未安装工具 -> 包管理器安装完成（需要网络与 root 权限）。
+
+# 设置最大/最小频率
+sudo cpufreq-set -r -g performance
+# [变化示例] CPU governor/频率=动态 -> performance 与指定上下限（需要 root）。
+sudo cpufreq-set -r -d 2Ghz
+# [变化示例] CPU governor/频率=动态 -> performance 与指定上下限（需要 root）。
+sudo cpufreq-set -r -u 2Ghz
+# [变化示例] CPU governor/频率=动态 -> performance 与指定上下限（需要 root）。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 命令依赖 Linux、权限、GPU/驱动或多节点环境；在 Windows 本机不能原样运行。
+
+## 132. 可靠计时与性能分析 | 12_query_cpu.sh
+
+**学习问题。** CPU 频率、C-state 和 Turbo 如何影响测量？
+
+**中文讲解。** CPU 调频与睡眠状态会改变 host 侧延迟；严谨 benchmark 要记录 governor、频率和 Turbo/C-state 设置。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/12_query_cpu.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+# 查询
+cpufreq-info
+# [变化示例] CPU 频率状态 -> 标准输出中的当前/最小/最大频率。
+
+# 或者
+cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
+# [变化示例] CPU 频率状态 -> 标准输出中的当前/最小/最大频率。
+cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+# [变化示例] CPU 频率状态 -> 标准输出中的当前/最小/最大频率。
+cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+# [变化示例] CPU 频率状态 -> 标准输出中的当前/最小/最大频率。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 133. 可靠计时与性能分析 | 13_cpu_time.py
+
+**学习问题。** 如何测量 CPU 墙钟时间？
+
+**中文讲解。** time.perf_counter 提供适合短间隔测量的单调高分辨率时钟，但异步 GPU 工作必须额外同步。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/13_cpu_time.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import time
+
+start = time.perf_counter()
+# [变化示例] start=未定义/旧值 -> start=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+
+# 在此处运行你的代码
+
+end = time.perf_counter()
+# [变化示例] end=未定义/旧值 -> end=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+print(f"程序执行时间: {end - start}s")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 134. 可靠计时与性能分析 | 13_query_cstate.sh
+
+**学习问题。** CPU 频率、C-state 和 Turbo 如何影响测量？
+
+**中文讲解。** CPU 调频与睡眠状态会改变 host 侧延迟；严谨 benchmark 要记录 governor、频率和 Turbo/C-state 设置。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/13_query_cstate.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+# 查询 Cstate
+cat /sys/module/intel_idle/parameters/max_cstate
+# [变化示例] 内核/文件中的文本值 -> 标准输出；cat 不修改源文件。
+
+# 查询 turbo状态
+cat /sys/devices/system/cpu/intel_pstate/no_turbo
+# [变化示例] 内核/文件中的文本值 -> 标准输出；cat 不修改源文件。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 135. 可靠计时与性能分析 | 14_warmup.py
+
+**学习问题。** 为什么 benchmark 需要 warmup 和重复测量？
+
+**中文讲解。** 首次运行可能包含导入、分配、缓存、编译和时钟爬升；warmup 后重复统计才更接近稳态。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/14_warmup.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import time
+import torch
+
+
+def my_work():
+    # 需要计时的操作
+    sz = 64
+    # [变化示例] sz=未定义/旧值 -> sz=64；这是一次重新绑定/状态更新，右侧值决定新状态。
+    x = torch.randn((sz, sz))
+    # [变化示例] x=未定义/旧值 -> x=按 (sz, sz) 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+
+if __name__ == "__main__":
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+    # 热身
+    num_warmup = 5
+    # [变化示例] num_warmup=未定义/旧值 -> num_warmup=5；这是一次重新绑定/状态更新，右侧值决定新状态。
+    for i in range(num_warmup):
+        # [变化示例] 循环示例：range(num_warmup) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+        start = time.perf_counter()
+        # [变化示例] start=未定义/旧值 -> start=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+        my_work()
+        # [变化示例] 执行状态：调用 my_work() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        end = time.perf_counter()
+        # [变化示例] end=未定义/旧值 -> end=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+        t = end - start
+        # [变化示例] t=未定义/旧值 -> t=end - start；数值示例：3 - 2 -> 1。
+        print(f"热身#{i}: {t * 1000 :.6f}ms")
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+    # 多次运行取平均
+    repeat = 30
+    # [变化示例] repeat=未定义/旧值 -> repeat=30；这是一次重新绑定/状态更新，右侧值决定新状态。
+    start = time.perf_counter()
+    # [变化示例] start=未定义/旧值 -> start=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+    for _ in range(repeat):
+        # [变化示例] 循环示例：range(repeat) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+        my_work()
+        # [变化示例] 执行状态：调用 my_work() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    end = time.perf_counter()
+    # [变化示例] end=未定义/旧值 -> end=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+
+    t = (end - start) / repeat
+    # [变化示例] t=未定义/旧值 -> t=(end - start) / repeat；数值示例：6 / 3 -> 2。
+    print(f"{repeat}次取平均: {t * 1000:.6f}ms")
+    # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 热身#0: 0.317707ms
+# 热身#1: 0.023586ms
+# 热身#2: 0.016913ms
+# 热身#3: 0.016409ms
+# 热身#4: 0.015868ms
+# 30次取平均: 0.014164ms
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 136. 可靠计时与性能分析 | 15_sync.py
+
+**学习问题。** 为什么 CUDA 计时前后要 synchronize？
+
+**中文讲解。** CUDA kernel 默认异步排队；只测 Python 提交时间会严重低估设备执行时间。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/15_sync.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import time
+import torch
+
+sz = 512
+# [变化示例] sz=未定义/旧值 -> sz=512；这是一次重新绑定/状态更新，右侧值决定新状态。
+N = 10
+# [变化示例] N=未定义/旧值 -> N=10；这是一次重新绑定/状态更新，右侧值决定新状态。
+shape = (sz, sz, sz)
+# [变化示例] shape=未定义/旧值 -> shape=tuple (sz, sz, sz)；多个值按位置传递/解包，元素本身不被复制。
+
+x = torch.randn(dtype=torch.float, size=shape, device="cuda")
+# [变化示例] x=未定义/旧值 -> x=按 dtype=torch.float 创建的随机张量；shape 固定，具体值由 RNG 决定。
+y = torch.randn(dtype=torch.float, size=shape, device="cuda")
+# [变化示例] y=未定义/旧值 -> y=按 dtype=torch.float 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+torch.cuda.synchronize()
+# [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+start = time.perf_counter()
+# [变化示例] start=未定义/旧值 -> start=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+for _ in range(N):
+    # [变化示例] 循环示例：range(N) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+    z = x * y
+    # [变化示例] z=未定义/旧值 -> z=x * y；数值示例：2 * 3 -> 6。
+# 同步
+torch.cuda.synchronize()
+# [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+end = time.perf_counter()
+# [变化示例] end=未定义/旧值 -> end=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+print(f"{N}次运行取平均: {(end - start) / N}s")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 137. 可靠计时与性能分析 | 16_event.py
+
+**学习问题。** CUDA Event 如何测 GPU 时间？
+
+**中文讲解。** Event 记录在 CUDA stream 上，elapsed_time 计算设备时间线上的间隔，比 host perf_counter 更直接。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/16_event.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+sz = 512
+# [变化示例] sz=未定义/旧值 -> sz=512；这是一次重新绑定/状态更新，右侧值决定新状态。
+shape = (sz, sz, sz)
+# [变化示例] shape=未定义/旧值 -> shape=tuple (sz, sz, sz)；多个值按位置传递/解包，元素本身不被复制。
+x = torch.randn(dtype=torch.float, size=shape, device="cuda")
+# [变化示例] x=未定义/旧值 -> x=按 dtype=torch.float 创建的随机张量；shape 固定，具体值由 RNG 决定。
+y = torch.randn(dtype=torch.float, size=shape, device="cuda")
+# [变化示例] y=未定义/旧值 -> y=按 dtype=torch.float 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+start = torch.cuda.Event(enable_timing=True)
+# [变化示例] start=未定义/旧值 -> start 接收 torch.cuda.Event(enable_timing=True) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+end = torch.cuda.Event(enable_timing=True)
+# [变化示例] end=未定义/旧值 -> end 接收 torch.cuda.Event(enable_timing=True) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+start.record()
+# [变化示例] 执行状态：调用 start.record() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+z = x + y
+# [变化示例] z=未定义/旧值 -> z=x + y；数值示例：2 + 3 -> 5。
+end.record()
+# [变化示例] 执行状态：调用 end.record() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+# 等待GPU运行完成
+torch.cuda.synchronize()
+# [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+
+print(f"用时{start.elapsed_time(end)}ms")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 138. 可靠计时与性能分析 | 17_profile_basic.py
+
+**学习问题。** torch.profiler 如何定位热点算子？
+
+**中文讲解。** 同时采集 CPU/CUDA activity，并按 cuda_time_total 聚合，可区分 host 调度与 GPU kernel 成本。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/17_profile_basic.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torchvision.models as models
+from torch.profiler import profile, record_function, ProfilerActivity
+
+model = models.resnet18().cuda()
+# [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+inputs = torch.randn(5, 3, 224, 224, device="cuda")
+# [变化示例] inputs=未定义/旧值 -> inputs=按 5, 3, 224, 224 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+    with record_function("model_inference"):
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        model(inputs)
+        # [变化示例] 执行状态：调用 model(inputs) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=10))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 139. 可靠计时与性能分析 | 18_profile_memory.py
+
+**学习问题。** 如何用 profiler 分析算子显存？
+
+**中文讲解。** profile_memory 会记录分配与释放事件；self memory 更接近算子自身分配，total memory 还包含子调用。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/18_profile_memory.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torchvision.models as models
+from torch.profiler import profile, record_function, ProfilerActivity
+
+model = models.resnet18().cuda()
+# [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+inputs = torch.randn(5, 3, 224, 224, device="cuda")
+# [变化示例] inputs=未定义/旧值 -> inputs=按 5, 3, 224, 224 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+with profile(
+    activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], profile_memory=True
+) as prof:
+    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+    model(inputs)
+    # [变化示例] 执行状态：调用 model(inputs) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+print(prof.key_averages().table(sort_by="self_cuda_memory_usage", row_limit=5))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 140. 可靠计时与性能分析 | 19_profile_export.py
+
+**学习问题。** 如何把 profiler 结果导出到 Chrome Trace？
+
+**中文讲解。** 导出的 JSON 可在时间线上观察 CPU op、CUDA kernel、stream 并发和空洞；该片段依赖已创建的 prof 对象。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/19_profile_export.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+prof.export_chrome_trace("profiler_export_trace.json")
+# [变化示例] 执行状态：调用 prof.export_chrome_trace("profiler_export_trace.json") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 该文件是片段，必须在创建并完成 prof 上下文后调用。
+
+## 141. 可靠计时与性能分析 | 20_ncu.py
+
+**学习问题。** 怎样准备一个可供 Nsight Compute 分析的训练 workload？
+
+**中文讲解。** 构造重复的 CNN 前向、反向和优化器步骤，使 ncu 能采集关键 kernel 的 occupancy、访存和指令指标。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/20_ncu.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+
+class SimpleCNN(nn.Module):
+    def __init__(self):
+        super(SimpleCNN, self).__init__()
+        # [变化示例] 执行状态：调用 super(SimpleCNN, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        # [变化示例] self.conv1=未定义/旧值 -> self.conv1 接收 nn.Conv2d(1, 20, 5) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        self.pool = nn.MaxPool2d(2, 2)
+        # [变化示例] self.pool=未定义/旧值 -> self.pool 接收 nn.MaxPool2d(2, 2) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        self.conv2 = nn.Conv2d(20, 50, 5)
+        # [变化示例] self.conv2=未定义/旧值 -> self.conv2 接收 nn.Conv2d(20, 50, 5) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        self.fc1 = nn.Linear(50 * 4 * 4, 500)
+        # [变化示例] self.fc1=未定义/旧值 -> self.fc1=线性映射模块；输入最后一维 50 * 4 * 4 -> 输出最后一维 500。
+        self.fc2 = nn.Linear(500, 10)
+        # [变化示例] self.fc2=未定义/旧值 -> self.fc2=线性映射模块；输入最后一维 500 -> 输出最后一维 10。
+
+    def forward(self, x):
+        x = self.pool(torch.relu(self.conv1(x)))
+        # [变化示例] x=未定义/旧值 -> x 接收 self.pool(torch.relu(self.conv1(x))) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        x = self.pool(torch.relu(self.conv2(x)))
+        # [变化示例] x=未定义/旧值 -> x 接收 self.pool(torch.relu(self.conv2(x))) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        x = x.view(-1, 50 * 4 * 4)
+        # [变化示例] x=未定义/旧值 -> x 重排为 -1, 50 * 4 * 4；元素数量与顺序保持不变（若布局允许则共享 storage）。
+        x = torch.relu(self.fc1(x))
+        # [变化示例] x=未定义/旧值 -> x=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        x = self.fc2(x)
+        # [变化示例] x=未定义/旧值 -> x 接收 self.fc2(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        return x
+        # [变化示例] 函数内部：x；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+net = SimpleCNN().to("cuda")
+# [变化示例] net=未定义/旧值 -> net 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+criterion = nn.CrossEntropyLoss()
+# [变化示例] criterion=未定义/旧值 -> criterion=分类损失/损失模块；例如 logits (B,C) 与 labels (B,) -> 标量平均 loss。
+optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+# [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+
+for i in range(10):
+    # [变化示例] 循环示例：range(10) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+    inputs = torch.randn(32, 1, 28, 28, device="cuda")
+    # [变化示例] inputs=未定义/旧值 -> inputs=按 32, 1, 28, 28 创建的随机张量；shape 固定，具体值由 RNG 决定。
+    labels = torch.randint(0, 10, (32,), device="cuda")
+    # [变化示例] labels=未定义/旧值 -> labels=指定整数区间的随机张量；例如 randint(0,10,(32,)) -> shape=(32,)，值均在 [0,10)。
+    optimizer.zero_grad()
+    # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+    outputs = net(inputs)
+    # [变化示例] outputs=未定义/旧值 -> outputs 接收 net(inputs) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    loss = criterion(outputs, labels)
+    # [变化示例] loss=未定义/旧值 -> loss 接收 criterion(outputs, labels) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    loss.backward()
+    # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+    optimizer.step()
+    # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- view/reshape/flatten：保持元素总数不变；non-contiguous 输入上 view 可能失败，reshape 可在必要时复制。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+- 概率与损失：交叉熵通常接收未归一化 logits；采样前按最后一维归一化并处理 temperature/top-k。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 命令依赖 Linux、权限、GPU/驱动或多节点环境；在 Windows 本机不能原样运行。
+
+## 142. 可靠计时与性能分析 | 21_py_spy.py
+
+**学习问题。** 如何区分 Python/NumPy 热点与 GPU 热点？
+
+**中文讲解。** py-spy 采样 Python 调用栈，torch.profiler 分析框架与 CUDA；两者结合才能识别 host preprocessing 瓶颈。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/21_py_spy.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import numpy as np
+from torch.profiler import profile, record_function, ProfilerActivity
+
+
+class SimpleModel(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.linear = torch.nn.Linear(10, 10)
+        # [变化示例] self.linear=未定义/旧值 -> self.linear 接收 torch.nn.Linear(10, 10) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    def forward(self, x):
+        return self.linear(x)
+        # [变化示例] 函数内部：执行 self.linear(x) 得到结果 -> 调用方收到该输出。
+
+
+def numpy_heavy_computation(input_array):
+    size_inner = 1000
+    # [变化示例] size_inner=未定义/旧值 -> size_inner=1000；这是一次重新绑定/状态更新，右侧值决定新状态。
+    size_0 = input_array.shape[0]
+    # [变化示例] size_0=未定义/旧值 -> size_0=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+    size_1 = input_array.shape[1]
+    # [变化示例] size_1=未定义/旧值 -> size_1=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+    result = input_array
+    # [变化示例] result=未定义/旧值 -> result=input_array；这是一次重新绑定/状态更新，右侧值决定新状态。
+    for _ in range(2):
+        # [变化示例] 循环示例：range(2) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+        matrix_a = np.random.randn(size_0, size_inner)
+        # [变化示例] matrix_a=未定义/旧值 -> matrix_a 接收 np.random.randn(size_0, size_inner) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        matrix_b = np.random.randn(size_inner, size_1)
+        # [变化示例] matrix_b=未定义/旧值 -> matrix_b 接收 np.random.randn(size_inner, size_1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        result = np.dot(matrix_a, matrix_b) + result
+        # [变化示例] result=未定义/旧值 -> result=np.dot(matrix_a, matrix_b) + result；数值示例：2 + 3 -> 5。
+    return result
+    # [变化示例] 函数内部：result；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+def run(data, model):
+    processed_data = numpy_heavy_computation(data)
+    # [变化示例] processed_data=未定义/旧值 -> processed_data 接收 numpy_heavy_computation(data) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    tensor_data = torch.tensor(
+        processed_data[:10, :10], dtype=torch.float32, device="cuda"
+    )
+    # [变化示例] tensor_data=未定义/旧值 -> tensor_data=由给定数据构造的 tensor，并采用显式/推断的 dtype 与 device。
+    output = model(tensor_data)
+    # [变化示例] output=未定义/旧值 -> output 接收 model(tensor_data) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+
+def main():
+    model = SimpleModel().to("cuda")
+    # [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+    data = np.random.randn(10, 10)
+    # [变化示例] data=未定义/旧值 -> data 接收 np.random.randn(10, 10) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    for i in range(1000):
+        # [变化示例] 循环示例：range(1000) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+        run(data, model)
+        # [变化示例] 执行状态：调用 run(data, model) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    torch.cuda.synchronize()
+    # [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+
+
+if __name__ == "__main__":
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+    main()
+    # [变化示例] 执行状态：调用 main() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 143. 可靠计时与性能分析 | 22_pyspy_cmd.sh
+
+**学习问题。** 如何生成 Python 火焰图？
+
+**中文讲解。** py-spy record 以采样方式附着/启动进程并输出 SVG，开销通常低于逐函数 instrumentation。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/22_pyspy_cmd.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+py-spy record -o profile.svg -- python test.py
+# [变化示例] 运行中的 Python 调用栈 -> 采样生成 profile.svg 火焰图。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 命令依赖 Linux、权限、GPU/驱动或多节点环境；在 Windows 本机不能原样运行。
+
+## 144. 可靠计时与性能分析 | 23_strace.sh
+
+**学习问题。** strace 何时能帮助排查训练卡顿？
+
+**中文讲解。** 它观察 open/read/write/futex 等系统调用，可发现频繁小文件 I/O、锁等待或异常重试，但会带来额外开销。 性能结论必须建立在可复现环境、正确同步、充分 warmup 和合适 profiler 上。
+
+**来源文件。** `chapter_04_profiler/23_strace.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+t_{reported}=t_{work}+t_{launch}+t_{sync}+\epsilon_{system}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+# 通过strace运行一个程序
+strace python test.py
+# [变化示例] 目标进程 -> 持续输出系统调用轨迹；附着期间程序行为不应被当作零开销。
+
+# 追踪一个已经运行的进程
+strace -p <pid>
+# [变化示例] 目标进程 -> 持续输出系统调用轨迹；附着期间程序行为不应被当作零开销。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先 warmup，固定输入与环境，重复多轮；CUDA host 计时前后同步，并报告中位数/分位数而不是只报单次结果。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 命令依赖 Linux、权限、GPU/驱动或多节点环境；在 Windows 本机不能原样运行。
+
+## 145. 数据管线与 DataLoader | 0_cifar.sh
+
+**学习问题。** 如何准备 CIFAR-10 数据文件？
+
+**中文讲解。** 下载脚本负责获取并解压数据；生产流程还应校验 checksum、避免重复下载并记录数据版本。 训练吞吐不仅取决于 GPU；磁盘、解码、NumPy 线程、worker 和 H2D 拷贝都可能成为瓶颈。
+
+**来源文件。** `chapter_05_data/0_cifar.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+throughput=\min(r_{storage},r_{decode},r_{workers},r_{H2D},r_{GPU})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+cifar-10-raw-images
+# [变化示例] 命令状态：执行 cifar-10-raw-images 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+|- images
+# [变化示例] 命令状态：执行 |- images 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+    |- train
+    # [变化示例] 命令状态：执行 |- train 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+        |- Airplane
+        # [变化示例] 命令状态：执行 |- Airplane 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+            |- aeroplane_s_000004.png
+            # [变化示例] 命令状态：执行 |- aeroplane_s_000004.png 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+            |- ...
+            # [变化示例] 命令状态：执行 |- ... 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+        |- Automobile
+        # [变化示例] 命令状态：执行 |- Automobile 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+        |- Bird
+        # [变化示例] 命令状态：执行 |- Bird 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+        |- ...
+        # [变化示例] 命令状态：执行 |- ... 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 记录 samples/s、DataLoader 等待时间、CPU/磁盘/GPU 利用率，并检查 worker 输出与单进程版本数值一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 146. 数据管线与 DataLoader | 1_from_numpy.py
+
+**学习问题。** torch.from_numpy 是否复制内存？
+
+**中文讲解。** 对受支持 dtype/layout 的 ndarray，from_numpy 通常共享 CPU 内存；任一侧原地修改都可能影响另一侧。 训练吞吐不仅取决于 GPU；磁盘、解码、NumPy 线程、worker 和 H2D 拷贝都可能成为瓶颈。
+
+**来源文件。** `chapter_05_data/1_from_numpy.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+throughput=\min(r_{storage},r_{decode},r_{workers},r_{H2D},r_{GPU})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import numpy as np
+import torch
+
+x = np.zeros((3, 3))
+# [变化示例] x=未定义/旧值 -> x 接收 np.zeros((3, 3)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+y = torch.from_numpy(x)
+# [变化示例] y=未定义/旧值 -> y 接收 torch.from_numpy(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+print(y, type(y))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# tensor([[0., 0., 0.],
+#        [0., 0., 0.],
+#        [0., 0., 0.]], dtype=torch.float64) <class 'torch.Tensor'>
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+
+#### 输入、输出与验证
+
+- **验证方法。** 记录 samples/s、DataLoader 等待时间、CPU/磁盘/GPU 利用率，并检查 worker 输出与单进程版本数值一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 147. 数据管线与 DataLoader | 2_from_numpy_error.py
+
+**学习问题。** 为什么负 stride 的 NumPy 数组不能直接转 tensor？
+
+**中文讲解。** 翻转等操作可能产生负 stride view，而 torch.from_numpy 要求当前支持的非负 stride；copy 可物化连续布局。 训练吞吐不仅取决于 GPU；磁盘、解码、NumPy 线程、worker 和 H2D 拷贝都可能成为瓶颈。
+
+**来源文件。** `chapter_05_data/2_from_numpy_error.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+throughput=\min(r_{storage},r_{decode},r_{workers},r_{H2D},r_{GPU})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import numpy as np
+import torch
+
+x = np.random.random(size=(4, 4, 2))
+# [变化示例] x=未定义/旧值 -> x 接收 np.random.random(size=(4, 4, 2)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+y = np.flip(x, axis=0)
+# [变化示例] y=未定义/旧值 -> y 接收 np.flip(x, axis=0) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+# 报错
+# ValueError: At least one stride in the given numpy array is negative,
+# and tensors with negative strides are not currently supported.
+# (You can probably work around this by making a copy of your array  with array.copy().)
+torch.from_numpy(y)
+# [变化示例] 执行状态：调用 torch.from_numpy(y) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+# 创建副本后能够正常运行
+torch.from_numpy(y.copy())
+# [变化示例] 执行状态：调用 torch.from_numpy(y.copy()) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+
+#### 输入、输出与验证
+
+- **验证方法。** 记录 samples/s、DataLoader 等待时间、CPU/磁盘/GPU 利用率，并检查 worker 输出与单进程版本数值一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 此文件故意触发负 stride 错误；修复方式是 np.ascontiguousarray(array) 或 array.copy() 后再 from_numpy。
+
+## 148. 数据管线与 DataLoader | 3_predefined_dataset.py
+
+**学习问题。** 如何使用 torchvision 预定义数据集？
+
+**中文讲解。** Dataset 负责样本与标签，download/transform 管理获取和预处理；训练与验证 transform 应分开。 训练吞吐不仅取决于 GPU；磁盘、解码、NumPy 线程、worker 和 H2D 拷贝都可能成为瓶颈。
+
+**来源文件。** `chapter_05_data/3_predefined_dataset.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+throughput=\min(r_{storage},r_{decode},r_{workers},r_{H2D},r_{GPU})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torchvision.datasets as datasets
+import torchvision.transforms as transforms
+
+transform = transforms.Compose([transforms.ToTensor()])
+# [变化示例] transform=未定义/旧值 -> transform 接收 transforms.Compose([transforms.ToTensor()]) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+train_dataset = datasets.CIFAR10(
+    root="./data", train=True, download=True, transform=transform
+)
+# [变化示例] train_dataset=未定义/旧值 -> train_dataset 接收 datasets.CIFAR10( root="./data", train=True, download=True,... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+test_dataset = datasets.CIFAR10(
+    root="./data", train=False, download=True, transform=transform
+)
+# [变化示例] test_dataset=未定义/旧值 -> test_dataset 接收 datasets.CIFAR10( root="./data", train=False, download=True... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 记录 samples/s、DataLoader 等待时间、CPU/磁盘/GPU 利用率，并检查 worker 输出与单进程版本数值一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 149. 数据管线与 DataLoader | 4_custom_dataset.py
+
+**学习问题。** 自定义 Dataset 需要实现哪些契约？
+
+**中文讲解。** map-style Dataset 至少实现 __len__ 与 __getitem__，返回可被 collate_fn 合并的稳定样本结构。 训练吞吐不仅取决于 GPU；磁盘、解码、NumPy 线程、worker 和 H2D 拷贝都可能成为瓶颈。
+
+**来源文件。** `chapter_05_data/4_custom_dataset.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+throughput=\min(r_{storage},r_{decode},r_{workers},r_{H2D},r_{GPU})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import os
+import numpy as np
+import torch
+from torch.utils.data import Dataset
+from PIL import Image
+
+
+class CifarDataset(Dataset):
+    label_encoder_ = {
+        "Airplane": 0,
+        "Automobile": 1,
+        "Bird": 2,
+        "Cat": 3,
+        "Deer": 4,
+        "Dog": 5,
+        "Frog": 6,
+        "Horse": 7,
+        "Ship": 8,
+        "Truck": 9,
+    }
+    # [变化示例] label_encoder_=未定义/旧值 -> label_encoder_={ "Airplane": 0, "Automobile": 1, "Bird": 2, "Cat": 3, "Dee...；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+
+    def __init__(self, root_folder):
+        self.image_label_pairs = []
+        # [变化示例] self.image_label_pairs=未定义/旧值 -> self.image_label_pairs=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+        # construct list of: (image_path, label)
+        train_foldername = "images/train"
+        # [变化示例] train_foldername=未定义/旧值 -> train_foldername="images/train"；这是一次重新绑定/状态更新，右侧值决定新状态。
+        train_path = os.path.join(root_folder, train_foldername)
+        # [变化示例] train_path=未定义/旧值 -> train_path 接收 os.path.join(root_folder, train_foldername) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        class_folders = os.listdir(train_path)
+        # [变化示例] class_folders=未定义/旧值 -> class_folders 接收 os.listdir(train_path) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        for class_name in class_folders:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+            class_folder_path = os.path.join(train_path, class_name)
+            # [变化示例] class_folder_path=未定义/旧值 -> class_folder_path 接收 os.path.join(train_path, class_name) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+            image_names = os.listdir(class_folder_path)
+            # [变化示例] image_names=未定义/旧值 -> image_names 接收 os.listdir(class_folder_path) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+            for image_name in image_names:
+                # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+                image_path = os.path.join(class_folder_path, image_name)
+                # [变化示例] image_path=未定义/旧值 -> image_path 接收 os.path.join(class_folder_path, image_name) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+                label = self.encode_label(class_name)
+                # [变化示例] label=未定义/旧值 -> label 接收 self.encode_label(class_name) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+                self.image_label_pairs.append((image_path, label))
+                # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
+
+    def __len__(self):
+        return len(self.image_label_pairs)
+        # [变化示例] 函数内部：执行 len(self.image_label_pairs) 得到结果 -> 调用方收到该输出。
+
+    def __getitem__(self, idx):
+        image_path, label = self.image_label_pairs[idx]
+        # [变化示例] image_path, label=未定义/旧值 -> image_path, label=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+
+        img = Image.open(image_path)
+        # [变化示例] img=未定义/旧值 -> img 接收 Image.open(image_path) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        img_array = np.array(img)
+        # [变化示例] img_array=未定义/旧值 -> img_array 接收 np.array(img) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        img_tensor = torch.tensor(img_array)
+        # [变化示例] img_tensor=未定义/旧值 -> img_tensor=由给定数据构造的 tensor，并采用显式/推断的 dtype 与 device。
+        return img_tensor, label
+        # [变化示例] 函数内部：tuple (img_tensor, label)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
+
+    def encode_label(self, label_str):
+        assert isinstance(label_str, str)
+        # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+        return CifarDataset.label_encoder_[label_str]
+        # [变化示例] 函数内部：索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,) -> 调用方收到该输出。
+
+
+if __name__ == "__main__":
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+    dataset = CifarDataset("/home/ailing/Downloads/cifar10-raw-images/")
+    # [变化示例] dataset=未定义/旧值 -> dataset 接收 CifarDataset("/home/ailing/Downloads/cifar10-raw-images/") 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    for i in range(len(dataset)):
+        # [变化示例] 循环示例：range(len(dataset) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+        img_data, label = dataset[i]
+        # [变化示例] img_data, label=未定义/旧值 -> img_data, label=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+        print("image: ", img_data.shape, "label: ", label)
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+
+#### 输入、输出与验证
+
+- **验证方法。** 记录 samples/s、DataLoader 等待时间、CPU/磁盘/GPU 利用率，并检查 worker 输出与单进程版本数值一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 150. 数据管线与 DataLoader | 5_dataloder.py
+
+**学习问题。** DataLoader 的 batch、shuffle、worker 和 pin_memory 如何协作？
+
+**中文讲解。** sampler 决定索引顺序，worker 并行读取/预处理，collate 组成 batch，pin_memory 可加速异步 H2D。 训练吞吐不仅取决于 GPU；磁盘、解码、NumPy 线程、worker 和 H2D 拷贝都可能成为瓶颈。
+
+**来源文件。** `chapter_05_data/5_dataloder.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+throughput=\min(r_{storage},r_{decode},r_{workers},r_{H2D},r_{GPU})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+if __name__ == "__main__":
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+    dataset = CifarDataset("path/to/cifar-10")
+    # [变化示例] dataset=未定义/旧值 -> dataset 接收 CifarDataset("path/to/cifar-10") 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    dataloader = DataLoader(
+        dataset, batch_size=4, shuffle=True, drop_last=True, num_workers=0
+    )
+    # [变化示例] dataloader=未定义/旧值 -> dataloader=批数据迭代器；N 个样本按 batch_size=B -> 约 ceil(N/B) 个 batch。
+    for i, batch in enumerate(dataloader):
+        # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+        img_data, label = batch
+        # [变化示例] img_data, label=未定义/旧值 -> img_data, label=batch；这是一次重新绑定/状态更新，右侧值决定新状态。
+        print("image: ", img_data.shape, "label: ", label)
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+
+#### 输入、输出与验证
+
+- **验证方法。** 记录 samples/s、DataLoader 等待时间、CPU/磁盘/GPU 利用率，并检查 worker 输出与单进程版本数值一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 151. 数据管线与 DataLoader | 6_dataloader_result.sh
+
+**学习问题。** DataLoader 的 batch、shuffle、worker 和 pin_memory 如何协作？
+
+**中文讲解。** sampler 决定索引顺序，worker 并行读取/预处理，collate 组成 batch，pin_memory 可加速异步 H2D。 训练吞吐不仅取决于 GPU；磁盘、解码、NumPy 线程、worker 和 H2D 拷贝都可能成为瓶颈。
+
+**来源文件。** `chapter_05_data/6_dataloader_result.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+throughput=\min(r_{storage},r_{decode},r_{workers},r_{H2D},r_{GPU})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+image:  torch.Size([4, 32, 32, 3]) label:  tensor([8, 8, 0, 3])
+# [变化示例] 命令状态：执行 image: torch.Size([4, 32, 32, 3]) label: tensor([8, 8, 0, 3]) 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 记录 samples/s、DataLoader 等待时间、CPU/磁盘/GPU 利用率，并检查 worker 输出与单进程版本数值一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 这是 benchmark 结果记录，不应直接作为 shell 脚本执行。
+
+## 152. 数据管线与 DataLoader | 7_pil.py
+
+**学习问题。** PIL 图像解码为什么可能成为瓶颈？
+
+**中文讲解。** JPEG/PNG 解码和 Python transform 在 CPU 上执行；小文件随机访问时 I/O 与解码常盖过模型等待时间。 训练吞吐不仅取决于 GPU；磁盘、解码、NumPy 线程、worker 和 H2D 拷贝都可能成为瓶颈。
+
+**来源文件。** `chapter_05_data/7_pil.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+throughput=\min(r_{storage},r_{decode},r_{workers},r_{H2D},r_{GPU})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+from PIL import Image
+import time
+
+
+def resize_image(image_path, output_size):
+    with Image.open(image_path) as img:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        img = img.resize(output_size)
+        # [变化示例] img=未定义/旧值 -> img 接收 img.resize(output_size) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        img.save("output.png")
+        # [变化示例] 执行状态：调用 img.save("output.png") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+image_path = "example.png"
+# [变化示例] image_path=未定义/旧值 -> image_path="example.png"；这是一次重新绑定/状态更新，右侧值决定新状态。
+output_size = (4096, 4096)  # 新的尺寸
+# [变化示例] output_size=未定义/旧值 -> output_size=tuple (4096, 4096)；多个值按位置传递/解包，元素本身不被复制。
+
+# 开始计时
+start_time = time.time()
+# [变化示例] start_time=未定义/旧值 -> start_time 接收 time.time() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+# 执行图像缩放
+resize_image(image_path, output_size)
+# [变化示例] 执行状态：调用 resize_image(image_path, output_size) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+# 计算耗时
+duration = time.time() - start_time
+# [变化示例] duration=未定义/旧值 -> duration=time.time() - start_time；数值示例：3 - 2 -> 1。
+print(f"Time taken: {duration} seconds")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 记录 samples/s、DataLoader 等待时间、CPU/磁盘/GPU 利用率，并检查 worker 输出与单进程版本数值一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 153. 数据管线与 DataLoader | 8_np_thread.py
+
+**学习问题。** NumPy 内部线程为什么会与 DataLoader worker 过度订阅？
+
+**中文讲解。** 每个 worker 若再启动多个 BLAS/OpenMP 线程，会造成线程数乘法膨胀；限制每进程线程数常能提升吞吐稳定性。 训练吞吐不仅取决于 GPU；磁盘、解码、NumPy 线程、worker 和 H2D 拷贝都可能成为瓶颈。
+
+**来源文件。** `chapter_05_data/8_np_thread.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+throughput=\min(r_{storage},r_{decode},r_{workers},r_{H2D},r_{GPU})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import numpy as np
+import pdb
+
+pdb.set_trace()
+# [变化示例] 执行状态：调用 pdb.set_trace() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 记录 samples/s、DataLoader 等待时间、CPU/磁盘/GPU 利用率，并检查 worker 输出与单进程版本数值一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 154. 数据管线与 DataLoader | 9_limit_np_thread.py
+
+**学习问题。** NumPy 内部线程为什么会与 DataLoader worker 过度订阅？
+
+**中文讲解。** 每个 worker 若再启动多个 BLAS/OpenMP 线程，会造成线程数乘法膨胀；限制每进程线程数常能提升吞吐稳定性。 训练吞吐不仅取决于 GPU；磁盘、解码、NumPy 线程、worker 和 H2D 拷贝都可能成为瓶颈。
+
+**来源文件。** `chapter_05_data/9_limit_np_thread.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+throughput=\min(r_{storage},r_{decode},r_{workers},r_{H2D},r_{GPU})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+from os import environ
+
+# 控制NumPy底层库创建的线程数量
+N_THREADS = "4"
+# [变化示例] N_THREADS=未定义/旧值 -> N_THREADS="4"；这是一次重新绑定/状态更新，右侧值决定新状态。
+environ["OMP_NUM_THREADS"] = N_THREADS
+# [变化示例] 目标切片 environ["OMP_NUM_THREADS"]=旧值 -> N_THREADS；base tensor 对应位置同步被写入。
+environ["OPENBLAS_NUM_THREADS"] = N_THREADS
+# [变化示例] 目标切片 environ["OPENBLAS_NUM_THREADS"]=旧值 -> N_THREADS；base tensor 对应位置同步被写入。
+environ["MKL_NUM_THREADS"] = N_THREADS
+# [变化示例] 目标切片 environ["MKL_NUM_THREADS"]=旧值 -> N_THREADS；base tensor 对应位置同步被写入。
+environ["VECLIB_MAXIMUM_THREADS"] = N_THREADS
+# [变化示例] 目标切片 environ["VECLIB_MAXIMUM_THREADS"]=旧值 -> N_THREADS；base tensor 对应位置同步被写入。
+environ["NUMEXPR_NUM_THREADS"] = N_THREADS
+# [变化示例] 目标切片 environ["NUMEXPR_NUM_THREADS"]=旧值 -> N_THREADS；base tensor 对应位置同步被写入。
+
+import numpy as np
+
+import pdb
+
+pdb.set_trace()
+# [变化示例] 执行状态：调用 pdb.set_trace() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+x = np.zeros((1024, 1024))
+# [变化示例] x=未定义/旧值 -> x 接收 np.zeros((1024, 1024)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+
+#### 输入、输出与验证
+
+- **验证方法。** 记录 samples/s、DataLoader 等待时间、CPU/磁盘/GPU 利用率，并检查 worker 输出与单进程版本数值一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 155. 数据管线与 DataLoader | 10_iostat.sh
+
+**学习问题。** 如何判断数据加载是否受磁盘限制？
+
+**中文讲解。** iostat 展示吞吐、队列和设备利用率；高 await/util 且 GPU 空闲通常说明 I/O 是候选瓶颈。 训练吞吐不仅取决于 GPU；磁盘、解码、NumPy 线程、worker 和 H2D 拷贝都可能成为瓶颈。
+
+**来源文件。** `chapter_05_data/10_iostat.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+throughput=\min(r_{storage},r_{decode},r_{workers},r_{H2D},r_{GPU})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+iostat -xtck 2
+# [变化示例] 块设备运行状态 -> 吞吐、await、队列与利用率统计。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 记录 samples/s、DataLoader 等待时间、CPU/磁盘/GPU 利用率，并检查 worker 输出与单进程版本数值一致。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 命令依赖 Linux、权限、GPU/驱动或多节点环境；在 Windows 本机不能原样运行。
+
+## 156. 计算优化 | 1_num_worker.py
+
+**学习问题。** 如何选择 DataLoader num_workers？
+
+**中文讲解。** worker 太少会供不上 GPU，太多会增加进程、内存和上下文切换；必须针对数据介质与 transform 实测。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/1_num_worker.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+from torch import nn
+from torch.profiler import profile, ProfilerActivity
+import torchvision.transforms as transforms
+from torchvision.datasets import CIFAR10
+from torch.utils.data import DataLoader
+
+
+class SimpleNet(nn.Module):
+    def __init__(self):
+        super(SimpleNet, self).__init__()
+        # [变化示例] 执行状态：调用 super(SimpleNet, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.fc1 = nn.Linear(512, 10000)
+        # [变化示例] self.fc1=未定义/旧值 -> self.fc1=线性映射模块；输入最后一维 512 -> 输出最后一维 10000。
+        self.fc2 = nn.Linear(10000, 1000)
+        # [变化示例] self.fc2=未定义/旧值 -> self.fc2=线性映射模块；输入最后一维 10000 -> 输出最后一维 1000。
+        self.fc3 = nn.Linear(1000, 10)
+        # [变化示例] self.fc3=未定义/旧值 -> self.fc3=线性映射模块；输入最后一维 1000 -> 输出最后一维 10。
+
+    def forward(self, x):
+        out = self.fc1(x)
+        # [变化示例] out=未定义/旧值 -> out 接收 self.fc1(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        out = self.fc2(out)
+        # [变化示例] out=未定义/旧值 -> out 接收 self.fc2(out) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        out = self.fc3(out)
+        # [变化示例] out=未定义/旧值 -> out 接收 self.fc3(out) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        return out
+        # [变化示例] 函数内部：out；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+if torch.cuda.is_available():
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+    device = torch.device("cuda")
+    # [变化示例] device=未定义/旧值 -> device 接收 torch.device("cuda") 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    activities = [ProfilerActivity.CPU, ProfilerActivity.CUDA]
+    # [变化示例] activities=未定义/旧值 -> activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+else:
+    # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+    device = torch.device("cpu")
+    # [变化示例] device=未定义/旧值 -> device 接收 torch.device("cpu") 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    activities = [ProfilerActivity.CPU]
+    # [变化示例] activities=未定义/旧值 -> activities=[ProfilerActivity.CPU]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+
+model = SimpleNet().to(device)
+# [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+# [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+
+
+def train(model, optimizer, trainloader, num_iters, device):
+    with profile(activities=activities) as prof:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        for i, batch in enumerate(trainloader, 0):
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+            if i >= num_iters:
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                break
+            data = batch[0].to(device)
+            # [变化示例] data=未定义/旧值 -> data 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+
+            # 前向
+            optimizer.zero_grad()
+            # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+            output = model(data)
+            # [变化示例] output=未定义/旧值 -> output 接收 model(data) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+            loss = output.sum()
+            # [变化示例] loss=未定义/旧值 -> loss=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+
+            # 反向
+            loss.backward()
+            # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+            optimizer.step()
+            # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+    prof.export_chrome_trace(f"traces/PROF_workers_{trainloader.num_workers}.json")
+    # [变化示例] 执行状态：调用 prof.export_chrome_trace(f"traces/PROF_workers_{trainloader... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+num_workers = 0
+# [变化示例] num_workers=未定义/旧值 -> num_workers=0；这是一次重新绑定/状态更新，右侧值决定新状态。
+transform = transforms.Compose(
+    [transforms.ToTensor(), transforms.Resize([512, 512])]
+)
+# [变化示例] transform=未定义/旧值 -> transform 接收 transforms.Compose( [transforms.ToTensor(), transforms.Resi... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+trainset = CIFAR10(root="./data", train=True, download=True, transform=transform)
+# [变化示例] trainset=未定义/旧值 -> trainset 接收 CIFAR10(root="./data", train=True, download=True, transform... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+trainloader = DataLoader(trainset, batch_size=32, num_workers=num_workers)
+# [变化示例] trainloader=未定义/旧值 -> trainloader=批数据迭代器；N 个样本按 batch_size=B -> 约 ceil(N/B) 个 batch。
+
+train(model, optimizer, trainloader, num_iters=20, device=device)
+# [变化示例] 执行状态：调用 train(model, optimizer, trainloader, num_iters=20, device=d... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 157. 计算优化 | 2_non_blocking.py
+
+**学习问题。** non_blocking=True 何时真正异步？
+
+**中文讲解。** CPU 张量通常必须位于 pinned memory，且后续计算位于合适 CUDA stream；否则调用可能仍同步或没有重叠收益。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/2_non_blocking.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+def train(model, optimizer, trainloader, num_iters):
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        for i, batch in enumerate(trainloader, 0):
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+            if i >= num_iters:
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                break
+            data = batch[0].cuda(non_blocking=True)
+            # [变化示例] data=未定义/旧值 -> data 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+
+            optimizer.zero_grad()
+            # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+            output = model(data)
+            # [变化示例] output=未定义/旧值 -> output 接收 model(data) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+            loss = output.sum()
+            # [变化示例] loss=未定义/旧值 -> loss=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+
+            loss.backward()
+            # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+            optimizer.step()
+            # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+
+    prof.export_chrome_trace(f"traces/PROF_non_blocking.json")
+    # [变化示例] 执行状态：调用 prof.export_chrome_trace(f"traces/PROF_non_blocking.json") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+transform = transforms.Compose(
+    [transforms.ToTensor(), transforms.Resize([512, 512])]
+)
+# [变化示例] transform=未定义/旧值 -> transform 接收 transforms.Compose( [transforms.ToTensor(), transforms.Resi... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+trainset = CIFAR10(root="./data", train=True, download=True, transform=transform)
+# [变化示例] trainset=未定义/旧值 -> trainset 接收 CIFAR10(root="./data", train=True, download=True, transform... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+trainloader = DataLoader(trainset, batch_size=4, pin_memory=True, num_workers=4)
+# [变化示例] trainloader=未定义/旧值 -> trainloader=批数据迭代器；N 个样本按 batch_size=B -> 约 ceil(N/B) 个 batch。
+
+
+# non_blocking
+train(model, optimizer, trainloader, num_iters=20)
+# [变化示例] 执行状态：调用 train(model, optimizer, trainloader, num_iters=20) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+- 异步传输与 stream：是否真正重叠取决于 pinned memory、stream 依赖和后续同步。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 158. 计算优化 | 3_double_buffering.py
+
+**学习问题。** 双缓冲如何重叠数据传输与计算？
+
+**中文讲解。** 在独立 stream 预取下一 batch，同时当前 stream 计算当前 batch，并用 event/stream wait 建立正确依赖。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/3_double_buffering.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+def train(model, optimizer, trainloader, num_iters):
+    # Create two CUDA streams
+    stream1 = torch.cuda.Stream()
+    # [变化示例] stream1=未定义/旧值 -> stream1 接收 torch.cuda.Stream() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    stream2 = torch.cuda.Stream()
+    # [变化示例] stream2=未定义/旧值 -> stream2 接收 torch.cuda.Stream() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    submit_stream = stream1
+    # [变化示例] submit_stream=未定义/旧值 -> submit_stream=stream1；这是一次重新绑定/状态更新，右侧值决定新状态。
+    running_stream = stream2
+    # [变化示例] running_stream=未定义/旧值 -> running_stream=stream2；这是一次重新绑定/状态更新，右侧值决定新状态。
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        for i, batch in enumerate(trainloader, 0):
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+            if i >= num_iters:
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                break
+
+            with torch.cuda.stream(submit_stream):
+                # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+                data = batch[0].cuda(non_blocking=True)
+                # [变化示例] data=未定义/旧值 -> data 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+                submit_stream.wait_stream(running_stream)
+                # [变化示例] 执行状态：调用 submit_stream.wait_stream(running_stream) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+                # Forward pass
+                optimizer.zero_grad()
+                # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+                output = model(data)
+                # [变化示例] output=未定义/旧值 -> output 接收 model(data) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+                loss = output.sum()
+                # [变化示例] loss=未定义/旧值 -> loss=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+
+                # Backward pass and optimize
+                loss.backward()
+                # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+                optimizer.step()
+                # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+
+            # Alternate between the two streams
+            submit_stream = stream2 if submit_stream == stream1 else stream1
+            # [变化示例] submit_stream=未定义/旧值 -> submit_stream=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
+            running_stream = stream2 if running_stream == stream1 else stream1
+            # [变化示例] running_stream=未定义/旧值 -> running_stream=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
+
+    prof.export_chrome_trace(f"PROF_double_buffering_wait_after_data.json")
+    # [变化示例] 执行状态：调用 prof.export_chrome_trace(f"PROF_double_buffering_wait_after... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- 异步传输与 stream：是否真正重叠取决于 pinned memory、stream 依赖和后续同步。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 159. 计算优化 | 4_batch_size.py
+
+**学习问题。** 增大 batch 为什么常能提升 GPU 利用率？
+
+**中文讲解。** 更大 batch 增加并行工作和算术强度，但也提高激活显存并可能改变优化统计与收敛。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/4_batch_size.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import time
+
+import torch
+from torch.utils.data import DataLoader
+from torch.profiler import profile, ProfilerActivity
+
+from torchvision.models import resnet18
+from torchvision.datasets import CIFAR10
+from torchvision.transforms import Compose, ToTensor, Normalize
+
+# 设置batchsize
+batch_size = 4
+# [变化示例] batch_size=未定义/旧值 -> batch_size=4；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+transform = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+# [变化示例] transform=未定义/旧值 -> transform 接收 Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, ... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+trainset = CIFAR10(root="./data", train=True, download=True, transform=transform)
+# [变化示例] trainset=未定义/旧值 -> trainset 接收 CIFAR10(root="./data", train=True, download=True, transform... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+trainloader = DataLoader(trainset, batch_size=batch_size, num_workers=10)
+# [变化示例] trainloader=未定义/旧值 -> trainloader=批数据迭代器；N 个样本按 batch_size=B -> 约 ceil(N/B) 个 batch。
+
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# [变化示例] device=未定义/旧值 -> device=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
+model = resnet18().to(device)
+# [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
+# [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+
+
+def train_num_batches(trainloader, model, device, num_batches):
+    for i, data in enumerate(trainloader, 0):
+        # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+        if i >= num_batches:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+            break
+
+        inputs, labels = data[0].to(device), data[1].to(device)
+        # [变化示例] inputs, labels=未定义/旧值 -> inputs, labels 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+
+        outputs = model(inputs)
+        # [变化示例] outputs=未定义/旧值 -> outputs 接收 model(inputs) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        loss = torch.nn.CrossEntropyLoss()(outputs, labels)
+        # [变化示例] loss=未定义/旧值 -> loss 接收 torch.nn.CrossEntropyLoss()(outputs, labels) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        optimizer.zero_grad()
+        # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+
+        loss.backward()
+        # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+        optimizer.step()
+        # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+
+
+# 热身
+train_num_batches(trainloader, model, device, num_batches=5)
+# [变化示例] 执行状态：调用 train_num_batches(trainloader, model, device, num_batches=5) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+num_batches = len(trainloader) / batch_size
+# [变化示例] num_batches=未定义/旧值 -> num_batches=len(trainloader) / batch_size；数值示例：6 / 3 -> 2。
+
+start = time.perf_counter()
+# [变化示例] start=未定义/旧值 -> start=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+train_num_batches(trainloader, model, device, num_batches=num_batches)
+# [变化示例] 执行状态：调用 train_num_batches(trainloader, model, device, num_batches=n... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+torch.cuda.synchronize()
+# [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+end = time.perf_counter() - start
+# [变化示例] end=未定义/旧值 -> end=time.perf_counter() - start；数值示例：3 - 2 -> 1。
+print(f"batch_size={batch_size} 运行时间: {end * 1000} ms")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+    train_num_batches(trainloader, model, device, num_batches=10)
+    # [变化示例] 执行状态：调用 train_num_batches(trainloader, model, device, num_batches=10) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+prof.export_chrome_trace(f"traces/PROF_resnet18_batchsize={batch_size}.json")
+# [变化示例] 执行状态：调用 prof.export_chrome_trace(f"traces/PROF_resnet18_batchsize={... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+- 概率与损失：交叉熵通常接收未归一化 logits；采样前按最后一维归一化并处理 temperature/top-k。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 160. 计算优化 | 5_addcmul.py
+
+**学习问题。** torch.addcmul 如何融合逐元素表达式？
+
+**中文讲解。** 它表达 input + value*tensor1*tensor2，减少 Python 循环和中间 tensor，通常由更少 kernel 完成。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/5_addcmul.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+x = torch.rand(3, 3)
+# [变化示例] x=未定义/旧值 -> x=按 3, 3 创建的随机张量；shape 固定，具体值由 RNG 决定。
+y = torch.rand(3, 3)
+# [变化示例] y=未定义/旧值 -> y=按 3, 3 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+z = x * y
+# [变化示例] z=未定义/旧值 -> z=x * y；数值示例：2 * 3 -> 6。
+z1 = z + x
+# [变化示例] z1=未定义/旧值 -> z1=z + x；数值示例：2 + 3 -> 5。
+print(z1)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 可以将上面的计算合并为一个算子，结果是等价的
+z2 = torch.addcmul(x, x, y)
+# [变化示例] z2=未定义/旧值 -> z2 接收 torch.addcmul(x, x, y) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+print(z2)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 融合/矩阵 API：优先用批量 tensor 算子表达计算，减少 Python 循环、中间分配和 kernel launch。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 161. 计算优化 | 6_addmm.py
+
+**学习问题。** torch.addmm 如何融合 bias 与矩阵乘法？
+
+**中文讲解。** addmm 表达 beta*input + alpha*(mat1@mat2)，可让后端在一次高效路径中处理 GEMM 与加法。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/6_addmm.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+a = torch.rand(4, 4)
+# [变化示例] a=未定义/旧值 -> a=按 4, 4 创建的随机张量；shape 固定，具体值由 RNG 决定。
+b = torch.rand(4, 4)
+# [变化示例] b=未定义/旧值 -> b=按 4, 4 创建的随机张量；shape 固定，具体值由 RNG 决定。
+c = torch.rand(4, 4)
+# [变化示例] c=未定义/旧值 -> c=按 4, 4 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+x = torch.matmul(a, b)
+# [变化示例] x=未定义/旧值 -> x=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
+x1 = x + c
+# [变化示例] x1=未定义/旧值 -> x1=x + c；数值示例：2 + 3 -> 5。
+print(x1)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+
+# 融合成一个算子
+x2 = torch.addmm(c, a, b)
+# [变化示例] x2=未定义/旧值 -> x2 接收 torch.addmm(c, a, b) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+print(x2)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 融合/矩阵 API：优先用批量 tensor 算子表达计算，减少 Python 循环、中间分配和 kernel launch。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 162. 计算优化 | 7_fused_linear_bn.py
+
+**学习问题。** 推理时如何融合 Linear 与 BatchNorm？
+
+**中文讲解。** eval 模式下 BN 的 running mean/var 固定，可代数折叠进线性层权重和偏置；训练模式不能直接这样融合。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/7_fused_linear_bn.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+from torch.profiler import profile, ProfilerActivity
+
+
+class SimpleModel(nn.Module):
+    def __init__(self):
+        super(SimpleModel, self).__init__()
+        # [变化示例] 执行状态：调用 super(SimpleModel, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.linear = nn.Linear(100, 50)
+        # [变化示例] self.linear=未定义/旧值 -> self.linear=线性映射模块；输入最后一维 100 -> 输出最后一维 50。
+        self.bn = nn.BatchNorm1d(50)
+        # [变化示例] self.bn=未定义/旧值 -> self.bn 接收 nn.BatchNorm1d(50) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    def forward(self, x):
+        return self.bn(self.linear(x))
+        # [变化示例] 函数内部：执行 self.bn(self.linear(x)) 得到结果 -> 调用方收到该输出。
+
+
+@torch.no_grad()
+def run(data, model, num_iters, name):
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        for _ in range(num_iters):
+            # [变化示例] 循环示例：range(num_iters) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+            original_output = model(input_tensor)
+            # [变化示例] original_output=未定义/旧值 -> original_output 接收 model(input_tensor) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    prof.export_chrome_trace(f"traces/PROF_cuda_{name}.json")
+    # [变化示例] 执行状态：调用 prof.export_chrome_trace(f"traces/PROF_cuda_{name}.json") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+model = SimpleModel().to(torch.device("cuda:0"))
+# [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+model.eval()
+# [变化示例] 模块模式：旧 train/eval 标志 -> 评估模式，影响 Dropout/BatchNorm。
+input_tensor = torch.randn(4, 100, device="cuda:0")
+# [变化示例] input_tensor=未定义/旧值 -> input_tensor=按 4, 100 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+# 融合前
+run(input_tensor, model, num_iters=20, name="no_fusion")
+# [变化示例] 执行状态：调用 run(input_tensor, model, num_iters=20, name="no_fusion") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+# 融合后
+fused_model = torch.nn.utils.fusion.fuse_linear_bn_eval(model.linear, model.bn)
+# [变化示例] fused_model=未定义/旧值 -> fused_model 接收 torch.nn.utils.fusion.fuse_linear_bn_eval(model.linear, mod... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+run(input_tensor, fused_model, num_iters=20, name="fusion")
+# [变化示例] 执行状态：调用 run(input_tensor, fused_model, num_iters=20, name="fusion") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- 推理上下文：关闭 autograd 记录；inference_mode 进一步减少 view/version tracking。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 163. 计算优化 | 8_non_zero.py
+
+**学习问题。** torch.nonzero 为什么可能引入同步？
+
+**中文讲解。** 在 CUDA 上结果行数依赖设备数据，CPU 需要知道输出 shape 时可能触发同步；能用 mask 直接计算时应避免不必要索引提取。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/8_non_zero.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+from torch.profiler import profile, ProfilerActivity
+
+
+class Model(torch.nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        # [变化示例] 执行状态：调用 super(Model, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.linear1 = nn.Linear(1000, 5000)
+        # [变化示例] self.linear1=未定义/旧值 -> self.linear1=线性映射模块；输入最后一维 1000 -> 输出最后一维 5000。
+        self.linear2 = nn.Linear(5000, 10000)
+        # [变化示例] self.linear2=未定义/旧值 -> self.linear2=线性映射模块；输入最后一维 5000 -> 输出最后一维 10000。
+        self.linear3 = nn.Linear(10000, 10000)
+        # [变化示例] self.linear3=未定义/旧值 -> self.linear3=线性映射模块；输入最后一维 10000 -> 输出最后一维 10000。
+        self.relu = nn.ReLU()
+        # [变化示例] self.relu=未定义/旧值 -> self.relu=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+
+    def forward(self, x):
+        output = self.relu(self.linear1(x))
+        # [变化示例] output=未定义/旧值 -> output=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        output = self.relu(self.linear2(output))
+        # [变化示例] output=未定义/旧值 -> output=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        output = self.relu(self.linear3(output))
+        # [变化示例] output=未定义/旧值 -> output=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        nonzero = torch.nonzero(output)
+        # [变化示例] nonzero=未定义/旧值 -> nonzero 接收 torch.nonzero(output) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        return nonzero
+        # [变化示例] 函数内部：nonzero；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+def run(data, model):
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        for _ in range(10):
+            # [变化示例] 循环示例：range(10) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+            model(data)
+            # [变化示例] 执行状态：调用 model(data) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    prof.export_chrome_trace("traces/PROF_nonzero.json")
+    # [变化示例] 执行状态：调用 prof.export_chrome_trace("traces/PROF_nonzero.json") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+data = torch.randn(1, 1000, device="cuda")
+# [变化示例] data=未定义/旧值 -> data=按 1, 1000 创建的随机张量；shape 固定，具体值由 RNG 决定。
+model = Model().to(torch.device("cuda"))
+# [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+run(data, model)
+# [变化示例] 执行状态：调用 run(data, model) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 164. 计算优化 | 9_tensor_on_cuda.py
+
+**学习问题。** 为什么应直接在目标 device 创建张量？
+
+**中文讲解。** 先在 CPU 创建再搬运会增加分配和 PCIe 传输；device 参数可让初始化直接发生在 GPU。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/9_tensor_on_cuda.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+from torch.profiler import profile, ProfilerActivity
+
+
+def tensor_creation(num_iters, create_on_gpu):
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        shape = (10, 6400)
+        # [变化示例] shape=未定义/旧值 -> shape=tuple (10, 6400)；多个值按位置传递/解包，元素本身不被复制。
+        for i in range(num_iters):
+            # [变化示例] 循环示例：range(num_iters) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+            if create_on_gpu:
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                data = torch.randn(shape, device="cuda")
+                # [变化示例] data=未定义/旧值 -> data=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+            else:
+                # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+                data = torch.randn(shape).to("cuda")
+                # [变化示例] data=未定义/旧值 -> data=按 shape).to("cuda" 创建的随机张量；shape 固定，具体值由 RNG 决定。
+    prof.export_chrome_trace(
+        f"traces/PROF_tensor_creation_on_gpu_{create_on_gpu}.json"
+    )
+    # [变化示例] 执行状态：调用 prof.export_chrome_trace( f"traces/PROF_tensor_creation_on_... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+# 情况1. 先在CPU上创建Tensor然后拷贝到GPU
+tensor_creation(20, create_on_gpu=False)
+# [变化示例] 执行状态：调用 tensor_creation(20, create_on_gpu=False) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+# 情况2. 直接在GPU上创建Tensor
+tensor_creation(20, create_on_gpu=True)
+# [变化示例] 执行状态：调用 tensor_creation(20, create_on_gpu=True) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 165. 计算优化 | 10_inplace.py
+
+**学习问题。** 原地算子一定更快更省内存吗？
+
+**中文讲解。** 它可能减少一个输出分配，但会增加 autograd/version/别名约束；性能收益必须实测，不能牺牲正确性。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/10_inplace.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+from torch.profiler import profile, ProfilerActivity
+
+
+def run(data, use_inplace):
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        for i in range(2):
+            # [变化示例] 循环示例：range(2) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+            if use_inplace:
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                data.mul_(2)
+                # [变化示例] 原地状态：目标 tensor=旧值 -> 执行 data.mul_(2) 后直接覆盖同一 storage。
+            else:
+                # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+                output = data.mul(2)
+                # [变化示例] output=未定义/旧值 -> output 接收 data.mul(2) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    prof.export_chrome_trace(f"traces/PROF_use_inplace_{use_inplace}.json")
+    # [变化示例] 执行状态：调用 prof.export_chrome_trace(f"traces/PROF_use_inplace_{use_inp... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+shape = (32, 32, 256, 256)
+# [变化示例] shape=未定义/旧值 -> shape=tuple (32, 32, 256, 256)；多个值按位置传递/解包，元素本身不被复制。
+
+# Non-Inplace
+data1 = torch.randn(shape, device="cuda:0")
+# [变化示例] data1=未定义/旧值 -> data1=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+run(data1, use_inplace=False)
+# [变化示例] 执行状态：调用 run(data1, use_inplace=False) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+# Inplace
+data2 = torch.randn(shape, device="cuda:0")
+# [变化示例] data2=未定义/旧值 -> data2=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+run(data2, use_inplace=True)
+# [变化示例] 执行状态：调用 run(data2, use_inplace=True) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 原地操作：复用 storage 并更新 version counter；可能破坏 backward 所需中间值或影响别名。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 166. 计算优化 | 11_inference_mode.py
+
+**学习问题。** inference_mode 与 no_grad 有什么区别？
+
+**中文讲解。** 两者都关闭反向记录；inference_mode 还省去更多 view/version tracking，适合确定只做推理的区域。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/11_inference_mode.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+import time
+
+
+class SimpleCNN(nn.Module):
+    def __init__(self):
+        super(SimpleCNN, self).__init__()
+        # [变化示例] 执行状态：调用 super(SimpleCNN, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1)
+        # [变化示例] self.conv1=未定义/旧值 -> self.conv1 接收 nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        self.relu = nn.ReLU()
+        # [变化示例] self.relu=未定义/旧值 -> self.relu=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1)
+        # [变化示例] self.conv2=未定义/旧值 -> self.conv2 接收 nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    def forward(self, x):
+        x = self.conv1(x)
+        # [变化示例] x=未定义/旧值 -> x 接收 self.conv1(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        x = self.relu(x)
+        # [变化示例] x=未定义/旧值 -> x=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        x = self.conv2(x)
+        # [变化示例] x=未定义/旧值 -> x 接收 self.conv2(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        return x
+        # [变化示例] 函数内部：x；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+def infer(input_data, num_iters, use_inference_mode):
+    start = time.perf_counter()
+    # [变化示例] start=未定义/旧值 -> start=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+
+    with torch.inference_mode(mode=use_inference_mode):
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        for _ in range(num_iters):
+            # [变化示例] 循环示例：range(num_iters) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+            output = model(input_data)
+            # [变化示例] output=未定义/旧值 -> output 接收 model(input_data) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    torch.cuda.synchronize()
+    # [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+    end = time.perf_counter()
+    # [变化示例] end=未定义/旧值 -> end=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+    return (end - start) * 1000
+    # [变化示例] 函数内部：(end - start) * 1000；数值示例：2 * 3 -> 6 -> 调用方收到该输出。
+
+
+model = SimpleCNN().to(torch.device("cuda:0"))
+# [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+input_data = torch.randn(1, 3, 224, 224, device="cuda:0")
+# [变化示例] input_data=未定义/旧值 -> input_data=按 1, 3, 224, 224 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+# 开启Inference Mode
+infer(input_data, num_iters=10, use_inference_mode=True)  # warm up
+runtime = infer(input_data, num_iters=100, use_inference_mode=True)
+# [变化示例] runtime=未定义/旧值 -> runtime 接收 infer(input_data, num_iters=100, use_inference_mode=True) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+print(f"开启Inference Mode用时: {runtime}s")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 关闭Inference Mode
+infer(input_data, num_iters=10, use_inference_mode=False)  # warm up
+runtime = infer(input_data, num_iters=100, use_inference_mode=False)
+# [变化示例] runtime=未定义/旧值 -> runtime 接收 infer(input_data, num_iters=100, use_inference_mode=False) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+print(f"关闭Inference Mode用时: {runtime}s")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- 推理上下文：关闭 autograd 记录；inference_mode 进一步减少 view/version tracking。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 167. 计算优化 | 12_copy_uint8.py
+
+**学习问题。** 为什么压缩传输 dtype 可能提升拷贝速度？
+
+**中文讲解。** 传输时间近似字节数除以带宽；uint8 比 float32 少 4 倍字节，但量化/反量化会引入计算和误差。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/12_copy_uint8.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+from torch.profiler import profile, ProfilerActivity
+
+
+def data_copy(data, dtype_name=""):
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        for _ in range(10):
+            # [变化示例] 循环示例：range(10) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+            output = data.to("cuda:0", non_blocking=False)
+            # [变化示例] output=未定义/旧值 -> output 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+    prof.export_chrome_trace(f"traces/PROF_data_copy_{dtype_name}.json")
+    # [变化示例] 执行状态：调用 prof.export_chrome_trace(f"traces/PROF_data_copy_{dtype_nam... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+# Float precision
+data1 = torch.randn(4, 32, 32, 1024, dtype=torch.float32)
+# [变化示例] data1=未定义/旧值 -> data1=按 4, 32, 32, 1024 创建的随机张量；shape 固定，具体值由 RNG 决定。
+data_copy(data1, "float32")
+# [变化示例] 执行状态：调用 data_copy(data1, "float32") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+# Uint8 precision
+data2 = torch.randint(0, 255, (4, 32, 32, 1024), dtype=torch.uint8)
+# [变化示例] data2=未定义/旧值 -> data2=指定整数区间的随机张量；例如 randint(0,10,(32,)) -> shape=(32,)，值均在 [0,10)。
+data_copy(data2, "uint8")
+# [变化示例] 执行状态：调用 data_copy(data2, "uint8") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 原地操作：复用 storage 并更新 version counter；可能破坏 backward 所需中间值或影响别名。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- 异步传输与 stream：是否真正重叠取决于 pinned memory、stream 依赖和后续同步。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 168. 计算优化 | 13_sgd.py
+
+**学习问题。** foreach 优化器如何减少 kernel launch？
+
+**中文讲解。** foreach 把多个参数上的同类更新批量提交，降低 Python 与 kernel launch 开销，但可能使用额外临时内存。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/13_sgd.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+# 伪代码
+for w in [w1, w2, ..., w10]:
+    # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+    w = w - lr * w.grad
+    # [变化示例] w=未定义/旧值 -> w=w - lr * w.grad；数值示例：3 - 2 -> 1。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 169. 计算优化 | 14_optim.py
+
+**学习问题。** 如何公平比较优化器实现性能？
+
+**中文讲解。** 固定参数规模、梯度、device、warmup 和同步方式，再比较 for-loop、foreach 或 fused 路径。 优化顺序应是先测量，再减少同步与数据搬运，随后做向量化、算子融合和批量化。
+
+**来源文件。** `chapter_06_compute/14_optim.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+T\approx T_{launch}+\max\!\left(\frac{FLOPs}{P_{compute}},\frac{Bytes}{BW_{memory}}\right)
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+from torch.profiler import profile, ProfilerActivity
+
+
+class SimpleNet(torch.nn.Module):
+    def __init__(self):
+        super(SimpleNet, self).__init__()
+        # [变化示例] 执行状态：调用 super(SimpleNet, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.fcs = torch.nn.ModuleList(torch.nn.Linear(200, 200) for i in range(20))
+        # [变化示例] self.fcs=未定义/旧值 -> self.fcs 接收 torch.nn.ModuleList(torch.nn.Linear(200, 200) for i in rang... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    def forward(self, x):
+        for i in range(len(self.fcs)):
+            # [变化示例] 循环示例：range(len(self.fcs) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+            x = torch.relu(self.fcs[i](x))
+            # [变化示例] x=未定义/旧值 -> x=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        return x
+        # [变化示例] 函数内部：x；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+def train(net, optimizer, opt_name=""):
+    data = torch.randn(64, 200, device="cuda:0")
+    # [变化示例] data=未定义/旧值 -> data=按 64, 200 创建的随机张量；shape 固定，具体值由 RNG 决定。
+    target = torch.randint(0, 1, (64,), device="cuda:0")
+    # [变化示例] target=未定义/旧值 -> target=指定整数区间的随机张量；例如 randint(0,10,(32,)) -> shape=(32,)，值均在 [0,10)。
+    criterion = torch.nn.CrossEntropyLoss()
+    # [变化示例] criterion=未定义/旧值 -> criterion 接收 torch.nn.CrossEntropyLoss() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        for _ in range(5):
+            # [变化示例] 循环示例：range(5) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+            optimizer.zero_grad()
+            # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+            output = net(data)
+            # [变化示例] output=未定义/旧值 -> output 接收 net(data) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+            loss = criterion(output, target)
+            # [变化示例] loss=未定义/旧值 -> loss 接收 criterion(output, target) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+            loss.backward()
+            # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+            optimizer.step()
+            # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+    prof.export_chrome_trace(f"traces/PROF_perf_{opt_name}.json")
+    # [变化示例] 执行状态：调用 prof.export_chrome_trace(f"traces/PROF_perf_{opt_name}.json") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+# For-loop
+net = SimpleNet().to(torch.device("cuda:0"))
+# [变化示例] net=未定义/旧值 -> net 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+adam_for_loop = torch.optim.Adam(
+    net.parameters(), lr=0.01, foreach=False, fused=False
+)
+# [变化示例] adam_for_loop=未定义/旧值 -> adam_for_loop=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+train(net, adam_for_loop, opt_name="for_loop")
+# [变化示例] 执行状态：调用 train(net, adam_for_loop, opt_name="for_loop") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+# For-each
+net = SimpleNet().to(torch.device("cuda:0"))
+# [变化示例] net=未定义/旧值 -> net 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+adam_for_each = torch.optim.Adam(
+    net.parameters(), lr=0.01, foreach=True, fused=False
+)
+# [变化示例] adam_for_each=未定义/旧值 -> adam_for_each=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+train(net, adam_for_each, opt_name="for_each")
+# [变化示例] 执行状态：调用 train(net, adam_for_each, opt_name="for_each") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+# Fused
+net = SimpleNet().to(torch.device("cuda:0"))
+# [变化示例] net=未定义/旧值 -> net 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+adam_fused = torch.optim.Adam(net.parameters(), lr=0.01, foreach=False, fused=True)
+# [变化示例] adam_fused=未定义/旧值 -> adam_fused=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+train(net, adam_fused, opt_name="fused")
+# [变化示例] 执行状态：调用 train(net, adam_fused, opt_name="fused") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+- 概率与损失：交叉熵通常接收未归一化 logits；采样前按最后一维归一化并处理 temperature/top-k。
+
+#### 输入、输出与验证
+
+- **验证方法。** 优化前后用相同输入核对 torch.testing.assert_close，再比较稳态延迟、吞吐、kernel 数和峰值显存。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 170. CUDA 内存生命周期 | 1_max_split.sh
+
+**学习问题。** CUDA allocator 的 max_split_size_mb 解决什么问题？
+
+**中文讲解。** 它影响 caching allocator 如何拆分大 block，可缓解特定碎片问题；不是通用降显存开关，需结合 memory summary 调参。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/1_max_split.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128
+# [变化示例] 命令状态：执行 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 命令依赖 Linux、权限、GPU/驱动或多节点环境；在 Windows 本机不能原样运行。
+
+## 171. CUDA 内存生命周期 | 1.5_allocated.py
+
+**学习问题。** allocated 与 reserved 显存有什么区别？
+
+**中文讲解。** allocated 是活跃 tensor 占用，reserved 是 caching allocator 从 CUDA 保留的内存池；两者差值不等于泄漏。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/1.5_allocated.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+t1 = torch.randn([1024, 1024], device="cuda:0")  # 4MB
+# [变化示例] t1=未定义/旧值 -> t1=按 [1024, 1024] 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+shape = [256, 1024, 1024, 1]  # 1024MB
+# [变化示例] shape=未定义/旧值 -> shape=[256, 1024, 1024, 1]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+t2 = torch.randn(shape, device="cuda:0")
+# [变化示例] t2=未定义/旧值 -> t2=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+print(
+    f"PyTorch reserved {torch.cuda.memory_reserved()/1024/1024}MB, allocated {torch.cuda.memory_allocated()/1024/1024}MB"
+)
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# PyTorch reserved 1044.0MB, allocated 1028.0MB
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 172. CUDA 内存生命周期 | 2_profiler.py
+
+**学习问题。** 如何记录 CUDA 内存时间线？
+
+**中文讲解。** memory profiler 把分配事件与调用栈关联，帮助区分参数、激活、梯度和临时 workspace 的峰值。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/2_profiler.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+torch.cuda.memory._record_memory_history()
+# [变化示例] 执行状态：调用 torch.cuda.memory._record_memory_history() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+with torch.inference_mode():
+    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+    shape = [256, 1024, 1024, 1]
+    # [变化示例] shape=未定义/旧值 -> shape=[256, 1024, 1024, 1]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+    x1 = torch.randn(shape, device="cuda:0")
+    # [变化示例] x1=未定义/旧值 -> x1=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+    x2 = torch.randn(shape, device="cuda:0")
+    # [变化示例] x2=未定义/旧值 -> x2=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+    # Multiplication
+    y = x1 * x2
+    # [变化示例] y=未定义/旧值 -> y=x1 * x2；数值示例：2 * 3 -> 6。
+
+torch.cuda.memory._dump_snapshot("traces/vram_profile_example.pickle")
+# [变化示例] 执行状态：调用 torch.cuda.memory._dump_snapshot("traces/vram_profile_examp... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 推理上下文：关闭 autograd 记录；inference_mode 进一步减少 view/version tracking。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 173. CUDA 内存生命周期 | 3_forward.py
+
+**学习问题。** forward 与完整训练步骤分别保存哪些内存？
+
+**中文讲解。** forward 为 backward 保存激活；完整训练还增加梯度、优化器状态和更新临时量，因此峰值通常更高。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/3_forward.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+torch.cuda.memory._record_memory_history()
+# [变化示例] 执行状态：调用 torch.cuda.memory._record_memory_history() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+with torch.inference_mode():
+    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+    shape = [256, 1024, 1024, 1]
+    # [变化示例] shape=未定义/旧值 -> shape=[256, 1024, 1024, 1]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+    weight = torch.randn(shape, device="cuda:0")  # (1)
+    # [变化示例] weight=未定义/旧值 -> weight=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+    data = torch.randn(shape, device="cuda:0")  # (2)
+    # [变化示例] data=未定义/旧值 -> data=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+    x = data * weight  # (3)
+    # [变化示例] x=未定义/旧值 -> x=data * weight；数值示例：2 * 3 -> 6。
+    x = x * weight  # (4)
+    # [变化示例] x=未定义/旧值 -> x=x * weight；数值示例：2 * 3 -> 6。
+    x = x.sum()
+    # [变化示例] x=未定义/旧值 -> x=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+
+torch.cuda.memory._dump_snapshot("traces/double_muls_inference.pickle")
+# [变化示例] 执行状态：调用 torch.cuda.memory._dump_snapshot("traces/double_muls_infere... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 推理上下文：关闭 autograd 记录；inference_mode 进一步减少 view/version tracking。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 174. CUDA 内存生命周期 | 4_full.py
+
+**学习问题。** forward 与完整训练步骤分别保存哪些内存？
+
+**中文讲解。** forward 为 backward 保存激活；完整训练还增加梯度、优化器状态和更新临时量，因此峰值通常更高。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/4_full.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.optim as optim
+
+
+torch.cuda.memory._record_memory_history()
+# [变化示例] 执行状态：调用 torch.cuda.memory._record_memory_history() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+shape = [256, 1024, 1024, 1]
+# [变化示例] shape=未定义/旧值 -> shape=[256, 1024, 1024, 1]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+weight = torch.randn(shape, requires_grad=True, device="cuda:0")
+# [变化示例] weight=未定义/旧值 -> weight=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+data = torch.randn(shape, requires_grad=False, device="cuda:0")
+# [变化示例] data=未定义/旧值 -> data=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+x = data * weight
+# [变化示例] x=未定义/旧值 -> x=data * weight；数值示例：2 * 3 -> 6。
+x = x * weight
+# [变化示例] x=未定义/旧值 -> x=x * weight；数值示例：2 * 3 -> 6。
+x = x.sum()
+# [变化示例] x=未定义/旧值 -> x=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+
+torch.cuda.memory._dump_snapshot("triple_muls_fwd.pickle")
+# [变化示例] 执行状态：调用 torch.cuda.memory._dump_snapshot("triple_muls_fwd.pickle") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+optimizer = optim.SGD([weight], lr=0.01)
+# [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+optimizer.zero_grad()
+# [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+
+x.backward()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+
+optimizer.step()
+# [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+
+torch.cuda.memory._dump_snapshot("traces/double_muls_full.pickle")
+# [变化示例] 执行状态：调用 torch.cuda.memory._dump_snapshot("traces/double_muls_full.p... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 175. CUDA 内存生命周期 | 5_inplace.py
+
+**学习问题。** 原地 Sigmoid 为什么可以少分配一个输出张量？
+
+**中文讲解。** inference_mode 下 sigmoid_ 直接覆盖 x 的 storage，而 sigmoid 创建同 shape 新 tensor；示例用超大张量突出约 1 GiB 的分配差异。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/5_inplace.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+torch.cuda.memory._record_memory_history()
+# [变化示例] 执行状态：调用 torch.cuda.memory._record_memory_history() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+with torch.inference_mode():
+    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+    shape = [256, 1024, 1024, 1]
+    # [变化示例] shape=未定义/旧值 -> shape=[256, 1024, 1024, 1]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+    weight = torch.randn(shape, requires_grad=True, device="cuda:0")
+    # [变化示例] weight=未定义/旧值 -> weight=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+    data = torch.randn(shape, requires_grad=False, device="cuda:0")
+    # [变化示例] data=未定义/旧值 -> data=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+    x = data * weight
+    # [变化示例] x=未定义/旧值 -> x=data * weight；数值示例：2 * 3 -> 6。
+    mem = torch.cuda.memory_allocated()
+    # [变化示例] mem=未定义/旧值 -> mem=当前/峰值 CUDA 内存字节数；除以 1024^3 -> GiB。
+    x.sigmoid_()
+    # [变化示例] 执行状态：调用 x.sigmoid_() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    print(f"使用原位操作产生的显存占用: {torch.cuda.memory_allocated() - mem}GB")
+    # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+    mem = torch.cuda.memory_allocated()
+    # [变化示例] mem=未定义/旧值 -> mem=当前/峰值 CUDA 内存字节数；除以 1024^3 -> GiB。
+    y = x.sigmoid()
+    # [变化示例] y=未定义/旧值 -> y=逐元素 Sigmoid；例如 [-1,0,1] -> 约 [0.269,0.5,0.731]。
+    print(
+        f"不使用原位操作产生的显存占用: {(torch.cuda.memory_allocated() - mem)/1024/1024/1024}GB"
+    )
+    # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 使用原位操作产生的显存占用: 0GB
+# 不使用原位操作产生的显存占用: 1.0GB
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 推理上下文：关闭 autograd 记录；inference_mode 进一步减少 view/version tracking。
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 第一次 memory_allocated 差值没有除以 1024^3，却在文本中标为 GB；本例恰好为 0，通用写法仍应统一单位。
+
+## 176. CUDA 内存生命周期 | 6_inplace_ad.py
+
+**学习问题。** autograd 下原地计算为何要谨慎？
+
+**中文讲解。** 即使数值上等价，backward 可能需要原值；version counter 和 saved tensor 会保护梯度正确性。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/6_inplace_ad.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.optim as optim
+
+shape = [256, 1024, 1024, 1]
+# [变化示例] shape=未定义/旧值 -> shape=[256, 1024, 1024, 1]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+weight = torch.randn(shape, requires_grad=True, device="cuda:0")
+# [变化示例] weight=未定义/旧值 -> weight=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+rand1 = torch.randn(shape, requires_grad=False, device="cuda:0")
+# [变化示例] rand1=未定义/旧值 -> rand1=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+x = rand1 * weight
+# [变化示例] x=未定义/旧值 -> x=rand1 * weight；数值示例：2 * 3 -> 6。
+x.sigmoid_()
+# [变化示例] 执行状态：调用 x.sigmoid_() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+x.sigmoid_()
+# [变化示例] 执行状态：调用 x.sigmoid_() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+x = x.sum()
+# [变化示例] x=未定义/旧值 -> x=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+
+x.backward()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+
+# 报错信息
+# Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+# RuntimeError: one of the variables needed for gradient computation has been modified by an inplace operation:
+#  [torch.cuda.FloatTensor [256, 1024, 1024, 1]], which is output 0 of SigmoidBackward0, is at version 2;
+#  expected version 1 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient,
+#  with torch.autograd.set_detect_anomaly(True).
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 原地操作：复用 storage 并更新 version counter；可能破坏 backward 所需中间值或影响别名。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 177. CUDA 内存生命周期 | 7_sigmoid_bwd.py
+
+**学习问题。** Sigmoid backward 需要保存什么？
+
+**中文讲解。** 若已保存输出 y，导数可写成 y(1-y)，通常无需再次保存输入并重算 sigmoid。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/7_sigmoid_bwd.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+# Sigmoid算子
+out = 1 / (1 + exp(-x))
+# [变化示例] out=未定义/旧值 -> out=1 / (1 + exp(-x))；数值示例：6 / 3 -> 2。
+
+# Sigmoid反向算子
+dx = dout * out * (1 - out)
+# [变化示例] dx=未定义/旧值 -> dx=dout * out * (1 - out)；数值示例：2 * 3 -> 6。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 178. CUDA 内存生命周期 | 8_assign.py
+
+**学习问题。** 为什么 y = x 不会复制张量？
+
+**中文讲解。** Python 赋值只让 y 与 x 指向同一个 Tensor 对象；随后 y.mul_ 原地修改共享 storage，所以从 x 也能观察到变化。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/8_assign.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+shape = [1, 4]
+# [变化示例] shape=未定义/旧值 -> shape=[1, 4]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+x = torch.ones(shape)
+# [变化示例] x=未定义/旧值 -> x=全 1 张量；例如 shape=(2,3) 时得到 6 个 1。
+print("Initial x = ", x)  # Initial x =  tensor([[1., 1., 1., 1.]])
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+y = x
+# [变化示例] y=未定义/旧值 -> y=x；这是一次重新绑定/状态更新，右侧值决定新状态。
+y.mul_(10)
+# [变化示例] 原地状态：目标 tensor=旧值 -> 执行 y.mul_(10) 后直接覆盖同一 storage。
+
+print("Modified y = ", y)  # Modified y =  tensor([[10., 10., 10., 10.]])
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+print("Modified x = ", x)  # Modified x =  tensor([[10., 10., 10., 10.]])
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 原地操作：复用 storage 并更新 version counter；可能破坏 backward 所需中间值或影响别名。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 179. CUDA 内存生命周期 | 9_view.py
+
+**学习问题。** view 和基础切片为什么几乎不增加显存？
+
+**中文讲解。** view(-1) 与 t[0] 只创建轻量 Tensor 元数据并共享 t 的 storage；修改 view 会反映到 base，主数据显存仍约 1 GiB。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/9_view.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+shape = [256, 1024, 1024]
+# [变化示例] shape=未定义/旧值 -> shape=[256, 1024, 1024]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+t = torch.ones(shape, device="cuda:0")
+# [变化示例] t=未定义/旧值 -> t=全 1 张量；例如 shape=(2,3) 时得到 6 个 1。
+
+print(f"Current memory used: {torch.cuda.memory_allocated()/1024/1024/1024}GB")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# Current memory used: 1.0GB
+
+v1 = t.view(-1)
+# [变化示例] v1=未定义/旧值 -> v1 重排为 -1；元素数量与顺序保持不变（若布局允许则共享 storage）。
+v1[0] = -1  # t[0][0][0]也被更新了
+# [变化示例] 目标切片 v1[0]=旧值 -> -1；base tensor 对应位置同步被写入。
+assert v1[0] == t[0][0][0] == -1
+# [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+print(f"Current memory used: {torch.cuda.memory_allocated()/1024/1024/1024}GB")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# Current memory used: 1.0GB
+
+
+v2 = t[0]
+# [变化示例] v2=未定义/旧值 -> v2=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+v2[0][1] = 2  # t[0][0][1]也被更新了
+# [变化示例] 目标切片 v2[0][1]=旧值 -> 2；base tensor 对应位置同步被写入。
+assert v2[0][1] == t[0][0][1] == 2
+# [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+print(f"Current memory used: {torch.cuda.memory_allocated()/1024/1024/1024}GB")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# Current memory used: 1.0GB
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- view/reshape/flatten：保持元素总数不变；non-contiguous 输入上 view 可能失败，reshape 可在必要时复制。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 180. CUDA 内存生命周期 | 10_cross_batch.py
+
+**学习问题。** 为什么跨 batch 保存带图 tensor 会导致显存增长？
+
+**中文讲解。** Python 容器持有 loss/output 会同时持有整张 autograd 图；记录指标时应保存 item 或 detach 后的值。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/10_cross_batch.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.optim as optim
+
+torch.manual_seed(1000)
+# [变化示例] RNG 状态：旧随机序列起点 -> 指定 seed 的确定起点；后续相同调用顺序可重放。
+
+N = 128
+# [变化示例] N=未定义/旧值 -> N=128；这是一次重新绑定/状态更新，右侧值决定新状态。
+Total_N = 512
+# [变化示例] Total_N=未定义/旧值 -> Total_N=512；这是一次重新绑定/状态更新，右侧值决定新状态。
+dataset = torch.randn([Total_N, 32, 1024], requires_grad=False)
+# [变化示例] dataset=未定义/旧值 -> dataset=按 [Total_N, 32, 1024] 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+weight = torch.randn([1024, 32], requires_grad=True, device="cuda:0")
+# [变化示例] weight=未定义/旧值 -> weight=按 [1024, 32] 创建的随机张量；shape 固定，具体值由 RNG 决定。
+optimizer = optim.SGD([weight], lr=0.01)
+# [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+
+num_iters = int(Total_N / 256)
+# [变化示例] num_iters=未定义/旧值 -> num_iters 接收 int(Total_N / 256) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+steps = 2
+# [变化示例] steps=未定义/旧值 -> steps=2；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+for i in range(num_iters):
+    # [变化示例] 循环示例：range(num_iters) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+    # 模拟一个批次的训练
+    optimizer.zero_grad()
+    # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+
+    for j in range(steps):
+        # [变化示例] 循环示例：range(steps) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+        offset = i * 256 + N * j
+        # [变化示例] offset=未定义/旧值 -> offset=i * 256 + N * j；数值示例：2 + 3 -> 5。
+
+        input = dataset[offset : offset + N, :, :].to(torch.device("cuda:0"))
+        # [变化示例] input=未定义/旧值 -> input 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+        y = input.matmul(weight)
+        # [变化示例] y=未定义/旧值 -> y 接收 input.matmul(weight) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        loss = y.sum()
+        # [变化示例] loss=未定义/旧值 -> loss=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+
+        loss.backward()
+        # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+    optimizer.step()
+    # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+
+print(weight.sum())
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+print(f"显存分配的峰值: {torch.cuda.max_memory_allocated()/1024/1024}MB")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 输出：
+# tensor(2096.2283, device='cuda:0', grad_fn=<SumBackward0>)
+# 显存分配的峰值: 49.00048828125MB
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 复现配置：Python、NumPy、PyTorch 和 CUDA 算法选择需要一起控制，seed 不是完全确定性的充分条件。
+- 融合/矩阵 API：优先用批量 tensor 算子表达计算，减少 Python 循环、中间分配和 kernel launch。
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 181. CUDA 内存生命周期 | 11_no_accumulation.py
+
+**学习问题。** 怎样避免无意梯度累积？
+
+**中文讲解。** PyTorch 默认把新梯度加到 param.grad；每个独立 step 前必须 zero_grad，除非明确做 gradient accumulation。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/11_no_accumulation.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.optim as optim
+
+torch.manual_seed(1000)
+# [变化示例] RNG 状态：旧随机序列起点 -> 指定 seed 的确定起点；后续相同调用顺序可重放。
+
+N = 256
+# [变化示例] N=未定义/旧值 -> N=256；这是一次重新绑定/状态更新，右侧值决定新状态。
+Total_N = 512
+# [变化示例] Total_N=未定义/旧值 -> Total_N=512；这是一次重新绑定/状态更新，右侧值决定新状态。
+dataset = torch.randn([Total_N, 32, 1024], requires_grad=False)
+# [变化示例] dataset=未定义/旧值 -> dataset=按 [Total_N, 32, 1024] 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+weight = torch.randn([1024, 32], requires_grad=True, device="cuda:0")
+# [变化示例] weight=未定义/旧值 -> weight=按 [1024, 32] 创建的随机张量；shape 固定，具体值由 RNG 决定。
+optimizer = optim.SGD([weight], lr=0.01)
+# [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+
+num_iters = int(Total_N / 256)
+# [变化示例] num_iters=未定义/旧值 -> num_iters 接收 int(Total_N / 256) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+for i in range(num_iters):
+    # [变化示例] 循环示例：range(num_iters) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+    optimizer.zero_grad()
+    # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+
+    offset = i * 256
+    # [变化示例] offset=未定义/旧值 -> offset=i * 256；数值示例：2 * 3 -> 6。
+
+    input = dataset[offset : offset + N, :, :].to(torch.device("cuda:0"))
+    # [变化示例] input=未定义/旧值 -> input 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+    y = input.matmul(weight)
+    # [变化示例] y=未定义/旧值 -> y 接收 input.matmul(weight) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    loss = y.sum()
+    # [变化示例] loss=未定义/旧值 -> loss=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+
+    loss.backward()
+    # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+    optimizer.step()
+    # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+
+print(weight.sum())
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+print(f"显存分配的峰值: {torch.cuda.max_memory_allocated()/1024/1024}MB")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 输出:
+# tensor(2096.2275, device='cuda:0', grad_fn=<SumBackward0>)
+# 显存分配的峰值: 81.37548828125MB
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 复现配置：Python、NumPy、PyTorch 和 CUDA 算法选择需要一起控制，seed 不是完全确定性的充分条件。
+- 融合/矩阵 API：优先用批量 tensor 算子表达计算，减少 Python 循环、中间分配和 kernel launch。
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 182. CUDA 内存生命周期 | 12_pow_model_checkpoint.py
+
+**学习问题。** Gradient Checkpointing 如何用计算换显存？
+
+**中文讲解。** 不保存选定段的中间激活，backward 时重算 forward；函数应可重放且不能依赖破坏性副作用。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/12_pow_model_checkpoint.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+from torch.utils.checkpoint import checkpoint_sequential
+
+model = nn.Sequential(
+    nn.Linear(1000, 40000),
+    nn.ReLU(),
+    nn.Linear(40000, 1000),
+    nn.ReLU(),
+    nn.Linear(1000, 5),
+    nn.ReLU(),
+).to("cuda")
+# [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+
+input_var = torch.randn(10, 1000, device="cuda", requires_grad=True)
+# [变化示例] input_var=未定义/旧值 -> input_var=按 10, 1000 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+segments = 2
+# [变化示例] segments=未定义/旧值 -> segments=2；这是一次重新绑定/状态更新，右侧值决定新状态。
+modules = [module for k, module in model._modules.items()]
+# [变化示例] modules=未定义/旧值 -> modules=[module for k, module in model._modules.items()]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+
+# (1). 使用checkpoint技术
+out = checkpoint_sequential(modules, segments, input_var)
+# [变化示例] out=未定义/旧值 -> out 接收 checkpoint_sequential(modules, segments, input_var) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+model.zero_grad()
+# [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+out.sum().backward()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+print(f"使用checkpoint技术显存分配峰值: {torch.cuda.max_memory_allocated()/1024/1024}MB")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# 使用checkpoint技术显存分配峰值: 628.63671875MB
+
+out_checkpointed = out.data.clone()
+# [变化示例] out_checkpointed=未定义/旧值 -> out_checkpointed=独立副本；数值相同，但后续原地修改不再共享同一 storage。
+grad_checkpointed = {}
+# [变化示例] grad_checkpointed=未定义/旧值 -> grad_checkpointed={}；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+for name, param in model.named_parameters():
+    # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+    grad_checkpointed[name] = param.grad.data.clone()
+    # [变化示例] grad_checkpointed[name]=未定义/旧值 -> grad_checkpointed[name]=独立副本；数值相同，但后续原地修改不再共享同一 storage。
+
+# (2). 不使用checkpoint技术
+original = model
+# [变化示例] original=未定义/旧值 -> original=model；这是一次重新绑定/状态更新，右侧值决定新状态。
+x = input_var.clone().detach_()
+# [变化示例] x=未定义/旧值 -> x=独立副本；数值相同，但后续原地修改不再共享同一 storage。
+out = original(x)
+# [变化示例] out=未定义/旧值 -> out 接收 original(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+out_not_checkpointed = out.data.clone()
+# [变化示例] out_not_checkpointed=未定义/旧值 -> out_not_checkpointed=独立副本；数值相同，但后续原地修改不再共享同一 storage。
+
+original.zero_grad()
+# [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+out.sum().backward()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+print(f"不使用checkpoint技术显存分配峰值: {torch.cuda.max_memory_allocated()/1024/1024}MB")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# 不使用checkpoint技术显存分配峰值: 936.17431640625MB
+
+grad_not_checkpointed = {}
+# [变化示例] grad_not_checkpointed=未定义/旧值 -> grad_not_checkpointed={}；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+for name, param in model.named_parameters():
+    # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+    grad_not_checkpointed[name] = param.grad.data.clone()
+    # [变化示例] grad_not_checkpointed[name]=未定义/旧值 -> grad_not_checkpointed[name]=独立副本；数值相同，但后续原地修改不再共享同一 storage。
+
+
+# 对比使用和不使用checkpoint技术计算出来的梯度都是一样的
+assert torch.allclose(out_checkpointed, out_not_checkpointed)
+# [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+for name in grad_checkpointed:
+    # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+    assert torch.allclose(grad_checkpointed[name], grad_not_checkpointed[name])
+    # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 183. CUDA 内存生命周期 | 13_offloading.py
+
+**学习问题。** CPU offload 的核心权衡是什么？
+
+**中文讲解。** 把参数、激活或优化器状态移到 CPU 可降低显存，但 PCIe/NVLink 传输可能成为新瓶颈。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/13_offloading.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+
+
+class LargeModel(nn.Module):
+    def __init__(self):
+        super(LargeModel, self).__init__()
+        # [变化示例] 执行状态：调用 super(LargeModel, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.layer1 = nn.Linear(50000, 50000)
+        # [变化示例] self.layer1=未定义/旧值 -> self.layer1=线性映射模块；输入最后一维 50000 -> 输出最后一维 50000。
+        self.layer2 = nn.Linear(50000, 50000)
+        # [变化示例] self.layer2=未定义/旧值 -> self.layer2=线性映射模块；输入最后一维 50000 -> 输出最后一维 50000。
+
+    # OOM on a GPU with 24GB
+    # def forward(self, x):
+    #     x = self.layer1(x)
+    #     x = torch.relu(x)
+    #     x = self.layer2(x)
+    #     x = torch.relu(x)
+    #     return x
+
+    def forward(self, x):
+        self.layer1.to("cuda")
+        # [变化示例] 执行状态：调用 self.layer1.to("cuda") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        x = self.layer1(x)
+        # [变化示例] x=未定义/旧值 -> x 接收 self.layer1(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        x = torch.relu(x)
+        # [变化示例] x=未定义/旧值 -> x=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        self.layer1.to("cpu")
+        # [变化示例] 执行状态：调用 self.layer1.to("cpu") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+        self.layer2.to("cuda")
+        # [变化示例] 执行状态：调用 self.layer2.to("cuda") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        x = self.layer2(x)
+        # [变化示例] x=未定义/旧值 -> x 接收 self.layer2(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        x = torch.relu(x)
+        # [变化示例] x=未定义/旧值 -> x=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        self.layer2.to("cpu")
+        # [变化示例] 执行状态：调用 self.layer2.to("cpu") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        return x
+        # [变化示例] 函数内部：x；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+model = LargeModel().to("cuda")
+# [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+input_data = torch.randn(10, 50000).to("cuda")
+# [变化示例] input_data=未定义/旧值 -> input_data=按 10, 50000).to("cuda" 创建的随机张量；shape 固定，具体值由 RNG 决定。
+output = model(input_data)
+# [变化示例] output=未定义/旧值 -> output 接收 model(input_data) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+print(f"前向过程中GPU显存占用峰值: {torch.cuda.max_memory_allocated()/1024/1024/1024}GB")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# 前向过程中GPU显存占用峰值: 9.328798770904541GB
+
+loss = output.sum()
+# [变化示例] loss=未定义/旧值 -> loss=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+loss.backward()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 184. CUDA 内存生命周期 | 14_adam_update_weight.py
+
+**学习问题。** Adam 参数更新为什么会产生额外峰值？
+
+**中文讲解。** 除 m/v 状态外，表达式求值还可能创建临时 tensor；no_grad、原地或 foreach/fused 路径可减少临时分配。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/14_adam_update_weight.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.optim as optim
+
+
+# 模拟模型参数
+def generate_params(device, shape):
+    params = [
+        torch.rand(shape, dtype=torch.float32, requires_grad=True, device=device)
+        for _ in range(6)
+    ]
+    # [变化示例] params=未定义/旧值 -> params=[ torch.rand(shape, dtype=torch.float32, requires_grad=True...；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+    return params
+    # [变化示例] 函数内部：params；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+# 模拟模型运行
+def run(params):
+    x = torch.rand(shape, dtype=torch.float32, device=device)
+    # [变化示例] x=未定义/旧值 -> x=按 shape 创建的随机张量；shape 固定，具体值由 RNG 决定。
+    x = params[0] * x
+    # [变化示例] x=未定义/旧值 -> x=params[0] * x；数值示例：2 * 3 -> 6。
+    x = params[1] * x
+    # [变化示例] x=未定义/旧值 -> x=params[1] * x；数值示例：2 * 3 -> 6。
+    x = params[2] * x
+    # [变化示例] x=未定义/旧值 -> x=params[2] * x；数值示例：2 * 3 -> 6。
+    x = params[3] * x
+    # [变化示例] x=未定义/旧值 -> x=params[3] * x；数值示例：2 * 3 -> 6。
+    x = params[4] * x
+    # [变化示例] x=未定义/旧值 -> x=params[4] * x；数值示例：2 * 3 -> 6。
+    x = params[5] * x
+    # [变化示例] x=未定义/旧值 -> x=params[5] * x；数值示例：2 * 3 -> 6。
+    x = x.sum()
+    # [变化示例] x=未定义/旧值 -> x=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+    return x
+    # [变化示例] 函数内部：x；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+# (1) 使用for-each进行参数更新
+torch.cuda.memory._record_memory_history()
+# [变化示例] 执行状态：调用 torch.cuda.memory._record_memory_history() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+device = "cuda:0"
+# [变化示例] device=未定义/旧值 -> device="cuda:0"；这是一次重新绑定/状态更新，右侧值决定新状态。
+shape = [4]
+# [变化示例] shape=未定义/旧值 -> shape=[4]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+params = generate_params(device, shape)
+# [变化示例] params=未定义/旧值 -> params 接收 generate_params(device, shape) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+out = run(params)
+# [变化示例] out=未定义/旧值 -> out 接收 run(params) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+optimizer = optim.Adam(params, lr=0.01, foreach=True)
+# [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+optimizer.zero_grad()
+# [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+
+out.backward()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+optimizer.step()
+# [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+
+torch.cuda.memory._dump_snapshot("traces/adam_foreach.pickle")
+# [变化示例] 执行状态：调用 torch.cuda.memory._dump_snapshot("traces/adam_foreach.pickle") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+# (2) 使用for-loop进行参数更新
+torch.cuda.memory._record_memory_history()
+# [变化示例] 执行状态：调用 torch.cuda.memory._record_memory_history() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+device = "cuda:0"
+# [变化示例] device=未定义/旧值 -> device="cuda:0"；这是一次重新绑定/状态更新，右侧值决定新状态。
+shape = [4]
+# [变化示例] shape=未定义/旧值 -> shape=[4]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+params = generate_params(device, shape)
+# [变化示例] params=未定义/旧值 -> params 接收 generate_params(device, shape) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+out = run(params)
+# [变化示例] out=未定义/旧值 -> out 接收 run(params) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+optimizer = optim.Adam(params, lr=0.01, foreach=False)
+# [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+optimizer.zero_grad()
+# [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+
+out.backward()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+optimizer.step()
+# [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+
+torch.cuda.memory._dump_snapshot("traces/adam_forloop.pickle")
+# [变化示例] 执行状态：调用 torch.cuda.memory._dump_snapshot("traces/adam_forloop.pickle") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 185. CUDA 内存生命周期 | 15_adam_remove_grad.py
+
+**学习问题。** 把 grad 设为 None 为什么可能更省内存？
+
+**中文讲解。** set_to_none=True 允许释放旧梯度 storage，并让下次 backward 直接赋值而不是先清零再累加。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/15_adam_remove_grad.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+torch.cuda.memory._record_memory_history()
+# [变化示例] 执行状态：调用 torch.cuda.memory._record_memory_history() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+device = "cuda:0"
+# [变化示例] device=未定义/旧值 -> device="cuda:0"；这是一次重新绑定/状态更新，右侧值决定新状态。
+shape = [4]
+# [变化示例] shape=未定义/旧值 -> shape=[4]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+params = generate_params(device, shape)
+# [变化示例] params=未定义/旧值 -> params 接收 generate_params(device, shape) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+out = run(params)
+# [变化示例] out=未定义/旧值 -> out 接收 run(params) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+# 设置一个优化器字典，方便后续引用
+optimizer_dict = {
+    p: torch.optim.Adam([p], foreach=False) for p in [w0, w1, w2, w3, w4, w5]
+}
+# [变化示例] optimizer_dict=未定义/旧值 -> optimizer_dict={ p: torch.optim.Adam([p], foreach=False) for p in [w0, w1,...；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+
+
+# 定义一个优化器钩子，这个钩子会调用step()和zero_grad()函数
+def optimizer_hook(parameter) -> None:
+    optimizer_dict[parameter].step()
+    # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+    optimizer_dict[parameter].zero_grad()
+    # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+
+
+# 设置钩子在梯度更新后被调用
+for p in model.parameters():
+    # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+    p.register_post_accumulate_grad_hook(optimizer_hook)
+    # [变化示例] 执行状态：调用 p.register_post_accumulate_grad_hook(optimizer_hook) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+out.backward()
+# [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+
+torch.cuda.memory._dump_snapshot("traces/adam_remove_grad.pickle")
+# [变化示例] 执行状态：调用 torch.cuda.memory._dump_snapshot("traces/adam_remove_grad.p... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 186. CUDA 内存生命周期 | 16_python_gc.py
+
+**学习问题。** Python GC 与 CUDA tensor 释放是什么关系？
+
+**中文讲解。** tensor 的 Python 引用归零后 storage 才可回到 caching allocator；循环引用需 GC 介入，但 reserved 显存可能仍保留。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/16_python_gc.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import gc
+
+
+class Module1(torch.nn.Module):
+    def __init__(self):
+        super(Module1, self).__init__()
+        # [变化示例] 执行状态：调用 super(Module1, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.saved = Module2(self)  # Module1对象保存了对Module2对象的引用
+        # [变化示例] self.saved=未定义/旧值 -> self.saved 接收 Module2(self) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        self.tensor = torch.randn(1024, 1024, device="cuda")
+        # [变化示例] self.tensor=未定义/旧值 -> self.tensor=按 1024, 1024 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+
+class Module2(torch.nn.Module):
+    def __init__(self, module):
+        super(Module2, self).__init__()
+        # [变化示例] 执行状态：调用 super(Module2, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.saved = module  # Module2对象也保存了对Module1对象的饮用
+        # [变化示例] self.saved=未定义/旧值 -> self.saved=module；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.tensor = torch.randn(1024, 1024, device="cuda")
+        # [变化示例] self.tensor=未定义/旧值 -> self.tensor=按 1024, 1024 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+
+net = Module1()
+# [变化示例] net=未定义/旧值 -> net=Module1()；这是一次重新绑定/状态更新，右侧值决定新状态。
+print("Memory allocated: ", torch.cuda.memory_allocated(0))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+del net
+# [变化示例] 引用状态：变量持有对象 -> 删除该引用；仅当无其他引用时，对象才可回收。
+print("Memory allocated after delete: ", torch.cuda.memory_allocated(0))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+gc.collect()
+# [变化示例] 执行状态：调用 gc.collect() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+print("Memory allocated after gc: ", torch.cuda.memory_allocated(0))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 187. CUDA 内存生命周期 | 17_gc_result.sh
+
+**学习问题。** Python GC 与 CUDA tensor 释放是什么关系？
+
+**中文讲解。** tensor 的 Python 引用归零后 storage 才可回到 caching allocator；循环引用需 GC 介入，但 reserved 显存可能仍保留。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/17_gc_result.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+Memory allocated:  8388608
+# [变化示例] 命令状态：执行 Memory allocated: 8388608 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+Memory allocated after delete:  8388608
+# [变化示例] 命令状态：执行 Memory allocated after delete: 8388608 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+Memory allocated after gc:  0
+# [变化示例] 命令状态：执行 Memory allocated after gc: 0 前 -> 得到命令输出或系统状态变化；以退出码判断成功。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 188. CUDA 内存生命周期 | 18_cycle.py
+
+**学习问题。** 循环引用如何延迟 tensor 回收？
+
+**中文讲解。** 对象彼此引用时引用计数不会立即归零，直到 cyclic GC 发现不可达环；其中的 CUDA tensor 会延迟释放。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/18_cycle.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+
+class CustomLayer(torch.nn.Module):
+    def __init__(self, model):
+        super(CustomLayer, self).__init__()
+        # [变化示例] 执行状态：调用 super(CustomLayer, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.model = model
+        # [变化示例] self.model=未定义/旧值 -> self.model=model；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+
+class MyModel(torch.nn.Module):
+    def __init__(self):
+        super(MyModel, self).__init__()
+        # [变化示例] 执行状态：调用 super(MyModel, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.custom_layer = CustomLayer(self)
+        # [变化示例] self.custom_layer=未定义/旧值 -> self.custom_layer 接收 CustomLayer(self) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+
+model = MyModel()
+# [变化示例] model=未定义/旧值 -> model=MyModel()；这是一次重新绑定/状态更新，右侧值决定新状态。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 189. CUDA 内存生命周期 | 19_local_var.py
+
+**学习问题。** 变量作用域和 del 如何影响显存生命周期？
+
+**中文讲解。** 局部变量在作用域结束后通常可释放；全局或容器引用会延长生命周期，del 只删除一个引用而非强制清空 allocator。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/19_local_var.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+
+
+def func():
+    tensors = []
+    # [变化示例] tensors=未定义/旧值 -> tensors=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+    for _ in range(100):
+        # [变化示例] 循环示例：range(100) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+        tensors.append(torch.randn(100, 100, device="cuda"))
+        # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
+
+    print("Memory allocated from function: ", torch.cuda.memory_allocated(0))
+    # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+    return
+    # [变化示例] 函数内部： -> 调用方收到该输出。
+
+
+func()
+# [变化示例] 执行状态：调用 func() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+print("Memory allocated: ", torch.cuda.memory_allocated(0))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 输出:
+# Memory allocated from function:  4044800
+# Memory allocated:  0
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 190. CUDA 内存生命周期 | 20_global_var.py
+
+**学习问题。** 变量作用域和 del 如何影响显存生命周期？
+
+**中文讲解。** 局部变量在作用域结束后通常可释放；全局或容器引用会延长生命周期，del 只删除一个引用而非强制清空 allocator。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/20_global_var.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import time
+import random
+
+
+def train():
+    global input
+    input = torch.randn(100, 100, device="cuda")
+    # [变化示例] input=未定义/旧值 -> input=按 100, 100 创建的随机张量；shape 固定，具体值由 RNG 决定。
+
+
+train()
+# [变化示例] 执行状态：调用 train() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+print("Memory allocated for input: ", torch.cuda.memory_allocated(0))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+tensors = []
+# [变化示例] tensors=未定义/旧值 -> tensors=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+for _ in range(100):
+    # [变化示例] 循环示例：range(100) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+    tensors.append(torch.randn(100, 100, device="cuda"))
+    # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
+print("Memory allocated for tensors & input: ", torch.cuda.memory_allocated(0))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# time.sleep(1000000000000) 不管睡多久都不会释放的
+# for i in range(100000000000): new_var = random.randint() 通过分配新变量触发垃圾回收，也不会清理的
+
+print("Memory allocated total: ", torch.cuda.memory_allocated(0))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+
+# 输出
+# Memory allocated for input:  40448
+# Memory allocated for tensors & input:  4085248
+# Memory allocated total:  4085248
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 191. CUDA 内存生命周期 | 21_manual_del.py
+
+**学习问题。** 变量作用域和 del 如何影响显存生命周期？
+
+**中文讲解。** 局部变量在作用域结束后通常可释放；全局或容器引用会延长生命周期，del 只删除一个引用而非强制清空 allocator。 区分 allocated、reserved、峰值激活、梯度和优化器状态，并理解 Python 引用如何决定张量何时可释放。
+
+**来源文件。** `chapter_07_memory/21_manual_del.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+M_{peak}\approx M_{param}+M_{grad}+M_{optim}+M_{activation}+M_{temp}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+del tensors
+# [变化示例] 引用状态：变量持有对象 -> 删除该引用；仅当无其他引用时，对象才可回收。
+del input
+# [变化示例] 引用状态：变量持有对象 -> 删除该引用；仅当无其他引用时，对象才可回收。
+print("Memory allocated after cleaning: ", torch.cuda.memory_allocated(0))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+# Memory allocated after cleaning: 0
+```
+
+#### 代码/API 逐项解释
+
+- CUDA 内存 API：区分活跃分配与 allocator 保留；empty_cache 不会释放仍被 tensor 引用的内存。
+
+#### 输入、输出与验证
+
+- **验证方法。** 在关键阶段记录 memory_allocated/max_memory_allocated，并用引用生命周期解释峰值；不要把 reserved 直接称为泄漏。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 192. 分布式训练与 DDP | 1_single_gpu.py
+
+**学习问题。** 单 GPU 基线为何是分布式优化的前提？
+
+**中文讲解。** 先固定单卡数值和性能基线，才能判断 DDP 的正确性、缩放效率和通信开销。 数据并行的核心是各 rank 独立前向反向，再通过 collective 同步梯度并保持参数一致。
+
+**来源文件。** `chapter_08_distributed/1_single_gpu.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+g=\frac{1}{W}\sum_{r=1}^{W}g_r,\qquad efficiency=\frac{T_1}{W\,T_W}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+
+from common import SimpleNet, MyTrainDataset
+
+
+def train(model, optimizer, train_data, device_id):
+    model = model.to(device_id)
+    # [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+    for i, (src, target) in enumerate(train_data):
+        # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+        src = src.to(device_id)
+        # [变化示例] src=未定义/旧值 -> src 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+        target = target.to(device_id)
+        # [变化示例] target=未定义/旧值 -> target 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+        optimizer.zero_grad()
+        # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+        output = model(src)
+        # [变化示例] output=未定义/旧值 -> output 接收 model(src) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        loss = F.mse_loss(output, target)
+        # [变化示例] loss=未定义/旧值 -> loss=均方误差；例如 prediction=[1,3]、target=[1,1] -> mean([0,4])=2。
+        loss.backward()
+        # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+        optimizer.step()
+        # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+        print(f"[GPU{device_id}]: batch {i}/{len(train_data)}, loss: {loss}")
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+
+def main(device_id):
+    model = SimpleNet()
+    # [变化示例] model=未定义/旧值 -> model=SimpleNet()；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+    optimizer = torch.optim.SGD(model.parameters(), lr=1e-2)
+    # [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+
+    batchsize_per_gpu = 32
+    # [变化示例] batchsize_per_gpu=未定义/旧值 -> batchsize_per_gpu=32；这是一次重新绑定/状态更新，右侧值决定新状态。
+    dataset = MyTrainDataset(num=2048, size=512)
+    # [变化示例] dataset=未定义/旧值 -> dataset 接收 MyTrainDataset(num=2048, size=512) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    train_data = DataLoader(dataset, batch_size=batchsize_per_gpu)
+    # [变化示例] train_data=未定义/旧值 -> train_data=批数据迭代器；N 个样本按 batch_size=B -> 约 ceil(N/B) 个 batch。
+
+    train(model, optimizer, train_data, device_id)
+    # [变化示例] 执行状态：调用 train(model, optimizer, train_data, device_id) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+if __name__ == "__main__":
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+    device_id = 0
+    # [变化示例] device_id=未定义/旧值 -> device_id=0；这是一次重新绑定/状态更新，右侧值决定新状态。
+    main(device_id)
+    # [变化示例] 执行状态：调用 main(device_id) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+
+#### 输入、输出与验证
+
+- **验证方法。** 检查每个 rank 的参数初值、样本划分和 collective 顺序；一步更新后与单卡等效大 batch 结果做容差比较。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 193. 分布式训练与 DDP | 2_hook.py
+
+**学习问题。** autograd hook 如何观察或修改梯度？
+
+**中文讲解。** hook 在梯度产生时被调用，可用于日志、压缩或调试；修改梯度必须保持 shape/device/dtype 合法。 数据并行的核心是各 rank 独立前向反向，再通过 collective 同步梯度并保持参数一致。
+
+**来源文件。** `chapter_08_distributed/2_hook.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+g=\frac{1}{W}\sum_{r=1}^{W}g_r,\qquad efficiency=\frac{T_1}{W\,T_W}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+from torch.distributed.algorithms.ddp_comm_hooks.debugging_hooks import noop_hook
+
+model.register_comm_hook(None, noop_hook)
+# [变化示例] 执行状态：调用 model.register_comm_hook(None, noop_hook) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 分布式 collective：所有 rank 必须以一致顺序参与；梯度求和后是否除 world_size 要与损失缩放约定一致。
+
+#### 输入、输出与验证
+
+- **验证方法。** 检查每个 rank 的参数初值、样本划分和 collective 顺序；一步更新后与单卡等效大 batch 结果做容差比较。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 194. 分布式训练与 DDP | common.py
+
+**学习问题。** 分布式实验的公共初始化应包含什么？
+
+**中文讲解。** 统一模型、数据、优化器、随机种子和进程组配置，避免把初始化差异误判为 DDP 数值问题。 数据并行的核心是各 rank 独立前向反向，再通过 collective 同步梯度并保持参数一致。
+
+**来源文件。** `chapter_08_distributed/common.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+g=\frac{1}{W}\sum_{r=1}^{W}g_r,\qquad efficiency=\frac{T_1}{W\,T_W}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+from torch.utils.data import Dataset
+
+
+def set_seed(seed: int = 37) -> None:
+# [变化示例] 调用该单行函数时：int=未定义/旧值 -> int=37) -> None:；这是一次重新绑定/状态更新，右侧值决定新状态。
+    torch.manual_seed(seed)
+    # [变化示例] RNG 状态：旧随机序列起点 -> 指定 seed 的确定起点；后续相同调用顺序可重放。
+    torch.cuda.manual_seed(seed)
+    # [变化示例] RNG 状态：旧随机序列起点 -> 指定 seed 的确定起点；后续相同调用顺序可重放。
+    torch.backends.cudnn.deterministic = True
+    # [变化示例] torch.backends.cudnn.deterministic=未定义/旧值 -> torch.backends.cudnn.deterministic=True；这是一次重新绑定/状态更新，右侧值决定新状态。
+    torch.backends.cudnn.benchmark = False
+    # [变化示例] torch.backends.cudnn.benchmark=未定义/旧值 -> torch.backends.cudnn.benchmark=False；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+
+set_seed(1234)
+# [变化示例] 执行状态：调用 set_seed(1234) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+class MyTrainDataset(Dataset):
+    def __init__(self, num, size):
+        self.num = num
+        # [变化示例] self.num=未定义/旧值 -> self.num=num；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.data = [
+            (
+                torch.rand(size, dtype=torch.float),
+                torch.tensor([i / num], dtype=torch.float),
+            )
+            for i in range(num)
+        ]
+        # [变化示例] self.data=未定义/旧值 -> self.data=[ ( torch.rand(size, dtype=torch.float), torch.tensor([i / ...；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+
+    def __len__(self):
+        return self.num
+        # [变化示例] 函数内部：self.num；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+    def __getitem__(self, index):
+        return self.data[index]
+        # [变化示例] 函数内部：索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,) -> 调用方收到该输出。
+
+
+class SimpleNet(nn.Module):
+    def __init__(self):
+        super(SimpleNet, self).__init__()
+        # [变化示例] 执行状态：调用 super(SimpleNet, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.fc1 = nn.Linear(512, 10240, bias=True)
+        # [变化示例] self.fc1=未定义/旧值 -> self.fc1=线性映射模块；输入最后一维 512 -> 输出最后一维 10240。
+        self.fc2 = nn.Linear(10240, 10240, bias=True)
+        # [变化示例] self.fc2=未定义/旧值 -> self.fc2=线性映射模块；输入最后一维 10240 -> 输出最后一维 10240。
+        self.fc3 = nn.Linear(10240, 1, bias=True)
+        # [变化示例] self.fc3=未定义/旧值 -> self.fc3=线性映射模块；输入最后一维 10240 -> 输出最后一维 1。
+
+    def forward(self, x):
+        out = self.fc1(x)
+        # [变化示例] out=未定义/旧值 -> out 接收 self.fc1(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        out = self.fc2(out)
+        # [变化示例] out=未定义/旧值 -> out 接收 self.fc2(out) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        out = self.fc3(out)
+        # [变化示例] out=未定义/旧值 -> out 接收 self.fc3(out) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        return out
+        # [变化示例] 函数内部：out；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 复现配置：Python、NumPy、PyTorch 和 CUDA 算法选择需要一起控制，seed 不是完全确定性的充分条件。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+
+#### 输入、输出与验证
+
+- **验证方法。** 检查每个 rank 的参数初值、样本划分和 collective 顺序；一步更新后与单卡等效大 batch 结果做容差比较。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 195. 分布式训练与 DDP | manual_ddp.py
+
+**学习问题。** 手写数据并行需要哪些步骤？
+
+**中文讲解。** 每个 rank 处理不同数据，backward 后对每个梯度 all_reduce 并除 world_size，再执行相同优化器更新。 数据并行的核心是各 rank 独立前向反向，再通过 collective 同步梯度并保持参数一致。
+
+**来源文件。** `chapter_08_distributed/manual_ddp.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+g=\frac{1}{W}\sum_{r=1}^{W}g_r,\qquad efficiency=\frac{T_1}{W\,T_W}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+
+from common import SimpleNet, MyTrainDataset
+
+import os
+import torch.distributed as dist
+import torch.multiprocessing as mp
+
+
+# (3) 初始化分布式通信组
+def setup(rank, device_id, world_size, backend):
+    os.environ["MASTER_ADDR"] = "127.0.0.1"
+    # [变化示例] 目标切片 os.environ["MASTER_ADDR"]=旧值 -> "127.0.0.1"；base tensor 对应位置同步被写入。
+    os.environ["MASTER_PORT"] = "29500"
+    # [变化示例] 目标切片 os.environ["MASTER_PORT"]=旧值 -> "29500"；base tensor 对应位置同步被写入。
+    dist.init_process_group(backend, rank=rank, world_size=world_size)
+    # [变化示例] 执行状态：调用 dist.init_process_group(backend, rank=rank, world_size=worl... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    torch.cuda.set_device(device_id)
+    # [变化示例] 执行状态：调用 torch.cuda.set_device(device_id) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+def train(model, optimizer, train_data, rank, device_id, world_size):
+    for i, (src, target) in enumerate(train_data):
+        # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+        src = src.to(device_id)
+        # [变化示例] src=未定义/旧值 -> src 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+        target = target.to(device_id)
+        # [变化示例] target=未定义/旧值 -> target 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+        optimizer.zero_grad()
+        # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+        output = model(src)
+        # [变化示例] output=未定义/旧值 -> output 接收 model(src) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        loss = F.mse_loss(output, target)
+        # [变化示例] loss=未定义/旧值 -> loss=均方误差；例如 prediction=[1,3]、target=[1,1] -> mean([0,4])=2。
+        loss.backward()
+        # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+
+        # (5) 每个批次训练结束后进行梯度同步
+        grads = [t.grad.data for t in model.parameters()]
+        # [变化示例] grads=未定义/旧值 -> grads=[t.grad.data for t in model.parameters()]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+        for grad in grads:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+            grad.div_(world_size)
+            # [变化示例] 执行状态：调用 grad.div_(world_size) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+            dist.all_reduce(grad, op=dist.ReduceOp.SUM)
+            # [变化示例] 执行状态：调用 dist.all_reduce(grad, op=dist.ReduceOp.SUM) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+        optimizer.step()
+        # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+        print(f"[GPU{rank}]: batch {i}/{len(train_data)}, loss: {loss}")
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+
+def main(rank, world_size, backend):
+    device_id = rank
+    # [变化示例] device_id=未定义/旧值 -> device_id=rank；这是一次重新绑定/状态更新，右侧值决定新状态。
+    setup(rank, device_id, world_size, backend)
+    # [变化示例] 执行状态：调用 setup(rank, device_id, world_size, backend) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    model = SimpleNet().to(device_id)
+    # [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+
+    # (4) 初始化模型并参数同步
+    params = [t.detach() for t in model.parameters()]
+    # [变化示例] params=未定义/旧值 -> params=[t.detach() for t in model.parameters()]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+    for param in params:
+        # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+        dist.broadcast(param, 0)
+        # [变化示例] 执行状态：调用 dist.broadcast(param, 0) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    optimizer = torch.optim.SGD(model.parameters(), lr=1e-2)
+    # [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+
+    batchsize_per_gpu = 4096
+    # [变化示例] batchsize_per_gpu=未定义/旧值 -> batchsize_per_gpu=4096；这是一次重新绑定/状态更新，右侧值决定新状态。
+    dataset = MyTrainDataset(num=40960, size=512)
+    # [变化示例] dataset=未定义/旧值 -> dataset 接收 MyTrainDataset(num=40960, size=512) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    # (1) 数据分割
+    sampler = torch.utils.data.distributed.DistributedSampler(
+        dataset, num_replicas=world_size, rank=rank
+    )
+    # [变化示例] sampler=未定义/旧值 -> sampler 接收 torch.utils.data.distributed.DistributedSampler( dataset, n... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    train_data = DataLoader(dataset, batch_size=batchsize_per_gpu, sampler=sampler)
+    # [变化示例] train_data=未定义/旧值 -> train_data=批数据迭代器；N 个样本按 batch_size=B -> 约 ceil(N/B) 个 batch。
+
+    train(model, optimizer, train_data, rank, device_id, world_size)
+    # [变化示例] 执行状态：调用 train(model, optimizer, train_data, rank, device_id, world_... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+if __name__ == "__main__":
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+    # (2) 多进程启动和管理
+    world_size = 2
+    # [变化示例] world_size=未定义/旧值 -> world_size=2；这是一次重新绑定/状态更新，右侧值决定新状态。
+    mp.spawn(main, args=(world_size, "nccl"), nprocs=world_size, join=True)
+    # [变化示例] 执行状态：调用 mp.spawn(main, args=(world_size, "nccl"), nprocs=world_size... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+- 分布式 collective：所有 rank 必须以一致顺序参与；梯度求和后是否除 world_size 要与损失缩放约定一致。
+
+#### 输入、输出与验证
+
+- **验证方法。** 检查每个 rank 的参数初值、样本划分和 collective 顺序；一步更新后与单卡等效大 batch 结果做容差比较。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 196. 分布式训练与 DDP | torch_ddp.py
+
+**学习问题。** DistributedDataParallel 自动做了什么？
+
+**中文讲解。** DDP 在参数上注册 autograd hook，把梯度按 bucket 异步 all-reduce，并尽量与反向计算重叠。 数据并行的核心是各 rank 独立前向反向，再通过 collective 同步梯度并保持参数一致。
+
+**来源文件。** `chapter_08_distributed/torch_ddp.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+g=\frac{1}{W}\sum_{r=1}^{W}g_r,\qquad efficiency=\frac{T_1}{W\,T_W}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+
+from common import SimpleNet, MyTrainDataset
+
+import os
+import torch.distributed as dist
+import torch.multiprocessing as mp
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+
+# (3) 初始化分布式通信组
+def setup(rank, device_id, world_size, backend):
+    os.environ["MASTER_ADDR"] = "127.0.0.1"
+    # [变化示例] 目标切片 os.environ["MASTER_ADDR"]=旧值 -> "127.0.0.1"；base tensor 对应位置同步被写入。
+    os.environ["MASTER_PORT"] = "29500"
+    # [变化示例] 目标切片 os.environ["MASTER_PORT"]=旧值 -> "29500"；base tensor 对应位置同步被写入。
+    dist.init_process_group(backend, rank=rank, world_size=world_size)
+    # [变化示例] 执行状态：调用 dist.init_process_group(backend, rank=rank, world_size=worl... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    torch.cuda.set_device(device_id)
+    # [变化示例] 执行状态：调用 torch.cuda.set_device(device_id) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+def train(model, optimizer, train_data, rank, device_id):
+    for i, (src, target) in enumerate(train_data):
+        # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+        src = src.to(device_id)
+        # [变化示例] src=未定义/旧值 -> src 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+        target = target.to(device_id)
+        # [变化示例] target=未定义/旧值 -> target 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+        optimizer.zero_grad()
+        # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+        output = model(src)
+        # [变化示例] output=未定义/旧值 -> output 接收 model(src) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        loss = F.mse_loss(output, target)
+        # [变化示例] loss=未定义/旧值 -> loss=均方误差；例如 prediction=[1,3]、target=[1,1] -> mean([0,4])=2。
+        loss.backward()
+        # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+        optimizer.step()
+        # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+
+        print(f"[GPU{rank}]: batch {i}/{len(train_data)}, loss: {loss}")
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+
+def main(rank, world_size, backend):
+    device_id = rank
+    # [变化示例] device_id=未定义/旧值 -> device_id=rank；这是一次重新绑定/状态更新，右侧值决定新状态。
+    setup(rank, device_id, world_size, backend)
+    # [变化示例] 执行状态：调用 setup(rank, device_id, world_size, backend) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    model = SimpleNet().to(device_id)
+    # [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+
+    # (4) 使用DDP封装模型，DDP会自动进行模型的初始化参数同步和批次训练结束后的梯度同步
+    model = DDP(model, device_ids=[device_id])
+    # [变化示例] model=未定义/旧值 -> model 接收 DDP(model, device_ids=[device_id]) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    optimizer = torch.optim.SGD(model.parameters(), lr=1e-2)
+    # [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+
+    batchsize_per_gpu = 32
+    # [变化示例] batchsize_per_gpu=未定义/旧值 -> batchsize_per_gpu=32；这是一次重新绑定/状态更新，右侧值决定新状态。
+    dataset = MyTrainDataset(num=2048, size=512)
+    # [变化示例] dataset=未定义/旧值 -> dataset 接收 MyTrainDataset(num=2048, size=512) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    # (1) 数据分割
+    sampler = torch.utils.data.distributed.DistributedSampler(
+        dataset, num_replicas=world_size, rank=rank
+    )
+    # [变化示例] sampler=未定义/旧值 -> sampler 接收 torch.utils.data.distributed.DistributedSampler( dataset, n... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    train_data = DataLoader(dataset, batch_size=batchsize_per_gpu, sampler=sampler)
+    # [变化示例] train_data=未定义/旧值 -> train_data=批数据迭代器；N 个样本按 batch_size=B -> 约 ceil(N/B) 个 batch。
+
+    train(model, optimizer, train_data, rank, device_id)
+    # [变化示例] 执行状态：调用 train(model, optimizer, train_data, rank, device_id) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+
+if __name__ == "__main__":
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+    # (2) 多进程启动和管理
+    world_size = 2
+    # [变化示例] world_size=未定义/旧值 -> world_size=2；这是一次重新绑定/状态更新，右侧值决定新状态。
+    mp.spawn(main, args=(world_size, "nccl"), nprocs=world_size, join=True)
+    # [变化示例] 执行状态：调用 mp.spawn(main, args=(world_size, "nccl"), nprocs=world_size... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+- 分布式 collective：所有 rank 必须以一致顺序参与；梯度求和后是否除 world_size 要与损失缩放约定一致。
+
+#### 输入、输出与验证
+
+- **验证方法。** 检查每个 rank 的参数初值、样本划分和 collective 顺序；一步更新后与单卡等效大 batch 结果做容差比较。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 197. AMP、torch.compile 与自定义算子 | 1_amp_perf_cont.py
+
+**学习问题。** AMP 为什么能加速并节省显存？
+
+**中文讲解。** autocast 为适合的算子选择低精度，Tensor Core 提升吞吐；GradScaler 主要防止 FP16 梯度下溢。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/1_amp_perf_cont.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+g=\operatorname{unscale}\!\left(\nabla_\theta(sL)\right),\qquad \theta\leftarrow\theta-\eta g
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+N, C, H, W = 32, 3, 256, 256  # Example dimensions
+# [变化示例] N, C, H, W=未定义/旧值 -> N, C, H, W=tuple (32, 3, 256, 256)；多个值按位置传递/解包，元素本身不被复制。
+
+data = torch.randn(10, N, C, H, W, device="cuda")
+# [变化示例] data=未定义/旧值 -> data=按 10, N, C, H, W 创建的随机张量；shape 固定，具体值由 RNG 决定。
+dataset = TensorDataset(data)
+# [变化示例] dataset=未定义/旧值 -> dataset 接收 TensorDataset(data) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+model = SimpleCNN(C).to("cuda")
+# [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+
+# warm up
+train(dataset, model, use_amp=False)
+# [变化示例] 执行状态：调用 train(dataset, model, use_amp=False) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+torch.cuda.synchronize()
+# [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+# 测量未使用AMP时的时间和性能图谱
+start_time = time.perf_counter()
+# [变化示例] start_time=未定义/旧值 -> start_time=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+    train(dataset, model, use_amp=False)
+    # [变化示例] 执行状态：调用 train(dataset, model, use_amp=False) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    torch.cuda.synchronize()
+    # [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+prof.export_chrome_trace("traces/PROF_wo_amp.json")
+# [变化示例] 执行状态：调用 prof.export_chrome_trace("traces/PROF_wo_amp.json") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+end_time = time.perf_counter()
+# [变化示例] end_time=未定义/旧值 -> end_time=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+elapsed = end_time - start_time
+# [变化示例] elapsed=未定义/旧值 -> elapsed=end_time - start_time；数值示例：3 - 2 -> 1。
+print(f"Float32 Time: {elapsed} seconds")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# warm up
+train(dataset, model, use_amp=True)
+# [变化示例] 执行状态：调用 train(dataset, model, use_amp=True) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+torch.cuda.synchronize()
+# [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+# 测量使用AMP后的时间和性能图谱
+start_time = time.perf_counter()
+# [变化示例] start_time=未定义/旧值 -> start_time=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+    train(dataset, model, use_amp=True)
+    # [变化示例] 执行状态：调用 train(dataset, model, use_amp=True) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    torch.cuda.synchronize()
+    # [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+prof.export_chrome_trace("traces/PROF_amp.json")
+# [变化示例] 执行状态：调用 prof.export_chrome_trace("traces/PROF_amp.json") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+end_time = time.perf_counter()
+# [变化示例] end_time=未定义/旧值 -> end_time=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+elapsed = end_time - start_time
+# [变化示例] elapsed=未定义/旧值 -> elapsed=end_time - start_time；数值示例：3 - 2 -> 1。
+print(f"Float16 Time: {elapsed} seconds")
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 198. AMP、torch.compile 与自定义算子 | 1_amp_perf.py
+
+**学习问题。** AMP 为什么能加速并节省显存？
+
+**中文讲解。** autocast 为适合的算子选择低精度，Tensor Core 提升吞吐；GradScaler 主要防止 FP16 梯度下溢。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/1_amp_perf.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+g=\operatorname{unscale}\!\left(\nabla_\theta(sL)\right),\qquad \theta\leftarrow\theta-\eta g
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import time
+import torch.nn as nn
+from torch.profiler import profile, ProfilerActivity
+from torch.optim import SGD
+from torch.utils.data import TensorDataset
+
+
+class SimpleCNN(nn.Module):
+    def __init__(self, input_channels):
+        super(SimpleCNN, self).__init__()
+        # [变化示例] 执行状态：调用 super(SimpleCNN, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.conv1 = nn.Conv2d(
+            input_channels, 64, kernel_size=3, stride=1, padding=1
+        )
+        # [变化示例] self.conv1=未定义/旧值 -> self.conv1 接收 nn.Conv2d( input_channels, 64, kernel_size=3, stride=1, pad... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        self.conv2 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1)
+        # [变化示例] self.conv2=未定义/旧值 -> self.conv2 接收 nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        self.conv3 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1)
+        # [变化示例] self.conv3=未定义/旧值 -> self.conv3 接收 nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        self.conv4 = nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1)
+        # [变化示例] self.conv4=未定义/旧值 -> self.conv4 接收 nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        self.relu = nn.ReLU()
+        # [变化示例] self.relu=未定义/旧值 -> self.relu=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+
+    def forward(self, x):
+        out = self.relu(self.conv1(x))
+        # [变化示例] out=未定义/旧值 -> out=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        out = self.relu(self.conv2(out))
+        # [变化示例] out=未定义/旧值 -> out=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        out = self.relu(self.conv3(out))
+        # [变化示例] out=未定义/旧值 -> out=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        out = self.relu(self.conv4(out))
+        # [变化示例] out=未定义/旧值 -> out=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        return out
+        # [变化示例] 函数内部：out；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+def train(dataset, model, use_amp):
+    optimizer = SGD(model.parameters(), lr=0.1, momentum=0.9)
+    # [变化示例] optimizer=未定义/旧值 -> optimizer 接收 SGD(model.parameters(), lr=0.1, momentum=0.9) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+    # [变化示例] scaler=未定义/旧值 -> scaler 接收 torch.cuda.amp.GradScaler(enabled=use_amp) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    for batch_data in dataset:
+        # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+        with torch.autocast(
+            device_type="cuda", dtype=torch.float16, enabled=use_amp
+        ):
+            # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+            result = model(batch_data[0])
+            # [变化示例] result=未定义/旧值 -> result 接收 model(batch_data[0]) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+            loss = result.sum()
+            # [变化示例] loss=未定义/旧值 -> loss=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+
+        optimizer.zero_grad()
+        # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+        scaler.scale(loss).backward()
+        # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+        scaler.step(optimizer)
+        # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+        scaler.update()
+        # [变化示例] 执行状态：调用 scaler.update() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+- AMP：autocast 选择算子精度；FP16 常配 GradScaler，BF16 动态范围更大但硬件支持不同。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 199. AMP、torch.compile 与自定义算子 | 2_sigmod_cuda_kernel.cpp
+
+**学习问题。** 如何实现并注册自定义 Sigmoid C++/CUDA 算子？
+
+**中文讲解。** 完整扩展包含 schema/dispatch 注册、CPU/CUDA 实现、反向公式、构建脚本和 Python autograd 包装；ABI 与 PyTorch/CUDA 版本必须匹配。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/2_sigmod_cuda_kernel.cpp`
+
+#### 数学、性能模型与算法思路
+
+$$
+speedup=\frac{T_{eager}}{T_{optimized}},\qquad T_{total}=T_{compile}+N\,T_{run}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```cpp
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <torch/extension.h>
+
+#include <iostream>
+#include <vector>
+
+template <typename scalar_t>
+__global__ void sigmoid_kernel(const scalar_t *__restrict__ input_tensor_data,
+                               scalar_t *__restrict__ output_tensor_data,
+                               size_t total_num_elements) {
+    // 计算要处理的元素位置
+    const int element_index = blockIdx.x * blockDim.x + threadIdx.x;
+    // [变化示例] 线程坐标 -> 一维元素索引；例如 blockIdx=2、blockDim=512、threadIdx=3 -> index=1027。
+
+    if (element_index < total_num_elements) {
+        // 在单个元素上进行sigmoid计算
+        scalar_t x = input_tensor_data[element_index];
+        // [变化示例] 输入数组与 element_index -> 读取单个 x；例如 index=2 -> input[2]。
+        scalar_t y = 1.0 / (1.0 + exp(-x));
+        // [变化示例] 输入标量 x -> Sigmoid y；例如 x=0 -> y=0.5。
+
+        // 将计算结果写回显存
+        output_tensor_data[element_index] = y;
+        // [变化示例] 输出位置原值 -> 写入 y；例如 y=0.5 时 output[index] -> 0.5。
+    }
+}
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 200. AMP、torch.compile 与自定义算子 | 3_sigmoid_cuda_op.cpp
+
+**学习问题。** 如何实现并注册自定义 Sigmoid C++/CUDA 算子？
+
+**中文讲解。** 完整扩展包含 schema/dispatch 注册、CPU/CUDA 实现、反向公式、构建脚本和 Python autograd 包装；ABI 与 PyTorch/CUDA 版本必须匹配。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/3_sigmoid_cuda_op.cpp`
+
+#### 数学、性能模型与算法思路
+
+$$
+\sigma(x)=\frac{1}{1+e^{-x}},\qquad \sigma'(x)=\sigma(x)(1-\sigma(x))
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```cpp
+torch::Tensor custom_sigmoid_cuda_forward(torch::Tensor input) {
+    size_t total_num_elements = input.numel();
+    // [变化示例] 多维输入 shape -> 元素总数；例如 (2,3) -> 6。
+
+    auto output = torch::zeros_like(input);
+    // [变化示例] 输入 tensor -> 同 shape/dtype/device 的全 0 输出 tensor。
+
+    const int threads = 512;
+    // [变化示例] 线程块大小=未设置 -> 512 threads/block。
+    const int blocks = (total_num_elements + threads - 1) / threads;
+    // [变化示例] 元素数 -> 向上取整的 block 数；例如 N=1000、threads=512 -> blocks=2。
+
+    // 将实现好的CUDA kernel注册为前向算子的CUDA后端实现
+    AT_DISPATCH_FLOATING_TYPES(
+        input.type(), "sigmoid_kernel", ([&] {
+            sigmoid_kernel<scalar_t><<<blocks, threads>>>(
+                input.data<scalar_t>(), output.data<scalar_t>(),
+                total_num_elements);
+        }));
+        // [变化示例] 执行前状态 -> 完成 AT_DISPATCH_FLOATING_TYPES( input.type(), "sigmoid_kernel", ([&] { sigmoid_kernel<sca...；检查返回码、输出 tensor 或注册表确认变化。
+
+    return output;
+    // [变化示例] 函数内部结果 -> 返回给调用方；对应语句为 return output;。
+}
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 自定义扩展依赖本机 C++/CUDA toolchain 与 PyTorch ABI；不同 PyTorch 版本的注册接口可能需要调整。
+
+## 201. AMP、torch.compile 与自定义算子 | 4_sigmoid_bwd.cpp
+
+**学习问题。** Sigmoid backward 需要保存什么？
+
+**中文讲解。** 若已保存输出 y，导数可写成 y(1-y)，通常无需再次保存输入并重算 sigmoid。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/4_sigmoid_bwd.cpp`
+
+#### 数学、性能模型与算法思路
+
+$$
+\sigma(x)=\frac{1}{1+e^{-x}},\qquad \sigma'(x)=\sigma(x)(1-\sigma(x))
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```cpp
+template <typename scalar_t>
+__global__ void sigmoid_grad_kernel(
+    const scalar_t *__restrict__ output_tensor,
+    const scalar_t *__restrict__ output_grad_tensor,
+    scalar_t *__restrict__ input_grad_tensor, size_t total_num_elements) {
+    // 计算要处理的元素位置
+    const int element_index = blockIdx.x * blockDim.x + threadIdx.x;
+    // [变化示例] 线程坐标 -> 一维元素索引；例如 blockIdx=2、blockDim=512、threadIdx=3 -> index=1027。
+    if (element_index < total_num_elements) {
+        // 在单个元素上进行sigmoid的梯度计算
+        scalar_t output_grad = output_grad_tensor[element_index];
+        // [变化示例] 左侧=旧值/未定义 -> 按 scalar_t output_grad = output_grad_tensor[element_index]; 计算并更新；shape 与 dtype 由右侧表达式决定。
+        scalar_t output = output_tensor[element_index];
+        // [变化示例] 左侧=旧值/未定义 -> 按 scalar_t output = output_tensor[element_index]; 计算并更新；shape 与 dtype 由右侧表达式决定。
+        scalar_t input_grad = (1.0 - output) * output * output_grad;
+        // [变化示例] 左侧=旧值/未定义 -> 按 scalar_t input_grad = (1.0 - output) * output * output_grad; 计算并更新；shape 与 dtype 由右侧表达式决定。
+        // 将计算结果写回显存
+        input_grad_tensor[element_index] = input_grad;
+        // [变化示例] 左侧=旧值/未定义 -> 按 input_grad_tensor[element_index] = input_grad; 计算并更新；shape 与 dtype 由右侧表达式决定。
+    }
+}
+
+torch::Tensor custom_sigmoid_cuda_backward(torch::Tensor output,
+                                           torch::Tensor output_grad) {
+    size_t total_num_elements = output_grad.numel();
+    // [变化示例] 多维输入 shape -> 元素总数；例如 (2,3) -> 6。
+    auto input_grad = torch::zeros_like(output_grad);
+    // [变化示例] 输入 tensor -> 同 shape/dtype/device 的全 0 输出 tensor。
+    const int threads = 512;
+    // [变化示例] 线程块大小=未设置 -> 512 threads/block。
+    const int blocks = (total_num_elements + threads - 1) / threads;
+    // [变化示例] 元素数 -> 向上取整的 block 数；例如 N=1000、threads=512 -> blocks=2。
+
+    // 将实现好的CUDA kernel注册为反向算子的CUDA后端实现
+    AT_DISPATCH_FLOATING_TYPES(
+        output_grad.type(), "sigmoid_grad_kernel", ([&] {
+            sigmoid_grad_kernel<scalar_t><<<blocks, threads>>>(
+                output.data<scalar_t>(), output_grad.data<scalar_t>(),
+                input_grad.data<scalar_t>(), total_num_elements);
+        }));
+        // [变化示例] 执行前状态 -> 完成 AT_DISPATCH_FLOATING_TYPES( output_grad.type(), "sigmoid_grad_kernel", ([&] { sigmoid...；检查返回码、输出 tensor 或注册表确认变化。
+
+    return input_grad;
+    // [变化示例] 函数内部结果 -> 返回给调用方；对应语句为 return input_grad;。
+}
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 202. AMP、torch.compile 与自定义算子 | 5_register_cpp.cpp
+
+**学习问题。** 如何实现并注册自定义 Sigmoid C++/CUDA 算子？
+
+**中文讲解。** 完整扩展包含 schema/dispatch 注册、CPU/CUDA 实现、反向公式、构建脚本和 Python autograd 包装；ABI 与 PyTorch/CUDA 版本必须匹配。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/5_register_cpp.cpp`
+
+#### 数学、性能模型与算法思路
+
+$$
+speedup=\frac{T_{eager}}{T_{optimized}},\qquad T_{total}=T_{compile}+N\,T_{run}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```cpp
+#include <torch/extension.h>
+
+#include <iostream>
+#include <vector>
+
+// forward declarations or include the header
+torch::Tensor custom_sigmoid_cuda_forward(torch::Tensor input);
+// [变化示例] 执行前状态 -> 完成 torch::Tensor custom_sigmoid_cuda_forward(torch::Tensor input);；检查返回码、输出 tensor 或注册表确认变化。
+
+torch::Tensor custom_sigmoid_cuda_backward(torch::Tensor output,
+                                           torch::Tensor output_grad);
+                                           // [变化示例] 执行前状态 -> 完成 torch::Tensor custom_sigmoid_cuda_backward(torch::Tensor output, torch::Tensor output...；检查返回码、输出 tensor 或注册表确认变化。
+
+// 简易的sigmoid前向算子的CPU后端实现
+torch::Tensor custom_sigmoid_cpu_forward(torch::Tensor input) {
+    return 1.0 / (1 + torch::exp(-input));
+    // [变化示例] 函数内部结果 -> 返回给调用方；对应语句为 return 1.0 / (1 + torch::exp(-input));。
+}
+
+// 简易的sigmoid反向算子的CPU后端实现
+torch::Tensor custom_sigmoid_cpu_backward(torch::Tensor output,
+                                          torch::Tensor output_grad) {
+    return (1 - output) * output * output_grad;
+    // [变化示例] 函数内部结果 -> 返回给调用方；对应语句为 return (1 - output) * output * output_grad;。
+}
+
+// 进行前向算子的后端实现分发
+torch::Tensor custom_sigmoid_forward(torch::Tensor input) {
+    TORCH_CHECK(input.is_contiguous(), "input must be contiguous")
+
+    if (input.device().is_cuda()) {
+        return custom_sigmoid_cuda_forward(input);
+        // [变化示例] 输入 x=[-1,0,1] -> Sigmoid 输出约 [0.269,0.5,0.731]。
+    } else {
+        return custom_sigmoid_cpu_forward(input);
+        // [变化示例] 输入 x=[-1,0,1] -> Sigmoid 输出约 [0.269,0.5,0.731]。
+    }
+}
+
+// 进行反向算子的后端实现分发
+torch::Tensor custom_sigmoid_backward(torch::Tensor output,
+                                      torch::Tensor grad_output) {
+    TORCH_CHECK(grad_output.is_contiguous(), "input must be contiguous")
+
+    if (output.device().is_cuda()) {
+        return custom_sigmoid_cuda_backward(output, grad_output);
+        // [变化示例] 输入 x=[-1,0,1] -> Sigmoid 输出约 [0.269,0.5,0.731]。
+    } else {
+        return custom_sigmoid_cpu_backward(output, grad_output);
+        // [变化示例] 输入 x=[-1,0,1] -> Sigmoid 输出约 [0.269,0.5,0.731]。
+    }
+}
+
+PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
+    // 注册算子以便在Python中调用
+    m.def("sigmoid_fwd", &custom_sigmoid_forward, "Custom sigmoid forward");
+    // [变化示例] 执行前状态 -> 完成 m.def("sigmoid_fwd", &custom_sigmoid_forward, "Custom sigmoid forward");；检查返回码、输出 tensor 或注册表确认变化。
+    m.def("sigmoid_bwd", &custom_sigmoid_backward, "Custom sigmoid backward");
+    // [变化示例] 执行前状态 -> 完成 m.def("sigmoid_bwd", &custom_sigmoid_backward, "Custom sigmoid backward");；检查返回码、输出 tensor 或注册表确认变化。
+}
+```
+
+#### 代码/API 逐项解释
+
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 自定义扩展依赖本机 C++/CUDA toolchain 与 PyTorch ABI；不同 PyTorch 版本的注册接口可能需要调整。
+
+## 203. AMP、torch.compile 与自定义算子 | 6_setup.py
+
+**学习问题。** PyTorch C++/CUDA Extension 如何构建？
+
+**中文讲解。** setup.py 描述源文件、编译参数和扩展名；构建需要可用编译器、CUDA toolkit 与匹配的 PyTorch ABI。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/6_setup.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+speedup=\frac{T_{eager}}{T_{optimized}},\qquad T_{total}=T_{compile}+N\,T_{run}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+from setuptools import setup
+from torch.utils.cpp_extension import BuildExtension, CppExtension
+
+
+setup(
+    name="custom_ops",
+    ext_modules=[
+        CppExtension(
+            "custom_ops",
+            [
+                "custom_sigmoid.cpp",
+                "custom_sigmoid_cuda.cu",
+            ],
+            extra_compile_args={"cxx": ["-g"], "nvcc": ["-O2"]},
+        )
+    ],
+    cmdclass={"build_ext": BuildExtension},
+)
+# [变化示例] 执行状态：调用 setup( name="custom_ops", ext_modules=[ CppExtension( "cust... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 扩展注册：schema 与 CPU/CUDA dispatch 实现必须一致，并为 autograd/compile 提供必要元信息。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 自定义扩展依赖本机 C++/CUDA toolchain 与 PyTorch ABI；不同 PyTorch 版本的注册接口可能需要调整。
+
+## 204. AMP、torch.compile 与自定义算子 | 7_install_cmd.sh
+
+**学习问题。** 如何安装本地自定义算子？
+
+**中文讲解。** 通常使用 pip install -v . 或 develop/editable 模式触发编译；应保留完整编译日志排查架构和 ABI 问题。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/7_install_cmd.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+speedup=\frac{T_{eager}}{T_{optimized}},\qquad T_{total}=T_{compile}+N\,T_{run}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+python setup.py install
+# [变化示例] 源码与构建配置 -> 已编译/安装的 Python 扩展（失败时保持未安装）。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 自定义扩展依赖本机 C++/CUDA toolchain 与 PyTorch ABI；不同 PyTorch 版本的注册接口可能需要调整。
+
+## 205. AMP、torch.compile 与自定义算子 | 8_register_pytorch.py
+
+**学习问题。** 如何实现并注册自定义 Sigmoid C++/CUDA 算子？
+
+**中文讲解。** 完整扩展包含 schema/dispatch 注册、CPU/CUDA 实现、反向公式、构建脚本和 Python autograd 包装；ABI 与 PyTorch/CUDA 版本必须匹配。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/8_register_pytorch.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+speedup=\frac{T_{eager}}{T_{optimized}},\qquad T_{total}=T_{compile}+N\,T_{run}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+from torch.autograd import Function
+
+# custom_ops 便是我们自定义的Python扩展模块，包含了C++中编写的自定义sigmoid算子
+import custom_ops
+
+
+class CustomSigmoidFunction(Function):
+    @staticmethod
+    def forward(ctx, input):
+        # 调用自定义算子的前向操作
+        output = custom_ops.sigmoid_fwd(input)
+        # [变化示例] output=未定义/旧值 -> output 接收 custom_ops.sigmoid_fwd(input) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        ctx.save_for_backward(output)
+        # [变化示例] 执行状态：调用 ctx.save_for_backward(output) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        return output
+        # [变化示例] 函数内部：output；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        (output,) = ctx.saved_tensors
+        # [变化示例] (output,)=未定义/旧值 -> (output,)=ctx.saved_tensors；这是一次重新绑定/状态更新，右侧值决定新状态。
+        # 调用自定义算子的反向操作
+        grad_input = custom_ops.sigmoid_bwd(output, grad_output.contiguous())
+        # [变化示例] grad_input=未定义/旧值 -> grad_input 接收 custom_ops.sigmoid_bwd(output, grad_output.contiguous()) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        return grad_input
+        # [变化示例] 函数内部：grad_input；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+class CustomSigmoid(torch.nn.Module):
+    def forward(self, input):
+        return CustomSigmoidFunction.apply(input)
+        # [变化示例] 函数内部：执行 CustomSigmoidFunction.apply(input) 得到结果 -> 调用方收到该输出。
+```
+
+#### 代码/API 逐项解释
+
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 206. AMP、torch.compile 与自定义算子 | 9_custom_op_main.py
+
+**学习问题。** 如何实现并注册自定义 Sigmoid C++/CUDA 算子？
+
+**中文讲解。** 完整扩展包含 schema/dispatch 注册、CPU/CUDA 实现、反向公式、构建脚本和 Python autograd 包装；ABI 与 PyTorch/CUDA 版本必须匹配。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/9_custom_op_main.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\sigma(x)=\frac{1}{1+e^{-x}},\qquad \sigma'(x)=\sigma(x)(1-\sigma(x))
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn.functional as F
+import numpy as np
+from custom_sigmoid_op import CustomSigmoid
+
+
+def run(np_input, sigmoid_op, device="cuda"):
+    x = torch.tensor(np_input, dtype=torch.double, device=device, requires_grad=True)
+    # [变化示例] x=未定义/旧值 -> x=由给定数据构造的 tensor，并采用显式/推断的 dtype 与 device。
+    output = sigmoid_op(x)
+    # [变化示例] output=未定义/旧值 -> output 接收 sigmoid_op(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    loss = torch.sum(output)
+    # [变化示例] loss=未定义/旧值 -> loss=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+    loss.backward()
+    # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+
+    return output.clone(), x.grad.clone()
+    # [变化示例] 函数内部：独立副本；数值相同，但后续原地修改不再共享同一 storage -> 调用方收到该输出。
+
+
+custom_sigmoid = CustomSigmoid()
+# [变化示例] custom_sigmoid=未定义/旧值 -> custom_sigmoid=CustomSigmoid()；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+device = "cuda"
+# [变化示例] device=未定义/旧值 -> device="cuda"；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+np_input = np.random.randn(10, 20)
+# [变化示例] np_input=未定义/旧值 -> np_input 接收 np.random.randn(10, 20) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+# 确保自定义算子各个后端的计算结果与PyTorch原生sigmoid算子的结果是一致的
+for device in ["cpu", "cuda"]:
+    # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+    sigmoid_out_torch, sigmoid_grad_torch = run(np_input, torch.sigmoid, device)
+    # [变化示例] sigmoid_out_torch, sigmoid_grad_torch=未定义/旧值 -> sigmoid_out_torch, sigmoid_grad_torch 接收 run(np_input, torch.sigmoid, device) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    sigmoid_out_custom, sigmoid_grad_custom = run(np_input, custom_sigmoid, device)
+    # [变化示例] sigmoid_out_custom, sigmoid_grad_custom=未定义/旧值 -> sigmoid_out_custom, sigmoid_grad_custom 接收 run(np_input, custom_sigmoid, device) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    # Compare results
+    if torch.allclose(sigmoid_out_torch, sigmoid_out_custom) and torch.allclose(
+        sigmoid_grad_torch, sigmoid_grad_custom
+    ):
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+        print(f"Pass on {device}")
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+    else:
+        # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+        print(f"Error: results mismatch on {device}")
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 207. AMP、torch.compile 与自定义算子 | 10_compile.py
+
+**学习问题。** torch.compile 的基本性能模型是什么？
+
+**中文讲解。** 编译器捕获 Python/tensor 图并做融合与代码生成；首次编译有成本，收益取决于图稳定性和重复次数。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/10_compile.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+speedup=\frac{T_{eager}}{T_{optimized}},\qquad T_{total}=T_{compile}+N\,T_{run}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn as nn
+
+
+class SimpleNet(nn.Module):
+    def __init__(self):
+        super(SimpleNet, self).__init__()
+        # [变化示例] 执行状态：调用 super(SimpleNet, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.fc1 = nn.Linear(1000, 20000)
+        # [变化示例] self.fc1=未定义/旧值 -> self.fc1=线性映射模块；输入最后一维 1000 -> 输出最后一维 20000。
+
+    def forward(self, x):
+        x = torch.relu(self.fc1(x))
+        # [变化示例] x=未定义/旧值 -> x=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        y = x
+        # [变化示例] y=未定义/旧值 -> y=x；这是一次重新绑定/状态更新，右侧值决定新状态。
+        for _ in range(50):
+            # [变化示例] 循环示例：range(50) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+            y = y * x
+            # [变化示例] y=未定义/旧值 -> y=y * x；数值示例：2 * 3 -> 6。
+        return y
+        # [变化示例] 函数内部：y；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+# 未经优化的模型
+model = SimpleNet().cuda()
+# [变化示例] model=未定义/旧值 -> model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+
+# 打开torch.compile追踪模型的执行过程并自动优化
+compiled_model = torch.compile(model)
+# [变化示例] compiled_model=未定义/旧值 -> compiled_model 接收 torch.compile(model) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+
+def timed(fn):
+    start = torch.cuda.Event(enable_timing=True)
+    # [变化示例] start=未定义/旧值 -> start 接收 torch.cuda.Event(enable_timing=True) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    end = torch.cuda.Event(enable_timing=True)
+    # [变化示例] end=未定义/旧值 -> end 接收 torch.cuda.Event(enable_timing=True) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    start.record()
+    # [变化示例] 执行状态：调用 start.record() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    result = fn()
+    # [变化示例] result=未定义/旧值 -> result=fn()；这是一次重新绑定/状态更新，右侧值决定新状态。
+    end.record()
+    # [变化示例] 执行状态：调用 end.record() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    torch.cuda.synchronize()
+    # [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+    return result, start.elapsed_time(end) / 1000
+    # [变化示例] 函数内部：tuple (result, start.elapsed_time(end) / 1000)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
+
+
+N_ITERS = 5
+# [变化示例] N_ITERS=未定义/旧值 -> N_ITERS=5；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+
+def benchmark(model):
+    times = []
+    # [变化示例] times=未定义/旧值 -> times=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+    for i in range(N_ITERS):
+        # [变化示例] 循环示例：range(N_ITERS) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+        input_data = torch.randn(1000, 1000, device="cuda")
+        # [变化示例] input_data=未定义/旧值 -> input_data=按 1000, 1000 创建的随机张量；shape 固定，具体值由 RNG 决定。
+        _, time = timed(lambda: model(input_data))
+        # [变化示例] _, time=未定义/旧值 -> _, time 接收 timed(lambda: model(input_data)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        times.append(time)
+        # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
+    return times
+    # [变化示例] 函数内部：times；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+print("eager模式", benchmark(model))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+print("打开torch.compile后", benchmark(compiled_model))
+# [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+# 输出
+# eager模式 [1.1121439208984376, 0.01659187126159668, 0.01635430335998535, 0.016350208282470705, 0.016306175231933593]
+# 打开torch.compile后 [1.79336083984375, 0.002367487907409668, 0.0022937600612640383, 0.002292736053466797, 0.002288640022277832]
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 复现配置：Python、NumPy、PyTorch 和 CUDA 算法选择需要一起控制，seed 不是完全确定性的充分条件。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- 编译 API：graph break、动态 shape 和首次编译成本决定收益；要比较稳态而不是首轮。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 208. AMP、torch.compile 与自定义算子 | 11_fullgraph.py
+
+**学习问题。** fullgraph=True 为什么更严格？
+
+**中文讲解。** 它要求整个函数形成单一可捕获图；任何 graph break 都报错，适合定位不被编译器支持的路径。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/11_fullgraph.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+speedup=\frac{T_{eager}}{T_{optimized}},\qquad T_{total}=T_{compile}+N\,T_{run}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+torch.compile(..., fullgraph=True)
+# [变化示例] 执行状态：调用 torch.compile(..., fullgraph=True) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 编译 API：graph break、动态 shape 和首次编译成本决定收益；要比较稳态而不是首轮。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 209. AMP、torch.compile 与自定义算子 | 12_dynamic.py
+
+**学习问题。** dynamic shape 编译解决什么问题？
+
+**中文讲解。** 符号 shape 可让一个编译图覆盖多个输入尺寸，但约束推理更复杂，优化空间可能小于静态 shape。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/12_dynamic.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+speedup=\frac{T_{eager}}{T_{optimized}},\qquad T_{total}=T_{compile}+N\,T_{run}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+torch.compile(..., dynamic=True)
+# [变化示例] 执行状态：调用 torch.compile(..., dynamic=True) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 编译 API：graph break、动态 shape 和首次编译成本决定收益；要比较稳态而不是首轮。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 210. AMP、torch.compile 与自定义算子 | 13_mode.py
+
+**学习问题。** torch.compile mode 如何取舍编译时间与运行速度？
+
+**中文讲解。** default、reduce-overhead、max-autotune 对 CUDA Graph、搜索和编译时间采用不同策略，应按 workload 生命周期选择。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/13_mode.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+speedup=\frac{T_{eager}}{T_{optimized}},\qquad T_{total}=T_{compile}+N\,T_{run}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+torch.compile(..., mode="reduce-overhead")
+# [变化示例] 执行状态：调用 torch.compile(..., mode="reduce-overhead") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 编译 API：graph break、动态 shape 和首次编译成本决定收益；要比较稳态而不是首轮。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 211. AMP、torch.compile 与自定义算子 | 14_data_dependent.py
+
+**学习问题。** 数据依赖控制流为何容易 graph break？
+
+**中文讲解。** 从 tensor 取 Python 标量或按数据决定分支会把设备值带回 host；可用 tensor 化控制流或显式图边界处理。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/14_data_dependent.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+speedup=\frac{T_{eager}}{T_{optimized}},\qquad T_{total}=T_{compile}+N\,T_{run}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+class DataDependentNet(nn.Module):
+    def __init__(self):
+        super(DataDependentNet, self).__init__()
+        # [变化示例] 执行状态：调用 super(DataDependentNet, self).__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.linear1 = nn.Linear(10, 5)
+        # [变化示例] self.linear1=未定义/旧值 -> self.linear1=线性映射模块；输入最后一维 10 -> 输出最后一维 5。
+        self.linear2 = nn.Linear(5, 2)
+        # [变化示例] self.linear2=未定义/旧值 -> self.linear2=线性映射模块；输入最后一维 5 -> 输出最后一维 2。
+        self.linear3 = nn.Linear(5, 3)
+        # [变化示例] self.linear3=未定义/旧值 -> self.linear3=线性映射模块；输入最后一维 5 -> 输出最后一维 3。
+
+    def forward(self, x):
+        tmp = F.relu(self.linear1(x))
+        # [变化示例] tmp=未定义/旧值 -> tmp=逐元素 ReLU；例如 [-2,0,3] -> [0,0,3]。
+        # 有数据依赖的控制流：如果x的第一个元素大于0.5，使用linear2，否则使用linear3
+        if tmp[0, 0] > 0.5:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+            return self.linear2(tmp)
+            # [变化示例] 函数内部：执行 self.linear2(tmp) 得到结果 -> 调用方收到该输出。
+        else:
+            # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+            return self.linear3(tmp)
+            # [变化示例] 函数内部：执行 self.linear3(tmp) 得到结果 -> 调用方收到该输出。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- nn.Module 参数注册：在 __init__ 中创建子模块，才能被 state_dict、device 迁移和优化器发现。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 212. AMP、torch.compile 与自定义算子 | 15_fused_triton.py
+
+**学习问题。** Triton 融合 kernel 的价值是什么？
+
+**中文讲解。** 把多次逐元素读写合并为一次设备程序，减少 HBM 流量和 launch；必须处理 mask、布局和数值精度。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/15_fused_triton.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+speedup=\frac{T_{eager}}{T_{optimized}},\qquad T_{total}=T_{compile}+N\,T_{run}
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+@pointwise(
+    size_hints=[33554432],
+    filename=__file__,
+    triton_meta={
+        "signature": {0: "*fp32", 1: "*fp32", 2: "i32"},
+        "device": 0,
+        "device_type": "cuda",
+        "constants": {},
+        "configs": [
+            instance_descriptor(
+                divisible_by_16=(0, 1, 2),
+                equal_to_1=(),
+                ids_of_folded_args=(),
+                divisible_by_8=(2,),
+            )
+        ],
+    },
+    inductor_meta={
+        "autotune_hints": set(),
+        "kernel_name": "triton_poi_fused_mul_relu_0",
+        "mutated_arg_names": ["in_out_ptr0"],
+    },
+    min_elem_per_thread=0,
+)
+@triton.jit
+def triton_(in_out_ptr0, in_ptr0, xnumel, XBLOCK: tl.constexpr):
+    xnumel = 20000000
+    # [变化示例] xnumel=未定义/旧值 -> xnumel=20000000；这是一次重新绑定/状态更新，右侧值决定新状态。
+    xoffset = tl.program_id(0) * XBLOCK
+    # [变化示例] xoffset=未定义/旧值 -> xoffset=tl.program_id(0) * XBLOCK；数值示例：2 * 3 -> 6。
+    xindex = xoffset + tl.arange(0, XBLOCK)[:]
+    # [变化示例] xindex=未定义/旧值 -> xindex=xoffset + tl.arange(0, XBLOCK)[:]；数值示例：2 + 3 -> 5。
+    xmask = xindex < xnumel
+    # [变化示例] xmask=未定义/旧值 -> xmask=xindex < xnumel；这是一次重新绑定/状态更新，右侧值决定新状态。
+    x0 = xindex
+    # [变化示例] x0=未定义/旧值 -> x0=xindex；这是一次重新绑定/状态更新，右侧值决定新状态。
+    tmp0 = tl.load(in_ptr0 + (x0), xmask)
+    # [变化示例] tmp0=未定义/旧值 -> tmp0 接收 tl.load(in_ptr0 + (x0), xmask) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    tmp1 = triton_helpers.maximum(0, tmp0)
+    # [变化示例] tmp1=未定义/旧值 -> tmp1 接收 triton_helpers.maximum(0, tmp0) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    tmp2 = tmp1 * tmp1
+    # [变化示例] tmp2=未定义/旧值 -> tmp2=tmp1 * tmp1；数值示例：2 * 3 -> 6。
+    tmp3 = tmp2 * tmp1
+    # [变化示例] tmp3=未定义/旧值 -> tmp3=tmp2 * tmp1；数值示例：2 * 3 -> 6。
+    ...  # 篇幅原因省略中间的行
+    tmp49 = tmp48 * tmp1
+    # [变化示例] tmp49=未定义/旧值 -> tmp49=tmp48 * tmp1；数值示例：2 * 3 -> 6。
+    tmp50 = tmp49 * tmp1
+    # [变化示例] tmp50=未定义/旧值 -> tmp50=tmp49 * tmp1；数值示例：2 * 3 -> 6。
+    tmp51 = tmp50 * tmp1
+    # [变化示例] tmp51=未定义/旧值 -> tmp51=tmp50 * tmp1；数值示例：2 * 3 -> 6。
+    tl.store(in_out_ptr0 + (x0), tmp51, xmask)
+    # [变化示例] 执行状态：调用 tl.store(in_out_ptr0 + (x0), tmp51, xmask) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 原地操作：复用 storage 并更新 version counter；可能破坏 backward 所需中间值或影响别名。
+- Triton：program_id 划分程序实例，mask 保护尾块，load/store 布局决定访存合并。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 213. AMP、torch.compile 与自定义算子 | custom_sigmoid_cuda.cu
+
+**学习问题。** 如何实现并注册自定义 Sigmoid C++/CUDA 算子？
+
+**中文讲解。** 完整扩展包含 schema/dispatch 注册、CPU/CUDA 实现、反向公式、构建脚本和 Python autograd 包装；ABI 与 PyTorch/CUDA 版本必须匹配。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/custom_op_src/custom_sigmoid_cuda.cu`
+
+#### 数学、性能模型与算法思路
+
+$$
+\sigma(x)=\frac{1}{1+e^{-x}},\qquad \sigma'(x)=\sigma(x)(1-\sigma(x))
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```cpp
+#include <torch/extension.h>
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+
+#include <vector>
+#include <iostream>
+
+template <typename scalar_t>
+__global__ void sigmoid_kernel(const scalar_t* __restrict__ input_tensor_data,
+                               scalar_t* __restrict__ output_tensor_data,
+                               size_t total_num_elements) {
+  // Fetch thread id
+  const int element_index = blockIdx.x * blockDim.x + threadIdx.x;
+  // [变化示例] 线程坐标 -> 一维元素索引；例如 blockIdx=2、blockDim=512、threadIdx=3 -> index=1027。
+
+  if (element_index < total_num_elements) {
+    // Sigmoid Function
+    scalar_t x = input_tensor_data[element_index];
+    // [变化示例] 输入数组与 element_index -> 读取单个 x；例如 index=2 -> input[2]。
+    scalar_t y = 1.0 / (1.0 + exp(-x));
+    // [变化示例] 输入标量 x -> Sigmoid y；例如 x=0 -> y=0.5。
+
+    // Write to output
+    output_tensor_data[element_index] = y;
+    // [变化示例] 输出位置原值 -> 写入 y；例如 y=0.5 时 output[index] -> 0.5。
+  }
+}
+
+torch::Tensor custom_sigmoid_cuda_forward(
+    torch::Tensor input) {
+
+  size_t total_num_elements = input.numel();
+  // [变化示例] 多维输入 shape -> 元素总数；例如 (2,3) -> 6。
+
+  auto output = torch::zeros_like(input);
+  // [变化示例] 输入 tensor -> 同 shape/dtype/device 的全 0 输出 tensor。
+
+  const int threads = 512;
+  // [变化示例] 线程块大小=未设置 -> 512 threads/block。
+  const int blocks = (total_num_elements + threads - 1) / threads;
+  // [变化示例] 元素数 -> 向上取整的 block 数；例如 N=1000、threads=512 -> blocks=2。
+
+  AT_DISPATCH_FLOATING_TYPES(input.type(), "sigmoid_kernel", ([&] {
+    sigmoid_kernel<scalar_t><<<blocks, threads>>>(
+        input.data<scalar_t>(),
+        output.data<scalar_t>(),
+        total_num_elements);
+  }));
+  // [变化示例] 执行前状态 -> 完成 AT_DISPATCH_FLOATING_TYPES(input.type(), "sigmoid_kernel", ([&] { sigmoid_kernel<scal...；检查返回码、输出 tensor 或注册表确认变化。
+
+  return output;
+  // [变化示例] 函数内部结果 -> 返回给调用方；对应语句为 return output;。
+}
+
+template <typename scalar_t>
+__global__ void sigmoid_grad_kernel(const scalar_t* __restrict__ output_tensor,
+                                    const scalar_t* __restrict__ output_grad_tensor,
+                                    scalar_t* __restrict__ input_grad_tensor,
+                                    size_t total_num_elements) {
+  // Fetch thread id
+  const int element_index = blockIdx.x * blockDim.x + threadIdx.x;
+  // [变化示例] 线程坐标 -> 一维元素索引；例如 blockIdx=2、blockDim=512、threadIdx=3 -> index=1027。
+
+  if (element_index < total_num_elements) {
+    // Sigmoid Grad Function
+    scalar_t output_grad = output_grad_tensor[element_index];
+    // [变化示例] 左侧=旧值/未定义 -> 按 scalar_t output_grad = output_grad_tensor[element_index]; 计算并更新；shape 与 dtype 由右侧表达式决定。
+    scalar_t output = output_tensor[element_index];
+    // [变化示例] 左侧=旧值/未定义 -> 按 scalar_t output = output_tensor[element_index]; 计算并更新；shape 与 dtype 由右侧表达式决定。
+
+    scalar_t input_grad = (1.0 - output) * output * output_grad;
+    // [变化示例] 左侧=旧值/未定义 -> 按 scalar_t input_grad = (1.0 - output) * output * output_grad; 计算并更新；shape 与 dtype 由右侧表达式决定。
+
+    // Write to output
+    input_grad_tensor[element_index] = input_grad;
+    // [变化示例] 左侧=旧值/未定义 -> 按 input_grad_tensor[element_index] = input_grad; 计算并更新；shape 与 dtype 由右侧表达式决定。
+  }
+}
+
+torch::Tensor custom_sigmoid_cuda_backward(
+    torch::Tensor output,
+    torch::Tensor output_grad) {
+
+  size_t total_num_elements = output_grad.numel();
+  // [变化示例] 多维输入 shape -> 元素总数；例如 (2,3) -> 6。
+
+  auto input_grad = torch::zeros_like(output_grad);
+  // [变化示例] 输入 tensor -> 同 shape/dtype/device 的全 0 输出 tensor。
+
+  const int threads = 512;
+  // [变化示例] 线程块大小=未设置 -> 512 threads/block。
+  const int blocks = (total_num_elements + threads - 1) / threads;
+  // [变化示例] 元素数 -> 向上取整的 block 数；例如 N=1000、threads=512 -> blocks=2。
+
+  AT_DISPATCH_FLOATING_TYPES(output_grad.type(), "sigmoid_grad_kernel", ([&] {
+    sigmoid_grad_kernel<scalar_t><<<blocks, threads>>>(
+        output.data<scalar_t>(),
+        output_grad.data<scalar_t>(),
+        input_grad.data<scalar_t>(),
+        total_num_elements);
+  }));
+  // [变化示例] 执行前状态 -> 完成 AT_DISPATCH_FLOATING_TYPES(output_grad.type(), "sigmoid_grad_kernel", ([&] { sigmoid_...；检查返回码、输出 tensor 或注册表确认变化。
+
+  return input_grad;
+  // [变化示例] 函数内部结果 -> 返回给调用方；对应语句为 return input_grad;。
+}
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 自定义扩展依赖本机 C++/CUDA toolchain 与 PyTorch ABI；不同 PyTorch 版本的注册接口可能需要调整。
+
+## 214. AMP、torch.compile 与自定义算子 | custom_sigmoid_op.py
+
+**学习问题。** 如何实现并注册自定义 Sigmoid C++/CUDA 算子？
+
+**中文讲解。** 完整扩展包含 schema/dispatch 注册、CPU/CUDA 实现、反向公式、构建脚本和 Python autograd 包装；ABI 与 PyTorch/CUDA 版本必须匹配。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/custom_op_src/custom_sigmoid_op.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\sigma(x)=\frac{1}{1+e^{-x}},\qquad \sigma'(x)=\sigma(x)(1-\sigma(x))
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+from torch.autograd import Function
+import custom_ops
+
+
+class CustomSigmoidFunction(Function):
+    @staticmethod
+    def forward(ctx, input):
+        output = custom_ops.sigmoid_fwd(input)
+        # [变化示例] output=未定义/旧值 -> output 接收 custom_ops.sigmoid_fwd(input) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        ctx.save_for_backward(output)
+        # [变化示例] 执行状态：调用 ctx.save_for_backward(output) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        return output
+        # [变化示例] 函数内部：output；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        (output,) = ctx.saved_tensors
+        # [变化示例] (output,)=未定义/旧值 -> (output,)=ctx.saved_tensors；这是一次重新绑定/状态更新，右侧值决定新状态。
+        grad_input = custom_ops.sigmoid_bwd(output, grad_output.contiguous())
+        # [变化示例] grad_input=未定义/旧值 -> grad_input 接收 custom_ops.sigmoid_bwd(output, grad_output.contiguous()) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        return grad_input
+        # [变化示例] 函数内部：grad_input；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+
+class CustomSigmoid(torch.nn.Module):
+    def forward(self, input):
+        return CustomSigmoidFunction.apply(input)
+        # [变化示例] 函数内部：执行 CustomSigmoidFunction.apply(input) 得到结果 -> 调用方收到该输出。
+```
+
+#### 代码/API 逐项解释
+
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 自定义扩展依赖本机 C++/CUDA toolchain 与 PyTorch ABI；不同 PyTorch 版本的注册接口可能需要调整。
+
+## 215. AMP、torch.compile 与自定义算子 | custom_sigmoid.cpp
+
+**学习问题。** 如何实现并注册自定义 Sigmoid C++/CUDA 算子？
+
+**中文讲解。** 完整扩展包含 schema/dispatch 注册、CPU/CUDA 实现、反向公式、构建脚本和 Python autograd 包装；ABI 与 PyTorch/CUDA 版本必须匹配。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/custom_op_src/custom_sigmoid.cpp`
+
+#### 数学、性能模型与算法思路
+
+$$
+\sigma(x)=\frac{1}{1+e^{-x}},\qquad \sigma'(x)=\sigma(x)(1-\sigma(x))
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```cpp
+#include <torch/extension.h>
+
+#include <vector>
+#include <iostream>
+
+// forward declarations or include the header
+torch::Tensor custom_sigmoid_cuda_forward(
+    torch::Tensor input);
+    // [变化示例] 执行前状态 -> 完成 torch::Tensor custom_sigmoid_cuda_forward( torch::Tensor input);；检查返回码、输出 tensor 或注册表确认变化。
+
+torch::Tensor custom_sigmoid_cuda_backward(
+    torch::Tensor output,
+    torch::Tensor output_grad);
+    // [变化示例] 执行前状态 -> 完成 torch::Tensor custom_sigmoid_cuda_backward( torch::Tensor output, torch::Tensor outpu...；检查返回码、输出 tensor 或注册表确认变化。
+
+torch::Tensor custom_sigmoid_cpu_forward(
+    torch::Tensor input) {
+      return 1.0 / (1 + torch::exp(-input));
+      // [变化示例] 函数内部结果 -> 返回给调用方；对应语句为 return 1.0 / (1 + torch::exp(-input));。
+    }
+
+torch::Tensor custom_sigmoid_cpu_backward(
+    torch::Tensor output,
+    torch::Tensor output_grad) {
+      return (1 - output) * output * output_grad;
+      // [变化示例] 函数内部结果 -> 返回给调用方；对应语句为 return (1 - output) * output * output_grad;。
+    }
+
+// Cpp wrapper function
+torch::Tensor custom_sigmoid_forward(
+    torch::Tensor input) {
+  TORCH_CHECK(input.is_contiguous(), "input must be contiguous")
+
+  if (input.device().is_cuda()) {
+    return custom_sigmoid_cuda_forward(input);
+    // [变化示例] 输入 x=[-1,0,1] -> Sigmoid 输出约 [0.269,0.5,0.731]。
+  } else {
+    return custom_sigmoid_cpu_forward(input);
+    // [变化示例] 输入 x=[-1,0,1] -> Sigmoid 输出约 [0.269,0.5,0.731]。
+  }
+ }
+
+torch::Tensor custom_sigmoid_backward(
+    torch::Tensor output,
+    torch::Tensor grad_output) {
+  TORCH_CHECK(grad_output.is_contiguous(), "input must be contiguous")
+
+  if (output.device().is_cuda()) {
+    return custom_sigmoid_cuda_backward(output, grad_output);
+    // [变化示例] 输入 x=[-1,0,1] -> Sigmoid 输出约 [0.269,0.5,0.731]。
+  } else {
+    return custom_sigmoid_cpu_backward(output, grad_output);
+    // [变化示例] 输入 x=[-1,0,1] -> Sigmoid 输出约 [0.269,0.5,0.731]。
+  }
+
+}
+
+PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
+  m.def("sigmoid_fwd", &custom_sigmoid_forward, "Custom sigmoid forward");
+  // [变化示例] 执行前状态 -> 完成 m.def("sigmoid_fwd", &custom_sigmoid_forward, "Custom sigmoid forward");；检查返回码、输出 tensor 或注册表确认变化。
+  m.def("sigmoid_bwd", &custom_sigmoid_backward, "Custom sigmoid backward");
+  // [变化示例] 执行前状态 -> 完成 m.def("sigmoid_bwd", &custom_sigmoid_backward, "Custom sigmoid backward");；检查返回码、输出 tensor 或注册表确认变化。
+}
+```
+
+#### 代码/API 逐项解释
+
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 自定义扩展依赖本机 C++/CUDA toolchain 与 PyTorch ABI；不同 PyTorch 版本的注册接口可能需要调整。
+
+## 216. AMP、torch.compile 与自定义算子 | main.py
+
+**学习问题。** 如何实现并注册自定义 Sigmoid C++/CUDA 算子？
+
+**中文讲解。** 完整扩展包含 schema/dispatch 注册、CPU/CUDA 实现、反向公式、构建脚本和 Python autograd 包装；ABI 与 PyTorch/CUDA 版本必须匹配。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/custom_op_src/main.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\sigma(x)=\frac{1}{1+e^{-x}},\qquad \sigma'(x)=\sigma(x)(1-\sigma(x))
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+import torch.nn.functional as F
+import numpy as np
+from custom_sigmoid_op import CustomSigmoid
+
+
+def run(np_input, sigmoid_op, device="cuda"):
+    x = torch.tensor(np_input, dtype=torch.double, device=device, requires_grad=True)
+    # [变化示例] x=未定义/旧值 -> x=由给定数据构造的 tensor，并采用显式/推断的 dtype 与 device。
+    output = sigmoid_op(x)
+    # [变化示例] output=未定义/旧值 -> output 接收 sigmoid_op(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    loss = torch.sum(output)
+    # [变化示例] loss=未定义/旧值 -> loss=沿指定维求和；例如 [1,2,3] -> 6，keepdim 决定归约轴是否保留。
+    loss.backward()
+    # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+
+    return output.clone(), x.grad.clone()
+    # [变化示例] 函数内部：独立副本；数值相同，但后续原地修改不再共享同一 storage -> 调用方收到该输出。
+
+
+custom_sigmoid = CustomSigmoid()
+# [变化示例] custom_sigmoid=未定义/旧值 -> custom_sigmoid=CustomSigmoid()；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+device = "cuda"
+# [变化示例] device=未定义/旧值 -> device="cuda"；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+# Prepare a random input tensor
+np_input = np.random.randn(10, 20)
+# [变化示例] np_input=未定义/旧值 -> np_input 接收 np.random.randn(10, 20) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+for device in ["cpu", "cuda"]:
+    # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+    sigmoid_out_torch, sigmoid_grad_torch = run(np_input, torch.sigmoid, device)
+    # [变化示例] sigmoid_out_torch, sigmoid_grad_torch=未定义/旧值 -> sigmoid_out_torch, sigmoid_grad_torch 接收 run(np_input, torch.sigmoid, device) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    sigmoid_out_custom, sigmoid_grad_custom = run(np_input, custom_sigmoid, device)
+    # [变化示例] sigmoid_out_custom, sigmoid_grad_custom=未定义/旧值 -> sigmoid_out_custom, sigmoid_grad_custom 接收 run(np_input, custom_sigmoid, device) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    # Compare results
+    if torch.allclose(sigmoid_out_torch, sigmoid_out_custom) and torch.allclose(
+        sigmoid_grad_torch, sigmoid_grad_custom
+    ):
+        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+        print(f"Pass on {device}")
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+    else:
+        # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+        print(f"Error: results mismatch on {device}")
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 217. AMP、torch.compile 与自定义算子 | setup.py
+
+**学习问题。** 如何实现并注册自定义 Sigmoid C++/CUDA 算子？
+
+**中文讲解。** 完整扩展包含 schema/dispatch 注册、CPU/CUDA 实现、反向公式、构建脚本和 Python autograd 包装；ABI 与 PyTorch/CUDA 版本必须匹配。 高级优化涉及精度、图捕获、动态 shape、编译边界以及 C++/CUDA/Triton 扩展。
+
+**来源文件。** `chapter_09_advanced/custom_op_src/setup.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\sigma(x)=\frac{1}{1+e^{-x}},\qquad \sigma'(x)=\sigma(x)(1-\sigma(x))
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+from setuptools import setup
+from torch.utils.cpp_extension import BuildExtension, CppExtension
+
+
+setup(
+    name="custom_ops",
+    ext_modules=[
+        CppExtension(
+            "custom_ops",
+            [
+                "custom_sigmoid.cpp",
+                "custom_sigmoid_cuda.cu",
+            ],
+            extra_compile_args={"cxx": ["-g"], "nvcc": ["-O2"]},
+        )
+    ],
+    cmdclass={"build_ext": BuildExtension},
+)
+# [变化示例] 执行状态：调用 setup( name="custom_ops", ext_modules=[ CppExtension( "cust... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 扩展注册：schema 与 CPU/CUDA dispatch 实现必须一致，并为 autograd/compile 提供必要元信息。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先建立 eager 基线，检查 forward/backward 数值，再比较包含与不包含编译时间的性能，并记录 PyTorch/CUDA/编译器版本。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 自定义扩展依赖本机 C++/CUDA toolchain 与 PyTorch ABI；不同 PyTorch 版本的注册接口可能需要调整。
+
+## 218. miniGPT 端到端训练 | 1_tensorboard.py
+
+**学习问题。** 训练循环如何记录 TensorBoard 指标？
+
+**中文讲解。** 使用稳定 tag 和 global_step 写入 loss、吞吐或显存，定期 flush，并避免每步记录大型 histogram。 把数据集、GPT 模型、优化器、训练循环、TensorBoard 和多节点配置串成完整语言模型系统。
+
+**来源文件。** `chapter_10_mingpt/1_tensorboard.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\mathcal{L}_{LM}=-\frac{1}{BT}\sum_{b,t}\log p_\theta(x_{b,t+1}\mid x_{b,\le t})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+from torch.utils.tensorboard import SummaryWriter
+
+writer = SummaryWriter(f"gpt_{config.model.model_type}")
+# [变化示例] writer=未定义/旧值 -> writer 接收 SummaryWriter(f"gpt_{config.model.model_type}") 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+
+...
+
+
+model = GPT(config.model)
+# [变化示例] model=未定义/旧值 -> model 接收 GPT(config.model) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+batch = [t.to(trainer.device) for t in next(iter(trainer.train_loader))]
+# [变化示例] batch=未定义/旧值 -> batch=[t.to(trainer.device) for t in next(iter(trainer.train_load...；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+writer.add_graph(model, batch)
+# [变化示例] 执行状态：调用 writer.add_graph(model, batch) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+writer.close()
+# [变化示例] 执行状态：调用 writer.close() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 原地操作：复用 storage 并更新 version counter；可能破坏 backward 所需中间值或影响别名。
+- TensorBoard：tag 与 global_step 必须稳定，写入频率要控制以免日志 I/O 反过来拖慢训练。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先在短文本上确认 x/y 右移、logits shape、loss 下降和可生成字符，再逐步加入 profiler、AMP、DDP 等优化。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 219. miniGPT 端到端训练 | 2_tensorboard_launch.sh
+
+**学习问题。** 如何启动 TensorBoard 查看日志？
+
+**中文讲解。** logdir 指向事件文件目录；远程环境还需要端口转发和访问控制。 把数据集、GPT 模型、优化器、训练循环、TensorBoard 和多节点配置串成完整语言模型系统。
+
+**来源文件。** `chapter_10_mingpt/2_tensorboard_launch.sh`
+
+#### 数学、性能模型与算法思路
+
+$$
+\mathcal{L}_{LM}=-\frac{1}{BT}\sum_{b,t}\log p_\theta(x_{b,t+1}\mid x_{b,\le t})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```bash
+tensorboard --logdir gpt_gpt-mini
+# [变化示例] 事件日志目录 -> 浏览器可访问的指标页面与监听端口。
+```
+
+#### 代码/API 逐项解释
+
+- TensorBoard：tag 与 global_step 必须稳定，写入频率要控制以免日志 I/O 反过来拖慢训练。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先在短文本上确认 x/y 右移、logits shape、loss 下降和可生成字符，再逐步加入 profiler、AMP、DDP 等优化。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 220. miniGPT 端到端训练 | 3_multi_node_config.yaml
+
+**学习问题。** 多节点训练配置需要哪些关键字段？
+
+**中文讲解。** 机器数、每机进程数、rank、主节点地址/端口和启动方式必须在所有节点一致。 把数据集、GPT 模型、优化器、训练循环、TensorBoard 和多节点配置串成完整语言模型系统。
+
+**来源文件。** `chapter_10_mingpt/3_multi_node_config.yaml`
+
+#### 数学、性能模型与算法思路
+
+$$
+\mathcal{L}_{LM}=-\frac{1}{BT}\sum_{b,t}\log p_\theta(x_{b,t+1}\mid x_{b,\le t})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```yaml
+# 一般存储在`~/.cache/huggingface/accelerate/default_config.yaml`
+compute_environment: LOCAL_MACHINE
+# [变化示例] 配置 compute_environment=未设置/旧值 -> LOCAL_MACHINE。
+debug: false
+# [变化示例] 配置 debug=未设置/旧值 -> false。
+distributed_type: MULTI_GPU  # 使用多个GPU参与的分布式训练
+# [变化示例] 配置 distributed_type=未设置/旧值 -> MULTI_GPU。
+downcast_bf16: 'no'
+# [变化示例] 配置 downcast_bf16=未设置/旧值 -> 'no'。
+enable_cpu_affinity: false
+# [变化示例] 配置 enable_cpu_affinity=未设置/旧值 -> false。
+machine_rank: 0  # 当前机器的序号为0，注意这个值在不同机器上也是不同的
+# [变化示例] 配置 machine_rank=未设置/旧值 -> 0。
+main_process_ip: 172.17.0.3  # 主进程的ip地址，可以通过`hostname -I`命令查询
+# [变化示例] 配置 main_process_ip=未设置/旧值 -> 172.17.0.3。
+main_process_port: 25006  # 主进程任意空闲端口均可
+# [变化示例] 配置 main_process_port=未设置/旧值 -> 25006。
+main_training_function: main
+# [变化示例] 配置 main_training_function=未设置/旧值 -> main。
+mixed_precision: 'no'
+# [变化示例] 配置 mixed_precision=未设置/旧值 -> 'no'。
+num_machines: 2  # 总共有两台机器参与训练
+# [变化示例] 配置 num_machines=未设置/旧值 -> 2。
+num_processes: 4  # 总共有4个GPU参与训练
+# [变化示例] 配置 num_processes=未设置/旧值 -> 4。
+rdzv_backend: static
+# [变化示例] 配置 rdzv_backend=未设置/旧值 -> static。
+same_network: true
+# [变化示例] 配置 same_network=未设置/旧值 -> true。
+tpu_env: []
+# [变化示例] 配置 tpu_env=未设置/旧值 -> []。
+tpu_use_cluster: false
+# [变化示例] 配置 tpu_use_cluster=未设置/旧值 -> false。
+tpu_use_sudo: false
+# [变化示例] 配置 tpu_use_sudo=未设置/旧值 -> false。
+use_cpu: false
+# [变化示例] 配置 use_cpu=未设置/旧值 -> false。
+```
+
+#### 代码/API 逐项解释
+
+- 逐行区分配置/命令、实际计算和观测输出；占位符、错误日志或 profiler 结果不能当作通用可执行代码。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先在短文本上确认 x/y 右移、logits shape、loss 下降和可生成字符，再逐步加入 profiler、AMP、DDP 等优化。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 命令依赖 Linux、权限、GPU/驱动或多节点环境；在 Windows 本机不能原样运行。
+
+## 221. miniGPT 端到端训练 | main.py
+
+**学习问题。** miniGPT 端到端入口如何连接数据、模型与训练器？
+
+**中文讲解。** 入口读取文本、建立字符词表与 Dataset、配置 GPT/Trainer、注册回调并启动训练与生成。 把数据集、GPT 模型、优化器、训练循环、TensorBoard 和多节点配置串成完整语言模型系统。
+
+**来源文件。** `chapter_10_mingpt/baseline/main.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\mathcal{L}_{LM}=-\frac{1}{BT}\sum_{b,t}\log p_\theta(x_{b,t+1}\mid x_{b,\le t})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import os
+import sys
+
+import torch
+import time
+import numpy as np
+
+from mingpt.model import GPT
+from mingpt.trainer import Trainer
+from mingpt.utils import set_seed, setup_logging, CfgNode as CN
+from mingpt.char_dataset import CharDataset
+
+from torch.profiler import profile, ProfilerActivity
+
+# -----------------------------------------------------------------------------
+
+def get_config():
+
+    C = CN()
+    # [变化示例] C=未定义/旧值 -> C=CN()；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+    # system
+    C.system = CN()
+    # [变化示例] C.system=未定义/旧值 -> C.system=CN()；这是一次重新绑定/状态更新，右侧值决定新状态。
+    C.system.seed = 3407
+    # [变化示例] C.system.seed=未定义/旧值 -> C.system.seed=3407；这是一次重新绑定/状态更新，右侧值决定新状态。
+    C.system.work_dir = './out/chargpt'
+    # [变化示例] C.system.work_dir=未定义/旧值 -> C.system.work_dir='./out/chargpt'；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+    # data
+    C.data = CharDataset.get_default_config()
+    # [变化示例] C.data=未定义/旧值 -> C.data 接收 CharDataset.get_default_config() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    # model
+    C.model = GPT.get_default_config()
+    # [变化示例] C.model=未定义/旧值 -> C.model 接收 GPT.get_default_config() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    C.model.model_type = 'gpt-mini'
+    # [变化示例] C.model.model_type=未定义/旧值 -> C.model.model_type='gpt-mini'；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+    # configs
+    #C.batch_size = 32
+    #C.num_workers = 0
+
+    # trainer
+    C.trainer = Trainer.get_default_config()
+    # [变化示例] C.trainer=未定义/旧值 -> C.trainer 接收 Trainer.get_default_config() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    C.trainer.learning_rate = 5e-4 # the model we're using is so small that we can go a bit faster
+    # [变化示例] C.trainer.learning_rate=未定义/旧值 -> C.trainer.learning_rate=5e-4；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+    return C
+    # [变化示例] 函数内部：C；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+if __name__ == '__main__':
+    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+
+    # get default config and overrides from the command line, if any
+    config = get_config()
+    # [变化示例] config=未定义/旧值 -> config=get_config()；这是一次重新绑定/状态更新，右侧值决定新状态。
+    config.merge_from_args(sys.argv[1:])
+    # [变化示例] 执行状态：调用 config.merge_from_args(sys.argv[1:]) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    print(config)
+    # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+    setup_logging(config)
+    # [变化示例] 执行状态：调用 setup_logging(config) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    set_seed(config.system.seed)
+    # [变化示例] 执行状态：调用 set_seed(config.system.seed) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    # construct the training dataset
+    text = open('input.txt', 'r').read() # don't worry we won't run out of file handles
+    # [变化示例] text=未定义/旧值 -> text 接收 open('input.txt', 'r').read() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    train_dataset = CharDataset(config.data, text)
+    # [变化示例] train_dataset=未定义/旧值 -> train_dataset 接收 CharDataset(config.data, text) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    # construct the model
+    config.model.vocab_size = train_dataset.get_vocab_size()
+    # [变化示例] config.model.vocab_size=未定义/旧值 -> config.model.vocab_size 接收 train_dataset.get_vocab_size() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    config.model.block_size = train_dataset.get_block_size()
+    # [变化示例] config.model.block_size=未定义/旧值 -> config.model.block_size 接收 train_dataset.get_block_size() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    model = GPT(config.model)
+    # [变化示例] model=未定义/旧值 -> model 接收 GPT(config.model) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+    # construct the trainer object
+    trainer = Trainer(config.trainer, model, train_dataset)
+    # [变化示例] trainer=未定义/旧值 -> trainer 接收 Trainer(config.trainer, model, train_dataset) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+    trainer.prepare()
+    # [变化示例] 执行状态：调用 trainer.prepare() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    # warm up
+    trainer.run(10)
+    # [变化示例] 执行状态：调用 trainer.run(10) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    torch.cuda.synchronize()
+    # [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+
+    # profiler
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        trainer.run(10)
+        # [变化示例] 执行状态：调用 trainer.run(10) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    prof.export_chrome_trace(f"0_PROF_original.json")
+    # [变化示例] 执行状态：调用 prof.export_chrome_trace(f"0_PROF_original.json") 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    torch.cuda.synchronize()
+    # [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+
+    # evaluate time
+    measured_runtimes = []
+    # [变化示例] measured_runtimes=未定义/旧值 -> measured_runtimes=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+
+    num_repeats = 20
+    # [变化示例] num_repeats=未定义/旧值 -> num_repeats=20；这是一次重新绑定/状态更新，右侧值决定新状态。
+    for i in range(num_repeats):
+        # [变化示例] 循环示例：range(num_repeats) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+      start = time.perf_counter()
+      # [变化示例] start=未定义/旧值 -> start=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+
+      trainer.run_num_samples(8192)
+      # [变化示例] 执行状态：调用 trainer.run_num_samples(8192) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+      torch.cuda.synchronize()
+      # [变化示例] CUDA 状态：stream 中仍有排队工作 -> 等待全部先前工作完成后再继续 host。
+      end = time.perf_counter()
+      # [变化示例] end=未定义/旧值 -> end=单调高分辨率时间戳；end-start -> 代码墙钟耗时。
+      measured_runtimes.append(end - start)
+      # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
+
+    average_runtime = sum(measured_runtimes) / len(measured_runtimes)
+    # [变化示例] average_runtime=未定义/旧值 -> average_runtime=sum(measured_runtimes) / len(measured_runtimes)；数值示例：6 / 3 -> 2。
+    print("Ave Runtime: ", average_runtime, " seconds")
+    # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+    print("Std: ", np.std(measured_runtimes), " seconds")
+    # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先在短文本上确认 x/y 右移、logits shape、loss 下降和可生成字符，再逐步加入 profiler、AMP、DDP 等优化。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 222. miniGPT 端到端训练 | char_dataset.py
+
+**学习问题。** 字符级语言模型 Dataset 如何构造样本？
+
+**中文讲解。** 从长度 block_size+1 的字符窗口生成 x 与右移一位的 y，把 next-token prediction 转成监督学习。 把数据集、GPT 模型、优化器、训练循环、TensorBoard 和多节点配置串成完整语言模型系统。
+
+**来源文件。** `chapter_10_mingpt/baseline/mingpt/char_dataset.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\mathcal{L}_{LM}=-\frac{1}{BT}\sum_{b,t}\log p_\theta(x_{b,t+1}\mid x_{b,\le t})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+import torch
+from torch.utils.data import Dataset
+from mingpt.utils import CfgNode as CN
+
+class CharDataset(Dataset):
+    """
+    Emits batches of characters
+    """
+
+    @staticmethod
+    def get_default_config():
+        C = CN()
+        # [变化示例] C=未定义/旧值 -> C=CN()；这是一次重新绑定/状态更新，右侧值决定新状态。
+        C.block_size = 128
+        # [变化示例] C.block_size=未定义/旧值 -> C.block_size=128；这是一次重新绑定/状态更新，右侧值决定新状态。
+        return C
+        # [变化示例] 函数内部：C；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+    def __init__(self, config, data):
+        self.config = config
+        # [变化示例] self.config=未定义/旧值 -> self.config=config；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+        chars = sorted(list(set(data)))
+        # [变化示例] chars=未定义/旧值 -> chars 接收 sorted(list(set(data))) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        data_size, vocab_size = len(data), len(chars)
+        # [变化示例] data_size, vocab_size=未定义/旧值 -> data_size, vocab_size 接收 len(data), len(chars) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        print('data has %d characters, %d unique.' % (data_size, vocab_size))
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+        self.stoi = { ch:i for i,ch in enumerate(chars) }
+        # [变化示例] self.stoi=未定义/旧值 -> self.stoi={ ch:i for i,ch in enumerate(chars) }；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+        self.itos = { i:ch for i,ch in enumerate(chars) }
+        # [变化示例] self.itos=未定义/旧值 -> self.itos={ i:ch for i,ch in enumerate(chars) }；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+        self.vocab_size = vocab_size
+        # [变化示例] self.vocab_size=未定义/旧值 -> self.vocab_size=vocab_size；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.data = data
+        # [变化示例] self.data=未定义/旧值 -> self.data=data；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+    def get_vocab_size(self):
+        return self.vocab_size
+        # [变化示例] 函数内部：self.vocab_size；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+    def get_block_size(self):
+        return self.config.block_size
+        # [变化示例] 函数内部：self.config.block_size；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+    def __len__(self):
+        return len(self.data) - self.config.block_size
+        # [变化示例] 函数内部：len(self.data) - self.config.block_size；数值示例：3 - 2 -> 1 -> 调用方收到该输出。
+
+    def __getitem__(self, idx):
+        # grab a chunk of (block_size + 1) characters from the data
+        chunk = self.data[idx:idx + self.config.block_size + 1]
+        # [变化示例] chunk=未定义/旧值 -> chunk=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+        # encode every character to an integer
+        dix = [self.stoi[s] for s in chunk]
+        # [变化示例] dix=未定义/旧值 -> dix=[self.stoi[s] for s in chunk]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+        # return as tensors
+        x = torch.tensor(dix[:-1], dtype=torch.long)
+        # [变化示例] x=未定义/旧值 -> x=由给定数据构造的 tensor，并采用显式/推断的 dtype 与 device。
+        y = torch.tensor(dix[1:], dtype=torch.long)
+        # [变化示例] y=未定义/旧值 -> y=由给定数据构造的 tensor，并采用显式/推断的 dtype 与 device。
+        return x, y
+        # [变化示例] 函数内部：tuple (x, y)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先在短文本上确认 x/y 右移、logits shape、loss 下降和可生成字符，再逐步加入 profiler、AMP、DDP 等优化。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 223. miniGPT 端到端训练 | model.py
+
+**学习问题。** miniGPT 模型如何实现注意力、Block、损失和生成？
+
+**中文讲解。** token/position embedding 进入多层 causal Transformer；训练输出全位置 logits，生成循环读取最后位置并采样下一个 token。 把数据集、GPT 模型、优化器、训练循环、TensorBoard 和多节点配置串成完整语言模型系统。
+
+**来源文件。** `chapter_10_mingpt/baseline/mingpt/model.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\mathcal{L}_{LM}=-\frac{1}{BT}\sum_{b,t}\log p_\theta(x_{b,t+1}\mid x_{b,\le t})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+"""
+Full definition of a GPT Language Model, all of it in this single file.
+
+References:
+1) the official GPT-2 TensorFlow implementation released by OpenAI:
+https://github.com/openai/gpt-2/blob/master/src/model.py
+2) huggingface/transformers PyTorch implementation:
+https://github.com/huggingface/transformers/blob/main/src/transformers/models/gpt2/modeling_gpt2.py
+"""
+
+import math
+
+import torch
+import torch.nn as nn
+from torch.nn import functional as F
+
+from mingpt.utils import CfgNode as CN
+
+# -----------------------------------------------------------------------------
+
+class NewGELU(nn.Module):
+    """
+    Implementation of the GELU activation function currently in Google BERT repo (identical to OpenAI GPT).
+    Reference: Gaussian Error Linear Units (GELU) paper: https://arxiv.org/abs/1606.08415
+    """
+    def forward(self, x):
+        return 0.5 * x * (1.0 + torch.tanh(math.sqrt(2.0 / math.pi) * (x + 0.044715 * torch.pow(x, 3.0))))
+        # [变化示例] 函数内部：0.5 * x * (1.0 + torch.tanh(math.sqrt(2.0 / math.pi) * (x + 0.0...；数值示例：2 * 3 -> 6 -> 调用方收到该输出。
+
+class CausalSelfAttention(nn.Module):
+    """
+    A vanilla multi-head masked self-attention layer with a projection at the end.
+    It is possible to use torch.nn.MultiheadAttention here but I am including an
+    explicit implementation here to show that there is nothing too scary here.
+    """
+
+    def __init__(self, config):
+        super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        assert config.n_embd % config.n_head == 0
+        # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+        # key, query, value projections for all heads, but in a batch
+        self.c_attn = nn.Linear(config.n_embd, 3 * config.n_embd)
+        # [变化示例] self.c_attn=未定义/旧值 -> self.c_attn=线性映射模块；输入最后一维 config.n_embd -> 输出最后一维 3 * config.n_embd。
+        # output projection
+        self.c_proj = nn.Linear(config.n_embd, config.n_embd)
+        # [变化示例] self.c_proj=未定义/旧值 -> self.c_proj=线性映射模块；输入最后一维 config.n_embd -> 输出最后一维 config.n_embd。
+        # regularization
+        self.attn_dropout = nn.Dropout(config.attn_pdrop)
+        # [变化示例] self.attn_dropout=未定义/旧值 -> self.attn_dropout 接收 nn.Dropout(config.attn_pdrop) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        self.resid_dropout = nn.Dropout(config.resid_pdrop)
+        # [变化示例] self.resid_dropout=未定义/旧值 -> self.resid_dropout 接收 nn.Dropout(config.resid_pdrop) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        # causal mask to ensure that attention is only applied to the left in the input sequence
+        self.register_buffer("bias", torch.tril(torch.ones(config.block_size, config.block_size))
+                                     .view(1, 1, config.block_size, config.block_size))
+        # [变化示例] 执行状态：调用 self.register_buffer("bias", torch.tril(torch.ones(config.b... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.n_head = config.n_head
+        # [变化示例] self.n_head=未定义/旧值 -> self.n_head=config.n_head；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.n_embd = config.n_embd
+        # [变化示例] self.n_embd=未定义/旧值 -> self.n_embd=config.n_embd；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+    def forward(self, x):
+        B, T, C = x.size() # batch size, sequence length, embedding dimensionality (n_embd)
+        # [变化示例] B, T, C=未定义/旧值 -> B, T, C=指定轴长度；例如 shape=(2,3,4)，size(dim) -> 对应维长度。
+
+        # calculate query, key, values for all heads in batch and move head forward to be the batch dim
+        q, k ,v  = self.c_attn(x).split(self.n_embd, dim=2)
+        # [变化示例] q, k ,v=未定义/旧值 -> q, k ,v 接收 self.c_attn(x).split(self.n_embd, dim=2) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        k = k.view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
+        # [变化示例] k=未定义/旧值 -> k 重排为 B, T, self.n_head, C // self.n_head；元素数量与顺序保持不变（若布局允许则共享 storage）。
+        q = q.view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
+        # [变化示例] q=未定义/旧值 -> q 重排为 B, T, self.n_head, C // self.n_head；元素数量与顺序保持不变（若布局允许则共享 storage）。
+        v = v.view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
+        # [变化示例] v=未定义/旧值 -> v 重排为 B, T, self.n_head, C // self.n_head；元素数量与顺序保持不变（若布局允许则共享 storage）。
+
+        # causal self-attention; Self-attend: (B, nh, T, hs) x (B, nh, hs, T) -> (B, nh, T, T)
+        att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
+        # [变化示例] att=未定义/旧值 -> att=(q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))；数值示例：2 * 3 -> 6。
+        att = att.masked_fill(self.bias[:,:,:T,:T] == 0, float('-inf'))
+        # [变化示例] att=未定义/旧值 -> att=mask 后张量；例如 values=[1,2]、mask=[False,True]、fill=-inf -> [1,-inf]。
+        att = F.softmax(att, dim=-1)
+        # [变化示例] att=未定义/旧值 -> att=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
+        att = self.attn_dropout(att)
+        # [变化示例] att=未定义/旧值 -> att 接收 self.attn_dropout(att) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        y = att @ v # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
+        # [变化示例] y=未定义/旧值 -> y=矩阵乘法结果；shape 规则 (...,M,K) @ (...,K,N) -> (...,M,N)。
+        y = y.transpose(1, 2).contiguous().view(B, T, C) # re-assemble all head outputs side by side
+        # [变化示例] y=未定义/旧值 -> y 的轴按 1, 2 重排；例如 (B,S,D) 交换后可变为 (B,D,S)，数值不复制。
+
+        # output projection
+        y = self.resid_dropout(self.c_proj(y))
+        # [变化示例] y=未定义/旧值 -> y 接收 self.resid_dropout(self.c_proj(y)) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        return y
+        # [变化示例] 函数内部：y；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+class Block(nn.Module):
+    """ an unassuming Transformer block """
+
+    def __init__(self, config):
+        super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        self.ln_1 = nn.LayerNorm(config.n_embd)
+        # [变化示例] self.ln_1=未定义/旧值 -> self.ln_1=LayerNorm 模块；例如输入 (...,D) -> 输出仍为 (...,D)，最后一维被归一化。
+        self.attn = CausalSelfAttention(config)
+        # [变化示例] self.attn=未定义/旧值 -> self.attn 接收 CausalSelfAttention(config) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        self.ln_2 = nn.LayerNorm(config.n_embd)
+        # [变化示例] self.ln_2=未定义/旧值 -> self.ln_2=LayerNorm 模块；例如输入 (...,D) -> 输出仍为 (...,D)，最后一维被归一化。
+        self.mlp = nn.ModuleDict(dict(
+            c_fc    = nn.Linear(config.n_embd, 4 * config.n_embd),
+            c_proj  = nn.Linear(4 * config.n_embd, config.n_embd),
+            act     = NewGELU(),
+            dropout = nn.Dropout(config.resid_pdrop),
+        ))
+        # [变化示例] self.mlp=未定义/旧值 -> self.mlp=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
+        m = self.mlp
+        # [变化示例] m=未定义/旧值 -> m=self.mlp；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.mlpf = lambda x: m.dropout(m.c_proj(m.act(m.c_fc(x)))) # MLP forward
+        # [变化示例] self.mlpf=未定义/旧值 -> self.mlpf=可调用函数；例如传入 z 后，按 x: m.dropout(m.c_proj(m.act(m.c_fc(x)))) 生成输出。
+
+    def forward(self, x):
+        x = x + self.attn(self.ln_1(x))
+        # [变化示例] x=未定义/旧值 -> x=x + self.attn(self.ln_1(x))；数值示例：2 + 3 -> 5。
+        x = x + self.mlpf(self.ln_2(x))
+        # [变化示例] x=未定义/旧值 -> x=x + self.mlpf(self.ln_2(x))；数值示例：2 + 3 -> 5。
+        return x
+        # [变化示例] 函数内部：x；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+class GPT(nn.Module):
+    """ GPT Language Model """
+
+    @staticmethod
+    def get_default_config():
+        C = CN()
+        # [变化示例] C=未定义/旧值 -> C=CN()；这是一次重新绑定/状态更新，右侧值决定新状态。
+        # either model_type or (n_layer, n_head, n_embd) must be given in the config
+        C.model_type = 'gpt'
+        # [变化示例] C.model_type=未定义/旧值 -> C.model_type='gpt'；这是一次重新绑定/状态更新，右侧值决定新状态。
+        C.n_layer = None
+        # [变化示例] C.n_layer=未定义/旧值 -> C.n_layer=None；这是一次重新绑定/状态更新，右侧值决定新状态。
+        C.n_head = None
+        # [变化示例] C.n_head=未定义/旧值 -> C.n_head=None；这是一次重新绑定/状态更新，右侧值决定新状态。
+        C.n_embd =  None
+        # [变化示例] C.n_embd=未定义/旧值 -> C.n_embd=None；这是一次重新绑定/状态更新，右侧值决定新状态。
+        # these options must be filled in externally
+        C.vocab_size = None
+        # [变化示例] C.vocab_size=未定义/旧值 -> C.vocab_size=None；这是一次重新绑定/状态更新，右侧值决定新状态。
+        C.block_size = None
+        # [变化示例] C.block_size=未定义/旧值 -> C.block_size=None；这是一次重新绑定/状态更新，右侧值决定新状态。
+        # dropout hyperparameters
+        C.embd_pdrop = 0.1
+        # [变化示例] C.embd_pdrop=未定义/旧值 -> C.embd_pdrop=0.1；这是一次重新绑定/状态更新，右侧值决定新状态。
+        C.resid_pdrop = 0.1
+        # [变化示例] C.resid_pdrop=未定义/旧值 -> C.resid_pdrop=0.1；这是一次重新绑定/状态更新，右侧值决定新状态。
+        C.attn_pdrop = 0.1
+        # [变化示例] C.attn_pdrop=未定义/旧值 -> C.attn_pdrop=0.1；这是一次重新绑定/状态更新，右侧值决定新状态。
+        return C
+        # [变化示例] 函数内部：C；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+    def __init__(self, config):
+        super().__init__()
+        # [变化示例] 执行状态：调用 super().__init__() 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        assert config.vocab_size is not None
+        # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+        assert config.block_size is not None
+        # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+        self.block_size = config.block_size
+        # [变化示例] self.block_size=未定义/旧值 -> self.block_size=config.block_size；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+        type_given = config.model_type is not None
+        # [变化示例] type_given=未定义/旧值 -> type_given=config.model_type is not None；这是一次重新绑定/状态更新，右侧值决定新状态。
+        params_given = all([config.n_layer is not None, config.n_head is not None, config.n_embd is not None])
+        # [变化示例] params_given=未定义/旧值 -> params_given 接收 all([config.n_layer is not None, config.n_head is not None,... 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        assert type_given ^ params_given # exactly one of these (XOR)
+        # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+        if type_given:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+            # translate from model_type to detailed configuration
+            config.merge_from_dict({
+                # names follow the huggingface naming conventions
+                # GPT-1
+                'openai-gpt':   dict(n_layer=12, n_head=12, n_embd=768),  # 117M params
+                # GPT-2 configs
+                'gpt2':         dict(n_layer=12, n_head=12, n_embd=768),  # 124M params
+                'gpt2-medium':  dict(n_layer=24, n_head=16, n_embd=1024), # 350M params
+                'gpt2-large':   dict(n_layer=36, n_head=20, n_embd=1280), # 774M params
+                'gpt2-xl':      dict(n_layer=48, n_head=25, n_embd=1600), # 1558M params
+                # Gophers
+                'gopher-44m':   dict(n_layer=8, n_head=16, n_embd=512),
+                # (there are a number more...)
+                # I made these tiny models up
+                'gpt-mini':     dict(n_layer=6, n_head=6, n_embd=192),
+                'gpt-micro':    dict(n_layer=4, n_head=4, n_embd=128),
+                'gpt-nano':     dict(n_layer=3, n_head=3, n_embd=48),
+            }[config.model_type])
+            # [变化示例] 执行状态：调用 config.merge_from_dict({ 'openai-gpt': dict(n_layer=12, n_h... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+        self.transformer = nn.ModuleDict(dict(
+            wte = nn.Embedding(config.vocab_size, config.n_embd),
+            wpe = nn.Embedding(config.block_size, config.n_embd),
+            drop = nn.Dropout(config.embd_pdrop),
+            h = nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
+            ln_f = nn.LayerNorm(config.n_embd),
+        ))
+        # [变化示例] self.transformer=未定义/旧值 -> self.transformer=已注册的子模块容器；普通 Python 列表 -> 可被 state_dict/optimizer 发现的模块集合。
+        self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+        # [变化示例] self.lm_head=未定义/旧值 -> self.lm_head=线性映射模块；输入最后一维 config.n_embd -> 输出最后一维 config.vocab_size。
+
+        # init all weights, and apply a special scaled init to the residual projections, per GPT-2 paper
+        self.apply(self._init_weights)
+        # [变化示例] 执行状态：调用 self.apply(self._init_weights) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        for pn, p in self.named_parameters():
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+            if pn.endswith('c_proj.weight'):
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                torch.nn.init.normal_(p, mean=0.0, std=0.02/math.sqrt(2 * config.n_layer))
+                # [变化示例] 执行状态：调用 torch.nn.init.normal_(p, mean=0.0, std=0.02/math.sqrt(2 * c... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+        # report number of parameters (note we don't count the decoder parameters in lm_head)
+        n_params = sum(p.numel() for p in self.transformer.parameters())
+        # [变化示例] n_params=未定义/旧值 -> n_params 接收 sum(p.numel() for p in self.transformer.parameters()) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        print("number of parameters: %.2fM" % (n_params/1e6,))
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+    def _init_weights(self, module):
+        if isinstance(module, nn.Linear):
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            # [变化示例] 执行状态：调用 torch.nn.init.normal_(module.weight, mean=0.0, std=0.02) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+            if module.bias is not None:
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                torch.nn.init.zeros_(module.bias)
+                # [变化示例] 执行状态：调用 torch.nn.init.zeros_(module.bias) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        elif isinstance(module, nn.Embedding):
+            # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            # [变化示例] 执行状态：调用 torch.nn.init.normal_(module.weight, mean=0.0, std=0.02) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+        elif isinstance(module, nn.LayerNorm):
+            # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+            torch.nn.init.zeros_(module.bias)
+            # [变化示例] 执行状态：调用 torch.nn.init.zeros_(module.bias) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+            torch.nn.init.ones_(module.weight)
+            # [变化示例] 执行状态：调用 torch.nn.init.ones_(module.weight) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    @classmethod
+    def from_pretrained(cls, model_type):
+        """
+        Initialize a pretrained GPT model by copying over the weights
+        from a huggingface/transformers checkpoint.
+        """
+        assert model_type in {'gpt2', 'gpt2-medium', 'gpt2-large', 'gpt2-xl'}
+        # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+        from transformers import GPT2LMHeadModel
+
+        # create a from-scratch initialized minGPT model
+        config = cls.get_default_config()
+        # [变化示例] config=未定义/旧值 -> config 接收 cls.get_default_config() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        config.model_type = model_type
+        # [变化示例] config.model_type=未定义/旧值 -> config.model_type=model_type；这是一次重新绑定/状态更新，右侧值决定新状态。
+        config.vocab_size = 50257 # openai's model vocabulary
+        # [变化示例] config.vocab_size=未定义/旧值 -> config.vocab_size=50257；这是一次重新绑定/状态更新，右侧值决定新状态。
+        config.block_size = 1024  # openai's model block_size
+        # [变化示例] config.block_size=未定义/旧值 -> config.block_size=1024；这是一次重新绑定/状态更新，右侧值决定新状态。
+        model = GPT(config)
+        # [变化示例] model=未定义/旧值 -> model 接收 GPT(config) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        sd = model.state_dict()
+        # [变化示例] sd=未定义/旧值 -> sd 接收 model.state_dict() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+        # init a huggingface/transformers model
+        model_hf = GPT2LMHeadModel.from_pretrained(model_type)
+        # [变化示例] model_hf=未定义/旧值 -> model_hf 接收 GPT2LMHeadModel.from_pretrained(model_type) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        sd_hf = model_hf.state_dict()
+        # [变化示例] sd_hf=未定义/旧值 -> sd_hf 接收 model_hf.state_dict() 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+        # copy while ensuring all of the parameters are aligned and match in names and shapes
+        keys = [k for k in sd_hf if not k.endswith('attn.masked_bias')] # ignore these
+        # [变化示例] keys=未定义/旧值 -> keys=[k for k in sd_hf if not k.endswith('attn.masked_bias')]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+        transposed = ['attn.c_attn.weight', 'attn.c_proj.weight', 'mlp.c_fc.weight', 'mlp.c_proj.weight']
+        # [变化示例] transposed=未定义/旧值 -> transposed=['attn.c_attn.weight', 'attn.c_proj.weight', 'mlp.c_fc.weig...；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+        # basically the openai checkpoints use a "Conv1D" module, but we only want to use a vanilla nn.Linear.
+        # this means that we have to transpose these weights when we import them
+        assert len(keys) == len(sd)
+        # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+        for k in keys:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+            if any(k.endswith(w) for w in transposed):
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                # special treatment for the Conv1D weights we need to transpose
+                assert sd_hf[k].shape[::-1] == sd[k].shape
+                # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+                with torch.no_grad():
+                    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+                    sd[k].copy_(sd_hf[k].t())
+                    # [变化示例] 原地状态：目标 tensor=旧值 -> 执行 sd[k].copy_(sd_hf[k].t()) 后直接覆盖同一 storage。
+            else:
+                # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+                # vanilla copy over the other parameters
+                assert sd_hf[k].shape == sd[k].shape
+                # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+                with torch.no_grad():
+                    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+                    sd[k].copy_(sd_hf[k])
+                    # [变化示例] 原地状态：目标 tensor=旧值 -> 执行 sd[k].copy_(sd_hf[k]) 后直接覆盖同一 storage。
+
+        return model
+        # [变化示例] 函数内部：model；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+    def configure_optimizers(self, train_config):
+        """
+        This long function is unfortunately doing something very simple and is being very defensive:
+        We are separating out all parameters of the model into two buckets: those that will experience
+        weight decay for regularization and those that won't (biases, and layernorm/embedding weights).
+        We are then returning the PyTorch optimizer object.
+        """
+
+        # separate out all parameters to those that will and won't experience regularizing weight decay
+        decay = set()
+        # [变化示例] decay=未定义/旧值 -> decay=set()；这是一次重新绑定/状态更新，右侧值决定新状态。
+        no_decay = set()
+        # [变化示例] no_decay=未定义/旧值 -> no_decay=set()；这是一次重新绑定/状态更新，右侧值决定新状态。
+        whitelist_weight_modules = (torch.nn.Linear, )
+        # [变化示例] whitelist_weight_modules=未定义/旧值 -> whitelist_weight_modules=torch.nn.Linear,；这是一次重新绑定/状态更新，右侧值决定新状态。
+        blacklist_weight_modules = (torch.nn.LayerNorm, torch.nn.Embedding)
+        # [变化示例] blacklist_weight_modules=未定义/旧值 -> blacklist_weight_modules=torch.nn.LayerNorm, torch.nn.Embedding；这是一次重新绑定/状态更新，右侧值决定新状态。
+        for mn, m in self.named_modules():
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+            for pn, p in m.named_parameters():
+                # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+                fpn = '%s.%s' % (mn, pn) if mn else pn # full param name
+                # [变化示例] fpn=未定义/旧值 -> fpn=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
+                # random note: because named_modules and named_parameters are recursive
+                # we will see the same tensors p many many times. but doing it this way
+                # allows us to know which parent module any tensor p belongs to...
+                if pn.endswith('bias'):
+                    # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                    # all biases will not be decayed
+                    no_decay.add(fpn)
+                    # [变化示例] 执行状态：调用 no_decay.add(fpn) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+                elif pn.endswith('weight') and isinstance(m, whitelist_weight_modules):
+                    # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+                    # weights of whitelist modules will be weight decayed
+                    decay.add(fpn)
+                    # [变化示例] 执行状态：调用 decay.add(fpn) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+                elif pn.endswith('weight') and isinstance(m, blacklist_weight_modules):
+                    # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+                    # weights of blacklist modules will NOT be weight decayed
+                    no_decay.add(fpn)
+                    # [变化示例] 执行状态：调用 no_decay.add(fpn) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+        # validate that we considered every parameter
+        param_dict = {pn: p for pn, p in self.named_parameters()}
+        # [变化示例] param_dict=未定义/旧值 -> param_dict={pn: p for pn, p in self.named_parameters()}；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+        inter_params = decay & no_decay
+        # [变化示例] inter_params=未定义/旧值 -> inter_params=decay & no_decay；这是一次重新绑定/状态更新，右侧值决定新状态。
+        union_params = decay | no_decay
+        # [变化示例] union_params=未定义/旧值 -> union_params=decay | no_decay；这是一次重新绑定/状态更新，右侧值决定新状态。
+        assert len(inter_params) == 0, "parameters %s made it into both decay/no_decay sets!" % (str(inter_params), )
+        # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+        assert len(param_dict.keys() - union_params) == 0, "parameters %s were not separated into either decay/no_decay set!" \
+                                                    % (str(param_dict.keys() - union_params), )
+        # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+
+        # create the pytorch optimizer object
+        optim_groups = [
+            {"params": [param_dict[pn] for pn in sorted(list(decay))], "weight_decay": train_config.weight_decay},
+            {"params": [param_dict[pn] for pn in sorted(list(no_decay))], "weight_decay": 0.0},
+        ]
+        # [变化示例] optim_groups=未定义/旧值 -> optim_groups=[ {"params": [param_dict[pn] for pn in sorted(list(decay))]...；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+        optimizer = torch.optim.AdamW(optim_groups, lr=train_config.learning_rate, betas=train_config.betas)
+        # [变化示例] optimizer=未定义/旧值 -> optimizer=持有参数引用与状态的优化器；step 前参数 -> step 后按梯度更新。
+        return optimizer
+        # [变化示例] 函数内部：optimizer；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+    def forward(self, idx, targets=None):
+        device = idx.device
+        # [变化示例] device=未定义/旧值 -> device=idx.device；这是一次重新绑定/状态更新，右侧值决定新状态。
+        b, t = idx.size()
+        # [变化示例] b, t=未定义/旧值 -> b, t=指定轴长度；例如 shape=(2,3,4)，size(dim) -> 对应维长度。
+        assert t <= self.block_size, f"Cannot forward sequence of length {t}, block size is only {self.block_size}"
+        # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+        pos = torch.arange(0, t, dtype=torch.long, device=device).unsqueeze(0) # shape (1, t)
+        # [变化示例] pos=未定义/旧值 -> pos=等差序列 arange(0, t, dtype=torch.long, device=device)；例如 arange(4) 为 [0,1,2,3]。
+
+        # forward the GPT model itself
+        tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
+        # [变化示例] tok_emb=未定义/旧值 -> tok_emb 接收 self.transformer.wte(idx) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        pos_emb = self.transformer.wpe(pos) # position embeddings of shape (1, t, n_embd)
+        # [变化示例] pos_emb=未定义/旧值 -> pos_emb 接收 self.transformer.wpe(pos) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        x = self.transformer.drop(tok_emb + pos_emb)
+        # [变化示例] x=未定义/旧值 -> x 接收 self.transformer.drop(tok_emb + pos_emb) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        for block in self.transformer.h:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+            x = block(x)
+            # [变化示例] x=未定义/旧值 -> x 接收 block(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        x = self.transformer.ln_f(x)
+        # [变化示例] x=未定义/旧值 -> x 接收 self.transformer.ln_f(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+        logits = self.lm_head(x)
+        # [变化示例] logits=未定义/旧值 -> logits 接收 self.lm_head(x) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+        # if we are given some desired targets also calculate the loss
+        loss = None
+        # [变化示例] loss=未定义/旧值 -> loss=None；这是一次重新绑定/状态更新，右侧值决定新状态。
+        if targets is not None:
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+            loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
+            # [变化示例] loss=未定义/旧值 -> loss=分类损失/损失模块；例如 logits (B,C) 与 labels (B,) -> 标量平均 loss。
+
+        return logits, loss
+        # [变化示例] 函数内部：tuple (logits, loss)；多个值按位置传递/解包，元素本身不被复制 -> 调用方收到该输出。
+
+    @torch.no_grad()
+    def generate(self, idx, max_new_tokens, temperature=1.0, do_sample=False, top_k=None):
+        """
+        Take a conditioning sequence of indices idx (LongTensor of shape (b,t)) and complete
+        the sequence max_new_tokens times, feeding the predictions back into the model each time.
+        Most likely you'll want to make sure to be in model.eval() mode of operation for this.
+        """
+        for _ in range(max_new_tokens):
+            # [变化示例] 循环示例：range(max_new_tokens) -> 迭代索引从 0 到上界前一项，每轮执行一次循环体。
+            # if the sequence context is growing too long we must crop it at block_size
+            idx_cond = idx if idx.size(1) <= self.block_size else idx[:, -self.block_size:]
+            # [变化示例] idx_cond=未定义/旧值 -> idx_cond=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
+            # forward the model to get the logits for the index in the sequence
+            logits, _ = self(idx_cond)
+            # [变化示例] logits, _=未定义/旧值 -> logits, _ 接收 self(idx_cond) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+            # pluck the logits at the final step and scale by desired temperature
+            logits = logits[:, -1, :] / temperature
+            # [变化示例] logits=未定义/旧值 -> 先取最后一个时间步，例如 (B,T,V) -> (B,V)，再除 temperature 调整分布尖锐度。
+            # optionally crop the logits to only the top k options
+            if top_k is not None:
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                v, _ = torch.topk(logits, top_k)
+                # [变化示例] v, _=未定义/旧值 -> v, _=最大 k 个值/索引；例如 [0.2,0.9,0.4], k=2 -> [0.9,0.4]。
+                logits[logits < v[:, [-1]]] = -float('Inf')
+                # [变化示例] logits[logits < v[:, [-1]]]=未定义/旧值 -> logits[logits < v[:, [-1]]]=-float('Inf')；这是一次重新绑定/状态更新，右侧值决定新状态。
+            # apply softmax to convert logits to (normalized) probabilities
+            probs = F.softmax(logits, dim=-1)
+            # [变化示例] probs=未定义/旧值 -> probs=归一化概率；例如 logits=[0,1] -> 约 [0.269,0.731]，目标维总和为 1。
+            # either sample from the distribution or take the most likely element
+            if do_sample:
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                idx_next = torch.multinomial(probs, num_samples=1)
+                # [变化示例] idx_next=未定义/旧值 -> idx_next=按概率采样的索引；例如 [0.1,0.9] -> 更可能得到索引 1。
+            else:
+                # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+                _, idx_next = torch.topk(probs, k=1, dim=-1)
+                # [变化示例] _, idx_next=未定义/旧值 -> _, idx_next=最大 k 个值/索引；例如 [0.2,0.9,0.4], k=2 -> [0.9,0.4]。
+            # append sampled index to the running sequence and continue
+            idx = torch.cat((idx, idx_next), dim=1)
+            # [变化示例] idx=未定义/旧值 -> idx 沿指定 dim 拼接且该维长度相加；例如 (B,3)+(B,1) -> (B,4)。
+
+        return idx
+        # [变化示例] 函数内部：idx；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+```
+
+#### 代码/API 逐项解释
+
+- 张量创建 API：显式检查 shape、dtype 和 device；训练代码避免无意使用默认 CPU/float32。
+- view/reshape/flatten：保持元素总数不变；non-contiguous 输入上 view 可能失败，reshape 可在必要时复制。
+- stride/view API：只改变索引到 storage 的映射时不复制数据；as_strided 越界或重叠写入非常危险。
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 原地操作：复用 storage 并更新 version counter；可能破坏 backward 所需中间值或影响别名。
+- 融合/矩阵 API：优先用批量 tensor 算子表达计算，减少 Python 循环、中间分配和 kernel launch。
+- 推理上下文：关闭 autograd 记录；inference_mode 进一步减少 view/version tracking。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先在短文本上确认 x/y 右移、logits shape、loss 下降和可生成字符，再逐步加入 profiler、AMP、DDP 等优化。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+- **正确性 / 使用边界。** 这是教学版 GPT：generate 每步重算整个上下文且没有 KV cache，适合学习但不是高性能推理实现。
+
+## 224. miniGPT 端到端训练 | trainer.py
+
+**学习问题。** miniGPT Trainer 如何组织训练步骤？
+
+**中文讲解。** DataLoader 提供 batch，模型计算交叉熵，反向后裁剪梯度并更新 AdamW；callback 解耦日志逻辑。 把数据集、GPT 模型、优化器、训练循环、TensorBoard 和多节点配置串成完整语言模型系统。
+
+**来源文件。** `chapter_10_mingpt/baseline/mingpt/trainer.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\mathcal{L}_{LM}=-\frac{1}{BT}\sum_{b,t}\log p_\theta(x_{b,t+1}\mid x_{b,\le t})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+"""
+Simple training loop; Boilerplate that could apply to any arbitrary neural network,
+so nothing in this file really has anything to do with GPT specifically.
+"""
+
+import time
+from collections import defaultdict
+
+import torch
+from torch.utils.data.dataloader import DataLoader
+from mingpt.utils import CfgNode as CN
+from torch.profiler import profile, record_function, ProfilerActivity
+
+class Trainer:
+
+    @staticmethod
+    def get_default_config():
+        C = CN()
+        # [变化示例] C=未定义/旧值 -> C=CN()；这是一次重新绑定/状态更新，右侧值决定新状态。
+        # device to train on
+        C.device = 'auto'
+        # [变化示例] C.device=未定义/旧值 -> C.device='auto'；这是一次重新绑定/状态更新，右侧值决定新状态。
+        # dataloder parameters
+        C.num_workers = 0
+        # [变化示例] C.num_workers=未定义/旧值 -> C.num_workers=0；这是一次重新绑定/状态更新，右侧值决定新状态。
+        # optimizer parameters
+        C.max_iters = None
+        # [变化示例] C.max_iters=未定义/旧值 -> C.max_iters=None；这是一次重新绑定/状态更新，右侧值决定新状态。
+        C.batch_size = 32
+        # [变化示例] C.batch_size=未定义/旧值 -> C.batch_size=32；这是一次重新绑定/状态更新，右侧值决定新状态。
+        C.learning_rate = 3e-4
+        # [变化示例] C.learning_rate=未定义/旧值 -> C.learning_rate=3e-4；这是一次重新绑定/状态更新，右侧值决定新状态。
+        C.betas = (0.9, 0.95)
+        # [变化示例] C.betas=未定义/旧值 -> C.betas=tuple (0.9, 0.95)；多个值按位置传递/解包，元素本身不被复制。
+        C.weight_decay = 0.1 # only applied on matmul weights
+        # [变化示例] C.weight_decay=未定义/旧值 -> C.weight_decay=0.1；这是一次重新绑定/状态更新，右侧值决定新状态。
+        C.grad_norm_clip = 1.0
+        # [变化示例] C.grad_norm_clip=未定义/旧值 -> C.grad_norm_clip=1.0；这是一次重新绑定/状态更新，右侧值决定新状态。
+        return C
+        # [变化示例] 函数内部：C；这是一次重新绑定/状态更新，右侧值决定新状态 -> 调用方收到该输出。
+
+    def __init__(self, config, model, train_dataset):
+        self.config = config
+        # [变化示例] self.config=未定义/旧值 -> self.config=config；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.model = model
+        # [变化示例] self.model=未定义/旧值 -> self.model=model；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.optimizer = None
+        # [变化示例] self.optimizer=未定义/旧值 -> self.optimizer=None；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.train_dataset = train_dataset
+        # [变化示例] self.train_dataset=未定义/旧值 -> self.train_dataset=train_dataset；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.callbacks = defaultdict(list)
+        # [变化示例] self.callbacks=未定义/旧值 -> self.callbacks 接收 defaultdict(list) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+        # determine the device we'll train on
+        if config.device == 'auto':
+            # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+            self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            # [变化示例] self.device=未定义/旧值 -> self.device=条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式。
+        else:
+            # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+            self.device = config.device
+            # [变化示例] self.device=未定义/旧值 -> self.device=config.device；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.model = self.model.to(self.device)
+        # [变化示例] self.model=未定义/旧值 -> self.model 移到目标 device，dtype 保持不变；例如 .to("cuda") 为 CPU float32 -> CUDA float32。
+        print("running on device", self.device)
+        # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+
+        # variables that will be assigned to trainer class later for logging and etc
+        self.iter_num = 0
+        # [变化示例] self.iter_num=未定义/旧值 -> self.iter_num=0；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.iter_time = 0.0
+        # [变化示例] self.iter_time=未定义/旧值 -> self.iter_time=0.0；这是一次重新绑定/状态更新，右侧值决定新状态。
+        self.iter_dt = 0.0
+        # [变化示例] self.iter_dt=未定义/旧值 -> self.iter_dt=0.0；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+    def add_callback(self, onevent: str, callback):
+        self.callbacks[onevent].append(callback)
+        # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
+
+    def set_callback(self, onevent: str, callback):
+        self.callbacks[onevent] = [callback]
+        # [变化示例] self.callbacks[onevent]=未定义/旧值 -> self.callbacks[onevent]=[callback]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+
+    def trigger_callbacks(self, onevent: str):
+        for callback in self.callbacks.get(onevent, []):
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+            callback(self)
+            # [变化示例] 执行状态：调用 callback(self) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    def prepare(self):
+        # setup the optimizer
+        self.optimizer = self.model.configure_optimizers(self.config)
+        # [变化示例] self.optimizer=未定义/旧值 -> self.optimizer 接收 self.model.configure_optimizers(self.config) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+        # setup the dataloader
+        self.train_loader = DataLoader(
+            self.train_dataset,
+            sampler=torch.utils.data.RandomSampler(self.train_dataset, replacement=True, num_samples=int(1e10)),
+            shuffle=False,
+            pin_memory=True,
+            batch_size=self.config.batch_size,
+            num_workers=self.config.num_workers,
+        )
+        # [变化示例] self.train_loader=未定义/旧值 -> self.train_loader=批数据迭代器；N 个样本按 batch_size=B -> 约 ceil(N/B) 个 batch。
+
+        self.model.train()
+        # [变化示例] 模块模式：旧 train/eval 标志 -> 训练模式，影响 Dropout/BatchNorm。
+
+    def run_num_samples(self, num_samples):
+        batch_size = self.config.batch_size
+        # [变化示例] batch_size=未定义/旧值 -> batch_size=self.config.batch_size；这是一次重新绑定/状态更新，右侧值决定新状态。
+        assert num_samples % batch_size == 0
+        # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+
+        num_iters = num_samples // batch_size
+        # [变化示例] num_iters=未定义/旧值 -> num_iters=num_samples // batch_size；数值示例：7 // 3 -> 2。
+        self.run(num_iters)
+        # [变化示例] 执行状态：调用 self.run(num_iters) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    def run(self, max_num_iters):
+        iter_num = 0
+        # [变化示例] iter_num=未定义/旧值 -> iter_num=0；这是一次重新绑定/状态更新，右侧值决定新状态。
+        while True:
+            # [变化示例] 循环示例：条件 True -> 再执行一轮；条件 False -> 退出循环。
+            for batch in self.train_loader:
+                # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+                with record_function(f"train_{iter_num}"):
+                    # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+                    batch = [t.to(self.device) for t in batch]
+                    # [变化示例] batch=未定义/旧值 -> batch=[t.to(self.device) for t in batch]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+                    x, y = batch
+                    # [变化示例] x, y=未定义/旧值 -> x, y=batch；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+                    # forward the model
+                    logits, self.loss = self.model(x, y)
+                    # [变化示例] logits, self.loss=未定义/旧值 -> logits, self.loss 接收 self.model(x, y) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+
+                    # backprop and update the parameters
+                    self.model.zero_grad(set_to_none=True)
+                    # [变化示例] 梯度状态：参数 grad=上一轮值 -> 清零或设为 None，为新一步反向传播做准备。
+                    self.loss.backward()
+                    # [变化示例] 梯度状态：叶子参数 grad=None/旧梯度 -> 按链式法则得到并累加本轮梯度。
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.config.grad_norm_clip)
+                    # [变化示例] 执行状态：调用 torch.nn.utils.clip_grad_norm_(self.model.parameters(), sel... 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+                    self.optimizer.step()
+                    # [变化示例] 参数状态：theta=更新前参数 -> theta-lr*update；Adam/SGD 的 update 由其状态与当前梯度决定。
+
+                    self.trigger_callbacks('on_batch_end')
+                    # [变化示例] 执行状态：调用 self.trigger_callbacks('on_batch_end') 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+                    iter_num += 1
+                    # [变化示例] iter_num=旧值 -> iter_num=旧值 + (1)；数值示例：2 + 3 -> 5，并写回 iter_num。
+
+                    if iter_num >= max_num_iters:
+                        # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                        return
+                        # [变化示例] 函数内部： -> 调用方收到该输出。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- Autograd：backward 按链式法则传播；自定义 Function 必须为每个输入返回 shape 兼容的梯度。
+- 原地操作：复用 storage 并更新 version counter；可能破坏 backward 所需中间值或影响别名。
+- 计时/Profiler：CUDA 是异步的，host 计时必须同步；profiler 结果还需区分 self 与 total 指标。
+- Dataset/DataLoader：Dataset 定义单样本，sampler 定义顺序，worker 并行加载，collate 组成 batch。
+- 融合/矩阵 API：优先用批量 tensor 算子表达计算，减少 Python 循环、中间分配和 kernel launch。
+- 优化器步骤：清梯度、反向、可选裁剪、step 的顺序必须明确；set_to_none 可减少写零和存储复用。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先在短文本上确认 x/y 右移、logits shape、loss 下降和可生成字符，再逐步加入 profiler、AMP、DDP 等优化。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
+
+## 225. miniGPT 端到端训练 | utils.py
+
+**学习问题。** miniGPT 配置、日志与随机种子如何管理？
+
+**中文讲解。** 轻量 CfgNode 支持嵌套配置和命令行覆盖，setup_logging 保存参数，set_seed 统一主要 RNG。 把数据集、GPT 模型、优化器、训练循环、TensorBoard 和多节点配置串成完整语言模型系统。
+
+**来源文件。** `chapter_10_mingpt/baseline/mingpt/utils.py`
+
+#### 数学、性能模型与算法思路
+
+$$
+\mathcal{L}_{LM}=-\frac{1}{BT}\sum_{b,t}\log p_\theta(x_{b,t+1}\mid x_{b,\le t})
+$$
+
+- **先看不变量。** 先确认上式对应的 shape、数据依赖、同步或资源约束，再阅读实现细节。
+- **再看执行路径。** 区分 Python 调度、CPU 数据处理、CUDA 异步 kernel、collective 通信和编译阶段，避免把不同时间线混在一起。
+
+### 带逐步变化注释的代码
+
+```python
+
+import os
+import sys
+import json
+import random
+from ast import literal_eval
+
+import numpy as np
+import torch
+
+# -----------------------------------------------------------------------------
+
+def set_seed(seed):
+    random.seed(seed)
+    # [变化示例] 执行状态：调用 random.seed(seed) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    np.random.seed(seed)
+    # [变化示例] 执行状态：调用 np.random.seed(seed) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    torch.manual_seed(seed)
+    # [变化示例] RNG 状态：旧随机序列起点 -> 指定 seed 的确定起点；后续相同调用顺序可重放。
+    torch.cuda.manual_seed_all(seed)
+    # [变化示例] 执行状态：调用 torch.cuda.manual_seed_all(seed) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+def setup_logging(config):
+    """ monotonous bookkeeping """
+    work_dir = config.system.work_dir
+    # [变化示例] work_dir=未定义/旧值 -> work_dir=config.system.work_dir；这是一次重新绑定/状态更新，右侧值决定新状态。
+    # create the work directory if it doesn't already exist
+    os.makedirs(work_dir, exist_ok=True)
+    # [变化示例] 执行状态：调用 os.makedirs(work_dir, exist_ok=True) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    # log the args (if any)
+    with open(os.path.join(work_dir, 'args.txt'), 'w') as f:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        f.write(' '.join(sys.argv))
+        # [变化示例] 执行状态：调用 f.write(' '.join(sys.argv)) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+    # log the config itself
+    with open(os.path.join(work_dir, 'config.json'), 'w') as f:
+        # [变化示例] 上下文状态：进入前资源未托管 -> 进入后启用上下文，退出时自动清理/恢复。
+        f.write(json.dumps(config.to_dict(), indent=4))
+        # [变化示例] 执行状态：调用 f.write(json.dumps(config.to_dict(), indent=4)) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+class CfgNode:
+    """ a lightweight configuration class inspired by yacs """
+    # TODO: convert to subclass from a dict like in yacs?
+    # TODO: implement freezing to prevent shooting of own foot
+    # TODO: additional existence/override checks when reading/writing params?
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        # [变化示例] 执行状态：调用 self.__dict__.update(kwargs) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    def __str__(self):
+        return self._str_helper(0)
+        # [变化示例] 函数内部：执行 self._str_helper(0) 得到结果 -> 调用方收到该输出。
+
+    def _str_helper(self, indent):
+        """ need to have a helper to support nested indentation for pretty printing """
+        parts = []
+        # [变化示例] parts=未定义/旧值 -> parts=[]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+        for k, v in self.__dict__.items():
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+            if isinstance(v, CfgNode):
+                # [变化示例] 分支示例：条件 False -> 跳过该分支；条件 True -> 执行下面缩进代码。
+                parts.append("%s:\n" % k)
+                # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
+                parts.append(v._str_helper(indent + 1))
+                # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
+            else:
+                # [变化示例] 分支示例：前序条件未命中 -> 进入当前分支；已命中 -> 跳过。
+                parts.append("%s: %s\n" % (k, v))
+                # [变化示例] 容器状态：旧列表 -> 在末尾加入新元素；若元素带 grad_fn，也会延长其计算图生命周期。
+        parts = [' ' * (indent * 4) + p for p in parts]
+        # [变化示例] parts=未定义/旧值 -> parts=[' ' * (indent * 4) + p for p in parts]；容器按给定元素创建，例如 [1,4] 的长度从 0 -> 2。
+        return "".join(parts)
+        # [变化示例] 函数内部：执行 "".join(parts) 得到结果 -> 调用方收到该输出。
+
+    def to_dict(self):
+        """ return a dict representation of the config """
+        return { k: v.to_dict() if isinstance(v, CfgNode) else v for k, v in self.__dict__.items() }
+        # [变化示例] 函数内部：条件选择结果；条件 True 取 if 前表达式，False 取 else 后表达式 -> 调用方收到该输出。
+
+    def merge_from_dict(self, d):
+        self.__dict__.update(d)
+        # [变化示例] 执行状态：调用 self.__dict__.update(d) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+
+    def merge_from_args(self, args):
+        """
+        update the configuration from a list of strings that is expected
+        to come from the command line, i.e. sys.argv[1:].
+
+        The arguments are expected to be in the form of `--arg=value`, and
+        the arg can use . to denote nested sub-attributes. Example:
+
+        --model.n_layer=10 --trainer.batch_size=32
+        """
+        for arg in args:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+
+            keyval = arg.split('=')
+            # [变化示例] keyval=未定义/旧值 -> keyval 接收 arg.split('=') 的返回值；用 shape/dtype/device 与示例输入核对变化。
+            assert len(keyval) == 2, "expecting each override arg to be of form --arg=value, got %s" % arg
+            # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+            key, val = keyval # unpack
+            # [变化示例] key, val=未定义/旧值 -> key, val=keyval；这是一次重新绑定/状态更新，右侧值决定新状态。
+
+            # first translate val into a python object
+            try:
+                # [变化示例] 异常路径：正常 -> 执行 try；发生匹配异常 -> 跳转到对应 except。
+                val = literal_eval(val)
+                # [变化示例] val=未定义/旧值 -> val 接收 literal_eval(val) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+                """
+                need some explanation here.
+                - if val is simply a string, literal_eval will throw a ValueError
+                - if val represents a thing (like an 3, 3.14, [1,2,3], False, None, etc.) it will get created
+                """
+            except ValueError:
+                # [变化示例] 异常路径：捕获到匹配异常 -> 执行恢复/报告逻辑；否则不进入。
+                pass
+
+            # find the appropriate object to insert the attribute into
+            assert key[:2] == '--'
+            # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+            key = key[2:] # strip the '--'
+            # [变化示例] key=未定义/旧值 -> key=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+            keys = key.split('.')
+            # [变化示例] keys=未定义/旧值 -> keys 接收 key.split('.') 的返回值；用 shape/dtype/device 与示例输入核对变化。
+            obj = self
+            # [变化示例] obj=未定义/旧值 -> obj=self；这是一次重新绑定/状态更新，右侧值决定新状态。
+            for k in keys[:-1]:
+            # [变化示例] 循环示例：可迭代对象 [a,b] -> 循环变量依次为 a、b，并执行两轮循环体。
+                obj = getattr(obj, k)
+                # [变化示例] obj=未定义/旧值 -> obj 接收 getattr(obj, k) 的返回值；用 shape/dtype/device 与示例输入核对变化。
+            leaf_key = keys[-1]
+            # [变化示例] leaf_key=未定义/旧值 -> leaf_key=索引/切片结果；例如 x.shape=(10,20)，x[0] -> shape=(20,)。
+
+            # ensure that this attribute exists
+            assert hasattr(obj, leaf_key), f"{key} is not an attribute that exists in the config"
+            # [变化示例] 校验变化：条件为 True -> 程序继续；条件为 False -> 立即抛出 AssertionError。
+
+            # overwrite the attribute
+            print("command line overwriting config attribute %s with %s" % (key, val))
+            # [变化示例] 可观察变化：内存中的变量/指标 -> 写到标准输出；print 本身不改变 tensor 数值。
+            setattr(obj, leaf_key, val)
+            # [变化示例] 执行状态：调用 setattr(obj, leaf_key, val) 前 -> 调用完成；若是原地/日志/同步 API，会更新对应状态。
+```
+
+#### 代码/API 逐项解释
+
+- 索引与 mask：基础索引多为 view，高级索引读取多为 copy；整数索引会删除维度。
+- 复现配置：Python、NumPy、PyTorch 和 CUDA 算法选择需要一起控制，seed 不是完全确定性的充分条件。
+- NumPy 互操作：from_numpy 常共享 CPU 内存；dtype、stride、线程池和隐式复制会影响正确性与性能。
+
+#### 输入、输出与验证
+
+- **验证方法。** 先在短文本上确认 x/y 右移、logits shape、loss 下降和可生成字符，再逐步加入 profiler、AMP、DDP 等优化。
+- **运行环境。** 该示例来自课程源码；需要按代码中的 CUDA、Linux、第三方包和数据路径要求准备环境，不应假设在当前 Windows 主机可直接运行。
