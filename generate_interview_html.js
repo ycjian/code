@@ -28,6 +28,7 @@ const pages = [
     navTitle: "学习路线",
     pythonReaderStyle: true,
     codeFocus: true,
+    disableCompactLists: true,
     inlineNextButton: true,
     collapsibleSidebar: true,
     sidebarDefault: "expanded",
@@ -918,7 +919,7 @@ function inlineMarkdown(text) {
   return value;
 }
 
-function parseMarkdown(markdown) {
+function parseMarkdown(markdown, options = {}) {
   const normalizedMarkdown = markdown
     .replace(/\r\n/g, "\n")
     .replace(/^[ \t]*\$\$[ \t]*\n([\s\S]*?)^[ \t]*\$\$[ \t]*$/gm, (_, source) => `\`\`\`math\n${source.trim()}\n\`\`\``)
@@ -936,6 +937,7 @@ function parseMarkdown(markdown) {
   let codeLang = "";
   let codeLines = [];
   let blockquote = [];
+  let currentHeadingText = "";
 
   function targetHtml() {
     return currentSection ? currentSection.html : introHtml;
@@ -953,7 +955,9 @@ function parseMarkdown(markdown) {
 
   function flushList() {
     if (!list) return;
-    const compact = list.type === "ul" && list.items.length <= 8 && list.items.every((item) => item.length <= 92 && !/[|]/.test(item));
+    const expandedHeadings = new Set(["代码/API 逐项解释", "输入与输出示例"]);
+    const forceExpanded = options.disableCompactLists || (options.expandedExplanationLists && expandedHeadings.has(currentHeadingText));
+    const compact = !forceExpanded && list.type === "ul" && list.items.length <= 8 && list.items.every((item) => item.length <= 92 && !/[|]/.test(item));
     if (compact) {
       pushHtml(`<p class="compact-list">${list.items.map((item) => inlineMarkdown(item)).join(' <span class="dot">·</span> ')}</p>`);
     } else {
@@ -1075,6 +1079,7 @@ function parseMarkdown(markdown) {
       flushAllBlocks();
       const level = heading[1].length;
       const text = heading[2].trim();
+      currentHeadingText = text;
       const id = slugify(text, seen);
       const headingHtml = `<h${level} id="${id}">${inlineMarkdown(text)}<a class="anchor" href="#${id}" aria-label="Link to section">#</a></h${level}>`;
 
@@ -1693,7 +1698,7 @@ for (const page of selectedPages) {
   const markdown = typeof page.transformMarkdown === "function"
     ? page.transformMarkdown(sourceMarkdown, extraSources)
     : sourceMarkdown;
-  const parsed = groupSections(page, parseMarkdown(markdown));
+  const parsed = groupSections(page, parseMarkdown(markdown, page));
   fs.writeFileSync(path.resolve(page.output), template(page, parsed), "utf8");
   console.log(`${page.input} -> ${page.output} (${parsed.sections.length} section tabs)`);
 }
