@@ -1,7 +1,50 @@
 ﻿const fs = require("fs");
 const path = require("path");
 
+const SOURCE_DIR = path.join(__dirname, "txtmd");
+
+function resolveSourcePath(relPath) {
+  const candidates = [
+    path.join(SOURCE_DIR, relPath),
+    path.join(__dirname, relPath),
+    path.resolve(relPath),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return candidates[0];
+}
+
 const pages = [
+  {
+    input: "pytorch_learn.md",
+    output: "pytorch_learn.html",
+    title: "PyTorch Learning & Interview Guide",
+    eyebrow: "PyTorch / Transformer / Training / Inference",
+    summary: "A Chinese-first, implementation-heavy guide covering 102 reviewed PyTorch exercises, tensor shapes, autograd, optimization, LLM alignment, GPU systems, and interview deep dives.",
+    logo: "pytorch-learn-logo.svg",
+    logoAlt: "PyTorch learning and interview guide logo",
+    parentNavOnly: true,
+    navTitle: "学习路线",
+    pythonReaderStyle: true,
+    inlineNextButton: true,
+    collapsibleSidebar: true,
+    sidebarDefault: "expanded",
+    sidebarStorageKey: "interview-reader-sidebar:pytorch-learn:v1",
+    tabGroups: [
+      { title: "开始学习", from: "学习方法" },
+      { title: "基础张量 / Attention", from: "01. Implement ReLU" },
+      { title: "模型组件 / 训练", from: "15. SwiGLU MLP" },
+      { title: "优化 / 解码 / 对齐", from: "29. Adam Optimizer" },
+      { title: "TorchLeet LLM 基础", from: "42. TorchLeet BPE" },
+      { title: "PyTorch 模块实战", from: "49. Custom Activation Module" },
+      { title: "Autograd / 模型内部", from: "63. Custom Autograd Learned-SiLU" },
+      { title: "对齐 / 经典 ML", from: "73. Full DPO Utilities" },
+      { title: "GPU / 推理系统", from: "82. FlashAttention-2 Tiling" },
+      { title: "逐题面试深挖", from: "A. 基础张量、层与训练（01-22）" },
+      { title: "最终检查 / API", from: "面试前最终检查表" },
+    ],
+  },
   {
     input: "mlQuestion.md",
     output: "mlQuestion.html",
@@ -1627,14 +1670,14 @@ if (requestedPage && !selectedPages.length) {
 }
 
 for (const page of selectedPages) {
-  const inputPath = path.resolve(page.input);
+  const inputPath = resolveSourcePath(page.input);
   if (!fs.existsSync(inputPath)) {
     console.warn(`Skipping missing ${page.input}`);
     continue;
   }
   const sourceMarkdown = fs.readFileSync(inputPath, "utf8");
   const extraSources = (page.extraInputs || []).map((extraInput) => {
-    const extraPath = path.resolve(extraInput);
+    const extraPath = resolveSourcePath(extraInput);
     if (!fs.existsSync(extraPath)) {
       console.warn(`Skipping missing ${extraInput}`);
       return "";
