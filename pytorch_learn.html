@@ -52,6 +52,9 @@
 <p><strong>Problem.</strong> Implement <code>ReLU(x) = max(0, x)</code> without built-in activation functions. Autograd must still work.</p>
 <p><strong>中文题意。</strong> 不使用 <code>torch.relu</code>、<code>F.relu</code> 或 <code>clamp</code>，从零实现 ReLU。输入为正数时保留原值，否则输出 0，并且梯度必须能正常反向传播。</p>
 <h3 id="reviewed-solution">Reviewed Solution<a class="anchor" href="#reviewed-solution" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="y_i=\max(0,x_i)" data-explicit-math="true">y_i=\max(0,x_i)</div>
+<ul><li><strong>公式 / 不变量。</strong> ReLU 对每个元素独立截断负值；除零点外，导数为 <span class="math-inline" data-tex="\mathbf{1}[x_i&gt;0]" data-explicit-math="true">\mathbf{1}[x_i&gt;0]</span>。</li><li><strong>算法拆解。</strong> 逐元素比较输入与 0，再选择原值或 0；时间复杂度 O(N)，额外空间取决于输出张量。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def relu(x: torch.Tensor) -&gt; torch.Tensor:
     # 条件成立时选择 x，否则选择与 x 同设备、同 dtype 的 0
     # 图示：[-2, 0, 3] -&gt; [0, 0, 3]
@@ -65,6 +68,9 @@
 <p><strong>Problem.</strong> Implement softmax along an arbitrary dimension without built-in softmax, and make it numerically stable.</p>
 <p><strong>中文题意。</strong> 沿指定维度实现 Softmax，不能调用内置 Softmax。必须先减去最大值，避免大 logits 在指数运算时溢出。</p>
 <h3 id="reviewed-solution-2">Reviewed Solution<a class="anchor" href="#reviewed-solution-2" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-2">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-2" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="p_i=\frac{e^{x_i-m}}{\sum_j e^{x_j-m}},\qquad m=\max_j x_j" data-explicit-math="true">p_i=\frac{e^{x_i-m}}{\sum_j e^{x_j-m}},\qquad m=\max_j x_j</div>
+<ul><li><strong>公式 / 不变量。</strong> 减去同一常数不改变 Softmax 比值；取最大值作平移后，最大指数仅为 1。</li><li><strong>算法拆解。</strong> 沿目标维求最大值并保留维度，平移后指数化、求和、归一化；复杂度 O(N)，重点是避免 overflow。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def my_softmax(x: torch.Tensor, dim: int = -1) -&gt; torch.Tensor:
     # 每一行减去自己的最大值；概率不变，但 exp 更稳定
     shifted = x - x.amax(dim=dim, keepdim=True)
@@ -81,6 +87,9 @@
 <p><strong>Problem.</strong> Implement <code>y = xW^T + b</code>. Weight shape is <code>(out_features, in_features)</code> and both tensors require gradients.</p>
 <p><strong>中文题意。</strong> 手写全连接层。权重形状为 <code>(输出维度, 输入维度)</code>，偏置为 <code>(输出维度,)</code>，两者都需要梯度。</p>
 <h3 id="reviewed-solution-3">Reviewed Solution<a class="anchor" href="#reviewed-solution-3" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-3">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-3" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="Y=XW^\top+b,\quad X\in\mathbb{R}^{B\times D_{in}},\ W\in\mathbb{R}^{D_{out}\times D_{in}}" data-explicit-math="true">Y=XW^\top+b,\quad X\in\mathbb{R}^{B\times D_{in}},\ W\in\mathbb{R}^{D_{out}\times D_{in}}</div>
+<ul><li><strong>公式 / 不变量。</strong> 线性层把最后一维从输入特征映射到输出特征；偏置按前导维广播。</li><li><strong>算法拆解。</strong> 先确认矩阵收缩维一致，再做矩阵乘法并加偏置；计算量 O(BD_{in}D_{out})。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class SimpleLinear:
     def __init__(self, in_features: int, out_features: int):
         # 缩放初始化，避免输入维度增大时输出方差过大
@@ -103,6 +112,9 @@
 <p><strong>Problem.</strong> Normalize over the last dimension, then apply learned scale <code>gamma</code> and shift <code>beta</code>.</p>
 <p><strong>中文题意。</strong> 对每个样本的最后一个维度计算均值和方差，标准化后乘以 <code>gamma</code>、加上 <code>beta</code>。</p>
 <h3 id="reviewed-solution-4">Reviewed Solution<a class="anchor" href="#reviewed-solution-4" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-4">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-4" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\hat{x}_i=\frac{x_i-\mu}{\sqrt{\sigma^2+\epsilon}},\qquad y_i=\gamma_i\hat{x}_i+\beta_i" data-explicit-math="true">\hat{x}_i=\frac{x_i-\mu}{\sqrt{\sigma^2+\epsilon}},\qquad y_i=\gamma_i\hat{x}_i+\beta_i</div>
+<ul><li><strong>公式 / 不变量。</strong> LayerNorm 在每个样本或 token 的特征维内归一化，不依赖 batch 中其他样本。</li><li><strong>算法拆解。</strong> 沿最后一维求总体均值和方差，标准化后做逐特征仿射变换；epsilon 防止零方差除零。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def my_layer_norm(x, gamma, beta, eps=1e-5):
     # (B,S,D) -&gt; 均值和方差形状都是 (B,S,1)
     mean = x.mean(dim=-1, keepdim=True)
@@ -119,6 +131,9 @@
 <p><strong>Problem.</strong> Compute <code>softmax(QK^T / sqrt(Dk))V</code>, including cross-attention where query and key lengths differ.</p>
 <p><strong>中文题意。</strong> 实现缩放点积注意力，并支持 <code>Sq != Sk</code> 的交叉注意力。Q/K 的特征维必须相同，K/V 的序列长度必须相同。</p>
 <h3 id="reviewed-solution-5">Reviewed Solution<a class="anchor" href="#reviewed-solution-5" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-5">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-5" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\operatorname{Attention}(Q,K,V)=\operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V" data-explicit-math="true">\operatorname{Attention}(Q,K,V)=\operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V</div>
+<ul><li><strong>公式 / 不变量。</strong> 点积衡量 query 与 key 的相关性；除以 <span class="math-inline" data-tex="\sqrt{d_k}" data-explicit-math="true">\sqrt{d_k}</span> 控制 logits 方差，Softmax 后对 value 加权。</li><li><strong>算法拆解。</strong> 先算所有 Q-K 分数，再按 key 维归一化并乘 V；标准复杂度 O(S_qS_kd)。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def scaled_dot_product_attention(Q, K, V):
     if Q.size(-1) != K.size(-1) or K.size(1) != V.size(1):
         raise ValueError(&quot;incompatible Q, K, V shapes&quot;)
@@ -138,6 +153,9 @@
 <p><strong>Problem.</strong> Project Q/K/V, split them into heads, run attention per head, concatenate, and apply an output projection.</p>
 <p><strong>中文题意。</strong> 实现多头注意力：先线性投影，再拆成多个 head，每个 head 独立计算注意力，最后拼接并输出投影。</p>
 <h3 id="reviewed-solution-6">Reviewed Solution<a class="anchor" href="#reviewed-solution-6" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-6">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-6" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\operatorname{MHA}(X)=\operatorname{Concat}(head_1,\ldots,head_H)W_O" data-explicit-math="true">\operatorname{MHA}(X)=\operatorname{Concat}(head_1,\ldots,head_H)W_O</div>
+<ul><li><strong>公式 / 不变量。</strong> 每个 head 在较低维子空间独立做注意力，拼接后通过输出投影混合 head 信息。</li><li><strong>算法拆解。</strong> Q/K/V 投影后 reshape 为 H 个 head，批量注意力，再转回并投影；注意 transpose 后常需 contiguous 或 reshape。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, num_heads):
         super().__init__()
@@ -175,6 +193,9 @@
 <p><strong>Problem.</strong> Normalize <code>(N,D)</code> over the batch dimension and maintain running statistics for inference.</p>
 <p><strong>中文题意。</strong> 训练时按 batch 维度计算每个特征的均值和方差，同时更新运行统计量；推理时只使用运行统计量。</p>
 <h3 id="reviewed-solution-7">Reviewed Solution<a class="anchor" href="#reviewed-solution-7" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-7">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-7" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\hat{x}_{n,c}=\frac{x_{n,c}-\mu_c}{\sqrt{\sigma_c^2+\epsilon}},\qquad y_{n,c}=\gamma_c\hat{x}_{n,c}+\beta_c" data-explicit-math="true">\hat{x}_{n,c}=\frac{x_{n,c}-\mu_c}{\sqrt{\sigma_c^2+\epsilon}},\qquad y_{n,c}=\gamma_c\hat{x}_{n,c}+\beta_c</div>
+<ul><li><strong>公式 / 不变量。</strong> BatchNorm 按通道聚合 batch 及空间位置；训练用当前统计量，推理用移动平均。</li><li><strong>算法拆解。</strong> 训练时求通道均值方差并更新 running stats，推理时固定统计量；小 batch 会使估计噪声增大。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def my_batch_norm(x, gamma, beta, running_mean, running_var,
                   eps=1e-5, momentum=0.1, training=True):
     if training:
@@ -199,6 +220,9 @@
 <p><strong>Problem.</strong> Normalize by root-mean-square over the last dimension without subtracting the mean.</p>
 <p><strong>中文题意。</strong> 在最后一维计算均方根并归一化，但不像 LayerNorm 那样减均值。</p>
 <h3 id="reviewed-solution-8">Reviewed Solution<a class="anchor" href="#reviewed-solution-8" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-8">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-8" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\operatorname{RMSNorm}(x)=\gamma\odot\frac{x}{\sqrt{\frac1D\sum_{i=1}^{D}x_i^2+\epsilon}}" data-explicit-math="true">\operatorname{RMSNorm}(x)=\gamma\odot\frac{x}{\sqrt{\frac1D\sum_{i=1}^{D}x_i^2+\epsilon}}</div>
+<ul><li><strong>公式 / 不变量。</strong> RMSNorm 不减均值，只按均方根缩放，因此比 LayerNorm 少一次中心化。</li><li><strong>算法拆解。</strong> 求最后一维平方均值，乘倒平方根，再乘可学习缩放；复杂度 O(ND)。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def rms_norm(x, weight, eps=1e-6):
     # RMS = sqrt(mean(x^2) + eps)，形状保留为 (...,1)
     inv_rms = torch.rsqrt(x.square().mean(dim=-1, keepdim=True) + eps)
@@ -212,6 +236,9 @@
 <p><strong>Problem.</strong> Prevent token position <code>i</code> from attending to future positions <code>j &gt; i</code>.</p>
 <p><strong>中文题意。</strong> 实现 GPT 解码器中的因果注意力。第 <code>i</code> 个 token 只能看见自己和之前的 token，不能泄露未来信息。</p>
 <h3 id="reviewed-solution-9">Reviewed Solution<a class="anchor" href="#reviewed-solution-9" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-9">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-9" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="A=\operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt d}+M\right),\quad M_{ij}=\begin{cases}0&amp;j\le i\\-\infty&amp;j&gt;i\end{cases}" data-explicit-math="true">A=\operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt d}+M\right),\quad M_{ij}=\begin{cases}0&amp;j\le i\\-\infty&amp;j&gt;i\end{cases}</div>
+<ul><li><strong>公式 / 不变量。</strong> 因果 mask 让位置 i 只能读取当前位置及过去，避免训练时泄漏未来 token。</li><li><strong>算法拆解。</strong> 生成上三角布尔 mask，在 Softmax 前把未来 logits 置为负无穷，再乘 V；mask 必须与序列维对齐。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def causal_attention(Q, K, V):
     scores = torch.bmm(Q, K.transpose(1, 2)) / math.sqrt(Q.size(-1))
     s = Q.size(1)
@@ -232,6 +259,9 @@
 <p><strong>Problem.</strong> Use fewer key/value heads than query heads, sharing each KV head across a group of query heads.</p>
 <p><strong>中文题意。</strong> 实现 GQA：query 保留完整 head 数，而 K/V 使用更少的 head，并在一组 query heads 之间共享，以减少 KV cache。</p>
 <h3 id="reviewed-solution-10">Reviewed Solution<a class="anchor" href="#reviewed-solution-10" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-10">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-10" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="H_q=gH_{kv},\qquad h_{kv}=\left\lfloor\frac{h_q}{g}\right\rfloor" data-explicit-math="true">H_q=gH_{kv},\qquad h_{kv}=\left\lfloor\frac{h_q}{g}\right\rfloor</div>
+<ul><li><strong>公式 / 不变量。</strong> GQA 让多组 query head 共享较少的 key/value head，在质量与 KV cache 内存之间折中。</li><li><strong>算法拆解。</strong> 验证 query head 数可被 KV head 数整除，把 K/V 按组扩展或用分组索引，再执行普通多头注意力。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class GroupQueryAttention(nn.Module):
     def __init__(self, d_model, num_heads, num_kv_heads):
         super().__init__()
@@ -265,6 +295,9 @@
 <p><strong>Problem.</strong> Position <code>i</code> may attend only to positions satisfying <code>|i-j| &lt;= window_size</code>.</p>
 <p><strong>中文题意。</strong> 每个 token 只能关注左右窗口内的 token；窗口为 0 时只看自己，窗口覆盖全序列时等价于完整注意力。</p>
 <h3 id="reviewed-solution-11">Reviewed Solution<a class="anchor" href="#reviewed-solution-11" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-11">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-11" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="M_{ij}=0\ \text{iff}\ |i-j|\le w\ \text{and causal constraints hold}" data-explicit-math="true">M_{ij}=0\ \text{iff}\ |i-j|\le w\ \text{and causal constraints hold}</div>
+<ul><li><strong>公式 / 不变量。</strong> 滑动窗口只保留局部邻域连接，把全局二次注意力改为近似线性规模。</li><li><strong>算法拆解。</strong> 构造局部可见性 mask，仅对窗口内 key 归一化；理论连接数 O(Sw)，但显式 S×S mask 仍占 O(S^2) 内存。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def sliding_window_attention(Q, K, V, window_size):
     if window_size &lt; 0:
         raise ValueError(&quot;window_size must be non-negative&quot;)
@@ -285,6 +318,9 @@
 <p><strong>Problem.</strong> Use <code>phi(x)=ELU(x)+1</code> and reassociate matrix products to avoid creating an <code>S x S</code> matrix.</p>
 <p><strong>中文题意。</strong> 用非负核特征映射替代 Softmax，并先计算 <code>K^T V</code>，将序列平方复杂度改为与序列长度线性相关。</p>
 <h3 id="reviewed-solution-12">Reviewed Solution<a class="anchor" href="#reviewed-solution-12" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-12">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-12" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\operatorname{LinearAttn}(Q,K,V)=\phi(Q)\bigl(\phi(K)^\top V\bigr)" data-explicit-math="true">\operatorname{LinearAttn}(Q,K,V)=\phi(Q)\bigl(\phi(K)^\top V\bigr)</div>
+<ul><li><strong>公式 / 不变量。</strong> 利用结合律先聚合 K 与 V，避免显式形成 S×S 注意力矩阵；核映射必须保持非负或满足所选近似。</li><li><strong>算法拆解。</strong> 先计算 KV 汇总，再与每个 Q 相乘并做归一化；典型复杂度从 O(S^2d) 降到 O(Sd^2)。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def linear_attention(Q, K, V, eps=1e-6):
     q, k = F.elu(Q) + 1.0, F.elu(K) + 1.0
     # (B,Dk,S) @ (B,S,Dv) -&gt; (B,Dk,Dv)，不创建 SxS
@@ -301,6 +337,9 @@
 <p><strong>Problem.</strong> Build a pre-norm causal Transformer block with residual attention and a 4x GELU MLP.</p>
 <p><strong>中文题意。</strong> 实现简化 GPT-2 block：<code>x += causal_attention(LN(x))</code>，然后 <code>x += MLP(LN(x))</code>。</p>
 <h3 id="reviewed-solution-13">Reviewed Solution<a class="anchor" href="#reviewed-solution-13" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-13">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-13" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="X'=X+\operatorname{Attn}(\operatorname{LN}(X)),\qquad Y=X'+\operatorname{MLP}(\operatorname{LN}(X'))" data-explicit-math="true">X'=X+\operatorname{Attn}(\operatorname{LN}(X)),\qquad Y=X'+\operatorname{MLP}(\operatorname{LN}(X'))</div>
+<ul><li><strong>公式 / 不变量。</strong> Pre-LN Transformer 用残差路径保持梯度通道，注意力负责 token 混合，MLP 负责通道混合。</li><li><strong>算法拆解。</strong> 依次执行归一化、注意力、残差，再归一化、MLP、残差；每个子层输入输出 shape 必须一致。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class GPT2Block(nn.Module):
     def __init__(self, d_model, num_heads):
         super().__init__()
@@ -337,6 +376,9 @@
 <p><strong>Problem.</strong> Cache projected K/V tensors so autoregressive decoding projects only new tokens.</p>
 <p><strong>中文题意。</strong> 预填充时保存所有 K/V；逐 token 解码时，把新 K/V 拼到缓存后面，避免重复投影历史 token。</p>
 <h3 id="reviewed-solution-14">Reviewed Solution<a class="anchor" href="#reviewed-solution-14" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-14">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-14" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="K_{cache}^{(t)}=[K_{cache}^{(t-1)};K_t],\qquad V_{cache}^{(t)}=[V_{cache}^{(t-1)};V_t]" data-explicit-math="true">K_{cache}^{(t)}=[K_{cache}^{(t-1)};K_t],\qquad V_{cache}^{(t)}=[V_{cache}^{(t-1)};V_t]</div>
+<ul><li><strong>公式 / 不变量。</strong> 自回归解码只为新 token 计算 K/V，并复用历史缓存，避免重复编码整个前缀。</li><li><strong>算法拆解。</strong> 追加新 K/V，令当前 Q 读取完整 cache；单步注意力 O(td)，总解码仍约 O(T^2d)，但投影不再重复。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class KVCacheAttention(nn.Module):
     def __init__(self, d_model, num_heads):
         super().__init__()
@@ -374,6 +416,9 @@
 <p><strong>Problem.</strong> Implement <code>down(SiLU(gate(x)) * up(x))</code>, the gated feed-forward layer used by modern LLMs.</p>
 <p><strong>中文题意。</strong> 实现 SwiGLU：输入经过 gate 和 up 两条投影，用 SiLU 激活 gate 后逐元素相乘，再投影回模型维度。</p>
 <h3 id="reviewed-solution-15">Reviewed Solution<a class="anchor" href="#reviewed-solution-15" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-15">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-15" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\operatorname{SwiGLU}(x)=\operatorname{SiLU}(xW_g)\odot(xW_u)W_d" data-explicit-math="true">\operatorname{SwiGLU}(x)=\operatorname{SiLU}(xW_g)\odot(xW_u)W_d</div>
+<ul><li><strong>公式 / 不变量。</strong> 门控分支决定哪些通道通过，up 分支提供内容，逐元素乘积形成数据依赖的特征选择。</li><li><strong>算法拆解。</strong> 并行计算 gate/up 投影，SiLU 激活 gate，逐元素相乘后降维；两分支 shape 必须相同。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class SwiGLUMLP(nn.Module):
     def __init__(self, d_model, d_ff):
         super().__init__()
@@ -395,6 +440,9 @@
 <p><strong>Problem.</strong> Implement mean class-index cross-entropy for logits <code>(B,C)</code> without built-in cross-entropy.</p>
 <p><strong>中文题意。</strong> 输入未归一化 logits 和每个样本的类别下标，使用稳定的 log-sum-exp 计算平均负对数似然。</p>
 <h3 id="reviewed-solution-16">Reviewed Solution<a class="anchor" href="#reviewed-solution-16" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-16">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-16" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\mathcal{L}=-\frac1N\sum_{n=1}^{N}\log\frac{e^{z_{n,y_n}}}{\sum_c e^{z_{n,c}}}" data-explicit-math="true">\mathcal{L}=-\frac1N\sum_{n=1}^{N}\log\frac{e^{z_{n,y_n}}}{\sum_c e^{z_{n,c}}}</div>
+<ul><li><strong>公式 / 不变量。</strong> 交叉熵等价于正确类别的负 log-softmax；稳定实现应使用 log-sum-exp 而非先算概率再取 log。</li><li><strong>算法拆解。</strong> 每行 logits 减最大值，计算 logsumexp，再取目标类别得分；时间复杂度 O(NC)。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def cross_entropy_loss(logits, targets):
     # log_softmax(x) = x - logsumexp(x)
     log_probs = logits - torch.logsumexp(logits, dim=-1, keepdim=True)
@@ -410,6 +458,9 @@
 <p><strong>Problem.</strong> During training, drop elements with probability <code>p</code> and preserve expectation; during evaluation, return the input unchanged.</p>
 <p><strong>中文题意。</strong> 训练时随机将元素置零，并将保留元素放大 <code>1/(1-p)</code>；推理时不做任何变化。</p>
 <h3 id="reviewed-solution-17">Reviewed Solution<a class="anchor" href="#reviewed-solution-17" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-17">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-17" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="y_i=\frac{m_i}{1-p}x_i,\qquad m_i\sim\operatorname{Bernoulli}(1-p)" data-explicit-math="true">y_i=\frac{m_i}{1-p}x_i,\qquad m_i\sim\operatorname{Bernoulli}(1-p)</div>
+<ul><li><strong>公式 / 不变量。</strong> inverted dropout 在训练时除以保留概率，使输出期望仍等于输入；推理时无需缩放。</li><li><strong>算法拆解。</strong> 训练模式采样独立 mask 并缩放，评估模式原样返回；边界 p=0 和 p=1 要单独处理。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class MyDropout(nn.Module):
     def __init__(self, p=0.5):
         super().__init__()
@@ -434,6 +485,9 @@
 <p><strong>Problem.</strong> Store a trainable embedding table and return rows selected by integer token IDs.</p>
 <p><strong>中文题意。</strong> 不使用 <code>nn.Embedding</code>，创建一个可训练查找表，并通过 token ID 索引对应行。</p>
 <h3 id="reviewed-solution-18">Reviewed Solution<a class="anchor" href="#reviewed-solution-18" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-18">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-18" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="Y_{b,s,:}=W_{I_{b,s},:},\qquad W\in\mathbb{R}^{V\times D}" data-explicit-math="true">Y_{b,s,:}=W_{I_{b,s},:},\qquad W\in\mathbb{R}^{V\times D}</div>
+<ul><li><strong>公式 / 不变量。</strong> Embedding 本质是按整数 token id 查参数表，不是 one-hot 矩阵乘法的显式实现。</li><li><strong>算法拆解。</strong> 检查索引范围后做行选择，输出 shape 在输入索引后追加 D；反向只更新被访问的行。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class MyEmbedding(nn.Module):
     def __init__(self, num_embeddings, embedding_dim):
         super().__init__()
@@ -452,6 +506,9 @@
 <p><strong>Problem.</strong> Implement exact GELU using the Gaussian error function, without built-in GELU.</p>
 <p><strong>中文题意。</strong> 按精确公式 <code>x * Phi(x)</code> 实现 GELU，使用 <code>torch.erf</code>，不能调用内置 GELU。</p>
 <h3 id="reviewed-solution-19">Reviewed Solution<a class="anchor" href="#reviewed-solution-19" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-19">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-19" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\operatorname{GELU}(x)\approx\frac{x}{2}\left(1+\tanh\!\left[\sqrt{\frac{2}{\pi}}(x+0.044715x^3)\right]\right)" data-explicit-math="true">\operatorname{GELU}(x)\approx\frac{x}{2}\left(1+\tanh\!\left[\sqrt{\frac{2}{\pi}}(x+0.044715x^3)\right]\right)</div>
+<ul><li><strong>公式 / 不变量。</strong> GELU 以平滑概率门控输入，负值不会像 ReLU 那样全部截断。</li><li><strong>算法拆解。</strong> 按 tanh 近似逐元素计算；注意常数、三次项和括号，复杂度 O(N)。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def my_gelu(x):
     # Phi 是标准高斯分布的累积分布函数
     # Phi(x)=0.5*(1+erf(x/sqrt(2)))
@@ -466,6 +523,9 @@
 <p><strong>Problem.</strong> Initialize weights from <code>N(0, 2/fan_in)</code> in place.</p>
 <p><strong>中文题意。</strong> 根据输入连接数计算标准差 <code>sqrt(2/fan_in)</code>，用正态分布原地初始化权重。</p>
 <h3 id="reviewed-solution-20">Reviewed Solution<a class="anchor" href="#reviewed-solution-20" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-20">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-20" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\operatorname{Var}(W)=\frac{2}{fan_{in}}\quad\text{for ReLU networks}" data-explicit-math="true">\operatorname{Var}(W)=\frac{2}{fan_{in}}\quad\text{for ReLU networks}</div>
+<ul><li><strong>公式 / 不变量。</strong> Kaiming 初始化根据 ReLU 截断约一半方差的现象选择权重尺度，防止层间激活爆炸或衰减。</li><li><strong>算法拆解。</strong> 计算 fan-in，按正态标准差 sqrt(2/fan-in) 或对应均匀区间采样；卷积 fan-in 还包含核面积。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def kaiming_init(weight):
     if weight.dim() &lt; 2:
         raise ValueError(&quot;weight must have at least two dimensions&quot;)
@@ -485,6 +545,9 @@
 <p><strong>Problem.</strong> Clip the combined L2 norm of all existing gradients to <code>max_norm</code> and return the original norm.</p>
 <p><strong>中文题意。</strong> 把所有参数梯度视作一个大向量；若总 L2 norm 超过阈值，就用同一个比例缩放全部梯度。</p>
 <h3 id="reviewed-solution-21">Reviewed Solution<a class="anchor" href="#reviewed-solution-21" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-21">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-21" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="g'=g\cdot\min\!\left(1,\frac{c}{\lVert g\rVert_2+\epsilon}\right)" data-explicit-math="true">g'=g\cdot\min\!\left(1,\frac{c}{\lVert g\rVert_2+\epsilon}\right)</div>
+<ul><li><strong>公式 / 不变量。</strong> 全局范数裁剪保持梯度方向不变，只在总范数超过阈值时统一缩小。</li><li><strong>算法拆解。</strong> 先累加所有参数梯度平方得到全局 L2 范数，再用同一系数缩放；不能逐参数各自裁剪。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def clip_grad_norm(parameters, max_norm):
     if max_norm &lt; 0:
         raise ValueError(&quot;max_norm must be non-negative&quot;)
@@ -509,6 +572,9 @@
 <p><strong>Problem.</strong> Implement Conv2D with scalar stride, padding, and optional bias without using <code>conv2d</code>.</p>
 <p><strong>中文题意。</strong> 将输入切成滑动窗口，并让每个窗口与卷积核做加权求和，支持步长、零填充和偏置。</p>
 <h3 id="reviewed-solution-22">Reviewed Solution<a class="anchor" href="#reviewed-solution-22" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-22">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-22" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="Y_{n,o,i,j}=b_o+\sum_c\sum_u\sum_v W_{o,c,u,v}X_{n,c,i+u,j+v}" data-explicit-math="true">Y_{n,o,i,j}=b_o+\sum_c\sum_u\sum_v W_{o,c,u,v}X_{n,c,i+u,j+v}</div>
+<ul><li><strong>公式 / 不变量。</strong> 二维卷积在空间位置共享同一组核参数；输出尺寸由 kernel、stride、padding、dilation 决定。</li><li><strong>算法拆解。</strong> 先算输出高宽，再提取每个局部窗口与卷积核做乘加；朴素复杂度 O(BH_oW_oC_iC_ok_hk_w)。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def my_conv2d(x, weight, bias=None, stride=1, padding=0):
     if padding:
         x = F.pad(x, (padding, padding, padding, padding))
@@ -530,6 +596,9 @@
 <p><strong>Problem.</strong> Generate Q from decoder states and K/V from encoder states, with no causal mask over encoder positions.</p>
 <p><strong>中文题意。</strong> 在 encoder-decoder 模型中，decoder hidden states 产生 Q，encoder outputs 产生 K 和 V；每个 decoder query 可看见全部 encoder token。</p>
 <h3 id="reviewed-solution-23">Reviewed Solution<a class="anchor" href="#reviewed-solution-23" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-23">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-23" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\operatorname{CrossAttn}(X_q,X_{kv})=\operatorname{softmax}\!\left(\frac{Q(X_q)K(X_{kv})^\top}{\sqrt d}\right)V(X_{kv})" data-explicit-math="true">\operatorname{CrossAttn}(X_q,X_{kv})=\operatorname{softmax}\!\left(\frac{Q(X_q)K(X_{kv})^\top}{\sqrt d}\right)V(X_{kv})</div>
+<ul><li><strong>公式 / 不变量。</strong> 交叉注意力的 query 和 key/value 来自不同序列，因此 query 长度可以不同于上下文长度。</li><li><strong>算法拆解。</strong> 分别投影 query 与上下文，按 head 拆分，验证 K/V 长度相同，再做注意力和输出投影。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class MultiHeadCrossAttention(MultiHeadAttention):
     def forward(self, x_q, x_kv):
         # Q: (B,Sq,D)，K/V: (B,Skv,D)，输出长度跟随 Sq
@@ -543,6 +612,9 @@
 <p><strong>Problem.</strong> Rotate consecutive feature pairs with position-dependent angles so Q/K dot products encode relative positions.</p>
 <p><strong>中文题意。</strong> 将最后一维按相邻两个元素分组，对每组执行二维旋转；不同位置使用不同角度，从而把位置信息写入 Q/K。</p>
 <h3 id="reviewed-solution-24">Reviewed Solution<a class="anchor" href="#reviewed-solution-24" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-24">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-24" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\begin{bmatrix}x'_{2i}\\x'_{2i+1}\end{bmatrix}=\begin{bmatrix}\cos\theta&amp;-\sin\theta\\\sin\theta&amp;\cos\theta\end{bmatrix}\begin{bmatrix}x_{2i}\\x_{2i+1}\end{bmatrix}" data-explicit-math="true">\begin{bmatrix}x'_{2i}\\x'_{2i+1}\end{bmatrix}=\begin{bmatrix}\cos\theta&amp;-\sin\theta\\\sin\theta&amp;\cos\theta\end{bmatrix}\begin{bmatrix}x_{2i}\\x_{2i+1}\end{bmatrix}</div>
+<ul><li><strong>公式 / 不变量。</strong> RoPE 对相邻特征维成对旋转；Q 与 K 的内积因此自然编码相对位置差。</li><li><strong>算法拆解。</strong> 生成各位置和频率的角度，拆分偶数/奇数维，应用二维旋转后交错还原；head dimension 通常必须为偶数。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def apply_rope(q, k):
     if q.shape != k.shape or q.size(-1) % 2:
         raise ValueError(&quot;q/k must match and D must be even&quot;)
@@ -569,6 +641,9 @@
 <p><strong>Problem.</strong> Process K/V in blocks and use online softmax to match full attention without materializing its entire score matrix.</p>
 <p><strong>中文题意。</strong> 分块计算 attention，并为每一行维护当前最大值、指数和、输出累加器；最大值变化时必须重新缩放旧结果。</p>
 <h3 id="reviewed-solution-25">Reviewed Solution<a class="anchor" href="#reviewed-solution-25" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-25">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-25" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="m_i^{new}=\max(m_i,m_{ij}),\quad l_i^{new}=e^{m_i-m_i^{new}}l_i+\sum_j e^{s_{ij}-m_i^{new}}" data-explicit-math="true">m_i^{new}=\max(m_i,m_{ij}),\quad l_i^{new}=e^{m_i-m_i^{new}}l_i+\sum_j e^{s_{ij}-m_i^{new}}</div>
+<ul><li><strong>公式 / 不变量。</strong> Online Softmax 用运行最大值和归一化和合并 tile，避免保存完整注意力矩阵且保持数值稳定。</li><li><strong>算法拆解。</strong> 按 Q/K/V tile 扫描，更新每行 m、l 和缩放后的输出累加器；最终除以 l，精确等价于普通 Softmax。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def flash_attention(Q, K, V, block_size=32):
     b, sq, d = Q.shape
     dv = V.size(-1)
@@ -601,6 +676,9 @@
 <p><strong>Problem.</strong> Freeze a base linear layer and learn the low-rank update <code>(alpha/r)BA</code>.</p>
 <p><strong>中文题意。</strong> 基础 Linear 参数冻结，只训练两个低秩矩阵 A、B，并将低秩更新加到基础输出上。</p>
 <h3 id="reviewed-solution-26">Reviewed Solution<a class="anchor" href="#reviewed-solution-26" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-26">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-26" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="W'=W+\frac{\alpha}{r}BA,\qquad A\in\mathbb{R}^{r\times d_{in}},\ B\in\mathbb{R}^{d_{out}\times r}" data-explicit-math="true">W'=W+\frac{\alpha}{r}BA,\qquad A\in\mathbb{R}^{r\times d_{in}},\ B\in\mathbb{R}^{d_{out}\times r}</div>
+<ul><li><strong>公式 / 不变量。</strong> LoRA 冻结原权重，只训练低秩增量；参数量从 d_out×d_in 降为 r(d_in+d_out)。</li><li><strong>算法拆解。</strong> 基座线性输出加上 xA^T再乘B^T 的支路并按 alpha/r 缩放；部署时可把增量 merge 回 W。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class LoRALinear(nn.Module):
     def __init__(self, in_features, out_features, rank, alpha=1.0):
         super().__init__()
@@ -626,6 +704,9 @@
 <p><strong>Problem.</strong> Split images into non-overlapping patches and project each flattened patch to an embedding.</p>
 <p><strong>中文题意。</strong> 把 <code>(B,C,H,W)</code> 图像切成不重叠的 <code>P x P</code> patch，展平每个 patch，再映射到 Transformer embedding。</p>
 <h3 id="reviewed-solution-27">Reviewed Solution<a class="anchor" href="#reviewed-solution-27" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-27">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-27" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="N=\frac{H}{P}\frac{W}{P},\qquad Z\in\mathbb{R}^{B\times N\times D}" data-explicit-math="true">N=\frac{H}{P}\frac{W}{P},\qquad Z\in\mathbb{R}^{B\times N\times D}</div>
+<ul><li><strong>公式 / 不变量。</strong> Patch Embedding 把每个 P×P 图像块展平并线性投影成 token；卷积核和步长都取 P 可一次完成。</li><li><strong>算法拆解。</strong> 检查 H/W 可被 P 整除，卷积得到 B×D×H/P×W/P，再 flatten 空间并转成 B×N×D。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class PatchEmbedding(nn.Module):
     def __init__(self, img_size, patch_size, in_channels, embed_dim):
         super().__init__()
@@ -655,6 +736,9 @@
 <p><strong>Problem.</strong> Route each token to its top-k expert MLPs and combine outputs using normalized router weights.</p>
 <p><strong>中文题意。</strong> Router 为每个 token 选择 top-k experts，将它们的输出按门控概率加权求和。</p>
 <h3 id="reviewed-solution-28">Reviewed Solution<a class="anchor" href="#reviewed-solution-28" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-28">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-28" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="y=\sum_{e\in\operatorname{TopK}(g(x))}p_e(x)E_e(x)" data-explicit-math="true">y=\sum_{e\in\operatorname{TopK}(g(x))}p_e(x)E_e(x)</div>
+<ul><li><strong>公式 / 不变量。</strong> MoE 路由器为每个 token 选择少量专家，计算量近似稠密模型但参数容量更大。</li><li><strong>算法拆解。</strong> 计算 router logits 和概率，取 top-k 专家，分发 token、加权汇总；还需容量限制和负载均衡避免专家塌缩。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class MixtureOfExperts(nn.Module):
     def __init__(self, d_model, d_ff, num_experts, top_k=2):
         super().__init__()
@@ -689,6 +773,9 @@
 <p><strong>Problem.</strong> Implement Adam with first/second moments and bias correction.</p>
 <p><strong>中文题意。</strong> 为每个参数维护梯度一阶矩和平方梯度二阶矩，进行偏差修正后更新参数。</p>
 <h3 id="reviewed-solution-29">Reviewed Solution<a class="anchor" href="#reviewed-solution-29" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-29">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-29" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,\quad v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2,\quad \theta_t=\theta_{t-1}-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\epsilon}" data-explicit-math="true">m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,\quad v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2,\quad \theta_t=\theta_{t-1}-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\epsilon}</div>
+<ul><li><strong>公式 / 不变量。</strong> Adam 用一阶动量平滑方向、二阶动量自适应缩放，并用偏差修正补偿初期零初始化。</li><li><strong>算法拆解。</strong> 逐参数更新 m/v，除以 1-beta^t 得到无偏估计，再更新参数；状态内存约为参数量的两倍。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class MyAdam:
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8):
         self.params = list(params)
@@ -725,6 +812,9 @@
 <p><strong>Problem.</strong> Linearly warm up to <code>max_lr</code>, then cosine-decay to <code>min_lr</code>.</p>
 <p><strong>中文题意。</strong> 前若干步线性增加学习率，之后沿半个余弦曲线平滑下降到最小学习率。</p>
 <h3 id="reviewed-solution-30">Reviewed Solution<a class="anchor" href="#reviewed-solution-30" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-30">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-30" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\eta_t=\begin{cases}\eta_{max}\,t/T_w&amp;t&lt;T_w\\\eta_{min}+\frac{\eta_{max}-\eta_{min}}2\left[1+\cos\left(\pi\frac{t-T_w}{T-T_w}\right)\right]&amp;t\ge T_w\end{cases}" data-explicit-math="true">\eta_t=\begin{cases}\eta_{max}\,t/T_w&amp;t&lt;T_w\\\eta_{min}+\frac{\eta_{max}-\eta_{min}}2\left[1+\cos\left(\pi\frac{t-T_w}{T-T_w}\right)\right]&amp;t\ge T_w\end{cases}</div>
+<ul><li><strong>公式 / 不变量。</strong> warmup 先线性提高学习率以稳定早期训练，之后余弦衰减平滑降低到最小值。</li><li><strong>算法拆解。</strong> 先裁剪 step 到合法区间，按是否处于 warmup 分段计算；重点核对端点和总步数定义。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def cosine_lr_schedule(step, total_steps, warmup_steps, max_lr, min_lr=0.0):
     if not 0 &lt;= warmup_steps &lt; total_steps:
         raise ValueError(&quot;invalid schedule lengths&quot;)
@@ -745,6 +835,9 @@
 <p><strong>Problem.</strong> Accumulate gradients over micro-batches, take one optimizer step, and return average loss.</p>
 <p><strong>中文题意。</strong> 用多个小 batch 模拟一个大 batch：每次 backward 只累加梯度，所有 micro-batches 完成后再 step。</p>
 <h3 id="reviewed-solution-31">Reviewed Solution<a class="anchor" href="#reviewed-solution-31" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-31">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-31" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="g=\nabla_\theta\frac1K\sum_{k=1}^{K}\mathcal{L}_k=\frac1K\sum_{k=1}^{K}\nabla_\theta\mathcal{L}_k" data-explicit-math="true">g=\nabla_\theta\frac1K\sum_{k=1}^{K}\mathcal{L}_k=\frac1K\sum_{k=1}^{K}\nabla_\theta\mathcal{L}_k</div>
+<ul><li><strong>公式 / 不变量。</strong> 梯度累积用 K 个 micro-batch 模拟更大 batch；每个 loss 除以 K 才与大 batch 的平均梯度一致。</li><li><strong>算法拆解。</strong> 连续 K 次 forward/backward 不清梯度，第 K 次后 step 再 zero_grad；含 BatchNorm 时统计行为不完全等价。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def accumulated_step(model, optimizer, loss_fn, micro_batches):
     if not micro_batches:
         raise ValueError(&quot;micro_batches cannot be empty&quot;)
@@ -767,6 +860,9 @@
 <p><strong>Problem.</strong> Apply temperature, top-k filtering, nucleus filtering, then sample one token.</p>
 <p><strong>中文题意。</strong> 调整 temperature 后，只保留 top-k 候选；再保留累计概率达到 top-p 的最小高概率集合，最后按过滤后的概率采样。</p>
 <h3 id="reviewed-solution-32">Reviewed Solution<a class="anchor" href="#reviewed-solution-32" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-32">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-32" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="p_i\propto e^{z_i/T}\,\mathbf{1}[i\in\operatorname{TopK}\cap\operatorname{TopP}]" data-explicit-math="true">p_i\propto e^{z_i/T}\,\mathbf{1}[i\in\operatorname{TopK}\cap\operatorname{TopP}]</div>
+<ul><li><strong>公式 / 不变量。</strong> temperature 控制分布尖锐度，top-k 限制候选数量，top-p 保留累计概率达到阈值的最小集合。</li><li><strong>算法拆解。</strong> 缩放 logits，先过滤再做稳定 Softmax，最后按概率采样；至少保留一个 token。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def sample_top_k_top_p(logits, top_k=0, top_p=1.0, temperature=1.0):
     if temperature &lt;= 0 or not 0.0 &lt; top_p &lt;= 1.0:
         raise ValueError(&quot;invalid sampling parameters&quot;)
@@ -793,6 +889,9 @@
 <p><strong>Problem.</strong> Expand the highest-scoring partial sequences and return the best completed sequence.</p>
 <p><strong>中文题意。</strong> 每一步保留累计 log-probability 最高的若干序列，遇到 EOS 后放入完成集合，最终返回最佳完成序列。</p>
 <h3 id="reviewed-solution-33">Reviewed Solution<a class="anchor" href="#reviewed-solution-33" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-33">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-33" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="s(y_{1:t})=\sum_{i=1}^{t}\log p(y_i\mid y_{&lt;i},x)" data-explicit-math="true">s(y_{1:t})=\sum_{i=1}^{t}\log p(y_i\mid y_{&lt;i},x)</div>
+<ul><li><strong>公式 / 不变量。</strong> Beam Search 保留累计对数概率最高的 B 条部分序列，近似搜索最大概率序列。</li><li><strong>算法拆解。</strong> 每步展开 B×V 个候选，取全局 top-B，记录父 beam 和 token；遇到 EOS 后冻结并最终选最高分。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def beam_search(log_prob_fn, start_token, max_len, beam_width, eos_token):
     active, completed = [(0.0, [start_token])], []
     while active and len(active[0][1]) &lt; max_len:
@@ -821,6 +920,9 @@
 <p><strong>Problem.</strong> Accept draft token <code>t</code> with probability <code>min(1,p(t)/q(t))</code>; on rejection sample from normalized <code>max(p-q,0)</code>.</p>
 <p><strong>中文题意。</strong> 小模型提出 token，大模型按概率比接受；若拒绝，则从目标分布与草稿分布的正残差中采样纠正 token。</p>
 <h3 id="reviewed-solution-34">Reviewed Solution<a class="anchor" href="#reviewed-solution-34" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-34">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-34" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="a_t=\min\!\left(1,\frac{p_t(y_t)}{q_t(y_t)}\right)" data-explicit-math="true">a_t=\min\!\left(1,\frac{p_t(y_t)}{q_t(y_t)}\right)</div>
+<ul><li><strong>公式 / 不变量。</strong> 推测解码用小模型 q 提案、大模型 p 验证；接受概率保证最终样本仍服从目标分布 p。</li><li><strong>算法拆解。</strong> 按顺序接受草稿 token，首次拒绝后从修正分布采样并停止该轮；概率比必须防除零并裁剪到 1。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def speculative_decode(target_probs, draft_probs, draft_tokens):
     accepted = []
     for i, token_tensor in enumerate(draft_tokens):
@@ -848,6 +950,9 @@
 <p><strong>Problem.</strong> Train a simple BPE tokenizer by repeatedly merging the most frequent adjacent symbol pair.</p>
 <p><strong>中文题意。</strong> 将词拆成字符加词尾标记，统计相邻 token pair 的加权频率，反复合并最高频 pair；编码时按学习顺序应用 merges。</p>
 <h3 id="reviewed-solution-35">Reviewed Solution<a class="anchor" href="#reviewed-solution-35" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-35">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-35" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="(a,b)^*=\arg\max_{(a,b)}\operatorname{count}(a,b)" data-explicit-math="true">(a,b)^*=\arg\max_{(a,b)}\operatorname{count}(a,b)</div>
+<ul><li><strong>公式 / 不变量。</strong> BPE 反复合并语料中最高频的相邻符号对，逐步从字符构造子词词表。</li><li><strong>算法拆解。</strong> 统计所有相邻 pair，选最高频 pair 全局合并，更新词表并重复；并列时必须有确定性规则。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class SimpleBPE:
     def __init__(self):
         self.merges = []
@@ -903,6 +1008,9 @@
 <p><strong>Problem.</strong> Quantize each output-channel weight row to INT8, store scales and quantized weights as buffers, then dequantize in forward.</p>
 <p><strong>中文题意。</strong> 对每个输出通道独立计算 scale，把浮点权重量化为 INT8；前向时反量化并执行 Linear。</p>
 <h3 id="reviewed-solution-36">Reviewed Solution<a class="anchor" href="#reviewed-solution-36" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-36">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-36" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="q=\operatorname{clip}\!\left(\operatorname{round}(x/s)+z,q_{min},q_{max}\right),\qquad \hat x=s(q-z)" data-explicit-math="true">q=\operatorname{clip}\!\left(\operatorname{round}(x/s)+z,q_{min},q_{max}\right),\qquad \hat x=s(q-z)</div>
+<ul><li><strong>公式 / 不变量。</strong> 线性量化用 scale 和 zero-point 把浮点映射到 INT8；反量化存在由舍入和裁剪造成的误差。</li><li><strong>算法拆解。</strong> 量化输入/权重，使用整数累加，再乘组合 scale 并加浮点 bias；对称量化常令 z=0。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class Int8Linear(nn.Module):
     def __init__(self, weight, bias=None):
         super().__init__()
@@ -927,6 +1035,9 @@
 <p><strong>Problem.</strong> Compute Direct Preference Optimization loss from policy/reference log-probabilities for chosen and rejected responses.</p>
 <p><strong>中文题意。</strong> 比较 policy 对 chosen/rejected 的偏好差值与 reference 的偏好差值，通过 logistic loss 提升 chosen 的相对概率。</p>
 <h3 id="reviewed-solution-37">Reviewed Solution<a class="anchor" href="#reviewed-solution-37" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-37">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-37" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\mathcal{L}_{DPO}=-\log\sigma\!\left(\beta\left[\log\frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)}-\log\frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)}\right]\right)" data-explicit-math="true">\mathcal{L}_{DPO}=-\log\sigma\!\left(\beta\left[\log\frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)}-\log\frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)}\right]\right)</div>
+<ul><li><strong>公式 / 不变量。</strong> DPO 鼓励策略相对参考模型更偏好 chosen 而非 rejected，不需要显式训练奖励模型。</li><li><strong>算法拆解。</strong> 分别求 chosen/rejected 的策略与参考序列 log-prob，构造相对 margin，再用 log-sigmoid 得到稳定损失。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def dpo_loss(policy_chosen_logps, policy_rejected_logps,
              ref_chosen_logps, ref_rejected_logps, beta=0.1):
     # policy 希望 chosen-rejected margin 比 reference 更大
@@ -943,6 +1054,9 @@
 <p><strong>Problem.</strong> Normalize rewards within each prompt group and compute negative advantage-weighted policy log-probability.</p>
 <p><strong>中文题意。</strong> 对同一 prompt 生成的多个回答做组内 reward 标准化，作为 advantage，再使用策略梯度目标更新回答概率。</p>
 <h3 id="reviewed-solution-38">Reviewed Solution<a class="anchor" href="#reviewed-solution-38" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-38">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-38" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="A_i=\frac{r_i-\mu_G}{\sigma_G+\epsilon},\qquad \mathcal{L}=-\frac1G\sum_i\min(\rho_iA_i,\operatorname{clip}(\rho_i,1-\epsilon,1+\epsilon)A_i)" data-explicit-math="true">A_i=\frac{r_i-\mu_G}{\sigma_G+\epsilon},\qquad \mathcal{L}=-\frac1G\sum_i\min(\rho_iA_i,\operatorname{clip}(\rho_i,1-\epsilon,1+\epsilon)A_i)</div>
+<ul><li><strong>公式 / 不变量。</strong> GRPO 用同一 prompt 的组内奖励标准化作 advantage，省去独立 value model，并用 clipped ratio 限制更新。</li><li><strong>算法拆解。</strong> 按组标准化奖励，计算新旧策略概率比，取 clipped surrogate；标准差很小时 epsilon 很关键。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def grpo_loss(logps, rewards, group_ids, eps=1e-5):
     advantages = torch.empty_like(rewards)
     for group_id in group_ids.unique():
@@ -962,6 +1076,9 @@
 <p><strong>Problem.</strong> Compute the clipped PPO surrogate objective from new/old log-probabilities and advantages.</p>
 <p><strong>中文题意。</strong> 用 <code>exp(new_logp-old_logp)</code> 得到重要性采样比率，将比率限制在 <code>[1-eps,1+eps]</code>，取更保守的目标。</p>
 <h3 id="reviewed-solution-39">Reviewed Solution<a class="anchor" href="#reviewed-solution-39" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-39">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-39" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\mathcal{L}_{clip}=-\mathbb{E}\left[\min\left(r_tA_t,\operatorname{clip}(r_t,1-\epsilon,1+\epsilon)A_t\right)\right]" data-explicit-math="true">\mathcal{L}_{clip}=-\mathbb{E}\left[\min\left(r_tA_t,\operatorname{clip}(r_t,1-\epsilon,1+\epsilon)A_t\right)\right]</div>
+<ul><li><strong>公式 / 不变量。</strong> PPO 在策略改进项和裁剪项中取较小者，阻止一次更新把动作概率推得过远。</li><li><strong>算法拆解。</strong> 用 log-prob 差指数化得到 ratio，按 advantage 符号理解 min 的约束方向，再对有效 token 求均值。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def ppo_loss(new_logps, old_logps, advantages, clip_ratio=0.2):
     if clip_ratio &lt; 0:
         raise ValueError(&quot;clip_ratio must be non-negative&quot;)
@@ -981,6 +1098,9 @@
 <p><strong>Problem.</strong> Fit <code>y=Xw+b</code> using least squares, manual gradient descent, and <code>nn.Linear</code> with autograd.</p>
 <p><strong>中文题意。</strong> 用闭式最小二乘、手写 MSE 梯度下降、PyTorch Linear 三种方式求线性回归参数。</p>
 <h3 id="reviewed-solution-40">Reviewed Solution<a class="anchor" href="#reviewed-solution-40" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-40">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-40" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\hat y=Xw+b,\qquad \mathcal{L}_{MSE}=\frac1N\lVert\hat y-y\rVert_2^2" data-explicit-math="true">\hat y=Xw+b,\qquad \mathcal{L}_{MSE}=\frac1N\lVert\hat y-y\rVert_2^2</div>
+<ul><li><strong>公式 / 不变量。</strong> 线性回归无论手写梯度、autograd 还是 nn.Module，都在优化同一个凸二次目标。</li><li><strong>算法拆解。</strong> forward 得预测，计算 MSE，求梯度并更新；比较三种实现时应使用相同数据、初始化和学习率。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class LinearRegression:
     def closed_form(self, X, y):
         n, d = X.shape
@@ -1019,6 +1139,9 @@
 <p><strong>Problem.</strong> Compute teacher-weighted reverse KL <code>KL(student || teacher)</code> with optional token mask and temperature.</p>
 <p><strong>中文题意。</strong> 对一个或多个 teacher，计算 student 到 teacher 的反向 KL；按 teacher 权重组合，支持忽略 padding token 和温度蒸馏。</p>
 <h3 id="reviewed-solution-41">Reviewed Solution<a class="anchor" href="#reviewed-solution-41" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-41">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-41" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\mathcal{L}_{OPD}=-\log\sigma\!\left(\beta(\Delta_\theta-\Delta_{ref})\right),\qquad \Delta=\log p(y_w|x)-\log p(y_l|x)" data-explicit-math="true">\mathcal{L}_{OPD}=-\log\sigma\!\left(\beta(\Delta_\theta-\Delta_{ref})\right),\qquad \Delta=\log p(y_w|x)-\log p(y_l|x)</div>
+<ul><li><strong>公式 / 不变量。</strong> 偏好目标关注 chosen 与 rejected 的序列对数概率差，并用参考模型校正策略漂移。</li><li><strong>算法拆解。</strong> 先按有效 token 汇总序列 log-prob，再形成策略/参考 margin 差；padding 位置不能计入。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def opd_loss(student_logits, teacher_logits, teacher_weights=None,
              mask=None, temperature=1.0):
     if temperature &lt;= 0:
@@ -1074,6 +1197,9 @@
 <p><strong>Problem.</strong> Build a vocabulary, count adjacent symbol pairs, merge the most frequent pair, and repeat for a fixed number of merges.</p>
 <p><strong>中文题意。</strong> 从词频表开始，把单词拆成字符和 <code>&lt;/w&gt;</code>，反复统计并合并最高频相邻符号对。</p>
 <h3 id="reviewed-solution-42">Reviewed Solution<a class="anchor" href="#reviewed-solution-42" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-42">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-42" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="(u,v)^*=\arg\max_{(u,v)}f(u,v),\qquad vocab\leftarrow vocab\cup\{uv\}" data-explicit-math="true">(u,v)^*=\arg\max_{(u,v)}f(u,v),\qquad vocab\leftarrow vocab\cup\{uv\}</div>
+<ul><li><strong>公式 / 不变量。</strong> 该 BPE 实现的核心仍是最高频 pair 合并；训练规则与编码时的 merge 顺序必须一致。</li><li><strong>算法拆解。</strong> 预分词、统计 pair、确定性选最大值、合并并记录 rank；编码新文本时按 rank 重放合并。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">from collections import Counter
 
 def byte_pair_encoding(corpus, num_merges=10):
@@ -1111,6 +1237,9 @@ def byte_pair_encoding(corpus, num_merges=10):
 <p><strong>Problem.</strong> Implement GQA with more query heads than key/value heads.</p>
 <p><strong>中文题意。</strong> 用完整 Q heads 和较少 KV heads 实现注意力，并让每组 query heads 共享一份 K/V。</p>
 <h3 id="reviewed-solution-43">Reviewed Solution<a class="anchor" href="#reviewed-solution-43" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-43">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-43" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="H_q=gH_{kv},\qquad K'_{h}=K_{\lfloor h/g\rfloor}" data-explicit-math="true">H_q=gH_{kv},\qquad K'_{h}=K_{\lfloor h/g\rfloor}</div>
+<ul><li><strong>公式 / 不变量。</strong> 每 g 个 query head 共享一个 KV head，减少缓存大小到 MHA 的约 1/g。</li><li><strong>算法拆解。</strong> 投影并拆 head，按组把 K/V 映射到 query heads，应用 mask/Softmax 后合并；先验证整除关系。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class TorchLeetGQA(nn.Module):
     def __init__(self, d_model, q_heads, kv_heads):
         super().__init__()
@@ -1142,6 +1271,9 @@ def byte_pair_encoding(corpus, num_merges=10):
 <p><strong>Problem.</strong> Implement masked scaled dot-product attention and return both output and weights.</p>
 <p><strong>中文题意。</strong> 从矩阵乘法实现 attention，支持可广播 mask，并同时返回上下文向量和注意力概率。</p>
 <h3 id="reviewed-solution-44">Reviewed Solution<a class="anchor" href="#reviewed-solution-44" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-44">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-44" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="S=\frac{QK^\top}{\sqrt d},\qquad P=\operatorname{softmax}(S),\qquad O=PV" data-explicit-math="true">S=\frac{QK^\top}{\sqrt d},\qquad P=\operatorname{softmax}(S),\qquad O=PV</div>
+<ul><li><strong>公式 / 不变量。</strong> 从零实现 attention 时最关键的是明确 score 的最后两维分别是 query 长度与 key 长度。</li><li><strong>算法拆解。</strong> 做 shape 检查、缩放点积、可选 mask、稳定 Softmax、value 加权；每一步记录 shape 可避免轴错误。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def attention_with_weights(q, k, v, mask=None):
     # 使用 Python 标量缩放，避免创建 CPU tensor 导致 GPU device mismatch
     scores = q @ k.transpose(-2, -1) / math.sqrt(q.size(-1))
@@ -1159,6 +1291,9 @@ def byte_pair_encoding(corpus, num_merges=10):
 <p><strong>Problem.</strong> Implement trainable multi-head self-attention.</p>
 <p><strong>中文题意。</strong> 将 Q/K/V 拆头计算注意力，再拼接输出；投影参数必须被模型持久保存和训练。</p>
 <h3 id="reviewed-solution-45">Reviewed Solution<a class="anchor" href="#reviewed-solution-45" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-45">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-45" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="head_h=\operatorname{Attention}(XW_h^Q,XW_h^K,XW_h^V),\qquad O=[head_1;\ldots;head_H]W^O" data-explicit-math="true">head_h=\operatorname{Attention}(XW_h^Q,XW_h^K,XW_h^V),\qquad O=[head_1;\ldots;head_H]W^O</div>
+<ul><li><strong>公式 / 不变量。</strong> 多头结构让不同 head 学习不同关系，但总模型维通常保持不变。</li><li><strong>算法拆解。</strong> 一次投影后 reshape/transpose 批量计算所有 head，再 concat 和输出投影；要求 d_model 可被 H 整除。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class TorchLeetMHA(MultiHeadAttention):
     def forward(self, x, mask=None):
         # 复用第 06 题的持久 nn.Module 参数，而不是在 forward 内新建 Linear
@@ -1179,6 +1314,9 @@ def byte_pair_encoding(corpus, num_merges=10):
 <p><strong>Problem.</strong> Cache rotary sine/cosine values and rotate Q/K features.</p>
 <p><strong>中文题意。</strong> 预计算位置旋转所需的 cos/sin，并应用到 query/key 的成对特征。</p>
 <h3 id="reviewed-solution-46">Reviewed Solution<a class="anchor" href="#reviewed-solution-46" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-46">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-46" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="q'_m=R(m\theta)q_m,\qquad k'_n=R(n\theta)k_n,\qquad q_m'^\top k_n'=q_m^\top R((n-m)\theta)k_n" data-explicit-math="true">q'_m=R(m\theta)q_m,\qquad k'_n=R(n\theta)k_n,\qquad q_m'^\top k_n'=q_m^\top R((n-m)\theta)k_n</div>
+<ul><li><strong>公式 / 不变量。</strong> RoPE 的关键性质是旋转后的内积只依赖位置差 n-m，因此把相对位置编码进 attention score。</li><li><strong>算法拆解。</strong> 预计算 cos/sin cache，按序列位置切片并广播到 batch/head，成对旋转 Q/K；检查缓存长度和 dtype。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class RotaryEmbedding(nn.Module):
     def __init__(self, dim, base=10000.0):
         super().__init__()
@@ -1203,6 +1341,9 @@ def byte_pair_encoding(corpus, num_merges=10):
 <p><strong>Problem.</strong> Build fixed sine/cosine position vectors for Transformer inputs.</p>
 <p><strong>中文题意。</strong> 为每个位置生成固定的正弦/余弦向量，不参与训练，并按序列长度切片返回。</p>
 <h3 id="reviewed-solution-47">Reviewed Solution<a class="anchor" href="#reviewed-solution-47" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-47">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-47" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="PE_{pos,2i}=\sin\!\left(pos/10000^{2i/d}\right),\qquad PE_{pos,2i+1}=\cos\!\left(pos/10000^{2i/d}\right)" data-explicit-math="true">PE_{pos,2i}=\sin\!\left(pos/10000^{2i/d}\right),\qquad PE_{pos,2i+1}=\cos\!\left(pos/10000^{2i/d}\right)</div>
+<ul><li><strong>公式 / 不变量。</strong> 不同频率的正弦余弦为每个位置产生确定性向量，也允许模型线性表达相对位移。</li><li><strong>算法拆解。</strong> 构造位置列向量和频率行向量，外积得角度，偶数维填 sin、奇数维填 cos；无需训练参数。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class SinusoidalPosition(nn.Module):
     def __init__(self, max_len, d_model):
         super().__init__()
@@ -1226,6 +1367,9 @@ def byte_pair_encoding(corpus, num_merges=10):
 <p><strong>Problem.</strong> Assemble embeddings, RMSNorm, RoPE-GQA, SwiGLU blocks, causal masking, and a tied LM head.</p>
 <p><strong>中文题意。</strong> 将前面组件组装为小型 decoder-only language model，并输出每个 token 的 vocabulary logits。</p>
 <h3 id="reviewed-solution-48">Reviewed Solution<a class="anchor" href="#reviewed-solution-48" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-48">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-48" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="p(x_{t+1}|x_{\le t})=\operatorname{softmax}(W_{lm}\,\operatorname{LN}(h_t))" data-explicit-math="true">p(x_{t+1}|x_{\le t})=\operatorname{softmax}(W_{lm}\,\operatorname{LN}(h_t))</div>
+<ul><li><strong>公式 / 不变量。</strong> 小型语言模型由 token/位置表示、重复 Transformer block、最终归一化和词表投影组成。</li><li><strong>算法拆解。</strong> 嵌入并加位置，逐层执行 causal block，最终映射到 vocab logits；训练目标把输入与下一 token 标签错开一位。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def rope_heads(x, offset=0):
     # x:(B,H,S,Dh)，相邻偶/奇维组成二维旋转对
     d = x.size(-1)
@@ -1296,6 +1440,9 @@ class SmolLM(nn.Module):
 <p><strong>Problem.</strong> Use <code>tanh(x)+x</code> after a linear layer.</p>
 <p><strong>中文题意。</strong> 实现无参数自定义激活，并嵌入简单回归模型。</p>
 <h3 id="reviewed-solution-49">Reviewed Solution<a class="anchor" href="#reviewed-solution-49" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-49">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-49" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\operatorname{SiLU}(x)=x\sigma(x)" data-explicit-math="true">\operatorname{SiLU}(x)=x\sigma(x)</div>
+<ul><li><strong>公式 / 不变量。</strong> 自定义激活模块只需保持纯 tensor 运算，autograd 会按链式法则自动构建梯度。</li><li><strong>算法拆解。</strong> 在 forward 中组合可微操作，不手动 detach；用输入输出 shape 和极端值检查实现。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class CustomActivationModel(nn.Module):
     def __init__(self, in_features=1, out_features=1):
         super().__init__()
@@ -1314,6 +1461,9 @@ class SmolLM(nn.Module):
 <p><strong>Problem.</strong> Read feature/target columns from CSV and expose Dataset indexing.</p>
 <p><strong>中文题意。</strong> 从 CSV 读取 X/y，正确实现 <code>__len__</code>、<code>__getitem__</code>，再交给 DataLoader 批处理。</p>
 <h3 id="reviewed-solution-50">Reviewed Solution<a class="anchor" href="#reviewed-solution-50" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-50">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-50" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="N_{batches}=\left\lceil\frac{N}{B}\right\rceil\quad\text{unless drop\_last=True}" data-explicit-math="true">N_{batches}=\left\lceil\frac{N}{B}\right\rceil\quad\text{unless drop\_last=True}</div>
+<ul><li><strong>公式 / 不变量。</strong> Dataset 定义单样本索引语义，DataLoader 负责采样、批处理、shuffle 和多进程加载。</li><li><strong>算法拆解。</strong> 实现 __len__ 与 __getitem__，再由 collate_fn 把样本堆成 batch；检查最后一批和随机性。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class CSVDataset(torch.utils.data.Dataset):
     def __init__(self, csv_file):
         frame = pd.read_csv(csv_file)
@@ -1333,6 +1483,9 @@ loader = DataLoader(CSVDataset(&quot;data.csv&quot;), batch_size=32, shuffle=Tru
 <p><strong>Problem.</strong> Build a nonlinear regression network with a hidden layer and scalar output.</p>
 <p><strong>中文题意。</strong> 输入经过 Linear、ReLU、Linear，输出一个回归值。</p>
 <h3 id="reviewed-solution-51">Reviewed Solution<a class="anchor" href="#reviewed-solution-51" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-51">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-51" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="h^{(l)}=\phi(W^{(l)}h^{(l-1)}+b^{(l)}),\qquad \hat y=W^{(L)}h^{(L-1)}+b^{(L)}" data-explicit-math="true">h^{(l)}=\phi(W^{(l)}h^{(l-1)}+b^{(l)}),\qquad \hat y=W^{(L)}h^{(L-1)}+b^{(L)}</div>
+<ul><li><strong>公式 / 不变量。</strong> DNN 交替执行仿射变换和非线性；最后一层是否激活取决于损失是否期待 logits。</li><li><strong>算法拆解。</strong> 按层注册 Module，forward 顺序连接，训练时 loss.backward 后 optimizer.step；避免在 forward 动态创建参数。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class DNNModel(nn.Module):
     def __init__(self, in_features=2, hidden=32):
         super().__init__()
@@ -1351,6 +1504,9 @@ loader = DataLoader(CSVDataset(&quot;data.csv&quot;), batch_size=32, shuffle=Tru
 <p><strong>Problem.</strong> Implement a loss that is quadratic for small errors and linear for outliers.</p>
 <p><strong>中文题意。</strong> 当绝对误差不超过 delta 时用平方损失，否则切换为线性增长，降低离群点影响。</p>
 <h3 id="reviewed-solution-52">Reviewed Solution<a class="anchor" href="#reviewed-solution-52" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-52">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-52" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="L_\delta(e)=\begin{cases}\frac12e^2&amp;|e|\le\delta\\\delta(|e|-\frac12\delta)&amp;|e|&gt;\delta\end{cases}" data-explicit-math="true">L_\delta(e)=\begin{cases}\frac12e^2&amp;|e|\le\delta\\\delta(|e|-\frac12\delta)&amp;|e|&gt;\delta\end{cases}</div>
+<ul><li><strong>公式 / 不变量。</strong> Huber Loss 在小误差区像 MSE 平滑，在大误差区像 MAE 线性增长，因此对离群点更鲁棒。</li><li><strong>算法拆解。</strong> 计算绝对误差，按 delta 分段选择二次项或线性项，再按 reduction 聚合。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class HuberLoss(nn.Module):
     def __init__(self, delta=1.0):
         super().__init__()
@@ -1370,6 +1526,9 @@ loader = DataLoader(CSVDataset(&quot;data.csv&quot;), batch_size=32, shuffle=Tru
 <p><strong>Problem.</strong> Define a trainable linear regression model in PyTorch.</p>
 <p><strong>中文题意。</strong> 用单个 Linear 将输入特征映射为连续预测值，并通过 MSE 与优化器训练。</p>
 <h3 id="reviewed-solution-53">Reviewed Solution<a class="anchor" href="#reviewed-solution-53" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-53">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-53" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\hat y=xw+b,\qquad \nabla_w\mathcal{L}=\frac{2}{N}X^\top(Xw+b-y)" data-explicit-math="true">\hat y=xw+b,\qquad \nabla_w\mathcal{L}=\frac{2}{N}X^\top(Xw+b-y)</div>
+<ul><li><strong>公式 / 不变量。</strong> nn.Module 版本把参数注册、状态保存和设备迁移统一起来，数学目标仍是标准线性回归。</li><li><strong>算法拆解。</strong> 在 __init__ 定义层，在 forward 调用；训练循环固定为清梯度、前向、loss、反向、更新。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class LinearRegressionModel(nn.Module):
     def __init__(self, input_dim=1):
         super().__init__()
@@ -1387,6 +1546,9 @@ loader = DataLoader(CSVDataset(&quot;data.csv&quot;), batch_size=32, shuffle=Tru
 <p><strong>Problem.</strong> Save model weights and restore them into a new instance safely.</p>
 <p><strong>中文题意。</strong> 使用 <code>state_dict</code> 保存参数，并在相同架构实例中加载，用于推理或继续训练。</p>
 <h3 id="reviewed-solution-54">Reviewed Solution<a class="anchor" href="#reviewed-solution-54" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-54">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-54" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\text{checkpoint}=\{\theta,\ state_{opt},\ epoch,\ rng\_state\}" data-explicit-math="true">\text{checkpoint}=\{\theta,\ state_{opt},\ epoch,\ rng\_state\}</div>
+<ul><li><strong>公式 / 不变量。</strong> 可恢复训练不仅需要模型参数，还需要优化器动量、训练进度和必要的随机状态。</li><li><strong>算法拆解。</strong> 保存 state_dict 而非整个对象；加载时先构造相同结构，再 load_state_dict，并显式设置 map_location。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python"># 保存参数，不序列化整个 Python 对象
 torch.save(model.state_dict(), &quot;model.pth&quot;)
 loaded = SimpleModel()
@@ -1403,6 +1565,9 @@ loaded.eval()  # 关闭 Dropout，并让 BatchNorm 使用 running stats</code></
 <p><strong>Problem.</strong> Log training loss for every epoch and visualize it in TensorBoard.</p>
 <p><strong>中文题意。</strong> 创建 SummaryWriter，在训练过程中记录标量指标，结束后正确关闭 writer。</p>
 <h3 id="reviewed-solution-55">Reviewed Solution<a class="anchor" href="#reviewed-solution-55" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-55">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-55" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\text{event}_t=(\text{tag},\text{value}_t,\text{global\_step}=t)" data-explicit-math="true">\text{event}_t=(\text{tag},\text{value}_t,\text{global\_step}=t)</div>
+<ul><li><strong>公式 / 不变量。</strong> TensorBoard 通过统一 global step 对齐 loss、学习率、梯度分布等时间序列。</li><li><strong>算法拆解。</strong> 创建 writer，训练中按固定频率记录 scalar/histogram/image，结束时 flush/close；tag 命名要稳定。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">from torch.utils.tensorboard import SummaryWriter
 
 with SummaryWriter(&quot;runs/linear_regression&quot;) as writer:
@@ -1421,6 +1586,9 @@ with SummaryWriter(&quot;runs/linear_regression&quot;) as writer:
 <p><strong>Problem.</strong> Apply random horizontal flip, random crop, tensor conversion, and normalization.</p>
 <p><strong>中文题意。</strong> 训练集使用随机增强；测试集只做确定性预处理，保证评估可重复。</p>
 <h3 id="reviewed-solution-56">Reviewed Solution<a class="anchor" href="#reviewed-solution-56" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-56">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-56" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="(x',y')=T_\omega(x,y),\qquad \omega\sim p(\omega)" data-explicit-math="true">(x',y')=T_\omega(x,y),\qquad \omega\sim p(\omega)</div>
+<ul><li><strong>公式 / 不变量。</strong> 数据增强从随机变换分布采样，同时必须保持标签语义；几何任务还要同步变换 mask 或框。</li><li><strong>算法拆解。</strong> 训练集应用随机增强，验证集只做确定性预处理；先转 tensor 还是先几何变换取决于算子接口。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">train_tf = transforms.Compose([
     transforms.RandomHorizontalFlip(0.5),
     transforms.RandomCrop(32, padding=4),
@@ -1440,6 +1608,9 @@ test_tf = transforms.Compose([
 <p><strong>Problem.</strong> Reconstruct MNIST images and use reconstruction error as anomaly score.</p>
 <p><strong>中文题意。</strong> 编码器压缩图像，解码器恢复到 28x28；训练后用每个样本的重建误差检测异常。</p>
 <h3 id="reviewed-solution-57">Reviewed Solution<a class="anchor" href="#reviewed-solution-57" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-57">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-57" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="s(x)=\lVert x-f_\theta(x)\rVert_2^2,\qquad \text{anomaly if }s(x)&gt;\tau" data-explicit-math="true">s(x)=\lVert x-f_\theta(x)\rVert_2^2,\qquad \text{anomaly if }s(x)&gt;\tau</div>
+<ul><li><strong>公式 / 不变量。</strong> 自编码器在正常数据上学习重建，异常样本通常产生更大重建误差。</li><li><strong>算法拆解。</strong> 只用正常样本训练，验证集估计阈值 tau，推理计算逐样本误差；阈值需依据业务代价选择。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class Autoencoder(nn.Module):
     def __init__(self):
         super().__init__()
@@ -1461,6 +1632,9 @@ anomaly_score = (model(images)-images).square().flatten(1).mean(1)</code></pre><
 <p><strong>Problem.</strong> Time training/evaluation accurately and report classification accuracy.</p>
 <p><strong>中文题意。</strong> 分别测量训练与测试耗时；GPU 上必须同步，否则只测到异步 kernel launch 时间。</p>
 <h3 id="reviewed-solution-58">Reviewed Solution<a class="anchor" href="#reviewed-solution-58" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-58">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-58" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\text{throughput}=\frac{N_{samples}}{t},\qquad \text{accuracy}=\frac{\#correct}{N}" data-explicit-math="true">\text{throughput}=\frac{N_{samples}}{t},\qquad \text{accuracy}=\frac{\#correct}{N}</div>
+<ul><li><strong>公式 / 不变量。</strong> 训练 benchmark 关注速度与资源，评估关注固定数据上的指标；二者都需要排除 warmup 和数据泄漏。</li><li><strong>算法拆解。</strong> 训练模式计时并同步 GPU，评估模式配合 no_grad，累计加权 loss 和正确数；不能平均 batch 均值而忽略最后小 batch。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def timed_epoch(model, loader, train=False):
     # train=False 时同时关闭训练模式和梯度记录
     model.train(train)
@@ -1483,6 +1657,9 @@ anomaly_score = (model(images)-images).square().flatten(1).mean(1)</code></pre><
 <p><strong>Problem.</strong> Build a CNN with convolution, pooling, and fully connected classification layers.</p>
 <p><strong>中文题意。</strong> 处理 <code>(B,3,32,32)</code> 图像，逐步提取空间特征、下采样并输出 10 类 logits。</p>
 <h3 id="reviewed-solution-59">Reviewed Solution<a class="anchor" href="#reviewed-solution-59" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-59">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-59" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="H_{out}=\left\lfloor\frac{H+2P-D(K-1)-1}{S}+1\right\rfloor" data-explicit-math="true">H_{out}=\left\lfloor\frac{H+2P-D(K-1)-1}{S}+1\right\rfloor</div>
+<ul><li><strong>公式 / 不变量。</strong> CNN 通过卷积逐步提取局部特征，池化或 stride 降采样，最后分类头输出类别 logits。</li><li><strong>算法拆解。</strong> 逐层跟踪 C/H/W，卷积后激活和下采样，flatten 前动态确认尺寸；CrossEntropyLoss 输入应是原始 logits。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class CIFAR10CNN(nn.Module):
     def __init__(self):
         super().__init__()
@@ -1503,6 +1680,9 @@ anomaly_score = (model(images)-images).square().flatten(1).mean(1)</code></pre><
 <p><strong>Problem.</strong> Use autocast and gradient scaling for stable mixed-precision training.</p>
 <p><strong>中文题意。</strong> 前向在低精度上下文运行，反向前放大 loss，step 时由 scaler 检查溢出并更新缩放系数。</p>
 <h3 id="reviewed-solution-60">Reviewed Solution<a class="anchor" href="#reviewed-solution-60" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-60">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-60" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\theta\leftarrow\theta-\eta\,\operatorname{unscale}\!\left(\nabla_\theta(s\mathcal{L})\right)" data-explicit-math="true">\theta\leftarrow\theta-\eta\,\operatorname{unscale}\!\left(\nabla_\theta(s\mathcal{L})\right)</div>
+<ul><li><strong>公式 / 不变量。</strong> AMP 用低精度加速多数算子，并用 GradScaler 放大 loss，避免 FP16 小梯度下溢。</li><li><strong>算法拆解。</strong> autocast 包裹 forward/loss，scale 后 backward，step 前 unscale 以便裁剪，最后 update scale；评估无需 scaler。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">device = torch.device(&quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;)
 scaler = torch.amp.GradScaler(&quot;cuda&quot;, enabled=device.type==&quot;cuda&quot;)
 for x, y in loader:
@@ -1524,6 +1704,9 @@ for x, y in loader:
 <p><strong>Problem.</strong> Quantize LSTM/Linear weights dynamically for CPU inference.</p>
 <p><strong>中文题意。</strong> 语言模型训练时输出 logits；训练完成后切到 eval/CPU，并动态量化 LSTM 和 Linear 权重。</p>
 <h3 id="reviewed-solution-61">Reviewed Solution<a class="anchor" href="#reviewed-solution-61" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-61">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-61" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="W_q=\operatorname{round}(W/s),\qquad y\approx s\,(W_qx)+b" data-explicit-math="true">W_q=\operatorname{round}(W/s),\qquad y\approx s\,(W_qx)+b</div>
+<ul><li><strong>公式 / 不变量。</strong> 动态量化通常只把权重量化为 INT8，激活在运行时动态确定 scale，适合线性层和 LSTM 的 CPU 推理。</li><li><strong>算法拆解。</strong> 先 eval 并在 CPU 上替换支持的模块，比较模型大小、延迟和精度；量化对象与 backend 必须支持。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class LanguageModel(nn.Module):
     def __init__(self, vocab, embed, hidden):
         super().__init__()
@@ -1547,6 +1730,9 @@ quantized = torch.ao.quantization.quantize_dynamic(model, {nn.LSTM,nn.Linear},
 <p><strong>Problem.</strong> Implement the recurrent hidden-state update manually and predict from the final state.</p>
 <p><strong>中文题意。</strong> 对每个时间步执行 <code>h_t=tanh(x_t Wxh+h_{t-1}Whh+b)</code>，最后把 hidden state 映射为预测。</p>
 <h3 id="reviewed-solution-62">Reviewed Solution<a class="anchor" href="#reviewed-solution-62" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-62">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-62" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="h_t=\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b_h),\qquad y_t=W_{hy}h_t+b_y" data-explicit-math="true">h_t=\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b_h),\qquad y_t=W_{hy}h_t+b_y</div>
+<ul><li><strong>公式 / 不变量。</strong> RNN 用隐藏状态递归压缩历史；同一参数在所有时间步共享。</li><li><strong>算法拆解。</strong> 初始化 h0，按时间顺序更新 hidden 并生成输出，最后 stack；长序列会出现梯度消失或爆炸。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class ManualRNN(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim):
         super().__init__()
@@ -1571,6 +1757,9 @@ quantized = torch.ao.quantization.quantize_dynamic(model, {nn.LSTM,nn.Linear},
 <p><strong>Problem.</strong> Implement <code>slope*x*sigmoid(x)</code> with a custom backward pass.</p>
 <p><strong>中文题意。</strong> 自定义 <code>autograd.Function</code>，同时计算输入 x 和可学习 slope 的梯度。</p>
 <h3 id="reviewed-solution-63">Reviewed Solution<a class="anchor" href="#reviewed-solution-63" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-63">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-63" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="y=x\,\sigma(ax),\qquad \frac{\partial y}{\partial x}=\sigma(ax)+ax\sigma(ax)(1-\sigma(ax))" data-explicit-math="true">y=x\,\sigma(ax),\qquad \frac{\partial y}{\partial x}=\sigma(ax)+ax\sigma(ax)(1-\sigma(ax))</div>
+<ul><li><strong>公式 / 不变量。</strong> 自定义 autograd 必须让 backward 返回与 forward 每个输入一一对应的梯度，并正确处理广播求和。</li><li><strong>算法拆解。</strong> forward 保存 backward 必需的 tensor；backward 用链式法则乘 grad_output，分别计算 x 与参数 a 的梯度。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class LearnedSiLU(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, slope):
@@ -1594,6 +1783,9 @@ quantized = torch.ao.quantization.quantize_dynamic(model, {nn.LSTM,nn.Linear},
 <p><strong>Problem.</strong> Alternate discriminator and generator updates on real and generated samples.</p>
 <p><strong>中文题意。</strong> 判别器学习区分真假，生成器学习让假样本被判为真；两个优化步骤必须隔离梯度。</p>
 <h3 id="reviewed-solution-64">Reviewed Solution<a class="anchor" href="#reviewed-solution-64" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-64">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-64" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\min_G\max_D\ \mathbb{E}_{x\sim p_{data}}\log D(x)+\mathbb{E}_{z\sim p(z)}\log(1-D(G(z)))" data-explicit-math="true">\min_G\max_D\ \mathbb{E}_{x\sim p_{data}}\log D(x)+\mathbb{E}_{z\sim p(z)}\log(1-D(G(z)))</div>
+<ul><li><strong>公式 / 不变量。</strong> GAN 是生成器与判别器的对抗博弈；实践中常用带 logits 的稳定 BCE 形式。</li><li><strong>算法拆解。</strong> 先 detach 假样本更新 D，再冻结或清理 D 梯度更新 G；两次 backward 的计算图边界必须清楚。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python"># 判别器末层返回 logits，使用更稳定的 BCEWithLogitsLoss
 loss_fn = nn.BCEWithLogitsLoss()
 optimizer_D.zero_grad()
@@ -1614,6 +1806,9 @@ g_loss.backward(); optimizer_G.step()</code></pre></div>
 <p><strong>Problem.</strong> Encode a source sequence and decode tokens using attention over encoder outputs.</p>
 <p><strong>中文题意。</strong> Encoder LSTM 输出整段 memory；Decoder 每步根据 hidden state 对 source positions 计算权重和 context。</p>
 <h3 id="reviewed-solution-65">Reviewed Solution<a class="anchor" href="#reviewed-solution-65" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-65">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-65" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="e_{t,s}=v^\top\tanh(W_hh_s+W_ss_{t-1}),\quad \alpha_{t}=\operatorname{softmax}(e_t),\quad c_t=\sum_s\alpha_{t,s}h_s" data-explicit-math="true">e_{t,s}=v^\top\tanh(W_hh_s+W_ss_{t-1}),\quad \alpha_{t}=\operatorname{softmax}(e_t),\quad c_t=\sum_s\alpha_{t,s}h_s</div>
+<ul><li><strong>公式 / 不变量。</strong> Bahdanau attention 用加性打分让解码器每一步动态聚合编码器状态。</li><li><strong>算法拆解。</strong> 编码源序列，解码每步用上一 hidden 计算 score，mask padding、归一化得 context，再预测 token。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class AdditiveAttention(nn.Module):
     def __init__(self, hidden):
         super().__init__()
@@ -1637,6 +1832,9 @@ g_loss.backward(); optimizer_G.step()</code></pre></div>
 <p><strong>Problem.</strong> Combine positional encoding, MHA, FFN, residuals, normalization, and padding masks.</p>
 <p><strong>中文题意。</strong> 搭建完整 encoder block，并确保 padding token 不参与 key/value attention。</p>
 <h3 id="reviewed-solution-66">Reviewed Solution<a class="anchor" href="#reviewed-solution-66" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-66">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-66" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="X'=\operatorname{LN}(X+\operatorname{MHA}(X)),\qquad Y=\operatorname{LN}(X'+\operatorname{FFN}(X'))" data-explicit-math="true">X'=\operatorname{LN}(X+\operatorname{MHA}(X)),\qquad Y=\operatorname{LN}(X'+\operatorname{FFN}(X'))</div>
+<ul><li><strong>公式 / 不变量。</strong> Encoder block 通过自注意力混合 token，再通过 FFN 独立变换每个 token；残差要求维度一致。</li><li><strong>算法拆解。</strong> 构造 padding mask，执行多头自注意力、残差归一化、FFN、残差归一化；核对 Post-LN 或 Pre-LN 约定。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class EncoderBlock(nn.Module):
     def __init__(self, d_model, heads, d_ff):
         super().__init__()
@@ -1658,6 +1856,9 @@ g_loss.backward(); optimizer_G.step()</code></pre></div>
 <p><strong>Problem.</strong> Use target-layer activations and class gradients to produce a localization heatmap.</p>
 <p><strong>中文题意。</strong> 保存卷积激活及其梯度，按空间平均梯度作为 channel 权重，得到 ReLU 后的热力图。</p>
 <h3 id="reviewed-solution-67">Reviewed Solution<a class="anchor" href="#reviewed-solution-67" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-67">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-67" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\alpha_k^c=\frac1{HW}\sum_{i,j}\frac{\partial y^c}{\partial A_{ij}^k},\qquad L_{GradCAM}^c=\operatorname{ReLU}\!\left(\sum_k\alpha_k^cA^k\right)" data-explicit-math="true">\alpha_k^c=\frac1{HW}\sum_{i,j}\frac{\partial y^c}{\partial A_{ij}^k},\qquad L_{GradCAM}^c=\operatorname{ReLU}\!\left(\sum_k\alpha_k^cA^k\right)</div>
+<ul><li><strong>公式 / 不变量。</strong> Grad-CAM 用目标类别对特征图的梯度作为通道重要性，再加权特征图生成定位热图。</li><li><strong>算法拆解。</strong> hook 目标卷积层的 activation 与 gradient，反传类别分数，空间平均梯度，加权求和、ReLU、上采样。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">activations = gradients = None
 def forward_hook(_m,_i,out):
     global activations, gradients
@@ -1682,6 +1883,9 @@ handle.remove()  # hook 用完必须移除</code></pre></div>
 <p><strong>Problem.</strong> Combine slice-wise 2D features with 3D convolutions and optimize Dice loss.</p>
 <p><strong>中文题意。</strong> 对体数据保持统一 <code>(B,C,D,H,W)</code> 布局，输出同布局二值 segmentation logits。</p>
 <h3 id="reviewed-solution-68">Reviewed Solution<a class="anchor" href="#reviewed-solution-68" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-68">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-68" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="Y_{n,o,d,h,w}=\sum_c\sum_u\sum_v\sum_r W_{o,c,u,v,r}X_{n,c,d+u,h+v,w+r}" data-explicit-math="true">Y_{n,o,d,h,w}=\sum_c\sum_u\sum_v\sum_r W_{o,c,u,v,r}X_{n,c,d+u,h+v,w+r}</div>
+<ul><li><strong>公式 / 不变量。</strong> 3D CNN 同时在深度、高度、宽度上卷积，适合体数据；分割输出需恢复到输入空间分辨率。</li><li><strong>算法拆解。</strong> 编码器降采样提语义，解码器上采样并融合 skip features，最后逐体素分类；拼接前尺寸必须对齐。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class Small3DSegmenter(nn.Module):
     def __init__(self, in_channels=1):
         super().__init__()
@@ -1705,6 +1909,9 @@ def dice_loss(logits, target, eps=1e-6):
 <p><strong>Problem.</strong> Recreate the five-convolution, three-linear AlexNet classifier.</p>
 <p><strong>中文题意。</strong> 输入 224x224 RGB 图像，经 5 个卷积和 3 个全连接层输出类别 logits。</p>
 <h3 id="reviewed-solution-69">Reviewed Solution<a class="anchor" href="#reviewed-solution-69" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-69">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-69" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="227\times227\xrightarrow{11,s=4}55\times55\xrightarrow{pool}27\times27" data-explicit-math="true">227\times227\xrightarrow{11,s=4}55\times55\xrightarrow{pool}27\times27</div>
+<ul><li><strong>公式 / 不变量。</strong> AlexNet 用大卷积核和多次池化快速降采样，随后全连接层完成分类。</li><li><strong>算法拆解。</strong> 按经典顺序跟踪空间尺寸和通道数，卷积后 ReLU/LRN 或现代替代，分类头前 flatten；输入尺寸会影响首层结果。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class AlexNetCompact(nn.Module):
     def __init__(self, classes=10):
         super().__init__()
@@ -1729,6 +1936,9 @@ def dice_loss(logits, target, eps=1e-6):
 <p><strong>Problem.</strong> Compare zero, random, Xavier, and Kaiming initialization.</p>
 <p><strong>中文题意。</strong> 对 Conv/Linear 应用不同初始化，并理解对称性、信号方差和激活函数匹配。</p>
 <h3 id="reviewed-solution-70">Reviewed Solution<a class="anchor" href="#reviewed-solution-70" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-70">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-70" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\operatorname{Var}(W)=\begin{cases}2/fan_{in}&amp;\text{ReLU/Kaiming}\\2/(fan_{in}+fan_{out})&amp;\text{Xavier normal}\end{cases}" data-explicit-math="true">\operatorname{Var}(W)=\begin{cases}2/fan_{in}&amp;\text{ReLU/Kaiming}\\2/(fan_{in}+fan_{out})&amp;\text{Xavier normal}\end{cases}</div>
+<ul><li><strong>公式 / 不变量。</strong> 初始化应与激活函数匹配，使前向激活和反向梯度的方差跨层尽量稳定。</li><li><strong>算法拆解。</strong> 遍历模块按类型初始化 Conv/Linear，bias 常置零；比较策略时固定数据与随机种子并观察激活/梯度统计。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def init_weights(module, kind=&quot;kaiming&quot;):
     if not isinstance(module,(nn.Conv2d,nn.Linear)): return
     if kind == &quot;zero&quot;: nn.init.zeros_(module.weight)
@@ -1748,6 +1958,9 @@ def dice_loss(logits, target, eps=1e-6):
 <p><strong>Problem.</strong> Use custom convolution and max-pooling modules inside the final CNN.</p>
 <p><strong>中文题意。</strong> 不允许 <code>nn.Conv2d/MaxPool2d</code>；自定义层必须真正用于模型，而不只是定义后闲置。</p>
 <h3 id="reviewed-solution-71">Reviewed Solution<a class="anchor" href="#reviewed-solution-71" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-71">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-71" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="Y=\operatorname{im2col}(X)W_{col}^\top+b" data-explicit-math="true">Y=\operatorname{im2col}(X)W_{col}^\top+b</div>
+<ul><li><strong>公式 / 不变量。</strong> 从零卷积可把每个滑动窗口展开为列，再转化成批量矩阵乘法；这解释了 unfold 的 shape。</li><li><strong>算法拆解。</strong> padding 后用 unfold 提取 patches，重排为 B×L×K，与展平卷积核相乘，再 reshape 回图像布局。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class ScratchCNN(nn.Module):
     def __init__(self):
         super().__init__()
@@ -1769,6 +1982,9 @@ def dice_loss(logits, target, eps=1e-6):
 <p><strong>Problem.</strong> Implement all four LSTM gates and compare with <code>nn.LSTM</code>.</p>
 <p><strong>中文题意。</strong> 手写 input/forget/output/candidate gates，更新 cell 与 hidden state，并输出每个时间步或最后一步预测。</p>
 <h3 id="reviewed-solution-72">Reviewed Solution<a class="anchor" href="#reviewed-solution-72" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-72">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-72" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\begin{aligned}i_t&amp;=\sigma(W_ix_t+U_ih_{t-1})\\f_t&amp;=\sigma(W_fx_t+U_fh_{t-1})\\g_t&amp;=\tanh(W_gx_t+U_gh_{t-1})\\c_t&amp;=f_t\odot c_{t-1}+i_t\odot g_t\\h_t&amp;=o_t\odot\tanh(c_t)\end{aligned}" data-explicit-math="true">\begin{aligned}i_t&amp;=\sigma(W_ix_t+U_ih_{t-1})\\f_t&amp;=\sigma(W_fx_t+U_fh_{t-1})\\g_t&amp;=\tanh(W_gx_t+U_gh_{t-1})\\c_t&amp;=f_t\odot c_{t-1}+i_t\odot g_t\\h_t&amp;=o_t\odot\tanh(c_t)\end{aligned}</div>
+<ul><li><strong>公式 / 不变量。</strong> LSTM 用遗忘、输入、输出门控制长期 cell state，缓解普通 RNN 的梯度消失。</li><li><strong>算法拆解。</strong> 每步一次仿射可同时算四组 gate，再按约定切分；初始化 h/c 并按时间迭代，注意 gate 顺序。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def lstm_step(x, h, c, Wx, Wh, b):
     # 一次算出 4H，再沿最后维拆门，效率高于四次独立 matmul
     gates = x @ Wx + h @ Wh + b
@@ -1791,6 +2007,9 @@ c = x.new_zeros(x.size(0), hidden_size)</code></pre></div>
 <p><strong>Problem.</strong> Compute sequence log-probabilities and DPO loss with a frozen reference.</p>
 <p><strong>中文题意。</strong> 对 shifted labels 求每条序列 token log-prob 总和，再计算 policy/reference 的 chosen-rejected margin。</p>
 <h3 id="reviewed-solution-73">Reviewed Solution<a class="anchor" href="#reviewed-solution-73" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-73">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-73" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\log\pi(y|x)=\sum_t m_t\log\operatorname{softmax}(z_t)_{y_t}" data-explicit-math="true">\log\pi(y|x)=\sum_t m_t\log\operatorname{softmax}(z_t)_{y_t}</div>
+<ul><li><strong>公式 / 不变量。</strong> 完整 DPO 工具链先可靠计算带 mask 的序列 log-prob，再构造 chosen/rejected 的参考校正偏好损失。</li><li><strong>算法拆解。</strong> shift logits/labels 对齐 next-token，忽略 padding，分别汇总四组 log-prob，再应用 DPO 公式和准确率指标。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def sequence_logps(logits, labels, mask=None):
     # token t 的 logits 预测 token t+1
     logp = F.log_softmax(logits[:,:-1],-1)
@@ -1810,6 +2029,9 @@ def full_dpo(pc, pr, rc, rr, beta=.1):
 <p><strong>Problem.</strong> Save only inputs during forward and recompute the function during backward.</p>
 <p><strong>中文题意。</strong> 用额外计算换显存：forward 不保存中间激活，backward 时重新构建带梯度的计算图。</p>
 <h3 id="reviewed-solution-74">Reviewed Solution<a class="anchor" href="#reviewed-solution-74" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-74">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-74" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\text{memory}:O(L)\rightarrow O(\sqrt L)\ \text{approximately, at the cost of recomputation}" data-explicit-math="true">\text{memory}:O(L)\rightarrow O(\sqrt L)\ \text{approximately, at the cost of recomputation}</div>
+<ul><li><strong>公式 / 不变量。</strong> Gradient Checkpointing 不保存部分中间激活，反向时重新执行 forward，以计算换显存。</li><li><strong>算法拆解。</strong> 把纯函数段交给 checkpoint，输入至少有需要梯度的 tensor，避免依赖不可重放副作用；训练时间会增加。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class CheckpointFn(torch.autograd.Function):
     @staticmethod
     def forward(ctx, fn, *args):
@@ -1845,6 +2067,9 @@ def checkpoint_from_scratch(fn,*tensor_args):
 <p><strong>Problem.</strong> Combine group-normalized advantages, PPO-style clipping, and reference KL penalty.</p>
 <p><strong>中文题意。</strong> 每个 prompt 内标准化 rewards，再用 old/new policy ratio 的 clipped objective 更新，并限制偏离 reference。</p>
 <h3 id="reviewed-solution-75">Reviewed Solution<a class="anchor" href="#reviewed-solution-75" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-75">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-75" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\mathcal{L}=\mathcal{L}_{clip}+\beta_{KL}D_{KL}(\pi_\theta\Vert\pi_{ref})-c_HH(\pi_\theta)" data-explicit-math="true">\mathcal{L}=\mathcal{L}_{clip}+\beta_{KL}D_{KL}(\pi_\theta\Vert\pi_{ref})-c_HH(\pi_\theta)</div>
+<ul><li><strong>公式 / 不变量。</strong> 完整 GRPO 同时包含组内 advantage、裁剪策略目标、参考模型 KL 约束，可能还加入熵奖励。</li><li><strong>算法拆解。</strong> 按 prompt 分组标准化奖励，构造 token mask 和 ratio，聚合 clipped objective 与 KL；所有均值分母要按有效 token 数。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def full_grpo(new_logp, old_logp, ref_logp, rewards, group_size,
               clip=.2, beta=.01):
     grouped = rewards.view(-1,group_size)
@@ -1866,6 +2091,9 @@ def checkpoint_from_scratch(fn,*tensor_args):
 <p><strong>Problem.</strong> Wrap selected Linear layers with LoRA and merge the learned update back.</p>
 <p><strong>中文题意。</strong> 冻结基础 Linear，训练低秩 A/B；部署前把更新合并进原权重并移除 adapter。</p>
 <h3 id="reviewed-solution-76">Reviewed Solution<a class="anchor" href="#reviewed-solution-76" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-76">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-76" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="W_{merged}=W+sBA,\qquad W_{unmerged}=W_{merged}-sBA" data-explicit-math="true">W_{merged}=W+sBA,\qquad W_{unmerged}=W_{merged}-sBA</div>
+<ul><li><strong>公式 / 不变量。</strong> LoRA 注入要冻结基座参数并只训练 A/B；merge 后前向无需额外低秩分支。</li><li><strong>算法拆解。</strong> 递归替换目标 Linear，保留原权重和 bias，训练低秩支路；merge/unmerge 必须幂等并防重复操作。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class MergeableLoRA(LoRALinear):
     def merged_linear(self):
         merged = nn.Linear(self.linear.in_features,self.linear.out_features,
@@ -1886,6 +2114,9 @@ def checkpoint_from_scratch(fn,*tensor_args):
 <p><strong>Problem.</strong> Implement GAE, clipped policy loss, value loss, and reference KL control.</p>
 <p><strong>中文题意。</strong> 用 value baseline 计算时序 advantage，限制 policy ratio，联合训练 critic，并惩罚偏离 reference。</p>
 <h3 id="reviewed-solution-77">Reviewed Solution<a class="anchor" href="#reviewed-solution-77" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-77">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-77" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\delta_t=r_t+\gamma V_{t+1}-V_t,\qquad A_t=\delta_t+\gamma\lambda(1-d_t)A_{t+1}" data-explicit-math="true">\delta_t=r_t+\gamma V_{t+1}-V_t,\qquad A_t=\delta_t+\gamma\lambda(1-d_t)A_{t+1}</div>
+<ul><li><strong>公式 / 不变量。</strong> PPO-RLHF 先用 GAE 从奖励和 value 估计 advantage，再联合优化裁剪策略损失、value loss 与熵/KL 项。</li><li><strong>算法拆解。</strong> 从序列末尾反推 GAE，done 后不 bootstrap；计算 ratio、clipped policy loss 和 value loss，按 mask 聚合。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def compute_gae(rewards, values, dones, gamma=.99, lam=.95):
     # 从最后时间步向前递推，done 位置会截断 bootstrap
     adv = torch.zeros_like(rewards); last = 0
@@ -1907,6 +2138,9 @@ def checkpoint_from_scratch(fn,*tensor_args):
 <p><strong>Problem.</strong> Alternate nearest-centroid assignment and centroid recomputation until convergence.</p>
 <p><strong>中文题意。</strong> 使用 <code>cdist</code> 批量计算距离；空 cluster 不能产生 NaN，应保留旧中心或重新初始化。</p>
 <h3 id="reviewed-solution-78">Reviewed Solution<a class="anchor" href="#reviewed-solution-78" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-78">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-78" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="c_k=\frac1{|C_k|}\sum_{x_i\in C_k}x_i,\qquad a_i=\arg\min_k\lVert x_i-c_k\rVert_2^2" data-explicit-math="true">c_k=\frac1{|C_k|}\sum_{x_i\in C_k}x_i,\qquad a_i=\arg\min_k\lVert x_i-c_k\rVert_2^2</div>
+<ul><li><strong>公式 / 不变量。</strong> K-Means 在分配样本与更新中心之间交替，单调降低簇内平方误差但只保证局部最优。</li><li><strong>算法拆解。</strong> 初始化 K 个中心，批量算距离并 argmin，按簇求均值更新；空簇需重置或保留旧中心。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def kmeans(x,k,max_iters=100,tol=1e-4):
     if not 1 &lt;= k &lt;= x.size(0): raise ValueError(&quot;k 超出范围&quot;)
     centers = x[torch.randperm(x.size(0),device=x.device)[:k]].clone()
@@ -1927,6 +2161,9 @@ def checkpoint_from_scratch(fn,*tensor_args):
 <p><strong>Problem.</strong> Classify batched queries by majority label among the k nearest training samples.</p>
 <p><strong>中文题意。</strong> 批量计算 test/train 欧氏距离，取最小 k 个下标，并对对应 labels 投票。</p>
 <h3 id="reviewed-solution-79">Reviewed Solution<a class="anchor" href="#reviewed-solution-79" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-79">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-79" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\hat y(x)=\operatorname{mode}\{y_i:i\in\operatorname{KNN}(x)\}" data-explicit-math="true">\hat y(x)=\operatorname{mode}\{y_i:i\in\operatorname{KNN}(x)\}</div>
+<ul><li><strong>公式 / 不变量。</strong> KNN 没有参数训练，预测时按距离找最近 K 个样本并投票或平均。</li><li><strong>算法拆解。</strong> 广播计算 query 到训练集的距离，top-k 取最小值索引，再聚合标签；预测成本 O(ND)，需考虑特征尺度。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def knn_predict(x_train,y_train,x_test,k=3):
     if not 1 &lt;= k &lt;= x_train.size(0): raise ValueError(&quot;k 超出范围&quot;)
     ids = torch.cdist(x_test,x_train).topk(k,largest=False).indices
@@ -1941,6 +2178,9 @@ def checkpoint_from_scratch(fn,*tensor_args):
 <p><strong>Problem.</strong> Train binary logistic regression with analytical BCE gradients and no autograd.</p>
 <p><strong>中文题意。</strong> 手工计算 sigmoid、稳定 BCE、<code>dw/db</code>，并在 <code>no_grad</code> 语义下更新参数。</p>
 <h3 id="reviewed-solution-80">Reviewed Solution<a class="anchor" href="#reviewed-solution-80" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-80">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-80" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="p(y=1|x)=\sigma(x^\top w+b),\qquad \mathcal{L}=-y\log p-(1-y)\log(1-p)" data-explicit-math="true">p(y=1|x)=\sigma(x^\top w+b),\qquad \mathcal{L}=-y\log p-(1-y)\log(1-p)</div>
+<ul><li><strong>公式 / 不变量。</strong> 逻辑回归是线性 decision boundary 加 sigmoid；稳定训练应直接使用 logits 形式的 BCE。</li><li><strong>算法拆解。</strong> 算 logits 和概率/损失，反向更新 w/b；分类阈值默认 0.5 等价于 logit 0，但可按业务调整。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def train_logistic(X,y,lr=.1,steps=1000):
     w,b = X.new_zeros(X.size(1)), X.new_zeros(())
     for _ in range(steps):
@@ -1961,6 +2201,9 @@ def checkpoint_from_scratch(fn,*tensor_args):
 <p><strong>Problem.</strong> Implement vectorized, dimension-aware stable softmax.</p>
 <p><strong>中文题意。</strong> 对任意维度减最大值、指数化、归一化，并保持 broadcasting shape。</p>
 <h3 id="reviewed-solution-81">Reviewed Solution<a class="anchor" href="#reviewed-solution-81" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-81">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-81" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\log\sum_j e^{x_j}=m+\log\sum_j e^{x_j-m}" data-explicit-math="true">\log\sum_j e^{x_j}=m+\log\sum_j e^{x_j-m}</div>
+<ul><li><strong>公式 / 不变量。</strong> 稳定 Softmax 的核心是 log-sum-exp 恒等式，减最大值后既不改变概率又限制指数范围。</li><li><strong>算法拆解。</strong> 沿指定轴取 m，计算 shifted exponentials 和归一化；检查概率和为 1、极端 logits 输出有限。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def stable_softmax(x,dim=-1):
     shifted = x-x.amax(dim=dim,keepdim=True)
     exp_x = shifted.exp()
@@ -1975,6 +2218,9 @@ def checkpoint_from_scratch(fn,*tensor_args):
 <p><strong>Problem.</strong> Compute exact attention in tiles with online softmax and O(N) auxiliary memory.</p>
 <p><strong>中文题意。</strong> 不创建完整 NxN attention matrix；逐块处理 Q/K/V，并维护每行最大值、归一化和与输出累加器。</p>
 <h3 id="reviewed-solution-82">Reviewed Solution<a class="anchor" href="#reviewed-solution-82" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-82">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-82" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="O_i=\frac{\sum_j e^{s_{ij}-m_i}V_j}{\sum_j e^{s_{ij}-m_i}}" data-explicit-math="true">O_i=\frac{\sum_j e^{s_{ij}-m_i}V_j}{\sum_j e^{s_{ij}-m_i}}</div>
+<ul><li><strong>公式 / 不变量。</strong> FlashAttention-2 通过分块和 online Softmax 精确计算同一注意力结果，主要减少 HBM 读写而非改变数学。</li><li><strong>算法拆解。</strong> 外层遍历 Q tiles，内层扫描 KV tiles并更新 m/l/O；反向也分块重算，避免保存 S×S 矩阵。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def tiled_attention(q,k,v,bq=64,bk=64):
     out = v.new_empty(q.size(0),q.size(1),v.size(-1)); scale=q.size(-1)**-0.5
     for i in range(0,q.size(1),bq):
@@ -1998,6 +2244,9 @@ def checkpoint_from_scratch(fn,*tensor_args):
 <p><strong>Problem.</strong> Simulate parameter sharding, all-gather before compute, and reduce-scatter after backward.</p>
 <p><strong>中文题意。</strong> 每个 rank 静止时只保存权重 shard；计算前拼成完整参数，反向后只保留本 rank 的聚合梯度 shard。</p>
 <h3 id="reviewed-solution-83">Reviewed Solution<a class="anchor" href="#reviewed-solution-83" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-83">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-83" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\theta=\operatorname{concat}(\theta^{(1)},\ldots,\theta^{(P)}),\qquad g^{(p)}=\operatorname{reduce\_scatter}(g)" data-explicit-math="true">\theta=\operatorname{concat}(\theta^{(1)},\ldots,\theta^{(P)}),\qquad g^{(p)}=\operatorname{reduce\_scatter}(g)</div>
+<ul><li><strong>公式 / 不变量。</strong> FSDP 把参数、梯度和优化器状态分片到 P 个 rank，只在计算某层时 all-gather 完整参数。</li><li><strong>算法拆解。</strong> 前向层前 all-gather，层后可释放；反向 reduce-scatter 梯度，每 rank 只更新本地 shard。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def shard_flat(tensor,world_size):
     # 简化前提：元素数可整除；真实 FSDP 会 padding 并记录原 shape
     return tensor.flatten().chunk(world_size)
@@ -2018,6 +2267,9 @@ def reduce_scatter(rank_grads,world_size):
 <p><strong>Problem.</strong> Rotate K/V blocks around ranks and accumulate exact attention with online softmax.</p>
 <p><strong>中文题意。</strong> 每个设备保留本地 Q，K/V block 沿 ring 传递；每收到一块就更新 Softmax 统计，遍历一圈得到全局 attention。</p>
 <h3 id="reviewed-solution-84">Reviewed Solution<a class="anchor" href="#reviewed-solution-84" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-84">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-84" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="K=[K^{(0)};\ldots;K^{(P-1)}],\qquad O=\operatorname{OnlineSoftmaxMerge}_{p=0}^{P-1}(QK^{(p)\top},V^{(p)})" data-explicit-math="true">K=[K^{(0)};\ldots;K^{(P-1)}],\qquad O=\operatorname{OnlineSoftmaxMerge}_{p=0}^{P-1}(QK^{(p)\top},V^{(p)})</div>
+<ul><li><strong>公式 / 不变量。</strong> Ring Attention 让 KV 分片沿设备环传递，每个 rank 的 Q 依次看到所有 KV 分片并在线合并。</li><li><strong>算法拆解。</strong> 每轮计算本地 Q 对当前 KV block 的统计量，同时异步传给下一 rank；P 轮后结果等价于全局 attention。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def ring_update(q,k_block,v_block,m,l,acc,scale):
     scores=(q@k_block.transpose(-2,-1))*scale
     new_m=torch.maximum(m,scores.amax(-1,keepdim=True))
@@ -2037,6 +2289,9 @@ def reduce_scatter(rank_grads,world_size):
 <p><strong>Problem.</strong> Fuse row-wise max, exponentiation, sum, and normalization into one GPU kernel.</p>
 <p><strong>中文题意。</strong> 一个 Triton program 处理一行，使用 next-power-of-two block 和边界 mask，减少全局显存读写。</p>
 <h3 id="reviewed-solution-85">Reviewed Solution<a class="anchor" href="#reviewed-solution-85" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-85">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-85" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="p_i=\frac{e^{x_i-m}}{\sum_j e^{x_j-m}}" data-explicit-math="true">p_i=\frac{e^{x_i-m}}{\sum_j e^{x_j-m}}</div>
+<ul><li><strong>公式 / 不变量。</strong> Triton fused softmax 把减最大值、指数、求和、归一化融合进单个 kernel，减少中间张量和显存往返。</li><li><strong>算法拆解。</strong> 每个 program 处理一行，加载并 mask 到块大小，做两次 reduction 后写回；块大小和 num_warps 影响性能。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python"># Triton kernel 的等价数学，用于先验证正确性
 def fused_softmax_reference(x):
     row_max=x.amax(-1,keepdim=True)
@@ -2055,6 +2310,9 @@ def fused_softmax_reference(x):
 <p><strong>Problem.</strong> Maintain top beams, stop completed sequences, and normalize scores by length.</p>
 <p><strong>中文题意。</strong> 每步扩展活跃 beam，EOS 序列不再扩展；使用长度惩罚减少 raw log-prob 对短序列的偏好。</p>
 <h3 id="reviewed-solution-86">Reviewed Solution<a class="anchor" href="#reviewed-solution-86" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-86">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-86" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="s_{norm}(y)=\frac{\sum_t\log p(y_t|y_{&lt;t})}{\left(\frac{5+|y|}{6}\right)^\alpha}" data-explicit-math="true">s_{norm}(y)=\frac{\sum_t\log p(y_t|y_{&lt;t})}{\left(\frac{5+|y|}{6}\right)^\alpha}</div>
+<ul><li><strong>公式 / 不变量。</strong> 长度归一化缓解累计 log-prob 天然偏爱短序列的问题；alpha 控制惩罚强度。</li><li><strong>算法拆解。</strong> beam 展开与回溯同普通搜索，但排序时使用归一化分数；要区分搜索中的临时分数和最终分数。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def normalized_score(logp,length,alpha=.6):
     # Google NMT 风格长度惩罚；alpha=0 退化为原始分数
     return logp/(((5+length)/6)**alpha)
@@ -2070,6 +2328,9 @@ def fused_softmax_reference(x):
 <p><strong>Problem.</strong> Divide logits by positive temperature and sample from the resulting distribution.</p>
 <p><strong>中文题意。</strong> 温度小于 1 时分布更尖锐，大于 1 时更平坦；温度必须严格为正。</p>
 <h3 id="reviewed-solution-87">Reviewed Solution<a class="anchor" href="#reviewed-solution-87" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-87">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-87" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="p_i(T)=\frac{e^{z_i/T}}{\sum_j e^{z_j/T}}" data-explicit-math="true">p_i(T)=\frac{e^{z_i/T}}{\sum_j e^{z_j/T}}</div>
+<ul><li><strong>公式 / 不变量。</strong> T&lt;1 让分布更尖锐，T&gt;1 增加随机性；T 趋近 0 时应退化为 argmax 而非直接除零。</li><li><strong>算法拆解。</strong> 除以 temperature，稳定 Softmax 后 multinomial 采样；先处理非法或极小温度。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def temperature_sample(logits,temperature=1.0):
     if temperature&lt;=0: raise ValueError(&quot;temperature 必须大于 0&quot;)
     probs=torch.softmax(logits/temperature,dim=-1)
@@ -2086,6 +2347,9 @@ def fused_softmax_reference(x):
 <p><strong>Problem.</strong> Keep only the k largest logits, renormalize, and sample.</p>
 <p><strong>中文题意。</strong> 每行 vocabulary logits 只保留最高 k 项，其余设为负无穷，再按概率采样。</p>
 <h3 id="reviewed-solution-88">Reviewed Solution<a class="anchor" href="#reviewed-solution-88" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-88">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-88" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="S_k=\operatorname{indices\ of\ top\ }k\operatorname{\ logits},\qquad p_i'=\frac{e^{z_i}}{\sum_{j\in S_k}e^{z_j}}\mathbf1[i\in S_k]" data-explicit-math="true">S_k=\operatorname{indices\ of\ top\ }k\operatorname{\ logits},\qquad p_i'=\frac{e^{z_i}}{\sum_{j\in S_k}e^{z_j}}\mathbf1[i\in S_k]</div>
+<ul><li><strong>公式 / 不变量。</strong> Top-k 每步只从概率最高的固定 k 个 token 中采样，直接限制长尾候选。</li><li><strong>算法拆解。</strong> 裁剪 k 到 [1,V]，取 topk logits，在子集上归一化并采样，再映射回原词表索引。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def top_k_sample(logits,k=50,temperature=1.0):
     if temperature&lt;=0: raise ValueError(&quot;temperature 必须为正&quot;)
     k=min(max(int(k),1),logits.size(-1))
@@ -2104,6 +2368,9 @@ def fused_softmax_reference(x):
 <p><strong>Problem.</strong> Keep the smallest high-probability prefix whose cumulative mass reaches p.</p>
 <p><strong>中文题意。</strong> 按概率降序，保留累计概率刚好覆盖 p 的动态候选集合，并保证越过阈值的第一个 token 不被删掉。</p>
 <h3 id="reviewed-solution-89">Reviewed Solution<a class="anchor" href="#reviewed-solution-89" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-89">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-89" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="S_p=\min\left\{S:\sum_{i\in S}p_i\ge p\right\}" data-explicit-math="true">S_p=\min\left\{S:\sum_{i\in S}p_i\ge p\right\}</div>
+<ul><li><strong>公式 / 不变量。</strong> Top-p 的候选数随分布变化：分布尖时集合小，分布平时集合大。</li><li><strong>算法拆解。</strong> 概率降序排序并求累计和，移除超过阈值的尾部但保留首个越界 token，重归一化后采样。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def top_p_sample(logits,p=.9,temperature=1.0):
     if not 0&lt;p&lt;=1 or temperature&lt;=0: raise ValueError(&quot;采样参数无效&quot;)
     sorted_logits,ids=(logits/temperature).sort(descending=True)
@@ -2123,6 +2390,9 @@ def fused_softmax_reference(x):
 <p><strong>Problem.</strong> Admit new requests into freed slots while active sequences decode one token per iteration.</p>
 <p><strong>中文题意。</strong> 不等待整个静态 batch 完成；序列遇到 EOS 后立即释放 slot，并从等待队列补入新请求。</p>
 <h3 id="reviewed-solution-90">Reviewed Solution<a class="anchor" href="#reviewed-solution-90" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-90">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-90" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="B_t=\{r:\ r\text{ is active and ready at step }t\}" data-explicit-math="true">B_t=\{r:\ r\text{ is active and ready at step }t\}</div>
+<ul><li><strong>公式 / 不变量。</strong> Continuous Batching 每个解码步动态移除完成请求并加入新请求，提高 GPU 利用率和吞吐。</li><li><strong>算法拆解。</strong> 维护 waiting/active/finished 队列，按容量准入，批量执行一步，再更新长度、EOS 和 KV cache 索引。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">from collections import deque
 
 class Scheduler:
@@ -2146,6 +2416,9 @@ class Scheduler:
 <p><strong>Problem.</strong> Combine tokenizer, Transformer, KV cache, batching, and sampling into generation APIs.</p>
 <p><strong>中文题意。</strong> 将模型计算与服务状态分离：请求保存 token/cache，engine 负责 prefill、decode、调度和采样。</p>
 <h3 id="reviewed-solution-91">Reviewed Solution<a class="anchor" href="#reviewed-solution-91" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-91">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-91" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="x_{t+1}\sim\operatorname{Decode}\!\left(f_\theta(x_{\le t},KV_{\le t})\right)" data-explicit-math="true">x_{t+1}\sim\operatorname{Decode}\!\left(f_\theta(x_{\le t},KV_{\le t})\right)</div>
+<ul><li><strong>公式 / 不变量。</strong> 迷你推理引擎把 tokenizer、prefill、KV cache、逐步 decode、采样和停止条件串成完整状态机。</li><li><strong>算法拆解。</strong> 先批量 prefill 建 cache，再循环仅输入新 token，采样并更新每个请求状态；处理 EOS、最大长度和设备放置。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class GenerationState:
     def __init__(self,input_ids,layers):
         self.ids=input_ids; self.cache=[None]*layers; self.finished=False
@@ -2168,6 +2441,9 @@ def decode_step(model,state):
 <p><strong>Problem.</strong> Append new K/V and prove token-by-token output matches full causal recomputation.</p>
 <p><strong>中文题意。</strong> 每步只投影新 token 的 K/V，拼入 cache；比较同一层参数下最后 token 输出与完整序列重算。</p>
 <h3 id="reviewed-solution-92">Reviewed Solution<a class="anchor" href="#reviewed-solution-92" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-92">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-92" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="K_{cache}[:,:,0:t,:]=[K_0,\ldots,K_{t-1}],\qquad \operatorname{shape}=(B,H,T,D_h)" data-explicit-math="true">K_{cache}[:,:,0:t,:]=[K_0,\ldots,K_{t-1}],\qquad \operatorname{shape}=(B,H,T,D_h)</div>
+<ul><li><strong>公式 / 不变量。</strong> KV cache 正确性不仅是 shape，还包括位置顺序、每层独立存储、dtype/device 和增量结果与全量结果一致。</li><li><strong>算法拆解。</strong> 逐 token 与 full forward 对比 logits，检查 cache 长度单调增长且旧前缀不变；用容差比较浮点结果。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">class KVCache:
     def __init__(self): self.k=self.v=None
     def update(self,k,v):
@@ -2187,6 +2463,9 @@ def decode_step(model,state):
 <p><strong>Problem.</strong> Draft K tokens, verify them in one target pass, accept by p/q, and sample from the correction distribution on rejection.</p>
 <p><strong>中文题意。</strong> 草稿模型逐步提议，目标模型并行评分；接受规则必须保存目标分布，不能简单在拒绝后从 target 原分布采样。</p>
 <h3 id="reviewed-solution-93">Reviewed Solution<a class="anchor" href="#reviewed-solution-93" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-93">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-93" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="p'(x)=\frac{\max(0,p(x)-q(x))}{\sum_v\max(0,p(v)-q(v))}" data-explicit-math="true">p'(x)=\frac{\max(0,p(x)-q(x))}{\sum_v\max(0,p(v)-q(v))}</div>
+<ul><li><strong>公式 / 不变量。</strong> 完整 speculative decoding 在拒绝草稿 token 时从修正分布采样，抵消提案分布 q 的影响并保持目标分布 p。</li><li><strong>算法拆解。</strong> 小模型生成 gamma 个 token，大模型一次验证；顺序接受，拒绝时按 p' 采样，全部接受时再从 p 取一个 token。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def accept_or_correct(p,q,token):
     accept=torch.minimum(p[token]/q[token].clamp_min(1e-12),p.new_tensor(1.0))
     if torch.rand((),device=p.device)&lt;accept: return token,True
@@ -2204,6 +2483,9 @@ def decode_step(model,state):
 <p><strong>Problem.</strong> Encode row and column positions independently into two halves of each patch vector.</p>
 <p><strong>中文题意。</strong> embedding 前半表示 row，后半表示 column；每一半再交替使用 sin/cos。</p>
 <h3 id="reviewed-solution-94">Reviewed Solution<a class="anchor" href="#reviewed-solution-94" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-94">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-94" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="PE(x,y)=[PE_x(x);PE_y(y)]" data-explicit-math="true">PE(x,y)=[PE_x(x);PE_y(y)]</div>
+<ul><li><strong>公式 / 不变量。</strong> 二维正弦位置编码把 embedding 维拆给横纵坐标，使每个 patch 同时携带 x/y 的多频位置信息。</li><li><strong>算法拆解。</strong> 分别生成 H 和 W 的一维 sin/cos 编码，广播成网格后拼接；保证最终维度和 patch embedding 一致。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def positional_2d(height,width,d_model,device=None,dtype=torch.float32):
     if d_model%4: raise ValueError(&quot;d_model 必须能被 4 整除&quot;)
     half=d_model//2
@@ -2226,6 +2508,9 @@ def decode_step(model,state):
 <p><strong>Problem.</strong> Normalize image/text features and compute symmetric contrastive cross-entropy.</p>
 <p><strong>中文题意。</strong> batch 中第 i 张图与第 i 段文本是正样本；相似度矩阵对角线应最大，图到文与文到图损失取平均。</p>
 <h3 id="reviewed-solution-95">Reviewed Solution<a class="anchor" href="#reviewed-solution-95" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-95">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-95" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\mathcal{L}_{I\to T}=-\frac1B\sum_i\log\frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ij}/\tau}},\qquad s_{ij}=\frac{u_i^\top v_j}{\lVert u_i\rVert\lVert v_j\rVert}" data-explicit-math="true">\mathcal{L}_{I\to T}=-\frac1B\sum_i\log\frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ij}/\tau}},\qquad s_{ij}=\frac{u_i^\top v_j}{\lVert u_i\rVert\lVert v_j\rVert}</div>
+<ul><li><strong>公式 / 不变量。</strong> CLIP 把同 batch 的匹配图文作为正样本，其余配对作为 in-batch negatives，并对两个方向做交叉熵。</li><li><strong>算法拆解。</strong> 归一化图像/文本向量，算 B×B 相似度除温度，以对角索引作标签，平均 image-to-text 与 text-to-image loss。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def clip_loss(image_features,text_features,logit_scale):
     image=F.normalize(image_features,dim=-1); text=F.normalize(text_features,dim=-1)
     scale=logit_scale.exp().clamp(max=100)  # 学习 log scale，保证温度为正
@@ -2241,6 +2526,9 @@ def decode_step(model,state):
 <p><strong>Problem.</strong> Perform deterministic DDIM steps and combine conditional/unconditional noise predictions.</p>
 <p><strong>中文题意。</strong> 用较少时间步从噪声跳步生成；CFG 将条件预测沿远离无条件预测的方向放大。</p>
 <h3 id="reviewed-solution-96">Reviewed Solution<a class="anchor" href="#reviewed-solution-96" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-96">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-96" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\hat\epsilon=(1+w)\epsilon_\theta(x_t,t,c)-w\epsilon_\theta(x_t,t,\varnothing)" data-explicit-math="true">\hat\epsilon=(1+w)\epsilon_\theta(x_t,t,c)-w\epsilon_\theta(x_t,t,\varnothing)</div>
+<ul><li><strong>公式 / 不变量。</strong> Classifier-Free Guidance 线性外推条件与无条件噪声预测，增强条件一致性但过大 w 会降低多样性。</li><li><strong>算法拆解。</strong> 同一 x_t 分别做条件/无条件预测并组合，按 DDIM 确定性或带噪更新到 x_{t-1}；eta 控制随机性。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def cfg_eps(model,x,t,label,scale):
     eps_u=model(x,t,None); eps_c=model(x,t,label)
     return eps_u+scale*(eps_c-eps_u)
@@ -2258,6 +2546,9 @@ def ddim_step(x,eps,a_t,a_prev):
 <p><strong>Problem.</strong> Implement forward noising, noise-prediction training, and stochastic reverse sampling.</p>
 <p><strong>中文题意。</strong> 训练随机时间步的噪声预测器；采样从标准高斯开始，按后验均值逐步去噪并在非最后步加入方差噪声。</p>
 <h3 id="reviewed-solution-97">Reviewed Solution<a class="anchor" href="#reviewed-solution-97" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-97">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-97" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="x_t=\sqrt{\bar\alpha_t}x_0+\sqrt{1-\bar\alpha_t}\epsilon,\qquad \mathcal{L}=\mathbb{E}\lVert\epsilon-\epsilon_\theta(x_t,t)\rVert^2" data-explicit-math="true">x_t=\sqrt{\bar\alpha_t}x_0+\sqrt{1-\bar\alpha_t}\epsilon,\qquad \mathcal{L}=\mathbb{E}\lVert\epsilon-\epsilon_\theta(x_t,t)\rVert^2</div>
+<ul><li><strong>公式 / 不变量。</strong> DDPM 训练随机时间步的噪声预测器；采样从高斯噪声开始逐步反演扩散过程。</li><li><strong>算法拆解。</strong> 预计算 beta/alpha 累积量，训练时一次闭式加噪；推理按 t 从 T 到 1 迭代均值并在非最后步加噪声。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def extract(schedule,t,x):
     # 从长度 T 的 schedule 取出每个样本时间步，并扩展为 (B,1,...,1)
     return schedule.to(x.device).gather(0,t).view(t.size(0),*([1]*(x.ndim-1)))
@@ -2288,6 +2579,9 @@ def p_sample(x_t,eps,t,alpha,alpha_bar,beta):
 <p><strong>Problem.</strong> Combine hard-label CE and temperature-softened teacher/student KL.</p>
 <p><strong>中文题意。</strong> Student 同时学习真实标签和 teacher 的软类别关系；teacher 必须冻结，KL 输入方向要正确。</p>
 <h3 id="reviewed-solution-98">Reviewed Solution<a class="anchor" href="#reviewed-solution-98" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-98">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-98" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\mathcal{L}=\alpha\mathcal{L}_{hard}+(1-\alpha)T^2D_{KL}(\operatorname{softmax}(z_s/T)\Vert\operatorname{softmax}(z_t/T))" data-explicit-math="true">\mathcal{L}=\alpha\mathcal{L}_{hard}+(1-\alpha)T^2D_{KL}(\operatorname{softmax}(z_s/T)\Vert\operatorname{softmax}(z_t/T))</div>
+<ul><li><strong>公式 / 不变量。</strong> 知识蒸馏同时学习真实标签和教师的软类别关系；T^2 补偿温度导致的梯度缩放。</li><li><strong>算法拆解。</strong> 教师 eval/no_grad 产生 logits，学生算 hard loss 与温度 soft loss，加权后只更新学生。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def distillation_loss(student,teacher,labels,T=4.,alpha=.7):
     # 软目标传递类别关系，硬目标保证真实标签监督
     soft=F.kl_div(F.log_softmax(student/T,-1),
@@ -2304,6 +2598,9 @@ def p_sample(x_t,eps,t,alpha,alpha_bar,beta):
 <p><strong>Problem.</strong> Implement input-dependent state-space parameters and linear-time recurrence.</p>
 <p><strong>中文题意。</strong> 每个 token 产生 delta/B/C，离散化稳定的负 A，然后扫描更新 hidden state 和输出。</p>
 <h3 id="reviewed-solution-99">Reviewed Solution<a class="anchor" href="#reviewed-solution-99" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-99">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-99" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="h_t=\bar A_t\odot h_{t-1}+\bar B_t\odot x_t,\qquad y_t=C_t\odot h_t+D\odot x_t" data-explicit-math="true">h_t=\bar A_t\odot h_{t-1}+\bar B_t\odot x_t,\qquad y_t=C_t\odot h_t+D\odot x_t</div>
+<ul><li><strong>公式 / 不变量。</strong> Mamba selective scan 让离散状态空间参数依赖当前输入，从而选择性保留或遗忘信息。</li><li><strong>算法拆解。</strong> 由 x 投影得到 delta/B/C，离散化 A/B，沿序列递推 state 并生成 y；并行 scan 可替代 Python 循环。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def selective_scan(x,delta,A,B,C,D):
     # x:(B,L,D)，A:(D,N)，B/C:(B,L,N)，以下为教学版广播
     h=x.new_zeros(x.size(0),x.size(2),A.size(1)); ys=[]
@@ -2324,6 +2621,9 @@ def p_sample(x_t,eps,t,alpha,alpha_bar,beta):
 <p><strong>Problem.</strong> Route each token to top-k experts and compute an auxiliary balancing loss.</p>
 <p><strong>中文题意。</strong> Router 选择 experts，top-k gate 在局部归一化；辅助损失同时考虑实际路由比例与平均 gate probability。</p>
 <h3 id="reviewed-solution-100">Reviewed Solution<a class="anchor" href="#reviewed-solution-100" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-100">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-100" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="\mathcal{L}_{bal}=E\sum_{e=1}^{E}f_e\,p_e" data-explicit-math="true">\mathcal{L}_{bal}=E\sum_{e=1}^{E}f_e\,p_e</div>
+<ul><li><strong>公式 / 不变量。</strong> MoE 负载均衡损失同时关注实际分配比例 f_e 与平均路由概率 p_e，惩罚 token 集中到少数专家。</li><li><strong>算法拆解。</strong> router 得概率与 top-k，统计每个专家流量，计算辅助损失，再分发执行专家并加权合并。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def moe_balance(router_probs,top_ids,num_experts):
     # fraction: 实际被选择的 token 比例；prob: router 软概率均值
     one_hot=F.one_hot(top_ids,num_experts).float().sum(1)
@@ -2341,6 +2641,9 @@ def p_sample(x_t,eps,t,alpha,alpha_bar,beta):
 <p><strong>Problem.</strong> Build a band mask and compare local attention with full attention.</p>
 <p><strong>中文题意。</strong> 只允许 <code>|i-j|&lt;=w</code> 的位置参与 Softmax，并验证足够大窗口时等价于 full attention。</p>
 <h3 id="reviewed-solution-101">Reviewed Solution<a class="anchor" href="#reviewed-solution-101" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-101">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-101" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="A_{ij}=0\quad\text{if}\quad j&gt;i\ \text{or}\ i-j\ge w" data-explicit-math="true">A_{ij}=0\quad\text{if}\quad j&gt;i\ \text{or}\ i-j\ge w</div>
+<ul><li><strong>公式 / 不变量。</strong> 因果滑窗只允许当前位置查看最近 w 个 token，将每个 query 的有效 key 数限制为常数级。</li><li><strong>算法拆解。</strong> 根据位置差构造 causal-local mask，mask 后稳定 Softmax；真正省内存需块稀疏 kernel，稠密 mask 只改变语义。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def sliding_mask(seq_len,window,device=None):
     pos=torch.arange(seq_len,device=device)
     return (pos[:,None]-pos[None,:]).abs()&lt;=window
@@ -2360,6 +2663,9 @@ def masked_local_attention(q,k,v,window):
 <p><strong>Problem.</strong> Patchify images, encode visible patches, insert mask tokens, and reconstruct masked patches.</p>
 <p><strong>中文题意。</strong> MAE 随机保留少量 patch 给 encoder；decoder 按原顺序恢复 visible/mask tokens，只在 masked patches 上计算重建损失。</p>
 <h3 id="reviewed-solution-102">Reviewed Solution<a class="anchor" href="#reviewed-solution-102" aria-label="Link to section">#</a></h3>
+<h4 id="数学公式与算法思路-102">数学、公式与算法思路<a class="anchor" href="#数学公式与算法思路-102" aria-label="Link to section">#</a></h4>
+<div class="math-display" data-tex="Z_0=[x_{cls};X_{patch}W_E]+E_{pos},\qquad \mathcal{L}_{MAE}=\frac1{|M|}\sum_{i\in M}\lVert\hat x_i-x_i\rVert_2^2" data-explicit-math="true">Z_0=[x_{cls};X_{patch}W_E]+E_{pos},\qquad \mathcal{L}_{MAE}=\frac1{|M|}\sum_{i\in M}\lVert\hat x_i-x_i\rVert_2^2</div>
+<ul><li><strong>公式 / 不变量。</strong> ViT 把 patch 当 token 做全局 Transformer；MAE 随机遮挡大部分 patch，只在被遮挡位置计算重建损失。</li><li><strong>算法拆解。</strong> patchify 并加位置编码，ViT 分类时读 CLS；MAE 只编码可见 token，解码时补 mask token 并重建 masked patches。</li><li><strong>阅读代码顺序。</strong> 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。</li></ul>
 <div class="code-shell"><div class="code-title"><span>python</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="language-python">def mae_loss(pred,target,mask):
     # pred/target:(B,N,patch_dim)，mask:(B,N)，1 表示被遮挡
     per_patch=(pred-target).square().mean(-1)

@@ -8,6 +8,16 @@
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+y_i=\max(0,x_i)
+$$
+
+- **公式 / 不变量。** ReLU 对每个元素独立截断负值；除零点外，导数为 $\mathbf{1}[x_i>0]$。
+- **算法拆解。** 逐元素比较输入与 0，再选择原值或 0；时间复杂度 O(N)，额外空间取决于输出张量。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def relu(x: torch.Tensor) -> torch.Tensor:
     # 条件成立时选择 x，否则选择与 x 同设备、同 dtype 的 0
@@ -35,6 +45,16 @@ def relu(x: torch.Tensor) -> torch.Tensor:
 **中文题意。** 沿指定维度实现 Softmax，不能调用内置 Softmax。必须先减去最大值，避免大 logits 在指数运算时溢出。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+p_i=\frac{e^{x_i-m}}{\sum_j e^{x_j-m}},\qquad m=\max_j x_j
+$$
+
+- **公式 / 不变量。** 减去同一常数不改变 Softmax 比值；取最大值作平移后，最大指数仅为 1。
+- **算法拆解。** 沿目标维求最大值并保留维度，平移后指数化、求和、归一化；复杂度 O(N)，重点是避免 overflow。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def my_softmax(x: torch.Tensor, dim: int = -1) -> torch.Tensor:
@@ -67,6 +87,16 @@ def my_softmax(x: torch.Tensor, dim: int = -1) -> torch.Tensor:
 **中文题意。** 手写全连接层。权重形状为 `(输出维度, 输入维度)`，偏置为 `(输出维度,)`，两者都需要梯度。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+Y=XW^\top+b,\quad X\in\mathbb{R}^{B\times D_{in}},\ W\in\mathbb{R}^{D_{out}\times D_{in}}
+$$
+
+- **公式 / 不变量。** 线性层把最后一维从输入特征映射到输出特征；偏置按前导维广播。
+- **算法拆解。** 先确认矩阵收缩维一致，再做矩阵乘法并加偏置；计算量 O(BD_{in}D_{out})。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class SimpleLinear:
@@ -109,6 +139,16 @@ class SimpleLinear:
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\hat{x}_i=\frac{x_i-\mu}{\sqrt{\sigma^2+\epsilon}},\qquad y_i=\gamma_i\hat{x}_i+\beta_i
+$$
+
+- **公式 / 不变量。** LayerNorm 在每个样本或 token 的特征维内归一化，不依赖 batch 中其他样本。
+- **算法拆解。** 沿最后一维求总体均值和方差，标准化后做逐特征仿射变换；epsilon 防止零方差除零。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def my_layer_norm(x, gamma, beta, eps=1e-5):
     # (B,S,D) -> 均值和方差形状都是 (B,S,1)
@@ -139,6 +179,16 @@ def my_layer_norm(x, gamma, beta, eps=1e-5):
 **中文题意。** 实现缩放点积注意力，并支持 `Sq != Sk` 的交叉注意力。Q/K 的特征维必须相同，K/V 的序列长度必须相同。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\operatorname{Attention}(Q,K,V)=\operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+$$
+
+- **公式 / 不变量。** 点积衡量 query 与 key 的相关性；除以 $\sqrt{d_k}$ 控制 logits 方差，Softmax 后对 value 加权。
+- **算法拆解。** 先算所有 Q-K 分数，再按 key 维归一化并乘 V；标准复杂度 O(S_qS_kd)。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def scaled_dot_product_attention(Q, K, V):
@@ -177,6 +227,16 @@ def scaled_dot_product_attention(Q, K, V):
 **中文题意。** 实现多头注意力：先线性投影，再拆成多个 head，每个 head 独立计算注意力，最后拼接并输出投影。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\operatorname{MHA}(X)=\operatorname{Concat}(head_1,\ldots,head_H)W_O
+$$
+
+- **公式 / 不变量。** 每个 head 在较低维子空间独立做注意力，拼接后通过输出投影混合 head 信息。
+- **算法拆解。** Q/K/V 投影后 reshape 为 H 个 head，批量注意力，再转回并投影；注意 transpose 后常需 contiguous 或 reshape。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class MultiHeadAttention(nn.Module):
@@ -236,6 +296,16 @@ class MultiHeadAttention(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\hat{x}_{n,c}=\frac{x_{n,c}-\mu_c}{\sqrt{\sigma_c^2+\epsilon}},\qquad y_{n,c}=\gamma_c\hat{x}_{n,c}+\beta_c
+$$
+
+- **公式 / 不变量。** BatchNorm 按通道聚合 batch 及空间位置；训练用当前统计量，推理用移动平均。
+- **算法拆解。** 训练时求通道均值方差并更新 running stats，推理时固定统计量；小 batch 会使估计噪声增大。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def my_batch_norm(x, gamma, beta, running_mean, running_var,
                   eps=1e-5, momentum=0.1, training=True):
@@ -277,6 +347,16 @@ def my_batch_norm(x, gamma, beta, running_mean, running_var,
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\operatorname{RMSNorm}(x)=\gamma\odot\frac{x}{\sqrt{\frac1D\sum_{i=1}^{D}x_i^2+\epsilon}}
+$$
+
+- **公式 / 不变量。** RMSNorm 不减均值，只按均方根缩放，因此比 LayerNorm 少一次中心化。
+- **算法拆解。** 求最后一维平方均值，乘倒平方根，再乘可学习缩放；复杂度 O(ND)。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def rms_norm(x, weight, eps=1e-6):
     # RMS = sqrt(mean(x^2) + eps)，形状保留为 (...,1)
@@ -304,6 +384,16 @@ def rms_norm(x, weight, eps=1e-6):
 **中文题意。** 实现 GPT 解码器中的因果注意力。第 `i` 个 token 只能看见自己和之前的 token，不能泄露未来信息。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+A=\operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt d}+M\right),\quad M_{ij}=\begin{cases}0&j\le i\\-\infty&j>i\end{cases}
+$$
+
+- **公式 / 不变量。** 因果 mask 让位置 i 只能读取当前位置及过去，避免训练时泄漏未来 token。
+- **算法拆解。** 生成上三角布尔 mask，在 Softmax 前把未来 logits 置为负无穷，再乘 V；mask 必须与序列维对齐。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def causal_attention(Q, K, V):
@@ -346,6 +436,16 @@ def causal_attention(Q, K, V):
 **中文题意。** 实现 GQA：query 保留完整 head 数，而 K/V 使用更少的 head，并在一组 query heads 之间共享，以减少 KV cache。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+H_q=gH_{kv},\qquad h_{kv}=\left\lfloor\frac{h_q}{g}\right\rfloor
+$$
+
+- **公式 / 不变量。** GQA 让多组 query head 共享较少的 key/value head，在质量与 KV cache 内存之间折中。
+- **算法拆解。** 验证 query head 数可被 KV head 数整除，把 K/V 按组扩展或用分组索引，再执行普通多头注意力。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class GroupQueryAttention(nn.Module):
@@ -402,6 +502,16 @@ class GroupQueryAttention(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+M_{ij}=0\ \text{iff}\ |i-j|\le w\ \text{and causal constraints hold}
+$$
+
+- **公式 / 不变量。** 滑动窗口只保留局部邻域连接，把全局二次注意力改为近似线性规模。
+- **算法拆解。** 构造局部可见性 mask，仅对窗口内 key 归一化；理论连接数 O(Sw)，但显式 S×S mask 仍占 O(S^2) 内存。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def sliding_window_attention(Q, K, V, window_size):
     if window_size < 0:
@@ -444,6 +554,16 @@ def sliding_window_attention(Q, K, V, window_size):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\operatorname{LinearAttn}(Q,K,V)=\phi(Q)\bigl(\phi(K)^\top V\bigr)
+$$
+
+- **公式 / 不变量。** 利用结合律先聚合 K 与 V，避免显式形成 S×S 注意力矩阵；核映射必须保持非负或满足所选近似。
+- **算法拆解。** 先计算 KV 汇总，再与每个 Q 相乘并做归一化；典型复杂度从 O(S^2d) 降到 O(Sd^2)。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def linear_attention(Q, K, V, eps=1e-6):
     q, k = F.elu(Q) + 1.0, F.elu(K) + 1.0
@@ -477,6 +597,16 @@ def linear_attention(Q, K, V, eps=1e-6):
 **中文题意。** 实现简化 GPT-2 block：`x += causal_attention(LN(x))`，然后 `x += MLP(LN(x))`。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+X'=X+\operatorname{Attn}(\operatorname{LN}(X)),\qquad Y=X'+\operatorname{MLP}(\operatorname{LN}(X'))
+$$
+
+- **公式 / 不变量。** Pre-LN Transformer 用残差路径保持梯度通道，注意力负责 token 混合，MLP 负责通道混合。
+- **算法拆解。** 依次执行归一化、注意力、残差，再归一化、MLP、残差；每个子层输入输出 shape 必须一致。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class GPT2Block(nn.Module):
@@ -542,6 +672,16 @@ class GPT2Block(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+K_{cache}^{(t)}=[K_{cache}^{(t-1)};K_t],\qquad V_{cache}^{(t)}=[V_{cache}^{(t-1)};V_t]
+$$
+
+- **公式 / 不变量。** 自回归解码只为新 token 计算 K/V，并复用历史缓存，避免重复编码整个前缀。
+- **算法拆解。** 追加新 K/V，令当前 Q 读取完整 cache；单步注意力 O(td)，总解码仍约 O(T^2d)，但投影不再重复。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class KVCacheAttention(nn.Module):
     def __init__(self, d_model, num_heads):
@@ -605,6 +745,16 @@ class KVCacheAttention(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\operatorname{SwiGLU}(x)=\operatorname{SiLU}(xW_g)\odot(xW_u)W_d
+$$
+
+- **公式 / 不变量。** 门控分支决定哪些通道通过，up 分支提供内容，逐元素乘积形成数据依赖的特征选择。
+- **算法拆解。** 并行计算 gate/up 投影，SiLU 激活 gate，逐元素相乘后降维；两分支 shape 必须相同。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class SwiGLUMLP(nn.Module):
     def __init__(self, d_model, d_ff):
@@ -641,6 +791,16 @@ class SwiGLUMLP(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\mathcal{L}=-\frac1N\sum_{n=1}^{N}\log\frac{e^{z_{n,y_n}}}{\sum_c e^{z_{n,c}}}
+$$
+
+- **公式 / 不变量。** 交叉熵等价于正确类别的负 log-softmax；稳定实现应使用 log-sum-exp 而非先算概率再取 log。
+- **算法拆解。** 每行 logits 减最大值，计算 logsumexp，再取目标类别得分；时间复杂度 O(NC)。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def cross_entropy_loss(logits, targets):
     # log_softmax(x) = x - logsumexp(x)
@@ -671,6 +831,16 @@ def cross_entropy_loss(logits, targets):
 **中文题意。** 训练时随机将元素置零，并将保留元素放大 `1/(1-p)`；推理时不做任何变化。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+y_i=\frac{m_i}{1-p}x_i,\qquad m_i\sim\operatorname{Bernoulli}(1-p)
+$$
+
+- **公式 / 不变量。** inverted dropout 在训练时除以保留概率，使输出期望仍等于输入；推理时无需缩放。
+- **算法拆解。** 训练模式采样独立 mask 并缩放，评估模式原样返回；边界 p=0 和 p=1 要单独处理。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class MyDropout(nn.Module):
@@ -713,6 +883,16 @@ class MyDropout(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+Y_{b,s,:}=W_{I_{b,s},:},\qquad W\in\mathbb{R}^{V\times D}
+$$
+
+- **公式 / 不变量。** Embedding 本质是按整数 token id 查参数表，不是 one-hot 矩阵乘法的显式实现。
+- **算法拆解。** 检查索引范围后做行选择，输出 shape 在输入索引后追加 D；反向只更新被访问的行。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class MyEmbedding(nn.Module):
     def __init__(self, num_embeddings, embedding_dim):
@@ -746,6 +926,16 @@ class MyEmbedding(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\operatorname{GELU}(x)\approx\frac{x}{2}\left(1+\tanh\!\left[\sqrt{\frac{2}{\pi}}(x+0.044715x^3)\right]\right)
+$$
+
+- **公式 / 不变量。** GELU 以平滑概率门控输入，负值不会像 ReLU 那样全部截断。
+- **算法拆解。** 按 tanh 近似逐元素计算；注意常数、三次项和括号，复杂度 O(N)。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def my_gelu(x):
     # Phi 是标准高斯分布的累积分布函数
@@ -774,6 +964,16 @@ def my_gelu(x):
 **中文题意。** 根据输入连接数计算标准差 `sqrt(2/fan_in)`，用正态分布原地初始化权重。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\operatorname{Var}(W)=\frac{2}{fan_{in}}\quad\text{for ReLU networks}
+$$
+
+- **公式 / 不变量。** Kaiming 初始化根据 ReLU 截断约一半方差的现象选择权重尺度，防止层间激活爆炸或衰减。
+- **算法拆解。** 计算 fan-in，按正态标准差 sqrt(2/fan-in) 或对应均匀区间采样；卷积 fan-in 还包含核面积。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def kaiming_init(weight):
@@ -811,6 +1011,16 @@ def kaiming_init(weight):
 **中文题意。** 把所有参数梯度视作一个大向量；若总 L2 norm 超过阈值，就用同一个比例缩放全部梯度。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+g'=g\cdot\min\!\left(1,\frac{c}{\lVert g\rVert_2+\epsilon}\right)
+$$
+
+- **公式 / 不变量。** 全局范数裁剪保持梯度方向不变，只在总范数超过阈值时统一缩小。
+- **算法拆解。** 先累加所有参数梯度平方得到全局 L2 范数，再用同一系数缩放；不能逐参数各自裁剪。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def clip_grad_norm(parameters, max_norm):
@@ -856,6 +1066,16 @@ def clip_grad_norm(parameters, max_norm):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+Y_{n,o,i,j}=b_o+\sum_c\sum_u\sum_v W_{o,c,u,v}X_{n,c,i+u,j+v}
+$$
+
+- **公式 / 不变量。** 二维卷积在空间位置共享同一组核参数；输出尺寸由 kernel、stride、padding、dilation 决定。
+- **算法拆解。** 先算输出高宽，再提取每个局部窗口与卷积核做乘加；朴素复杂度 O(BH_oW_oC_iC_ok_hk_w)。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def my_conv2d(x, weight, bias=None, stride=1, padding=0):
     if padding:
@@ -893,6 +1113,16 @@ def my_conv2d(x, weight, bias=None, stride=1, padding=0):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\operatorname{CrossAttn}(X_q,X_{kv})=\operatorname{softmax}\!\left(\frac{Q(X_q)K(X_{kv})^\top}{\sqrt d}\right)V(X_{kv})
+$$
+
+- **公式 / 不变量。** 交叉注意力的 query 和 key/value 来自不同序列，因此 query 长度可以不同于上下文长度。
+- **算法拆解。** 分别投影 query 与上下文，按 head 拆分，验证 K/V 长度相同，再做注意力和输出投影。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class MultiHeadCrossAttention(MultiHeadAttention):
     def forward(self, x_q, x_kv):
@@ -922,6 +1152,16 @@ class MultiHeadCrossAttention(MultiHeadAttention):
 **中文题意。** 将最后一维按相邻两个元素分组，对每组执行二维旋转；不同位置使用不同角度，从而把位置信息写入 Q/K。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\begin{bmatrix}x'_{2i}\\x'_{2i+1}\end{bmatrix}=\begin{bmatrix}\cos\theta&-\sin\theta\\\sin\theta&\cos\theta\end{bmatrix}\begin{bmatrix}x_{2i}\\x_{2i+1}\end{bmatrix}
+$$
+
+- **公式 / 不变量。** RoPE 对相邻特征维成对旋转；Q 与 K 的内积因此自然编码相对位置差。
+- **算法拆解。** 生成各位置和频率的角度，拆分偶数/奇数维，应用二维旋转后交错还原；head dimension 通常必须为偶数。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def apply_rope(q, k):
@@ -969,6 +1209,16 @@ def apply_rope(q, k):
 **中文题意。** 分块计算 attention，并为每一行维护当前最大值、指数和、输出累加器；最大值变化时必须重新缩放旧结果。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+m_i^{new}=\max(m_i,m_{ij}),\quad l_i^{new}=e^{m_i-m_i^{new}}l_i+\sum_j e^{s_{ij}-m_i^{new}}
+$$
+
+- **公式 / 不变量。** Online Softmax 用运行最大值和归一化和合并 tile，避免保存完整注意力矩阵且保持数值稳定。
+- **算法拆解。** 按 Q/K/V tile 扫描，更新每行 m、l 和缩放后的输出累加器；最终除以 l，精确等价于普通 Softmax。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def flash_attention(Q, K, V, block_size=32):
@@ -1028,6 +1278,16 @@ def flash_attention(Q, K, V, block_size=32):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+W'=W+\frac{\alpha}{r}BA,\qquad A\in\mathbb{R}^{r\times d_{in}},\ B\in\mathbb{R}^{d_{out}\times r}
+$$
+
+- **公式 / 不变量。** LoRA 冻结原权重，只训练低秩增量；参数量从 d_out×d_in 降为 r(d_in+d_out)。
+- **算法拆解。** 基座线性输出加上 xA^T再乘B^T 的支路并按 alpha/r 缩放；部署时可把增量 merge 回 W。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class LoRALinear(nn.Module):
     def __init__(self, in_features, out_features, rank, alpha=1.0):
@@ -1073,6 +1333,16 @@ class LoRALinear(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+N=\frac{H}{P}\frac{W}{P},\qquad Z\in\mathbb{R}^{B\times N\times D}
+$$
+
+- **公式 / 不变量。** Patch Embedding 把每个 P×P 图像块展平并线性投影成 token；卷积核和步长都取 P 可一次完成。
+- **算法拆解。** 检查 H/W 可被 P 整除，卷积得到 B×D×H/P×W/P，再 flatten 空间并转成 B×N×D。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class PatchEmbedding(nn.Module):
     def __init__(self, img_size, patch_size, in_channels, embed_dim):
@@ -1117,6 +1387,16 @@ class PatchEmbedding(nn.Module):
 **中文题意。** Router 为每个 token 选择 top-k experts，将它们的输出按门控概率加权求和。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+y=\sum_{e\in\operatorname{TopK}(g(x))}p_e(x)E_e(x)
+$$
+
+- **公式 / 不变量。** MoE 路由器为每个 token 选择少量专家，计算量近似稠密模型但参数容量更大。
+- **算法拆解。** 计算 router logits 和概率，取 top-k 专家，分发 token、加权汇总；还需容量限制和负载均衡避免专家塌缩。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class MixtureOfExperts(nn.Module):
@@ -1178,6 +1458,16 @@ class MixtureOfExperts(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,\quad v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2,\quad \theta_t=\theta_{t-1}-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\epsilon}
+$$
+
+- **公式 / 不变量。** Adam 用一阶动量平滑方向、二阶动量自适应缩放，并用偏差修正补偿初期零初始化。
+- **算法拆解。** 逐参数更新 m/v，除以 1-beta^t 得到无偏估计，再更新参数；状态内存约为参数量的两倍。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class MyAdam:
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8):
@@ -1235,6 +1525,16 @@ class MyAdam:
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\eta_t=\begin{cases}\eta_{max}\,t/T_w&t<T_w\\\eta_{min}+\frac{\eta_{max}-\eta_{min}}2\left[1+\cos\left(\pi\frac{t-T_w}{T-T_w}\right)\right]&t\ge T_w\end{cases}
+$$
+
+- **公式 / 不变量。** warmup 先线性提高学习率以稳定早期训练，之后余弦衰减平滑降低到最小值。
+- **算法拆解。** 先裁剪 step 到合法区间，按是否处于 warmup 分段计算；重点核对端点和总步数定义。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def cosine_lr_schedule(step, total_steps, warmup_steps, max_lr, min_lr=0.0):
     if not 0 <= warmup_steps < total_steps:
@@ -1273,6 +1573,16 @@ def cosine_lr_schedule(step, total_steps, warmup_steps, max_lr, min_lr=0.0):
 **中文题意。** 用多个小 batch 模拟一个大 batch：每次 backward 只累加梯度，所有 micro-batches 完成后再 step。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+g=\nabla_\theta\frac1K\sum_{k=1}^{K}\mathcal{L}_k=\frac1K\sum_{k=1}^{K}\nabla_\theta\mathcal{L}_k
+$$
+
+- **公式 / 不变量。** 梯度累积用 K 个 micro-batch 模拟更大 batch；每个 loss 除以 K 才与大 batch 的平均梯度一致。
+- **算法拆解。** 连续 K 次 forward/backward 不清梯度，第 K 次后 step 再 zero_grad；含 BatchNorm 时统计行为不完全等价。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def accumulated_step(model, optimizer, loss_fn, micro_batches):
@@ -1313,6 +1623,16 @@ def accumulated_step(model, optimizer, loss_fn, micro_batches):
 **中文题意。** 调整 temperature 后，只保留 top-k 候选；再保留累计概率达到 top-p 的最小高概率集合，最后按过滤后的概率采样。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+p_i\propto e^{z_i/T}\,\mathbf{1}[i\in\operatorname{TopK}\cap\operatorname{TopP}]
+$$
+
+- **公式 / 不变量。** temperature 控制分布尖锐度，top-k 限制候选数量，top-p 保留累计概率达到阈值的最小集合。
+- **算法拆解。** 缩放 logits，先过滤再做稳定 Softmax，最后按概率采样；至少保留一个 token。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def sample_top_k_top_p(logits, top_k=0, top_p=1.0, temperature=1.0):
@@ -1364,6 +1684,16 @@ def sample_top_k_top_p(logits, top_k=0, top_p=1.0, temperature=1.0):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+s(y_{1:t})=\sum_{i=1}^{t}\log p(y_i\mid y_{<i},x)
+$$
+
+- **公式 / 不变量。** Beam Search 保留累计对数概率最高的 B 条部分序列，近似搜索最大概率序列。
+- **算法拆解。** 每步展开 B×V 个候选，取全局 top-B，记录父 beam 和 token；遇到 EOS 后冻结并最终选最高分。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def beam_search(log_prob_fn, start_token, max_len, beam_width, eos_token):
     active, completed = [(0.0, [start_token])], []
@@ -1408,6 +1738,16 @@ def beam_search(log_prob_fn, start_token, max_len, beam_width, eos_token):
 **中文题意。** 小模型提出 token，大模型按概率比接受；若拒绝，则从目标分布与草稿分布的正残差中采样纠正 token。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+a_t=\min\!\left(1,\frac{p_t(y_t)}{q_t(y_t)}\right)
+$$
+
+- **公式 / 不变量。** 推测解码用小模型 q 提案、大模型 p 验证；接受概率保证最终样本仍服从目标分布 p。
+- **算法拆解。** 按顺序接受草稿 token，首次拒绝后从修正分布采样并停止该轮；概率比必须防除零并裁剪到 1。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def speculative_decode(target_probs, draft_probs, draft_tokens):
@@ -1454,6 +1794,16 @@ def speculative_decode(target_probs, draft_probs, draft_tokens):
 **中文题意。** 将词拆成字符加词尾标记，统计相邻 token pair 的加权频率，反复合并最高频 pair；编码时按学习顺序应用 merges。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+(a,b)^*=\arg\max_{(a,b)}\operatorname{count}(a,b)
+$$
+
+- **公式 / 不变量。** BPE 反复合并语料中最高频的相邻符号对，逐步从字符构造子词词表。
+- **算法拆解。** 统计所有相邻 pair，选最高频 pair 全局合并，更新词表并重复；并列时必须有确定性规则。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class SimpleBPE:
@@ -1525,6 +1875,16 @@ class SimpleBPE:
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+q=\operatorname{clip}\!\left(\operatorname{round}(x/s)+z,q_{min},q_{max}\right),\qquad \hat x=s(q-z)
+$$
+
+- **公式 / 不变量。** 线性量化用 scale 和 zero-point 把浮点映射到 INT8；反量化存在由舍入和裁剪造成的误差。
+- **算法拆解。** 量化输入/权重，使用整数累加，再乘组合 scale 并加浮点 bias；对称量化常令 z=0。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class Int8Linear(nn.Module):
     def __init__(self, weight, bias=None):
@@ -1573,6 +1933,16 @@ class Int8Linear(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\mathcal{L}_{DPO}=-\log\sigma\!\left(\beta\left[\log\frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)}-\log\frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)}\right]\right)
+$$
+
+- **公式 / 不变量。** DPO 鼓励策略相对参考模型更偏好 chosen 而非 rejected，不需要显式训练奖励模型。
+- **算法拆解。** 分别求 chosen/rejected 的策略与参考序列 log-prob，构造相对 margin，再用 log-sigmoid 得到稳定损失。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def dpo_loss(policy_chosen_logps, policy_rejected_logps,
              ref_chosen_logps, ref_rejected_logps, beta=0.1):
@@ -1603,6 +1973,16 @@ def dpo_loss(policy_chosen_logps, policy_rejected_logps,
 **中文题意。** 对同一 prompt 生成的多个回答做组内 reward 标准化，作为 advantage，再使用策略梯度目标更新回答概率。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+A_i=\frac{r_i-\mu_G}{\sigma_G+\epsilon},\qquad \mathcal{L}=-\frac1G\sum_i\min(\rho_iA_i,\operatorname{clip}(\rho_i,1-\epsilon,1+\epsilon)A_i)
+$$
+
+- **公式 / 不变量。** GRPO 用同一 prompt 的组内奖励标准化作 advantage，省去独立 value model，并用 clipped ratio 限制更新。
+- **算法拆解。** 按组标准化奖励，计算新旧策略概率比，取 clipped surrogate；标准差很小时 epsilon 很关键。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def grpo_loss(logps, rewards, group_ids, eps=1e-5):
@@ -1641,6 +2021,16 @@ def grpo_loss(logps, rewards, group_ids, eps=1e-5):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\mathcal{L}_{clip}=-\mathbb{E}\left[\min\left(r_tA_t,\operatorname{clip}(r_t,1-\epsilon,1+\epsilon)A_t\right)\right]
+$$
+
+- **公式 / 不变量。** PPO 在策略改进项和裁剪项中取较小者，阻止一次更新把动作概率推得过远。
+- **算法拆解。** 用 log-prob 差指数化得到 ratio，按 advantage 符号理解 min 的约束方向，再对有效 token 求均值。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def ppo_loss(new_logps, old_logps, advantages, clip_ratio=0.2):
     if clip_ratio < 0:
@@ -1677,6 +2067,16 @@ def ppo_loss(new_logps, old_logps, advantages, clip_ratio=0.2):
 **中文题意。** 用闭式最小二乘、手写 MSE 梯度下降、PyTorch Linear 三种方式求线性回归参数。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\hat y=Xw+b,\qquad \mathcal{L}_{MSE}=\frac1N\lVert\hat y-y\rVert_2^2
+$$
+
+- **公式 / 不变量。** 线性回归无论手写梯度、autograd 还是 nn.Module，都在优化同一个凸二次目标。
+- **算法拆解。** forward 得预测，计算 MSE，求梯度并更新；比较三种实现时应使用相同数据、初始化和学习率。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class LinearRegression:
@@ -1746,6 +2146,16 @@ class LinearRegression:
 **中文题意。** 对一个或多个 teacher，计算 student 到 teacher 的反向 KL；按 teacher 权重组合，支持忽略 padding token 和温度蒸馏。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\mathcal{L}_{OPD}=-\log\sigma\!\left(\beta(\Delta_\theta-\Delta_{ref})\right),\qquad \Delta=\log p(y_w|x)-\log p(y_l|x)
+$$
+
+- **公式 / 不变量。** 偏好目标关注 chosen 与 rejected 的序列对数概率差，并用参考模型校正策略漂移。
+- **算法拆解。** 先按有效 token 汇总序列 log-prob，再形成策略/参考 margin 差；padding 位置不能计入。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def opd_loss(student_logits, teacher_logits, teacher_weights=None,
@@ -1845,6 +2255,16 @@ def opd_loss(student_logits, teacher_logits, teacher_weights=None,
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+(u,v)^*=\arg\max_{(u,v)}f(u,v),\qquad vocab\leftarrow vocab\cup\{uv\}
+$$
+
+- **公式 / 不变量。** 该 BPE 实现的核心仍是最高频 pair 合并；训练规则与编码时的 merge 顺序必须一致。
+- **算法拆解。** 预分词、统计 pair、确定性选最大值、合并并记录 rank；编码新文本时按 rank 重放合并。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 from collections import Counter
 
@@ -1899,6 +2319,16 @@ def byte_pair_encoding(corpus, num_merges=10):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+H_q=gH_{kv},\qquad K'_{h}=K_{\lfloor h/g\rfloor}
+$$
+
+- **公式 / 不变量。** 每 g 个 query head 共享一个 KV head，减少缓存大小到 MHA 的约 1/g。
+- **算法拆解。** 投影并拆 head，按组把 K/V 映射到 query heads，应用 mask/Softmax 后合并；先验证整除关系。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class TorchLeetGQA(nn.Module):
     def __init__(self, d_model, q_heads, kv_heads):
@@ -1952,6 +2382,16 @@ class TorchLeetGQA(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+S=\frac{QK^\top}{\sqrt d},\qquad P=\operatorname{softmax}(S),\qquad O=PV
+$$
+
+- **公式 / 不变量。** 从零实现 attention 时最关键的是明确 score 的最后两维分别是 query 长度与 key 长度。
+- **算法拆解。** 做 shape 检查、缩放点积、可选 mask、稳定 Softmax、value 加权；每一步记录 shape 可避免轴错误。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def attention_with_weights(q, k, v, mask=None):
     # 使用 Python 标量缩放，避免创建 CPU tensor 导致 GPU device mismatch
@@ -1989,6 +2429,16 @@ def attention_with_weights(q, k, v, mask=None):
 **中文题意。** 将 Q/K/V 拆头计算注意力，再拼接输出；投影参数必须被模型持久保存和训练。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+head_h=\operatorname{Attention}(XW_h^Q,XW_h^K,XW_h^V),\qquad O=[head_1;\ldots;head_H]W^O
+$$
+
+- **公式 / 不变量。** 多头结构让不同 head 学习不同关系，但总模型维通常保持不变。
+- **算法拆解。** 一次投影后 reshape/transpose 批量计算所有 head，再 concat 和输出投影；要求 d_model 可被 H 整除。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class TorchLeetMHA(MultiHeadAttention):
@@ -2032,6 +2482,16 @@ class TorchLeetMHA(MultiHeadAttention):
 **中文题意。** 预计算位置旋转所需的 cos/sin，并应用到 query/key 的成对特征。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+q'_m=R(m\theta)q_m,\qquad k'_n=R(n\theta)k_n,\qquad q_m'^\top k_n'=q_m^\top R((n-m)\theta)k_n
+$$
+
+- **公式 / 不变量。** RoPE 的关键性质是旋转后的内积只依赖位置差 n-m，因此把相对位置编码进 attention score。
+- **算法拆解。** 预计算 cos/sin cache，按序列位置切片并广播到 batch/head，成对旋转 Q/K；检查缓存长度和 dtype。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class RotaryEmbedding(nn.Module):
@@ -2079,6 +2539,16 @@ class RotaryEmbedding(nn.Module):
 **中文题意。** 为每个位置生成固定的正弦/余弦向量，不参与训练，并按序列长度切片返回。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+PE_{pos,2i}=\sin\!\left(pos/10000^{2i/d}\right),\qquad PE_{pos,2i+1}=\cos\!\left(pos/10000^{2i/d}\right)
+$$
+
+- **公式 / 不变量。** 不同频率的正弦余弦为每个位置产生确定性向量，也允许模型线性表达相对位移。
+- **算法拆解。** 构造位置列向量和频率行向量，外积得角度，偶数维填 sin、奇数维填 cos；无需训练参数。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class SinusoidalPosition(nn.Module):
@@ -2130,6 +2600,16 @@ class SinusoidalPosition(nn.Module):
 **中文题意。** 将前面组件组装为小型 decoder-only language model，并输出每个 token 的 vocabulary logits。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+p(x_{t+1}|x_{\le t})=\operatorname{softmax}(W_{lm}\,\operatorname{LN}(h_t))
+$$
+
+- **公式 / 不变量。** 小型语言模型由 token/位置表示、重复 Transformer block、最终归一化和词表投影组成。
+- **算法拆解。** 嵌入并加位置，逐层执行 causal block，最终映射到 vocab logits；训练目标把输入与下一 token 标签错开一位。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def rope_heads(x, offset=0):
@@ -2242,6 +2722,16 @@ class SmolLM(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\operatorname{SiLU}(x)=x\sigma(x)
+$$
+
+- **公式 / 不变量。** 自定义激活模块只需保持纯 tensor 运算，autograd 会按链式法则自动构建梯度。
+- **算法拆解。** 在 forward 中组合可微操作，不手动 detach；用输入输出 shape 和极端值检查实现。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class CustomActivationModel(nn.Module):
     def __init__(self, in_features=1, out_features=1):
@@ -2275,6 +2765,16 @@ class CustomActivationModel(nn.Module):
 **中文题意。** 从 CSV 读取 X/y，正确实现 `__len__`、`__getitem__`，再交给 DataLoader 批处理。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+N_{batches}=\left\lceil\frac{N}{B}\right\rceil\quad\text{unless drop\_last=True}
+$$
+
+- **公式 / 不变量。** Dataset 定义单样本索引语义，DataLoader 负责采样、批处理、shuffle 和多进程加载。
+- **算法拆解。** 实现 __len__ 与 __getitem__，再由 collate_fn 把样本堆成 batch；检查最后一批和随机性。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class CSVDataset(torch.utils.data.Dataset):
@@ -2311,6 +2811,16 @@ loader = DataLoader(CSVDataset("data.csv"), batch_size=32, shuffle=True)
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+h^{(l)}=\phi(W^{(l)}h^{(l-1)}+b^{(l)}),\qquad \hat y=W^{(L)}h^{(L-1)}+b^{(L)}
+$$
+
+- **公式 / 不变量。** DNN 交替执行仿射变换和非线性；最后一层是否激活取决于损失是否期待 logits。
+- **算法拆解。** 按层注册 Module，forward 顺序连接，训练时 loss.backward 后 optimizer.step；避免在 forward 动态创建参数。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class DNNModel(nn.Module):
     def __init__(self, in_features=2, hidden=32):
@@ -2344,6 +2854,16 @@ class DNNModel(nn.Module):
 **中文题意。** 当绝对误差不超过 delta 时用平方损失，否则切换为线性增长，降低离群点影响。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+L_\delta(e)=\begin{cases}\frac12e^2&|e|\le\delta\\\delta(|e|-\frac12\delta)&|e|>\delta\end{cases}
+$$
+
+- **公式 / 不变量。** Huber Loss 在小误差区像 MSE 平滑，在大误差区像 MAE 线性增长，因此对离群点更鲁棒。
+- **算法拆解。** 计算绝对误差，按 delta 分段选择二次项或线性项，再按 reduction 聚合。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class HuberLoss(nn.Module):
@@ -2381,6 +2901,16 @@ class HuberLoss(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\hat y=xw+b,\qquad \nabla_w\mathcal{L}=\frac{2}{N}X^\top(Xw+b-y)
+$$
+
+- **公式 / 不变量。** nn.Module 版本把参数注册、状态保存和设备迁移统一起来，数学目标仍是标准线性回归。
+- **算法拆解。** 在 __init__ 定义层，在 forward 调用；训练循环固定为清梯度、前向、loss、反向、更新。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class LinearRegressionModel(nn.Module):
     def __init__(self, input_dim=1):
@@ -2414,6 +2944,16 @@ class LinearRegressionModel(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\text{checkpoint}=\{\theta,\ state_{opt},\ epoch,\ rng\_state\}
+$$
+
+- **公式 / 不变量。** 可恢复训练不仅需要模型参数，还需要优化器动量、训练进度和必要的随机状态。
+- **算法拆解。** 保存 state_dict 而非整个对象；加载时先构造相同结构，再 load_state_dict，并显式设置 map_location。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 # 保存参数，不序列化整个 Python 对象
 torch.save(model.state_dict(), "model.pth")
@@ -2446,6 +2986,16 @@ loaded.eval()  # 关闭 Dropout，并让 BatchNorm 使用 running stats
 **中文题意。** 创建 SummaryWriter，在训练过程中记录标量指标，结束后正确关闭 writer。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\text{event}_t=(\text{tag},\text{value}_t,\text{global\_step}=t)
+$$
+
+- **公式 / 不变量。** TensorBoard 通过统一 global step 对齐 loss、学习率、梯度分布等时间序列。
+- **算法拆解。** 创建 writer，训练中按固定频率记录 scalar/histogram/image，结束时 flush/close；tag 命名要稳定。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 from torch.utils.tensorboard import SummaryWriter
@@ -2482,6 +3032,16 @@ with SummaryWriter("runs/linear_regression") as writer:
 **中文题意。** 训练集使用随机增强；测试集只做确定性预处理，保证评估可重复。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+(x',y')=T_\omega(x,y),\qquad \omega\sim p(\omega)
+$$
+
+- **公式 / 不变量。** 数据增强从随机变换分布采样，同时必须保持标签语义；几何任务还要同步变换 mask 或框。
+- **算法拆解。** 训练集应用随机增强，验证集只做确定性预处理；先转 tensor 还是先几何变换取决于算子接口。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 train_tf = transforms.Compose([
@@ -2520,6 +3080,16 @@ test_tf = transforms.Compose([
 **中文题意。** 编码器压缩图像，解码器恢复到 28x28；训练后用每个样本的重建误差检测异常。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+s(x)=\lVert x-f_\theta(x)\rVert_2^2,\qquad \text{anomaly if }s(x)>\tau
+$$
+
+- **公式 / 不变量。** 自编码器在正常数据上学习重建，异常样本通常产生更大重建误差。
+- **算法拆解。** 只用正常样本训练，验证集估计阈值 tau，推理计算逐样本误差；阈值需依据业务代价选择。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class Autoencoder(nn.Module):
@@ -2563,6 +3133,16 @@ anomaly_score = (model(images)-images).square().flatten(1).mean(1)
 **中文题意。** 分别测量训练与测试耗时；GPU 上必须同步，否则只测到异步 kernel launch 时间。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\text{throughput}=\frac{N_{samples}}{t},\qquad \text{accuracy}=\frac{\#correct}{N}
+$$
+
+- **公式 / 不变量。** 训练 benchmark 关注速度与资源，评估关注固定数据上的指标；二者都需要排除 warmup 和数据泄漏。
+- **算法拆解。** 训练模式计时并同步 GPU，评估模式配合 no_grad，累计加权 loss 和正确数；不能平均 batch 均值而忽略最后小 batch。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def timed_epoch(model, loader, train=False):
@@ -2608,6 +3188,16 @@ def timed_epoch(model, loader, train=False):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+H_{out}=\left\lfloor\frac{H+2P-D(K-1)-1}{S}+1\right\rfloor
+$$
+
+- **公式 / 不变量。** CNN 通过卷积逐步提取局部特征，池化或 stride 降采样，最后分类头输出类别 logits。
+- **算法拆解。** 逐层跟踪 C/H/W，卷积后激活和下采样，flatten 前动态确认尺寸；CrossEntropyLoss 输入应是原始 logits。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class CIFAR10CNN(nn.Module):
     def __init__(self):
@@ -2646,6 +3236,16 @@ class CIFAR10CNN(nn.Module):
 **中文题意。** 前向在低精度上下文运行，反向前放大 loss，step 时由 scaler 检查溢出并更新缩放系数。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\theta\leftarrow\theta-\eta\,\operatorname{unscale}\!\left(\nabla_\theta(s\mathcal{L})\right)
+$$
+
+- **公式 / 不变量。** AMP 用低精度加速多数算子，并用 GradScaler 放大 loss，避免 FP16 小梯度下溢。
+- **算法拆解。** autocast 包裹 forward/loss，scale 后 backward，step 前 unscale 以便裁剪，最后 update scale；评估无需 scaler。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -2691,6 +3291,16 @@ for x, y in loader:
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+W_q=\operatorname{round}(W/s),\qquad y\approx s\,(W_qx)+b
+$$
+
+- **公式 / 不变量。** 动态量化通常只把权重量化为 INT8，激活在运行时动态确定 scale，适合线性层和 LSTM 的 CPU 推理。
+- **算法拆解。** 先 eval 并在 CPU 上替换支持的模块，比较模型大小、延迟和精度；量化对象与 backend 必须支持。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class LanguageModel(nn.Module):
     def __init__(self, vocab, embed, hidden):
@@ -2734,6 +3344,16 @@ quantized = torch.ao.quantization.quantize_dynamic(model, {nn.LSTM,nn.Linear},
 **中文题意。** 对每个时间步执行 `h_t=tanh(x_t Wxh+h_{t-1}Whh+b)`，最后把 hidden state 映射为预测。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+h_t=\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b_h),\qquad y_t=W_{hy}h_t+b_y
+$$
+
+- **公式 / 不变量。** RNN 用隐藏状态递归压缩历史；同一参数在所有时间步共享。
+- **算法拆解。** 初始化 h0，按时间顺序更新 hidden 并生成输出，最后 stack；长序列会出现梯度消失或爆炸。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class ManualRNN(nn.Module):
@@ -2782,6 +3402,16 @@ class ManualRNN(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+y=x\,\sigma(ax),\qquad \frac{\partial y}{\partial x}=\sigma(ax)+ax\sigma(ax)(1-\sigma(ax))
+$$
+
+- **公式 / 不变量。** 自定义 autograd 必须让 backward 返回与 forward 每个输入一一对应的梯度，并正确处理广播求和。
+- **算法拆解。** forward 保存 backward 必需的 tensor；backward 用链式法则乘 grad_output，分别计算 x 与参数 a 的梯度。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class LearnedSiLU(torch.autograd.Function):
     @staticmethod
@@ -2824,6 +3454,16 @@ class LearnedSiLU(torch.autograd.Function):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\min_G\max_D\ \mathbb{E}_{x\sim p_{data}}\log D(x)+\mathbb{E}_{z\sim p(z)}\log(1-D(G(z)))
+$$
+
+- **公式 / 不变量。** GAN 是生成器与判别器的对抗博弈；实践中常用带 logits 的稳定 BCE 形式。
+- **算法拆解。** 先 detach 假样本更新 D，再冻结或清理 D 梯度更新 G；两次 backward 的计算图边界必须清楚。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 # 判别器末层返回 logits，使用更稳定的 BCEWithLogitsLoss
 loss_fn = nn.BCEWithLogitsLoss()
@@ -2862,6 +3502,16 @@ g_loss.backward(); optimizer_G.step()
 **中文题意。** Encoder LSTM 输出整段 memory；Decoder 每步根据 hidden state 对 source positions 计算权重和 context。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+e_{t,s}=v^\top\tanh(W_hh_s+W_ss_{t-1}),\quad \alpha_{t}=\operatorname{softmax}(e_t),\quad c_t=\sum_s\alpha_{t,s}h_s
+$$
+
+- **公式 / 不变量。** Bahdanau attention 用加性打分让解码器每一步动态聚合编码器状态。
+- **算法拆解。** 编码源序列，解码每步用上一 hidden 计算 score，mask padding、归一化得 context，再预测 token。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class AdditiveAttention(nn.Module):
@@ -2911,6 +3561,16 @@ class AdditiveAttention(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+X'=\operatorname{LN}(X+\operatorname{MHA}(X)),\qquad Y=\operatorname{LN}(X'+\operatorname{FFN}(X'))
+$$
+
+- **公式 / 不变量。** Encoder block 通过自注意力混合 token，再通过 FFN 独立变换每个 token；残差要求维度一致。
+- **算法拆解。** 构造 padding mask，执行多头自注意力、残差归一化、FFN、残差归一化；核对 Post-LN 或 Pre-LN 约定。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class EncoderBlock(nn.Module):
     def __init__(self, d_model, heads, d_ff):
@@ -2949,6 +3609,16 @@ class EncoderBlock(nn.Module):
 **中文题意。** 保存卷积激活及其梯度，按空间平均梯度作为 channel 权重，得到 ReLU 后的热力图。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\alpha_k^c=\frac1{HW}\sum_{i,j}\frac{\partial y^c}{\partial A_{ij}^k},\qquad L_{GradCAM}^c=\operatorname{ReLU}\!\left(\sum_k\alpha_k^cA^k\right)
+$$
+
+- **公式 / 不变量。** Grad-CAM 用目标类别对特征图的梯度作为通道重要性，再加权特征图生成定位热图。
+- **算法拆解。** hook 目标卷积层的 activation 与 gradient，反传类别分数，空间平均梯度，加权求和、ReLU、上采样。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 activations = gradients = None
@@ -2997,6 +3667,16 @@ handle.remove()  # hook 用完必须移除
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+Y_{n,o,d,h,w}=\sum_c\sum_u\sum_v\sum_r W_{o,c,u,v,r}X_{n,c,d+u,h+v,w+r}
+$$
+
+- **公式 / 不变量。** 3D CNN 同时在深度、高度、宽度上卷积，适合体数据；分割输出需恢复到输入空间分辨率。
+- **算法拆解。** 编码器降采样提语义，解码器上采样并融合 skip features，最后逐体素分类；拼接前尺寸必须对齐。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class Small3DSegmenter(nn.Module):
     def __init__(self, in_channels=1):
@@ -3038,6 +3718,16 @@ def dice_loss(logits, target, eps=1e-6):
 **中文题意。** 输入 224x224 RGB 图像，经 5 个卷积和 3 个全连接层输出类别 logits。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+227\times227\xrightarrow{11,s=4}55\times55\xrightarrow{pool}27\times27
+$$
+
+- **公式 / 不变量。** AlexNet 用大卷积核和多次池化快速降采样，随后全连接层完成分类。
+- **算法拆解。** 按经典顺序跟踪空间尺寸和通道数，卷积后 ReLU/LRN 或现代替代，分类头前 flatten；输入尺寸会影响首层结果。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class AlexNetCompact(nn.Module):
@@ -3083,6 +3773,16 @@ class AlexNetCompact(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\operatorname{Var}(W)=\begin{cases}2/fan_{in}&\text{ReLU/Kaiming}\\2/(fan_{in}+fan_{out})&\text{Xavier normal}\end{cases}
+$$
+
+- **公式 / 不变量。** 初始化应与激活函数匹配，使前向激活和反向梯度的方差跨层尽量稳定。
+- **算法拆解。** 遍历模块按类型初始化 Conv/Linear，bias 常置零；比较策略时固定数据与随机种子并观察激活/梯度统计。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def init_weights(module, kind="kaiming"):
     if not isinstance(module,(nn.Conv2d,nn.Linear)): return
@@ -3121,6 +3821,16 @@ def init_weights(module, kind="kaiming"):
 **中文题意。** 不允许 `nn.Conv2d/MaxPool2d`；自定义层必须真正用于模型，而不只是定义后闲置。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+Y=\operatorname{im2col}(X)W_{col}^\top+b
+$$
+
+- **公式 / 不变量。** 从零卷积可把每个滑动窗口展开为列，再转化成批量矩阵乘法；这解释了 unfold 的 shape。
+- **算法拆解。** padding 后用 unfold 提取 patches，重排为 B×L×K，与展平卷积核相乘，再 reshape 回图像布局。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class ScratchCNN(nn.Module):
@@ -3162,6 +3872,16 @@ class ScratchCNN(nn.Module):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\begin{aligned}i_t&=\sigma(W_ix_t+U_ih_{t-1})\\f_t&=\sigma(W_fx_t+U_fh_{t-1})\\g_t&=\tanh(W_gx_t+U_gh_{t-1})\\c_t&=f_t\odot c_{t-1}+i_t\odot g_t\\h_t&=o_t\odot\tanh(c_t)\end{aligned}
+$$
+
+- **公式 / 不变量。** LSTM 用遗忘、输入、输出门控制长期 cell state，缓解普通 RNN 的梯度消失。
+- **算法拆解。** 每步一次仿射可同时算四组 gate，再按约定切分；初始化 h/c 并按时间迭代，注意 gate 顺序。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def lstm_step(x, h, c, Wx, Wh, b):
     # 一次算出 4H，再沿最后维拆门，效率高于四次独立 matmul
@@ -3202,6 +3922,16 @@ c = x.new_zeros(x.size(0), hidden_size)
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\log\pi(y|x)=\sum_t m_t\log\operatorname{softmax}(z_t)_{y_t}
+$$
+
+- **公式 / 不变量。** 完整 DPO 工具链先可靠计算带 mask 的序列 log-prob，再构造 chosen/rejected 的参考校正偏好损失。
+- **算法拆解。** shift logits/labels 对齐 next-token，忽略 padding，分别汇总四组 log-prob，再应用 DPO 公式和准确率指标。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def sequence_logps(logits, labels, mask=None):
     # token t 的 logits 预测 token t+1
@@ -3240,6 +3970,16 @@ def full_dpo(pc, pr, rc, rr, beta=.1):
 **中文题意。** 用额外计算换显存：forward 不保存中间激活，backward 时重新构建带梯度的计算图。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\text{memory}:O(L)\rightarrow O(\sqrt L)\ \text{approximately, at the cost of recomputation}
+$$
+
+- **公式 / 不变量。** Gradient Checkpointing 不保存部分中间激活，反向时重新执行 forward，以计算换显存。
+- **算法拆解。** 把纯函数段交给 checkpoint，输入至少有需要梯度的 tensor，避免依赖不可重放副作用；训练时间会增加。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 class CheckpointFn(torch.autograd.Function):
@@ -3297,6 +4037,16 @@ def checkpoint_from_scratch(fn,*tensor_args):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\mathcal{L}=\mathcal{L}_{clip}+\beta_{KL}D_{KL}(\pi_\theta\Vert\pi_{ref})-c_HH(\pi_\theta)
+$$
+
+- **公式 / 不变量。** 完整 GRPO 同时包含组内 advantage、裁剪策略目标、参考模型 KL 约束，可能还加入熵奖励。
+- **算法拆解。** 按 prompt 分组标准化奖励，构造 token mask 和 ratio，聚合 clipped objective 与 KL；所有均值分母要按有效 token 数。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def full_grpo(new_logp, old_logp, ref_logp, rewards, group_size,
               clip=.2, beta=.01):
@@ -3340,6 +4090,16 @@ def full_grpo(new_logp, old_logp, ref_logp, rewards, group_size,
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+W_{merged}=W+sBA,\qquad W_{unmerged}=W_{merged}-sBA
+$$
+
+- **公式 / 不变量。** LoRA 注入要冻结基座参数并只训练 A/B；merge 后前向无需额外低秩分支。
+- **算法拆解。** 递归替换目标 Linear，保留原权重和 bias，训练低秩支路；merge/unmerge 必须幂等并防重复操作。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class MergeableLoRA(LoRALinear):
     def merged_linear(self):
@@ -3375,6 +4135,16 @@ class MergeableLoRA(LoRALinear):
 **中文题意。** 用 value baseline 计算时序 advantage，限制 policy ratio，联合训练 critic，并惩罚偏离 reference。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\delta_t=r_t+\gamma V_{t+1}-V_t,\qquad A_t=\delta_t+\gamma\lambda(1-d_t)A_{t+1}
+$$
+
+- **公式 / 不变量。** PPO-RLHF 先用 GAE 从奖励和 value 估计 advantage，再联合优化裁剪策略损失、value loss 与熵/KL 项。
+- **算法拆解。** 从序列末尾反推 GAE，done 后不 bootstrap；计算 ratio、clipped policy loss 和 value loss，按 mask 聚合。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def compute_gae(rewards, values, dones, gamma=.99, lam=.95):
@@ -3419,6 +4189,16 @@ def compute_gae(rewards, values, dones, gamma=.99, lam=.95):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+c_k=\frac1{|C_k|}\sum_{x_i\in C_k}x_i,\qquad a_i=\arg\min_k\lVert x_i-c_k\rVert_2^2
+$$
+
+- **公式 / 不变量。** K-Means 在分配样本与更新中心之间交替，单调降低簇内平方误差但只保证局部最优。
+- **算法拆解。** 初始化 K 个中心，批量算距离并 argmin，按簇求均值更新；空簇需重置或保留旧中心。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def kmeans(x,k,max_iters=100,tol=1e-4):
     if not 1 <= k <= x.size(0): raise ValueError("k 超出范围")
@@ -3462,6 +4242,16 @@ def kmeans(x,k,max_iters=100,tol=1e-4):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\hat y(x)=\operatorname{mode}\{y_i:i\in\operatorname{KNN}(x)\}
+$$
+
+- **公式 / 不变量。** KNN 没有参数训练，预测时按距离找最近 K 个样本并投票或平均。
+- **算法拆解。** 广播计算 query 到训练集的距离，top-k 取最小值索引，再聚合标签；预测成本 O(ND)，需考虑特征尺度。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def knn_predict(x_train,y_train,x_test,k=3):
     if not 1 <= k <= x_train.size(0): raise ValueError("k 超出范围")
@@ -3490,6 +4280,16 @@ def knn_predict(x_train,y_train,x_test,k=3):
 **中文题意。** 手工计算 sigmoid、稳定 BCE、`dw/db`，并在 `no_grad` 语义下更新参数。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+p(y=1|x)=\sigma(x^\top w+b),\qquad \mathcal{L}=-y\log p-(1-y)\log(1-p)
+$$
+
+- **公式 / 不变量。** 逻辑回归是线性 decision boundary 加 sigmoid；稳定训练应直接使用 logits 形式的 BCE。
+- **算法拆解。** 算 logits 和概率/损失，反向更新 w/b；分类阈值默认 0.5 等价于 logit 0，但可按业务调整。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def train_logistic(X,y,lr=.1,steps=1000):
@@ -3529,6 +4329,16 @@ def train_logistic(X,y,lr=.1,steps=1000):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\log\sum_j e^{x_j}=m+\log\sum_j e^{x_j-m}
+$$
+
+- **公式 / 不变量。** 稳定 Softmax 的核心是 log-sum-exp 恒等式，减最大值后既不改变概率又限制指数范围。
+- **算法拆解。** 沿指定轴取 m，计算 shifted exponentials 和归一化；检查概率和为 1、极端 logits 输出有限。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def stable_softmax(x,dim=-1):
     shifted = x-x.amax(dim=dim,keepdim=True)
@@ -3559,6 +4369,16 @@ def stable_softmax(x,dim=-1):
 **中文题意。** 不创建完整 NxN attention matrix；逐块处理 Q/K/V，并维护每行最大值、归一化和与输出累加器。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+O_i=\frac{\sum_j e^{s_{ij}-m_i}V_j}{\sum_j e^{s_{ij}-m_i}}
+$$
+
+- **公式 / 不变量。** FlashAttention-2 通过分块和 online Softmax 精确计算同一注意力结果，主要减少 HBM 读写而非改变数学。
+- **算法拆解。** 外层遍历 Q tiles，内层扫描 KV tiles并更新 m/l/O；反向也分块重算，避免保存 S×S 矩阵。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def tiled_attention(q,k,v,bq=64,bk=64):
@@ -3607,6 +4427,16 @@ def tiled_attention(q,k,v,bq=64,bk=64):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\theta=\operatorname{concat}(\theta^{(1)},\ldots,\theta^{(P)}),\qquad g^{(p)}=\operatorname{reduce\_scatter}(g)
+$$
+
+- **公式 / 不变量。** FSDP 把参数、梯度和优化器状态分片到 P 个 rank，只在计算某层时 all-gather 完整参数。
+- **算法拆解。** 前向层前 all-gather，层后可释放；反向 reduce-scatter 梯度，每 rank 只更新本地 shard。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def shard_flat(tensor,world_size):
     # 简化前提：元素数可整除；真实 FSDP 会 padding 并记录原 shape
@@ -3645,6 +4475,16 @@ def reduce_scatter(rank_grads,world_size):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+K=[K^{(0)};\ldots;K^{(P-1)}],\qquad O=\operatorname{OnlineSoftmaxMerge}_{p=0}^{P-1}(QK^{(p)\top},V^{(p)})
+$$
+
+- **公式 / 不变量。** Ring Attention 让 KV 分片沿设备环传递，每个 rank 的 Q 依次看到所有 KV 分片并在线合并。
+- **算法拆解。** 每轮计算本地 Q 对当前 KV block 的统计量，同时异步传给下一 rank；P 轮后结果等价于全局 attention。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def ring_update(q,k_block,v_block,m,l,acc,scale):
     scores=(q@k_block.transpose(-2,-1))*scale
@@ -3681,6 +4521,16 @@ def ring_update(q,k_block,v_block,m,l,acc,scale):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+p_i=\frac{e^{x_i-m}}{\sum_j e^{x_j-m}}
+$$
+
+- **公式 / 不变量。** Triton fused softmax 把减最大值、指数、求和、归一化融合进单个 kernel，减少中间张量和显存往返。
+- **算法拆解。** 每个 program 处理一行，加载并 mask 到块大小，做两次 reduction 后写回；块大小和 num_warps 影响性能。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 # Triton kernel 的等价数学，用于先验证正确性
 def fused_softmax_reference(x):
@@ -3715,6 +4565,16 @@ def fused_softmax_reference(x):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+s_{norm}(y)=\frac{\sum_t\log p(y_t|y_{<t})}{\left(\frac{5+|y|}{6}\right)^\alpha}
+$$
+
+- **公式 / 不变量。** 长度归一化缓解累计 log-prob 天然偏爱短序列的问题；alpha 控制惩罚强度。
+- **算法拆解。** beam 展开与回溯同普通搜索，但排序时使用归一化分数；要区分搜索中的临时分数和最终分数。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def normalized_score(logp,length,alpha=.6):
     # Google NMT 风格长度惩罚；alpha=0 退化为原始分数
@@ -3746,6 +4606,16 @@ def normalized_score(logp,length,alpha=.6):
 **中文题意。** 温度小于 1 时分布更尖锐，大于 1 时更平坦；温度必须严格为正。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+p_i(T)=\frac{e^{z_i/T}}{\sum_j e^{z_j/T}}
+$$
+
+- **公式 / 不变量。** T<1 让分布更尖锐，T>1 增加随机性；T 趋近 0 时应退化为 argmax 而非直接除零。
+- **算法拆解。** 除以 temperature，稳定 Softmax 后 multinomial 采样；先处理非法或极小温度。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def temperature_sample(logits,temperature=1.0):
@@ -3780,6 +4650,16 @@ def temperature_sample(logits,temperature=1.0):
 **中文题意。** 每行 vocabulary logits 只保留最高 k 项，其余设为负无穷，再按概率采样。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+S_k=\operatorname{indices\ of\ top\ }k\operatorname{\ logits},\qquad p_i'=\frac{e^{z_i}}{\sum_{j\in S_k}e^{z_j}}\mathbf1[i\in S_k]
+$$
+
+- **公式 / 不变量。** Top-k 每步只从概率最高的固定 k 个 token 中采样，直接限制长尾候选。
+- **算法拆解。** 裁剪 k 到 [1,V]，取 topk logits，在子集上归一化并采样，再映射回原词表索引。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def top_k_sample(logits,k=50,temperature=1.0):
@@ -3819,6 +4699,16 @@ def top_k_sample(logits,k=50,temperature=1.0):
 **中文题意。** 按概率降序，保留累计概率刚好覆盖 p 的动态候选集合，并保证越过阈值的第一个 token 不被删掉。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+S_p=\min\left\{S:\sum_{i\in S}p_i\ge p\right\}
+$$
+
+- **公式 / 不变量。** Top-p 的候选数随分布变化：分布尖时集合小，分布平时集合大。
+- **算法拆解。** 概率降序排序并求累计和，移除超过阈值的尾部但保留首个越界 token，重归一化后采样。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def top_p_sample(logits,p=.9,temperature=1.0):
@@ -3863,6 +4753,16 @@ def top_p_sample(logits,p=.9,temperature=1.0):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+B_t=\{r:\ r\text{ is active and ready at step }t\}
+$$
+
+- **公式 / 不变量。** Continuous Batching 每个解码步动态移除完成请求并加入新请求，提高 GPU 利用率和吞吐。
+- **算法拆解。** 维护 waiting/active/finished 队列，按容量准入，批量执行一步，再更新长度、EOS 和 KV cache 索引。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 from collections import deque
 
@@ -3904,6 +4804,16 @@ class Scheduler:
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+x_{t+1}\sim\operatorname{Decode}\!\left(f_\theta(x_{\le t},KV_{\le t})\right)
+$$
+
+- **公式 / 不变量。** 迷你推理引擎把 tokenizer、prefill、KV cache、逐步 decode、采样和停止条件串成完整状态机。
+- **算法拆解。** 先批量 prefill 建 cache，再循环仅输入新 token，采样并更新每个请求状态；处理 EOS、最大长度和设备放置。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class GenerationState:
     def __init__(self,input_ids,layers):
@@ -3941,6 +4851,16 @@ def decode_step(model,state):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+K_{cache}[:,:,0:t,:]=[K_0,\ldots,K_{t-1}],\qquad \operatorname{shape}=(B,H,T,D_h)
+$$
+
+- **公式 / 不变量。** KV cache 正确性不仅是 shape，还包括位置顺序、每层独立存储、dtype/device 和增量结果与全量结果一致。
+- **算法拆解。** 逐 token 与 full forward 对比 logits，检查 cache 长度单调增长且旧前缀不变；用容差比较浮点结果。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 class KVCache:
     def __init__(self): self.k=self.v=None
@@ -3975,6 +4895,16 @@ class KVCache:
 **中文题意。** 草稿模型逐步提议，目标模型并行评分；接受规则必须保存目标分布，不能简单在拒绝后从 target 原分布采样。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+p'(x)=\frac{\max(0,p(x)-q(x))}{\sum_v\max(0,p(v)-q(v))}
+$$
+
+- **公式 / 不变量。** 完整 speculative decoding 在拒绝草稿 token 时从修正分布采样，抵消提案分布 q 的影响并保持目标分布 p。
+- **算法拆解。** 小模型生成 gamma 个 token，大模型一次验证；顺序接受，拒绝时按 p' 采样，全部接受时再从 p 取一个 token。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def accept_or_correct(p,q,token):
@@ -4011,6 +4941,16 @@ def accept_or_correct(p,q,token):
 **中文题意。** embedding 前半表示 row，后半表示 column；每一半再交替使用 sin/cos。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+PE(x,y)=[PE_x(x);PE_y(y)]
+$$
+
+- **公式 / 不变量。** 二维正弦位置编码把 embedding 维拆给横纵坐标，使每个 patch 同时携带 x/y 的多频位置信息。
+- **算法拆解。** 分别生成 H 和 W 的一维 sin/cos 编码，广播成网格后拼接；保证最终维度和 patch embedding 一致。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def positional_2d(height,width,d_model,device=None,dtype=torch.float32):
@@ -4060,6 +5000,16 @@ def positional_2d(height,width,d_model,device=None,dtype=torch.float32):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\mathcal{L}_{I\to T}=-\frac1B\sum_i\log\frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ij}/\tau}},\qquad s_{ij}=\frac{u_i^\top v_j}{\lVert u_i\rVert\lVert v_j\rVert}
+$$
+
+- **公式 / 不变量。** CLIP 把同 batch 的匹配图文作为正样本，其余配对作为 in-batch negatives，并对两个方向做交叉熵。
+- **算法拆解。** 归一化图像/文本向量，算 B×B 相似度除温度，以对角索引作标签，平均 image-to-text 与 text-to-image loss。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def clip_loss(image_features,text_features,logit_scale):
     image=F.normalize(image_features,dim=-1); text=F.normalize(text_features,dim=-1)
@@ -4093,6 +5043,16 @@ def clip_loss(image_features,text_features,logit_scale):
 **中文题意。** 用较少时间步从噪声跳步生成；CFG 将条件预测沿远离无条件预测的方向放大。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+\hat\epsilon=(1+w)\epsilon_\theta(x_t,t,c)-w\epsilon_\theta(x_t,t,\varnothing)
+$$
+
+- **公式 / 不变量。** Classifier-Free Guidance 线性外推条件与无条件噪声预测，增强条件一致性但过大 w 会降低多样性。
+- **算法拆解。** 同一 x_t 分别做条件/无条件预测并组合，按 DDIM 确定性或带噪更新到 x_{t-1}；eta 控制随机性。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def cfg_eps(model,x,t,label,scale):
@@ -4128,6 +5088,16 @@ def ddim_step(x,eps,a_t,a_prev):
 **中文题意。** 训练随机时间步的噪声预测器；采样从标准高斯开始，按后验均值逐步去噪并在非最后步加入方差噪声。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+x_t=\sqrt{\bar\alpha_t}x_0+\sqrt{1-\bar\alpha_t}\epsilon,\qquad \mathcal{L}=\mathbb{E}\lVert\epsilon-\epsilon_\theta(x_t,t)\rVert^2
+$$
+
+- **公式 / 不变量。** DDPM 训练随机时间步的噪声预测器；采样从高斯噪声开始逐步反演扩散过程。
+- **算法拆解。** 预计算 beta/alpha 累积量，训练时一次闭式加噪；推理按 t 从 T 到 1 迭代均值并在非最后步加噪声。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def extract(schedule,t,x):
@@ -4180,6 +5150,16 @@ def p_sample(x_t,eps,t,alpha,alpha_bar,beta):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\mathcal{L}=\alpha\mathcal{L}_{hard}+(1-\alpha)T^2D_{KL}(\operatorname{softmax}(z_s/T)\Vert\operatorname{softmax}(z_t/T))
+$$
+
+- **公式 / 不变量。** 知识蒸馏同时学习真实标签和教师的软类别关系；T^2 补偿温度导致的梯度缩放。
+- **算法拆解。** 教师 eval/no_grad 产生 logits，学生算 hard loss 与温度 soft loss，加权后只更新学生。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def distillation_loss(student,teacher,labels,T=4.,alpha=.7):
     # 软目标传递类别关系，硬目标保证真实标签监督
@@ -4213,6 +5193,16 @@ def distillation_loss(student,teacher,labels,T=4.,alpha=.7):
 **中文题意。** 每个 token 产生 delta/B/C，离散化稳定的负 A，然后扫描更新 hidden state 和输出。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+h_t=\bar A_t\odot h_{t-1}+\bar B_t\odot x_t,\qquad y_t=C_t\odot h_t+D\odot x_t
+$$
+
+- **公式 / 不变量。** Mamba selective scan 让离散状态空间参数依赖当前输入，从而选择性保留或遗忘信息。
+- **算法拆解。** 由 x 投影得到 delta/B/C，离散化 A/B，沿序列递推 state 并生成 y；并行 scan 可替代 Python 循环。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def selective_scan(x,delta,A,B,C,D):
@@ -4254,6 +5244,16 @@ def selective_scan(x,delta,A,B,C,D):
 
 ### Reviewed Solution
 
+#### 数学、公式与算法思路
+
+$$
+\mathcal{L}_{bal}=E\sum_{e=1}^{E}f_e\,p_e
+$$
+
+- **公式 / 不变量。** MoE 负载均衡损失同时关注实际分配比例 f_e 与平均路由概率 p_e，惩罚 token 集中到少数专家。
+- **算法拆解。** router 得概率与 top-k，统计每个专家流量，计算辅助损失，再分发执行专家并加权合并。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
+
 ```python
 def moe_balance(router_probs,top_ids,num_experts):
     # fraction: 实际被选择的 token 比例；prob: router 软概率均值
@@ -4287,6 +5287,16 @@ def moe_balance(router_probs,top_ids,num_experts):
 **中文题意。** 只允许 `|i-j|<=w` 的位置参与 Softmax，并验证足够大窗口时等价于 full attention。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+A_{ij}=0\quad\text{if}\quad j>i\ \text{or}\ i-j\ge w
+$$
+
+- **公式 / 不变量。** 因果滑窗只允许当前位置查看最近 w 个 token，将每个 query 的有效 key 数限制为常数级。
+- **算法拆解。** 根据位置差构造 causal-local mask，mask 后稳定 Softmax；真正省内存需块稀疏 kernel，稠密 mask 只改变语义。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def sliding_mask(seq_len,window,device=None):
@@ -4328,6 +5338,16 @@ def masked_local_attention(q,k,v,window):
 **中文题意。** MAE 随机保留少量 patch 给 encoder；decoder 按原顺序恢复 visible/mask tokens，只在 masked patches 上计算重建损失。
 
 ### Reviewed Solution
+
+#### 数学、公式与算法思路
+
+$$
+Z_0=[x_{cls};X_{patch}W_E]+E_{pos},\qquad \mathcal{L}_{MAE}=\frac1{|M|}\sum_{i\in M}\lVert\hat x_i-x_i\rVert_2^2
+$$
+
+- **公式 / 不变量。** ViT 把 patch 当 token 做全局 Transformer；MAE 随机遮挡大部分 patch，只在被遮挡位置计算重建损失。
+- **算法拆解。** patchify 并加位置编码，ViT 分类时读 CLS；MAE 只编码可见 token，解码时补 mask token 并重建 masked patches。
+- **阅读代码顺序。** 先核对输入输出 shape 与约束，再把代码中的中间张量逐项对应到上式，最后检查数值稳定性、mask / 边界条件以及 autograd 路径。
 
 ```python
 def mae_loss(pred,target,mask):
