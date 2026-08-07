@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>3. Design Uber - System Design 28</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Case 4 / 31 · Route 2 / 9</p>
+          <h1 class="route-title">3. Design Uber</h1>
+          <p class="route-subtitle">WhatsApp、YouTube、Uber、Netflix：实时通信、媒体流水线、地理派单与全球播放。</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#3-1-面试题与-30-秒-framing">3.1 面试题与 30 秒 framing</a><a href="#3-2-requirements-边界与质量目标">3.2 Requirements、边界与质量目标</a><a href="#3-3-capacity-estimates">3.3 Capacity estimates</a><a href="#3-4-api-stream-与-event-contracts">3.4 API、stream 与 event contracts</a><a href="#3-5-data-model-partition-index-ttl-与状态机">3.5 Data model、partition、index、TTL 与状态机</a><a href="#3-6-proposed-architecture">3.6 Proposed architecture</a><a href="#3-7-核心-end-to-end-flows">3.7 核心 end-to-end flows</a><a href="#3-8-deep-dive-a-geospatial-index-边界与热点">3.8 Deep dive A：geospatial index、边界与热点</a><a href="#3-9-deep-dive-b-matching-dispatch-算法与-offer-semantics">3.9 Deep dive B：matching/dispatch 算法与 offer semantics</a><a href="#3-10-deep-dive-c-location-eventual-consistency-与-trip-strong-consistency">3.10 Deep dive C：location eventual consistency 与 trip strong consistency</a><a href="#3-11-deep-dive-d-pricing-供需反馈环与稳定性">3.11 Deep dive D：pricing、供需反馈环与稳定性</a><a href="#3-12-reliability-backpressure-multi-region-与-dr">3.12 Reliability、backpressure、multi-region 与 DR</a><a href="#3-13-security-privacy-safety-与-abuse">3.13 Security、privacy、safety 与 abuse</a><a href="#3-14-mle-deep-dive-eta-candidate-ranking-与-marketplace-optimization">3.14 MLE deep dive：ETA、candidate ranking 与 marketplace optimization</a><a href="#3-15-observability-slo-capacity-与-cost">3.15 Observability、SLO、capacity 与 cost</a><a href="#3-16-trade-offs-与-v1-v2-evolution">3.16 Trade-offs 与 V1 → V2 evolution</a><a href="#3-17-高频-follow-up-q-a">3.17 高频 follow-up Q&amp;A</a><a href="#3-18-60-秒可直接说的总结">3.18 60 秒可直接说的总结</a></nav>
+        </header>
+        <h2 id="3-design-uber-实时位置-供需匹配-派单与行程状态">3. Design Uber：实时位置、供需匹配、派单与行程状态</h2>
+<blockquote>以下是面试中的 <strong>proposed design</strong>，不是对 Uber 真实内部实现的断言。</blockquote>
+<h3 id="3-1-面试题与-30-秒-framing">3.1 面试题与 30 秒 framing</h3>
+<p><strong>面试题</strong>：设计一个网约车平台。乘客请求报价和叫车；司机持续上报 GPS、上下线、接受/拒绝 offer；系统在数秒内完成附近司机检索、ETA、matching/dispatch，维护 trip lifecycle、实时地图、定价和支付触发。</p>
+<p><strong>30 秒开场</strong>：</p>
+<blockquote>“我会先把两种一致性完全不同的数据分开：driver location 是高吞吐、可丢中间点、最终一致的 realtime data plane；ride request、offer acceptance 和 trip state 是低一个数量级但必须强一致的 control plane。每座城市有 home cell，location stream 更新内存 geo index，Match Orchestrator 按 H3/S2 邻域 retrieval、批量 ETA 和约束优化派单；最终 assignment 以带 version 的强一致事务作为 linearization point。重点深挖热点 geo cell、offer race、matching objective、ETA/dispatch ML，以及城市级故障和 overload degradation。”</blockquote>
+<h3 id="3-2-requirements-边界与质量目标">3.2 Requirements、边界与质量目标</h3>
+<p><strong>Functional requirements</strong></p>
+<ol>
+<li>Rider 获取 quote，提交 ride request，看到搜索/司机到达/行程中状态，可取消。</li>
+<li>Driver 上下线并每 2–5 秒上传位置、heading、speed、availability；收到 offer 后接受或拒绝。</li>
+<li>系统按 product type、距离、ETA、容量、司机状态等筛选并匹配，保证一名司机不会同时被两单占用，一单不会最终分配两名司机。</li>
+<li>匹配后双方获得实时位置和安全联系通道；trip 支持 arrived、pickup、start、complete 等状态。</li>
+<li>支持动态 quote、取消费、支付请求和 receipt 事件；支付服务内部实现不展开。</li>
+<li>支持机场 queue、无障碍车型等约束的扩展点。</li>
+</ol>
+<p><strong>Non-functional requirements</strong></p>
+<ul>
+<li>ride request API availability ≥ 99.99%，p99 &lt; 300 ms；</li>
+<li>司机密集城区 match p95 &lt; 10 秒；location freshness p95 &lt; 5 秒；</li>
+<li>assignment correctness 优先于 latency：不允许 silent double assignment；</li>
+<li>trip state 一旦返回 success，单机/单 AZ 故障不得丢失；</li>
+<li>location pipeline 可水平扩展到 1M events/s burst，并允许 load shedding；</li>
+<li>每个城市故障隔离，单个机场/演唱会热点不能拖垮整个 region。</li>
+</ul>
+<p><strong>Out of scope</strong>：底层地图制作、turn-by-turn navigation UI、支付网关内部账本、客服系统、拼车路线组合、法律/保险细节。本文会给 ETA、matching 与 supply-demand ML 深度，但不展开无人驾驶。</p>
+<h3 id="3-3-capacity-estimates">3.3 Capacity estimates</h3>
+<p>假设：</p>
+<ul>
+<li>50M DAU，25M completed trips/day；</li>
+<li>5M 注册/活跃司机，全球平均 1M online，通勤峰值 2M online；</li>
+<li>online driver 每 4 秒一个 location update，序列化后约 250 bytes；</li>
+<li>每个 trip 平均 12 次 durable state write，峰值系数 20（城市时区高度集中）；</li>
+<li>每个 completed trip 平均产生 10 次 quote refresh；</li>
+<li>峰值 ride request 5.8K/s，每个 request 在 3 个 matching round 中各 score 150 个 candidate。</li>
+</ul>
+<p>计算：</p>
+<ul>
+<li>location 平均 = 1M / 4 = <strong>250K events/s</strong>；峰值 = 2M / 4 = <strong>500K/s</strong>，按 2× burst 设计为 <strong>1M/s</strong>；</li>
+<li>location peak ingress = 1M × 250 B = <strong>250 MB/s ≈ 2 Gbps</strong>；三副本 broker 约 6 Gbps，不含 protocol overhead；</li>
+<li>原始 location 日数据 = 250K × 250 B × 86,400 ≈ <strong>5.4 TB/day</strong>，broker RF3 为 16.2 TB/day；保留 7 天约 <strong>113 TB</strong>。更长期数据压缩、降采样后写 lake；</li>
+<li>ride request 平均 = 25M / 86,400 ≈ <strong>289/s</strong>，20× 峰值约 <strong>5.8K/s</strong>；</li>
+<li>quote 平均 = 250M / 86,400 ≈ <strong>2.9K/s</strong>，20× 峰值约 <strong>58K/s</strong>；</li>
+<li>trip durable writes = 25M × 12 / 86,400 ≈ <strong>3.5K/s average</strong>，20× 峰值约 <strong>70K/s</strong>；</li>
+<li>peak candidate scoring ≈ 5.8K × 150 × 3 = <strong>2.6M candidate scores/s</strong>。因此批量 feature fetch/ETA inference 比 request QPS 更能决定 matching capacity；</li>
+<li>假设每次匹配与行程实时事件共 50 KB，25M trips/day 约 1.25 TB/day；与 location 相比小，但 retention 和审计等级更高。</li>
+</ul>
+<p>平均数会掩盖机场、体育场、暴雨等空间热点。容量规划还要对单 city、单 H3 cell、单 driver ID 的 p99/p999 load 做 skew test，并保留至少 50% headroom。</p>
+<h3 id="3-4-api-stream-与-event-contracts">3.4 API、stream 与 event contracts</h3>
+<pre><code class="language-http">POST /v1/quotes
+{
+  &quot;rider_id&quot;:&quot;r-1&quot;,
+  &quot;pickup&quot;:{&quot;lat&quot;:37.78,&quot;lng&quot;:-122.41},
+  &quot;dropoff&quot;:{&quot;lat&quot;:37.62,&quot;lng&quot;:-122.38},
+  &quot;product&quot;:&quot;STANDARD&quot;
+}
+-&gt; 200 {
+  &quot;quote_id&quot;:&quot;q-1&quot;,
+  &quot;estimated_fare&quot;:{&quot;currency&quot;:&quot;USD&quot;,&quot;amount_minor&quot;:2840},
+  &quot;pickup_eta_sec&quot;:240,
+  &quot;expires_at&quot;:&quot;...&quot;
+}
+
+POST /v1/rides
+Idempotency-Key: {rider_id}:{client_request_id}
+{
+  &quot;client_request_id&quot;:&quot;uuid&quot;,
+  &quot;quote_id&quot;:&quot;q-1&quot;,
+  &quot;pickup&quot;:{...},
+  &quot;dropoff&quot;:{...},
+  &quot;product&quot;:&quot;STANDARD&quot;,
+  &quot;payment_method_token&quot;:&quot;pm-opaque&quot;
+}
+-&gt; 202 {&quot;ride_id&quot;:&quot;ride-1&quot;,&quot;state&quot;:&quot;SEARCHING&quot;,&quot;state_version&quot;:1}
+
+POST /v1/offers/{offer_id}:accept
+{
+  &quot;driver_id&quot;:&quot;d-1&quot;,
+  &quot;driver_session_id&quot;:&quot;ds-9&quot;,
+  &quot;offer_version&quot;:3
+}
+-&gt; 200 {&quot;ride_id&quot;:&quot;ride-1&quot;,&quot;assignment_id&quot;:&quot;a-1&quot;,&quot;trip_state&quot;:&quot;DRIVER_ASSIGNED&quot;}
+
+POST /v1/trips/{trip_id}:transition
+{
+  &quot;action&quot;:&quot;START&quot;,
+  &quot;expected_state&quot;:&quot;PICKED_UP&quot;,
+  &quot;expected_version&quot;:8,
+  &quot;client_event_id&quot;:&quot;uuid&quot;,
+  &quot;event_time&quot;:&quot;...&quot;
+}
+-&gt; 200 {&quot;state&quot;:&quot;IN_PROGRESS&quot;,&quot;version&quot;:9}</code></pre>
+<p>Driver location 使用 long-lived gRPC/QUIC stream 或批量 HTTP：</p>
+<pre><code class="language-text">DriverLocationUpdate {
+  driver_id, driver_session_id, sequence_no,
+  lat_e7, lng_e7, accuracy_m, speed_mps, heading,
+  availability, device_event_time, server_received_at
+}</code></pre>
+<p>高价值 immutable events：</p>
+<pre><code class="language-text">RideRequested {
+  event_id, ride_id, rider_id, city_id, pickup_cell,
+  product, quote_version, request_version, requested_at
+}
+OfferCreated {
+  event_id, offer_id, ride_id, driver_id,
+  offer_version, score_components, expires_at
+}
+AssignmentCommitted {
+  event_id, assignment_id, ride_id, driver_id,
+  ride_version, driver_reservation_version, committed_at
+}
+TripStateChanged {
+  event_id, trip_id, from_state, to_state,
+  state_version, actor, reason, occurred_at
+}</code></pre>
+<p>所有 command 都有 idempotency key 或 client_event_id。API timeout 不代表失败；客户端先 GET 当前 state/version，再决定是否重试。Outbox 与状态在同一 transaction 提交。</p>
+<h3 id="3-5-data-model-partition-index-ttl-与状态机">3.5 Data model、partition、index、TTL 与状态机</h3>
+<div class="table-wrap"><table><thead><tr><th>Entity</th><th>Key / index</th><th>关键字段 / 语义</th></tr></thead><tbody><tr><td>DriverSession</td><td>PK: driver_id</td><td>session_id、status、vehicle/product、last_seq、connection_epoch；offline 后短 TTL</td></tr>
+<tr><td>DriverGeoEntry</td><td>PK: city_id + h3_cell + shard；SK: driver_id</td><td>lat/lng、heading、availability、location_version、last_seen；TTL 10–15 秒</td></tr>
+<tr><td>RideRequest</td><td>PK: city_id + ride_id</td><td>rider_id、pickup/dropoff、product、state、version、assigned_driver、deadline</td></tr>
+<tr><td>RiderActiveRide</td><td>PK: rider_id</td><td>ride_id、version；唯一约束防重复活跃叫车</td></tr>
+<tr><td>Offer</td><td>PK: ride_id；SK: offer_id</td><td>driver_id、state、offer_version、expires_at、score snapshot</td></tr>
+<tr><td>DriverReservation</td><td>PK: driver_id</td><td>ride_id、lease_epoch、state、expires_at；唯一 reservation</td></tr>
+<tr><td>Trip</td><td>PK: city_id + trip_id</td><td>rider、driver、state、version、fare_policy_version、timestamps</td></tr>
+<tr><td>TripEvent</td><td>PK: trip_id；SK: state_version</td><td>immutable transition、actor、reason、idempotency key</td></tr>
+<tr><td>LocationHistory</td><td>PK: city_id + date + hash(driver_id)；SK: event_time</td><td>compressed raw/downsampled path，短热存、长冷存</td></tr>
+<tr><td>SupplyDemandAgg</td><td>PK: city_id + h3_cell；SK: minute_bucket</td><td>available、requests、predicted demand、surge policy version</td></tr></tbody></table></div>
+<p>H3/S2 cell 是 routing/index 单元，不是精确距离。一个繁忙 cell 再按 hash(driver_id) 分 16–128 shard；query 并行读 shard 后用真实 road ETA 排序。DriverGeoEntry 是 ephemeral derived state，source 是最近 location stream；丢失可由司机下一次 heartbeat 重建。</p>
+<p>RideRequest 状态：</p>
+<pre><code class="language-text">CREATED -&gt; SEARCHING -&gt; OFFERING -&gt; DRIVER_ASSIGNED
+SEARCHING / OFFERING -&gt; NO_DRIVER_FOUND | RIDER_CANCELLED | EXPIRED
+DRIVER_ASSIGNED -&gt; TRIP_CREATED</code></pre>
+<p>Offer 状态：</p>
+<pre><code class="language-text">OFFERED -&gt; ACCEPTED | REJECTED | EXPIRED | REVOKED</code></pre>
+<p>Trip 状态：</p>
+<pre><code class="language-text">DRIVER_ASSIGNED -&gt; DRIVER_EN_ROUTE -&gt; DRIVER_ARRIVED
+-&gt; PICKED_UP -&gt; IN_PROGRESS -&gt; COMPLETED
+DRIVER_ASSIGNED / DRIVER_EN_ROUTE / DRIVER_ARRIVED -&gt; CANCELLED</code></pre>
+<p>每个 transition 有 allowlist 和 expected_version；不能从 DRIVER_ASSIGNED 直接跳 COMPLETED。异常人工修复也写补偿 event，不能直接改数据库掩盖历史。</p>
+<h3 id="3-6-proposed-architecture">3.6 Proposed architecture</h3>
+<figure class="architecture"><figcaption>Architecture Diagram</figcaption><pre class="mermaid">flowchart LR
+  R[&quot;Rider App&quot;] --&gt; E[&quot;Regional Edge + Realtime Gateway&quot;]
+  D[&quot;Driver App&quot;] --&gt; E
+  E --&gt; API[&quot;Quote / Ride / Trip API&quot;]
+  E --&gt; LI[&quot;Location Ingest&quot;]
+  LI --&gt; LS[(&quot;Partitioned Location Stream&quot;)]
+  LS --&gt; GI[&quot;In-memory Geo Index&quot;]
+  LS --&gt; LH[(&quot;Location History / Lake&quot;)]
+  API --&gt; TS[(&quot;Strongly-consistent Trip Store&quot;)]
+  TS --&gt; O[&quot;Transactional Outbox&quot;]
+  O --&gt; MO[&quot;Match Orchestrator&quot;]
+  GI --&gt; MO
+  MO --&gt; ETA[&quot;Route + ETA Service&quot;]
+  MO --&gt; DS[&quot;Dispatch / Offer Service&quot;]
+  DS --&gt; E
+  DS --&gt; TS
+  O --&gt; N[&quot;Notification + Payment Workflows&quot;]
+  LS --&gt; F[&quot;Realtime Feature Pipeline&quot;]
+  F --&gt; ML[&quot;ETA / Acceptance / Demand Models&quot;]
+  ML --&gt; ETA
+  ML --&gt; MO</pre><div class="ascii-label">ASCII Architecture · copy-friendly</div><pre class="ascii-diagram"><code>[Rider App] --&gt; [Regional Edge + Realtime Gateway]
+[Driver App] --&gt; [Regional Edge + Realtime Gateway]
+[Regional Edge + Realtime Gateway] --&gt; [Quote / Ride / Trip API]
+[Regional Edge + Realtime Gateway] --&gt; [Location Ingest]
+[Location Ingest] --&gt; [Partitioned Location Stream]
+[Partitioned Location Stream] --&gt; [In-memory Geo Index]
+[Partitioned Location Stream] --&gt; [Location History / Lake]
+[Quote / Ride / Trip API] --&gt; [Strongly-consistent Trip Store]
+[Strongly-consistent Trip Store] --&gt; [Transactional Outbox]
+[Transactional Outbox] --&gt; [Match Orchestrator]
+[In-memory Geo Index] --&gt; [Match Orchestrator]
+[Match Orchestrator] --&gt; [Route + ETA Service]
+[Match Orchestrator] --&gt; [Dispatch / Offer Service]
+[Dispatch / Offer Service] --&gt; [Regional Edge + Realtime Gateway]
+[Dispatch / Offer Service] --&gt; [Strongly-consistent Trip Store]
+[Transactional Outbox] --&gt; [Notification + Payment Workflows]
+[Partitioned Location Stream] --&gt; [Realtime Feature Pipeline]
+[Realtime Feature Pipeline] --&gt; [ETA / Acceptance / Demand Models]
+[ETA / Acceptance / Demand Models] --&gt; [Route + ETA Service]
+[ETA / Acceptance / Demand Models] --&gt; [Match Orchestrator]</code></pre></figure>
+<p>Location data plane 追求 freshness 和吞吐；Trip Store 追求 correctness。Match Orchestrator 可以重启重算，AssignmentCommitted 才是不可争议的 source of truth。</p>
+<h3 id="3-7-核心-end-to-end-flows">3.7 核心 end-to-end flows</h3>
+<p><strong>Driver location</strong></p>
+<ol>
+<li>Driver 上线获得 driver_session_id 与 connection_epoch；每次 update 递增 sequence_no。</li>
+<li>Edge 验证 token、坐标范围、速度跳变、event-time skew 与 rate；批量 append 到按 city_id + driver_id 分区的 Location Stream。</li>
+<li>Geo consumer 只接受当前 session 中 sequence_no 更大的点，做 map matching/smoothing 后更新新 cell；跨 cell 时以 location_version 删除旧 entry、写新 entry。</li>
+<li>实时地图从最后点插值显示；Trip correctness 不依赖每个动画点。History consumer 可降采样写 lake。</li>
+<li>超过 10–15 秒没更新，entry TTL 失效，matching 不再选该 driver；司机 reconnect 后下一点即可重建。</li>
+</ol>
+<p><strong>Quote 与 request</strong></p>
+<p>Quote Service 用 route distance/time、product、当前 supply-demand 与 pricing_policy_version 生成有 30–60 秒 TTL 的 quote。Ride API 校验 quote 未过期、payment token 可用、rider 无 active ride；在事务中写 RiderActiveRide、RideRequest 与 Outbox，再返回 SEARCHING。超时重试由 rider_id + client_request_id 去重。</p>
+<p><strong>Matching 与 dispatch</strong></p>
+<ol>
+<li>Match Orchestrator 消费 RideRequested，在 pickup cell 向外扩圈 retrieval 符合 product/容量/状态的候选。</li>
+<li>批量调用 ETA/feature service，剔除 stale、已 reservation、ETA 超上限者；rank 或在 1–2 秒 micro-batch 内做局部 bipartite matching。</li>
+<li>Dispatch 创建带 8–15 秒 lease 的 Offer 并通过 realtime gateway 推送；push 只作 fallback。</li>
+<li>Driver accept 时，Assignment Service 在 city-local strongly consistent store 中执行 serializable transaction：Offer 仍 OFFERED 且未过期、RideRequest 未 assigned、DriverReservation 不存在，然后同时写 reservation、assignment、ride state 与 Outbox；结果先保持 <code>COMMITTED_NOT_NOTIFIED</code>。</li>
+<li>compact <code>AssignmentCommitted/ActiveRide/DriverReservation</code> record 达到 paired-region synchronous safety quorum 后，系统才向 driver/rider 返回 success 并发通知；只有事务与 safety journal 的赢家成功。迟到/重复 accept 返回原 assignment 或 offer-expired，其他 offers 异步 revoke。</li>
+<li>若所有 offer 过期，Orchestrator 扩大半径/调整策略；到 ride deadline 则在同一 city-local transaction 写 <code>NO_DRIVER_FOUND</code>，并以 <code>ride_id</code> 做 conditional delete 释放 <code>RiderActiveRide</code>。assignment transaction 中途失败但没有 committed assignment 时，也走同一个幂等 terminal cleanup。</li>
+</ol>
+<p><strong>Trip lifecycle</strong></p>
+<p>Driver/Rider command 带 expected_version。Trip Service 验证 actor、距离/时间 guardrail 与 transition allowlist，再写 Trip + TripEvent + Outbox。<code>COMPLETED</code>、最终 <code>CANCELLED</code> 等 terminal transition 在同一事务中以 <code>(ride_id, driver_id)</code> 条件释放 <code>RiderActiveRide</code> 与 <code>DriverReservation</code>；terminal release record 还必须进入 paired-region safety journal，才把 driver/rider 暴露为可再次匹配并返回最终 ack。重复 terminal command 返回原结果。若 worker crash 或 lease 到期导致清理遗漏，reconciler 以 Trip source of truth 补发 <code>ReservationReleaseRequested</code>，只释放仍指向该 trip 的记录，避免误删司机的新 reservation。PaymentRequested 只在 COMPLETED transition 后异步产生；payment timeout 不回滚已发生的现实行程，而进入 payment retry/collections workflow。</p>
+<p><strong>Cancel race</strong></p>
+<p>Rider cancel 与 driver accept 同时发生，由 RideRequest version 的 serializable transaction 决定先后。若 accept 先 commit，cancel 按 assigned cancellation policy 处理；若 cancel 先 commit，accept 返回 revoked。不能由两个服务各自“看见旧状态”后都返回成功。</p>
+<h3 id="3-8-deep-dive-a-geospatial-index-边界与热点">3.8 Deep dive A：geospatial index、边界与热点</h3>
+<p>不能用数据库对所有司机做 latitude/longitude range scan。将地球划分为 H3/S2 cell：</p>
+<ol>
+<li>pickup 映射到 cell；</li>
+<li>查询本 cell 与 k-ring neighbors；</li>
+<li>根据候选数、最长 pickup ETA、城市密度动态扩大 ring；</li>
+<li>用 Haversine 只做廉价预过滤，最终用 road-network ETA。</li>
+</ol>
+<p><strong>为什么不能只查固定半径</strong>：河流、高速入口、单行道让直线距离不等于接驾时间；郊区需要大 ring，中心城区小 ring 已足够。Query budget 可定义为最多 500 raw candidate、50 个精确 route ETA；超过预算先按近似 ETA 取 top-K。</p>
+<p><strong>跨 cell 更新竞态</strong>：driver 从 A 到 B，旧 consumer 可能迟到。每个 entry 带 driver_session_id + location_version；delete A 只有在 version 不大于 move version 时生效，B 也只接受更大 version。Query 合并时按 driver_id 去重并选最大 version。</p>
+<p><strong>热点</strong>：机场 cell 有十万司机。cell 内 hash shard；availability queue 可按 airport policy 单独维护。读请求做 request coalescing 与 candidate cache，但 cache key 必须包含 product/eligibility version。热点过载时降低 location refresh 到 5–10 秒、限制 retrieval sample，而不影响 trip transition。</p>
+<h3 id="3-9-deep-dive-b-matching-dispatch-算法与-offer-semantics">3.9 Deep dive B：matching/dispatch 算法与 offer semantics</h3>
+<p>“给每个乘客最近司机”是局部贪心，会让整体 pickup time 变差，也会造成司机 starvation。对一个 city zone 的短窗口请求 \(R\) 与司机 \(D\)，构造边成本：</p>
+<p>$$ C_{r,d} = w_1 \widehat{ETA}_{pickup}</p>
+<ul>
+<li>w_2 P(accept \mid r,d)</li>
+<li>w_3 P(complete \mid r,d)</li>
+<p>+ w_4 P(cancel \mid r,d) + w_5 fairnessPenalty_d + w_6 deadheadDistance $$</p>
+</ul>
+<p>目标：</p>
+<p>$\(\min \sum_{r \in R, d \in D} x_{r,d} C_{r,d}\)$</p>
+<p>约束每个 ride/driver 最多匹配一次，且车型、容量、无障碍、机场 queue、最大 ETA 等 hard constraint 满足。</p>
+<p>完整 Hungarian Algorithm 为 \(O(n^3)\)，全城每秒求解不现实。可按地理 zone 分解，1–2 秒 micro-batch，用 greedy + local improvement、auction algorithm 或稀疏 min-cost matching；zone 边界请求同时进入邻接 zone，但 assignment commit 去重。低流量时立即 greedy，避免为 batching 增加不必要 latency。</p>
+<p><strong>Sequential offer</strong>：对司机干扰小，但每轮超时拉长 match latency。 <strong>Parallel offer</strong>：更快，但多个司机同时点击只会有一个成功，体验差且 push 成本高。 折中是小批量 offer（例如 top 2–3）+ 短 lease + early revoke，并把同司机并发 offer 数限制为 1。无论算法多聪明，正确性都落在 Assignment Service 的原子条件，而不是模型分数。</p>
+<h3 id="3-10-deep-dive-c-location-eventual-consistency-与-trip-strong-consistency">3.10 Deep dive C：location eventual consistency 与 trip strong consistency</h3>
+<p>两类数据不能用同一保证：</p>
+<ul>
+<li>location update 是 <strong>latest-value semantics</strong>。中间点丢失通常无害；新点到达后旧点应丢弃。目标是 bounded staleness，而非 exactly once；</li>
+<li>offer accept/trip transition 是 <strong>state-machine semantics</strong>。必须保留每次成功 transition、actor 与 version，允许重试但只生效一次；</li>
+<li>Realtime gateway 的 “delivered” 只代表 frame 到 device，不代表 driver 接受；Offer 表才是 truth；</li>
+<li>stream partition 以 driver_id 保证单 driver 顺序；device 重装/重新上线换 session_id，旧 session 的更大 sequence_no 也不得覆盖新 session。</li>
+</ul>
+<p>若 Location Stream 暂停 20 秒，Geo Index 应把 stale driver 踢出 candidate，而不是继续派单；恢复后快速消费最新值，可按 driver_id compaction/skip old backlog。若 Trip Store 不可用，则停止创建新 ride/accept offer，返回 retryable unavailable；不能降级为内存 assignment，因为会双派。</p>
+<h3 id="3-11-deep-dive-d-pricing-供需反馈环与稳定性">3.11 Deep dive D：pricing、供需反馈环与稳定性</h3>
+<p>动态价格可基于 cell 的 demand forecast \(D\)、available supply \(S\) 和不确定性：</p>
+<p>$\(imbalance = \frac{\widehat{D}_{next\ 10m}} {\max(\widehat{S}_{next\ 10m}, \epsilon)}\)$</p>
+<p>Pricing Policy 把 imbalance 映射为有上下限、平滑和法规约束的 multiplier。不能每分钟跟随噪声跳变：对 cell/time 使用 EWMA、hysteresis、最小生效窗口，并把 quote 固定到 policy_version + expiry。</p>
+<p>这是闭环系统：涨价会降低 demand、吸引 supply，因此离线预测若忽略 policy intervention 会偏。需要记录当时价格/曝光 propensity，并用实验或 causal methods 估计 elasticity。极端事件时 manual policy 可设 cap/freeze；模型故障回退最近稳定 multiplier 或 1.0，而不是输出无界值。</p>
+<h3 id="3-12-reliability-backpressure-multi-region-与-dr">3.12 Reliability、backpressure、multi-region 与 DR</h3>
+<p><strong>Cell isolation</strong></p>
+<ul>
+<li>每个 city/city-group 是 home cell，包含 Location partitions、Geo Index、Match Orchestrator、Dispatch 与 Trip Store 分片；</li>
+<li>大城市再按 zone 分 matching worker，但 assignment store 保持 city-local 唯一约束；</li>
+<li>一个城市 stream lag 不拖累其他城市；全球 control plane 只下发配置/model/policy version。</li>
+</ul>
+<p><strong>Backpressure / degradation order</strong></p>
+<ol>
+<li>Location Ingest 有 per-driver latest-value buffer；队列拥塞时保留最新点、丢弃同 driver 中间点。</li>
+<li>降低未匹配 driver 的 location rate，已分配/行程中 driver 保持高优先级。</li>
+<li>Match retrieval 减少最大 ring/candidate、关闭复杂 local improvement，回退 nearest-valid greedy。</li>
+<li>降级 rider map animation 和非关键 analytics。</li>
+<li>Trip/assignment command 永不丢弃；容量耗尽返回明确 429/503 + retry-after，调用方复用 idempotency key。</li>
+</ol>
+<p>每个 workflow 有 deadline。stuck SEARCHING 由 reconciliation 重新触发；过期 Offer 定时器不是唯一机制，read path 也检查 expires_at。AssignmentCommitted 后 notification 丢失可由 Rider/Driver GET trip 恢复。</p>
+<p><strong>Multi-region / DR</strong></p>
+<ul>
+<li>每个 city 有单写 home region；edge 可全球接入但 command 转发 home region。位置和匹配本来具有本地性，active-active 全局写收益小、冲突代价高；</li>
+<li>Trip Store 在 region 内 3 AZ synchronous quorum；<code>AssignmentCommitted</code>、active ride/reservation ownership 和 terminal release 在 success/availability ack 前写 paired-region synchronous safety journal，因此“不双派”所依赖的 ownership state 在 region disaster 下 RPO=0。GPS 与非关键 trip telemetry 仍异步连续复制，RPO &lt; 1 秒、RTO &lt; 5 分钟；</li>
+<li>standby 定期重放 Geo snapshot + 最新 location stream；failover 只有在追上 assignment safety watermark 后才能提升 region_epoch。watermark 不可证明的 driver/ride 进入 quarantine，必须由 app 携带 assignment_id re-attest，期间不可参与新匹配；所有 lease/Assignment command 带 epoch fencing，旧 region 恢复后不能接受写；</li>
+<li>灾难期间已在行程中的 trip 优先恢复；可暂时停止新 request 1–2 分钟以完成 fencing，宁可短暂不可用也不双派；</li>
+<li>Location 丢几秒可由 Driver App 重发最新点；不需要跨 region 同步每个 GPS 点。Durable TripEvent 与 payment trigger 必须复制。</li>
+</ul>
+<h3 id="3-13-security-privacy-safety-与-abuse">3.13 Security、privacy、safety 与 abuse</h3>
+<ul>
+<li>Rider/Driver 身份与 payment token 分库，业务事件使用 opaque ID；PII vault 独立授权；</li>
+<li>TLS/mTLS、device-bound credentials、short-lived session token、KMS envelope encryption、least privilege、admin audit；</li>
+<li>精确位置只给当前匹配双方和必要服务；匹配前 Rider 看聚合车辆图标，不拿真实 driver identity/轨迹；</li>
+<li>raw location 热存 7 天只是示例，事故/合规数据进入受限 archive；其余降采样/删除，并支持 access/export/delete policy；</li>
+<li>日志与 trace 对 lat/lng 做 coarse bucket 或 redact，客服访问精确轨迹需 reason code；</li>
+<li>防 GPS spoof：device attestation、impossible speed、sensor consistency、road-map mismatch、IP/device/location divergence；可 challenge 或限制 online，不由单模型直接永久封号；</li>
+<li>防 rider/driver collusion、fake trip、promo fraud：账户/设备/支付图 signals + rules + model + 人工审核；</li>
+<li>安全功能包括号码 relay、route deviation alert、SOS event 的独立高优先级通道。SOS 不与普通 analytics 共用可丢队列；</li>
+<li>quote/dispatch API 做 per-account/device/IP rate limit，pickup 精确地址避免在 offer 前过度暴露。</li>
+</ul>
+<h3 id="3-14-mle-deep-dive-eta-candidate-ranking-与-marketplace-optimization">3.14 MLE deep dive：ETA、candidate ranking 与 marketplace optimization</h3>
+<h4 id="a-eta-model">A. ETA model</h4>
+<p><strong>Objective / label</strong></p>
+<p>预测 pickup ETA 与 trip ETA 的分布，不只预测均值。Label 是实际到达时间减请求时间，但需剔除 rider 等待、司机错误操作，并区分 traffic delay、pickup friction。可训练 p50/p90 quantile：</p>
+<p>$\(L = \lambda_{50} \cdot Pinball(y,\hat y_{0.5}) + \lambda_{90} \cdot Pinball(y,\hat y_{0.9})\)$</p>
+<p><strong>Features / model</strong></p>
+<ul>
+<li>route graph：road segment、turn、distance、historical speed；</li>
+<li>realtime：最近 5–15 分钟 segment speed、incident、weather、event、road closure；</li>
+<li>context：time/day/holiday、pickup building/airport friction、driver heading；</li>
+<li>baseline 为 route engine 的静态 ETA；ML 预测 edge travel time 或 residual correction。GBDT 易解释低延迟，时空 Graph Neural Network 可提高大范围 traffic 建模但 serving 更复杂。</li>
+</ul>
+<p>训练切分按时间，feature 只使用当时可见 traffic。实际 trip 是被旧 policy 选择的样本，存在 selection bias；加入随机 exploration/覆盖采样，并对取消/未完成样本处理 censoring。</p>
+<h4 id="b-dispatch-retrieval-与-ranking">B. Dispatch retrieval 与 ranking</h4>
+<p>Geo Index 是 retrieval：先取合资格的 100–500 drivers。Ranker 对每个 ride-driver pair 预测：</p>
+<ul>
+<li>\(P(accept)\)、\(P(cancel)\)、\(P(complete)\)；</li>
+<li>pickup ETA p50/p90；</li>
+<li>driver idle time / destination compatibility；</li>
+<li>rider/driver safety 或 eligibility hard filters。</li>
+</ul>
+<p>Ranking score 进入前述 constrained matching；模型不能绕过 vehicle/availability/safety constraint。为了 driver fairness，不直接把历史 acceptance 低的司机永久降权，可加入等待时间、近期曝光与 minimum opportunity constraint，并监控 neighborhood/driver cohort 的派单差异。</p>
+<h4 id="c-demand-supply-forecast">C. Demand/supply forecast</h4>
+<p>以 H3 cell × 5 分钟预测 request count、online drivers 与 uncertainty。模型可从 seasonal baseline + GBDT 开始，再到 temporal/spatial model。Features 包括历史 demand/supply、天气、交通、节假日、航班/活动，但外部数据缺失必须有 default。输出服务 pricing、driver reposition suggestion 和 capacity planning；不要把 forecast 当精确事实。</p>
+<p><strong>Offline evaluation</strong></p>
+<ul>
+<li>ETA：MAE、median AE、p90 AE、quantile coverage/calibration，按 city、road type、weather、trip length slice；</li>
+<li>acceptance/cancel：PR-AUC、log loss、calibration、top-K lift；</li>
+<li>matching policy：historical replay 的 pickup ETA、completion、driver idle/fairness，但明确 replay 无法完全模拟供需反馈；</li>
+<li>forecast：WAPE/MASE、peak recall 与 prediction interval coverage。</li>
+</ul>
+<p><strong>Online evaluation</strong></p>
+<p>以 city-zone/time cluster randomization，避免一个市场两种 policy 相互干扰。主指标为 match latency、pickup ETA、completion rate；guardrail 为 rider cancel、driver reject、driver earnings/hour 分布、unsafe event、price volatility、p99 serving latency。长期观察 retention，不能只看短期 trips。</p>
+<p><strong>Serving / fallback</strong></p>
+<p>Online feature 按 city/cell 批量取，candidate inference vectorized；Match round 总 p99 预算例如 150 ms，其中 feature 30 ms、ETA 60 ms、ranking 30 ms、网络余量 30 ms。Feature/模型带 event-time、version、freshness。ETA model timeout 回退 static route speed；acceptance model timeout 回退 nearest-valid + driver idle heuristic；optimizer 超时返回当前最好 feasible matching。fallback 必须也遵守 hard constraints。</p>
+<p><strong>Drift、bias 与 silent failure</strong></p>
+<p>监控 traffic feature freshness、GPS coverage、prediction calibration、score distribution、candidate source mix、城市/天气 slice。大型活动、道路关闭会造成 concept drift；先缩短 live-speed window、提升 uncertainty、回退 conservative ETA，再重训。模型 release 先 shadow、canary city、逐步扩张；model registry 支持一分钟内 rollback。公平性同时看 driver exposure/earnings 与 rider wait by neighborhood，任何调整都要区分需求密度差异与模型造成的额外差异。</p>
+<h3 id="3-15-observability-slo-capacity-与-cost">3.15 Observability、SLO、capacity 与 cost</h3>
+<div class="table-wrap"><table><thead><tr><th>SLI / SLO</th><th>精确定义</th><th>关键报警</th></tr></thead><tbody><tr><td>Ride request 99.99%</td><td>合法 request 在 300 ms 内 durable accepted 或明确拒绝</td><td>Trip Store quorum、idempotency conflict</td></tr>
+<tr><td>Match p95 &lt; 10 s</td><td>SEARCHING 到 AssignmentCommitted，按 dense-city slice</td><td>retrieval empty、offer timeout、optimizer queue</td></tr>
+<tr><td>Location freshness p95 &lt; 5 s</td><td>server now - selected driver last valid update</td><td>stream lag、gateway disconnect、cell TTL expiry</td></tr>
+<tr><td>Assignment conflict = 0</td><td>同 ride 多 driver 或同 driver 多 active ride</td><td>serializable abort、reconciliation invariant</td></tr>
+<tr><td>Trip transition 99.99%</td><td>合法 version command 成功或返回确定 conflict</td><td>DB latency、outbox lag</td></tr>
+<tr><td>ETA calibration</td><td>实际到达落在预测 p90 内约 90%</td><td>feature drift、road incident</td></tr></tbody></table></div>
+<p>关键 metrics：location events/s、out-of-order/drop、active driver 与 Geo Index 数量差、cell skew、candidate count/ring depth、ETA batch p99、offer accept/expire、assignment transaction abort、state age、outbox lag、payment trigger mismatch。Trace 用 ride_id/offer_id/trip_id 串联，位置和 PII 不进入通用 span attribute。</p>
+<p>容量按 city hot hour 建模而非全球平均；每个 cell 保留 1.5× 正常峰值和 N+1 failover headroom。预演 stadium exit、暴雨、网络运营商故障与 region failover。</p>
+<p>成本主要是 location stream/egress、route ETA compute、实时 feature 与地图服务。优化方式：protobuf/delta compression、latest-value compaction、未匹配司机自适应采样、两阶段 ETA（近似筛选后精确 top-K）、batch/vectorized inference。绝不能通过减少 Trip Store durability 或跳过 assignment transaction 省成本。</p>
+<h3 id="3-16-trade-offs-与-v1-v2-evolution">3.16 Trade-offs 与 V1 → V2 evolution</h3>
+<div class="table-wrap"><table><thead><tr><th>决策</th><th>优点</th><th>代价 / 边界</th></tr></thead><tbody><tr><td>location eventual consistency</td><td>高吞吐、可丢中间点</td><td>必须 TTL、version、staleness filter</td></tr>
+<tr><td>assignment serializable transaction</td><td>直接保证双边唯一性</td><td>比最终一致慢；只放在低 QPS correctness path</td></tr>
+<tr><td>H3/S2 retrieval + road ETA rerank</td><td>扩展性与准确度兼顾</td><td>两套 index/route 服务更复杂</td></tr>
+<tr><td>1–2 秒 micro-batch matching</td><td>提升全局效率、公平性</td><td>增加少量 latency；低流量走 immediate greedy</td></tr>
+<tr><td>city single-write region</td><td>状态清晰、故障隔离</td><td>failover 有短暂停写</td></tr>
+<tr><td>small parallel offers</td><td>match 更快</td><td>司机竞争体验，需要 lease/revoke</td></tr></tbody></table></div>
+<p><strong>V1</strong>：单城，关系型 Trip DB，司机 location 放内存 geo index，nearest-valid greedy，固定 ETA/price。 <strong>V2</strong>：location stream、H3 shard、durable outbox、Offer/Trip 状态机、multi-AZ、ETA model、serializable assignment。 <strong>V3</strong>：city cell、多 region DR、micro-batch constrained matching、accept/cancel models、supply-demand forecast、adaptive sampling 与 fairness constraints。</p>
+<p>演进时先 shadow 新 geo index/ETA，记录 candidate/score 差异；matching policy 先不执行只 replay，再小 zone canary。Trip state schema 用 expand-migrate-contract，不能直接切换唯一性规则。</p>
+<h3 id="3-17-高频-follow-up-q-a">3.17 高频 follow-up Q&amp;A</h3>
+<p><strong>Q1：为什么不用 Redis GEO 解决全部问题？</strong> A：它可做 V1 附近检索，但仍需处理 TTL、版本、热点 shard、road ETA、跨 cell 竞态和 durable location stream。具体产品可作为 Geo Index 实现，不能替代整体语义。</p>
+<p><strong>Q2：driver accept 超时后重试，会不会抢到两单？</strong> A：同一 offer_version 幂等；Assignment transaction 同时检查 Offer、RideRequest 和 DriverReservation。已有 assignment 返回原结果，过期/被别人赢得返回确定 conflict。</p>
+<p><strong>Q3：为何 GPS 不放强一致数据库？</strong> A：每秒数十万到百万更新，大部分中间点会立即过时。强一致写成本高且没有产品收益；用 ordered stream + latest-value geo state + TTL，trip/assignment 才进入强一致 store。</p>
+<p><strong>Q4：怎样处理司机从一个 cell 移到另一个 cell？</strong> A：entry 带 session/version；旧 cell conditional delete，新 cell upsert。短暂双重出现由 query 按 driver_id 取最大 version 去重，assignment reservation 再做最终保护。</p>
+<p><strong>Q5：为什么不总给最近司机？</strong> A：直线最近不等于 road ETA 最短，也不考虑接受率、取消、下一单供需和 driver fairness。Geo 只 retrieval，ETA/rank/约束优化决定 assignment。</p>
+<p><strong>Q6：Trip Store 挂了，能否先在内存派单？</strong> A：不能。没有线性化点会双派。可以继续接 location、展示 unavailable，并让客户端复用 idempotency key 重试；correctness path 宁可短时不可用。</p>
+<p><strong>Q7：ETA 模型故障怎么办？</strong> A：回退 route engine 的静态/近期 segment speed，并扩大展示区间；dispatch 回退 nearest-valid + idle-time heuristic。模型绝不能成为唯一可用路径。</p>
+<p><strong>Q8：region 故障时正在行程中的用户怎么办？</strong> A：paired region 优先恢复 TripEvent/assignment，提升 region_epoch 后 reconnect；Driver/Rider App 携带 trip_id/version sync。位置用最新点重建，支付 trigger 由 outbox/reconciliation 补发。</p>
+<h3 id="3-18-60-秒可直接说的总结">3.18 60 秒可直接说的总结</h3>
+<blockquote>“我的 proposed design 把高频 location data plane 和强一致 trip control plane 分开。Driver 每 4 秒上传带 session/sequence 的 GPS，进入按 city/driver 分区的 stream；consumer 只保留最新 version，更新带 TTL 的 H3/S2 Geo Index，跨 cell 用版本化 delete/upsert。Rider request 以 idempotency key 写强一致 Trip Store 和 outbox；Matcher 先按 cell retrieval，再批量算 road ETA 与 accept/cancel features，在 1–2 秒窗口做受约束 matching。Offer 可以 at-least-once 推送，但 accept 必须通过 serializable transaction 同时检查 Offer、RideRequest 和 DriverReservation，因此一单/一司机都只有一个赢家。location 堵塞时可丢中间点、降低采样和回退 greedy，Trip command 绝不降级为内存。每座城市单写 home region、三 AZ quorum、paired-region log 与 epoch fencing 提供 DR。MLE 侧用静态 route baseline + ETA residual/quantile、candidate ranking 与 demand forecast，离线看误差和 calibration，线上看 match、pickup、completion、fairness，并保留确定性 fallback。核心 SLO 是 ride accept 99.99%、城区 match p95 10 秒、location freshness 5 秒和 assignment conflict 为零。”</blockquote>
+        <nav class="pager" aria-label="Case navigation">
+    <a href="case-02-design-youtube.html">← 2. Design YouTube</a>
+    <a class="next" href="case-04-design-netflix.html">4. Design Netflix →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Events &amp; Consistency - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="9-kafka-queue-stream">9. Kafka / Queue / Stream</h2>
+<h3 id="kafka-是什么">Kafka 是什么</h3>
+<p>Kafka 不是纯内存队列，而是基于磁盘的分布式 append-only commit log。</p>
+<pre><code class="language-">Producer
+  -&gt; Kafka Broker
+  -&gt; append to disk log
+  -&gt; Consumer reads by offset</code></pre>
+<p>Kafka 快的原因：</p>
+<ul>
+<li>顺序写磁盘 append-only。</li>
+<li>OS page cache 缓存热数据。</li>
+<li>zero-copy 减少数据拷贝。</li>
+<li>batch 写入和 batch 读取。</li>
+</ul>
+<h3 id="kafka-用来解决什么">Kafka 用来解决什么</h3>
+<ul>
+<li>解耦：上游不用直接调用所有下游。</li>
+<li>削峰填谷：突发流量先进 Kafka。</li>
+<li>可靠事件日志：consumer 失败后从 offset 继续。</li>
+<li>异步处理：notification、search indexing、analytics。</li>
+<li>CDC：DB change log 同步到 cache、ES、warehouse。</li>
+</ul>
+<h3 id="kafka-和-queue-的区别">Kafka 和 Queue 的区别</h3>
+<p>Queue 更像任务队列，消息被消费后通常删除或不可见。Kafka 是 event log，消息保留一段时间，consumer 通过 offset 记录消费位置，可以 replay。</p>
+<h3 id="kafka-核心概念">Kafka 核心概念</h3>
+<pre><code class="language-">Producer -&gt; Topic -&gt; Partition -&gt; Broker -&gt; Consumer Group -&gt; Consumer</code></pre>
+<ul>
+<li>Partition 是扩展吞吐的核心。</li>
+<li>Kafka 只保证同一个 partition 内有序，不保证整个 topic 全局有序。</li>
+<li>如果 order events 需要有序，partition key 应该用 <code>order_id</code>。</li>
+<li>同一个 consumer group 内，一个 partition 同一时间只能被一个 consumer 消费。</li>
+<li>Consumer 数量的有效上限是 partition 数。</li>
+</ul>
+<h3 id="consumer-处理顺序">Consumer 处理顺序</h3>
+<p>如果 Kafka 用来发 notification：</p>
+<ol>
+<li>Consume Kafka message。</li>
+<li>Call provider。</li>
+<li>把结果写 DB：<code>DELIVERED / FAILED / RETRYING</code>。</li>
+<li>Commit Kafka offset。</li>
+</ol>
+<p>不要先 commit offset 再写 DB。否则 provider 成功但 worker crash 后，系统不知道发送结果。</p>
+<h3 id="如何保证消息不丢">如何保证消息不丢</h3>
+<ul>
+<li>Producer 开启 ack / retry。</li>
+<li>Kafka replication。</li>
+<li>Consumer 先持久化处理结果，再 commit offset。</li>
+<li>对 DB -&gt; Kafka 的可靠发布，用 outbox pattern。</li>
+</ul>
+<h3 id="如何处理重复消息">如何处理重复消息</h3>
+<p>Kafka 常见语义是 at-least-once，所以重复消息很正常。</p>
+<p>解决：</p>
+<ul>
+<li>每条消息带 <code>event_id</code>。</li>
+<li>Consumer 处理前检查是否已处理。</li>
+<li>DB 加 unique constraint：<code>event_id</code> 或 <code>order_id + event_type</code>。</li>
+<li>业务逻辑必须 idempotent。</li>
+</ul>
+<h3 id="如何处理消费慢">如何处理消费慢</h3>
+<ul>
+<li>增加 partition 数。</li>
+<li>增加 consumer 数。</li>
+<li>优化单条消息处理逻辑。</li>
+<li>Batch consume / batch write。</li>
+<li>下游 DB 压力大时加限流、缓冲、降级。</li>
+<li>监控 consumer lag。</li>
+</ul>
+<p>核心指标：</p>
+<pre><code class="language-">consumer lag = latest offset - committed offset</code></pre>
+<p>如果 lag 持续增长，说明消费速度跟不上生产速度。</p>
+<h3 id="stream-vs-queue">Stream vs Queue</h3>
+<p>Stream 是事件日志，能保留、重放、多 consumer group，适合 realtime analytics、event sourcing、pub/sub。Queue 更像任务分发，适合每个 task 被一个 worker 消费。</p>
+<h3 id="backpressure-怎么设计">Backpressure 怎么设计</h3>
+<p>Backpressure 的意思是：下游处理不过来时，上游必须感知并放慢速度，否则队列、内存、连接都会被打爆。</p>
+<p>常见做法：</p>
+<ol>
+<li>Bounded queue</li>
+</ol>
+<ul>
+<li>队列必须有上限。</li>
+<li>超过上限后 reject、drop low-priority、或者返回 retry-after。</li>
+</ul>
+<ol>
+<li>Consumer lag based throttling</li>
+</ol>
+<ul>
+<li>如果 Kafka consumer lag 持续增长，说明下游处理不过来。</li>
+<li>上游 producer 降速，或者暂停非核心事件。</li>
+</ul>
+<ol>
+<li>Per-tenant quota</li>
+</ol>
+<ul>
+<li>防止一个 tenant 把 shared queue 塞满。</li>
+</ul>
+<ol>
+<li>Priority queue</li>
+</ol>
+<ul>
+<li>支付、订单、告警优先。</li>
+<li>analytics、email digest、batch job 可以延后。</li>
+</ul>
+<ol>
+<li>Circuit breaker</li>
+</ol>
+<ul>
+<li>下游不健康时，不继续同步调用。</li>
+<li>请求进入 queue 或直接 fail fast。</li>
+</ul>
+<p>面试回答模板：</p>
+<blockquote>I would make queues bounded and use consumer lag as a feedback signal. If lag grows beyond a threshold, the producer should throttle or shed low-priority traffic. Without backpressure, the system only moves the failure from one service to the queue or database.</blockquote>
+<h3 id="retry-dlq-poison-message">Retry / DLQ / Poison Message</h3>
+<p>Retry 不是无限重试。无限重试会放大故障。</p>
+<p>标准策略：</p>
+<ul>
+<li>Retry with exponential backoff。</li>
+<li>加 jitter，避免所有请求同时重试。</li>
+<li>最大重试次数。</li>
+<li>超过次数进入 DLQ。</li>
+<li>DLQ 需要 dashboard、alert、replay tool。</li>
+</ul>
+<p>Poison message 是指某条消息永远处理失败，例如 payload 格式坏了或业务状态非法。必须识别并移到 DLQ，否则会卡住 consumer。</p>
+<p>面试回答模板：</p>
+<blockquote>I would use bounded retries with exponential backoff and jitter. After max retries, the message goes to DLQ with enough metadata for debugging and replay. This prevents poison messages from blocking the whole consumer group.</blockquote>
+<hr/>
+<h2 id="10-transactional-outbox-dual-write">10. Transactional Outbox / Dual Write</h2>
+<h3 id="问题">问题</h3>
+<p>如果系统先写 DB，再 publish Kafka，中间 crash，会出现：</p>
+<pre><code class="language-">DB 已经写入成功
+Kafka 没有消息
+下游永远不知道这次变更</code></pre>
+<h3 id="outbox-pattern">Outbox pattern</h3>
+<p>在同一个 DB transaction 中同时写业务数据和 outbox event：</p>
+<pre><code class="language-sql">BEGIN;
+
+UPDATE booking
+SET status = 'CANCELLED'
+WHERE booking_id = 123;
+
+INSERT INTO outbox(event_type, payload, status)
+VALUES ('CancellationAvailableEvent', '{&quot;booking_id&quot;:123}', 'PENDING');
+
+COMMIT;</code></pre>
+<p>之后由 relay / CDC publisher 读取 outbox，发布到 Kafka，成功后标记 sent。</p>
+<h3 id="cdc-发布方式">CDC 发布方式</h3>
+<pre><code class="language-">DB WAL / binlog
+  -&gt; Debezium / Canal
+  -&gt; Kafka
+  -&gt; Consumers</code></pre>
+<p>优点：延迟低，不需要业务服务轮询 DB。缺点：引入额外基础设施。</p>
+<h3 id="dual-write-迁移原则">Dual write 迁移原则</h3>
+<p>不要裸 dual write。更安全的方式是：</p>
+<ul>
+<li>Single source of truth + outbox/event log。</li>
+<li>下游写入必须 idempotent。</li>
+<li>失败进入 retry / DLQ。</li>
+<li>定期 reconciliation。</li>
+<li>新系统先 shadow write / shadow read compare。</li>
+<li>用 percentage / user_id / region 灰度切流量。</li>
+<li>保留 kill switch。</li>
+<li>Schema 要 backward-compatible。</li>
+</ul>
+<h3 id="saga-pattern">Saga Pattern</h3>
+<p>Saga 用来处理跨多个服务的 long-running transaction。它不用一个大 distributed transaction 锁住所有资源，而是把流程拆成多个本地 transaction，每一步都有 compensating action。</p>
+<p>例子：下单流程</p>
+<pre><code class="language-">Create Order
+  -&gt; Reserve Inventory
+  -&gt; Authorize Payment
+  -&gt; Create Shipment
+  -&gt; Confirm Order</code></pre>
+<p>如果 <code>Authorize Payment</code> 失败，就执行补偿：</p>
+<pre><code class="language-">Release Inventory
+Cancel Order</code></pre>
+<p>两种 Saga：</p>
+<ol>
+<li>Orchestration</li>
+</ol>
+<ul>
+<li>有一个 central orchestrator。</li>
+<li>它决定下一步调用哪个 service。</li>
+<li>好处是流程清晰、易 debug。</li>
+<li>缺点是 orchestrator 变成复杂中心。</li>
+</ul>
+<ol>
+<li>Choreography</li>
+</ol>
+<ul>
+<li>每个 service 通过 events 驱动下一步。</li>
+<li>好处是解耦。</li>
+<li>缺点是流程分散，debug 更难。</li>
+</ul>
+<p>面试回答模板：</p>
+<blockquote>For cross-service workflows, I would avoid distributed transactions unless absolutely required. I would use Saga: each service commits a local transaction and emits an event. If a later step fails, we trigger compensating actions. For complex payment or booking flows, I prefer orchestration because it is easier to reason about and debug.</blockquote>
+<h3 id="reconciliation-对账">Reconciliation / 对账</h3>
+<p>只靠 online transaction 不够。支付、库存、订单系统都需要 reconciliation。</p>
+<p>为什么：</p>
+<ul>
+<li>Webhook 可能延迟或重复。</li>
+<li>Provider 状态和本地状态可能不一致。</li>
+<li>Kafka / worker 可能失败后进入 DLQ。</li>
+<li>人工退款、chargeback、取消订单可能绕过主流程。</li>
+</ul>
+<p>常见设计：</p>
+<pre><code class="language-">Internal transaction log
+External provider report
+Immutable audit log in S3
+Reconciliation job
+Mismatch table
+Auto repair or manual review</code></pre>
+<p>面试回答模板：</p>
+<blockquote>For financial correctness, I would not rely only on the online request path. I would keep an immutable event/audit log and run reconciliation jobs against the payment provider. Any mismatch goes to an exception table for auto-retry or manual review.</blockquote>
+<hr/>
+<h2 id="11-stateless-server-multi-region">11. Stateless Server / Multi-region</h2>
+<h3 id="stateless-server">Stateless server</h3>
+<p>API server 不依赖本机内存状态处理请求。用户第一次请求到 Server 1，第二次到 Server 3，也应该都能处理。</p>
+<pre><code class="language-">Client
+  -&gt; Load Balancer
+  -&gt; API Server 1 / 2 / 3
+  -&gt; Shared DB / Cache / Session Store</code></pre>
+<h3 id="为什么重要">为什么重要</h3>
+<ul>
+<li>可以随意水平扩容。</li>
+<li>Load Balancer 不需要 sticky session。</li>
+<li>单台 server 挂了不会丢用户状态。</li>
+</ul>
+<h3 id="multi-region-用户数据">Multi-region 用户数据</h3>
+<p>常见方案：每个 user 有 home region。写入落在 home region，其他 region 有 async replica，用于就近读、灾备或 failover。</p>
+<h3 id="全球共享资源">全球共享资源</h3>
+<p>如果是只读内容，可以每个 DC 都有 replica，并使用 CDN。</p>
+<p>如果是全球用户都要写同一个有限资源，比如 inventory / ticket / booking，需要更谨慎：</p>
+<ol>
+<li>Single writer region：所有写入集中到一个 DC，强一致但远端 latency 高。</li>
+<li>Regional allocation：提前把库存分配到不同 region。</li>
+<li>Kafka single partition：同一个 resource 的请求进同一个 partition，天然有序。</li>
+<li>Global transaction DB：Spanner / CockroachDB，强一致但 latency 和成本高。</li>
+</ol>
+<hr/>
+<h2 id="12-atomicity-concurrency-control">12. Atomicity / Concurrency Control</h2>
+<h3 id="atomic-是什么">Atomic 是什么</h3>
+<p>Atomic = 原子性。一个操作要么完整成功，要么完全不发生，中间不会被别人打断，也不会只执行一半。</p>
+<h3 id="扣库存示例">扣库存示例</h3>
+<p>不要先读再写：</p>
+<pre><code class="language-python">if stock &gt; 0:
+    stock = stock - 1</code></pre>
+<p>更好的方式是让 DB 原子完成：</p>
+<pre><code class="language-sql">UPDATE inventory
+SET stock = stock - 1
+WHERE product_id = 123
+  AND stock &gt; 0;</code></pre>
+<p>如果 update 1 row，说明扣减成功。如果 update 0 row，说明库存没了。</p>
+<h3 id="optimistic-concurrency">Optimistic concurrency</h3>
+<p>适合读多写少、冲突不频繁的场景。每条记录带 version：</p>
+<pre><code class="language-sql">UPDATE jobs
+SET cron = 'every 10 min', version = version + 1
+WHERE job_id = 123
+  AND version = 7;</code></pre>
+<p>如果 version 已经变了，更新失败，返回 <code>409 Conflict</code>。</p>
+<h3 id="写多冲突多怎么办">写多冲突多怎么办</h3>
+<ol>
+<li>Pessimistic locking</li>
+</ol>
+<pre><code class="language-sql">SELECT *
+FROM inventory
+WHERE product_id = 123
+FOR UPDATE;</code></pre>
+<p>适合库存、账户余额、订单状态流转。缺点是吞吐下降。</p>
+<ol>
+<li>Atomic update</li>
+</ol>
+<p>用一条 SQL 完成条件检查和更新。</p>
+<ol>
+<li>Single writer / queue</li>
+</ol>
+<pre><code class="language-">requests
+  -&gt; Kafka partition by product_id
+  -&gt; single consumer
+  -&gt; update stock</code></pre>
+<ol>
+<li>Reduce contention</li>
+</ol>
+<p>把热点拆成多个 bucket。例如库存 10,000 个，不要所有请求更新同一行，可以拆成多个 inventory bucket。</p>
+<ol>
+<li>Serializable transaction</li>
+</ol>
+<p>金融账本、结算等严格正确场景可以使用 transaction + serializable isolation，但成本更高。</p>
+<hr/>
+<h2 id="13-cache-ttl-dirty-cache-stampede">13. Cache / TTL / Dirty Cache / Stampede</h2>
+<h3 id="ttl-如何实现">TTL 如何实现</h3>
+<p>常见两种机制：</p>
+<ol>
+<li>Lazy delete：读取时检查 <code>expire_at</code>，如果已过期就删除。</li>
+<li>Periodic cleanup：后台线程定期扫描并删除过期数据。</li>
+</ol>
+<h3 id="cache-aside">Cache Aside</h3>
+<p>读路径：</p>
+<pre><code class="language-">read cache
+if hit: return
+if miss: read DB -&gt; set cache with TTL -&gt; return</code></pre>
+<p>写路径推荐：</p>
+<pre><code class="language-">update DB
+delete cache</code></pre>
+<p>不要直接 update cache，因为并发写容易乱序导致 dirty cache：</p>
+<pre><code class="language-">T1: DB = A
+T2: DB = B
+T2: cache = B
+T1: cache = A</code></pre>
+<p>最后 DB 是 B，但 cache 是 A。</p>
+<h3 id="cache-stampede-invalidation-storm">Cache stampede / invalidation storm</h3>
+<p>热门抢票系统中，如果每次 seat 状态变化都 invalidate cache，缓存和 DB 会被打爆。</p>
+<p>更好的设计：</p>
+<ol>
+<li>Static data 和 dynamic data 分离。</li>
+</ol>
+<ul>
+<li>Static：演唱会名字、时间、海报，长 TTL。</li>
+<li>Dynamic：座位状态、剩余票数，单独处理。</li>
+</ul>
+<ol>
+<li>放弃逐条实时 invalidation。</li>
+</ol>
+<ul>
+<li>Booking service 把 seat change 写 MQ。</li>
+<li>Background aggregator 每 1 到 3 秒批量更新 Redis。</li>
+</ul>
+<ol>
+<li>接受读路径 eventual consistency。</li>
+</ol>
+<ul>
+<li>用户可能看到旧座位状态。</li>
+<li>但写路径用 Redis <code>SET NX</code> 或 DB atomic update 保证不会超卖。</li>
+</ul>
+<hr/>
+<h2 id="14-exactly-once-effect-idempotency">14. Exactly-once Effect / Idempotency</h2>
+<h3 id="不要轻易说-exactly-once-delivery">不要轻易说 exactly-once delivery</h3>
+<p>分布式系统中，network timeout、retry、crash、ack 丢失都会导致重复。</p>
+<p>更准确的目标是 exactly-once effect：</p>
+<blockquote>请求或消息可以重复，但业务结果只能生效一次。</blockquote>
+<h3 id="api-幂等">API 幂等</h3>
+<p>客户端带 idempotency key：</p>
+<pre><code class="language-http">POST /payments
+Idempotency-Key: abc123</code></pre>
+<p>服务端保存：</p>
+<pre><code class="language-">idempotency_key -&gt; request_hash, status, response</code></pre>
+<p>同一个 key 再来时直接返回上次结果。如果 key 相同但 request body 不同，应该 reject。</p>
+<h3 id="db-幂等">DB 幂等</h3>
+<p>使用 unique constraint：</p>
+<pre><code class="language-sql">UNIQUE(idempotency_key)
+UNIQUE(order_id, operation_type)</code></pre>
+<h3 id="消息幂等">消息幂等</h3>
+<p>每条消息带 <code>event_id</code>。Consumer 处理前把 <code>event_id</code> 插入 <code>processed_events</code> 表，表上有 unique index。业务更新和 processed event 写入要在同一个 transaction。</p>
+<h3 id="状态机条件更新">状态机条件更新</h3>
+<p>例如订单只能：</p>
+<pre><code class="language-">PENDING -&gt; PAID</code></pre>
+<p>用 conditional update：</p>
+<pre><code class="language-sql">UPDATE orders
+SET status = 'PAID'
+WHERE order_id = ?
+  AND status = 'PENDING';</code></pre>
+<p>第二次执行时不会重复扣款。</p>
+<hr/>
+<h2 id="15-cap-consistency">15. CAP / Consistency</h2>
+<p>CAP 说的是：在分布式系统遇到 network partition 时，Consistency、Availability、Partition tolerance 不能同时完全满足。</p>
+<h3 id="三个概念">三个概念</h3>
+<ul>
+<li>Consistency：所有节点读到的数据像来自同一个最新副本。</li>
+<li>Availability：每个请求都能收到非错误响应，即使结果可能不是最新。</li>
+<li>Partition tolerance：节点之间网络断开或消息丢失时，系统仍能运行。</li>
+</ul>
+<p>现实中 P 基本必须接受，所以真正取舍是 partition 发生时选 CP 还是 AP。</p>
+<h3 id="cp">CP</h3>
+<p>优先 consistency。网络分区时可能拒绝部分请求。</p>
+<p>适合：</p>
+<ul>
+<li>金融转账</li>
+<li>库存扣减</li>
+<li>预订有限资源</li>
+</ul>
+<h3 id="ap">AP</h3>
+<p>优先 availability。网络分区时继续服务，但可能返回旧数据。</p>
+<p>适合：</p>
+<ul>
+<li>社交 feed</li>
+<li>点赞数</li>
+<li>浏览量</li>
+<li>缓存</li>
+</ul>
+<h3 id="面试回答模板">面试回答模板</h3>
+<blockquote>For money, inventory, and booking limited resources, I would favor consistency even if it reduces availability. For feeds, likes, and cached views, eventual consistency is usually acceptable because user experience benefits more from availability and low latency.</blockquote>
+<hr/>
+<h2 id="16-realtime-communication">16. Realtime Communication</h2>
+<h3 id="long-polling-sse-websocket">Long Polling / SSE / WebSocket</h3>
+<div class="table-wrap"><table><thead><tr><th>方式</th><th>通信方向</th><th>怎么工作</th><th>适合场景</th></tr></thead><tbody><tr><td>Long Polling</td><td>server -&gt; client</td><td>Client 发请求，server 等到有消息才返回，返回后 client 再发下一个请求</td><td>低频通知、老系统兼容</td></tr>
+<tr><td>SSE</td><td>server -&gt; client 单向</td><td>Client 建一个 HTTP 连接，server 持续推送</td><td>通知、状态更新、AI streaming</td></tr>
+<tr><td>WebSocket</td><td>双向</td><td>建立长连接，双方都能随时发消息</td><td>聊天、游戏、协同编辑</td></tr></tbody></table></div>
+<h3 id="面试回答模板-2">面试回答模板</h3>
+<blockquote>If the server only needs to push updates, I would use SSE. If both client and server need bidirectional realtime communication, I would use WebSocket. Long polling is mostly a fallback for compatibility.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

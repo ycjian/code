@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Data Modeling &amp; Storage - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="26-data-modeling-storage-design-interview-bank">26. Data Modeling &amp; Storage Design Interview Bank</h2>
+<p>这一节补齐 <code>sd.html</code> 里 Data Modeling、Data Model: Cloud Storage / NewsFeed / Ride Sharing / Streaming Video、Cassandra Deep Dive、Kafka Deep Dive、Big Data Structures 等内容。面试里很多人会画服务图，但数据模型一问就虚。高分答案要讲清楚：source of truth、query pattern、partition key、index、derived view、rebuild path、consistency。</p>
+<h3 id="1-data-modeling-interview-framework">1. Data Modeling Interview Framework</h3>
+<h4 id="question">Question</h4>
+<p>系统设计面试里，如何从需求推导 data model？什么时候用 normalized relational model，什么时候 denormalize，什么时候用 wide-column / document / search / graph / object storage？</p>
+<h4 id="approach">Approach</h4>
+<p>先不要直接选数据库。先写 access patterns：</p>
+<pre><code class="language-">Write:
+  - 谁写？
+  - 写入频率？
+  - 是否需要 transaction？
+
+Read:
+  - 按什么 key 查？
+  - 是否需要排序 / range scan？
+  - 是否需要 join / aggregation？
+  - P50/P99 latency 要求？
+
+Lifecycle:
+  - 数据是否 immutable？
+  - 是否有 TTL / retention？
+  - 是否需要审计 / replay？</code></pre>
+<h4 id="entity-vs-access-pattern">Entity vs access pattern</h4>
+<p>Entity-first 只能帮你找到 nouns：</p>
+<pre><code class="language-">User, Post, Comment, Like</code></pre>
+<p>但真正决定存储设计的是 access pattern：</p>
+<pre><code class="language-">get posts by user
+get feed by user
+get comments by post sorted by time
+get like count by post</code></pre>
+<h4 id="source-of-truth-vs-derived-view">Source of truth vs derived view</h4>
+<p>高分回答一定要区分：</p>
+<ul>
+<li>Source of truth：不可随便丢，强一致要求更高。</li>
+<li>Derived view：为了读快而建，可以异步更新，可以 rebuild。</li>
+</ul>
+<p>例子：</p>
+<pre><code class="language-">post table = source of truth
+timeline table = derived view
+search index = derived view
+counter cache = derived view</code></pre>
+<h4 id="normalization-vs-denormalization">Normalization vs denormalization</h4>
+<div class="table-wrap"><table><thead><tr><th>Choice</th><th>When to use</th></tr></thead><tbody><tr><td>Normalized SQL</td><td>transaction, constraints, ad-hoc queries</td></tr>
+<tr><td>Denormalized read model</td><td>read latency critical, query pattern stable</td></tr>
+<tr><td>Wide-column</td><td>high write/read by partition key, large scale</td></tr>
+<tr><td>Document</td><td>flexible schema, object-like access</td></tr>
+<tr><td>Search index</td><td>keyword/relevance query</td></tr>
+<tr><td>Graph</td><td>relationship traversal</td></tr>
+<tr><td>Object storage</td><td>large blob / immutable bytes</td></tr></tbody></table></div>
+<h4 id="interview-answer">Interview answer</h4>
+<blockquote>I would start with access patterns, not database names. For each entity, I identify the write path, read path, consistency requirement, and query keys. The primary store should protect the source of truth, while indexes, feeds, counters, and search documents are derived views that can be rebuilt. Denormalization is acceptable when the read pattern is stable and we have a clear async update and repair path.</blockquote>
+<h3 id="2-cloud-storage-app-data-model-dropbox">2. Cloud Storage App Data Model / Dropbox</h3>
+<h4 id="question-2">Question</h4>
+<p>设计 Dropbox / Google Drive 的 data model。用户有 folders/files，文件有 versions，支持 sharing、sync、delete/restore、large file upload。</p>
+<h4 id="core-entities">Core entities</h4>
+<pre><code class="language-">user(user_id, email, plan, quota_bytes)
+namespace(namespace_id, owner_id, type)
+node(node_id, namespace_id, parent_id, name, type, status)
+file_version(version_id, node_id, blob_id, size, checksum, created_at)
+blob(blob_id, object_key, size, checksum, ref_count)
+share(share_id, node_id, principal_id, permission)
+sync_cursor(user_id, namespace_id, last_change_seq)
+change_log(namespace_id, seq, node_id, operation, created_at)</code></pre>
+<h4 id="key-design">Key design</h4>
+<p>不要把 folder tree 和 file bytes 混在一起：</p>
+<ul>
+<li><code>node</code> 表示 logical filesystem tree。</li>
+<li><code>file_version</code> 表示文件版本。</li>
+<li><code>blob</code> 表示 object storage 里的 bytes。</li>
+<li>多个 file version 可以引用同一个 blob，用 checksum 去重。</li>
+</ul>
+<h4 id="folder-listing">Folder listing</h4>
+<p>Access pattern：</p>
+<pre><code class="language-">list children by (namespace_id, parent_id)</code></pre>
+<p>Index：</p>
+<pre><code class="language-">(namespace_id, parent_id, name)</code></pre>
+<p>这样列目录不需要递归扫描。</p>
+<h4 id="sync-model">Sync model</h4>
+<p>客户端同步不应该每次全量 scan。使用 change log：</p>
+<pre><code class="language-">client sends cursor seq
+server returns changes after seq
+client applies changes
+client updates cursor</code></pre>
+<h4 id="sharing">Sharing</h4>
+<p>Sharing 可以是：</p>
+<ul>
+<li>file/folder direct share。</li>
+<li>shared namespace。</li>
+<li>inherited permission。</li>
+</ul>
+<p>面试里可以先做 folder share，并说明 permission inheritance 需要 read path resolve 或 precomputed ACL。</p>
+<h4 id="interview-answer-2">Interview answer</h4>
+<blockquote>I would separate metadata from file bytes. The metadata database stores a namespace tree, file versions, sharing permissions, and a change log. Actual bytes are stored in object storage by blob id and checksum. Folder listing uses an index on namespace and parent id. Sync uses an append-only change log and cursor so clients only fetch incremental changes.</blockquote>
+<h3 id="3-newsfeed-data-model">3. NewsFeed Data Model</h3>
+<h4 id="question-3">Question</h4>
+<p>设计 Instagram/Facebook/Twitter NewsFeed 的 data model。用户发帖、关注、点赞、评论，首页 feed 快速展示。</p>
+<h4 id="source-tables">Source tables</h4>
+<pre><code class="language-">user(user_id, profile, status)
+post(post_id, author_id, content_ref, created_at, visibility, status)
+follow(follower_id, followee_id, created_at)
+reaction(user_id, post_id, type, created_at)
+comment(comment_id, post_id, user_id, body, created_at)</code></pre>
+<h4 id="derived-tables">Derived tables</h4>
+<pre><code class="language-">home_timeline(user_id, score, post_id, author_id, created_at)
+author_timeline(author_id, created_at, post_id)
+post_counter(post_id, like_count, comment_count, share_count)
+search_document(post_id, text, author_id, visibility)</code></pre>
+<h4 id="partition-keys">Partition keys</h4>
+<ul>
+<li><code>post</code>: by <code>post_id</code> or <code>author_id + created_at</code> depending access pattern。</li>
+<li><code>follow</code>: query followers by followee, followees by follower，通常需要双向表。</li>
+<li><code>home_timeline</code>: by <code>user_id</code>。</li>
+<li><code>author_timeline</code>: by <code>author_id</code>。</li>
+</ul>
+<h4 id="fanout-data-model">Fanout data model</h4>
+<p>普通用户：</p>
+<pre><code class="language-">post_created -&gt; fanout worker -&gt; insert into followers' home_timeline</code></pre>
+<p>Celebrity：</p>
+<pre><code class="language-">do not fanout to all followers
+read-time merge celebrity posts</code></pre>
+<h4 id="delete-and-privacy">Delete and privacy</h4>
+<p>Timeline 是 derived view，可能 stale。所以 read path 必须检查：</p>
+<ul>
+<li>post status。</li>
+<li>author block。</li>
+<li>visibility。</li>
+<li>user mute/hide。</li>
+</ul>
+<p>后台再异步清理 timeline entries。</p>
+<h4 id="interview-answer-3">Interview answer</h4>
+<blockquote>I would keep posts, follows, reactions, and comments as source-of-truth tables. Home timelines, author timelines, counters, and search documents are derived read models. The timeline table is partitioned by user id for fast feed reads. For celebrity users, I would avoid full fanout and instead merge their posts at read time. Privacy and delete checks must still happen on the read path because derived timelines can be stale.</blockquote>
+<h3 id="4-ride-sharing-data-model-uber-lyft">4. Ride-sharing Data Model / Uber-Lyft</h3>
+<h4 id="question-4">Question</h4>
+<p>设计 Uber/Lyft 的 data model。要支持 rider request、driver location、matching、trip lifecycle、pricing、payment、history。</p>
+<h4 id="core-entities-2">Core entities</h4>
+<pre><code class="language-">rider(rider_id, profile, payment_method_id)
+driver(driver_id, profile, vehicle_id, status)
+vehicle(vehicle_id, type, plate, capacity)
+trip(trip_id, rider_id, driver_id, pickup, dropoff, status, created_at)
+trip_event(trip_id, event_seq, event_type, payload, timestamp)
+driver_location(driver_id, lat, lon, cell_id, updated_at)
+fare(trip_id, base, distance_fee, time_fee, surge, total)
+payment(trip_id, amount, status, provider_ref)</code></pre>
+<h4 id="trip-state-machine">Trip state machine</h4>
+<pre><code class="language-">REQUESTED -&gt; MATCHING -&gt; DRIVER_ASSIGNED -&gt; DRIVER_ARRIVING
+-&gt; IN_PROGRESS -&gt; COMPLETED -&gt; PAID
+-&gt; CANCELLED / FAILED</code></pre>
+<p>Trip state changes are critical. Use <code>trip_event</code> as append-only audit log and <code>trip</code> as current snapshot.</p>
+<h4 id="driver-location">Driver location</h4>
+<p>Driver location is ephemeral and high-write:</p>
+<ul>
+<li>Keep latest location in in-memory geo index / Redis。</li>
+<li>TTL old locations。</li>
+<li>Persist sampled location history only if needed for audit/debug。</li>
+</ul>
+<p>Do not write every 2-second driver ping into the main relational DB.</p>
+<h4 id="matching-and-consistency">Matching and consistency</h4>
+<p>The critical invariant:</p>
+<pre><code class="language-">one driver cannot be assigned to two active trips</code></pre>
+<p>Use conditional update:</p>
+<pre><code class="language-sql">UPDATE driver
+SET status = 'ASSIGNED'
+WHERE driver_id = ?
+  AND status = 'AVAILABLE'</code></pre>
+<p>Only one matching attempt wins.</p>
+<h4 id="interview-answer-4">Interview answer</h4>
+<blockquote>I would model trips as a state machine with an append-only trip_event log for audit and a trip snapshot for fast reads. Driver location is a separate ephemeral geo index with TTL because it has high write frequency. Matching uses conditional updates to ensure a driver is assigned to only one active trip. Payment and fare are separate records so financial state is auditable.</blockquote>
+<h3 id="5-streaming-video-platform-data-model-netflix">5. Streaming Video Platform Data Model / Netflix</h3>
+<h4 id="question-5">Question</h4>
+<p>设计 Netflix/Disney+ 的 data model。用户浏览 catalog、播放视频、继续观看、推荐、订阅、profile、多设备。</p>
+<h4 id="core-entities-3">Core entities</h4>
+<pre><code class="language-">account(account_id, plan, billing_status)
+profile(profile_id, account_id, name, maturity_level)
+title(title_id, type, metadata, maturity_rating, status)
+asset(asset_id, title_id, codec, resolution, drm_key_id, manifest_url)
+watch_progress(profile_id, title_id, position_sec, updated_at)
+playback_event(event_id, profile_id, title_id, event_type, timestamp)
+entitlement(account_id, title_id or region, valid_from, valid_to)</code></pre>
+<h4 id="catalog-vs-playback">Catalog vs playback</h4>
+<p>Catalog data is mostly read-heavy and cacheable：</p>
+<ul>
+<li>title metadata。</li>
+<li>artwork。</li>
+<li>genres。</li>
+<li>availability by region。</li>
+</ul>
+<p>Playback path is latency-sensitive and security-sensitive：</p>
+<ul>
+<li>manifest URL。</li>
+<li>DRM license。</li>
+<li>CDN selection。</li>
+<li>entitlement check。</li>
+</ul>
+<h4 id="watch-progress">Watch progress</h4>
+<p>Access pattern：</p>
+<pre><code class="language-">get continue watching by profile_id
+update progress frequently</code></pre>
+<p>Write optimization：</p>
+<ul>
+<li>client batches progress updates。</li>
+<li>update every N seconds or percentage change。</li>
+<li>last-write-wins by timestamp。</li>
+</ul>
+<h4 id="event-pipeline">Event pipeline</h4>
+<p>Playback events feed：</p>
+<ul>
+<li>recommendation。</li>
+<li>quality monitoring。</li>
+<li>billing analytics。</li>
+<li>content popularity。</li>
+</ul>
+<p>Use event log, not OLTP tables, for high-volume playback telemetry.</p>
+<h4 id="interview-answer-5">Interview answer</h4>
+<blockquote>I would separate catalog metadata, playback assets, user profile state, and telemetry. Catalog is read-heavy and CDN/cache friendly. Playback requires entitlement and DRM checks before returning manifests. Watch progress is keyed by profile and title and updated with last-write-wins. High-volume playback events go to Kafka or an event lake for recommendations and analytics rather than the transactional database.</blockquote>
+<h3 id="6-cassandra-deep-dive-for-interviews">6. Cassandra Deep Dive for Interviews</h3>
+<h4 id="question-6">Question</h4>
+<p>什么时候用 Cassandra？如何设计 Cassandra table？为什么不能像 SQL 一样随便 query？</p>
+<h4 id="when-cassandra-fits">When Cassandra fits</h4>
+<p>Cassandra 适合：</p>
+<ul>
+<li>high write throughput。</li>
+<li>large scale。</li>
+<li>predictable query by partition key。</li>
+<li>multi-region / high availability。</li>
+<li>append-heavy data。</li>
+</ul>
+<p>不适合：</p>
+<ul>
+<li>complex joins。</li>
+<li>ad-hoc queries。</li>
+<li>multi-row transactions。</li>
+<li>arbitrary secondary index query。</li>
+</ul>
+<h4 id="table-design-principle">Table design principle</h4>
+<p>Cassandra 是 query-first design。每个 table 服务一个 query。</p>
+<p>Example: user timeline</p>
+<pre><code class="language-sql">CREATE TABLE user_timeline (
+  user_id text,
+  created_at timestamp,
+  post_id text,
+  author_id text,
+  PRIMARY KEY (user_id, created_at, post_id)
+) WITH CLUSTERING ORDER BY (created_at DESC);</code></pre>
+<p>Partition key:</p>
+<pre><code class="language-">user_id</code></pre>
+<p>Clustering key:</p>
+<pre><code class="language-">created_at, post_id</code></pre>
+<h4 id="hot-partition">Hot partition</h4>
+<p>如果某个 partition 太大或太热，比如 celebrity timeline / global feed：</p>
+<ul>
+<li>add bucket key。</li>
+<li>split by time。</li>
+<li>write to multiple shards。</li>
+</ul>
+<p>Example：</p>
+<pre><code class="language-">PRIMARY KEY ((user_id, bucket_day), created_at, post_id)</code></pre>
+<h4 id="consistency-levels">Consistency levels</h4>
+<p>可以按读写要求选择：</p>
+<ul>
+<li><code>ONE</code>: low latency, weaker consistency。</li>
+<li><code>QUORUM</code>: stronger consistency。</li>
+<li><code>LOCAL_QUORUM</code>: multi-region 常用。</li>
+</ul>
+<p>不要泛泛说 Cassandra 最终一致。要说 read/write consistency level 是可调的。</p>
+<h4 id="interview-answer-6">Interview answer</h4>
+<blockquote>I would use Cassandra when the query patterns are predictable and the system needs high write throughput and horizontal scalability. Cassandra table design is query-first: each table is built around a partition key and clustering order for one access pattern. I would avoid joins and ad-hoc queries. To prevent hot partitions, I would bucket large partitions by time or shard id, and choose consistency levels based on the correctness requirement.</blockquote>
+<h3 id="7-kafka-deep-dive-for-interviews">7. Kafka Deep Dive for Interviews</h3>
+<h4 id="question-7">Question</h4>
+<p>Kafka 在系统设计中到底解决什么？如何设计 topic、partition、consumer group、ordering、replay、retention？</p>
+<h4 id="kafka-mental-model">Kafka mental model</h4>
+<p>Kafka 是 durable event log，不只是 queue。</p>
+<pre><code class="language-">Producer -&gt; Topic partitions -&gt; Consumer groups</code></pre>
+<p>同一个 topic 可以被多个 consumer group 独立消费：</p>
+<ul>
+<li>feed fanout。</li>
+<li>search indexing。</li>
+<li>notification。</li>
+<li>analytics。</li>
+<li>fraud detection。</li>
+</ul>
+<h4 id="partition-key">Partition key</h4>
+<p>Partition key 决定 ordering 和 parallelism。</p>
+<pre><code class="language-">payment events -&gt; key = payment_id
+order events -&gt; key = order_id
+chat messages -&gt; key = room_id
+user activity -&gt; key = user_id</code></pre>
+<p>同一个 key 的 events 在同一 partition 内有序。</p>
+<h4 id="consumer-lag">Consumer lag</h4>
+<p>Consumer lag 增长说明下游处理不过来：</p>
+<ul>
+<li>增加 consumers，但不能超过 partition 数。</li>
+<li>增加 partitions。</li>
+<li>优化 processing。</li>
+<li>batch writes。</li>
+<li>降低 downstream dependency latency。</li>
+</ul>
+<h4 id="replay">Replay</h4>
+<p>Kafka 的高分点是 replay：</p>
+<ul>
+<li>rebuild search index。</li>
+<li>recompute materialized views。</li>
+<li>recover failed consumer。</li>
+<li>backfill new pipeline。</li>
+</ul>
+<p>这要求 events schema 稳定，consumer 幂等。</p>
+<h4 id="retention-and-compaction">Retention and compaction</h4>
+<ul>
+<li>Retention topic：保留一段时间的 event log。</li>
+<li>Compacted topic：按 key 保留最新状态，比如 user profile / config。</li>
+</ul>
+<h4 id="interview-answer-7">Interview answer</h4>
+<blockquote>I would use Kafka as a durable event log to decouple services and allow independent consumers to process the same event stream. Partition key is important because it controls ordering and parallelism. Consumers must be idempotent because delivery is at-least-once. Kafka also gives us replay, which is valuable for rebuilding derived views such as search indexes, timelines, counters, and analytics tables.</blockquote>
+<h3 id="8-big-data-structures-in-system-design">8. Big Data Structures in System Design</h3>
+<h4 id="question-8">Question</h4>
+<p>系统设计面试里哪些 data structures 可以主动提？Bloom filter、Count-Min Sketch、HyperLogLog、LSM tree、consistent hashing、heap/top-k 分别什么时候用？</p>
+<h4 id="bloom-filter">Bloom Filter</h4>
+<p>用途：快速判断“可能存在 / 一定不存在”。</p>
+<p>适合：</p>
+<ul>
+<li>web crawler seen URL。</li>
+<li>cache penetration 防护。</li>
+<li>DB read before expensive lookup。</li>
+</ul>
+<p>Tradeoff：</p>
+<ul>
+<li>false positive possible。</li>
+<li>false negative no, if implemented correctly。</li>
+</ul>
+<h4 id="count-min-sketch">Count-Min Sketch</h4>
+<p>用途：近似计数。</p>
+<p>适合：</p>
+<ul>
+<li>ad click counts。</li>
+<li>trending item。</li>
+<li>hot key detection。</li>
+</ul>
+<p>Tradeoff：</p>
+<ul>
+<li>over-estimates count。</li>
+<li>memory 小，速度快。</li>
+</ul>
+<h4 id="hyperloglog">HyperLogLog</h4>
+<p>用途：估算 distinct count。</p>
+<p>适合：</p>
+<ul>
+<li>daily active users。</li>
+<li>unique viewers。</li>
+<li>unique IPs。</li>
+</ul>
+<p>Tradeoff：</p>
+<ul>
+<li>approximate，不适合 billing truth。</li>
+</ul>
+<h4 id="heap-top-k">Heap / Top-K</h4>
+<p>用途：维护 top K。</p>
+<p>适合：</p>
+<ul>
+<li>top videos。</li>
+<li>top search queries。</li>
+<li>leaderboard candidate merge。</li>
+</ul>
+<p>For distributed top K：</p>
+<pre><code class="language-">local top K per shard -&gt; global merge top K</code></pre>
+<h4 id="lsm-tree">LSM Tree</h4>
+<p>用途：解释高写入数据库如 Cassandra/RocksDB/LevelDB。</p>
+<p>思路：</p>
+<ul>
+<li>writes 先到 memtable / WAL。</li>
+<li>flush to SSTable。</li>
+<li>background compaction。</li>
+<li>Bloom filter 减少无效 disk lookup。</li>
+</ul>
+<h4 id="interview-answer-8">Interview answer</h4>
+<blockquote>I would bring up specialized data structures when they match the bottleneck. Bloom filters reduce expensive negative lookups, Count-Min Sketch estimates high-volume counters, HyperLogLog estimates unique counts, heaps support Top-K, and LSM trees explain write-optimized storage. I would also call out approximation error and whether the result is safe for user-facing display or financial truth.</blockquote>
+<h3 id="9-storage-choice-interview-cheat-sheet">9. Storage Choice Interview Cheat Sheet</h3>
+<h4 id="quick-mapping">Quick mapping</h4>
+<div class="table-wrap"><table><thead><tr><th>Need</th><th>Good choice</th></tr></thead><tbody><tr><td>Transaction / constraints</td><td>Postgres / MySQL</td></tr>
+<tr><td>High-scale key-value</td><td>DynamoDB / Cassandra</td></tr>
+<tr><td>Append event log</td><td>Kafka</td></tr>
+<tr><td>Text search</td><td>Elasticsearch / OpenSearch</td></tr>
+<tr><td>Large files</td><td>Object storage</td></tr>
+<tr><td>Cache / counters / sorted sets</td><td>Redis</td></tr>
+<tr><td>Analytics / OLAP</td><td>BigQuery / Snowflake / ClickHouse</td></tr>
+<tr><td>Graph traversal</td><td>Graph DB or graph projection</td></tr>
+<tr><td>Time-series metrics</td><td>Timescale / Influx / Prometheus style TSDB</td></tr></tbody></table></div>
+<h4 id="how-to-say-it-in-interview">How to say it in interview</h4>
+<p>不要说“我会用 X because scalable”。要说：</p>
+<blockquote>The access pattern is [key/range/search/transaction/blob/analytics]. The correctness requirement is [strong/eventual]. The expected scale is [QPS/storage/latency]. Therefore I would choose [store] for the source of truth and use [derived store] for the read-optimized view.</blockquote>
+<h4 id="example">Example</h4>
+<p>For search:</p>
+<pre><code class="language-">Postgres = source of truth
+Kafka CDC = change stream
+Elasticsearch = derived search index</code></pre>
+<p>For feed:</p>
+<pre><code class="language-">Post table = source of truth
+Timeline table = read model
+Redis = hot cache
+Kafka = fanout event bus</code></pre>
+<h4 id="interview-answer-9">Interview answer</h4>
+<blockquote>I would choose storage based on access pattern and correctness. The primary database should protect the source of truth. Caches, search indexes, counters, timelines, and OLAP tables are derived stores optimized for specific reads. Every derived store needs an update path, idempotency, monitoring, and a rebuild strategy.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

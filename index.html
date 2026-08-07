@@ -1,0 +1,284 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<script>
+if (location.pathname === "/code/" || location.pathname === "/code") {
+  document.documentElement.setAttribute("data-root-redirect", "true");
+  location.replace("/code/index.html" + location.search + location.hash);
+}
+</script>
+<title>Interview Study Hub</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23070b14'/%3E%3Cpath d='M14 18h36M14 32h28M14 46h36' stroke='%2367e8f9' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M42 20l8 8-8 8' fill='none' stroke='%23fde68a' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"/>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#070b14;
+  --text:#e6eefb;
+  --muted:#9fb0ca;
+  --line:rgba(148,163,184,.2);
+  --panel:rgba(15,23,42,.72);
+  --shadow:0 22px 60px rgba(0,0,0,.34);
+}
+*{box-sizing:border-box}
+html[data-root-redirect="true"] body{display:none}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 18% 10%, rgba(103,232,249,.14), transparent 25%),
+    radial-gradient(circle at 82% 8%, rgba(196,181,253,.12), transparent 24%),
+    linear-gradient(135deg,#070b14 0%,#0b1020 48%,#08111f 100%);
+}
+a{color:inherit;text-decoration:none}
+.shell{
+  width:min(1320px, calc(100% - 32px));
+  margin:0 auto;
+  padding:22px 0 34px;
+}
+.header{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin:0 0 22px;
+}
+.logo{
+  width:44px;
+  height:44px;
+  flex:0 0 auto;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  background:
+    linear-gradient(145deg, rgba(103,232,249,.18), rgba(253,230,138,.12)),
+    rgba(15,23,42,.82);
+  border:1px solid rgba(103,232,249,.34);
+}
+.logo svg{width:26px;height:26px}
+.header h1{
+  margin:0;
+  font-size:32px;
+  line-height:1.02;
+  letter-spacing:-.03em;
+}
+.header p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:14px;
+}
+.portal-columns{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:28px;
+  align-items:start;
+}
+.section-stack{
+  display:grid;
+  gap:16px;
+}
+.card-section{
+  display:grid;
+  grid-template-columns:92px minmax(0,1fr);
+  gap:14px;
+  align-items:start;
+}
+.card-section h2{
+  margin:0;
+  padding-top:12px;
+  font-size:15px;
+  line-height:1.15;
+  text-align:right;
+}
+.section-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+.misc-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+.site-card{
+  min-width:0;
+  min-height:70px;
+  padding:14px 30px 14px 14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(15,23,42,.84), rgba(15,23,42,.62));
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+  transition:transform 150ms ease,border-color 150ms ease,background 150ms ease;
+}
+.site-card::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto 0;
+  height:3px;
+  background:var(--accent);
+}
+.site-card:hover,.site-card:focus-visible{
+  transform:translateY(-3px);
+  border-color:color-mix(in srgb, var(--accent) 50%, rgba(148,163,184,.2));
+  background:linear-gradient(180deg, rgba(30,41,59,.88), rgba(15,23,42,.7));
+  outline:none;
+}
+.open{
+  position:absolute;
+  top:11px;
+  right:11px;
+  color:var(--muted);
+  font-size:12px;
+}
+.alert-badge{
+  position:absolute;
+  top:10px;
+  right:30px;
+  width:15px;
+  height:15px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:#ef4444;
+  color:#fff;
+  border:1px solid rgba(254,202,202,.78);
+  font:900 9px/1 "Cascadia Code","JetBrains Mono",Consolas,monospace;
+}
+.site-card h3{
+  margin:0;
+  font-size:14px;
+  line-height:1.24;
+  font-weight:560;
+  letter-spacing:-.01em;
+}
+.misc-grid .site-card{
+  min-height:44px;
+  padding:8px 20px 8px 10px;
+  border-radius:9px;
+}
+.misc-grid .site-card::before{
+  height:2px;
+}
+.misc-grid .site-card h3{
+  font-size:12px;
+  line-height:1.15;
+  font-weight:520;
+}
+.misc-grid .site-card .open{
+  top:7px;
+  right:7px;
+  font-size:10px;
+}
+.misc-grid .site-card .alert-badge{
+  display:none;
+}
+@media (max-width: 980px){
+  .portal-columns{grid-template-columns:1fr}
+}
+@media (max-width: 760px){
+  .shell{width:min(100% - 18px, 1320px);padding-top:14px}
+  .header h1{font-size:28px}
+  .card-section{
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+  .card-section h2{
+    padding-top:0;
+    text-align:left;
+  }
+  .section-grid,.misc-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 520px){
+  .section-grid,.misc-grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="header">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 64 64" role="img">
+        <rect x="6" y="8" width="34" height="48" rx="8" fill="none" stroke="#67e8f9" stroke-width="5"/>
+        <path d="M17 22h15M17 32h15M17 42h11" stroke="#e5eefb" stroke-width="4" stroke-linecap="round"/>
+        <path d="M39 22l10 10-10 10" fill="none" stroke="#fde68a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Study Portal</h1>
+      <p>Choose one main reader.</p>
+    </div>
+  </div>
+
+  <main class="portal-columns" aria-label="Main reader links">
+    <div class="section-stack" aria-label="Primary reader links">
+      <section class="card-section">
+        <h2>Code</h2>
+        <div class="section-grid">
+          <a class="site-card" href="day_100.html" style="--accent:#86efac"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>Day_100</h3></a>
+          <a class="site-card" href="lc_oop.html" style="--accent:#a7f3d0"><span class="open">↗</span><h3>LC OOP Design</h3></a>
+        </div>
+      </section>
+
+      <section class="card-section">
+        <h2>System Design</h2>
+        <div class="section-grid">
+          <a class="site-card" href="system.html" style="--accent:#f0abfc"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>System Design &amp; MLE</h3></a>
+          <a class="site-card" href="sd_july14.html" style="--accent:#5eead4"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>System Design 28</h3></a>
+          <a class="site-card" href="adt.html" style="--accent:#c4b5fd"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>Adt</h3></a>
+        </div>
+      </section>
+
+      <section class="card-section">
+        <h2>AI</h2>
+        <div class="section-grid">
+          <a class="site-card" href="aiInfraInterview.html" style="--accent:#86efac"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>AI Infra Interview Prep</h3></a>
+          <a class="site-card" href="mlQuestion.html" style="--accent:#67e8f9"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>ML Question Interview Prep</h3></a>
+        </div>
+      </section>
+
+      <section class="card-section">
+        <h2>Cheatsheet</h2>
+        <div class="section-grid">
+          <a class="site-card" href="cheatsheet.html" style="--accent:#5eead4"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>Tech Cheatsheet</h3></a>
+          <a class="site-card" href="pythonCS.html" style="--accent:#fcd34d"><span class="open">↗</span><h3>Python CS</h3></a>
+        </div>
+      </section>
+    </div>
+
+    <div class="section-stack" aria-label="Secondary reader links">
+      <section class="card-section">
+        <h2>Misc</h2>
+        <div class="section-grid misc-grid">
+          <a class="site-card" href="aiInfraGithub.html" style="--accent:#86efac"><span class="open">↗</span><h3>AI Infra GitHub</h3></a>
+          <a class="site-card" href="enterpriseAI.html" style="--accent:#fde68a"><span class="open">↗</span><h3>Enterprise AI</h3></a>
+          <a class="site-card" href="deployed_eng.html" style="--accent:#f472b6"><span class="open">↗</span><h3>DFE</h3></a>
+          <a class="site-card" href="netneo.html" style="--accent:#fb7185"><span class="open">↗</span><h3>Ads</h3></a>
+          <a class="site-card" href="tik.html" style="--accent:#a78bfa"><span class="open">↗</span><h3>Tik</h3></a>
+          <a class="site-card" href="nv.html" style="--accent:#76b900"><span class="open">↗</span><h3>Nv</h3></a>
+          <a class="site-card" href="ondevice.html" style="--accent:#67e8f9"><span class="open">↗</span><h3>On-Device AI</h3></a>
+        </div>
+      </section>
+
+      <section class="card-section">
+        <h2>July</h2>
+        <div class="section-grid">
+          <a class="site-card" href="ai_eng.html" style="--accent:#86efac"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>Wolf AI Engineering</h3></a>
+          <a class="site-card" href="xxxxx.html" style="--accent:#67e8f9"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>AV AI Infra</h3></a>
+          <a class="site-card" href="meta.html" style="--accent:#60a5fa"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>Video ML Foundations</h3></a>
+          <a class="site-card" href="py_ds.html" style="--accent:#facc15"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>Python / ML / AI / DL Interview Prep</h3></a>
+          <a class="site-card" href="wolf_aug.html" style="--accent:#ef4444"><span class="alert-badge" aria-label="Priority">!</span><span class="open">↗</span><h3>Wolf Triage</h3></a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>
+
+

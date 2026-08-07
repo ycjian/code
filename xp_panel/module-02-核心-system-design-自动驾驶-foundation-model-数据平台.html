@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>2. 核心 System Design：自动驾驶 Foundation Model 数据平台 - XPENG Panel Interview</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/aiInfraInterview-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Module 3 / 20 · Senior Staff AI Infrastructure</p>
+          <h1 class="route-title">2. 核心 System Design：自动驾驶 Foundation Model 数据平台</h1>
+          <p class="route-subtitle">XPENG Panel Interview · Module 3 of 20</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#2-1-先澄清需求">2.1 先澄清需求</a><a href="#2-2-总体架构-一口气讲清">2.2 总体架构（一口气讲清）</a><a href="#2-3-数据平面与控制平面">2.3 数据平面与控制平面</a><a href="#2-4-fleet-ingestion-弱网络下仍可靠">2.4 Fleet ingestion：弱网络下仍可靠</a><a href="#2-5-多模态同步与数据模型">2.5 多模态同步与数据模型</a><a href="#2-6-存储组织-pb-eb-scale-的回答">2.6 存储组织：PB/EB scale 的回答</a><a href="#2-7-dataset-as-code-版本-血缘-复现">2.7 Dataset as Code：版本、血缘、复现</a><a href="#2-8-dataset-quality-不要只回答-label-accuracy">2.8 Dataset quality：不要只回答“label accuracy”</a><a href="#2-9-data-flywheel-模型失败如何回流">2.9 Data flywheel：模型失败如何回流</a><a href="#2-10-reliability-observability">2.10 Reliability / Observability</a></nav>
+        </header>
+        <h2 id="2-核心-system-design-自动驾驶-foundation-model-数据平台">2. 核心 System Design：自动驾驶 Foundation Model 数据平台</h2>
+<h3 id="2-1-先澄清需求">2.1 先澄清需求</h3>
+<p>可以问面试官：</p>
+<ul>
+<li>输入有哪些：camera、LiDAR、radar、IMU/GPS、CAN bus、HD map、driver action、planner trajectory？</li>
+<li>单次训练样本是 frame、clip 还是 episode？典型时间窗口和采样频率？</li>
+<li>fleet upload 是全量、trigger-based 还是 edge filtering？网络是否间歇连接？</li>
+<li>主要场景是 offline training，还是还要求 near-real-time failure mining？</li>
+<li>数据规模、每日增量、保留策略、跨地域要求？</li>
+<li>annotation 是人工、auto-label、simulation，还是混合？</li>
+<li>最重要的 SLO 是 data freshness、dataset reproducibility、GPU feeding throughput 还是 cost？</li>
+</ul>
+<p>若对方不给数字，明确假设：</p>
+<blockquote>“为了推进设计，我假设 PB–EB 级历史数据、每日持续增量、单个 trip 包含多路大对象和高频 telemetry；训练按 clip/episode 读取，offline throughput 优先于单样本 latency。具体数字会影响 partition 和 capacity planning，但不改变核心抽象。”</blockquote>
+<h3 id="2-2-总体架构-一口气讲清">2.2 总体架构（一口气讲清）</h3>
+<pre><code class="language-text">Vehicle / Simulation / Lab
+  └─ Edge recorder + trigger + local manifest + checksum
+       └─ resumable multipart upload / store-and-forward
+            └─ Ingestion gateway + durable event log
+                 ├─ Raw immutable object store (source of truth)
+                 ├─ Manifest / metadata catalog / lineage graph
+                 └─ Validation + quarantine
+                       └─ Distributed processing (decode, sync, enrich, auto-label)
+                            ├─ Curated scenario/feature tables
+                            ├─ Search/index for scenario mining
+                            └─ Dataset builder (declarative DatasetSpec)
+                                  └─ Versioned immutable snapshot
+                                       └─ Sharding / packing / cache
+                                            └─ Training loader → GPU training
+                                                 └─ Evaluation / failure mining
+                                                      └─ New DatasetSpec / labels</code></pre>
+<p>横切能力：<code>IAM / policy / PII</code>, schema registry, orchestration, resource scheduler, data quality, observability, cost attribution, retention/deletion。</p>
+<h3 id="2-3-数据平面与控制平面">2.3 数据平面与控制平面</h3>
+<p><strong>Data plane</strong> 传输大对象：sensor blobs、clips、point clouds、shards。走 object storage、multipart upload、range read、local cache；不要让 Kafka 承载视频本体。</p>
+<p><strong>Control plane</strong> 管理小而关键的描述信息：manifest、event、schema、job state、dataset spec、lineage、ACL。可以通过 durable log + transactional metadata store/catalog 驱动异步状态机。</p>
+<p>关键回答：</p>
+<blockquote>“大对象和 metadata 分离。blob 用 immutable content-addressed/object key 存储，metadata 用强约束 schema 和事务更新。两者用 <code>artifact_id + checksum + schema_version</code> 关联。这样 retry 不会重复写大对象，catalog 也能做 lineage、search 和 delete propagation。”</blockquote>
+<h3 id="2-4-fleet-ingestion-弱网络下仍可靠">2.4 Fleet ingestion：弱网络下仍可靠</h3>
+<p>车端：</p>
+<ul>
+<li>Ring buffer 保存最近窗口；由 trigger/event selector 选择上传片段，避免全量回传。</li>
+<li>先生成 manifest：vehicle/session、sensor list、time range、calibration version、size、checksum、privacy classification。</li>
+<li>大文件分 chunk；resumable multipart、compression、bandwidth throttling、优先级队列。</li>
+<li><code>store-and-forward</code>：断网后保留进度；上传成功必须由服务端 checksum ACK 确认。</li>
+</ul>
+<p>云端：</p>
+<ul>
+<li>Gateway 做 auth、rate limit、upload session、region routing。</li>
+<li>先落 raw immutable zone，再发布 <code>ObjectCommitted</code> event；不要先发事件后写 blob。</li>
+<li>重试以 deterministic <code>artifact_id</code> 或 <code>(vehicle_id, session_id, sensor, chunk_seq)</code> 做 idempotency key。</li>
+<li>validator 校验 checksum、manifest 完整性、timestamp monotonicity、sensor coverage、schema compatibility；失败进 quarantine，不污染 curated dataset。</li>
+<li>定期 reconciler 对比 object store 和 catalog，处理“blob 成功但 metadata 失败”等 orphan state。</li>
+</ul>
+<p><strong>Exactly-once 怎么说：</strong></p>
+<blockquote>“端到端物理 exactly-once 很昂贵，我不会轻易承诺。我会采用 at-least-once delivery，加 deterministic id、idempotent sink、transactional metadata commit 和 periodic reconciliation，实现业务语义上的 effectively-once。”</blockquote>
+<h3 id="2-5-多模态同步与数据模型">2.5 多模态同步与数据模型</h3>
+<p>推荐层次：</p>
+<ul>
+<li><code>DriveSession</code>：vehicle、route、software build、weather、region、start/end。</li>
+<li><code>SensorStream</code>：sensor type、intrinsics/extrinsics、frequency、clock domain、codec。</li>
+<li><code>Frame/Packet</code>：timestamp、sequence、blob URI、checksum、quality flags。</li>
+<li><code>EgoState/Action/Trajectory</code>：pose、velocity、control、planned/executed trajectory。</li>
+<li><code>ScenarioClip</code>：time window + participating streams + scenario tags + quality score。</li>
+<li><code>Annotation</code>：label schema/version、source（human/auto/sim）、confidence、review state。</li>
+<li><code>DatasetVersion</code>：DatasetSpec、resolved members/snapshot、transform code/env、lineage、statistics。</li>
+</ul>
+<p>同步策略：</p>
+<ul>
+<li>保存 <strong>event time</strong> 与 <strong>ingest time</strong>，不要混用。</li>
+<li>每个 sensor 保留自己的 timestamp 和 clock source；以 ego/world timeline 建统一索引。</li>
+<li>使用 calibration version 和 pose interpolation，将 observation 投影到统一 coordinate frame。</li>
+<li>对可容忍误差定义 alignment window；缺失数据不能悄悄填充，写入 <code>missing/modality_mask</code>。</li>
+<li>重采样方式必须版本化：nearest neighbor、linear interpolation、aggregation 的语义不同。</li>
+<li>训练切片必须防止未来信息泄漏，即 <strong>temporal leakage</strong>。</li>
+</ul>
+<h3 id="2-6-存储组织-pb-eb-scale-的回答">2.6 存储组织：PB/EB scale 的回答</h3>
+<p>分层：</p>
+<ol>
+<li><strong>Raw zone</strong>：immutable、按 retention 分层，保留原始证据和 replay 能力。</li>
+<li><strong>Curated zone</strong>：标准化、校准、清洗后的 columnar/table data。</li>
+<li><strong>Dataset zone</strong>：面向训练的 immutable snapshot 和 packed shards。</li>
+<li><strong>Hot cache</strong>：训练集本地 NVMe / distributed cache，生命周期短。</li>
+</ol>
+<p>格式与索引：</p>
+<ul>
+<li>大 binary media 放 object store；结构化 metadata 用 Parquet + Iceberg/Delta 类 table format。</li>
+<li>Parquet 擅长 column pruning / predicate pushdown；不是视频随机解码格式。</li>
+<li>训练时按访问模式生成较大 sequential shards，避免 millions of small files 和随机 GET。</li>
+<li>空间/时间/scene tag 建二级索引；向量 embedding 适合语义场景检索，但不能替代权威 metadata catalog。</li>
+<li>Partition 选择低/中基数且常过滤的字段，如 date/region/source；不要直接按高基数 vehicle_id 产生碎片。</li>
+</ul>
+<p>成本策略：hot/warm/cold tier、lifecycle policy、deduplication、derived artifact TTL、cache admission、跨 region egress 控制。删除必须通过 lineage 传播到派生数据，并保留 audit。</p>
+<h3 id="2-7-dataset-as-code-版本-血缘-复现">2.7 Dataset as Code：版本、血缘、复现</h3>
+<p>定义声明式 <code>DatasetSpec</code>：</p>
+<pre><code class="language-yaml">name: urban_night_v3
+sources:
+  snapshot: curated_frames@2026-07-10
+filters:
+  region: [urban]
+  lighting: [night]
+  quality_score_gte: 0.95
+sampling:
+  strata: [scenario_type, weather, region]
+  rare_event_weight: 4.0
+transforms:
+  code_sha: abc123
+  image_decoder: v5
+labels:
+  schema: trajectory_label_v7
+split:
+  group_by: drive_session
+  seed: 42</code></pre>
+<p>一个可复现 dataset version 必须 pin：</p>
+<ul>
+<li>source table snapshot / manifest；</li>
+<li>resolved sample IDs，而不只是一个会随时间变化的 SQL query；</li>
+<li>transform code SHA、container image digest、dependency/environment；</li>
+<li>annotation schema 和 calibration/map/software version；</li>
+<li>sampling seed、split policy、statistics 和 validation report。</li>
+</ul>
+<p>版本是 <strong>immutable</strong>。修正数据产生新版本；用 alias（<code>candidate</code>, <code>production</code>）做 promotion，不原地修改。Dataset lineage 记录 <code>raw → validated → transformed → labeled → dataset → model checkpoint → evaluation</code>。</p>
+<h3 id="2-8-dataset-quality-不要只回答-label-accuracy">2.8 Dataset quality：不要只回答“label accuracy”</h3>
+<p>质量分六层：</p>
+<ol>
+<li><strong>Integrity</strong>：文件可读、checksum、schema、sensor completeness、timestamp continuity。</li>
+<li><strong>Label quality</strong>：accuracy、inter-annotator agreement、confidence、golden set、review rate。</li>
+<li><strong>Coverage</strong>：ODD、region、weather、lighting、road type、actor type、maneuver。</li>
+<li><strong>Distribution</strong>：与 target deployment distribution 的偏差、class imbalance、duplicate rate。</li>
+<li><strong>Leakage / split hygiene</strong>：同一 trip/route/near-duplicate 不能跨 train/test。</li>
+<li><strong>Utility</strong>：在固定训练 budget 下，对关键 evaluation slice、closed-loop metric 和 failure rate 的边际提升。</li>
+</ol>
+<p>一句高级回答：</p>
+<blockquote>“数据质量不是单一静态 score。最终判断是 dataset 对目标模型和关键 safety slice 的 marginal utility；但在训练前仍要用 integrity、coverage、label、distribution 和 leakage guardrail 阻断明显坏数据。”</blockquote>
+<p>可用方法：</p>
+<ul>
+<li>以 scenario taxonomy 建 coverage cube 和 minimum quota。</li>
+<li>Perceptual hash / embedding 做 near-duplicate removal。</li>
+<li>Golden set + spot audit + model disagreement 做 label QA。</li>
+<li>比较 dataset 与 fleet/target distribution 的 PSI/KL/Jensen–Shannon（注意解释假设）。</li>
+<li>用 slice-based evaluation 看 rare scenarios，不能只看全局平均。</li>
+<li>记录 dataset ablation / data attribution 结果，避免“数据越多越好”。</li>
+</ul>
+<h3 id="2-9-data-flywheel-模型失败如何回流">2.9 Data flywheel：模型失败如何回流</h3>
+<pre><code class="language-text">Fleet / Simulation
+ → trigger &amp; upload
+ → scenario mining
+ → dedup / diversity sampling
+ → human + auto labeling
+ → quality gates
+ → dataset version
+ → train
+ → offline + simulation + closed-loop evaluation
+ → failure slice / uncertainty / disagreement
+ → prioritized recollection or relabeling</code></pre>
+<p>优先级不只看 uncertainty：还要综合 severity、frequency、novelty、coverage gap、labeling cost 和 expected information gain。对 safety-critical long-tail，低频不等于低优先级。</p>
+<p>防止 feedback loop bias：保留无偏 fleet sample 作为基线；failure mining sample 与自然分布 sample 分开标识；训练时明确 reweighting；evaluation set 独立冻结，避免不断针对 test set 优化。</p>
+<h3 id="2-10-reliability-observability">2.10 Reliability / Observability</h3>
+<p>四类信号：</p>
+<ul>
+<li><strong>System metrics</strong>：bytes/s、records/s、queue lag、task latency、retry、worker utilization、cache hit、object GET latency。</li>
+<li><strong>Data metrics</strong>：freshness、completeness、schema drift、null/missing modality、duplicate、distribution drift。</li>
+<li><strong>Training-facing metrics</strong>：time-to-first-batch、batch wait、samples/s、GPU data stall、shard skew。</li>
+<li><strong>Business/model metrics</strong>：dataset build lead time、failure slice coverage、model improvement per dataset version。</li>
+</ul>
+<p>每个 artifact 和 job 带 <code>trace_id / dataset_version / code_sha</code>。Dashboard 按 stage 分解 throughput 和 latency；告警针对 SLO burn rate，而不是每次短抖动。失败任务保留 structured error、input lineage 和 retry history，支持 replay。</p>
+<hr/>
+        <nav class="pager" aria-label="Module navigation">
+    <a href="module-01-面试时的通用回答协议.html">← 1. 面试时的通用回答协议</a>
+    <a class="next" href="module-03-gpu-利用率低-training-throughput-不足-标准诊断答案.html">3. GPU 利用率低 / Training Throughput 不足：标准诊断答案 →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

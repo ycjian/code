@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Vllm Cheat Sheet — Fast LLM Inference And Serving</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>Vllm Cheat Sheet — Fast LLM Inference And Serving</h1>
+<p>LLM serving interviews + daily deployment</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>vLLM CHEAT SHEET — Fast LLM Inference and Serving<br/>Purpose: LLM serving interviews + daily deployment</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. vLLM mental model</h2>
+<div class="section-body"><p>vLLM is an inference/serving engine for LLMs.</p>
+<h3>Common use cases</h3>
+<ul><li>offline batched inference</li></ul>
+<ul><li>OpenAI-compatible online serving</li></ul>
+<ul><li>high-throughput generation</li></ul>
+<ul><li>GPU-efficient serving</li></ul>
+<h3>Key concepts</h3>
+<pre><code class="language-text">LLM engine
+SamplingParams
+OpenAI-compatible server
+continuous batching
+KV cache
+tensor parallelism
+data parallelism
+prefix caching
+metrics</code></pre>
+<p>中文: vLLM 的价值是把 LLM serving 做得更快、更省 GPU,特别适合高吞吐在线服务。</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Install</h2>
+<div class="section-body"><pre><code class="language-bash">pip install vllm</code></pre>
+<h3>Often recommended with uv</h3>
+<pre><code class="language-bash">uv venv .venv --python 3.12 --seed
+source .venv/bin/activate
+uv pip install vllm</code></pre>
+<h3>Check</h3>
+<pre><code class="language-bash">vllm --help</code></pre></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Offline inference</h2>
+<div class="section-body"><pre><code class="language-python">from vllm import LLM, SamplingParams
+
+prompts = [
+    "Explain vector databases in one paragraph.",
+    "Write a Python function for binary search.",
+]
+
+sampling_params = SamplingParams(
+    temperature=0.7,
+    top_p=0.95,
+    max_tokens=128,
+)
+
+llm = LLM(model="meta-llama/Llama-3.1-8B-Instruct")
+outputs = llm.generate(prompts, sampling_params)
+
+for output in outputs:
+    print("PROMPT:", output.prompt)
+    print("OUTPUT:", output.outputs[0].text)</code></pre>
+<h3>Key</h3>
+<ul><li>LLM loads model.</li></ul>
+<ul><li>SamplingParams controls decoding.</li></ul>
+<ul><li>generate accepts batch of prompts.</li></ul></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Sampling parameters</h2>
+<div class="section-body"><pre><code class="language-text">temperature: randomness. lower = deterministic.
+top_p: nucleus sampling.
+max_tokens: max generated tokens.
+stop: stop sequences.
+presence_penalty / frequency_penalty: discourage repetition.</code></pre>
+<h3>Interview</h3>
+<ul><li>deterministic coding/extraction: temperature=0</li></ul>
+<ul><li>creative generation: temperature around 0.7</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. OpenAI-compatible server</h2>
+<div class="section-body"><h3>Start server</h3>
+<pre><code class="language-bash">vllm serve meta-llama/Llama-3.1-8B-Instruct \
+  --dtype auto \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --api-key token-abc123</code></pre>
+<h3>Call with OpenAI Python client</h3>
+<pre><code class="language-python">from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:8000/v1",
+    api_key="token-abc123",
+)
+
+resp = client.chat.completions.create(
+    model="meta-llama/Llama-3.1-8B-Instruct",
+    messages=[
+        {"role": "user", "content": "Explain vLLM in one sentence."}
+    ],
+    temperature=0.0,
+)
+
+print(resp.choices[0].message.content)</code></pre>
+<h3>Curl</h3>
+<pre><code class="language-bash">curl http://localhost:8000/v1/chat/completions \
+  -H "Authorization: Bearer token-abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "messages": [{"role": "user", "content": "hello"}],
+    "max_tokens": 50
+  }'</code></pre></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Docker serving</h2>
+<div class="section-body"><pre><code class="language-bash">docker run --runtime nvidia --gpus all \
+  -v ~/.cache/huggingface:/root/.cache/huggingface \
+  -p 8000:8000 \
+  vllm/vllm-openai:latest \
+  --model meta-llama/Llama-3.1-8B-Instruct \
+  --api-key token-abc123</code></pre></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Tensor parallelism</h2>
+<div class="section-body"><p>Use when model does not fit on one GPU or to increase throughput.</p>
+<pre><code class="language-bash">vllm serve meta-llama/Llama-3.1-70B-Instruct \
+  --tensor-parallel-size 4</code></pre>
+<p>Meaning: split model weights across 4 GPUs.</p></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Data parallelism</h2>
+<div class="section-body"><h3>Use multiple model replicas to handle more requests. Usually done with</h3>
+<ul><li>multiple vLLM processes</li></ul>
+<ul><li>Kubernetes replicas</li></ul>
+<ul><li>load balancer</li></ul>
+<ul><li>Ray/other orchestrator</li></ul></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Memory and KV cache</h2>
+<div class="section-body"><h3>LLM serving memory includes</h3>
+<ul><li>model weights</li></ul>
+<ul><li>KV cache for active requests</li></ul>
+<ul><li>temporary activations</li></ul>
+<ul><li>CUDA overhead</li></ul>
+<h3>KV cache grows with</h3>
+<ul><li>batch size</li></ul>
+<ul><li>sequence length</li></ul>
+<ul><li>number of concurrent requests</li></ul>
+<ul><li>hidden size/layers</li></ul>
+<h3>Common tuning</h3>
+<pre><code class="language-bash">--gpu-memory-utilization 0.9
+--max-model-len 8192
+--max-num-seqs 128</code></pre>
+<p>Longer context and more concurrent requests need more KV cache.</p></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Quantization</h2>
+<div class="section-body"><h3>Use quantization to reduce memory</h3>
+<pre><code class="language-text">AWQ
+GPTQ
+bitsandbytes
+FP8
+INT8/INT4 depending on model/hardware support</code></pre>
+<p>Tradeoff: lower memory, sometimes faster, possible quality loss, hardware compatibility matters.</p></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Prefix caching</h2>
+<div class="section-body"><h3>Use when many requests share the same prefix</h3>
+<ul><li>system prompt</li></ul>
+<ul><li>long instructions</li></ul>
+<ul><li>few-shot examples</li></ul>
+<ul><li>RAG template</li></ul>
+<p>Benefit: reuse computation for repeated prefixes, reducing latency/cost.</p></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Chat templates</h2>
+<div class="section-body"><p>Instruction models need correct chat template. Tokenizer often provides it.</p>
+<p>Failure mode: wrong prompt/chat format can badly degrade quality.</p></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Production serving architecture</h2>
+<div class="section-body"><pre><code class="language-text">Client
+ -&gt; API Gateway / Auth / Rate Limit
+ -&gt; Router / Load Balancer
+ -&gt; vLLM replicas
+ -&gt; GPU nodes
+ -&gt; Metrics/logging/tracing</code></pre>
+<h3>Kubernetes</h3>
+<ul><li>Deployment with GPU requests</li></ul>
+<ul><li>Service</li></ul>
+<ul><li>Ingress/Gateway</li></ul>
+<ul><li>HPA/custom autoscaling</li></ul>
+<ul><li>Prometheus metrics</li></ul>
+<ul><li>node selectors/taints</li></ul></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. Metrics to watch</h2>
+<div class="section-body"><ul><li>time to first token (TTFT)</li></ul>
+<ul><li>inter-token latency</li></ul>
+<ul><li>tokens/sec</li></ul>
+<ul><li>requests/sec</li></ul>
+<ul><li>queue time</li></ul>
+<ul><li>batch size</li></ul>
+<ul><li>GPU utilization</li></ul>
+<ul><li>GPU memory</li></ul>
+<ul><li>KV cache usage</li></ul>
+<ul><li>error rate</li></ul>
+<ul><li>p95/p99 latency</li></ul></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>14. Common serving issues</h2>
+<div class="section-body"><h3>OOM</h3>
+<ul><li>reduce max_model_len</li></ul>
+<ul><li>reduce max_num_seqs</li></ul>
+<ul><li>lower gpu_memory_utilization</li></ul>
+<ul><li>use quantization</li></ul>
+<ul><li>more GPUs/tensor parallelism</li></ul>
+<h3>High latency</h3>
+<ul><li>reduce output tokens</li></ul>
+<ul><li>increase replicas</li></ul>
+<ul><li>separate long/short requests</li></ul>
+<ul><li>tune batching</li></ul>
+<ul><li>use prefix caching</li></ul>
+<h3>Low throughput</h3>
+<ul><li>increase concurrency</li></ul>
+<ul><li>batching</li></ul>
+<ul><li>use larger GPU</li></ul>
+<ul><li>optimize dtype/quantization</li></ul>
+<h3>Bad model quality</h3>
+<ul><li>check chat template</li></ul>
+<ul><li>check tokenizer</li></ul>
+<ul><li>check prompt format</li></ul>
+<ul><li>check model instruction tuning</li></ul></div>
+</section>
+<section class="section-card" id="sec-16">
+<div class="section-kicker">Section 17</div>
+<h2>15. vLLM vs alternatives</h2>
+<div class="section-body"><pre><code class="language-text">vLLM: high-throughput LLM serving, OpenAI-compatible API
+TGI: Hugging Face serving stack, common for HF models
+Triton: general inference server for many model types
+TorchServe/BentoML: general model serving frameworks
+llama.cpp: local CPU/GPU lightweight inference</code></pre></div>
+</section>
+<section class="section-card" id="sec-17">
+<div class="section-kicker">Section 18</div>
+<h2>16. Interview answer pattern</h2>
+<div class="section-body"><p>Question: How would you serve an open-source LLM?</p>
+<h3>Answer</h3>
+<p>I would use vLLM when the goal is high-throughput online LLM serving. I would expose the OpenAI-compatible server behind an API gateway, run multiple GPU-backed replicas on Kubernetes, configure tensor parallelism if the model does not fit on one GPU, and monitor TTFT, tokens/sec, queue time, GPU memory, and p95 latency. I would tune max context length, concurrency, and KV cache usage, and use quantization or prefix caching if needed.</p></div>
+</section>
+<section class="section-card" id="sec-18">
+<div class="section-kicker">Section 19</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. vLLM mental model<br/>------------------------------------------------------------<br/>vLLM is an LLM serving engine optimized for high-throughput autoregressive generation through continuous batching, PagedAttention/KV-cache management, OpenAI-compatible APIs, and distributed inference.</p>
+<p>B. Why LLM serving is special<br/>------------------------------------------------------------<br/>Autoregressive generation has prefill and decode. Prefill processes prompt tokens in parallel and is compute-heavy. Decode emits one token at a time and is often memory-bandwidth/KV-cache bound. Request lengths vary, so static batching wastes capacity.</p>
+<p>C. KV cache deep dive<br/>------------------------------------------------------------<br/>The model stores key/value tensors per layer for previous tokens. KV memory grows with batch size, sequence length, layer count, hidden size/heads, and dtype. Long context and high concurrency can OOM even when weights fit.</p>
+<p>D. PagedAttention<br/>------------------------------------------------------------<br/>PagedAttention splits KV cache into blocks and maps logical token blocks to physical GPU-memory blocks, similar to virtual memory. It reduces fragmentation, supports larger effective batches, and improves utilization under variable request lengths.</p>
+<p>Tradeoff: block scheduling/memory indirection adds complexity. For tiny single-request latency, simpler stacks can be competitive.</p>
+<p>E. Serving APIs and knobs<br/>------------------------------------------------------------</p>
+<pre><code class="language-bash">python -m vllm.entrypoints.openai.api_server \
+  --model meta-llama/Llama-3.1-8B-Instruct \
+  --tensor-parallel-size 2 \
+  --max-model-len 8192</code></pre>
+<pre><code class="language-python">from vllm import LLM, SamplingParams
+llm = LLM(model='meta-llama/Llama-3.1-8B-Instruct')
+params = SamplingParams(temperature=0.2, max_tokens=256)
+outputs = llm.generate(['Explain KV cache'], params)</code></pre>
+<p>Important knobs: <code>max_model_len</code>, <code>gpu_memory_utilization</code>, <code>tensor_parallel_size</code>, quantization, prefix caching, speculative decoding, concurrency/batching limits.</p>
+<p>F. Production needs around vLLM<br/>------------------------------------------------------------<br/>vLLM is not the whole platform. You still need auth, routing, rate limits, prompt templates, safety, model registry/versioning, autoscaling, GPU placement, and observability for TTFT, TPOT, tokens/sec, queue time, KV usage, OOM, and cost.</p>
+<p>G. Failure modes<br/>------------------------------------------------------------<br/>KV-cache OOM, high time-to-first-token from prefill queue, decode bottleneck from memory bandwidth, bad chat template, too much concurrency hurting p95, prefix cache ineffective due unnormalized prompts.</p>
+<p>H. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: What problem does PagedAttention solve?<br/>A: KV-cache fragmentation/waste. It allocates cache in blocks so more sequences fit concurrently.</p>
+<p>Q: What is continuous batching?<br/>A: Scheduler adds/removes requests at token boundaries so GPU stays busy despite variable prompt/output lengths.</p>
+<p>Q: What metrics matter?<br/>A: TTFT, TPOT, tokens/sec, queue time, p95/p99 latency, GPU utilization, KV usage, OOM rate, cost per 1K tokens.</p>
+<p>Q: How handle KV-cache OOM?<br/>A: Reduce max context/concurrency, admission-control long prompts, route long-context to larger GPUs, monitor KV usage, and keep separate SLO tiers.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

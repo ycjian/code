@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Specialized Systems - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="30-specialized-system-design-lld-extras">30. Specialized System Design &amp; LLD Extras</h2>
+<p>这一节继续消化 <code>sd_pages</code> 里还没有完整覆盖的 specialized questions。它们有些原文只有图片或导航噪声，所以这里按题目意图重写成面试可直接讲的版本：先定义 question，再给 approach、数据模型、关键 tradeoff、follow-up 答法。</p>
+<h3 id="1-fitness-tracking-app-strava">1. Fitness Tracking App / Strava</h3>
+<h4 id="question">Question</h4>
+<p>设计 Strava 类 fitness tracking app。用户可以记录跑步/骑行活动，上传 GPS trace，查看距离、速度、路线、历史活动、朋友动态、leaderboard，并可选择实时分享活动位置。</p>
+<h4 id="approach">Approach</h4>
+<p>核心不是“每秒上传 GPS”，而是区分两条路径：</p>
+<ul>
+<li>Activity recording path：移动端本地记录 GPS points，活动结束后批量上传。</li>
+<li>Social/realtime path：只有开启 live sharing 时才定期上传位置。</li>
+</ul>
+<p>这样可以省电、省流量，也减少后端写入压力。</p>
+<h4 id="architecture">Architecture</h4>
+<pre><code class="language-">Mobile App
+  -&gt; Activity API
+  -&gt; Activity Service
+  -&gt; GPS Trace Store / Object Storage
+  -&gt; Activity Metadata DB
+  -&gt; Async Stats Processor
+  -&gt; Feed / Social Service
+  -&gt; Leaderboard Service</code></pre>
+<h4 id="data-model">Data model</h4>
+<pre><code class="language-">activity(activity_id, user_id, type, start_at, end_at, distance, duration, status)
+activity_point(activity_id, seq, lat, lon, elevation, timestamp)
+segment_effort(segment_id, activity_id, user_id, duration, speed)
+leaderboard(scope, activity_type, period, user_id, score)</code></pre>
+<p>GPS points 可以压缩后放 object storage，metadata 放 DB。读 activity detail 时再拉 trace。</p>
+<h4 id="leaderboard">Leaderboard</h4>
+<p>不要每次查询都 scan activities。可以用：</p>
+<ul>
+<li>Daily batch aggregation：适合周/月榜。</li>
+<li>Redis sorted set：适合实时榜。</li>
+<li>Scope key：<code>leaderboard:run:US:2026-07-08</code>。</li>
+</ul>
+<p>活动完成后异步更新 leaderboard。允许 eventual consistency。</p>
+<h4 id="live-sharing-follow-up">Live sharing follow-up</h4>
+<p>如果朋友要看实时位置：</p>
+<ul>
+<li>athlete device 每 2-5 秒上传 location update。</li>
+<li>viewer 可以 polling / SSE / WebSocket。</li>
+<li>位置展示可以故意 buffer 5-10 秒，让动画更平滑。</li>
+<li>不必为了秒级精度过度设计。</li>
+</ul>
+<h4 id="interview-answer">Interview answer</h4>
+<blockquote>I would keep normal activity recording mostly client-side and upload the full trace after completion. The server stores metadata separately from compressed GPS traces. Derived stats, social feed items, segment efforts, and leaderboards are updated asynchronously. For live sharing, I would upload periodic location updates and choose polling, SSE, or WebSocket based on fanout and freshness requirements.</blockquote>
+<h3 id="2-news-aggregator-google-news">2. News Aggregator / Google News</h3>
+<h4 id="question-2">Question</h4>
+<p>设计 Google News 类 news aggregator。系统要抓取多来源新闻，去重相似文章，按 topic 聚类，排序展示，并支持搜索、个性化和 breaking news。</p>
+<h4 id="approach-2">Approach</h4>
+<p>新闻系统的核心是 ingestion + dedup + ranking：</p>
+<pre><code class="language-">Source Crawlers
+  -&gt; Article Parser
+  -&gt; Canonical Article Store
+  -&gt; Dedup / Clustering
+  -&gt; Search Index
+  -&gt; Ranking / Personalization
+  -&gt; News API</code></pre>
+<h4 id="data-model-2">Data model</h4>
+<pre><code class="language-">source(source_id, domain, crawl_policy, trust_score)
+article(article_id, source_id, url, title, body_ref, published_at, language)
+cluster(cluster_id, topic, canonical_article_id, article_ids, updated_at)
+user_interest(user_id, topic, score)</code></pre>
+<h4 id="dedup-and-clustering">Dedup and clustering</h4>
+<p>同一新闻会被多个媒体报道。不能只按 URL 去重，要用：</p>
+<ul>
+<li>canonical URL。</li>
+<li>title normalized hash。</li>
+<li>content fingerprint / simhash。</li>
+<li>embedding similarity。</li>
+<li>published time window。</li>
+</ul>
+<p>Cluster 是 derived data，可以重建。</p>
+<h4 id="ranking">Ranking</h4>
+<p>排序信号：</p>
+<ul>
+<li>freshness。</li>
+<li>source authority。</li>
+<li>local relevance。</li>
+<li>topic popularity。</li>
+<li>user interest。</li>
+<li>diversity，避免同一 source 占满首页。</li>
+</ul>
+<p>Breaking news 可以给 freshness boost，但要有可信来源阈值，避免谣言。</p>
+<h4 id="failure-modes">Failure modes</h4>
+<ul>
+<li>crawler 抓取失败：retry + backoff。</li>
+<li>source 内容变更：re-parse。</li>
+<li>duplicate cluster 错误：manual/editorial correction。</li>
+<li>个性化模型失败：fallback to regional top stories。</li>
+</ul>
+<h4 id="interview-answer-2">Interview answer</h4>
+<blockquote>I would design a news aggregator as an ingestion and ranking pipeline. Crawlers fetch articles, parsers normalize content, dedup/clustering groups similar stories, and search/ranking indexes serve user requests. The article store is the source of truth, while clusters and personalized feeds are derived. Ranking balances freshness, authority, relevance, diversity, and safety.</blockquote>
+<h3 id="3-youtube-top-k-videos">3. YouTube Top K Videos</h3>
+<h4 id="question-3">Question</h4>
+<p>设计 YouTube Top K videos feature。按时间窗口返回最热视频，比如全站 top videos、某国家 top videos、某 category top videos。</p>
+<h4 id="core-challenge">Core challenge</h4>
+<p>Top K 看似简单，难点是 event volume 极大，窗口多，维度多，不能每次 query 都 scan。</p>
+<h4 id="architecture-2">Architecture</h4>
+<pre><code class="language-">View / Like / Watch Events
+  -&gt; Kafka
+  -&gt; Stream Processor
+  -&gt; Windowed Counters
+  -&gt; Top-K Aggregator
+  -&gt; Redis / OLAP Store
+  -&gt; Top-K API</code></pre>
+<h4 id="event-schema">Event schema</h4>
+<pre><code class="language-">event_id
+video_id
+user_id_hash
+event_type: view/like/watch_time
+watch_seconds
+country
+category
+timestamp</code></pre>
+<h4 id="algorithm">Algorithm</h4>
+<p>可以两层聚合：</p>
+<ol>
+<li>Per-shard local top K。</li>
+</ol>
+<ul>
+<li>每个 stream task 维护 local heavy hitters。</li>
+<li>定期输出 top candidates。</li>
+</ul>
+<ol>
+<li>Global merge。</li>
+</ol>
+<ul>
+<li>合并各 shard candidates。</li>
+<li>计算全局 top K。</li>
+</ul>
+<p>对于巨大流量，可以用 approximate algorithm：</p>
+<ul>
+<li>Count-Min Sketch for approximate counts。</li>
+<li>Space-Saving / Heavy Hitters for candidate top K。</li>
+<li>Exact correction for final candidates。</li>
+</ul>
+<h4 id="time-windows">Time windows</h4>
+<pre><code class="language-">top:global:1h
+top:global:24h
+top:US:sports:1h
+top:JP:music:24h</code></pre>
+<p>Window 使用 event time + watermark，迟到事件可以小幅修正。</p>
+<h4 id="interview-answer-3">Interview answer</h4>
+<blockquote>I would not compute Top K from raw events at query time. View and engagement events go into Kafka, stream processors maintain windowed counters, and each shard emits local top candidates. A global aggregator merges candidates into final Top K per region/category/window. For very high volume, I would use approximate heavy-hitter algorithms and then correct exact counts for the final candidates.</blockquote>
+<h3 id="4-uber-location-index">4. Uber Location Index</h3>
+<h4 id="question-4">Question</h4>
+<p>设计 Uber driver location index。乘客请求附近司机，司机每几秒更新位置，系统需要快速查询某个 pickup 点附近可用司机。</p>
+<h4 id="core-challenge-2">Core challenge</h4>
+<p>位置是高频更新数据。普通 DB secondary index 不适合频繁写入和半径查询。要用空间索引，把经纬度映射成 cell。</p>
+<h4 id="architecture-3">Architecture</h4>
+<pre><code class="language-">Driver App
+  -&gt; Location Ingest Service
+  -&gt; Location Index Service
+       - geohash / S2 / H3 cell index
+       - TTL / heartbeat
+  -&gt; Matching Service
+  -&gt; Trip Service</code></pre>
+<h4 id="data-model-3">Data model</h4>
+<pre><code class="language-">driver_location(driver_id, lat, lon, heading, speed, updated_at, status)
+cell_index(cell_id, driver_id, updated_at)</code></pre>
+<p>实际系统通常用内存 store / Redis / custom service，而不是每次写 DB。</p>
+<h4 id="query-flow">Query flow</h4>
+<ol>
+<li>Pickup lat/lon -&gt; cell id。</li>
+<li>查询当前 cell。</li>
+<li>如果不足，查询 neighbor cells。</li>
+<li>对 candidates 计算真实距离和 ETA。</li>
+<li>过滤 busy/offline/stale drivers。</li>
+<li>传给 matching/ranking。</li>
+</ol>
+<h4 id="update-flow">Update flow</h4>
+<p>司机每 2-5 秒发送位置：</p>
+<ul>
+<li>如果 cell 没变，只更新 location payload。</li>
+<li>如果 cell 变了，从旧 cell remove，加入新 cell。</li>
+<li>每条 location 有 TTL，过期视为 offline。</li>
+</ul>
+<h4 id="tradeoffs">Tradeoffs</h4>
+<ul>
+<li>Cell 太大：candidate 多，精排成本高。</li>
+<li>Cell 太小：neighbor 查询多，司机频繁跨 cell。</li>
+<li>位置新鲜度越高，写入压力越大。</li>
+<li>matching 需要 ETA，不只是直线距离。</li>
+</ul>
+<h4 id="interview-answer-4">Interview answer</h4>
+<blockquote>I would build an in-memory geospatial index using geohash, S2, or H3 cells. Driver updates refresh their current cell with TTL. A rider query looks up the pickup cell and neighboring cells, filters stale or unavailable drivers, then ranks candidates by ETA. The source of truth for trips is the Trip Service; the location index is ephemeral and optimized for fast nearby lookup.</blockquote>
+<h3 id="5-reddit-feed">5. Reddit Feed</h3>
+<h4 id="question-5">Question</h4>
+<p>设计 Reddit feed。用户订阅 subreddits，首页展示帖子。帖子有 upvote/downvote、comment、ranking、hot/new/top，多社区、多排序方式。</p>
+<h4 id="approach-3">Approach</h4>
+<p>Reddit feed 和 Twitter feed 不同：它更像 community-based ranking，不只是 follow graph fanout。</p>
+<h4 id="data-model-4">Data model</h4>
+<pre><code class="language-">post(post_id, subreddit_id, author_id, title, body, created_at, status)
+vote(user_id, post_id, value, created_at)
+comment(comment_id, post_id, parent_id, author_id, body, created_at)
+subreddit_member(user_id, subreddit_id)
+ranked_feed(subreddit_id, sort_type, score, post_id)</code></pre>
+<h4 id="ranking-2">Ranking</h4>
+<p>常见排序：</p>
+<ul>
+<li>New：按 created_at。</li>
+<li>Top：按 vote score / time window。</li>
+<li>Hot：score + time decay。</li>
+</ul>
+<p>简化 hot score：</p>
+<pre><code class="language-">hot_score = log10(max(abs(score), 1)) + age_decay</code></pre>
+<h4 id="write-path">Write path</h4>
+<p>Vote 写 source table 后发布 event：</p>
+<pre><code class="language-">Vote Service -&gt; Kafka -&gt; Ranking Worker -&gt; ranked_feed</code></pre>
+<p>Ranking 是 derived view，可以异步更新。</p>
+<h4 id="home-feed">Home feed</h4>
+<p>用户首页可以：</p>
+<ul>
+<li>查询订阅 subreddit 的 top candidates。</li>
+<li>merge candidates。</li>
+<li>personalized ranking。</li>
+<li>filter seen/blocked/NSFW。</li>
+</ul>
+<h4 id="interview-answer-5">Interview answer</h4>
+<blockquote>I would model Reddit feed around communities and ranking views. Posts and votes are the source of truth. For each subreddit and sort type, ranking workers maintain derived ranked feeds such as hot, new, and top. A user's home feed merges candidates from subscribed communities, filters blocked or seen posts, and applies personalization.</blockquote>
+<h3 id="6-high-scale-bidding-ad-auction">6. High-scale Bidding / Ad Auction</h3>
+<h4 id="question-6">Question</h4>
+<p>设计 high-scale bidding system。广告请求进来后，系统要在几十毫秒内选择 winning ad，同时考虑 campaign budget、targeting、bid price、quality score、frequency cap。</p>
+<h4 id="core-challenge-3">Core challenge</h4>
+<p>Ad auction 是低延迟 + 高 QPS + money correctness 的组合：</p>
+<ul>
+<li>Online path 必须很快。</li>
+<li>Budget 不能超花。</li>
+<li>Click/conversion attribution 是异步的。</li>
+<li>Realtime dashboard 和 billing truth 要分开。</li>
+</ul>
+<h4 id="architecture-4">Architecture</h4>
+<pre><code class="language-">Ad Request
+  -&gt; Ad Gateway
+  -&gt; Candidate Retrieval
+  -&gt; Targeting Filter
+  -&gt; Auction / Ranking
+  -&gt; Budget Guard
+  -&gt; Response
+
+Impression/Click Events
+  -&gt; Kafka
+  -&gt; Stream Aggregation
+  -&gt; Budget Pacing
+  -&gt; Billing Warehouse</code></pre>
+<h4 id="auction-scoring">Auction scoring</h4>
+<pre><code class="language-">rank_score = bid_price * predicted_ctr * quality_score</code></pre>
+<p>Winning price 可以用 second-price auction 或 generalized second price，具体看业务。</p>
+<h4 id="budget-control">Budget control</h4>
+<p>Budget 不能靠离线报表晚几分钟发现。需要：</p>
+<ul>
+<li>campaign budget cache。</li>
+<li>local spend reservation。</li>
+<li>periodic reconciliation。</li>
+<li>hard stop when budget exhausted。</li>
+<li>pacing algorithm 控制投放速度。</li>
+</ul>
+<h4 id="consistency">Consistency</h4>
+<ul>
+<li>Serving path 可以用 slightly stale budget cache，但要有 safety margin。</li>
+<li>Billing path 使用 immutable event log + batch validation。</li>
+<li>Duplicate impression/click event 用 event_id 去重。</li>
+</ul>
+<h4 id="interview-answer-6">Interview answer</h4>
+<blockquote>I would split the bidding system into a low-latency serving path and an accurate accounting path. The serving path retrieves eligible ads, applies targeting, runs auction scoring, and checks budget/pacing within a strict latency budget. Impression and click events are written immutably to Kafka and later validated for billing. Budget caches can be slightly stale, so I would use reservations and safety margins to avoid overspend.</blockquote>
+<h3 id="7-design-sql-in-memory-relational-table">7. Design SQL / In-memory Relational Table</h3>
+<h4 id="question-7">Question</h4>
+<p>设计一个简化 SQL engine / in-memory table，支持 create table、insert row、select with condition、delete/update，可能扩展到 index 和 transaction。</p>
+<h4 id="lld-approach">LLD approach</h4>
+<p>先不要写 parser。先定义 domain model：</p>
+<pre><code class="language-java">class Database {
+  Map&lt;String, Table&gt; tables;
+}
+
+class Table {
+  String name;
+  Schema schema;
+  List&lt;Row&gt; rows;
+  Map&lt;String, Index&gt; indexes;
+}
+
+class Row {
+  long rowId;
+  Map&lt;String, Value&gt; values;
+}</code></pre>
+<h4 id="operations">Operations</h4>
+<ol>
+<li><code>createTable(name, schema)</code></li>
+</ol>
+<ul>
+<li>validate duplicate table。</li>
+<li>store column definitions。</li>
+</ul>
+<ol>
+<li><code>insert(table, row)</code></li>
+</ol>
+<ul>
+<li>validate schema。</li>
+<li>assign row id。</li>
+<li>append row。</li>
+<li>update indexes。</li>
+</ul>
+<ol>
+<li><code>select(table, predicate)</code></li>
+</ol>
+<ul>
+<li>if indexed column, use index。</li>
+<li>else scan rows。</li>
+</ul>
+<ol>
+<li><code>delete/update</code></li>
+</ol>
+<ul>
+<li>update base rows and index entries consistently。</li>
+</ul>
+<h4 id="index-design">Index design</h4>
+<pre><code class="language-java">interface Index {
+  void add(Value key, long rowId);
+  void remove(Value key, long rowId);
+  Set&lt;Long&gt; lookup(Value key);
+}</code></pre>
+<p>Hash index supports equality. Tree index supports range.</p>
+<h4 id="follow-up-transaction">Follow-up: transaction</h4>
+<p>先讲 single-threaded correctness，再扩展：</p>
+<ul>
+<li>table-level lock for simple version。</li>
+<li>row-level lock for concurrency。</li>
+<li>WAL for durability。</li>
+<li>MVCC for read/write concurrency。</li>
+</ul>
+<h4 id="interview-answer-7">Interview answer</h4>
+<blockquote>I would separate SQL parsing from execution. The core model has Database, Table, Schema, Row, and Index. Inserts validate schema, append rows, and update indexes. Select uses an index when possible and falls back to scan. For transactions, I would start with table-level locking and WAL, then discuss row locks or MVCC as the system matures.</blockquote>
+<h3 id="8-multithreaded-web-crawler">8. Multithreaded Web Crawler</h3>
+<h4 id="question-8">Question</h4>
+<p>设计 multithreaded web crawler。给定 seed URLs，多个 worker 并发抓取页面，解析 links，去重，遵守 robots/politeness，直到达到限制。</p>
+<h4 id="components">Components</h4>
+<pre><code class="language-java">class Crawler {
+  UrlFrontier frontier;
+  SeenUrlStore seen;
+  RobotsCache robots;
+  Fetcher fetcher;
+  Parser parser;
+}</code></pre>
+<h4 id="flow">Flow</h4>
+<pre><code class="language-">Seed URLs
+  -&gt; URL Frontier
+  -&gt; Worker Threads
+  -&gt; Robots / rate limit check
+  -&gt; Fetch page
+  -&gt; Parse links
+  -&gt; Normalize URLs
+  -&gt; Dedup
+  -&gt; Add new URLs to frontier</code></pre>
+<h4 id="key-design">Key design</h4>
+<ol>
+<li>URL normalization</li>
+</ol>
+<ul>
+<li>lower-case host。</li>
+<li>remove fragments。</li>
+<li>canonicalize path。</li>
+<li>sort query params if safe。</li>
+</ul>
+<ol>
+<li>Dedup</li>
+</ol>
+<ul>
+<li>exact URL set。</li>
+<li>content hash for duplicate pages。</li>
+<li>Bloom filter for large-scale approximate seen set。</li>
+</ul>
+<ol>
+<li>Politeness</li>
+</ol>
+<ul>
+<li>per-host queue。</li>
+<li>next_allowed_fetch_time。</li>
+<li>robots.txt cache。</li>
+</ul>
+<ol>
+<li>Thread safety</li>
+</ol>
+<ul>
+<li>concurrent frontier。</li>
+<li>atomic seen insertion。</li>
+<li>bounded queues for backpressure。</li>
+</ul>
+<h4 id="interview-answer-8">Interview answer</h4>
+<blockquote>I would design the crawler around a thread-safe URL frontier and an atomic seen set. Workers pull URLs, check robots and per-host politeness limits, fetch pages, parse links, normalize them, and enqueue unseen URLs. For scale, I would shard by host, use per-host queues, and store seen URLs in a distributed store or Bloom filter plus exact verification.</blockquote>
+<h3 id="9-gmail-email-system">9. Gmail / Email System</h3>
+<h4 id="question-9">Question</h4>
+<p>设计 Gmail 类 email system。用户可以收发邮件、查看 inbox、thread conversation、search、label、spam filtering、附件。</p>
+<h4 id="architecture-5">Architecture</h4>
+<pre><code class="language-">SMTP Ingest / Send API
+  -&gt; Mail Delivery Service
+  -&gt; Message Store
+  -&gt; Mailbox Index
+  -&gt; Search Index
+  -&gt; Spam / Safety Pipeline
+  -&gt; Attachment Store
+  -&gt; Notification Service</code></pre>
+<h4 id="data-model-5">Data model</h4>
+<pre><code class="language-">message(message_id, thread_id, sender, recipients, subject, body_ref, created_at)
+mailbox_entry(user_id, message_id, label, read_state, archived, deleted)
+thread(thread_id, participant_ids, last_message_at)
+attachment(attachment_id, message_id, object_key, size, content_type)</code></pre>
+<p>同一封邮件对不同用户有不同 mailbox state。message body 是共享对象，mailbox_entry 是每个用户自己的视图。</p>
+<h4 id="inbox-read-path">Inbox read path</h4>
+<p>Inbox 不应该扫描 messages：</p>
+<ul>
+<li><code>mailbox_entry</code> 按 <code>(user_id, label, last_message_at)</code> 建索引。</li>
+<li>列表页先取 message ids。</li>
+<li>再批量 hydrate subject/sender/snippet。</li>
+</ul>
+<h4 id="search">Search</h4>
+<p>邮件 search 需要 inverted index：</p>
+<pre><code class="language-">Message Store -&gt; Indexer -&gt; Search Index</code></pre>
+<p>删除/权限必须 read-time 再检查，避免 index stale 泄露邮件。</p>
+<h4 id="spam-filtering">Spam filtering</h4>
+<p>同步轻量规则 + 异步 ML：</p>
+<ul>
+<li>sender reputation。</li>
+<li>URL/domain reputation。</li>
+<li>content classifier。</li>
+<li>user feedback。</li>
+</ul>
+<p>Spam verdict 更新 mailbox label，不一定删除 message。</p>
+<h4 id="interview-answer-9">Interview answer</h4>
+<blockquote>I would separate immutable message content from per-user mailbox state. A message can appear in multiple recipients' mailboxes, each with its own labels and read/archive/delete state. Inbox reads use a mailbox index by user and label; search uses an async inverted index with read-time permission checks. Attachments live in object storage, and spam filtering combines lightweight synchronous checks with asynchronous ML and user feedback.</blockquote>
+<h3 id="10-real-time-systems-two-hop-framework">10. Real-time Systems Two-hop Framework</h3>
+<h4 id="question-10">Question</h4>
+<p>面试里遇到实时系统，比如 live comments、presence、collaborative editing、driver tracking、chat typing indicator，该如何快速判断用 polling、SSE、WebSocket，还是 pub/sub?</p>
+<h4 id="two-hop-mental-model">Two-hop mental model</h4>
+<p>实时系统可以拆成两跳：</p>
+<pre><code class="language-">Hop 1: producer -&gt; backend
+Hop 2: backend -&gt; consumers</code></pre>
+<p>先问每一跳的方向、频率、fanout、latency，再选技术。</p>
+<h4 id="decision-table">Decision table</h4>
+<div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Producer to backend</th><th>Backend to consumer</th><th>Best choice</th></tr></thead><tbody><tr><td>Order status</td><td>rare updates</td><td>one user</td><td>polling / SSE</td></tr>
+<tr><td>Live location</td><td>predictable every few sec</td><td>small friends group</td><td>polling / SSE</td></tr>
+<tr><td>Chat</td><td>bidirectional</td><td>participants</td><td>WebSocket</td></tr>
+<tr><td>Live comments</td><td>many producers</td><td>many viewers</td><td>WebSocket gateway + pub/sub</td></tr>
+<tr><td>Notification</td><td>backend event</td><td>user devices</td><td>push + inbox</td></tr></tbody></table></div>
+<h4 id="architecture-6">Architecture</h4>
+<pre><code class="language-">Producer
+  -&gt; Write API
+  -&gt; Event Bus / PubSub
+  -&gt; Fanout Service
+  -&gt; Connection Gateway
+  -&gt; Consumer</code></pre>
+<h4 id="backpressure">Backpressure</h4>
+<p>实时连接必须有内存保护：</p>
+<ul>
+<li>per-connection buffer limit。</li>
+<li>drop/coalesce low-value events。</li>
+<li>disconnect slow clients。</li>
+<li>replay from durable log only when required。</li>
+</ul>
+<h4 id="interview-answer-10">Interview answer</h4>
+<blockquote>I would break realtime design into producer-to-backend and backend-to-consumer hops. If updates are predictable and low fanout, polling or SSE may be enough. If communication is bidirectional or high fanout, I would use WebSocket gateways backed by pub/sub. The important production detail is backpressure: slow clients need buffer limits, event coalescing, or disconnect policies.</blockquote>
+<h3 id="11-oop-concepts-design-principles-follow-up">11. OOP Concepts / Design Principles Follow-up</h3>
+<h4 id="question-11">Question</h4>
+<p>LLD 面试里常追问 OOP principles、design patterns、SOLID。怎么讲才不是背概念？</p>
+<h4 id="useful-framing">Useful framing</h4>
+<p>把原则绑定到变化点：</p>
+<ul>
+<li>Strategy：算法会变，比如 pricing、parking spot assignment、rate limit algorithm。</li>
+<li>Observer：事件通知，比如 locker pickup notification、order status update。</li>
+<li>Factory：对象创建复杂，比如 payment method、vehicle、notification channel。</li>
+<li>State：状态转换复杂，比如 order、auction、elevator。</li>
+<li>Repository：隔离 persistence，方便测试。</li>
+</ul>
+<h4 id="solid-用法">SOLID 用法</h4>
+<ul>
+<li>Single Responsibility：class 只负责一个变化原因。</li>
+<li>Open/Closed：新增策略不改核心流程。</li>
+<li>Liskov：子类不破坏父类契约。</li>
+<li>Interface Segregation：不要让 client 依赖用不到的方法。</li>
+<li>Dependency Inversion：业务逻辑依赖 interface，不依赖具体 DB/Redis。</li>
+</ul>
+<h4 id="example">Example</h4>
+<p>Parking lot 不要这样：</p>
+<pre><code class="language-java">class ParkingLot {
+  Money calculateFee(Ticket t) { ... }
+  Spot findSpot(Vehicle v) { ... }
+  void chargeCard(...) { ... }
+}</code></pre>
+<p>更好：</p>
+<pre><code class="language-java">class ParkingLot {
+  SpotAssignmentStrategy assignment;
+  PricingPolicy pricing;
+  PaymentService payment;
+}</code></pre>
+<h4 id="interview-answer-11">Interview answer</h4>
+<blockquote>I would explain design principles through change points. If pricing can change, I use a PricingPolicy strategy. If notifications can have multiple channels, I use an interface and dependency injection. If an entity has complex transitions, I make the state machine explicit. The goal is not to add patterns everywhere, but to keep the core flow readable and make expected changes cheap.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

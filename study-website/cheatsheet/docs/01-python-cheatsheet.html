@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Python Cheat Sheet — Basic To Medium Asap</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>Python Cheat Sheet — Basic To Medium Asap</h1>
+<p>daily coding + interviews</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>PYTHON CHEAT SHEET — Basic to Medium ASAP<br/>Purpose: daily coding + interviews<br/>Style: English + 中文解释</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model</h2>
+<div class="section-body"><p>Python is dynamically typed, interpreted, object-oriented, and has a very rich standard library.<br/>Interview mindset: write clear code first, use built-in data structures, handle edge cases, explain complexity.</p>
+<h3>Core workflow for coding interviews</h3>
+<p class="numbered-line">1. Restate problem and constraints.</p>
+<p class="numbered-line">2. Pick data structure: list / dict / set / heap / deque.</p>
+<p class="numbered-line">3. Write clean function.</p>
+<p class="numbered-line">4. Test empty / one item / duplicates / large input.</p>
+<p class="numbered-line">5. Explain time and space complexity.</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Basic types</h2>
+<div class="section-body"><pre><code class="language-python">x = 10                  # int
+pi = 3.14               # float
+name = "Yan"            # str
+ok = True               # bool
+nothing = None          # null / no value</code></pre>
+<h3>Important grammar</h3>
+<pre><code class="language-python">type(x)
+isinstance(x, int)
+x is None      # correct None check
+x == 10        # value equality</code></pre>
+<h3><code>is</code> vs <code>==</code></h3>
+<pre><code class="language-python">a = [1, 2]
+b = a
+c = [1, 2]
+
+a == c    # True, same value
+a is c    # False, different object
+a is b    # True, same object</code></pre></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. List</h2>
+<div class="section-body"><pre><code class="language-python">arr = [3, 1, 4]
+arr.append(5)           # add to end, O(1) amortized
+arr.pop()               # remove last, O(1)
+arr.pop(0)              # remove first, O(n), avoid for queues
+arr.sort()              # in-place sort
+b = sorted(arr)         # new sorted list</code></pre>
+<h3>Slicing</h3>
+<pre><code class="language-python">arr = [0, 1, 2, 3, 4]
+arr[1:4]      # [1, 2, 3]
+arr[:3]       # first 3
+arr[3:]       # from index 3 to end
+arr[:]        # shallow copy
+arr[::-1]     # reversed copy</code></pre>
+<p>Why <code>arr[:]</code>?</p>
+<pre><code class="language-python">b = arr       # same object, modifying b also modifies arr
+c = arr[:]    # shallow copy</code></pre>
+<h3>List comprehension</h3>
+<pre><code class="language-python">squares = [x * x for x in range(5)]
+evens = [x for x in nums if x % 2 == 0]
+pairs = [(i, j) for i in range(3) for j in range(2)]</code></pre></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Tuple</h2>
+<div class="section-body"><pre><code class="language-python">p = (3, 4)
+x, y = p       # tuple unpacking</code></pre>
+<h3>Use tuple for immutable pairs, dictionary keys, and returning multiple values</h3>
+<pre><code class="language-python">def min_max(nums):
+    return min(nums), max(nums)
+
+lo, hi = min_max(nums)</code></pre></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Dict</h2>
+<div class="section-body"><pre><code class="language-python">d = {}
+d["a"] = 1
+d.get("b", 0)          # default if missing
+"a" in d               # membership
+for k, v in d.items():
+    print(k, v)</code></pre>
+<h3>Frequency count</h3>
+<pre><code class="language-python">freq = {}
+for x in nums:
+    freq[x] = freq.get(x, 0) + 1</code></pre>
+<h3>Better</h3>
+<pre><code class="language-python">from collections import Counter
+freq = Counter(nums)
+freq.most_common(3)</code></pre></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Set</h2>
+<div class="section-body"><pre><code class="language-python">s = set()
+s.add(1)
+s.discard(1)       # no error if missing</code></pre>
+<h3>Set operations</h3>
+<pre><code class="language-python">a | b       # union
+a &amp; b       # intersection
+a - b       # difference
+a ^ b       # symmetric difference</code></pre>
+<p>Use set for dedup, visited states, O(1) membership checks.</p></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. String</h2>
+<div class="section-body"><pre><code class="language-python">s = " hello world "
+s.lower()
+s.upper()
+s.strip()
+s.split()
+",".join(["a", "b"])</code></pre>
+<h3>String is immutable. For many concatenations</h3>
+<pre><code class="language-python">parts = []
+for word in words:
+    parts.append(word)
+res = " ".join(parts)</code></pre>
+<h3>f-string</h3>
+<pre><code class="language-python">score = 0.81234
+print(f"score={score:.2f}")   # score=0.81</code></pre></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Functions and default values</h2>
+<div class="section-body"><pre><code class="language-python">def add(a, b=0):
+    return a + b</code></pre>
+<h3>Mutable default pitfall</h3>
+<pre><code class="language-python"># Bad: same list reused across calls
+def f(x, arr=[]):
+    arr.append(x)
+    return arr
+
+# Good
+def f(x, arr=None):
+    if arr is None:
+        arr = []
+    arr.append(x)
+    return arr</code></pre></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Sorting</h2>
+<div class="section-body"><pre><code class="language-python">items = [("a", 3), ("b", 1), ("c", 2)]
+items.sort(key=lambda x: x[1])          # sort by score asc
+items.sort(key=lambda x: (-x[1], x[0])) # score desc, name asc</code></pre>
+<p><code>lambda x: x[1]</code> is an anonymous function.</p></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Interview data structures</h2>
+<div class="section-body"><h3>Counter</h3>
+<pre><code class="language-python">from collections import Counter
+cnt = Counter("banana")
+cnt["a"]       # 3</code></pre>
+<h3>defaultdict</h3>
+<pre><code class="language-python">from collections import defaultdict
+graph = defaultdict(list)
+graph[u].append(v)</code></pre>
+<h3>deque</h3>
+<pre><code class="language-python">from collections import deque
+q = deque([1, 2, 3])
+q.append(4)
+q.appendleft(0)
+q.popleft()       # O(1)</code></pre>
+<h3>heapq</h3>
+<pre><code class="language-python">import heapq
+heap = []
+heapq.heappush(heap, 3)
+heapq.heappush(heap, 1)
+heapq.heappop(heap)     # 1</code></pre>
+<h3>Max heap trick</h3>
+<pre><code class="language-python">heapq.heappush(heap, -x)
+max_val = -heapq.heappop(heap)</code></pre></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Class</h2>
+<div class="section-body"><pre><code class="language-python">class User:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def greet(self):
+        return f"Hi, I am {self.name}"
+
+u = User("Yan", 18)
+print(u.greet())</code></pre>
+<p><code>self</code> = current object, similar to Java <code>this</code>.</p>
+<h3>Dataclass</h3>
+<pre><code class="language-python">from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int</code></pre></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Type hints</h2>
+<div class="section-body"><pre><code class="language-python">from typing import Optional
+
+def find_user(user_id: int) -&gt; Optional[str]:
+    return None
+
+def f(nums: list[int]) -&gt; dict[str, int]:
+    return {}</code></pre></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Exception</h2>
+<div class="section-body"><pre><code class="language-python">try:
+    x = int(s)
+except ValueError:
+    x = 0
+finally:
+    print("always run")</code></pre>
+<h3>Raise</h3>
+<pre><code class="language-python">if amount &lt; 0:
+    raise ValueError("amount must be non-negative")</code></pre></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. File / JSON / CSV</h2>
+<div class="section-body"><pre><code class="language-python">from pathlib import Path
+p = Path("data.txt")
+text = p.read_text(encoding="utf-8")
+p.write_text("hello", encoding="utf-8")</code></pre>
+<h3>JSON</h3>
+<pre><code class="language-python">import json
+obj = json.loads('{"a": 1}')
+s = json.dumps(obj, indent=2)</code></pre>
+<h3>CSV</h3>
+<pre><code class="language-python">import csv
+with open("data.csv") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        print(row["name"])</code></pre></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>14. Regex</h2>
+<div class="section-body"><pre><code class="language-python">import re
+re.findall(r"\w+", text)
+re.sub(r"\s+", " ", text)</code></pre>
+<h3>Common patterns</h3>
+<pre><code class="language-text">\d digit
+\w word char
+\s whitespace
++ one or more
+* zero or more
+? optional
+[] character class
+() group
+^ start
+$ end</code></pre></div>
+</section>
+<section class="section-card" id="sec-16">
+<div class="section-kicker">Section 17</div>
+<h2>15. Generators</h2>
+<div class="section-body"><pre><code class="language-python">def count_up_to(n):
+    for i in range(n):
+        yield i</code></pre>
+<p>Use generators for large data / streaming.</p></div>
+</section>
+<section class="section-card" id="sec-17">
+<div class="section-kicker">Section 18</div>
+<h2>16. Virtual env</h2>
+<div class="section-body"><pre><code class="language-bash">python -m venv .venv
+source .venv/bin/activate        # Mac/Linux
+.venv\Scripts\activate           # Windows
+pip install requests pandas
+pip freeze &gt; requirements.txt
+pip install -r requirements.txt</code></pre></div>
+</section>
+<section class="section-card" id="sec-18">
+<div class="section-kicker">Section 19</div>
+<h2>17. Core interview templates</h2>
+<div class="section-body"><h3>BFS</h3>
+<pre><code class="language-python">from collections import deque
+
+def bfs(start):
+    q = deque([start])
+    seen = {start}
+    while q:
+        node = q.popleft()
+        for nei in graph[node]:
+            if nei not in seen:
+                seen.add(nei)
+                q.append(nei)</code></pre>
+<h3>DFS</h3>
+<pre><code class="language-python">def dfs(node):
+    if node in seen:
+        return
+    seen.add(node)
+    for nei in graph[node]:
+        dfs(nei)</code></pre>
+<h3>Binary search</h3>
+<pre><code class="language-python">def lower_bound(nums, target):
+    left, right = 0, len(nums)
+    while left &lt; right:
+        mid = (left + right) // 2
+        if nums[mid] &lt; target:
+            left = mid + 1
+        else:
+            right = mid
+    return left</code></pre>
+<h3>Sliding window</h3>
+<pre><code class="language-python">left = 0
+for right, x in enumerate(nums):
+    # add nums[right]
+    while window_invalid:
+        # remove nums[left]
+        left += 1
+    # update answer</code></pre>
+<h3>Top-k heap</h3>
+<pre><code class="language-python">import heapq
+heap = []
+for x in nums:
+    heapq.heappush(heap, x)
+    if len(heap) &gt; k:
+        heapq.heappop(heap)</code></pre></div>
+</section>
+<section class="section-card" id="sec-19">
+<div class="section-kicker">Section 20</div>
+<h2>18. Complexity reminders</h2>
+<div class="section-body"><pre><code class="language-text">list append: O(1) amortized
+list pop last: O(1)
+list pop(0): O(n)
+dict/set lookup: O(1) average
+sort: O(n log n)
+heap push/pop: O(log n)
+deque popleft: O(1)</code></pre></div>
+</section>
+<section class="section-card" id="sec-20">
+<div class="section-kicker">Section 21</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. What interviewers really test<br/>------------------------------------------------------------<br/>Python interviews test data structure selection, clean state transitions, mutability, complexity, and edge-case discipline. Strong answers are simple, correct, and easy to reason about.</p>
+<h3>High-signal tools</h3>
+<ul><li>dict/set: average O(1) lookup, dedup, visited states.</li></ul>
+<ul><li>heapq: top-k, streaming min/max, priority queue.</li></ul>
+<ul><li>deque: queue, BFS, sliding window.</li></ul>
+<ul><li>bisect: binary search on sorted arrays.</li></ul>
+<ul><li>lru_cache: memoized recursion and DP.</li></ul>
+<ul><li>dataclass: readable structured records.</li></ul>
+<ul><li>generators: streaming large files without loading all data.</li></ul>
+<p>B. Must-know API patterns<br/>------------------------------------------------------------</p>
+<pre><code class="language-python">from collections import Counter, defaultdict, deque
+from heapq import heappush, heappop, nlargest
+from bisect import bisect_left, bisect_right
+from functools import lru_cache
+from dataclasses import dataclass</code></pre>
+<pre><code class="language-python"># Top-k frequent
+cnt = Counter(nums)
+ans = [x for x, _ in cnt.most_common(k)]
+
+# Sliding window
+freq = defaultdict(int)
+left = 0
+for right, ch in enumerate(s):
+    freq[ch] += 1
+    while invalid(freq):
+        freq[s[left]] -= 1
+        left += 1
+
+# Memoized DFS
+@lru_cache(None)
+def dp(i, state):
+    if i == n:
+        return 0
+    return max(dp(i + 1, state), value(i) + dp(i + 1, next_state))</code></pre>
+<p>C. Performance deep dive<br/>------------------------------------------------------------</p>
+<h3>Common traps</h3>
+<ul><li><code>list.pop(0)</code> is O(n); use <code>deque.popleft()</code>.</li></ul>
+<ul><li><code>x in list</code> is O(n); use set/dict for repeated lookup.</li></ul>
+<ul><li>repeated string concatenation can be expensive; collect parts and <code>''.join(parts)</code>.</li></ul>
+<ul><li>slicing copies; recursive slicing can silently add O(n) per call.</li></ul>
+<ul><li>sorting is O(n log n); if only top-k is needed, heap can be O(n log k).</li></ul>
+<h3>Memory model</h3>
+<p>Assignment binds a name to an object; it does not copy. Lists/dicts/sets are mutable; tuples/strings/ints are immutable. <code>copy.copy</code> is shallow; <code>copy.deepcopy</code> recursively copies nested objects.</p>
+<p>D. Production Python for AI/data systems<br/>------------------------------------------------------------</p>
+<ul><li>Stream large files line by line.</li></ul>
+<ul><li>Use context managers for files, locks, DB connections, timers.</li></ul>
+<ul><li>Use logging, metrics, and structured errors instead of print.</li></ul>
+<ul><li>Use threads for IO-bound work; multiprocessing/Ray/Spark for CPU-bound scale.</li></ul>
+<ul><li>Understand the GIL: threads do not speed up pure Python CPU loops.</li></ul>
+<ul><li>Use NumPy/Pandas/PyTorch vectorization for numeric workloads.</li></ul>
+<pre><code class="language-python">from contextlib import contextmanager
+import time
+
+@contextmanager
+def timer(name):
+    start = time.perf_counter()
+    try:
+        yield
+    finally:
+        print(f'{name}: {time.perf_counter() - start:.3f}s')</code></pre>
+<p>E. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: When do you use list, tuple, set, dict?<br/>A: list for ordered mutable sequence, tuple for immutable/hashable records, set for membership/dedup, dict for key-value lookup and counts. For queue semantics, use deque.</p>
+<p>Q: Why is dict lookup usually O(1)?<br/>A: It is hash-table based. Average lookup is O(1), but pathological collisions can degrade. Keys must be hashable and equality-consistent.</p>
+<p>Q: Shallow vs deep copy?<br/>A: Shallow copy creates a new outer container but references the same nested objects. Deep copy recursively copies nested objects.</p>
+<p>Q: How do you debug memory issues?<br/>A: Check large containers/caches, retained references, input growth, and use streaming/generators. Tools: tracemalloc, memory_profiler, objgraph.</p>
+<p>Q: How do you write interview-clean Python?<br/>A: State invariant, choose structure, code simply, test edge cases, then explain time/space complexity.</p>
+<p>F. Drills<br/>------------------------------------------------------------</p>
+<p class="numbered-line">1. LRU cache with OrderedDict, then with linked list + dict.</p>
+<p class="numbered-line">2. Top-k frequent with Counter + heap.</p>
+<p class="numbered-line">3. Sliding-window minimum using deque.</p>
+<p class="numbered-line">4. Large log aggregation line by line.</p>
+<p class="numbered-line">5. Memoized DFS with hashable state.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

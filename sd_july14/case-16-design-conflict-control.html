@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>16. Design Conflict Control - System Design 28</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Case 17 / 31 · Route 5 / 9</p>
+          <h1 class="route-title">16. Design Conflict Control</h1>
+          <p class="route-subtitle">Webhook、CI/CD、Job Scheduler、Conflict Control：可靠交付、DAG、Lease/Fencing 与 Lost Update。</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#16-1-题意-边界与-source-digest">16.1 题意、边界与 Source digest</a><a href="#16-2-fr-nfr-与-slo">16.2 FR、NFR 与 SLO</a><a href="#16-3-容量估算与冲突数学">16.3 容量估算与冲突数学</a><a href="#16-4-api-与-event-contracts">16.4 API 与 Event Contracts</a><a href="#16-5-数据模型-partition-index-ttl-与状态机">16.5 数据模型、Partition、Index、TTL 与状态机</a><a href="#16-6-architecture">16.6 Architecture</a><a href="#16-7-核心-flow-原子-debit">16.7 核心 Flow：原子 Debit</a><a href="#16-8-deep-dive-a-atomic-update-occ-与-pessimistic-lock">16.8 Deep Dive A：Atomic Update、OCC 与 Pessimistic Lock</a><a href="#16-9-deep-dive-b-cas-retry-storm-与-aba">16.9 Deep Dive B：CAS、Retry Storm 与 ABA</a><a href="#16-10-deep-dive-c-queue-serialization-的能力与边界">16.10 Deep Dive C：Queue Serialization 的能力与边界</a><a href="#16-11-deep-dive-d-distributed-lock-fencing-与-redlock-修正">16.11 Deep Dive D：Distributed Lock、Fencing 与 Redlock 修正</a><a href="#16-12-deep-dive-e-跨账户-transfer-ledger-与-saga">16.12 Deep Dive E：跨账户 Transfer、Ledger 与 Saga</a><a href="#16-13-deep-dive-f-multi-region-crdt-与-escrow">16.13 Deep Dive F：Multi-Region、CRDT 与 Escrow</a><a href="#16-14-backpressure-dr-security-与-observability">16.14 Backpressure、DR、Security 与 Observability</a><a href="#16-15-决策矩阵-trade-offs-与-evolution">16.15 决策矩阵、Trade-offs 与 Evolution</a><a href="#16-16-follow-up-q-a">16.16 Follow-up Q&amp;A</a><a href="#16-17-60-秒总结">16.17 60 秒总结</a></nav>
+        </header>
+        <h2 id="16-design-conflict-control-高并发账户-库存的-lost-update-与并发语义">16. Design Conflict Control：高并发账户/库存的 Lost Update 与并发语义</h2>
+<h3 id="16-1-题意-边界与-source-digest">16.1 题意、边界与 Source digest</h3>
+<blockquote><strong>Source digest — <code>Design system conflict.docx</code></strong>：源文档不是完整产品题，而是用账户余额 <code>$100</code> 同时扣 <code>$30/$50</code> 解释 Lost Update，并比较 atomic update、OCC/version、pessimistic row lock、CAS、Redis distributed lock + fencing/Redlock、Kafka per-key serialization。文件含 4 张 Word table、没有内嵌图片。本文将它提升为可独立作答的 Senior+/Staff 系统题：设计一个高并发账户/库存 mutation service，并修正原文对 reader blocking、Redlock、queue serialization 与 exactly-once 的过度承诺。</blockquote>
+<p>本题真正要回答的不是“背 5 种锁”，而是先定义 invariant 与 conflict semantics：</p>
+<ul>
+<li><code>available_minor &gt;= 0</code>、<code>reserved_minor &gt;= 0</code>，且 <code>total_minor = available_minor + reserved_minor</code>；同一 withdrawal retry 只能产生一次 ledger effect。</li>
+<li>每个 account 的 committed mutations 有确定顺序；查询可选择 linearizable 或 bounded-stale。</li>
+<li>余额是 projection；不可变 ledger/command history 才是审计真理。</li>
+<li>跨账户 transfer 还要维护 debit/credit conservation，不能只锁一行余额。</li>
+</ul>
+<p>范围：single-key debit/inventory decrement、idempotency、OCC/lock/serialization、自适应热点处理、multi-region owner、transfer 扩展。</p>
+<p>不范围：完整银行合规、汇率/利息、通用 CRDT library、支付网络本身。</p>
+<h3 id="16-2-fr-nfr-与-slo">16.2 FR、NFR 与 SLO</h3>
+<p><strong>Functional Requirements</strong></p>
+<ol>
+<li>原子 debit/credit/reserve/release，拒绝违反 <code>balance &gt;= reserved &gt;= 0</code>。</li>
+<li>client retry 使用 idempotency key 返回同一结果。</li>
+<li>查询 current balance、version、immutable ledger；按 account sequence 订阅事件。</li>
+<li>支持 hot account/inventory SKU；冲突率升高时不形成 retry storm。</li>
+<li>可选跨账户 transfer：reserve -&gt; commit/compensate，有清晰状态机。</li>
+</ol>
+<p><strong>NFR / SLO</strong></p>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>目标</th></tr></thead><tbody><tr><td>Throughput</td><td>平均 100k commands/s，峰值 1M/s；单 key 极端 10k/s</td></tr>
+<tr><td>Latency</td><td>同 region command p99 &lt; 100 ms；linearizable balance read p99 &lt; 50 ms</td></tr>
+<tr><td>Correctness</td><td>no lost update、no overdraft、idempotent retry、monotonic account sequence</td></tr>
+<tr><td>Availability</td><td>read 99.99%，write 99.95%；网络分区时 safety 优先于同 key write availability</td></tr>
+<tr><td>Audit</td><td>每个 accepted/rejected command 有 reason、actor、correlation；ledger immutable</td></tr></tbody></table></div>
+<h3 id="16-3-容量估算与冲突数学">16.3 容量估算与冲突数学</h3>
+<p>假设 100M accounts/SKUs，平均 <code>100k mutations/s</code>，峰值 <code>1M/s</code>：</p>
+<ul>
+<li>commands/day：<code>100k × 86,400 = 8.64B/day</code>。</li>
+<li>ledger/command event 按 500 B：<code>8.64B × 500 B = 4.32 TB/day raw</code>；3 replicas <code>12.96 TB/day</code>。在线热存不宜保留多年，需按时间/账户归档到 columnar/object storage。</li>
+<li>峰值 event log 带宽：<code>1M/s × 500 B = 500 MB/s</code>，加协议/replication 约数 GB/s。</li>
+<li>每 command 至少 4 次 durable row mutation（Command/idempotency、Ledger、Snapshot、Outbox 在一个 transaction 内）：峰值约 <code>1M × 4 = 4M row mutations/s</code>，还未计 index/WAL amplification，必须分片和批量 WAL，而不是单主库。</li>
+<li>若单 partition 安全处理 2k commands/s，峰值下界 <code>1M/2k = 500 partitions</code>；留 2× headroom 取 1,024 logical shards。</li>
+<li>但一个 hot account 的 10k/s 都必须落同一 owner，增加 partitions 无法拆它。需要 commutative batching、escrow/sub-balances、业务限流或改变 invariant。</li>
+</ul>
+<p>OCC 重试放大：若一次尝试冲突概率为 <code>p</code>，成功一次的期望 attempts 为 <code>1/(1-p)</code>：</p>
+<ul>
+<li><code>p=1%</code> -&gt; 1.01 次，OCC 很划算。</li>
+<li><code>p=50%</code> -&gt; 2 次。</li>
+<li><code>p=90%</code> -&gt; 10 次，CPU/DB 被 retry storm 放大 10×，应切 pessimistic/serialized lane。</li>
+</ul>
+<h3 id="16-4-api-与-event-contracts">16.4 API 与 Event Contracts</h3>
+<pre><code class="language-http">POST /v1/accounts/{account_id}/withdrawals
+Idempotency-Key: wd-merchant-order-123
+If-Match: &quot;account-version-41&quot;   # 可选；客户端需要显式 OCC 时使用
+{
+  &quot;amount_minor&quot;: 3000,
+  &quot;currency&quot;: &quot;USD&quot;,
+  &quot;reason&quot;: &quot;order-123&quot;
+}</code></pre>
+<p>成功：</p>
+<pre><code class="language-json">{
+  &quot;command_id&quot;:&quot;cmd-7&quot;,
+  &quot;ledger_entry_id&quot;:&quot;le-9&quot;,
+  &quot;account_sequence&quot;:42,
+  &quot;balance_minor&quot;:7000,
+  &quot;version&quot;:42,
+  &quot;status&quot;:&quot;COMMITTED&quot;
+}</code></pre>
+<p>余额不足返回 domain <code>409 INSUFFICIENT_FUNDS</code>；version 不符返回 <code>412 VERSION_CONFLICT</code>；相同 idempotency key + 不同 request hash 返回 <code>409 IDEMPOTENCY_KEY_REUSED</code>。</p>
+<p>事件：</p>
+<pre><code class="language-json">{
+  &quot;event_id&quot;:&quot;01J...&quot;,
+  &quot;type&quot;:&quot;AccountMutationCommitted&quot;,
+  &quot;account_id&quot;:&quot;acct-1&quot;,
+  &quot;account_sequence&quot;:42,
+  &quot;command_id&quot;:&quot;cmd-7&quot;,
+  &quot;idempotency_key&quot;:&quot;wd-merchant-order-123&quot;,
+  &quot;delta_minor&quot;:-3000,
+  &quot;balance_after_minor&quot;:7000,
+  &quot;committed_at&quot;:&quot;...&quot;
+}</code></pre>
+<p>消费者按 event_id 去重，并以 <code>account_sequence</code> 检测 gap/stale；不要把 wall-clock timestamp 当同 account 的顺序依据。</p>
+<h3 id="16-5-数据模型-partition-index-ttl-与状态机">16.5 数据模型、Partition、Index、TTL 与状态机</h3>
+<div class="table-wrap"><table><thead><tr><th>实体</th><th>字段</th><th>设计要点</th></tr></thead><tbody><tr><td><code>AccountSnapshot</code></td><td>account、currency、available、reserved、version、owner_epoch</td><td>PK <code>(account,currency)</code>；与 Command/Ledger 同 shard</td></tr>
+<tr><td><code>Command</code></td><td>command id、tenant/account、idempotency key、request hash、state/result</td><td>unique <code>(tenant,account,idempotency_key)</code></td></tr>
+<tr><td><code>LedgerEntry</code></td><td>entry id、account、sequence、delta、balance_after、command</td><td>unique <code>(account,sequence)</code>；append-only</td></tr>
+<tr><td><code>Reservation</code></td><td>reservation id、amount、expiry、state、version</td><td>inventory/payment hold；expiry bucket index</td></tr>
+<tr><td><code>Transfer</code></td><td>transfer id、from/to、state、saga epoch</td><td>跨 shard workflow；每 step idempotent</td></tr>
+<tr><td><code>Outbox</code></td><td>event id、account、sequence、payload</td><td>与 ledger/snapshot 同 transaction</td></tr>
+<tr><td><code>OwnerLease</code></td><td>shard、region/node、epoch、lease_until</td><td>consensus-issued；resource enforces epoch</td></tr></tbody></table></div>
+<p>分片 key 优先 <code>account_id/SKU</code>，使 invariant 在单 shard transaction 内。Ledger 按 <code>(account_id, sequence)</code> 聚簇并按时间冷分区；不能只按日期分片导致同账户写跨 shard。二级审计查询异步导入 OLAP。</p>
+<p>单 command 状态：</p>
+<pre><code class="language-text">RECEIVED -&gt; VALIDATED -&gt; COMMITTED
+                    |-&gt; REJECTED
+                    |-&gt; RESERVED -&gt; COMMITTED | RELEASED | EXPIRED</code></pre>
+<p>跨 shard transfer：</p>
+<pre><code class="language-text">INITIATED -&gt; DEBIT_RESERVED -&gt; DEBIT_POSTED_TO_CLEARING -&gt; CREDIT_POSTED_FROM_CLEARING -&gt; COMPLETE
+                    |                    |                           |
+                    +--------------------+--------------------------&gt; COMPENSATING -&gt; REVERSED/MANUAL_REVIEW</code></pre>
+<h3 id="16-6-architecture">16.6 Architecture</h3>
+<figure class="architecture"><figcaption>Architecture Diagram</figcaption><pre class="mermaid">flowchart LR
+    C[&quot;Client&quot;] --&gt; G[&quot;API Gateway\nauth + idempotency syntax&quot;]
+    G --&gt; R[&quot;Shard Router&quot;]
+    R --&gt; O[&quot;Per-key Owner / Command Processor&quot;]
+    O --&gt; TX[(&quot;Transactional Shard\nCommand + Ledger + Snapshot + Outbox&quot;)]
+    TX --&gt; E[&quot;Outbox Relay / Ordered Event Log&quot;]
+    E --&gt; P[&quot;Read Projections / Audit / Notifications&quot;]
+    H[&quot;Hot-key Controller&quot;] --&gt; O
+    F[&quot;Transfer Saga&quot;] --&gt; R
+    Q[&quot;Linearizable Query&quot;] --&gt; TX
+    QE[&quot;Eventual Query&quot;] --&gt; P</pre><div class="ascii-label">ASCII Architecture · copy-friendly</div><pre class="ascii-diagram"><code>[Client] --&gt; [API Gateway / auth + idempotency syntax]
+[API Gateway / auth + idempotency syntax] --&gt; [Shard Router]
+[Shard Router] --&gt; [Per-key Owner / Command Processor]
+[Per-key Owner / Command Processor] --&gt; [Transactional Shard / Command + Ledger + Snapshot + Outbox]
+[Transactional Shard / Command + Ledger + Snapshot + Outbox] --&gt; [Outbox Relay / Ordered Event Log]
+[Outbox Relay / Ordered Event Log] --&gt; [Read Projections / Audit / Notifications]
+[Hot-key Controller] --&gt; [Per-key Owner / Command Processor]
+[Transfer Saga] --&gt; [Shard Router]
+[Linearizable Query] --&gt; [Transactional Shard / Command + Ledger + Snapshot + Outbox]
+[Eventual Query] --&gt; [Read Projections / Audit / Notifications]</code></pre></figure>
+<p>系统不是“到处加 distributed lock”。能在 shard owner 内用 storage transaction/conditional write 解决，就不引入额外锁服务。</p>
+<h3 id="16-7-核心-flow-原子-debit">16.7 核心 Flow：原子 Debit</h3>
+<ol>
+<li>Gateway 校验身份、currency/amount；Shard Router 按 account_id 找 authoritative owner epoch。</li>
+<li>单事务先 <code>INSERT Command ... ON CONFLICT</code>。若 idempotency key 已存在且 hash 相同，返回原 result；不同则拒绝。</li>
+<li>采用原子约束更新：</li>
+</ol>
+<pre><code class="language-sql">UPDATE account_snapshot
+SET available_minor = available_minor - :amount,
+    version = version + 1
+WHERE account_id = :id
+  AND currency = :currency
+  AND available_minor &gt;= :amount
+  AND (:expected_version IS NULL OR version = :expected_version);</code></pre>
+<ol>
+<li>affected rows=1 后插入下一 <code>account_sequence</code> 的 LedgerEntry，更新 Command=COMMITTED，并写 Outbox；全部同 transaction commit。</li>
+<li>affected rows=0 时区分 version conflict/insufficient funds并持久化 deterministic result，避免 retry 后结果漂移。</li>
+</ol>
+<p>仅仅 <code>SET balance=balance-50</code> 还不够；必须把 <code>balance&gt;=amount</code> invariant 放进同一原子 predicate，不能先应用层 SELECT 再判断。</p>
+<h3 id="16-8-deep-dive-a-atomic-update-occ-与-pessimistic-lock">16.8 Deep Dive A：Atomic Update、OCC 与 Pessimistic Lock</h3>
+<p><strong>Atomic predicate update</strong>：单字段、单行 invariant 首选；没有 read-modify-write gap，吞吐最好。</p>
+<p><strong>OCC/version CAS</strong>：复杂计算先读 snapshot，写时 <code>WHERE version=?</code>；冲突后重新读取、重新验证业务规则。适合低冲突。Retry 用 exponential/full jitter 和 max budget，不能 tight loop。</p>
+<p><strong>Pessimistic row lock</strong>：<code>SELECT ... FOR UPDATE</code> 适合高竞争、短事务；所有需要多行锁的事务按 deterministic key order 获取，降低 deadlock。源文档说“其他任何事务读取都会阻塞”不准确：在 MVCC 数据库中普通 snapshot read 常不阻塞，主要是 competing writers/locking reads 等待。</p>
+<p>自适应策略：按 key 统计 conflict rate/lock wait。低于阈值 OCC；持续高冲突把 key 路由 serialized hot lane，cooldown 后再恢复 OCC。避免所有 key 被最热 key 的策略拖慢。</p>
+<h3 id="16-9-deep-dive-b-cas-retry-storm-与-aba">16.9 Deep Dive B：CAS、Retry Storm 与 ABA</h3>
+<p>CAS 是 OCC 的实现机制之一，不是完全独立的正确性魔法：</p>
+<ul>
+<li>compare 的应是 monotonic version/epoch，不只 compare value，防 ABA（值 A-&gt;B-&gt;A，看似没变但历史已变）。</li>
+<li>retry 必须重跑 validation，不能拿旧业务决定只改 version。</li>
+<li>high contention 时 randomized backoff 仍可能浪费；排队或 combine 多个 commutative increments。</li>
+<li>global sequence allocation 本身需要某种协调/range allocation；不能称为“免协调”。</li>
+<li>conditional write 成功只保证 storage mutation 一次，不保证随后对外 HTTP side effect exactly-once。</li>
+</ul>
+<h3 id="16-10-deep-dive-c-queue-serialization-的能力与边界">16.10 Deep Dive C：Queue Serialization 的能力与边界</h3>
+<p>按 account_id partition 可以把同 key commands 送给同一 partition owner，简化顺序：</p>
+<ul>
+<li>broker 只保证 partition log order；多个 producer 的 real-time order 仍需由 owner 分配 <code>account_sequence</code>。</li>
+<li>consumer rebalance/crash 会重复处理；Command unique idempotency 与 transactional offset/outbox 仍必要。</li>
+<li>“一个 partition 单线程”不等于整个 partition 只能服务一个 account；一个 consumer 顺序处理许多 keys。增加 partitions 可扩不同 keys，但不能扩一个 10k/s hot key。</li>
+<li>若 process 后、offset commit 前 crash，会 replay；若先 commit offset 再写 DB，会丢 mutation。用 inbox/transactional consume 或 DB idempotency关闭窗口。</li>
+<li>queue 增加排队 latency，但对超热点可提供 admission control、fairness 与 audit。</li>
+</ul>
+<p>Hot counter 若操作可交换，可在 owner 内 micro-batch：累计 <code>N</code> 个 increments，一次原子加总并为每 command 记录结果；若每个命令需要读取精确 intermediate balance，则不能随意重排/合并。</p>
+<h3 id="16-11-deep-dive-d-distributed-lock-fencing-与-redlock-修正">16.11 Deep Dive D：Distributed Lock、Fencing 与 Redlock 修正</h3>
+<p><code>SET key value NX PX ttl</code> 只给出租约，不给出安全的永久互斥。A pause 超过 TTL、B 获锁后，A 可恢复。必须：</p>
+<ul>
+<li>lock service 发单调 fencing token；最终资源在每次 mutation 验 <code>token &gt; last_seen</code>。</li>
+<li>release 用 compare-owner token，不能无条件 DEL 别人的新锁。</li>
+<li>lease renew 失败时 actor 停止；TTL 考虑 GC/网络 tail，但再长也不能取代 fencing。</li>
+</ul>
+<p>对 correctness-critical lock，优先复用已有 authoritative DB transaction，或使用基于 consensus 的 etcd/ZooKeeper lease + fencing。源文档把 5 Redis 节点多数 <code>Redlock</code> 当“黄金解法”过于绝对：它不是线性一致资源的替代品，也不能让不校验 fencing 的 sink 安全。面试中应说明其时钟/网络假设与争议，不把它用于资金 invariant 的唯一防线。</p>
+<p>外部支付 double charge 的核心仍是 payment provider idempotency key；本地 distributed lock 无法覆盖 response-lost 和 provider 事务。</p>
+<h3 id="16-12-deep-dive-e-跨账户-transfer-ledger-与-saga">16.12 Deep Dive E：跨账户 Transfer、Ledger 与 Saga</h3>
+<p>若 from/to 能 co-locate，同一 serializable transaction 写双边 ledger 是最简单、最强的方案。若跨 shard：</p>
+<ol>
+<li>创建 Transfer unique id，并为 transfer clearing account/position 建立审计维度。</li>
+<li>from shard reserve funds（还不是最终 debit），写 reservation event。</li>
+<li>把 reservation 原子转成 <code>source -&gt; clearing</code> 的 committed debit；此后价值位于 clearing，不会凭空增发。</li>
+<li>to shard 以 transfer id 幂等提交 <code>clearing -&gt; destination</code> credit；任一步重放都返回原结果。</li>
+<li>若 credit 长期失败，以新的 compensating ledger entry 把 clearing 余额退回 source；不删除或改写旧 ledger。</li>
+</ol>
+<p>Saga 提供 eventual atomic business outcome，不是瞬间 ACID。期间 query 必须区分 available/reserved/posted。若金融账要求 debit/credit conservation 的单一审计原子性，可建立 central double-entry journal owner，牺牲 availability/latency换 correctness。</p>
+<h3 id="16-13-deep-dive-f-multi-region-crdt-与-escrow">16.13 Deep Dive F：Multi-Region、CRDT 与 Escrow</h3>
+<ul>
+<li>强 invariant 的 account/SKU 有单一 home region/consensus group；全球请求转发到 owner。网络分区时 minority 拒绝写，避免双花。</li>
+<li>balance 不适合 LWW；最后时间戳会直接丢掉合法 debit。</li>
+<li><code>G-Counter/PN-Counter</code> 适合可交换、无下界约束的计数/likes，不自动维护库存不能为负。</li>
+<li>bounded counter 可用 <code>escrow</code>: 把可售库存预分配给 region，region 只在本地额度内扣减；region 间转移额度需要协调。换取本地低延迟，但可能某 region sold out而全局仍有库存。</li>
+<li>profile name 等非关键字段可 LWW；set membership 可 OR-Set；必须按字段选择 merge semantics，不能整个 record 一个策略。</li>
+<li>failover secondary 必须追 <code>account safety watermark/owner epoch</code>；旧 region 写被 resource fencing 拒绝。</li>
+</ul>
+<h3 id="16-14-backpressure-dr-security-与-observability">16.14 Backpressure、DR、Security 与 Observability</h3>
+<p><strong>Backpressure</strong></p>
+<ul>
+<li>per-tenant/account command rate、in-flight、retry budget；hot key 单独排队。</li>
+<li>overload 保 commit/ack/lease renew，拒绝低优 query/rebuild；返回明确 429 + retry-after。</li>
+<li>transfer saga/reconciliation 用独立 lane，不能被新业务命令饿死。</li>
+</ul>
+<p><strong>DR</strong></p>
+<ul>
+<li>shard WAL 同步 paired region 才可承诺 RPO=0；否则声明 RPO。</li>
+<li>PITR + immutable ledger + projection rebuild；演练 owner failover、outbox replay、duplicate command、region partition。</li>
+<li>恢复后先验证每 account sequence 连续、ledger-to-snapshot checksum，再开放 write。</li>
+</ul>
+<p><strong>Security</strong></p>
+<ul>
+<li>mTLS/service identity、fine-grained authZ、signed request context、KMS encryption、PII minimization。</li>
+<li>管理 override/ledger reversal 双人审批，永不直接 UPDATE 历史 ledger。</li>
+<li>idempotency key namespace 绑定 authenticated tenant，防跨租户探测结果。</li>
+</ul>
+<p><strong>Observability / invariants</strong></p>
+<ul>
+<li>conflict rate、OCC retries、lock wait/deadlock、hot-key QPS、queue age。</li>
+<li>stale fencing rejects、duplicate command hits、outbox lag、sequence gaps。</li>
+<li>invariant monitors：negative balance、reserved &gt; total、ledger sum != snapshot、transfer stuck age。</li>
+<li>按 strategy 统计 latency/cost，验证 adaptive OCC-&gt;serialization 是否真的降 amplification。</li>
+</ul>
+<h3 id="16-15-决策矩阵-trade-offs-与-evolution">16.15 决策矩阵、Trade-offs 与 Evolution</h3>
+<div class="table-wrap"><table><thead><tr><th>场景</th><th>首选</th><th>不选其他方案的原因</th></tr></thead><tbody><tr><td>单行可表达 invariant</td><td>atomic predicate update</td><td>最少协调；应用 read-modify-write 多余</td></tr>
+<tr><td>低冲突复杂逻辑</td><td>OCC/version CAS</td><td>lock wait 不划算</td></tr>
+<tr><td>高冲突短事务</td><td>row lock / per-key owner</td><td>避免 OCC retry storm</td></tr>
+<tr><td>per-key strict order/audit</td><td>partitioned command log + idempotent consumer</td><td>接受排队和 hot-key ceiling</td></tr>
+<tr><td>跨服务 lease</td><td>consensus lease + fencing</td><td>lock 本身不保护最终资源</td></tr>
+<tr><td>可交换无界计数</td><td>CRDT/local aggregation</td><td>不必为 total order 付费</td></tr>
+<tr><td>有下界的跨 region 库存</td><td>escrow</td><td>本地扣减安全，但额度利用率有代价</td></tr></tbody></table></div>
+<p>Evolution：V1 单 DB atomic update + unique idempotency；V2 sharded ledger/outbox/OCC；V3 hot-key serialized lane、adaptive strategy；V4 owner-epoch multi-region、escrow/transfer saga、offline invariant verifier。</p>
+<h3 id="16-16-follow-up-q-a">16.16 Follow-up Q&amp;A</h3>
+<p><strong>Q1：两个 <code>$100</code> 并发扣 <code>$30/$50</code> 怎么办？</strong>  单 SQL predicate update 或 row transaction；两个 update 依次在最新值上执行，最终 <code>$20</code>。若余额只够一个，affected rows/invariant 决定一个成功一个拒绝。</p>
+<p><strong>Q2：OCC 失败是否直接重放旧 SQL？</strong>  不行；重读最新 version并重新执行业务 validation，且受 retry budget/jitter 控制。</p>
+<p><strong>Q3：有 Redis lock 是否就不会双写？</strong>  不会。TTL 后旧 holder 可复活；最终 resource 必须校验 fencing token，external side effect 还要 idempotency。</p>
+<p><strong>Q4：Kafka 能否自动解决 exactly-once？</strong>  只能在其事务边界内改善 consume/produce；任意 DB/HTTP sink 仍需 inbox/idempotency/transaction integration。</p>
+<p><strong>Q5：一个 hot account 10k/s 怎么水平扩？</strong>  strict sequential invariant 下单 key 本就有串行上限；可 batch commutative ops、escrow/shard rights、限流或重构业务语义，不能靠增加 hash partitions 假装解决。</p>
+<h3 id="16-17-60-秒总结">16.17 60 秒总结</h3>
+<p>“我先定义 invariant：余额不为负、command 幂等、每账户 sequence 单调、ledger 不可变。单行 debit 首选 <code>UPDATE ... SET balance=balance-amount WHERE balance&gt;=amount</code>，并在同 transaction 写 Command、Ledger、Snapshot、Outbox；不是应用层先读后写。复杂低冲突用 OCC，高冲突短事务切 row lock 或 per-key serialized owner。Lease 只帮助恢复，不保证互斥，必须有 fencing；普通 HTTP side effect 仍用 idempotency key。峰值 1M/s 可用约 1,024 shards 扩不同账户，但单个 10k/s hot key 仍受 invariant 串行上限，需要 batching、escrow 或业务限流。跨 region 对资金采用 single owner/consensus，不能 LWW；failover 先追 safety watermark。”</p>
+<hr/>
+<hr/>
+        <nav class="pager" aria-label="Case navigation">
+    <a href="case-15-design-a-distributed-job-scheduler.html">← 15. Design a Distributed Job Scheduler</a>
+    <a class="next" href="case-17-design-chatgpt-playground.html">17. Design ChatGPT Playground →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

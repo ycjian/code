@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Snorkel / Weak Supervision / Data-Centric AI Cheatsheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Infra Deep Dives / Infra</div>
+<h1>Snorkel / Weak Supervision / Data-Centric AI Cheatsheet</h1>
+<p>prepare for interviews that probe data labeling, weak supervision, active learning, slice-based quality, and the model-evaluation loop.</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>SNORKEL / WEAK SUPERVISION / DATA-CENTRIC AI CHEATSHEET<br/>Purpose: prepare for interviews that probe data labeling, weak supervision, active learning, slice-based quality, and the model-evaluation loop.</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model</h2>
+<div class="section-body"><p>Snorkel-style data-centric AI starts from a simple observation: in many production ML systems, labeled data is the bottleneck, not the model architecture. Instead of hand-labeling every example, engineers write labeling functions that encode noisy heuristics, weak signals, rules, distant supervision, existing models, or LLM prompts. A label model combines these noisy sources into probabilistic training labels.</p>
+<h3>Interview one-liner</h3>
+<p>"I would use weak supervision when expert labels are expensive but we have many noisy labeling signals. The key is to model coverage, conflict, correlation, and noise, then validate with a small high-quality gold set and slice-based error analysis."</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Core concepts</h2>
+<div class="section-body"><h3>Labeling function</h3>
+<ul><li>A programmatic rule that emits a label, abstain, or sometimes a score.</li></ul>
+<ul><li>Examples: regex rule, metadata rule, keyword rule, existing classifier, LLM prompt, knowledge-base match.</li></ul>
+<h3>Coverage</h3>
+<ul><li>Fraction of examples that a labeling function labels instead of abstaining.</li></ul>
+<h3>Accuracy</h3>
+<ul><li>How often the labeling function agrees with true labels on a labeled validation set.</li></ul>
+<h3>Conflict</h3>
+<ul><li>Labeling functions disagree on the same example.</li></ul>
+<h3>Correlation</h3>
+<ul><li>Two labeling functions are not independent, often because they use the same signal.</li></ul>
+<h3>Label model</h3>
+<ul><li>Learns how to combine noisy labeling function outputs into probabilistic labels.</li></ul>
+<ul><li>It estimates source reliability and handles conflicts better than majority vote.</li></ul>
+<h3>End model</h3>
+<ul><li>The final model trained on probabilistic or denoised labels.</li></ul>
+<ul><li>This model generalizes beyond the exact labeling function rules.</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Simple labeling-function example</h2>
+<div class="section-body"><pre><code class="language-python">ABSTAIN = -1
+NEGATIVE = 0
+POSITIVE = 1
+
+def lf_refund_policy(text: str) -&gt; int:
+    t = text.lower()
+    if "refund" in t or "return policy" in t:
+        return POSITIVE
+    return ABSTAIN
+
+def lf_error_code(text: str) -&gt; int:
+    if "error code" in text.lower() or "stack trace" in text.lower():
+        return NEGATIVE
+    return ABSTAIN
+
+def apply_lfs(rows, lfs):
+    matrix = []
+    for row in rows:
+        matrix.append([lf(row["text"]) for lf in lfs])
+    return matrix</code></pre>
+<p>In a real system, the labeling matrix goes into a weak-supervision label model rather than directly using majority vote.</p></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Active learning + weak supervision workflow</h2>
+<div class="section-body"><p class="numbered-line">1. Start with a small high-quality gold set.</p>
+<p class="numbered-line">2. Write initial labeling functions.</p>
+<p class="numbered-line">3. Measure coverage, conflict, and slice performance.</p>
+<p class="numbered-line">4. Train label model and end model.</p>
+<p class="numbered-line">5. Use active learning to select uncertain or high-impact examples.</p>
+<p class="numbered-line">6. Ask human experts to label those examples.</p>
+<p class="numbered-line">7. Improve labeling functions and repeat.</p>
+<h3>Why it works</h3>
+<ul><li>Weak supervision gives scale.</li></ul>
+<ul><li>Active learning spends expert time where labels are most useful.</li></ul>
+<ul><li>Slice analysis prevents aggregate metrics from hiding failures.</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. LLMs as labeling functions</h2>
+<div class="section-body"><p>LLMs can be used as weak labelers, but they should not be treated as perfect ground truth.</p>
+<h3>Good uses</h3>
+<ul><li>bootstrap labels for ambiguous enterprise text.</li></ul>
+<ul><li>classify intent when rules are hard to write.</li></ul>
+<ul><li>extract candidate entities for human review.</li></ul>
+<ul><li>generate rationales to help debug labeling policy.</li></ul>
+<h3>Controls</h3>
+<ul><li>sample and audit outputs.</li></ul>
+<ul><li>keep prompt/model version.</li></ul>
+<ul><li>compare against human-labeled gold data.</li></ul>
+<ul><li>track cost and latency.</li></ul>
+<ul><li>use abstain when confidence is low.</li></ul></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Data-centric AI in your resume story</h2>
+<div class="section-body"><h3>This maps well to Adobe-style search, RAG, ranking, and GenAI rollout safety</h3>
+<ul><li>Create weak labels for search relevance from clicks, saves, dwell time, query reformulation, and human labels.</li></ul>
+<ul><li>Create RAG evaluation labels from citation correctness, retrieval evidence, and LLM-as-judge scores.</li></ul>
+<ul><li>Create safety labels from policy rules, blocklists, human audits, and model judges.</li></ul>
+<ul><li>Use slice analysis for product surface, modality, language, enterprise tenant, document type, and long-tail queries.</li></ul>
+<h3>Strong phrasing</h3>
+<p>"For ranking and RAG, I would not rely on a single noisy signal like click-through. I would combine weak signals, human gold labels, and LLM-assisted judging, then validate on slices where the product risk is highest."</p></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Failure modes</h2>
+<div class="section-body"><ul><li>Labeling functions encode bias or outdated business rules.</li></ul>
+<ul><li>Multiple labeling functions are correlated, so majority vote overestimates confidence.</li></ul>
+<ul><li>Low coverage leaves important slices unlabeled.</li></ul>
+<ul><li>LLM labeler follows prompt artifacts instead of true task definition.</li></ul>
+<ul><li>Gold set is too small or not representative.</li></ul>
+<ul><li>End model learns shortcuts from weak labels.</li></ul>
+<ul><li>Evaluation leaks weak labeling rules into test data.</li></ul></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Interview Q&amp;A</h2>
+<div class="section-body"><p>Q: Why not just hand-label everything?<br/>A: Hand labels are expensive and slow. Weak supervision scales domain heuristics, then expert labels are reserved for validation, active-learning examples, and hard slices.</p>
+<p>Q: Why train an end model if labeling functions already label data?<br/>A: Labeling functions may have limited coverage and brittle rules. The end model learns broader patterns from denoised labels and can generalize beyond the rules.</p>
+<p>Q: What is the difference between majority vote and a label model?<br/>A: Majority vote treats all labeling functions as equally reliable and independent. A label model estimates reliability, conflict, and sometimes correlation, producing probabilistic labels.</p>
+<p>Q: How do you know weak labels are good?<br/>A: Use a human-labeled gold set, LF summary statistics, conflict analysis, slice metrics, and downstream end-model performance. Never trust aggregate metrics alone.</p>
+<p>Q: How does this connect to LLM evaluation?<br/>A: LLM judges can be weak labelers. They are useful, but must be calibrated against human judgments and tracked by prompt/model version.</p></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>RESUME-ALIGNED INTERVIEW DEEP DIVE</h2>
+<div class="section-body"><p>A. How to connect this to your Adobe story<br/>------------------------------------------------------------<br/>Use this when an interviewer asks how you built evaluation or training data for search, RAG, or GenAI safety without waiting for perfect human labels.</p>
+<h3>Concrete project framing</h3>
+<ul><li>Search relevance: weak labels from clicks, saves, dwell time, query reformulation, similarity clicks, and manual judgments.</li></ul>
+<ul><li>RAG quality: weak labels from citation overlap, answer-evidence entailment, retrieval recall, and LLM-as-judge scores.</li></ul>
+<ul><li>Safety: weak labels from policy rules, human audit queues, blocklists, and red-team prompts.</li></ul>
+<ul><li>Multimodal: weak labels from captions, OCR text, metadata, user edits, and content similarity.</li></ul>
+<p>B. Staff-level design answer<br/>------------------------------------------------------------<br/>I would build a data-quality loop rather than only a model-training loop. First define a small human-labeled gold set for calibration. Then write weak labeling functions from product signals and domain rules. I would measure coverage/conflict, train a label model, train the end model, and run slice-based evaluation. Finally, active learning sends uncertain/high-impact cases to human reviewers.</p>
+<p>C. Metrics to mention<br/>------------------------------------------------------------</p>
+<ul><li>LF coverage and overlap.</li></ul>
+<ul><li>LF conflict rate.</li></ul>
+<ul><li>estimated LF accuracy on gold data.</li></ul>
+<ul><li>label distribution drift.</li></ul>
+<ul><li>slice-level F1/NDCG/faithfulness.</li></ul>
+<ul><li>human agreement with LLM-as-judge.</li></ul>
+<ul><li>cost per newly useful label.</li></ul>
+<p>D. Hard interview questions<br/>------------------------------------------------------------<br/>Q: How do you avoid reinforcing noisy click bias?<br/>A: Treat clicks as one weak source, not truth. Combine with dwell, reformulation, explicit labels, debiasing, randomization/interleaving data, and slice evaluation.</p>
+<p>Q: How do you use an LLM judge safely?<br/>A: Use it as a weak signal. Version the prompt/model, calibrate against humans, evaluate disagreement slices, and avoid making high-risk rollout decisions from judge scores alone.</p>
+<p>Q: What would you do if weak labels conflict heavily?<br/>A: Inspect LF overlap/conflicts, remove redundant correlated LFs, add higher-precision rules, collect gold labels in conflict regions, and train a label model rather than majority vote.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Low Level Design - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="24-low-level-design-interview-bank">24. Low Level Design Interview Bank</h2>
+<p>这一节来自 <code>sd_pages</code> 里的 Low Level Design pages。LLD 面试和 system design 不一样：面试官更看重 class modeling、state transition、API boundaries、extensibility、edge cases、testability。</p>
+<p>LLD 每题建议用这个顺序：</p>
+<ol>
+<li>Clarify entities and use cases。</li>
+<li>Define core classes / interfaces。</li>
+<li>Define state machine。</li>
+<li>Explain main operations。</li>
+<li>Handle concurrency / consistency。</li>
+<li>Show extensibility。</li>
+<li>Mention tests。</li>
+</ol>
+<h3 id="1-amazon-locker-low-level-design">1. Amazon Locker Low Level Design</h3>
+<h4 id="question">Question</h4>
+<p>设计 Amazon Locker。用户下单后包裹被投递到 locker，用户收到 pickup code，在有效时间内取件。系统要支持不同 locker size、过期释放、通知、运营人员补货/取回。</p>
+<h4 id="core-objects">Core objects</h4>
+<pre><code class="language-java">class Locker {
+  String lockerId;
+  LockerSize size;
+  LockerStatus status;
+  String locationId;
+}
+
+class Package {
+  String packageId;
+  LockerSize requiredSize;
+  PackageStatus status;
+}
+
+class Reservation {
+  String reservationId;
+  String packageId;
+  String lockerId;
+  String pickupCodeHash;
+  Instant expireAt;
+  ReservationStatus status;
+}</code></pre>
+<h4 id="state-machines">State machines</h4>
+<p>Locker:</p>
+<pre><code class="language-">AVAILABLE -&gt; RESERVED -&gt; OCCUPIED -&gt; AVAILABLE
+AVAILABLE -&gt; OUT_OF_SERVICE</code></pre>
+<p>Reservation:</p>
+<pre><code class="language-">CREATED -&gt; DELIVERED -&gt; PICKED_UP
+CREATED -&gt; EXPIRED
+DELIVERED -&gt; EXPIRED</code></pre>
+<h4 id="main-operations">Main operations</h4>
+<ol>
+<li><code>reserveLocker(packageId, size, location)</code></li>
+</ol>
+<ul>
+<li>Find smallest available locker &gt;= required size。</li>
+<li>Mark locker as RESERVED。</li>
+<li>Create reservation with expiry。</li>
+</ul>
+<ol>
+<li><code>deliverPackage(reservationId)</code></li>
+</ol>
+<ul>
+<li>Courier opens locker。</li>
+<li>Put package。</li>
+<li>Locker becomes OCCUPIED。</li>
+<li>Send pickup code to user。</li>
+</ul>
+<ol>
+<li><code>pickupPackage(code)</code></li>
+</ol>
+<ul>
+<li>Verify code hash。</li>
+<li>Check not expired。</li>
+<li>Open locker。</li>
+<li>Mark reservation PICKED_UP。</li>
+<li>Mark locker AVAILABLE。</li>
+</ul>
+<ol>
+<li><code>expireReservation()</code></li>
+</ol>
+<ul>
+<li>Background job scans expired reservations。</li>
+<li>Release locker or create return task。</li>
+</ul>
+<h4 id="concurrency">Concurrency</h4>
+<p>多个订单可能同时抢同一个 locker。核心是 atomic reservation：</p>
+<pre><code class="language-sql">UPDATE locker
+SET status = 'RESERVED'
+WHERE locker_id = ?
+  AND status = 'AVAILABLE'</code></pre>
+<p>只有 update 成功的 request 拿到 locker。</p>
+<h4 id="extensibility">Extensibility</h4>
+<ul>
+<li>新 locker size：enum / config。</li>
+<li>新通知方式：NotificationChannel interface。</li>
+<li>不同分配策略：LockerAssignmentStrategy。</li>
+</ul>
+<h4 id="interview-answer">Interview answer</h4>
+<blockquote>I would model locker assignment as a state transition problem. The critical operation is reserving a locker atomically so two packages cannot get the same locker. I would separate Locker, Package, Reservation, and Notification. Locker assignment uses the smallest available locker that fits the package, and reservation expiry is handled by a background job.</blockquote>
+<h3 id="2-parking-lot-low-level-design">2. Parking Lot Low Level Design</h3>
+<h4 id="question-2">Question</h4>
+<p>设计停车场，支持不同 vehicle type、spot type、入场取票、出场计费、找车位、支付。</p>
+<h4 id="core-objects-2">Core objects</h4>
+<pre><code class="language-java">class ParkingLot {
+  List&lt;ParkingFloor&gt; floors;
+  ParkingSpotAssignmentStrategy strategy;
+}
+
+class ParkingSpot {
+  String spotId;
+  SpotType type;
+  SpotStatus status;
+}
+
+class Ticket {
+  String ticketId;
+  String vehicleNumber;
+  String spotId;
+  Instant entryTime;
+  TicketStatus status;
+}
+
+class PricingPolicy {
+  Money calculate(Instant entry, Instant exit, VehicleType type);
+}</code></pre>
+<h4 id="main-operations-2">Main operations</h4>
+<ol>
+<li><code>park(vehicle)</code></li>
+</ol>
+<ul>
+<li>Choose compatible spot。</li>
+<li>Mark spot occupied。</li>
+<li>Create ticket。</li>
+</ul>
+<ol>
+<li><code>unpark(ticketId)</code></li>
+</ol>
+<ul>
+<li>Calculate fee。</li>
+<li>Process payment。</li>
+<li>Mark ticket paid。</li>
+<li>Free spot。</li>
+</ul>
+<h4 id="spot-assignment">Spot assignment</h4>
+<p>不要把策略写死在 ParkingLot 里。使用 strategy pattern：</p>
+<pre><code class="language-java">interface ParkingSpotAssignmentStrategy {
+  ParkingSpot findSpot(Vehicle vehicle, List&lt;ParkingFloor&gt; floors);
+}</code></pre>
+<p>可扩展策略：</p>
+<ul>
+<li>nearest entrance。</li>
+<li>nearest elevator。</li>
+<li>compact-first。</li>
+<li>EV charging priority。</li>
+</ul>
+<h4 id="concurrency-2">Concurrency</h4>
+<p>多个入口同时分配车位，要保证 spot 状态更新原子：</p>
+<pre><code class="language-sql">UPDATE spot
+SET status = 'OCCUPIED'
+WHERE spot_id = ?
+  AND status = 'AVAILABLE'</code></pre>
+<h4 id="interview-answer-2">Interview answer</h4>
+<blockquote>I would separate domain entities from policies. ParkingLot owns floors and spots, Ticket tracks a parking session, PricingPolicy calculates fees, and SpotAssignmentStrategy chooses a spot. The critical concurrency point is spot assignment, which must atomically move a spot from AVAILABLE to OCCUPIED.</blockquote>
+<h3 id="3-elevator-low-level-design">3. Elevator Low Level Design</h3>
+<h4 id="question-3">Question</h4>
+<p>设计电梯系统，多个 elevator 服务多个 floor。用户在楼层按 up/down，在电梯内选择目标楼层。系统要调度电梯、处理方向、停靠、开关门。</p>
+<h4 id="core-objects-3">Core objects</h4>
+<pre><code class="language-java">class Elevator {
+  String elevatorId;
+  int currentFloor;
+  Direction direction;
+  ElevatorState state;
+  SortedSet&lt;Integer&gt; upStops;
+  SortedSet&lt;Integer&gt; downStops;
+}
+
+class Request {
+  int sourceFloor;
+  Integer destinationFloor;
+  Direction direction;
+  RequestType type;
+}
+
+interface SchedulingStrategy {
+  Elevator assign(Request request, List&lt;Elevator&gt; elevators);
+}</code></pre>
+<h4 id="state-machine">State machine</h4>
+<pre><code class="language-">IDLE -&gt; MOVING_UP -&gt; DOOR_OPEN -&gt; MOVING_UP
+IDLE -&gt; MOVING_DOWN -&gt; DOOR_OPEN -&gt; MOVING_DOWN
+MOVING_* -&gt; IDLE when no stops</code></pre>
+<h4 id="scheduling">Scheduling</h4>
+<p>简单策略：</p>
+<ul>
+<li>同方向且会经过 source floor 的 elevator 优先。</li>
+<li>否则选最近 IDLE elevator。</li>
+<li>否则选择 estimated cost 最低的 elevator。</li>
+</ul>
+<p>Cost function:</p>
+<pre><code class="language-">cost = distance + direction_penalty + current_queue_size</code></pre>
+<h4 id="stop-handling">Stop handling</h4>
+<ul>
+<li>Up direction 使用 min-heap / sorted set。</li>
+<li>Down direction 使用 max-heap / reverse sorted set。</li>
+<li>当前方向 stops 清空后再考虑反方向。</li>
+</ul>
+<h4 id="interview-answer-3">Interview answer</h4>
+<blockquote>I would model each elevator as a state machine with current floor, direction, and ordered stop sets. The scheduler assigns hall requests based on estimated cost, preferring elevators moving in the same direction. The design should keep scheduling strategy pluggable so we can replace nearest-elevator with cost-based or destination-dispatch later.</blockquote>
+<h3 id="4-inventory-management-low-level-design">4. Inventory Management Low Level Design</h3>
+<h4 id="question-4">Question</h4>
+<p>设计库存系统，支持 stock add/remove、reservation、purchase、release、multi-warehouse。重点是防止 oversell。</p>
+<h4 id="core-objects-4">Core objects</h4>
+<pre><code class="language-java">class SKU {
+  String skuId;
+  String name;
+}
+
+class InventoryItem {
+  String skuId;
+  String warehouseId;
+  int available;
+  int reserved;
+  long version;
+}
+
+class Reservation {
+  String reservationId;
+  String skuId;
+  int quantity;
+  Instant expireAt;
+  ReservationStatus status;
+}</code></pre>
+<h4 id="main-operations-3">Main operations</h4>
+<ol>
+<li><code>reserve(skuId, quantity)</code></li>
+</ol>
+<ul>
+<li>Check available。</li>
+<li>Decrease available。</li>
+<li>Increase reserved。</li>
+<li>Create reservation with TTL。</li>
+</ul>
+<ol>
+<li><code>commit(reservationId)</code></li>
+</ol>
+<ul>
+<li>Decrease reserved。</li>
+<li>Mark reservation committed。</li>
+</ul>
+<ol>
+<li><code>release(reservationId)</code></li>
+</ol>
+<ul>
+<li>Increase available。</li>
+<li>Decrease reserved。</li>
+<li>Mark released。</li>
+</ul>
+<h4 id="prevent-oversell">Prevent oversell</h4>
+<p>Atomic update:</p>
+<pre><code class="language-sql">UPDATE inventory
+SET available = available - ?,
+    reserved = reserved + ?
+WHERE sku_id = ?
+  AND available &gt;= ?</code></pre>
+<p>如果 affected rows = 0，说明库存不足。</p>
+<h4 id="reservation-expiry">Reservation expiry</h4>
+<p>后台 job 扫描 expired reservation：</p>
+<pre><code class="language-">RESERVED -&gt; EXPIRED
+return quantity to available</code></pre>
+<h4 id="interview-answer-4">Interview answer</h4>
+<blockquote>I would model inventory as available plus reserved, not just one stock number. Checkout first creates a reservation with TTL using an atomic conditional update. Payment success commits the reservation; timeout releases it. This prevents oversell while avoiding long database locks during payment.</blockquote>
+<h3 id="5-rate-limiter-low-level-design">5. Rate Limiter Low Level Design</h3>
+<h4 id="question-5">Question</h4>
+<p>设计一个 rate limiter class/library，支持不同算法和 rule，例如 per-user、per-IP、per-route。</p>
+<h4 id="core-interfaces">Core interfaces</h4>
+<pre><code class="language-java">interface RateLimiter {
+  boolean allow(RequestContext ctx);
+}
+
+interface RateLimitRule {
+  String key(RequestContext ctx);
+  int limit();
+  Duration window();
+}
+
+interface RateLimitStore {
+  CounterState get(String key);
+  void save(String key, CounterState state);
+}</code></pre>
+<h4 id="strategy-pattern">Strategy pattern</h4>
+<pre><code class="language-java">class TokenBucketLimiter implements RateLimiter { }
+class SlidingWindowLimiter implements RateLimiter { }
+class FixedWindowLimiter implements RateLimiter { }</code></pre>
+<p>这样新增算法不会改调用方。</p>
+<h4 id="requestcontext">RequestContext</h4>
+<pre><code class="language-">user_id
+ip
+api_key
+route
+timestamp
+tenant_id</code></pre>
+<h4 id="store-choices">Store choices</h4>
+<ul>
+<li>InMemoryStore：单机测试。</li>
+<li>RedisStore：分布式生产。</li>
+<li>MockStore：unit tests。</li>
+</ul>
+<h4 id="interview-answer-5">Interview answer</h4>
+<blockquote>I would design the limiter around interfaces: RateLimiter for the algorithm, RateLimitRule for policy, and RateLimitStore for state. This separates algorithm from storage. Token bucket can support burst; sliding window gives smoother accuracy. In production the store is Redis, but tests can use in-memory store.</blockquote>
+<h3 id="6-spreadsheet-with-formulas">6. Spreadsheet With Formulas</h3>
+<h4 id="question-6">Question</h4>
+<p>设计一个 spreadsheet，支持 set cell、get cell、formula，例如 <code>C1 = A1 + B1</code>，当依赖变化时结果更新。</p>
+<h4 id="core-objects-5">Core objects</h4>
+<pre><code class="language-java">class Cell {
+  String id;
+  CellValue rawValue;
+  Formula formula;
+  CellValue computedValue;
+}
+
+class Spreadsheet {
+  Map&lt;String, Cell&gt; cells;
+  DependencyGraph graph;
+}</code></pre>
+<h4 id="dependency-graph">Dependency graph</h4>
+<p>如果 <code>C1 = A1 + B1</code>：</p>
+<pre><code class="language-">C1 depends on A1, B1
+A1 has dependent C1
+B1 has dependent C1</code></pre>
+<p>更新 A1 时，需要 recompute C1。</p>
+<h4 id="operations">Operations</h4>
+<ol>
+<li><code>setValue(cellId, value)</code></li>
+</ol>
+<ul>
+<li>Remove old dependencies。</li>
+<li>Set raw value。</li>
+<li>Recompute dependents。</li>
+</ul>
+<ol>
+<li><code>setFormula(cellId, formula)</code></li>
+</ol>
+<ul>
+<li>Parse referenced cells。</li>
+<li>Detect cycle。</li>
+<li>Update dependency graph。</li>
+<li>Compute value。</li>
+<li>Recompute dependents。</li>
+</ul>
+<ol>
+<li><code>getValue(cellId)</code></li>
+</ol>
+<ul>
+<li>Return computed value。</li>
+</ul>
+<h4 id="cycle-detection">Cycle detection</h4>
+<p>如果：</p>
+<pre><code class="language-">A1 = B1 + 1
+B1 = A1 + 1</code></pre>
+<p>必须 reject。使用 DFS 检查新 edge 是否造成 cycle。</p>
+<h4 id="interview-answer-6">Interview answer</h4>
+<blockquote>I would model formulas as a dependency graph. Each formula cell depends on referenced cells, and each cell tracks its dependents. When a cell changes, we recompute affected cells in topological order. Formula updates must run cycle detection before committing graph changes.</blockquote>
+<h3 id="7-connect-four-low-level-design">7. Connect Four Low Level Design</h3>
+<h4 id="question-7">Question</h4>
+<p>设计 Connect Four 游戏。两个玩家轮流往列里放棋子，先连成 4 个获胜。</p>
+<h4 id="core-objects-6">Core objects</h4>
+<pre><code class="language-java">class Game {
+  Board board;
+  Player currentPlayer;
+  GameStatus status;
+}
+
+class Board {
+  int rows = 6;
+  int cols = 7;
+  Piece[][] grid;
+  int[] nextEmptyRowByCol;
+}
+
+class Move {
+  Player player;
+  int col;
+  int row;
+}</code></pre>
+<h4 id="main-operation">Main operation</h4>
+<pre><code class="language-java">MoveResult makeMove(int col)</code></pre>
+<p>Steps:</p>
+<ol>
+<li>Check game is active。</li>
+<li>Check col in range。</li>
+<li>Check column not full。</li>
+<li>Place piece at <code>nextEmptyRowByCol[col]</code>。</li>
+<li>Check winner。</li>
+<li>Switch player。</li>
+</ol>
+<h4 id="winner-detection">Winner detection</h4>
+<p>只需要从新落子的 cell 检查四个方向：</p>
+<ul>
+<li>horizontal。</li>
+<li>vertical。</li>
+<li>diagonal down-right。</li>
+<li>diagonal up-right。</li>
+</ul>
+<p>每个方向向两边扩展计数，&gt;= 4 则 win。</p>
+<h4 id="extensibility-2">Extensibility</h4>
+<ul>
+<li>Board size configurable。</li>
+<li>Win length configurable。</li>
+<li>AI player 实现 Player interface。</li>
+<li>Undo 支持 move history。</li>
+</ul>
+<h4 id="interview-answer-7">Interview answer</h4>
+<blockquote>I would keep the board state simple and optimize winner detection around the last move. After placing a piece, check four directions from that cell rather than scanning the whole board. The design has Game for turn/state, Board for grid operations, and configurable win length for extensibility.</blockquote>
+<h3 id="8-lld-delivery-framework">8. LLD Delivery Framework</h3>
+<h4 id="what-interviewers-expect">What interviewers expect</h4>
+<p>LLD 不是背 class diagram，而是展示你能把需求转成可维护代码结构。</p>
+<h4 id="recommended-flow">Recommended flow</h4>
+<ol>
+<li>Clarify use cases</li>
+</ol>
+<ul>
+<li>Who uses it?</li>
+<li>What operations are required?</li>
+<li>What is out of scope?</li>
+</ul>
+<ol>
+<li>Identify nouns and verbs</li>
+</ol>
+<ul>
+<li>Nouns become candidate classes。</li>
+<li>Verbs become methods / services。</li>
+</ul>
+<ol>
+<li>Define relationships</li>
+</ol>
+<ul>
+<li>one-to-many。</li>
+<li>composition vs aggregation。</li>
+<li>ownership and lifecycle。</li>
+</ul>
+<ol>
+<li>Define state machines</li>
+</ol>
+<ul>
+<li>Booking, order, ticket, elevator, locker 都有 states。</li>
+<li>状态转换比 class 数量更重要。</li>
+</ul>
+<ol>
+<li>Apply patterns only when useful</li>
+</ol>
+<ul>
+<li>Strategy for pluggable algorithms。</li>
+<li>Factory for object creation。</li>
+<li>Observer for notification。</li>
+<li>State pattern for complex state transitions。</li>
+</ul>
+<ol>
+<li>Discuss concurrency</li>
+</ol>
+<ul>
+<li>atomic update。</li>
+<li>lock。</li>
+<li>optimistic concurrency。</li>
+<li>idempotency。</li>
+</ul>
+<ol>
+<li>Mention tests</li>
+</ol>
+<ul>
+<li>unit tests for policies。</li>
+<li>state transition tests。</li>
+<li>concurrency tests。</li>
+<li>edge cases。</li>
+</ul>
+<h4 id="common-mistakes">Common mistakes</h4>
+<ul>
+<li>一上来画 20 个 classes，但没有 main flow。</li>
+<li>忘记 state transition。</li>
+<li>把 policy 写死，无法扩展。</li>
+<li>不讲 concurrency。</li>
+<li>不讲 invalid input。</li>
+<li>不讲 tests。</li>
+</ul>
+<h4 id="interview-answer-8">Interview answer</h4>
+<blockquote>In LLD, I start from use cases and state transitions, then define entities and interfaces. I keep policies pluggable through strategy interfaces, keep persistence separate from domain logic, and explicitly handle invalid states and concurrency. I also call out unit tests for state transitions and edge cases.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

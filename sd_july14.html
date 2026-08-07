@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>System Design 28 - Senior+ SWE / MLE</title>
+  <link rel="icon" type="image/svg+xml" href="how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 400px), var(--bg);
+      color: var(--ink);
+      font: 15px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .home {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 20;
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 11px;
+      border: 1px solid rgba(148, 163, 184, .35);
+      border-radius: 999px;
+      background: rgba(8, 11, 16, .86);
+      color: #e5eefb;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    aside {
+      border-right: 1px solid var(--line);
+      background: rgba(16, 23, 34, .9);
+      padding: 54px 12px 16px;
+      overflow: auto;
+      max-height: 100vh;
+      position: sticky;
+      top: 0;
+    }
+    h1 {
+      margin: 0 0 14px;
+      color: var(--accent);
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .meta { margin: -4px 0 16px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .route-list {
+      display: grid;
+      gap: 6px;
+    }
+    .route-group { min-width: 0; }
+    .route, .child-link {
+      display: block;
+      padding: 8px 9px;
+      border-left: 3px solid transparent;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .route { border: 1px solid rgba(148,163,184,.14); border-left: 3px solid transparent; background: rgba(8,11,16,.28); }
+    .route:hover, .route.active, .child-link:hover, .child-link.active {
+      border-left-color: var(--accent);
+      color: var(--ink);
+      background: rgba(94, 234, 212, .09);
+    }
+    .route strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+    .route small { display: block; margin-top: 3px; color: #7f93aa; font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .06em; }
+    .child-list { display: grid; gap: 2px; margin: 3px 0 2px 12px; padding-left: 8px; border-left: 1px solid rgba(94,234,212,.22); }
+    .child-list[hidden] { display: none; }
+    .child-link { padding: 6px 8px; border-left-width: 2px; font-size: 11.5px; line-height: 1.3; overflow-wrap: anywhere; }
+    main {
+      min-width: 0;
+      padding: 18px;
+    }
+    iframe {
+      display: block;
+      width: 100%;
+      height: calc(100vh - 36px);
+      border: 1px solid var(--line);
+      background: #080b10;
+    }
+    @media (max-width: 900px) {
+      .home { position: static; margin: 10px 0 0 10px; }
+      .app { display: block; }
+      aside { position: relative; max-height: none; padding-top: 18px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .route-list { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+      iframe { height: 72vh; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home" href="index.html">Index</a>
+  <div class="app">
+    <aside>
+      <h1>SD 28</h1>
+      <p class="meta">Senior+ SWE / MLE<br/>28 cases · 9 routes</p>
+      <nav class="route-list" aria-label="System Design 28 routes">
+        <div class="route-group" data-group="00-sd-quick-routes">
+          <a class="route active" href="sd/01-foundations.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="01-foundations">
+            <strong>0. SD Quick Routes</strong>
+            <small>16 items</small>
+          </a>
+          <div class="child-list">
+            <a class="child-link active" href="sd/01-foundations.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="01-foundations">1. Foundations</a>
+            <a class="child-link" href="sd/02-events-state-consistency.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="02-events-state-consistency">2. Events &amp; Consistency</a>
+            <a class="child-link" href="sd/03-product-systems.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="03-product-systems">3. Product Systems</a>
+            <a class="child-link" href="sd/04-classic-system-design.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="04-classic-system-design">4. Classic Designs</a>
+            <a class="child-link" href="sd/05-more-product-designs.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="05-more-product-designs">5. Product Designs II</a>
+            <a class="child-link" href="sd/06-low-level-design.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="06-low-level-design">6. Low Level Design</a>
+            <a class="child-link" href="sd/07-infra-patterns.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="07-infra-patterns">7. Infra Patterns</a>
+            <a class="child-link" href="sd/08-data-modeling-storage.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="08-data-modeling-storage">8. Data Modeling &amp; Storage</a>
+            <a class="child-link" href="sd/09-follow-up-playbooks.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="09-follow-up-playbooks">9. Follow-up Playbooks</a>
+            <a class="child-link" href="sd/10-interview-strategy-edge-cases.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="10-interview-strategy-edge-cases">10. Interview Strategy &amp; Edge Cases</a>
+            <a class="child-link" href="sd/11-ml-system-design.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="11-ml-system-design">11. ML System Design</a>
+            <a class="child-link" href="sd/12-specialized-systems.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="12-specialized-systems">12. Specialized Systems</a>
+            <a class="child-link" href="sd/13-llm-serving.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="13-llm-serving">13. Multi-GPU LLM Serving</a>
+            <a class="child-link" href="sd/14-vision-video-inference.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="14-vision-video-inference">14. Vision / Video</a>
+            <a class="child-link" href="sd/15-video-serving-deep-dive.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="15-video-serving-deep-dive">15. Video Serving Deep Dive</a>
+            <a class="child-link" href="sd/16-quick-reference.html" target="readerFrame" data-route="00-sd-quick-routes" data-child="16-quick-reference">16. Quick Reference</a>
+          </div>
+        </div>
+        <div class="route-group" data-group="01-method">
+          <a class="route" href="sd_july14/case-00-interview-method.html" target="readerFrame" data-route="01-method" data-child="case-00-interview-method">
+            <strong>1. Interview Method</strong>
+            <small>1 item</small>
+          </a>
+          <div class="child-list">
+            <a class="child-link" href="sd_july14/case-00-interview-method.html" target="readerFrame" data-route="01-method" data-child="case-00-interview-method">0. Interview Method</a>
+          </div>
+        </div>
+        <div class="route-group" data-group="02-realtime-streaming">
+          <a class="route" href="sd_july14/case-01-design-whatsapp.html" target="readerFrame" data-route="02-realtime-streaming" data-child="case-01-design-whatsapp">
+            <strong>2. Realtime &amp; Streaming</strong>
+            <small>4 items</small>
+          </a>
+          <div class="child-list" hidden>
+            <a class="child-link" href="sd_july14/case-01-design-whatsapp.html" target="readerFrame" data-route="02-realtime-streaming" data-child="case-01-design-whatsapp">1. Design WhatsApp</a>
+            <a class="child-link" href="sd_july14/case-02-design-youtube.html" target="readerFrame" data-route="02-realtime-streaming" data-child="case-02-design-youtube">2. Design YouTube</a>
+            <a class="child-link" href="sd_july14/case-03-design-uber.html" target="readerFrame" data-route="02-realtime-streaming" data-child="case-03-design-uber">3. Design Uber</a>
+            <a class="child-link" href="sd_july14/case-04-design-netflix.html" target="readerFrame" data-route="02-realtime-streaming" data-child="case-04-design-netflix">4. Design Netflix</a>
+          </div>
+        </div>
+        <div class="route-group" data-group="03-commerce-social-storage">
+          <a class="route" href="sd_july14/case-05-design-amazon.html" target="readerFrame" data-route="03-commerce-social-storage" data-child="case-05-design-amazon">
+            <strong>3. Commerce, Social &amp; Cloud Storage</strong>
+            <small>4 items</small>
+          </a>
+          <div class="child-list" hidden>
+            <a class="child-link" href="sd_july14/case-05-design-amazon.html" target="readerFrame" data-route="03-commerce-social-storage" data-child="case-05-design-amazon">5. Design Amazon</a>
+            <a class="child-link" href="sd_july14/case-06-design-instagram.html" target="readerFrame" data-route="03-commerce-social-storage" data-child="case-06-design-instagram">6. Design Instagram</a>
+            <a class="child-link" href="sd_july14/case-07-design-x-twitter.html" target="readerFrame" data-route="03-commerce-social-storage" data-child="case-07-design-x-twitter">7. Design X / Twitter</a>
+            <a class="child-link" href="sd_july14/case-08-design-google-drive.html" target="readerFrame" data-route="03-commerce-social-storage" data-child="case-08-design-google-drive">8. Design Google Drive</a>
+          </div>
+        </div>
+        <div class="route-group" data-group="04-media-core-infra">
+          <a class="route" href="sd_july14/case-09-design-spotify.html" target="readerFrame" data-route="04-media-core-infra" data-child="case-09-design-spotify">
+            <strong>4. Media &amp; Core Infrastructure</strong>
+            <small>4 items</small>
+          </a>
+          <div class="child-list" hidden>
+            <a class="child-link" href="sd_july14/case-09-design-spotify.html" target="readerFrame" data-route="04-media-core-infra" data-child="case-09-design-spotify">9. Design Spotify</a>
+            <a class="child-link" href="sd_july14/case-10-design-zoom.html" target="readerFrame" data-route="04-media-core-infra" data-child="case-10-design-zoom">10. Design Zoom</a>
+            <a class="child-link" href="sd_july14/case-11-design-s3.html" target="readerFrame" data-route="04-media-core-infra" data-child="case-11-design-s3">11. Design S3</a>
+            <a class="child-link" href="sd_july14/case-12-design-a-url-shortener.html" target="readerFrame" data-route="04-media-core-infra" data-child="case-12-design-a-url-shortener">12. Design a URL Shortener</a>
+          </div>
+        </div>
+        <div class="route-group" data-group="05-delivery-orchestration">
+          <a class="route" href="sd_july14/case-13-design-a-webhook-platform.html" target="readerFrame" data-route="05-delivery-orchestration" data-child="case-13-design-a-webhook-platform">
+            <strong>5. Delivery, Orchestration &amp; Concurrency</strong>
+            <small>4 items</small>
+          </a>
+          <div class="child-list" hidden>
+            <a class="child-link" href="sd_july14/case-13-design-a-webhook-platform.html" target="readerFrame" data-route="05-delivery-orchestration" data-child="case-13-design-a-webhook-platform">13. Design a Webhook Platform</a>
+            <a class="child-link" href="sd_july14/case-14-design-github-actions.html" target="readerFrame" data-route="05-delivery-orchestration" data-child="case-14-design-github-actions">14. Design GitHub Actions</a>
+            <a class="child-link" href="sd_july14/case-15-design-a-distributed-job-scheduler.html" target="readerFrame" data-route="05-delivery-orchestration" data-child="case-15-design-a-distributed-job-scheduler">15. Design a Distributed Job Scheduler</a>
+            <a class="child-link" href="sd_july14/case-16-design-conflict-control.html" target="readerFrame" data-route="05-delivery-orchestration" data-child="case-16-design-conflict-control">16. Design Conflict Control</a>
+          </div>
+        </div>
+        <div class="route-group" data-group="06-ai-ml-systems">
+          <a class="route" href="sd_july14/case-17-design-chatgpt-playground.html" target="readerFrame" data-route="06-ai-ml-systems" data-child="case-17-design-chatgpt-playground">
+            <strong>6. AI / ML Systems</strong>
+            <small>4 items</small>
+          </a>
+          <div class="child-list" hidden>
+            <a class="child-link" href="sd_july14/case-17-design-chatgpt-playground.html" target="readerFrame" data-route="06-ai-ml-systems" data-child="case-17-design-chatgpt-playground">17. Design ChatGPT Playground</a>
+            <a class="child-link" href="sd_july14/case-18-design-batch-inference-system.html" target="readerFrame" data-route="06-ai-ml-systems" data-child="case-18-design-batch-inference-system">18. Design Batch Inference System</a>
+            <a class="child-link" href="sd_july14/case-19-design-ml-model-distribution-system.html" target="readerFrame" data-route="06-ai-ml-systems" data-child="case-19-design-ml-model-distribution-system">19. Design ML Model Distribution System</a>
+            <a class="child-link" href="sd_july14/case-20-design-real-time-top-k-trending-system.html" target="readerFrame" data-route="06-ai-ml-systems" data-child="case-20-design-real-time-top-k-trending-system">20. Design Real-time Top-K / Trending System</a>
+          </div>
+        </div>
+        <div class="route-group" data-group="07-ranking-workflows">
+          <a class="route" href="sd_july14/case-21-design-online-game-leaderboard.html" target="readerFrame" data-route="07-ranking-workflows" data-child="case-21-design-online-game-leaderboard">
+            <strong>7. Ranking, Search &amp; Workflows</strong>
+            <small>4 items</small>
+          </a>
+          <div class="child-list" hidden>
+            <a class="child-link" href="sd_july14/case-21-design-online-game-leaderboard.html" target="readerFrame" data-route="07-ranking-workflows" data-child="case-21-design-online-game-leaderboard">21. Design Online Game Leaderboard</a>
+            <a class="child-link" href="sd_july14/case-22-design-distributed-crossword-solver.html" target="readerFrame" data-route="07-ranking-workflows" data-child="case-22-design-distributed-crossword-solver">22. Design Distributed Crossword Solver</a>
+            <a class="child-link" href="sd_july14/case-23-design-google-calendar.html" target="readerFrame" data-route="07-ranking-workflows" data-child="case-23-design-google-calendar">23. Design Google Calendar</a>
+            <a class="child-link" href="sd_july14/case-24-design-lowest-cost-book-purchasing.html" target="readerFrame" data-route="07-ranking-workflows" data-child="case-24-design-lowest-cost-book-purchasing">24. Design Lowest-Cost Book Purchasing</a>
+          </div>
+        </div>
+        <div class="route-group" data-group="08-collaboration-finance-local">
+          <a class="route" href="sd_july14/case-25-design-online-chess.html" target="readerFrame" data-route="08-collaboration-finance-local" data-child="case-25-design-online-chess">
+            <strong>8. Collaboration, Payments &amp; Local Search</strong>
+            <small>4 items</small>
+          </a>
+          <div class="child-list" hidden>
+            <a class="child-link" href="sd_july14/case-25-design-online-chess.html" target="readerFrame" data-route="08-collaboration-finance-local" data-child="case-25-design-online-chess">25. Design Online Chess</a>
+            <a class="child-link" href="sd_july14/case-26-design-slack.html" target="readerFrame" data-route="08-collaboration-finance-local" data-child="case-26-design-slack">26. Design Slack</a>
+            <a class="child-link" href="sd_july14/case-27-design-stripe-payment-platform.html" target="readerFrame" data-route="08-collaboration-finance-local" data-child="case-27-design-stripe-payment-platform">27. Design Stripe / Payment Platform</a>
+            <a class="child-link" href="sd_july14/case-28-design-yelp.html" target="readerFrame" data-route="08-collaboration-finance-local" data-child="case-28-design-yelp">28. Design Yelp</a>
+          </div>
+        </div>
+        <div class="route-group" data-group="09-review-checklist">
+          <a class="route" href="sd_july14/case-29-cross-case-review.html" target="readerFrame" data-route="09-review-checklist" data-child="case-29-cross-case-review">
+            <strong>9. Review &amp; Self-Check</strong>
+            <small>2 items</small>
+          </a>
+          <div class="child-list" hidden>
+            <a class="child-link" href="sd_july14/case-29-cross-case-review.html" target="readerFrame" data-route="09-review-checklist" data-child="case-29-cross-case-review">29. Cross-Case Review</a>
+            <a class="child-link" href="sd_july14/case-30-senior-final-checklist.html" target="readerFrame" data-route="09-review-checklist" data-child="case-30-senior-final-checklist">30. Senior+ Final Checklist</a>
+          </div>
+        </div>
+      </nav>
+    </aside>
+    <main>
+      <iframe name="readerFrame" id="readerFrame" src="sd/01-foundations.html" title="System Design merged reader"></iframe>
+    </main>
+  </div>
+  <script>
+    const groups = Array.from(document.querySelectorAll(".route-group"));
+    const routeLinks = Array.from(document.querySelectorAll(".route"));
+    const childLinks = Array.from(document.querySelectorAll(".child-link"));
+    const frame = document.getElementById("readerFrame");
+    let preserveGroupHashOnLoad = false;
+    const activate = (link, hash, updateHash = true) => {
+      routeLinks.forEach((item) => item.classList.remove("active"));
+      childLinks.forEach((item) => item.classList.remove("active"));
+      groups.forEach((group) => { group.querySelector(".child-list").hidden = group !== link.closest(".route-group"); });
+      link.closest(".route-group").querySelector(".route").classList.add("active");
+      const child = link.classList.contains("child-link") ? link : link.closest(".route-group").querySelector(".child-link");
+      child.classList.add("active");
+      if (updateHash) history.replaceState(null, "", "#" + hash);
+    };
+    routeLinks.forEach((link) => link.addEventListener("click", () => {
+      preserveGroupHashOnLoad = true;
+      activate(link, link.dataset.route);
+    }));
+    childLinks.forEach((link) => link.addEventListener("click", () => activate(link, link.dataset.child)));
+    frame.addEventListener("load", () => {
+      try {
+        const slug = new URL(frame.contentWindow.location.href).pathname.split("/").pop().replace(/.html$/, "");
+        const child = childLinks.find((link) => link.dataset.child === slug);
+        if (child) activate(child, slug, !preserveGroupHashOnLoad);
+      } finally {
+        preserveGroupHashOnLoad = false;
+      }
+    });
+    const requested = location.hash.slice(1);
+    const initialChild = childLinks.find((link) => link.dataset.child === requested);
+    const initialRoute = routeLinks.find((link) => link.dataset.route === requested);
+    (initialChild || initialRoute || routeLinks[0]).click();
+  </script>
+</body>
+</html>

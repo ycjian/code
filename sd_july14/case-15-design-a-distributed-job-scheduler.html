@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>15. Design a Distributed Job Scheduler - System Design 28</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Case 16 / 31 · Route 5 / 9</p>
+          <h1 class="route-title">15. Design a Distributed Job Scheduler</h1>
+          <p class="route-subtitle">Webhook、CI/CD、Job Scheduler、Conflict Control：可靠交付、DAG、Lease/Fencing 与 Lost Update。</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#15-1-题意-边界与-source-digest">15.1 题意、边界与 Source digest</a><a href="#15-2-fr-nfr-与-slo">15.2 FR、NFR 与 SLO</a><a href="#15-3-容量估算">15.3 容量估算</a><a href="#15-4-api-与-event-contracts">15.4 API 与 Event Contracts</a><a href="#15-5-数据模型-分片-索引-ttl-与状态机">15.5 数据模型、分片、索引、TTL 与状态机</a><a href="#15-6-architecture">15.6 Architecture</a><a href="#15-7-核心-flows">15.7 核心 Flows</a><a href="#15-8-deep-dive-a-timer-精度-cron-misfire-与重复物化">15.8 Deep Dive A：Timer 精度、Cron、Misfire 与重复物化</a><a href="#15-9-deep-dive-b-lease-不能保证-no-double-execution">15.9 Deep Dive B：Lease 不能保证 No Double Execution</a><a href="#15-10-deep-dive-c-dag-正确性与复杂语义">15.10 Deep Dive C：DAG 正确性与复杂语义</a><a href="#15-11-deep-dive-d-fairness-priority-与-backpressure">15.11 Deep Dive D：Fairness、Priority 与 Backpressure</a><a href="#15-12-deep-dive-e-长任务-checkpoint-cancel-与-retry">15.12 Deep Dive E：长任务、Checkpoint、Cancel 与 Retry</a><a href="#15-13-multi-region-dr-与-security">15.13 Multi-Region、DR 与 Security</a><a href="#15-14-observability-cost-与-on-call-视角">15.14 Observability、Cost 与 On-call 视角</a><a href="#15-15-trade-offs-与-evolution">15.15 Trade-offs 与 Evolution</a><a href="#15-16-follow-up-q-a">15.16 Follow-up Q&amp;A</a><a href="#15-17-60-秒总结">15.17 60 秒总结</a></nav>
+        </header>
+        <h2 id="15-design-a-distributed-job-scheduler-定时任务与-dag-编排">15. Design a Distributed Job Scheduler：定时任务与 DAG 编排</h2>
+<h3 id="15-1-题意-边界与-source-digest">15.1 题意、边界与 Source digest</h3>
+<blockquote><strong>Source digest — <code>Design a Job Scheduler.docx</code></strong>：源文件包含两个连续部分：完整 scheduler 主设计，以及 <code>DAG / remaining prerequisites counter / TaskRun vs JobRun</code> 深挖。吸收了 immediate/one-time/recurring、<code>FOR UPDATE SKIP LOCKED</code>、lease、Outbox、retry/DLQ、多租户 lane、DAG runtime instance、backfill 与 checkpoint 的方向。源文件只有 1 张 Word table、没有内嵌图片；其 ASCII flow 已重画。</blockquote>
+<p>本题设计一个通用基础设施：用户提交 immediate、future、cron 或 DAG workflow；平台在正确时间挑选可运行节点，派发到 Worker，追踪 attempt、重试、取消、回填和审计。</p>
+<p>先定边界：Scheduler 负责 <strong>when/what/where to run</strong>，业务 task 的 external side effect 仍需业务方提供 idempotency contract。Scheduler 能提供 at-least-once execution；除非 side-effect sink 与 scheduler 共用事务，否则不能声称 end-to-end exactly-once。</p>
+<p>范围内：</p>
+<ul>
+<li>immediate、one-time、cron、pause/resume/cancel。</li>
+<li>versioned DAG、dependency、retry policy、timeout、backfill。</li>
+<li>resource-aware placement、tenant fairness、lease/reconciliation、checkpoint hook。</li>
+<li>status/log pointer、audit、DLQ/manual replay。</li>
+</ul>
+<p>范围外：容器构建与代码仓库（放到 CI/CD 题）、任意用户代码的沙盒实现细节、业务内部补偿逻辑。</p>
+<h3 id="15-2-fr-nfr-与-slo">15.2 FR、NFR 与 SLO</h3>
+<p><strong>Functional Requirements</strong></p>
+<ol>
+<li>创建不可变版本的 <code>JobDefinition/WorkflowDefinition</code>，创建 Schedule。</li>
+<li>到点只物化一次 logical run；支持 <code>catchup/misfire</code> policy。</li>
+<li>DAG 上游满足后自动释放下游；支持 <code>all_success/any_success/all_done</code> 等 dependency policy。</li>
+<li>Worker 领取、心跳、完成、失败、重试、超时、取消；每次 attempt 可审计。</li>
+<li>长任务 checkpoint、恢复；用户可 backfill 某时间区间且绑定原 definition version。</li>
+</ol>
+<p><strong>NFR / SLO</strong></p>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>目标</th></tr></thead><tbody><tr><td>Throughput</td><td>峰值 10k task starts/s；控制面可横向扩展</td></tr>
+<tr><td>Timeliness</td><td>due-to-enqueued p99 &lt; 2 s；immediate accepted-to-enqueued p99 &lt; 500 ms</td></tr>
+<tr><td>Availability</td><td>submit/status 99.99%；dispatch 99.95%</td></tr>
+<tr><td>Durability</td><td>已接受 definition/run 不丢；single-region RPO=0，region DR 按 tier</td></tr>
+<tr><td>Delivery</td><td>默认 at-least-once；重复可检测、旧 Worker 可 fencing</td></tr>
+<tr><td>Fairness</td><td>单租户洪峰不能让正常租户无限 starvation；priority 有 aging</td></tr></tbody></table></div>
+<p>关键纠正：不能笼统说“High Availability over Strict Consistency”。metrics、日志索引可 AP；但 run materialization、claim 和 terminal transition 必须走 authoritative CP owner，否则会双跑或丢跑。</p>
+<h3 id="15-3-容量估算">15.3 容量估算</h3>
+<p>假设：</p>
+<ul>
+<li>平均 task starts <code>2,000/s</code>，峰值 <code>10,000/s</code>。</li>
+<li>平均执行 <code>60 s</code>，p99 可到数小时。</li>
+<li>每 attempt 控制面记录约 <code>1 KB</code>，payload 平均 <code>2 KB</code>（大输入只存 object URI）。</li>
+<li>每 task 生命周期约 5 次 durable mutation：create、claim、lease renew/coalesced heartbeat、complete、outbox/aggregate update。</li>
+</ul>
+<p>推导：</p>
+<ul>
+<li>平均运行并发：Little's Law，<code>2,000 starts/s × 60 s = 120,000 active tasks</code>。</li>
+<li>若持续一分钟处于 10k/s 峰值且不降载，需要 <code>10,000 × 60 = 600,000</code> active slots；实际通过 quota 与 queue backlog 吸收峰值。</li>
+<li>平均 attempts/day：<code>2,000 × 86,400 = 172.8M/day</code>。</li>
+<li>attempt metadata：<code>172.8M × 1 KB ≈ 173 GB/day raw</code>；3 replicas 约 <code>519 GB/day</code>；保留 30 天约 <code>15.6 TB</code>，之后转 object storage/OLAP。</li>
+<li>queue payload：平均 <code>2,000 × 2 KB = 4 MB/s</code>，峰值 <code>20 MB/s</code>；不是瓶颈，claim/state write 才是。</li>
+<li>峰值 durable writes 粗估：<code>10k × 5 = 50k writes/s</code>；heartbeat 必须批量或租约分层，否则每 5 秒一次会额外制造 <code>600k/5=120k writes/s</code>。</li>
+<li>若扫描未来 5 分钟的 timer horizon：峰值候选约 <code>10k/s × 300s = 3M</code>，需要 time bucket，而不是每轮全表扫描。</li>
+</ul>
+<h3 id="15-4-api-与-event-contracts">15.4 API 与 Event Contracts</h3>
+<pre><code class="language-http">POST /v1/workflows
+Idempotency-Key: ...
+{ &quot;name&quot;:&quot;daily-etl&quot;, &quot;tasks&quot;:[...], &quot;edges&quot;:[...], &quot;version_note&quot;:&quot;...&quot; }
+
+POST /v1/schedules
+{ &quot;workflow_version_id&quot;:&quot;wv-42&quot;, &quot;cron&quot;:&quot;0 8 * * 1&quot;, &quot;timezone&quot;:&quot;America/Los_Angeles&quot;,
+  &quot;misfire_policy&quot;:&quot;FIRE_ONCE&quot;, &quot;max_catchup&quot;:24 }
+
+POST /v1/workflows/{id}/runs
+Idempotency-Key: ...
+{ &quot;logical_date&quot;:&quot;2026-07-15&quot;, &quot;params_uri&quot;:&quot;obj://...&quot; }
+
+POST /v1/runs/{run_id}:cancel
+POST /v1/task-runs/{task_run_id}:retry
+GET  /v1/runs/{run_id}</code></pre>
+<p>Worker protocol：</p>
+<pre><code class="language-json">{
+  &quot;attempt_id&quot;: &quot;a-9&quot;,
+  &quot;task_run_id&quot;: &quot;tr-7&quot;,
+  &quot;attempt_epoch&quot;: 4,
+  &quot;lease_expires_at&quot;: &quot;...&quot;,
+  &quot;payload_uri&quot;: &quot;obj://...&quot;,
+  &quot;resource_class&quot;: &quot;cpu-4-mem-16g&quot;,
+  &quot;idempotency_key&quot;: &quot;tr-7&quot;
+}</code></pre>
+<p>完成事件：</p>
+<pre><code class="language-json">{
+  &quot;event_id&quot;:&quot;01J...&quot;,
+  &quot;type&quot;:&quot;AttemptFinished&quot;,
+  &quot;task_run_id&quot;:&quot;tr-7&quot;,
+  &quot;attempt_id&quot;:&quot;a-9&quot;,
+  &quot;attempt_epoch&quot;:4,
+  &quot;result&quot;:&quot;SUCCEEDED&quot;,
+  &quot;output_uri&quot;:&quot;obj://...&quot;,
+  &quot;finished_at&quot;:&quot;...&quot;
+}</code></pre>
+<p>服务端只接受当前 epoch 的 terminal update；消息重复按 <code>event_id</code> 与 <code>(task_run_id, attempt_epoch)</code> 去重。</p>
+<h3 id="15-5-数据模型-分片-索引-ttl-与状态机">15.5 数据模型、分片、索引、TTL 与状态机</h3>
+<div class="table-wrap"><table><thead><tr><th>实体</th><th>关键字段</th><th>设计要点</th></tr></thead><tbody><tr><td><code>WorkflowDefinition</code></td><td><code>workflow_id, version, checksum, created_at</code></td><td>immutable version；backfill 固定版本</td></tr>
+<tr><td><code>TaskDefinition</code> / <code>Edge</code></td><td>command/image/resources；<code>from,to,condition</code></td><td>保存 adjacency；创建时 cycle detection</td></tr>
+<tr><td><code>Schedule</code></td><td><code>schedule_id, cron, timezone, next_fire_at, owner_epoch</code></td><td>index <code>(timer_bucket,next_fire_at)</code></td></tr>
+<tr><td><code>WorkflowRun</code></td><td><code>run_id, workflow_version, logical_time, status, remaining_terminal</code></td><td>unique <code>(schedule_id, scheduled_fire_at)</code></td></tr>
+<tr><td><code>TaskRun</code></td><td><code>run_id, task_id, status, remaining_prereqs, task_epoch</code></td><td>与同一 run co-locate；index ready/time</td></tr>
+<tr><td><code>DependencySatisfied</code></td><td><code>run_id, from_task, to_task, upstream_epoch</code></td><td>unique key，避免重复完成导致 counter 多减</td></tr>
+<tr><td><code>Attempt</code></td><td><code>attempt_id, task_run_id, epoch, lease, worker, error_class</code></td><td>append attempt；当前 epoch 单调递增</td></tr>
+<tr><td><code>TimerBucket</code></td><td><code>bucket_minute, shard, cursor</code></td><td>近未来时间轮；支持 lease owner</td></tr>
+<tr><td><code>Outbox</code></td><td><code>event_id, aggregate_id, available_at, payload</code></td><td>与状态变更同事务</td></tr>
+<tr><td><code>Checkpoint</code></td><td><code>task_run_id, attempt_epoch, uri, checksum, seq</code></td><td>只接受当前 epoch；immutable snapshot</td></tr></tbody></table></div>
+<p>分片：definition 按 tenant/workflow；active run 按 <code>hash(tenant_id, run_id)</code>，让一个 DAG 的 TaskRun/Edge state 尽量同 shard。timer 按 <code>fire_time bucket + hash(schedule_id)</code>；历史按 completion month range partition，TTL 后归档。</p>
+<p>状态机：</p>
+<pre><code class="language-text">WorkflowRun: SCHEDULED -&gt; RUNNING -&gt; SUCCEEDED | FAILED
+                              |---&gt; CANCEL_REQUESTED -&gt; CANCELLED
+TaskRun:     PENDING -&gt; READY -&gt; CLAIMED -&gt; RUNNING -&gt; SUCCEEDED
+                 |         |          |       -&gt; FAILED -&gt; RETRY_WAIT -&gt; READY
+                 |         |          +------&gt; TIMED_OUT
+                 +---------+-----------------&gt; CANCEL_REQUESTED -&gt; CANCELLED
+                 +---------------------------&gt; SKIPPED
+Attempt:     CREATED -&gt; LEASED -&gt; RUNNING -&gt; terminal</code></pre>
+<p>所有 transition 都是 <code>WHERE state IN (...) AND epoch=?</code> 的 compare-and-set；terminal state 不允许倒退。</p>
+<h3 id="15-6-architecture">15.6 Architecture</h3>
+<figure class="architecture"><figcaption>Architecture Diagram</figcaption><pre class="mermaid">flowchart LR
+    C[&quot;Client / Control API&quot;] --&gt; A[&quot;Definition + Schedule Service&quot;]
+    A --&gt; DB[(&quot;Sharded Metadata DB&quot;)]
+    T[&quot;Timer Wheel / Due Scanner&quot;] --&gt; DB
+    DB --&gt; O[(&quot;Transactional Outbox Relay&quot;)]
+    O --&gt; Q[&quot;Ready Queues by resource/lane&quot;]
+    Q --&gt; F[&quot;Fair Scheduler\nquota + DRF/WFQ&quot;]
+    F --&gt; W[&quot;Worker Pools&quot;]
+    W --&gt; L[&quot;Lease / Attempt Service&quot;]
+    L --&gt; DB
+    W --&gt; B[(&quot;Logs / Outputs / Checkpoints&quot;)]
+    O --&gt; E[&quot;Completion Topic&quot;]
+    E --&gt; R[&quot;DAG Orchestrator&quot;]
+    R --&gt; DB
+    X[&quot;Reconciler&quot;] --&gt; DB</pre><div class="ascii-label">ASCII Architecture · copy-friendly</div><pre class="ascii-diagram"><code>[Client / Control API] --&gt; [Definition + Schedule Service]
+[Definition + Schedule Service] --&gt; [Sharded Metadata DB]
+[Timer Wheel / Due Scanner] --&gt; [Sharded Metadata DB]
+[Sharded Metadata DB] --&gt; [Transactional Outbox Relay]
+[Transactional Outbox Relay] --&gt; [Ready Queues by resource/lane]
+[Ready Queues by resource/lane] --&gt; [Fair Scheduler / quota + DRF/WFQ]
+[Fair Scheduler / quota + DRF/WFQ] --&gt; [Worker Pools]
+[Worker Pools] --&gt; [Lease / Attempt Service]
+[Lease / Attempt Service] --&gt; [Sharded Metadata DB]
+[Worker Pools] --&gt; [Logs / Outputs / Checkpoints]
+[Transactional Outbox Relay] --&gt; [Completion Topic]
+[Completion Topic] --&gt; [DAG Orchestrator]
+[DAG Orchestrator] --&gt; [Sharded Metadata DB]
+[Reconciler] --&gt; [Sharded Metadata DB]</code></pre></figure>
+<p>Timer 只负责“到点物化”；Fair Scheduler 负责“现在把谁分配到哪”；DAG Orchestrator 负责“什么 dependency 已满足”。三者分开可独立扩容与隔离故障。</p>
+<h3 id="15-7-核心-flows">15.7 核心 Flows</h3>
+<p><strong>Immediate run</strong></p>
+<ol>
+<li>API 校验 definition version 与 params URI，在单事务插入 WorkflowRun、TaskRuns、root-ready state 与 Outbox。</li>
+<li>Relay at-least-once 发布 ready task；重复 queue message 不会产生第二个 current attempt。</li>
+<li>Worker 先向 Lease Service CAS：<code>READY -&gt; CLAIMED, attempt_epoch+1, lease_until</code>。</li>
+<li>获得 <code>{attempt_epoch, fencing token}</code> 后才执行。完成时以 epoch 条件更新 Attempt/TaskRun，并写 completion Outbox。</li>
+</ol>
+<p><strong>Recurring schedule</strong></p>
+<ol>
+<li>Schedule owner 扫描 time bucket，计算下一 occurrence；用 unique <code>(schedule_id, fire_time)</code> 插入 run。</li>
+<li>同事务推进 <code>next_fire_at</code> 并写 Outbox。两个 scanner 竞争时只有一个 insert 成功。</li>
+<li><code>DST</code>：cron 保存 timezone + tzdb version；明确 ambiguous time 是运行一次/两次，nonexistent time 是 skip/shift。系统升级 tzdb 时不静默重写已物化 occurrence。</li>
+</ol>
+<p><strong>DAG propagation</strong></p>
+<ol>
+<li>上游 TaskRun terminal 后，对每条 outgoing edge 插入 <code>DependencySatisfied</code>。</li>
+<li>insert 成功才原子更新下游计数；重复 event 因 unique key 不再 decrement。</li>
+<li>当 counter 从 1 到 0 且 condition 满足时，CAS <code>PENDING -&gt; READY</code> 并写 Outbox。</li>
+<li>Workflow 通过 <code>remaining_nonterminal</code> 归零且无 pending retry 判终结，不只看 leaf node。</li>
+</ol>
+<h3 id="15-8-deep-dive-a-timer-精度-cron-misfire-与重复物化">15.8 Deep Dive A：Timer 精度、Cron、Misfire 与重复物化</h3>
+<p>全表 <code>next_fire_at</code> 每 30 秒扫一次无法稳定满足 p99 &lt; 2s。演进方案：</p>
+<ul>
+<li>远期 schedule 存 DB；提前 5–10 分钟搬入按秒/分钟分桶的 durable timer wheel。</li>
+<li>bucket shard 有 lease owner；owner 一次拉一批、提前 materialize，Outbox 的 <code>available_at</code> 精确控制入 ready queue 时间。</li>
+<li>bucket owner crash 后，新 owner 从 durable cursor 重放；unique occurrence key 保证不双物化。</li>
+<li>clock 使用 monotonic timer 等待、UTC wall clock 决定 due；NTP 大幅回拨时暂停该 shard 并告警。</li>
+<li><code>misfire_policy</code> 必须显式：<code>SKIP</code>、<code>FIRE_ONCE</code>、<code>CATCH_UP(max_n)</code>；否则长 outage 恢复后会形成百万级 stampede。</li>
+</ul>
+<h3 id="15-9-deep-dive-b-lease-不能保证-no-double-execution">15.9 Deep Dive B：Lease 不能保证 No Double Execution</h3>
+<p>源文档把 lease 描述成“绝对不会双跑”，这是错误的。Worker A 可能暂停超过 TTL，lease 转给 B 后 A 又恢复；两者会重叠。</p>
+<p>正确防线：</p>
+<ol>
+<li>每次 claim 递增 <code>attempt_epoch/fencing token</code>。</li>
+<li>Scheduler metadata 只接受最新 epoch 的 heartbeat/finish/checkpoint。</li>
+<li>若下游是数据库/对象存储，写 API 也校验 fencing token；若是外部支付/邮件，则传稳定 <code>idempotency_key</code>，由对方去重。</li>
+<li>lease TTL &gt; 正常 heartbeat jitter，并动态考虑任务类型；续租失败立刻停止 side effect，不继续“赌网络会恢复”。</li>
+<li>对无法 fencing、无法幂等的任务，只能明确为 at-least-once 风险，或用人工介入/单 owner 执行，不能包装成 exactly-once。</li>
+</ol>
+<p><code>FOR UPDATE SKIP LOCKED</code> 适合中小规模 DB-backed queue，但 10k/s 下应批量 claim、按 shard 扫描并有 covering index；否则热索引、vacuum 和轮询空转会成为瓶颈。</p>
+<h3 id="15-10-deep-dive-c-dag-正确性与复杂语义">15.10 Deep Dive C：DAG 正确性与复杂语义</h3>
+<p>源文档的 <code>remaining prerequisites--</code> 是好优化，但若 completion event 重放会减成负数。<code>DependencySatisfied</code> 去重记录是关键。</p>
+<ul>
+<li>definition 创建时做 cycle detection/topological validation；运行时禁止原地修改 DAG，修改产生新 version。</li>
+<li>edge condition 必须定义 <code>all_success/all_done/one_success</code>；upstream failed 后是 block、skip 还是触发 compensation，不能统一“叶子完成即 complete”。</li>
+<li>dynamic fan-out 用 <code>map expansion epoch</code>：先 durable 地冻结 expansion count，再创建 children，避免 retry 生成不同集合。</li>
+<li>rerun task 默认创建新的 TaskRun generation；是否重跑 downstream 是用户显式选择，并记录 provenance。</li>
+<li>backfill 用 logical interval，不用当前 wall time；输入、代码、image digest、secret reference policy 都需可重现。</li>
+</ul>
+<p>源文档“5 节点只 11 inserts + 7 mutations”的 quiz 忽略了 dependency satisfaction、counter decrement、attempt completion、outbox 等生产记录。真实写放大取决于边数 <code>E</code>：仅依赖传播至少 <code>E</code> 次去重 insert + <code>E</code> 次 counter/CAS，不能给固定 7 次答案。</p>
+<h3 id="15-11-deep-dive-d-fairness-priority-与-backpressure">15.11 Deep Dive D：Fairness、Priority 与 Backpressure</h3>
+<p>不能为每 tenant 建物理 queue；百万租户会造成运维爆炸。使用固定 virtual shards + scheduler 内的分层公平队列：</p>
+<ul>
+<li>tenant/organization 先受 <code>running tasks, CPU, memory, GPU, starts/s</code> token bucket。</li>
+<li>再在 resource class 内用 <code>Weighted Fair Queuing</code> 或 <code>Dominant Resource Fairness (DRF)</code>。</li>
+<li>priority lane 预留容量，但加入 aging，防 bulk 永远饿死。</li>
+<li>midnight cron 加 deterministic jitter；用户若要求严格整点，则必须购买 reserved capacity，而不是偷偷改语义。</li>
+<li>overload 优先保 lease renew 与 completion，再接受 immediate，最后 materialize bulk/backfill。</li>
+<li>queue depth 不是唯一 autoscale 信号；使用 <code>oldest_ready_age + resource demand + startup latency</code>。</li>
+</ul>
+<h3 id="15-12-deep-dive-e-长任务-checkpoint-cancel-与-retry">15.12 Deep Dive E：长任务、Checkpoint、Cancel 与 Retry</h3>
+<ul>
+<li>Worker 定期把 application-provided checkpoint 写 immutable object，提交 <code>{seq, checksum, attempt_epoch}</code>；新 attempt 只从最新已提交 checkpoint 恢复。</li>
+<li>平台不能凭 OS memory snapshot 保证任意 6 小时程序可恢复；task 必须实现 checkpoint protocol。</li>
+<li>cancel 是状态机：<code>CANCEL_REQUESTED</code> 后停止分配、发 SIGTERM、grace period、SIGKILL；迟到的 success 与 cancel 用 CAS/epoch 决定唯一结果。</li>
+<li>error classifier 区分 permanent、transient、capacity、user-cancelled；<code>429/503</code> 尊重 <code>Retry-After</code>。</li>
+<li>backoff 用 full jitter：<code>sleep=random(0,min(cap,base×2^attempt))</code>；同时有 max attempts、max elapsed time、tenant retry budget。</li>
+<li>terminal failure 进入可查询 DLQ；manual replay 创建新 generation，不改写历史。</li>
+</ul>
+<h3 id="15-13-multi-region-dr-与-security">15.13 Multi-Region、DR 与 Security</h3>
+<p><strong>Multi-Region</strong></p>
+<ul>
+<li>每个 schedule/run shard 有单一 home region 和 owner epoch；各 region 可接 API，但写路由到 home。</li>
+<li>metadata journal 同步复制 paired region 才能给 RPO=0 tier；基础 tier 异步复制并声明 RPO。</li>
+<li>failover 需读取 <code>scheduler safety watermark</code>，确认 Schedule.next_fire 与 Run unique keys 已追平；未追平时停止 materialization，而不是双 region 同时扫。</li>
+<li>Worker 可多 region，但 attempt claim 仍由 home owner 授 epoch；数据 locality/resource price 只是 placement 输入。</li>
+</ul>
+<p><strong>DR</strong></p>
+<ul>
+<li>定期演练 timer backlog recovery、broker loss/replay、DB restore、region failover、KMS/secret access。</li>
+<li>outage 恢复按 quota 释放 catch-up，不一次性 fire 所有 missed runs。</li>
+</ul>
+<p><strong>Security</strong></p>
+<ul>
+<li>definition RBAC、immutable audit；Worker 使用短期 workload identity，不持久化平台 long-lived key。</li>
+<li>payload/secret 只传引用；Secret Manager 在启动时按 task identity 发短 TTL capability。</li>
+<li>network egress allowlist、resource sandbox、log redaction、artifact checksum、tenant encryption key。</li>
+</ul>
+<h3 id="15-14-observability-cost-与-on-call-视角">15.14 Observability、Cost 与 On-call 视角</h3>
+<div class="table-wrap"><table><thead><tr><th>卡口</th><th>核心指标</th></tr></thead><tbody><tr><td>Timer</td><td><code>due_to_materialized_lag</code>, missed occurrence, duplicate conflict, bucket owner churn</td></tr>
+<tr><td>Outbox/Queue</td><td>oldest age、publish lag、ready depth by resource/tenant</td></tr>
+<tr><td>Claim</td><td>claim conflict、lease expiry、stale epoch rejects、heartbeat write QPS</td></tr>
+<tr><td>Worker</td><td>start lag、runtime、OOM/preemption、checkpoint age、cancel latency</td></tr>
+<tr><td>DAG</td><td>blocked tasks、counter invariant violation、fan-out size、workflow critical path</td></tr>
+<tr><td>Fairness</td><td>per-tenant slowdown、quota rejection、starvation age、reserved capacity use</td></tr></tbody></table></div>
+<p>Cost 重点是 idle Worker、GPU fragmentation、heartbeat DB writes、长期 attempt/log retention。通过 bin packing、warm pool、spot/preemptible + checkpoint、heartbeat coalescing、冷热归档降低成本，但不能牺牲 fencing 与审计。</p>
+<h3 id="15-15-trade-offs-与-evolution">15.15 Trade-offs 与 Evolution</h3>
+<div class="table-wrap"><table><thead><tr><th>方案</th><th>优点</th><th>代价/适用边界</th></tr></thead><tbody><tr><td>DB polling + SKIP LOCKED</td><td>简单、事务清晰</td><td>中等规模；高峰有热索引与 polling cost</td></tr>
+<tr><td>Durable timer wheel + broker</td><td>精度、吞吐、隔离更好</td><td>组件与 recovery cursor 更复杂</td></tr>
+<tr><td>Per-run co-location</td><td>DAG transaction 简单</td><td>超大 fan-out run 可能成为 hot shard</td></tr>
+<tr><td>Lease + fencing</td><td>可恢复且拒绝 stale actor</td><td>sink 必须理解 token；外部 sink 仍需 idempotency</td></tr>
+<tr><td>Active-active materialization</td><td>理论可用性高</td><td>双触发风险高；通常不如 single owner + fast failover</td></tr></tbody></table></div>
+<p>演进：V1 单 SQL + SKIP LOCKED；V2 Outbox、queue、lease epoch；V3 timer wheel、sharded run store、fair scheduler；V4 multi-region owner journal、checkpoint/preemption、capacity marketplace。</p>
+<h3 id="15-16-follow-up-q-a">15.16 Follow-up Q&amp;A</h3>
+<p><strong>Q1：如何做到 exactly-once？</strong>  平台只承诺 logical run 唯一、attempt 有 fencing、投递 at-least-once。外部 side effect 需要稳定 idempotency key 或与状态写共事务；否则不能做 end-to-end exactly-once。</p>
+<p><strong>Q2：两个 scheduler 同时扫到同一 cron 怎么办？</strong>  <code>unique(schedule_id, scheduled_fire_at)</code> 是最终防线；同事务推进 next_fire 并写 Outbox，重复 scanner 只得到 conflict。</p>
+<p><strong>Q3：为什么不用一个 global lock？</strong>  它把 10k/s 变成串行瓶颈。按 timer/run shard 单 owner，局部 CAS 与 unique constraint 足够。</p>
+<p><strong>Q4：DAG counter 如何避免重复减？</strong>  先插 unique <code>DependencySatisfied(run,from,to,upstream_epoch)</code>，只有首次 insert 成功才 decrement。</p>
+<p><strong>Q5：6 小时任务挂了怎么继续？</strong>  依赖 task-defined checkpoint，保存 immutable checkpoint + seq + checksum；新 epoch 从最后提交点恢复。没有 checkpoint 的任意进程只能重跑。</p>
+<h3 id="15-17-60-秒总结">15.17 60 秒总结</h3>
+<p>“我把 immutable definition、logical run、TaskRun 和 physical Attempt 分离。Cron 由 durable timer buckets 提前物化，<code>(schedule_id, fire_time)</code> unique key 加同事务 Outbox 防双触发；ready task 经 tenant/resource fairness 进入队列。Worker 必须先拿递增 attempt epoch 的 lease，旧 Worker 即使复活也会被 metadata 和支持 fencing 的 sink 拒绝；外部 side effect 仍靠 idempotency key，所以整体是 at-least-once。DAG 用 unique dependency-satisfaction record 再原子减 counter，避免重复 completion 把计数减坏。10k starts/s、60 秒任务意味着峰值 600k 并发槽位，因此 quota、backpressure、heartbeat coalescing、checkpoint 与 catch-up budget 都是核心，而不是只画一个 queue。”</p>
+<hr/>
+<hr/>
+        <nav class="pager" aria-label="Case navigation">
+    <a href="case-14-design-github-actions.html">← 14. Design GitHub Actions</a>
+    <a class="next" href="case-16-design-conflict-control.html">16. Design Conflict Control →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

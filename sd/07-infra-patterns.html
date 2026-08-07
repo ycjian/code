@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Infra Patterns - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="25-advanced-infra-patterns-interview-bank">25. Advanced Infra Patterns Interview Bank</h2>
+<p>这一节补充 system design 面试里经常被追问的基础设施 pattern。很多候选人会做单题，但一被问到 read scaling、write contention、large blob、workflow、streaming、search、gateway 就断掉。面试时可以把这些 pattern 当作工具箱，主动嵌入到具体题目里。</p>
+<h3 id="1-api-gateway-deep-dive">1. API Gateway Deep Dive</h3>
+<h4 id="它解决什么">它解决什么</h4>
+<p>API Gateway 是 client 和 backend services 之间的入口层。不要只说“转发请求”，要说明它承担 cross-cutting concerns：</p>
+<ul>
+<li>Auth / token validation。</li>
+<li>Rate limit / quota。</li>
+<li>Request routing。</li>
+<li>TLS termination。</li>
+<li>API versioning。</li>
+<li>Request/response transformation。</li>
+<li>Timeout / retry / circuit breaker。</li>
+<li>Observability：request id、metrics、logs、tracing。</li>
+</ul>
+<h4 id="architecture">Architecture</h4>
+<pre><code class="language-">Client
+  -&gt; Edge Load Balancer
+  -&gt; API Gateway
+       - auth filter
+       - rate limit filter
+       - routing filter
+       - timeout/retry policy
+       - request logging
+  -&gt; Backend Services</code></pre>
+<h4 id="关键设计">关键设计</h4>
+<ol>
+<li>Gateway 不应该放太多业务逻辑。</li>
+</ol>
+<ul>
+<li>好：身份校验、限流、路由、统一超时。</li>
+<li>坏：把 order/payment/feed 业务规则写在 gateway。</li>
+</ul>
+<ol>
+<li>Retry 要谨慎。</li>
+</ol>
+<ul>
+<li>GET 可以重试。</li>
+<li>POST 必须依赖 idempotency key。</li>
+<li>不要在下游已经过载时无限 retry。</li>
+</ul>
+<ol>
+<li>Timeout 必须端到端分配。</li>
+</ol>
+<pre><code class="language-">client timeout = 1500 ms
+gateway budget = 1300 ms
+service A = 500 ms
+service B = 500 ms
+buffer = 300 ms</code></pre>
+<ol>
+<li>Rate limit 分层。</li>
+</ol>
+<ul>
+<li>per IP。</li>
+<li>per user。</li>
+<li>per API key。</li>
+<li>per tenant。</li>
+<li>per route。</li>
+</ul>
+<h4 id="interview-answer">Interview answer</h4>
+<blockquote>I would use the API gateway for cross-cutting concerns such as auth, rate limiting, routing, timeouts, and observability, but I would keep business logic in backend services. Retries are only safe for idempotent operations or requests with idempotency keys. The gateway also propagates request ids and enforces a latency budget so slow downstreams do not exhaust client or server resources.</blockquote>
+<h3 id="2-distributed-cache-redis-deep-dive">2. Distributed Cache / Redis Deep Dive</h3>
+<h4 id="redis-常见用途">Redis 常见用途</h4>
+<ul>
+<li>Cache-aside。</li>
+<li>Session store。</li>
+<li>Rate limiter counters。</li>
+<li>Sorted set leaderboard / timeline。</li>
+<li>Pub/sub for lightweight realtime。</li>
+<li>Distributed lock, but only when carefully bounded。</li>
+</ul>
+<h4 id="cache-aside-flow">Cache-aside flow</h4>
+<pre><code class="language-">read:
+  get cache
+  if miss:
+    read DB
+    set cache with TTL
+
+write:
+  update DB
+  delete cache</code></pre>
+<p>为什么 delete cache 而不是 update cache：避免并发写导致 dirty cache。DB 是 source of truth，cache 是 derived data。</p>
+<h4 id="hot-key">Hot key</h4>
+<p>热门 key 会压垮单个 Redis shard。解决：</p>
+<ul>
+<li>local in-process cache。</li>
+<li>key replication。</li>
+<li>request coalescing / singleflight。</li>
+<li>sharded counters。</li>
+<li>加随机 TTL jitter，避免同时过期。</li>
+</ul>
+<h4 id="cache-stampede">Cache stampede</h4>
+<p>大量请求同时 miss 同一个 key：</p>
+<ul>
+<li>singleflight：只有一个请求回源。</li>
+<li>stale-while-revalidate：先返回旧值，后台刷新。</li>
+<li>mutex lock with timeout。</li>
+<li>negative cache：缓存空结果，防止穿透。</li>
+</ul>
+<h4 id="redis-cluster">Redis Cluster</h4>
+<p>Redis Cluster 通过 hash slot 分片。多 key 操作要注意 key 是否在同一个 slot。面试里可以说：</p>
+<blockquote>If we need atomic multi-key operations, I would either keep related keys in the same hash slot using hash tags, or avoid cross-key Redis transactions and move the atomicity to the database.</blockquote>
+<h4 id="interview-answer-2">Interview answer</h4>
+<blockquote>I would treat Redis as a fast derived-data layer, not the source of truth for critical state. For cache-aside, reads populate cache on miss, and writes update the database first then delete cache. For hot keys, I would use local cache, request coalescing, sharded counters, or replicated keys. TTL jitter and stale-while-revalidate help prevent stampedes.</blockquote>
+<h3 id="3-elasticsearch-search-infra">3. Elasticsearch / Search Infra</h3>
+<h4 id="什么时候用-search-index">什么时候用 search index</h4>
+<p>当需求是 keyword search、text relevance、filter + sort、autocomplete、log search，不应该用 primary DB 的 <code>LIKE '%keyword%'</code> 硬查。</p>
+<h4 id="write-path">Write path</h4>
+<pre><code class="language-">Primary DB
+  -&gt; CDC / Outbox / Kafka
+  -&gt; Indexer
+  -&gt; Elasticsearch</code></pre>
+<p>DB 是 source of truth，Elasticsearch 是 derived index。Indexer 必须处理：</p>
+<ul>
+<li>duplicate events。</li>
+<li>out-of-order updates。</li>
+<li>delete tombstone。</li>
+<li>reindex。</li>
+<li>backfill。</li>
+</ul>
+<h4 id="index-design">Index design</h4>
+<pre><code class="language-">document_id
+text fields
+keyword fields
+timestamp
+tenant_id
+visibility
+ranking signals
+version</code></pre>
+<h4 id="refresh-interval">Refresh interval</h4>
+<p>Elasticsearch 不是每次写入都立即可搜。refresh interval 影响 freshness 和 throughput：</p>
+<ul>
+<li>refresh 太频繁：写入成本高。</li>
+<li>refresh 太慢：搜索结果不新。</li>
+</ul>
+<p>面试回答：根据业务 SLA 设置。例如商品搜索可以秒级，安全删除需要 read-time filter 兜底。</p>
+<h4 id="reindex-strategy">Reindex strategy</h4>
+<p>改 mapping 或 ranking 时不要直接改线上 index：</p>
+<ol>
+<li>创建 new index。</li>
+<li>Backfill data。</li>
+<li>Dual write / replay events。</li>
+<li>Shadow query compare。</li>
+<li>Alias switch。</li>
+<li>保留 rollback path。</li>
+</ol>
+<h4 id="interview-answer-3">Interview answer</h4>
+<blockquote>I would keep the database as the source of truth and build Elasticsearch as a derived index through CDC or Kafka. The indexer must be idempotent and version-aware to handle duplicate or out-of-order events. For schema or ranking changes, I would build a new index, backfill, replay recent events, compare shadow queries, then switch an alias for low-risk rollout.</blockquote>
+<h3 id="4-flink-stream-processing">4. Flink / Stream Processing</h3>
+<h4 id="什么时候需要-stream-processing">什么时候需要 stream processing</h4>
+<p>当系统要处理持续事件流，并且需要 window、aggregation、join、late event、stateful computation，就会用 Flink / streaming engine。</p>
+<p>例子：</p>
+<ul>
+<li>Ad click aggregation。</li>
+<li>Fraud detection。</li>
+<li>Realtime dashboard。</li>
+<li>Notification trigger。</li>
+<li>Feature computation。</li>
+</ul>
+<h4 id="core-concepts">Core concepts</h4>
+<ul>
+<li>Event time：事件发生时间。</li>
+<li>Processing time：系统处理时间。</li>
+<li>Watermark：系统认为更早事件基本到齐的进度。</li>
+<li>Window：按时间聚合。</li>
+<li>State：每个 key 的中间状态。</li>
+<li>Checkpoint：故障恢复状态快照。</li>
+</ul>
+<h4 id="architecture-2">Architecture</h4>
+<pre><code class="language-">Kafka topic
+  -&gt; Flink job
+       - parse
+       - keyBy
+       - window
+       - aggregate
+       - dedup
+  -&gt; Redis / OLAP / Warehouse</code></pre>
+<h4 id="late-events">Late events</h4>
+<p>迟到事件不能简单丢：</p>
+<ul>
+<li>允许 allowed lateness。</li>
+<li>使用 watermark 关闭 window。</li>
+<li>太晚的事件进 side output。</li>
+<li>对 billing/reporting 使用 batch correction。</li>
+</ul>
+<h4 id="exactly-once-effect">Exactly-once effect</h4>
+<p>不要随便说 exactly-once。更准确：</p>
+<ul>
+<li>Flink state 可以通过 checkpoint 实现 exactly-once state update。</li>
+<li>Sink 是否 exactly-once 取决于外部系统是否支持事务或幂等写。</li>
+<li>业务最终目标是 exactly-once effect。</li>
+</ul>
+<h4 id="interview-answer-4">Interview answer</h4>
+<blockquote>I would use event time and watermarks rather than processing time for correctness. The stream job keys events by business id, maintains state for deduplication or aggregation, and checkpoints state for recovery. For late events, I would allow bounded lateness and send very late events to a correction path. For exactly-once, I would focus on idempotent or transactional sinks to achieve exactly-once business effect.</blockquote>
+<h3 id="5-scaling-reads">5. Scaling Reads</h3>
+<h4 id="常用手段">常用手段</h4>
+<p>读扩展不是只有“加 cache”。要按瓶颈分层：</p>
+<div class="table-wrap"><table><thead><tr><th>Bottleneck</th><th>Solution</th></tr></thead><tbody><tr><td>DB read QPS 高</td><td>cache, read replica</td></tr>
+<tr><td>Query 太慢</td><td>index, denormalized table</td></tr>
+<tr><td>Join 太重</td><td>materialized view, CQRS read model</td></tr>
+<tr><td>Global latency 高</td><td>CDN, geo replica</td></tr>
+<tr><td>Hot object</td><td>local cache, replicated cache, request coalescing</td></tr></tbody></table></div>
+<h4 id="read-replica">Read replica</h4>
+<p>优点：分担 read QPS。缺点：replica lag。适合：</p>
+<ul>
+<li>profile view。</li>
+<li>feed hydrate。</li>
+<li>analytics read。</li>
+</ul>
+<p>不适合：</p>
+<ul>
+<li>刚写完必须立即读到的 money/inventory。</li>
+<li>强一致状态检查。</li>
+</ul>
+<h4 id="materialized-view">Materialized view</h4>
+<p>当 read query 很复杂，可以预计算：</p>
+<pre><code class="language-">source tables -&gt; events -&gt; view builder -&gt; read optimized table</code></pre>
+<p>代价是 eventual consistency 和 rebuild 成本。</p>
+<h4 id="interview-answer-5">Interview answer</h4>
+<blockquote>I would first identify whether read pressure comes from QPS, query complexity, or geographic latency. Cache helps hot reads, replicas help read QPS, indexes help selective queries, and materialized views help expensive joins. For derived views I would explicitly call out eventual consistency and rebuild strategy.</blockquote>
+<h3 id="6-scaling-writes-contention">6. Scaling Writes / Contention</h3>
+<h4 id="写扩展常见问题">写扩展常见问题</h4>
+<ul>
+<li>单行热点：counter、inventory、auction current price。</li>
+<li>单 partition 热点：celebrity feed、hot room messages。</li>
+<li>全局顺序要求：payment ledger、matching engine。</li>
+<li>写放大：fanout、secondary index、multi-region replication。</li>
+</ul>
+<h4 id="解法工具箱">解法工具箱</h4>
+<ol>
+<li>Shard by business key。</li>
+</ol>
+<ul>
+<li>按 <code>user_id</code>、<code>auction_id</code>、<code>tenant_id</code>、<code>room_id</code> 分片。</li>
+</ul>
+<ol>
+<li>Single-writer per key。</li>
+</ol>
+<ul>
+<li>同一 auction / inventory item 的写进入同一 queue 或 actor。</li>
+</ul>
+<ol>
+<li>Conditional update。</li>
+</ol>
+<ul>
+<li>用 version 或 condition 防止 lost update。</li>
+</ul>
+<ol>
+<li>Batch writes。</li>
+</ol>
+<ul>
+<li>Counter 先局部聚合，再 flush。</li>
+</ul>
+<ol>
+<li>Move work async。</li>
+</ol>
+<ul>
+<li>写 source of truth 后，把 fanout / index / notification 放到 queue。</li>
+</ul>
+<h4 id="counter-example">Counter example</h4>
+<p>不要所有 like 都更新一行：</p>
+<pre><code class="language-">counter_shard(object_id, shard_id, count)</code></pre>
+<p>读取时 sum shards，或周期性 rollup。</p>
+<h4 id="interview-answer-6">Interview answer</h4>
+<blockquote>For write scaling, I would look for the contention key first. If many writes hit the same entity, adding more servers does not solve the hotspot. I would use conditional updates for correctness, single-writer or queue-based serialization for highly contended entities, and sharded counters or batching for high-volume approximate counts.</blockquote>
+<h3 id="7-large-blobs-pattern">7. Large Blobs Pattern</h3>
+<h4 id="不要把大文件塞进-db">不要把大文件塞进 DB</h4>
+<p>图片、视频、PDF、model artifact、log archive 都应该放 object storage。DB 存 metadata 和 object key。</p>
+<h4 id="upload-architecture">Upload architecture</h4>
+<pre><code class="language-">Client
+  -&gt; API: create upload session
+  -&gt; Object Storage: multipart upload
+  -&gt; API: complete upload
+  -&gt; Metadata DB
+  -&gt; Processing Queue
+  -&gt; CDN</code></pre>
+<h4 id="为什么-client-direct-upload">为什么 client direct upload</h4>
+<ul>
+<li>API server 不扛大流量。</li>
+<li>支持断点续传 / multipart。</li>
+<li>更便宜。</li>
+<li>更容易走 CDN / regional object storage。</li>
+</ul>
+<h4 id="metadata">Metadata</h4>
+<pre><code class="language-">blob_id
+owner_id
+object_key
+content_type
+size
+checksum
+status
+created_at</code></pre>
+<h4 id="consistency">Consistency</h4>
+<p>常见失败：</p>
+<ul>
+<li>object 上传成功，metadata 写失败。</li>
+<li>metadata 创建成功，object 上传失败。</li>
+<li>processing 失败。</li>
+</ul>
+<p>处理：</p>
+<ul>
+<li>upload session state machine。</li>
+<li>background cleanup orphan objects。</li>
+<li>checksum verification。</li>
+<li>processing retry。</li>
+</ul>
+<h4 id="interview-answer-7">Interview answer</h4>
+<blockquote>I would store large bytes in object storage and keep only metadata in the database. The client uploads directly using pre-signed multipart URLs. After upload completion, the system verifies checksum, updates metadata, and triggers asynchronous processing. Cleanup jobs remove abandoned upload sessions and orphaned objects.</blockquote>
+<h3 id="8-long-running-tasks">8. Long-running Tasks</h3>
+<h4 id="例子">例子</h4>
+<ul>
+<li>Video transcoding。</li>
+<li>Report generation。</li>
+<li>ML inference batch job。</li>
+<li>Data export。</li>
+<li>Web crawling。</li>
+</ul>
+<p>这些任务不能同步 HTTP 等待完成。</p>
+<h4 id="architecture-3">Architecture</h4>
+<pre><code class="language-">API
+  -&gt; Job DB
+  -&gt; Queue
+  -&gt; Worker
+  -&gt; Progress Store
+  -&gt; Status API / WebSocket</code></pre>
+<h4 id="job-state-machine">Job state machine</h4>
+<pre><code class="language-">QUEUED -&gt; RUNNING -&gt; SUCCEEDED
+       -&gt; FAILED
+       -&gt; CANCELLED
+       -&gt; RETRYING</code></pre>
+<h4 id="worker-lease">Worker lease</h4>
+<p>Worker 领取 job 时写 lease：</p>
+<pre><code class="language-">job_id
+worker_id
+lease_until
+attempt</code></pre>
+<p>如果 worker crash，lease expire 后 job 可以被重新领取。</p>
+<h4 id="idempotency">Idempotency</h4>
+<p>重试可能重复执行，所以 output 要幂等：</p>
+<ul>
+<li>deterministic output key。</li>
+<li>write temp then atomic rename。</li>
+<li>DB state conditional update。</li>
+<li>external calls use idempotency key。</li>
+</ul>
+<h4 id="interview-answer-8">Interview answer</h4>
+<blockquote>I would turn long-running work into asynchronous jobs. The API creates a job record and returns job_id. Workers claim jobs with leases, update progress, and write outputs idempotently. Clients poll a status API or subscribe to realtime updates. If a worker dies, the lease expires and another worker retries the job safely.</blockquote>
+<h3 id="9-multi-step-process-saga">9. Multi-step Process / Saga</h3>
+<h4 id="例子-2">例子</h4>
+<ul>
+<li>Order checkout：reserve inventory -&gt; charge payment -&gt; create shipment。</li>
+<li>Travel booking：flight -&gt; hotel -&gt; car。</li>
+<li>Account onboarding：KYC -&gt; risk -&gt; account creation。</li>
+</ul>
+<h4 id="为什么不用大分布式事务">为什么不用大分布式事务</h4>
+<p>跨服务 ACID transaction 很重，耦合高，失败处理复杂。实际系统常用 Saga / workflow：</p>
+<ul>
+<li>每一步本地事务。</li>
+<li>状态持久化。</li>
+<li>失败时 retry 或 compensation。</li>
+</ul>
+<h4 id="orchestration-vs-choreography">Orchestration vs Choreography</h4>
+<p>Orchestration：</p>
+<pre><code class="language-">Workflow Engine controls steps</code></pre>
+<p>优点：状态清晰，容易 debug。缺点：中心化。</p>
+<p>Choreography：</p>
+<pre><code class="language-">Services react to events</code></pre>
+<p>优点：服务松耦合。缺点：流程分散，debug 难。</p>
+<h4 id="compensation">Compensation</h4>
+<p>不是所有操作都能真正 undo：</p>
+<ul>
+<li>reserve inventory 可以 release。</li>
+<li>payment capture 可以 refund，但不是瞬时。</li>
+<li>email sent 不能撤回，只能补偿通知。</li>
+</ul>
+<h4 id="interview-answer-9">Interview answer</h4>
+<blockquote>I would model the process as a Saga with explicit state. Each step commits a local transaction and emits an event. On failure, the workflow retries transient errors and runs compensation for completed steps when necessary. I prefer orchestration for complex business-critical flows because it makes state, retries, and debugging clearer.</blockquote>
+<h3 id="10-real-time-updates-pattern">10. Real-time Updates Pattern</h3>
+<h4 id="选型">选型</h4>
+<div class="table-wrap"><table><thead><tr><th>Mechanism</th><th>Best for</th></tr></thead><tbody><tr><td>Polling</td><td>简单状态查询，低频</td></tr>
+<tr><td>Long polling</td><td>中低频更新</td></tr>
+<tr><td>SSE</td><td>server-to-client stream</td></tr>
+<tr><td>WebSocket</td><td>双向实时通信</td></tr></tbody></table></div>
+<h4 id="architecture-4">Architecture</h4>
+<pre><code class="language-">Client
+  -&gt; WebSocket Gateway
+  -&gt; Connection Registry
+  -&gt; Pub/Sub
+  -&gt; Backend event producers</code></pre>
+<h4 id="connection-registry">Connection registry</h4>
+<p>需要知道 user 在哪些 gateway 上：</p>
+<pre><code class="language-">user_id -&gt; connection_ids -&gt; gateway_id</code></pre>
+<p>但这个 registry 可能是 eventually consistent。发送失败要允许连接已经断开。</p>
+<h4 id="backpressure">Backpressure</h4>
+<p>实时系统最怕慢 client：</p>
+<ul>
+<li>per-connection send buffer limit。</li>
+<li>丢弃低优先级 update。</li>
+<li>合并状态 update。</li>
+<li>断开长期慢连接。</li>
+</ul>
+<h4 id="interview-answer-10">Interview answer</h4>
+<blockquote>I would terminate WebSocket connections at gateway nodes and use pub/sub to deliver backend events to the right gateway. A connection registry maps users to active connections, but delivery should tolerate stale entries. For slow clients, I would enforce send-buffer limits, coalesce updates, and drop low-priority messages rather than letting one connection consume unbounded memory.</blockquote>
+<h3 id="11-time-series-database">11. Time-series Database</h3>
+<h4 id="适用场景">适用场景</h4>
+<ul>
+<li>Metrics。</li>
+<li>IoT sensor data。</li>
+<li>Price history。</li>
+<li>Ad events aggregation。</li>
+<li>System logs with timestamp。</li>
+</ul>
+<h4 id="data-model">Data model</h4>
+<pre><code class="language-">measurement
+tags: host, region, service, tenant
+fields: cpu, memory, latency
+timestamp</code></pre>
+<h4 id="核心设计">核心设计</h4>
+<ul>
+<li>Append-heavy write。</li>
+<li>Time-based partition。</li>
+<li>Retention policy。</li>
+<li>Downsampling / rollup。</li>
+<li>Compression。</li>
+<li>High-cardinality tag control。</li>
+</ul>
+<h4 id="retention">Retention</h4>
+<pre><code class="language-">raw 1-second data: keep 7 days
+1-minute rollup: keep 30 days
+1-hour rollup: keep 1 year</code></pre>
+<h4 id="high-cardinality">High cardinality</h4>
+<p>如果把 <code>user_id</code>、<code>request_id</code> 放 tag，series 数量会爆炸。高 cardinality 字段要谨慎，可能放 log/search 系统而不是 metrics DB。</p>
+<h4 id="interview-answer-11">Interview answer</h4>
+<blockquote>I would use a time-series store for append-heavy timestamped data with retention and rollup. Data is partitioned by time and commonly queried tags. Raw high-resolution data is kept briefly, then downsampled for long-term storage. I would avoid high-cardinality tags such as request_id because they can explode the number of series.</blockquote>
+<h3 id="12-staff-level-system-design-answer-anatomy">12. Staff-level System Design Answer Anatomy</h3>
+<h4 id="普通答案-vs-高分答案">普通答案 vs 高分答案</h4>
+<p>普通答案：</p>
+<ul>
+<li>画 API、DB、cache、queue。</li>
+<li>说可以 scale。</li>
+<li>说加 Kafka。</li>
+</ul>
+<p>高分答案：</p>
+<ul>
+<li>明确 business invariant。</li>
+<li>说清楚 source of truth 和 derived data。</li>
+<li>分开 write path / read path / async path。</li>
+<li>找到 bottleneck 和 contention key。</li>
+<li>说明 consistency tradeoff。</li>
+<li>给出 failure handling。</li>
+<li>用 metrics 证明系统可运营。</li>
+</ul>
+<h4 id="白板结构">白板结构</h4>
+<pre><code class="language-">1. Requirements and scale
+2. Core entities and APIs
+3. High-level architecture
+4. Write path
+5. Read path
+6. Async processing
+7. Data partitioning
+8. Correctness and consistency
+9. Failure modes
+10. Metrics and operations</code></pre>
+<h4 id="主动讲的-tradeoff">主动讲的 tradeoff</h4>
+<ul>
+<li>Cache freshness vs DB load。</li>
+<li>Fanout-on-write vs fanout-on-read。</li>
+<li>Strong consistency vs availability。</li>
+<li>Low latency vs cost。</li>
+<li>Exact counter vs approximate counter。</li>
+<li>Sync user experience vs async reliability。</li>
+</ul>
+<h4 id="面试收尾模板">面试收尾模板</h4>
+<blockquote>The core invariant I would protect is [business invariant]. The source of truth is [primary store], while [cache/index/timeline] is derived and rebuildable. The main bottleneck is [read/write/fanout/contention], so I would scale it with [specific strategy]. For failures, I would use idempotency, retries with backoff, dead-letter queues, and operational metrics such as latency, error rate, queue lag, and saturation.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

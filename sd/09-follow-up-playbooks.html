@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Follow-up Playbooks - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="27-advanced-follow-up-playbooks">27. Advanced Follow-up Playbooks</h2>
+<p>这一节补充 old <code>sd.html</code> 里剩下的 follow-up / playbook 类内容：Robust Payment、Price Tracking at Scale、Notification Fanout、Real-time Feed Optimization、Twitter Search、Indexing、Networking、Job Scheduling Scale、Scaling Reads、AI-driven Realtime Recommendations。它们不是单独背题，而是面试官深入追问时用来“加分”的模块。</p>
+<h3 id="1-architecting-a-robust-payment-system">1. Architecting a Robust Payment System</h3>
+<h4 id="question">Question</h4>
+<p>在已有 Payment System 基础上，如何把它讲到 production-grade？面试官会追问：幂等、状态机、外部 provider 超时、重复扣款、退款、对账、审计、合规。</p>
+<h4 id="approach">Approach</h4>
+<p>支付系统的核心不是调用 Stripe/银行 API，而是保护 financial invariant：</p>
+<pre><code class="language-">same business request should create at most one financial effect
+every money movement must be auditable
+external uncertainty must be reconciled</code></pre>
+<h4 id="architecture">Architecture</h4>
+<pre><code class="language-">Payment API
+  -&gt; Idempotency Store
+  -&gt; Payment Intent Service
+  -&gt; Payment Orchestrator
+  -&gt; Provider Adapter
+  -&gt; Ledger / Transaction Store
+  -&gt; Webhook Processor
+  -&gt; Reconciliation Job</code></pre>
+<h4 id="state-machine">State machine</h4>
+<pre><code class="language-">CREATED -&gt; REQUIRES_CONFIRMATION -&gt; PROCESSING
+-&gt; SUCCEEDED / FAILED / CANCELLED
+-&gt; REFUND_PENDING -&gt; REFUNDED
+-&gt; DISPUTED</code></pre>
+<h4 id="idempotency">Idempotency</h4>
+<p>Client sends:</p>
+<pre><code class="language-">Idempotency-Key: uuid
+payload_hash
+merchant_id</code></pre>
+<p>Server behavior:</p>
+<ul>
+<li>key missing：reject non-idempotent POST。</li>
+<li>key exists with same payload and final response：return cached response。</li>
+<li>key exists with different payload：return 400。</li>
+<li>key in progress：return 409/202 or wait briefly。</li>
+</ul>
+<h4 id="external-timeout">External timeout</h4>
+<p>最难的 case：</p>
+<pre><code class="language-">we sent charge request to provider
+client timed out
+provider may or may not have charged</code></pre>
+<p>处理：</p>
+<ul>
+<li>不要立即重试创建新 charge。</li>
+<li>查询 provider by provider_request_id。</li>
+<li>webhook eventual update。</li>
+<li>reconciliation job 修正 unknown state。</li>
+</ul>
+<h4 id="ledger">Ledger</h4>
+<p>Ledger 应该 append-only：</p>
+<pre><code class="language-">ledger_entry(entry_id, account_id, amount, currency, direction, payment_id, created_at)</code></pre>
+<p>不要 update money history。错误用 reversal/refund entry。</p>
+<h4 id="interview-answer">Interview answer</h4>
+<blockquote>I would model payment as a state machine around PaymentIntent and protect every non-idempotent API with an idempotency key and payload hash. External provider calls are uncertain, so timeouts move the payment into an unknown/processing state rather than creating a second charge. Webhooks and reconciliation jobs eventually resolve the state. Financial records should be append-only ledger entries for auditability.</blockquote>
+<h3 id="2-price-tracking-at-scale">2. Price Tracking at Scale</h3>
+<h4 id="question-2">Question</h4>
+<p>设计大规模 price tracking / insight tracking system。系统跟踪商品价格变化、历史趋势、阈值提醒、价格洞察。</p>
+<h4 id="architecture-2">Architecture</h4>
+<pre><code class="language-">Product Catalog
+  -&gt; Crawl Scheduler
+  -&gt; Fetch Workers
+  -&gt; Parser / Normalizer
+  -&gt; Price Event Log
+  -&gt; Time-series Store
+  -&gt; Alert Evaluator
+  -&gt; Insight / Analytics Jobs</code></pre>
+<h4 id="scheduling-strategy">Scheduling strategy</h4>
+<p>不要所有商品固定频率 crawl：</p>
+<ul>
+<li>hot products：高频。</li>
+<li>watched products：中频。</li>
+<li>cold products：低频。</li>
+<li>failed sources：backoff。</li>
+<li>merchant rate limits：per-domain token bucket。</li>
+</ul>
+<h4 id="data-model">Data model</h4>
+<pre><code class="language-">product(product_id, merchant, url, canonical_key, status)
+price_point(product_id, timestamp, price, currency, availability)
+watch(user_id, product_id, threshold, channel, status)
+price_alert(alert_id, user_id, product_id, price, dedup_key, sent_at)</code></pre>
+<h4 id="detect-change">Detect change</h4>
+<p>Price point 是 append-only。Current price 可以是 materialized view：</p>
+<pre><code class="language-">current_price(product_id, price, timestamp)</code></pre>
+<p>这样历史和最新读取都高效。</p>
+<h4 id="alert-dedup">Alert dedup</h4>
+<p>不要每次 crawl 到低价都发通知：</p>
+<pre><code class="language-">dedup_key = user_id + product_id + threshold + price_bucket + day</code></pre>
+<h4 id="interview-answer-2">Interview answer</h4>
+<blockquote>I would separate crawling, price history, and alerting. A scheduler prioritizes products by popularity, active watches, and source limits. Crawlers emit immutable price events, and a time-series store keeps historical price points. Alert evaluators compare new prices to user thresholds with dedup keys so users do not receive repeated alerts for the same drop.</blockquote>
+<h3 id="3-notification-fanout">3. Notification Fanout</h3>
+<h4 id="question-3">Question</h4>
+<p>设计 notification fanout。一个事件可能通知一个用户、几千个粉丝、或者几百万订阅者。支持 push、email、in-app inbox，且不能重复轰炸。</p>
+<h4 id="architecture-3">Architecture</h4>
+<pre><code class="language-">Event Producer
+  -&gt; Notification Service
+  -&gt; Fanout Planner
+  -&gt; Recipient Resolver
+  -&gt; Preference / Policy Filter
+  -&gt; Channel Queues
+  -&gt; Push/Email/In-app Workers
+  -&gt; Delivery Log</code></pre>
+<h4 id="fanout-modes">Fanout modes</h4>
+<ul>
+<li>Small fanout：同步 resolve recipients + enqueue。</li>
+<li>Large fanout：create fanout job，分片处理。</li>
+<li>Celebrity fanout：延迟/批量，或者只写 inbox/feed，不 push 每个人。</li>
+</ul>
+<h4 id="data-model-2">Data model</h4>
+<pre><code class="language-">notification_event(event_id, type, actor_id, object_id, created_at)
+notification_job(job_id, event_id, shard, status)
+delivery(user_id, event_id, channel, status, dedup_key)
+preference(user_id, channel, topic, enabled)</code></pre>
+<h4 id="dedup-and-aggregation">Dedup and aggregation</h4>
+<p>用户不想收到：</p>
+<pre><code class="language-">A liked your post
+B liked your post
+C liked your post
+...</code></pre>
+<p>可以聚合：</p>
+<pre><code class="language-">A and 23 others liked your post</code></pre>
+<p>Dedup key：</p>
+<pre><code class="language-">user_id + event_type + object_id + time_bucket</code></pre>
+<h4 id="interview-answer-3">Interview answer</h4>
+<blockquote>I would separate event creation from delivery. Notification events are durable, fanout jobs resolve recipients and apply preferences, and channel-specific workers handle push, email, and in-app delivery. For large fanout, I would shard recipient processing and use dedup/aggregation so users are not spammed by repeated notifications.</blockquote>
+<h3 id="4-optimize-real-time-feeds">4. Optimize Real-time Feeds</h3>
+<h4 id="question-4">Question</h4>
+<p>Feed 已经能工作，但 latency 高、fanout 慢、hot users 压力大。如何优化 real-time feed？</p>
+<h4 id="bottlenecks">Bottlenecks</h4>
+<ul>
+<li>celebrity fanout 太大。</li>
+<li>timeline write amplification。</li>
+<li>feed read hydrate 太慢。</li>
+<li>ranking service 太重。</li>
+<li>cache invalidation storm。</li>
+</ul>
+<h4 id="optimization-playbook">Optimization playbook</h4>
+<ol>
+<li>Hybrid fanout</li>
+</ol>
+<ul>
+<li>normal users fanout-on-write。</li>
+<li>celebrities fanout-on-read。</li>
+</ul>
+<ol>
+<li>Candidate caching</li>
+</ol>
+<ul>
+<li>cache timeline post ids。</li>
+<li>hydrate metadata in batch。</li>
+</ul>
+<ol>
+<li>Feed item snapshot</li>
+</ol>
+<ul>
+<li>timeline entry 存 author_id、preview、score。</li>
+<li>减少 read path fanout to many services。</li>
+</ul>
+<ol>
+<li>Priority queue</li>
+</ol>
+<ul>
+<li>active users timeline first。</li>
+<li>inactive users lazy build。</li>
+</ul>
+<ol>
+<li>Backpressure</li>
+</ol>
+<ul>
+<li>fanout queue lag 高时降级 ranking/freshness。</li>
+</ul>
+<h4 id="freshness-vs-latency">Freshness vs latency</h4>
+<p>Feed 可以不是绝对实时。可以给用户自己的 post 强一致，别人 feed eventual consistency。</p>
+<h4 id="interview-answer-4">Interview answer</h4>
+<blockquote>I would optimize feed by separating source-of-truth posts from derived timelines. Hybrid fanout prevents celebrity write amplification, active-user prioritization reduces wasted work, and candidate caches plus batch hydration improve read latency. If fanout lags, the system can still serve older timeline candidates and merge recent celebrity posts at read time.</blockquote>
+<h3 id="5-search-twitter-social-conversations">5. Search Twitter / Social Conversations</h3>
+<h4 id="question-5">Question</h4>
+<p>设计 Twitter/X social search。用户搜索关键词、hashtag、用户、实时讨论。要求新内容快速可搜，删除/隐私要生效。</p>
+<h4 id="architecture-4">Architecture</h4>
+<pre><code class="language-">Tweet Service
+  -&gt; Kafka / CDC
+  -&gt; Indexer
+  -&gt; Search Index
+  -&gt; Query Service
+  -&gt; Ranking
+  -&gt; Privacy Filter</code></pre>
+<h4 id="index-fields">Index fields</h4>
+<pre><code class="language-">tweet_id
+author_id
+text
+hashtags
+mentions
+language
+created_at
+engagement signals
+visibility</code></pre>
+<h4 id="query-types">Query types</h4>
+<ul>
+<li>keyword。</li>
+<li>hashtag。</li>
+<li>from:user。</li>
+<li>since/until。</li>
+<li>trending/realtime。</li>
+</ul>
+<h4 id="freshness">Freshness</h4>
+<p>Realtime search wants seconds-level freshness：</p>
+<ul>
+<li>streaming indexer。</li>
+<li>small refresh interval for hot index。</li>
+<li>time-partitioned indexes。</li>
+<li>hot recent index + cold historical index。</li>
+</ul>
+<h4 id="delete-privacy">Delete/privacy</h4>
+<p>Search index can be stale, so read path still checks：</p>
+<ul>
+<li>tweet deleted。</li>
+<li>account blocked。</li>
+<li>private account。</li>
+<li>viewer permission。</li>
+</ul>
+<h4 id="interview-answer-5">Interview answer</h4>
+<blockquote>I would build social search as a derived search index from the tweet event stream. Recent tweets go into a hot index optimized for freshness, while older tweets live in time-partitioned historical indexes. Ranking uses text relevance, recency, engagement, and social context. Delete and privacy checks must be enforced at read time because indexes can lag.</blockquote>
+<h3 id="6-indexing-performance-playbook">6. Indexing Performance Playbook</h3>
+<h4 id="question-6">Question</h4>
+<p>数据库查询慢，怎么系统化优化？什么时候加 index，什么时候改数据模型？</p>
+<h4 id="steps">Steps</h4>
+<ol>
+<li>Inspect query pattern。</li>
+<li>Check cardinality / selectivity。</li>
+<li>Use explain plan。</li>
+<li>Add composite index in query order。</li>
+<li>Avoid unbounded scans。</li>
+<li>Consider denormalized read model。</li>
+</ol>
+<h4 id="composite-index-rule">Composite index rule</h4>
+<p>Index should match：</p>
+<pre><code class="language-">WHERE equality fields first
+then range field
+then ORDER BY field if possible</code></pre>
+<p>Example：</p>
+<pre><code class="language-sql">WHERE user_id = ?
+  AND status = ?
+  AND created_at &gt; ?
+ORDER BY created_at DESC</code></pre>
+<p>Index：</p>
+<pre><code class="language-">(user_id, status, created_at DESC)</code></pre>
+<h4 id="when-index-is-not-enough">When index is not enough</h4>
+<ul>
+<li>Query joins huge tables repeatedly。</li>
+<li>Low-selectivity field。</li>
+<li>Hot partition。</li>
+<li>Need aggregation over massive data。</li>
+</ul>
+<p>Then consider：</p>
+<ul>
+<li>materialized view。</li>
+<li>precomputed counter。</li>
+<li>search index。</li>
+<li>OLAP store。</li>
+<li>partitioning。</li>
+</ul>
+<h4 id="interview-answer-6">Interview answer</h4>
+<blockquote>I would not blindly add indexes. I would inspect the query pattern and explain plan, then add a composite index that matches equality filters, range filters, and sort order. If the query is fundamentally an aggregation or join over large data, I would build a read model, materialized view, or OLAP pipeline instead of forcing the OLTP database to do it repeatedly.</blockquote>
+<h3 id="7-networking-architecture-playbook">7. Networking Architecture Playbook</h3>
+<h4 id="question-7">Question</h4>
+<p>系统设计里怎么讲 load balancer、gateway、service discovery、timeouts、retries、circuit breaker、regional routing？</p>
+<h4 id="request-path">Request path</h4>
+<pre><code class="language-">Client
+  -&gt; DNS / Global Load Balancer
+  -&gt; CDN / Edge
+  -&gt; API Gateway
+  -&gt; Service Load Balancer
+  -&gt; Backend Service
+  -&gt; Database / Cache / Queue</code></pre>
+<h4 id="timeouts">Timeouts</h4>
+<p>每一层都要有 timeout budget：</p>
+<pre><code class="language-">client: 2000 ms
+gateway: 1500 ms
+service A: 500 ms
+service B: 500 ms
+buffer: 500 ms</code></pre>
+<p>没有 timeout 的 retry 会放大故障。</p>
+<h4 id="retry-rules">Retry rules</h4>
+<ul>
+<li>Retry only idempotent calls。</li>
+<li>Use exponential backoff + jitter。</li>
+<li>Respect Retry-After。</li>
+<li>Set max attempts。</li>
+<li>Do not retry overload blindly。</li>
+</ul>
+<h4 id="circuit-breaker">Circuit breaker</h4>
+<p>当下游错误率/timeout 过高：</p>
+<ul>
+<li>open circuit。</li>
+<li>fail fast。</li>
+<li>fallback。</li>
+<li>half-open probe。</li>
+</ul>
+<h4 id="interview-answer-7">Interview answer</h4>
+<blockquote>I would design the network path with explicit timeout budgets, idempotent retries, circuit breakers, and observability. Global load balancing routes users to healthy regions; API gateway handles auth/rate limits; service discovery and load balancing route internal calls. Retries must use backoff and only be used when the operation is idempotent or protected by an idempotency key.</blockquote>
+<h3 id="8-job-scheduling-scale-and-reliability">8. Job Scheduling Scale and Reliability</h3>
+<h4 id="question-8">Question</h4>
+<p>Job scheduler 已经有 delayed jobs，但如何支持大规模、可靠、可恢复、可观测？</p>
+<h4 id="architecture-5">Architecture</h4>
+<pre><code class="language-">Job API
+  -&gt; Job Store
+  -&gt; Scheduler Shards
+  -&gt; Ready Queue
+  -&gt; Worker Pool
+  -&gt; Lease / Heartbeat
+  -&gt; Retry / DLQ</code></pre>
+<h4 id="sharding">Sharding</h4>
+<p>Scheduler 可以按 <code>job_id</code> 或 <code>tenant_id</code> shard：</p>
+<pre><code class="language-">shard = hash(job_id) % N</code></pre>
+<p>每个 scheduler shard 扫描自己负责的 due jobs，避免全局锁。</p>
+<h4 id="lease">Lease</h4>
+<p>Worker 领取 job：</p>
+<pre><code class="language-sql">UPDATE job
+SET status = 'RUNNING',
+    lease_until = now() + interval '60 seconds',
+    worker_id = ?
+WHERE job_id = ?
+  AND status = 'READY'</code></pre>
+<p>Worker crash 后 lease 到期，job 回到 READY。</p>
+<h4 id="retry">Retry</h4>
+<ul>
+<li>exponential backoff。</li>
+<li>max attempts。</li>
+<li>dead-letter queue。</li>
+<li>poison job detection。</li>
+<li>idempotent handler。</li>
+</ul>
+<h4 id="interview-answer-8">Interview answer</h4>
+<blockquote>I would scale the scheduler by sharding the due-job scan and separating scheduling from execution. Workers claim jobs with leases so crashes do not lose work. Retries use exponential backoff and eventually move poison jobs to a dead-letter queue. Job handlers must be idempotent because a job can run more than once after lease expiry.</blockquote>
+<h3 id="9-scaling-reads-playbook">9. Scaling Reads Playbook</h3>
+<h4 id="question-9">Question</h4>
+<p>读流量上来后，除了“加 cache”，还有哪些系统化手段？</p>
+<h4 id="layers">Layers</h4>
+<pre><code class="language-">Browser / client cache
+CDN
+API cache
+Redis / Memcached
+Read replica
+Search index
+Materialized view
+OLAP store</code></pre>
+<h4 id="decision">Decision</h4>
+<ul>
+<li>Static or media：CDN。</li>
+<li>Hot object：cache + request coalescing。</li>
+<li>Read-heavy relational：read replicas。</li>
+<li>Query by keyword：search index。</li>
+<li>Expensive join：materialized view。</li>
+<li>Aggregation dashboard：OLAP。</li>
+</ul>
+<h4 id="cache-correctness">Cache correctness</h4>
+<p>Cache aside:</p>
+<pre><code class="language-">read cache
+miss -&gt; read DB -&gt; set cache
+write DB -&gt; delete cache</code></pre>
+<p>Add:</p>
+<ul>
+<li>TTL jitter。</li>
+<li>stale-while-revalidate。</li>
+<li>negative caching。</li>
+<li>singleflight。</li>
+</ul>
+<h4 id="interview-answer-9">Interview answer</h4>
+<blockquote>I would first classify the read bottleneck: hot object, expensive query, geographic latency, or aggregation. Then I would choose the right layer: CDN for static content, Redis for hot objects, replicas for read QPS, search index for keyword queries, materialized views for joins, and OLAP for analytics. Cache correctness needs invalidation, TTL jitter, and stampede protection.</blockquote>
+<h3 id="10-ai-driven-realtime-recommendations">10. AI-driven Realtime Recommendations</h3>
+<h4 id="question-10">Question</h4>
+<p>如何把 recommendation 做成 realtime personalization？用户刚点击/观看/购买后，推荐马上变。</p>
+<h4 id="architecture-6">Architecture</h4>
+<pre><code class="language-">User Event
+  -&gt; Kafka
+  -&gt; Realtime Feature Processor
+  -&gt; Online Feature Store
+  -&gt; Candidate Refresh
+  -&gt; Ranking Service
+  -&gt; Recommendation API</code></pre>
+<h4 id="feature-design">Feature design</h4>
+<p>Long-term:</p>
+<ul>
+<li>user embedding。</li>
+<li>category affinity。</li>
+<li>historical conversion。</li>
+</ul>
+<p>Short-term:</p>
+<ul>
+<li>current session clicks。</li>
+<li>last N watched items。</li>
+<li>recent search query。</li>
+<li>negative feedback。</li>
+</ul>
+<p>Realtime recommender 要把 short-term intent 放大，但不能完全覆盖 long-term preference。</p>
+<h4 id="serving-path">Serving path</h4>
+<ol>
+<li>Fetch user long-term features。</li>
+<li>Fetch session/realtime features。</li>
+<li>Generate candidates from multiple sources。</li>
+<li>Rank with context features。</li>
+<li>Re-rank for diversity/safety/business rules。</li>
+</ol>
+<h4 id="failure-mode">Failure mode</h4>
+<p>Realtime feature store fail：</p>
+<ul>
+<li>fallback to batch features。</li>
+<li>fallback to popular/trending。</li>
+<li>cache last recommendations。</li>
+</ul>
+<h4 id="interview-answer-10">Interview answer</h4>
+<blockquote>I would combine batch user profiles with realtime session features. Events stream into a feature processor and online feature store, so recent user actions can affect candidate generation and ranking within seconds. The system still needs fallback to batch features or trending items if realtime features are unavailable, and it should monitor feature freshness and missing feature rate.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

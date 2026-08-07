@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>11. Design S3 - System Design 28</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Case 12 / 31 · Route 4 / 9</p>
+          <h1 class="route-title">11. Design S3</h1>
+          <p class="route-subtitle">Spotify、Zoom、S3、URL Shortener：内容分发、实时媒体、对象存储与全球 Key Lookup。</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#11-1-题意-边界与先说清的语义">11.1 题意、边界与先说清的语义</a><a href="#11-2-functional-requirements-nfr-与-slo">11.2 Functional Requirements、NFR 与 SLO</a><a href="#11-3-容量估算-公式-量纲与峰值">11.3 容量估算：公式、量纲与峰值</a><a href="#11-4-api-与-event-contracts">11.4 API 与 Event Contracts</a><a href="#11-5-数据模型-partition-index-ttl-与状态机">11.5 数据模型、Partition、Index、TTL 与状态机</a><a href="#11-6-high-level-architecture">11.6 High-Level Architecture</a><a href="#11-7-核心-flows">11.7 核心 Flows</a><a href="#11-8-deep-dive-a-原子可见性-幂等与失败窗口">11.8 Deep Dive A：原子可见性、幂等与失败窗口</a><a href="#11-9-deep-dive-b-durability-不是-副本数-的同义词">11.9 Deep Dive B：Durability 不是“副本数”的同义词</a><a href="#11-10-deep-dive-c-metadata-list-与-hot-prefix">11.10 Deep Dive C：Metadata、LIST 与 Hot Prefix</a><a href="#11-11-deep-dive-d-读热点-缓存与长尾">11.11 Deep Dive D：读热点、缓存与长尾</a><a href="#11-12-deep-dive-e-dedup-encryption-与租户隔离">11.12 Deep Dive E：Dedup、Encryption 与租户隔离</a><a href="#11-13-consistency-backpressure-multi-region-与-dr">11.13 Consistency、Backpressure、Multi-Region 与 DR</a><a href="#11-14-security-observability-与-cost">11.14 Security、Observability 与 Cost</a><a href="#11-15-trade-offs-与演进路线">11.15 Trade-offs 与演进路线</a><a href="#11-16-高频-follow-up-q-a">11.16 高频 Follow-up Q&amp;A</a><a href="#11-17-60-秒总结">11.17 60 秒总结</a></nav>
+        </header>
+        <h2 id="11-design-s3-分布式对象存储-distributed-object-storage">11. Design S3：分布式对象存储（Distributed Object Storage）</h2>
+<h3 id="11-1-题意-边界与先说清的语义">11.1 题意、边界与先说清的语义</h3>
+<blockquote><strong>Source digest — <code>design  S3 分布式对象存储系统设计.docx</code></strong>：吸收了 <code>immutable object</code>、元数据与数据块分离、<code>Range Read</code>、内容校验、机架感知副本选择、<code>scrubbing</code>、物理块先写/元数据后提交，以及源文档对 10B objects、200 PB、3 replicas 的容量推演。源文档没有表格或内嵌图片；所谓实体图与架构图均是正文中的 ASCII diagram，已重画为 Mermaid。</blockquote>
+<p>先纠正题意：S3 是 <strong>Object Store</strong>，不是 POSIX <code>File System</code>。默认没有真正的目录 inode；<code>photos/2026/a.jpg</code> 只是 object key，<code>/</code> 是展示层 delimiter。面试若明确要 <code>create_directory/delete_directory</code>，可在对象存储之上另加 <code>Namespace Service</code>，但不能把这个扩展误当作 S3 核心。</p>
+<p>本题范围：</p>
+<ul>
+<li><code>PutObject</code>、<code>Multipart Upload</code>、<code>GetObject/Range Read</code>、<code>HeadObject</code>、<code>ListObjects</code>、<code>DeleteObject</code>。</li>
+<li>object 内容一旦形成某个 <code>version_id</code> 就不可变；覆盖实际创建新版本并原子移动 <code>current pointer</code>。</li>
+<li>元数据强一致、数据面大吞吐；支持 checksum、加密、多 AZ 持久化、后台修复。</li>
+<li>可选：bucket versioning、lifecycle、pre-signed URL、跨区域复制（Cross-Region Replication）。</li>
+</ul>
+<p>暂不展开：POSIX rename/append/random write、复杂 IAM 产品细节、CDN 产品本身、跨云迁移协议。</p>
+<p>一句开场：<strong>“我会把 object metadata、immutable blob、placement map 三层分离；上传只有在数据片跨 failure domains 持久化且 manifest 通过条件提交后才可见。读取以 metadata lookup + parallel range fetch 为主，后台用 scrubbing、repair 和 lifecycle GC 维持 durability 与成本。”</strong></p>
+<h3 id="11-2-functional-requirements-nfr-与-slo">11.2 Functional Requirements、NFR 与 SLO</h3>
+<p><strong>Functional Requirements</strong></p>
+<ol>
+<li>创建 bucket；上传、读取、列举、删除 object。</li>
+<li>大文件支持 <code>Multipart Upload</code>、断点续传、并行 part upload。</li>
+<li><code>GET Range</code> 只读取所需 byte range；返回 <code>ETag/checksum/version_id</code>。</li>
+<li>同 key 并发覆盖可用 <code>If-Match/If-None-Match</code> 做 conditional write。</li>
+<li>lifecycle：过期、转冷、删除 marker、异步物理回收。</li>
+</ol>
+<p><strong>NFR / SLO</strong></p>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>目标</th></tr></thead><tbody><tr><td>Availability</td><td><code>GET/HEAD</code> 99.99%，<code>PUT/DELETE</code> 99.95%</td></tr>
+<tr><td>Latency</td><td>metadata <code>HEAD</code> p99 &lt; 30 ms；首字节 <code>GET</code> p99 &lt; 100 ms（同 region、非冷层）；小 object <code>PUT</code> p99 &lt; 300 ms，不含客户端传输时间</td></tr>
+<tr><td>Durability</td><td>设计目标可到 11 nines，但必须由 failure model 与年度丢失概率证明，不能由“3 副本”口头推出</td></tr>
+<tr><td>Consistency</td><td>单 region 对 <code>PUT/DELETE/LIST</code> 提供 strong read-after-write；跨 region 依产品等级选择同步或异步</td></tr>
+<tr><td>Integrity</td><td>每 part、chunk、object 端到端 checksum；silent corruption 可检测、可修复</td></tr>
+<tr><td>Isolation</td><td>tenant quota、bandwidth fairness、KMS key isolation、failure-domain-aware placement</td></tr></tbody></table></div>
+<h3 id="11-3-容量估算-公式-量纲与峰值">11.3 容量估算：公式、量纲与峰值</h3>
+<p>沿用源文档的两个量级，但消除“先算 6.4 EB、再假设神奇 dedup 成 200 PB”的不自洽：直接假设当前有 <strong>10B objects、200 PB logical bytes</strong>，则平均 object 大小约 20 MB。</p>
+<ul>
+<li>新增数据：<code>2 PB/day</code>。</li>
+<li>平均写带宽：<code>2 PB / 86,400 s = 23.1 GB/s</code>；按 10× 峰值为 <code>231 GB/s</code>。</li>
+<li>若平均 20 MB/object，则新增 object：<code>2 PB / 20 MB = 100M/day</code>。</li>
+<li>平均 object commit：<code>100M / 86,400 = 1,157/s</code>；峰值约 <code>11.6k/s</code>。</li>
+<li>假设读请求数是写的 10×：平均 <code>11.6k GET/s</code>，峰值 <code>116k GET/s</code>。</li>
+<li>若平均实际读取 range 为 4 MB：平均 egress <code>11.6k/s × 4 MB = 46.4 GB/s</code>；10× 峰值 <code>464 GB/s</code>，因此热点内容通常需要 CDN/edge cache。</li>
+</ul>
+<p>物理容量两种方案：</p>
+<ul>
+<li>3 replicas：<code>200 PB × 3 = 600 PB</code>。按每台 <code>100 TB raw capacity</code>，理论下界 <code>600 PB / 0.1 PB = 6,000 nodes</code>；若集群只使用 80% 容量以保留 20% free-space/rebuild headroom，则需 <code>600/0.8=750 PB</code>，约 <code>7,500 nodes</code>。</li>
+<li><code>12+4 Erasure Coding</code>：冗余系数 <code>16/12 = 1.333</code>，编码后载荷约 <code>266.7 PB</code>；若要求集群始终保留 20% free-space/rebuild headroom，部署容量为 <code>266.7 PB / 0.8 ≈ 333.4 PB</code>，按 100 TB raw/node 约 <code>3,334 nodes</code>。代价是小对象与 degraded read 的 CPU/network amplification。</li>
+</ul>
+<p>元数据粗估：</p>
+<ul>
+<li>每 object/version 主记录按 300 B：<code>10B × 300 B = 3 TB</code> primary data。</li>
+<li>加二级索引、LSM/B-tree amplification 约 3×：<code>9 TB</code>。</li>
+<li>3 replicas：约 <code>27 TB</code>；这说明“元数据不大”只在相对 blob 而言，仍需分片、备份与热点治理。</li>
+</ul>
+<h3 id="11-4-api-与-event-contracts">11.4 API 与 Event Contracts</h3>
+<pre><code class="language-http">PUT /v1/buckets/{bucket}/objects/{key}
+Authorization: ...
+Idempotency-Key: req-7f...
+If-None-Match: *
+X-Content-SHA256: ...
+
+&lt;bytes&gt;</code></pre>
+<p>返回 <code>201 {bucket, key, version_id, etag, size_bytes}</code>。同一 <code>Idempotency-Key + request digest</code> 重试返回同一结果；相同 key 但不同 digest 返回 <code>409</code>，避免一个 token 被误复用。</p>
+<pre><code class="language-http">POST /v1/buckets/{bucket}/multipart-uploads
+POST /v1/uploads/{upload_id}/parts/{part_number}
+POST /v1/uploads/{upload_id}:complete
+GET  /v1/buckets/{bucket}/objects/{key}?version_id=...   # 支持 Range
+HEAD /v1/buckets/{bucket}/objects/{key}
+GET  /v1/buckets/{bucket}/objects?prefix=...&amp;delimiter=/&amp;page_token=...
+DELETE /v1/buckets/{bucket}/objects/{key}?if_version=...</code></pre>
+<p><code>CompleteMultipartUpload</code> 携带有序 <code>{part_number, checksum, size}</code> 清单和 <code>upload_epoch</code>；服务端重算 manifest root，使用 compare-and-set 只允许同一 upload epoch 成功一次。</p>
+<p>核心事件：</p>
+<pre><code class="language-json">{
+  &quot;event_id&quot;: &quot;01J...&quot;,
+  &quot;event_type&quot;: &quot;ObjectCommitted&quot;,
+  &quot;bucket_id&quot;: &quot;b-17&quot;,
+  &quot;object_key&quot;: &quot;photos/2026/a.jpg&quot;,
+  &quot;version_id&quot;: &quot;v-42&quot;,
+  &quot;manifest_hash&quot;: &quot;sha256:...&quot;,
+  &quot;size_bytes&quot;: 20971520,
+  &quot;metadata_version&quot;: 88,
+  &quot;policy_epoch&quot;: 12,
+  &quot;committed_at&quot;: &quot;2026-07-15T08:00:00Z&quot;
+}</code></pre>
+<p>消费者按 <code>event_id</code> 去重；事件由 metadata transaction 的 <code>Outbox</code> 发出，事件通知本身是 at-least-once，不宣称 end-to-end exactly-once。</p>
+<h3 id="11-5-数据模型-partition-index-ttl-与状态机">11.5 数据模型、Partition、Index、TTL 与状态机</h3>
+<div class="table-wrap"><table><thead><tr><th>实体</th><th>关键字段</th><th>Partition / Index</th></tr></thead><tbody><tr><td><code>Bucket</code></td><td><code>bucket_id, tenant_id, name, home_region, versioning, policy_epoch</code></td><td>PK <code>bucket_id</code>；unique <code>(tenant_id,name)</code></td></tr>
+<tr><td><code>ObjectHead</code></td><td><code>bucket_id, key, current_version, state, etag, size, policy_epoch</code></td><td>authoritative <code>(bucket_id,key)</code> lexicographic range shard；partition map/cache 支持 point routing</td></tr>
+<tr><td><code>ObjectVersion</code></td><td><code>bucket_id, key, version_id, manifest_id, etag, size, state, created_at</code></td><td>与 ObjectHead 同 range owner；unique <code>(bucket_id,key,version_id)</code>；历史按 version/time</td></tr>
+<tr><td><code>KeyOrderIndex</code></td><td><code>bucket_id, key, current_version, tombstone</code></td><td>ObjectHead shard 内的 covering ordered index，不是另一个 hash shard；热 prefix 自适应 range split</td></tr>
+<tr><td><code>UploadSession</code></td><td><code>upload_id, target_key, request_digest, epoch, state, expires_at</code></td><td>PK upload_id；TTL 7 days（可配置）</td></tr>
+<tr><td><code>Part</code></td><td><code>upload_id, part_no, temp_manifest, checksum, size</code></td><td><code>(upload_id, part_no)</code> unique</td></tr>
+<tr><td><code>Manifest</code></td><td><code>manifest_id, ordered chunk refs, merkle_root</code></td><td>大 manifest 分页/树化存储，避免单行无限增长</td></tr>
+<tr><td><code>ChunkPlacement</code></td><td><code>chunk_id, fragment_set, placement_epoch, health</code></td><td>hash chunk_id；由 placement shard leader 管理</td></tr>
+<tr><td><code>Outbox</code></td><td><code>event_id, aggregate_id, payload, publish_state</code></td><td>与 ObjectHead/ObjectVersion 同 range-shard transaction；按 created_at relay</td></tr></tbody></table></div>
+<p>不要把数百万 chunk hashes 塞进单行数组。大 object 使用分层 manifest：root 指向 page，page 指向 ordered extents；<code>Range</code> 通过 offset index 在 <code>O(log n)</code> 找到相关 extents。</p>
+<p>上传状态机：</p>
+<pre><code class="language-text">INITIATED -&gt; UPLOADING -&gt; SEALING -&gt; COMMITTED
+      |          |           |
+      +----------+-----------+-&gt; ABORTED -&gt; GC_ELIGIBLE -&gt; PURGED</code></pre>
+<p>删除状态：<code>ACTIVE -&gt; TOMBSTONED -&gt; RETENTION_HOLD/GC_ELIGIBLE -&gt; PURGED</code>。别把用户可见删除和物理擦除绑在同步请求里。</p>
+<h3 id="11-6-high-level-architecture">11.6 High-Level Architecture</h3>
+<figure class="architecture"><figcaption>Architecture Diagram</figcaption><pre class="mermaid">flowchart LR
+    C[&quot;Client / SDK&quot;] --&gt; G[&quot;API Gateway + Auth&quot;]
+    G --&gt; M[&quot;Metadata / Namespace Service&quot;]
+    G --&gt; U[&quot;Upload Coordinator&quot;]
+    M --&gt; MS[(&quot;Metadata Range Shards\nRaft/SQL + MVCC Key Index&quot;)]
+    M --&gt; O[(&quot;Transactional Outbox&quot;)]
+    U --&gt; P[&quot;Placement Service&quot;]
+    P --&gt; PM[(&quot;Placement Map&quot;)]
+    U --&gt; SN[&quot;Storage Nodes across AZ/Rack&quot;]
+    SN --&gt; SN2[&quot;Replica or EC Fragments&quot;]
+    G --&gt; R[&quot;Read Router&quot;]
+    R --&gt; C1[(&quot;L1/L2 Cache / CDN&quot;)]
+    R --&gt; MS
+    R --&gt; SN
+    O --&gt; E[&quot;Event Bus&quot;]
+    E --&gt; N[&quot;Notifications / Replication / Lifecycle&quot;]
+    S[&quot;Scrubber + Repair + GC&quot;] --&gt; PM
+    S --&gt; SN</pre><div class="ascii-label">ASCII Architecture · copy-friendly</div><pre class="ascii-diagram"><code>[Client / SDK] --&gt; [API Gateway + Auth]
+[API Gateway + Auth] --&gt; [Metadata / Namespace Service]
+[API Gateway + Auth] --&gt; [Upload Coordinator]
+[Metadata / Namespace Service] --&gt; [Metadata Range Shards / Raft/SQL + MVCC Key Index]
+[Metadata / Namespace Service] --&gt; [Transactional Outbox]
+[Upload Coordinator] --&gt; [Placement Service]
+[Placement Service] --&gt; [Placement Map]
+[Upload Coordinator] --&gt; [Storage Nodes across AZ/Rack]
+[Storage Nodes across AZ/Rack] --&gt; [Replica or EC Fragments]
+[API Gateway + Auth] --&gt; [Read Router]
+[Read Router] --&gt; [L1/L2 Cache / CDN]
+[Read Router] --&gt; [Metadata Range Shards / Raft/SQL + MVCC Key Index]
+[Read Router] --&gt; [Storage Nodes across AZ/Rack]
+[Transactional Outbox] --&gt; [Event Bus]
+[Event Bus] --&gt; [Notifications / Replication / Lifecycle]
+[Scrubber + Repair + GC] --&gt; [Placement Map]
+[Scrubber + Repair + GC] --&gt; [Storage Nodes across AZ/Rack]</code></pre></figure>
+<p>Control Plane 管 bucket、policy、placement、repair plan；Data Plane 让客户端/网关直接并行传输 bytes。否则 central <code>Chunk Manager</code> 会成为每个字节都必须穿越的瓶颈。</p>
+<h3 id="11-7-核心-flows">11.7 核心 Flows</h3>
+<p><strong>Small PUT / Multipart complete</strong></p>
+<ol>
+<li>AuthZ 检查 bucket policy、quota、retention；创建 <code>UploadSession(epoch=1)</code>，返回 part endpoints。</li>
+<li>每个 part 计算 checksum，按 placement policy 写入至少 3 AZ 的 replicas，或写足 EC 的 <code>k+m</code> fragments；节点 <code>fsync</code> 后返回 fragment receipt。</li>
+<li>Coordinator 校验 receipts、part checksum、总大小，生成 immutable manifest。</li>
+<li>路由到该 <code>(bucket,key)</code> 的 authoritative range owner，在单 shard transaction 中插入 <code>ObjectVersion</code>、CAS <code>ObjectHead.current_version</code>、更新本地 covering <code>KeyOrderIndex</code> 并写 <code>Outbox</code>。只有这一步 commit 后 object 对外可见。</li>
+<li>若客户端在第 2 步后断线，provisional chunks 没有可见 manifest，TTL 到期由 GC 清理；若 complete 重试，idempotency record 返回原 version。</li>
+</ol>
+<p><strong>GET Range</strong></p>
+<ol>
+<li>读取 current/version metadata；检查 tombstone、expiry、policy epoch。</li>
+<li>根据 range 在 manifest tree 定位 extents；批量查询 placement。</li>
+<li>按同 AZ、rack load、recent latency 选 replica；并发读取，超过 hedge threshold 才发第二份，避免无脑 3× 流量。</li>
+<li>校验 chunk checksum，拼接 range；坏片立即隔离并投递 repair event。</li>
+</ol>
+<p><strong>LIST prefix</strong></p>
+<ol>
+<li><code>KeyOrderIndex</code> 按 bucket + prefix 做有界 range scan。</li>
+<li>Metadata timestamp oracle/consensus 先给本次 LIST 一个 <code>read_timestamp</code>，所有 range shards 以 MVCC 服务该 snapshot；continuation token 加密签名并包含 <code>read_timestamp/index_generation/per-shard cursor</code>，保证分页不会因并发写重复/跳项。</li>
+<li>对百万级单 prefix 做 adaptive range split；聚合器 k-way merge，不把完整目录载入内存。</li>
+</ol>
+<h3 id="11-8-deep-dive-a-原子可见性-幂等与失败窗口">11.8 Deep Dive A：原子可见性、幂等与失败窗口</h3>
+<p>“Blocks first, metadata last”方向正确，但只说 <code>2/3 quorum</code> 不够：</p>
+<ul>
+<li>每次 upload 有 <code>upload_id + epoch</code>，每个临时 chunk path 包含 epoch，防旧 coordinator 写入新 attempt。</li>
+<li>fragment receipt 绑定 <code>chunk_id, checksum, placement_epoch, node_id</code>，不能凭客户端声称已上传。</li>
+<li>manifest commit 是唯一 visibility point；current pointer 用 CAS，处理同 key 并发覆盖。</li>
+<li><code>Outbox</code> 与 manifest 同事务。Relay 崩溃会重复 publish，但消费者按 event_id 幂等。</li>
+<li>Coordinator 的本地 WAL 不是高可靠真理。上传 intent 必须在 replicated metadata store；本地日志只能加速 recovery。</li>
+</ul>
+<h3 id="11-9-deep-dive-b-durability-不是-副本数-的同义词">11.9 Deep Dive B：Durability 不是“副本数”的同义词</h3>
+<p>Durability 必须定义 failure model：disk、node、rack、AZ、region、software bug、operator delete、bit rot 是否相关。</p>
+<ul>
+<li>placement 强制 failure-domain anti-affinity；禁止 3 份副本落同 rack/PDU。</li>
+<li>checksum 在 client、ingress、disk read 三处验证；metadata 也有 checksum/version。</li>
+<li>continuous scrubbing 按风险/年龄采样，发现 corrupt fragment 后从健康片重建。</li>
+<li>repair priority 由剩余冗余度、对象价值、failure correlation 决定；设置 repair bandwidth budget，防止故障时 repair traffic 挤死用户流量。</li>
+<li>delete/versioning/object lock 防人为误删；备份和跨 region copy 防 control-plane corruption。</li>
+<li>用 <code>Annualized Loss Probability</code> 或 <code>MTTDL simulation</code> 校验目标；不能从“2/3 ACK”直接推出 11 nines。</li>
+</ul>
+<p>EC 适合大且冷的 object；小 object 可先 3× replication，compact 成大 segment 后转 EC，避免 read-modify-write 与小片数量爆炸。</p>
+<h3 id="11-10-deep-dive-c-metadata-list-与-hot-prefix">11.10 Deep Dive C：Metadata、LIST 与 Hot Prefix</h3>
+<p>源文档用 <code>path_prefix consistent hashing</code> 同时声称均匀分布和高效 list，这两者冲突：hash 适合 point lookup，lexicographic range 才适合 prefix list。</p>
+<p>本设计明确选择 <strong>authoritative range partitioning</strong>：<code>ObjectHead</code>、同 key 的 versions、本地 covering order index 与 Outbox 都由 <code>(bucket_id,key)</code> 所在 range owner 管理。Point lookup 先查缓存的 partition-boundary map，仍是一次 shard RPC；边界变更由带 epoch 的 partition directory 发布。这样 <code>PUT/DELETE/HEAD</code> 与单 key state 同 shard 强一致，<code>LIST</code> 则跨连续 ranges 在统一 MVCC <code>read_timestamp</code> 上扫描。</p>
+<p>若改选 hash primary，则 strong LIST 必须为 hash row + range index 引入跨 shard serializable transaction/2PC；否则只能把 LIST 降为 eventual。本文不走这条路径。热点 prefix 用 dynamic range split、virtual ranges 和 bounded k-way merge，不给 key 随机加盐破坏排序；单个极热 key 仍由一个 owner/CAS 串行更新。</p>
+<h3 id="11-11-deep-dive-d-读热点-缓存与长尾">11.11 Deep Dive D：读热点、缓存与长尾</h3>
+<ul>
+<li>immutable <code>version_id -&gt; bytes</code> 可长 TTL；但 <code>key -&gt; current version</code>、ACL、tombstone 会变，必须短 TTL/主动 purge/version check。</li>
+<li>CDN key 必须包含 <code>bucket, key, version_id, range, encoding</code>；授权对象使用 signed capability，避免公共 cache 泄露私有数据。</li>
+<li>hot object 在 cache miss 时用 <code>singleflight/request coalescing</code>，防 thundering herd。</li>
+<li>parallel fetch 有 bounded concurrency；大 object 不是“几百块全部同时抓”，只抓当前 range/read-ahead window。</li>
+<li>hedged read 只在 p95/p99 阈值后发备份，且有全局 hedge budget。</li>
+</ul>
+<h3 id="11-12-deep-dive-e-dedup-encryption-与租户隔离">11.12 Deep Dive E：Dedup、Encryption 与租户隔离</h3>
+<p>全局 plaintext hash dedup 会泄露“某内容是否存在”，还让跨租户删除/refcount 变成安全高风险事务。默认采用 tenant-scoped chunk identity，或干脆不做跨租户 dedup。</p>
+<ul>
+<li>每 object/version 使用随机 <code>DEK</code> 做 AES-GCM；KMS 管理的 tenant <code>KEK</code> 包裹 DEK（Envelope Encryption）。</li>
+<li>若 dedup 与 encryption 同时需要，可在同 tenant 内做 convergent scheme，但要明确确认攻击与密钥轮换代价。</li>
+<li><code>ref_count</code> 更新必须与 manifest 引用建立/删除原子关联；GC 还需 mark-and-sweep 二次确认，不能仅相信可能漂移的计数器。</li>
+<li>pre-signed URL 绑定 method、bucket/key/version、expiry、content hash、最大长度；服务端使用 policy epoch 处理紧急吊销。</li>
+</ul>
+<h3 id="11-13-consistency-backpressure-multi-region-与-dr">11.13 Consistency、Backpressure、Multi-Region 与 DR</h3>
+<p><strong>Consistency</strong></p>
+<ul>
+<li>single-region metadata range shard 用 Raft/consensus leader 或同步 SQL replica；<code>PUT/DELETE/HEAD</code> 走 key 的单一 authoritative owner，<code>LIST</code> 跨相邻 owners 读取同一 MVCC <code>read_timestamp</code>，因此仍提供 snapshot-strong pagination。</li>
+<li>data ACK 需要满足 placement policy；metadata commit 不能指向不足冗余的 fragment set。</li>
+<li>overwrite 产生新 version；读者要么看到旧完整 version，要么看到新完整 version，绝不看到拼接中间态。</li>
+</ul>
+<p><strong>Backpressure</strong></p>
+<ul>
+<li>per-tenant request/byte quota、in-flight multipart quota、storage-node disk queue watermark。</li>
+<li>overload 时优先拒绝新 multipart/initiate，保留 <code>GET/HEAD</code> 与正在 complete 的上传。</li>
+<li>repair/lifecycle/replication 使用独立 priority lane 和 bandwidth token bucket。</li>
+</ul>
+<p><strong>Multi-Region</strong></p>
+<ul>
+<li>基础版：bucket 有 <code>home_region</code>，写入单 region；对象 commit 事件异步复制到 secondary，RPO 例如 &lt; 5 min、RTO &lt; 30 min。</li>
+<li>强保护版：ACK 前把 metadata journal 与足够数据片同步落到 paired region，可做到 RPO=0，但 WAN latency 和 egress cost 显著上升。</li>
+<li>failover 前 secondary 必须追上 <code>commit watermark</code>；落后时保持 read-only 或拒绝新写，不能两个 region 同时接受同 key 写入后再 LWW。</li>
+</ul>
+<p><strong>DR</strong></p>
+<ul>
+<li>定期恢复演练验证 metadata backup、manifest、KMS grants、DNS/failover runbook。</li>
+<li>region loss 后先恢复 metadata safety watermark，再开放读取；repair backlog 清零前限制大规模新写。</li>
+</ul>
+<h3 id="11-14-security-observability-与-cost">11.14 Security、Observability 与 Cost</h3>
+<p><strong>Security</strong>：IAM least privilege、bucket policy、KMS audit、mTLS service identity、WAF/abuse quota、malware scanning hook、object lock/legal hold、access log immutable retention。日志中不记录 object payload 或完整 secret URL。</p>
+<p><strong>Golden Signals</strong></p>
+<ul>
+<li><code>put_commit_latency</code>、<code>time_to_first_byte</code>、range throughput、LIST scan amplification。</li>
+<li>under-replicated bytes、corrupt fragments、repair age、scrub coverage、placement-domain violations。</li>
+<li>metadata quorum health、manifest commit conflicts、orphan provisional bytes、GC false-positive guard。</li>
+<li>cache hit ratio 按 bytes 而非只按 request；hot-key concentration、egress by tenant。</li>
+</ul>
+<p><strong>Cost levers</strong></p>
+<ul>
+<li>EC vs replication、hot/warm/cold tier、small-object compaction、cache egress savings。</li>
+<li>注意 EC repair/read amplification、跨 region replication、LIST scan、KMS request 都可能成为隐形成本。</li>
+</ul>
+<h3 id="11-15-trade-offs-与演进路线">11.15 Trade-offs 与演进路线</h3>
+<div class="table-wrap"><table><thead><tr><th>阶段</th><th>方案</th><th>何时升级</th></tr></thead><tbody><tr><td>V1</td><td>单 region、3 AZ、3 replicas、SQL metadata、multipart</td><td>数十 PB 以内先换简单性</td></tr>
+<tr><td>V2</td><td>metadata 分片、ordered LIST index、CDN、small-object compaction</td><td>hot prefix、metadata/write QPS 成瓶颈</td></tr>
+<tr><td>V3</td><td>EC、自动 placement/repair、cross-region async</td><td>容量成本与 region DR 成核心</td></tr>
+<tr><td>V4</td><td>dual-region synchronous tier、policy epoch、tiered storage</td><td>受监管客户要求 RPO=0/紧急吊销</td></tr></tbody></table></div>
+<h3 id="11-16-高频-follow-up-q-a">11.16 高频 Follow-up Q&amp;A</h3>
+<p><strong>Q1：为什么不能先写 metadata 再慢慢复制 bytes？</strong>  因为会暴露指向不存在/不完整数据的 visible object。先形成满足 durability policy 的 fragment set，再原子提交 manifest。</p>
+<p><strong>Q2：2/3 replica ACK 是否足够？</strong>  它只表示两个节点确认，不代表跨 failure domain，也不代表 region disaster、bit rot、软件误删安全；ACK 条件必须包含 placement policy、checksum 和持久化语义。</p>
+<p><strong>Q3：如何支持同 key 并发覆盖？</strong>  每次覆盖创建 immutable version，current pointer 通过 expected version/CAS 更新；冲突返回 <code>412 Precondition Failed</code> 或明确 last-writer policy。</p>
+<p><strong>Q4：为什么不对每条 path 上 Zookeeper lock？</strong>  每次 mutation 的外部协调成本和 watcher 数会限制规模。优先用 shard owner + unique constraint/CAS；跨 shard 操作才使用有 fencing 的 workflow。</p>
+<p><strong>Q5：缓存真的永不失效吗？</strong>  只有 <code>content hash/version -&gt; bytes</code> 可近似永久；<code>key -&gt; current version</code>、权限、封禁、删除都必须失效或携带 epoch。</p>
+<h3 id="11-17-60-秒总结">11.17 60 秒总结</h3>
+<p>“这是 object store，不是 POSIX 文件系统。我把 metadata、immutable manifest、physical fragments 分开。上传先让 part 跨 failure domains 持久化并校验 checksum，之后用 metadata shard 的条件事务一次性提交 version/current pointer/outbox，所以用户只会看到完整对象。读取根据 Range 定位 extents，批量查 placement，做 topology-aware parallel read 和受预算约束的 hedging；LIST 由有序 key index 提供 snapshot-stable pagination。容量上，200 PB 用 3 replicas 是 600 PB raw load、按 20% free-space 需部署 750 PB；12+4 EC 同样保留 20% free-space 约需 333.4 PB。Durability 还依赖 scrubbing、repair、versioning、跨 region 与恢复演练，不由副本数口头保证。热点走 CDN/cache，但 current pointer、ACL 与 tombstone 仍需 epoch/invalidation。”</p>
+<hr/>
+<hr/>
+        <nav class="pager" aria-label="Case navigation">
+    <a href="case-10-design-zoom.html">← 10. Design Zoom</a>
+    <a class="next" href="case-12-design-a-url-shortener.html">12. Design a URL Shortener →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

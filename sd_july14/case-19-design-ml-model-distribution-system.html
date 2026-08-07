@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>19. Design ML Model Distribution System - System Design 28</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Case 20 / 31 · Route 6 / 9</p>
+          <h1 class="route-title">19. Design ML Model Distribution System</h1>
+          <p class="route-subtitle">ChatGPT Playground、Batch Inference、Model Distribution、Real-time Top-K。</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#19-1-source-digest-源文档覆盖与校正">19.1 Source digest：源文档覆盖与校正</a><a href="#19-2-题意-边界与开场">19.2 题意、边界与开场</a><a href="#19-3-fr-nfr-与-slo">19.3 FR、NFR 与 SLO</a><a href="#19-4-capacity-network-disk-hbm-与时间下界">19.4 Capacity、network、disk、HBM 与时间下界</a><a href="#19-5-api-与-event-contracts">19.5 API 与 event contracts</a><a href="#19-6-data-model-partition-index-ttl-与状态机">19.6 Data model、partition、index、TTL 与状态机</a><a href="#19-7-proposed-architecture">19.7 Proposed architecture</a><a href="#19-8-core-flows">19.8 Core flows</a><a href="#19-9-deep-dive-1-swarm-scheduling-与-rack-aware-rarest-first">19.9 Deep dive 1：Swarm scheduling 与 rack-aware rarest-first</a><a href="#19-10-deep-dive-2-chunk-size-merkle-tree-与断点续传">19.10 Deep dive 2：Chunk size、Merkle tree 与断点续传</a><a href="#19-11-deep-dive-3-tracker-ha-state-size-与-failure-semantics">19.11 Deep dive 3：Tracker HA、state size 与 failure semantics</a><a href="#19-12-deep-dive-4-rollout-consistency-readiness-barrier-与-rollback">19.12 Deep dive 4：Rollout consistency、readiness barrier 与 rollback</a><a href="#19-13-deep-dive-5-hbm-placement-与-topology">19.13 Deep dive 5：HBM placement 与 topology</a><a href="#19-14-reliability-backpressure-multi-region-与-dr">19.14 Reliability、backpressure、multi-region 与 DR</a><a href="#19-15-security-与-supply-chain-safety">19.15 Security 与 supply-chain safety</a><a href="#19-16-完整-mle-lifecycle">19.16 完整 MLE lifecycle</a><a href="#19-17-observability-与-cost">19.17 Observability 与 cost</a><a href="#19-18-trade-offs-与-evolution">19.18 Trade-offs 与 evolution</a><a href="#19-19-follow-up-q-a">19.19 Follow-up Q&amp;A</a><a href="#19-20-60-秒总结">19.20 60 秒总结</a></nav>
+        </header>
+        <h2 id="19-design-ml-model-distribution-system-500-gb-model-1-000-gpu-workers">19. Design ML Model Distribution System（500 GB Model → 1,000 GPU Workers）</h2>
+<h3 id="19-1-source-digest-源文档覆盖与校正">19.1 Source digest：源文档覆盖与校正</h3>
+<p>源文档《Design ML distribution system.docx》覆盖 500 GB / 250B 参数模型、50 个 SafeTensors shards、signed checksum manifest、S3 seed、RAM/NVMe/HBM、8 × 80 GB GPU、P2P chunk pipeline、Tracker control plane、rack-aware peers、failure retry 与传播时间公式。文档有 192 个正文块、无表格、无 embedded image 或 DrawingML；三张图均为 ASCII text，已改为 Mermaid。</p>
+<p>源材料最重要的修正如下：</p>
+<ol>
+<li><strong>单位冲突</strong>：10 Gbps = 1.25 GB/s，不是 10 GB/s。500 GB 通过 10 Gbps 的物理下界是 400 s = 6.67 min；若真是 10 GB/s 才是 50 s。源文档同时出现两种单位，本文固定采用 10 Gbps。</li>
+<li><strong>48.8 s 不可能</strong>：在 10 Gbps 外部入口下，任何算法都不能突破 400 s。源文档后面的 408.8 s 才与其 1 GB chunk 公式一致；真实系统还要加 protocol、checksum、disk、fabric contention，目标应是约 8–12 min，而非 48.8 s。</li>
+<li><strong>不是简单链式 pipeline</strong>：Seed → Worker1 → Worker2 的长链到第 1,000 台会有 1,000-hop latency。正确方案是 BitTorrent-like swarm / epidemic dissemination：每个 chunk 有多个 peers，rarest-first、并行上传、rack-aware replication。</li>
+<li><strong>Tracker 不可能既全内存又 stateless</strong>：它维护 chunk ownership 与 lease，就是 stateful control plane。可把 ownership 视为可重建 soft state，但 rollout/job truth 必须 durable，Tracker 需要 HA、partition、snapshot 或可从 heartbeat 重建。</li>
+<li><strong>“网卡不能直达 GPU/SSD”不是绝对事实</strong>：GPUDirect RDMA / Storage 可以绕过部分 CPU copy。面试里仍常选 NVMe staging，因为它提供 restart cache、完整校验和复用；应把它说成工程选择，不是硬件定律。</li>
+<li><strong>8 × 80 GB = 640 GB 不等于可安全服务 500 GB 模型</strong>：还需要 runtime buffers、NCCL workspace 与 KV cache。可能要量化、更多 GPU 或 multi-node replica group。必须先定义 Worker 是单 host 还是可服务的 replica group。</li>
+<li><strong>坏链路不应丢弃已下载 40% 全部字节</strong>：用 64–256 MiB content-addressed chunks 或 Merkle subchunks，已校验块可保留并 range-resume。</li>
+</ol>
+<h3 id="19-2-题意-边界与开场">19.2 题意、边界与开场</h3>
+<p><strong>面试题</strong>：Model Registry 中有一个约 500 GB immutable model artifact，需要在单个数据中心内分发到 1,000 台 GPU host，并在节点故障、机架故障与滚动升级下尽快使所有目标 replica group READY。</p>
+<p><strong>30 秒开场</strong>：</p>
+<blockquote>“这首先是 bandwidth lower-bound 问题，其次才是 metadata service。500 GB 经过 10 Gbps 入口至少要 400 秒，因此目标不是神奇地低于物理下界，而是让外部入口、fabric、host NIC、NVMe 和 HBM pipeline 尽量不空转。我会用 signed immutable manifest 把模型切成 content-addressed chunks，通过 regional seed + rack-aware P2P swarm 分发；Tracker 只传 control metadata，data bytes 点对点走。Worker 下载时流式校验并写 NVMe，全部 chunks 完整后才原子切换 local version，再完成 HBM load、smoke test 与 readiness barrier。”</blockquote>
+<p><strong>先问清的边界</strong>：</p>
+<ul>
+<li>500 GB 是权重逻辑大小还是压缩传输大小？采用 BF16/FP16 还是 quantized？</li>
+<li>1,000 个 Worker 指 host，还是一组 GPU hosts 构成的 replica group？本文假设每 host 8 × 80 GB，但 placement planner 可把一个 replica 扩成多 host。</li>
+<li>外部入口是总计 10 Gbps；每 host full-duplex 10 Gbps；fabric 是否 non-blocking？本文显式把 bisection bandwidth 放进公式。</li>
+<li>rollout 是 cold fleet 还是在 serving fleet 上滚动？本文支持 canary + surge rolling，不一次性停全站。</li>
+</ul>
+<p><strong>Out of scope</strong>：训练 checkpoint 写入、模型算法、用户 token serving path 的细节；但会覆盖 artifact promotion 到 READY 的 MLE lifecycle。</p>
+<h3 id="19-3-fr-nfr-与-slo">19.3 FR、NFR 与 SLO</h3>
+<p><strong>Functional requirements</strong></p>
+<ol>
+<li>注册 immutable model version 与 signed manifest；目标 fleet/placement 可按 region/zone/rack/GPU type 选择。</li>
+<li>创建 rollout，实时查看 per-host chunk、NVMe、HBM、smoke-test 与 readiness 进度。</li>
+<li>Worker 从 object store / peers 获取 chunks，校验、断点续传、限速、上报 ownership。</li>
+<li>支持 canary、pause、resume、cancel、rollback、garbage collection 与并存版本。</li>
+<li>节点、peer、Tracker、机架故障不阻断全局 rollout；坏 peer 不能污染其他节点。</li>
+</ol>
+<p><strong>NFR / SLO</strong></p>
+<ul>
+<li>500 GB、1,000 hosts、10 Gbps external ingress 下，p95 fleet distribution &lt; 12 min，理想约 7–9 min；</li>
+<li>最后一台 healthy target 完成时间是 primary SLI；p50 不能掩盖 straggler；</li>
+<li>control plane availability ≥ 99.99%；已接受 rollout metadata RPO 0；</li>
+<li>artifact integrity：每 chunk checksum + signed Merkle/root manifest，silent corruption escape rate 目标 0；</li>
+<li>rollout 期间在线 serving capacity 不低于安全阈值，例如 80%；</li>
+<li>rollback control p99 &lt; 30 s；若旧版本仍在 NVMe/HBM，可在 2 min 内恢复 traffic；</li>
+<li>peer data plane 必须 tenant/model authorized、加密并可审计。</li>
+</ul>
+<h3 id="19-4-capacity-network-disk-hbm-与时间下界">19.4 Capacity、network、disk、HBM 与时间下界</h3>
+<h4 id="3-1-artifact-与-storage">3.1 Artifact 与 storage</h4>
+<ul>
+<li>参数：250B × 2 bytes = <strong>500 GB decimal</strong>；tokenizer/config 只是 MB 级，另加 tensor index、alignment 等可按 1–5% overhead 规划；</li>
+<li>原始传输分片可为 50 × 10 GB SafeTensors；分发层再切为约 256 MiB chunks：500 GB / 256 MiB ≈ <strong>1,863，按约 2,000 chunks</strong>；</li>
+<li>每 host NVMe 至少保留 current + candidate 两版本：1 TB；再留 temp/rollback headroom，建议 <strong>1.5 TB/host</strong>；1,000 hosts 是 <strong>1.5 PB local footprint</strong>；</li>
+<li>若只有单版本完整 cache：500 GB × 1,000 = <strong>500 TB = 0.5 PB</strong>。</li>
+</ul>
+<h4 id="3-2-物理时间下界">3.2 物理时间下界</h4>
+<p>令 S=500 GB，N=1,000，B_ext=10 Gbps=1.25 GB/s，B_host=1.25 GB/s，B_bisect 为 fabric 对本 rollout 可用 aggregate receive bandwidth。</p>
+<pre><code class="language-text">T_lower &gt;= max(
+  S / B_ext,
+  N × S / B_bisect,
+  S / B_host
+)</code></pre>
+<ul>
+<li>external injection lower bound = 500 / 1.25 = <strong>400 s = 6.67 min</strong>；</li>
+<li>fleet total bytes = 500 × 1,000 = <strong>500 TB</strong>；若 fabric 真能给 1,000 hosts 各 10 Gbps，则 aggregate receive 1.25 TB/s，对应 400 s；但 rack uplink oversubscription 会提高下界；</li>
+<li>256 MiB = 0.268 GB，因此 single-link tick ≈ 0.268 / 1.25 = <strong>0.215 s</strong>；理想 epidemic propagation 约 log2(1000) ≈ 10 rounds，多约 2.15 s；</li>
+<li>理想流式公式约 T ≈ S/B_ext + chunk_size/B_host × log2N ≈ <strong>402.2 s</strong>。这只在 perfect scheduling、non-blocking fabric、无协议损耗时成立；</li>
+<li>取 70–80% end-to-end efficiency、加 verify/straggler，目标约 400/0.75 + 60–180 s ≈ <strong>9–12 min</strong>。</li>
+</ul>
+<p>源文档的 1 GB chunk 公式同理：0.8 s × (500 + 10) ≈ 408 s；不是 48.8 s。</p>
+<h4 id="3-3-disk-checksum-与-hbm">3.3 Disk、checksum 与 HBM</h4>
+<ul>
+<li>单 host NVMe sequential write 7 GB/s，500 GB 纯写约 <strong>71 s</strong>；由于 ingress 仅 1.25 GB/s，可边收边写，通常不增加 71 s 串行尾巴；</li>
+<li>若 SHA-256 实测 5 GB/s，完整 verify 约 <strong>100 s</strong>；同样应流式计算，最终只需等待最后 chunk finalize；</li>
+<li>HBM raw capacity 8 × 80 = 640 GB，只剩 140 GB 给 KV/runtime，可能不足。Placement Validator 必须估算 weight bytes + KV budget + runtime workspace &lt; safety HBM；否则改用 8-bit/FP8 quantization、更多 GPU 或 multi-node tensor/pipeline parallel；</li>
+<li>HBM load 时间取决于 PCIe/NVLink 与 sharding layout，应 benchmark；可与最后一批 chunks 的 verify 部分重叠，但 READY 必须在全量 tensor load + smoke inference 后。</li>
+</ul>
+<h3 id="19-5-api-与-event-contracts">19.5 API 与 event contracts</h3>
+<pre><code class="language-http">POST /v1/models
+{
+  &quot;model_id&quot;:&quot;m-70b&quot;,&quot;version&quot;:&quot;2026-07-15&quot;,
+  &quot;manifest_uri&quot;:&quot;s3://registry/m-70b/manifest.json&quot;,
+  &quot;manifest_digest&quot;:&quot;sha256:...&quot;,
+  &quot;signature&quot;:&quot;sigstore/...&quot;,
+  &quot;runtime_compatibility&quot;:{&quot;engine&quot;:&quot;vllm-x&quot;,&quot;min_version&quot;:&quot;...&quot;}
+}
+-&gt; 201 {&quot;model_digest&quot;:&quot;sha256:...&quot;,&quot;state&quot;:&quot;QUARANTINED&quot;}
+
+POST /v1/rollouts
+Idempotency-Key: rollout-op-17
+{
+  &quot;model_digest&quot;:&quot;sha256:...&quot;,
+  &quot;target_selector&quot;:{&quot;region&quot;:&quot;us-west&quot;,&quot;gpu_type&quot;:&quot;H100&quot;,&quot;count&quot;:1000},
+  &quot;strategy&quot;:{&quot;canary&quot;:10,&quot;max_unavailable_percent&quot;:5,&quot;max_surge_percent&quot;:10}
+}
+-&gt; 202 {&quot;rollout_id&quot;:&quot;r-17&quot;,&quot;epoch&quot;:1,&quot;state&quot;:&quot;PLANNING&quot;}
+
+GET /v1/rollouts/{id}
+-&gt; {&quot;state&quot;:&quot;DISTRIBUTING&quot;,&quot;hosts&quot;:{&quot;ready&quot;:620,&quot;downloading&quot;:370,&quot;failed&quot;:10},
+    &quot;bytes_complete&quot;:...,&quot;estimated_finish_at&quot;:&quot;...&quot;,&quot;rollout_epoch&quot;:1}
+
+POST /v1/rollouts/{id}:pause
+If-Match: {rollout_epoch}
+POST /v1/rollouts/{id}:resume
+If-Match: {rollout_epoch}
+POST /v1/rollouts/{id}:cancel
+If-Match: {rollout_epoch}
+POST /v1/rollouts/{id}:rollback
+If-Match: {rollout_epoch}</code></pre>
+<p>Worker / Tracker contracts：</p>
+<pre><code class="language-text">Heartbeat(worker_id, worker_epoch, rack_id, versions, load, upload_slots, lease)
+GetPeers(rollout_id, chunk_digest, requester_rack, max_peers)
+ -&gt; [{peer_id, address, peer_epoch, signed_capability, load, rack_id}]
+ReportChunkVerified(rollout_id, worker_id, worker_epoch, chunk_digest,
+                    local_path_digest, bytes, verified_at)
+ReportStage(worker_id, rollout_epoch, from_state, to_state, evidence_ref)</code></pre>
+<p>Events：ModelPromoted、RolloutAccepted、ChunkVerified、WorkerVersionReady、FleetReadinessAdvanced、RolloutPaused、TrafficShifted、RollbackTriggered。全部带 event_id、model_digest、rollout_epoch；旧 epoch event 不改变当前 rollout。</p>
+<h3 id="19-6-data-model-partition-index-ttl-与状态机">19.6 Data model、partition、index、TTL 与状态机</h3>
+<div class="table-wrap"><table><thead><tr><th>Entity</th><th>Key / partition</th><th>关键字段</th></tr></thead><tbody><tr><td>ModelVersion</td><td>PK: model_digest</td><td>signed manifest、tokenizer、runtime、eval report、origin_durability_receipt、promotion state</td></tr>
+<tr><td>Chunk</td><td>PK: chunk_digest</td><td>size、source CAS ranges、Merkle proof、compression、encryption key ref、durability class</td></tr>
+<tr><td>ArtifactOrigin</td><td>PK: manifest_digest</td><td>cross-region CAS locations、chunk count/root、replication watermark、durability receipt</td></tr>
+<tr><td>RolloutOperation</td><td>PK: hash(service/region + idempotency_key)</td><td>request_digest、deterministic rollout_id、state、response_ref、expires_at</td></tr>
+<tr><td>Rollout</td><td>PK: region + rollout_id</td><td>target snapshot、epoch、strategy、state、readiness watermark</td></tr>
+<tr><td>TargetWorker</td><td>PK: rollout_id；SK: worker_id</td><td>desired version、stage、worker_epoch、last_error</td></tr>
+<tr><td>ChunkOwner soft state</td><td>PK: hash(chunk_digest)</td><td>compressed owner bitmap、rack diversity、lease expiry</td></tr>
+<tr><td>Worker</td><td>PK: worker_id</td><td>rack/zone/GPU/NVMe、agent version、worker_epoch、heartbeat TTL</td></tr>
+<tr><td>LocalVersion</td><td>host-local DB</td><td>chunk bitmap、manifest digest、stage path、active symlink/version pointer</td></tr>
+<tr><td>TrafficRevision</td><td>PK: service + region</td><td>model digest、weight、revision、fencing epoch</td></tr></tbody></table></div>
+<p>Chunk ownership 按 chunk_digest 分片；worker progress 以 compressed bitmap/delta 上报，不能在中央 DB 存 2,000 × 1,000 的逐行高频更新而无压缩。Rollout truth durable；peer ownership 是 TTL soft state，可从 Worker heartbeat 重建。</p>
+<p>Worker 状态机：</p>
+<pre><code class="language-text">TARGETED -&gt; FETCHING -&gt; VERIFYING -&gt; STAGED_NVME -&gt; LOADING_HBM
+         -&gt; WARMING -&gt; READY_NOT_SERVING -&gt; SERVING
+任意阶段 -&gt; FAILED_RETRYABLE / QUARANTINED
+SERVING -&gt; DRAINING -&gt; ROLLED_BACK / GC_ELIGIBLE</code></pre>
+<p>Rollout：<code>PLANNING → CANARY_DISTRIBUTING → CANARY_VALIDATING → FLEET_DISTRIBUTING → READINESS_BARRIER → TRAFFIC_SHIFTING → COMPLETED</code>。非 terminal 阶段可 <code>PAUSE_REQUESTED → PAUSED → prior_stage</code>；cancel 走 <code>CANCEL_REQUESTED → ROLLING_BACK(if candidate traffic &gt; 0) → CANCELLED</code>；显式 rollback 走 <code>ROLLING_BACK → ROLLED_BACK</code>；错误可到 FAILED。</p>
+<h3 id="19-7-proposed-architecture">19.7 Proposed architecture</h3>
+<figure class="architecture"><figcaption>Architecture Diagram</figcaption><pre class="mermaid">flowchart TB
+    REG[&quot;Model Registry + Signed Manifest&quot;] --&gt; COORD[&quot;Rollout Coordinator&quot;]
+    REG --&gt; ORIGIN[&quot;Cross-region Durable Artifact CAS&quot;]
+    COORD --&gt; META[&quot;Durable Rollout DB + Outbox&quot;]
+    COORD --&gt; TRACK[&quot;HA Tracker Shards / Peer Directory&quot;]
+    ORIGIN --&gt; MIRROR[&quot;Regional Object Mirror / Seed Gateways&quot;]
+    subgraph R1[&quot;Rack A&quot;]
+      W1[&quot;Worker Agent A1&quot;]
+      W2[&quot;Worker Agent A2&quot;]
+    end
+    subgraph R2[&quot;Rack B&quot;]
+      W3[&quot;Worker Agent B1&quot;]
+      W4[&quot;Worker Agent B2&quot;]
+    end
+    MIRROR --&gt; W1
+    MIRROR --&gt; W3
+    W1 &lt;--&gt; W2
+    W1 &lt;--&gt; W3
+    W2 &lt;--&gt; W4
+    W3 &lt;--&gt; W4
+    W1 -. ownership/heartbeat .-&gt; TRACK
+    W2 -. ownership/heartbeat .-&gt; TRACK
+    W3 -. ownership/heartbeat .-&gt; TRACK
+    W4 -. ownership/heartbeat .-&gt; TRACK
+    W1 --&gt; NV1[&quot;NVMe CAS + Chunk Bitmap&quot;]
+    NV1 --&gt; HBM1[&quot;HBM Load + Smoke Test&quot;]
+    HBM1 --&gt; READY[&quot;Readiness Aggregator&quot;]
+    READY --&gt; TRAFFIC[&quot;Traffic Controller&quot;]</pre><div class="ascii-label">ASCII Architecture · copy-friendly</div><pre class="ascii-diagram"><code>[Model Registry + Signed Manifest] --&gt; [Rollout Coordinator]
+[Model Registry + Signed Manifest] --&gt; [Cross-region Durable Artifact CAS]
+[Rollout Coordinator] --&gt; [Durable Rollout DB + Outbox]
+[Rollout Coordinator] --&gt; [HA Tracker Shards / Peer Directory]
+[Cross-region Durable Artifact CAS] --&gt; [Regional Object Mirror / Seed Gateways]
+[Regional Object Mirror / Seed Gateways] --&gt; [Worker Agent A1]
+[Regional Object Mirror / Seed Gateways] --&gt; [Worker Agent B1]
+[Worker Agent A1] &lt;--&gt; [Worker Agent A2]
+[Worker Agent A1] &lt;--&gt; [Worker Agent B1]
+[Worker Agent A2] &lt;--&gt; [Worker Agent B2]
+[Worker Agent B1] &lt;--&gt; [Worker Agent B2]
+[Worker Agent A1] --ownership/heartbeat --&gt; [HA Tracker Shards / Peer Directory]
+[Worker Agent A2] --ownership/heartbeat --&gt; [HA Tracker Shards / Peer Directory]
+[Worker Agent B1] --ownership/heartbeat --&gt; [HA Tracker Shards / Peer Directory]
+[Worker Agent B2] --ownership/heartbeat --&gt; [HA Tracker Shards / Peer Directory]
+[Worker Agent A1] --&gt; [NVMe CAS + Chunk Bitmap]
+[NVMe CAS + Chunk Bitmap] --&gt; [HBM Load + Smoke Test]
+[HBM Load + Smoke Test] --&gt; [Readiness Aggregator]
+[Readiness Aggregator] --&gt; [Traffic Controller]</code></pre></figure>
+<p>Object Mirror 与 P2P 是 Data Plane；Coordinator/Tracker 是 Control Plane。Tracker 不代理 chunk bytes，也不决定每一个 TCP packet；它返回多个合规 peer，Worker 本地做带 credit 的选择。</p>
+<h3 id="19-8-core-flows">19.8 Core flows</h3>
+<h4 id="7-1-register-and-promote-artifact">7.1 Register and promote artifact</h4>
+<p>Builder 上传 shards 后生成 content digests、Merkle root 与 SBOM，签名 manifest。所有 source chunks 先进入 content-addressed <strong>Artifact Origin</strong>；Registry 只有在 manifest 列出的每个 chunk 都通过 checksum、达到跨 region replication/erasure policy 并生成 <code>origin_durability_receipt</code> 后，才允许离开 QUARANTINED。随后运行格式解析、tensor shape、NaN/Inf、license、malware、runtime compatibility 与 ML evaluation gate，全部通过才 PROMOTED。Model alias 指向 digest 的更新另有审批，不能覆盖 immutable artifact；regional mirror/cache 丢失时从这个 origin truth 重建。</p>
+<p>创建 rollout 时，从 <code>(service/region, Idempotency-Key)</code> 确定性派生 rollout_id，在同一 durable partition/transaction compare request digest 并首次写 <code>RolloutOperation + Rollout + Outbox</code>。相同 key/body 返回同一 rollout，key 相同但 target/strategy 不同返回 conflict；API timeout 或跨 time bucket retry 不会启动第二轮 500 TB fleet transfer。</p>
+<h4 id="7-2-distribute-a-chunk">7.2 Distribute a chunk</h4>
+<ol>
+<li>Worker 取得 rollout target snapshot 和 signed manifest，检查本地 CAS 是否已有 chunk。</li>
+<li>缺失时向 Tracker 请求 3–5 个 peers；Tracker优先不同 rack、低 upload load、有效 lease 的 owner，也可返回 regional seed。</li>
+<li>Worker 通过 mTLS + signed capability 发起 range GET，按 64–256 MiB block 接收、流式 hash、写 attempt temp file。</li>
+<li>完整 digest 匹配后 fsync + atomic rename 到 CAS，更新 host-local bitmap，再上报 ChunkVerified；没校验的 partial 永不对外 seed。</li>
+<li>Worker成为该 chunk 的新 peer；rarest-first scheduler 优先传播副本少、rack diversity 差的 chunks。</li>
+</ol>
+<h4 id="7-3-activate-model">7.3 Activate model</h4>
+<p>全部 chunks verified 后，Agent 校验 root manifest，原子切 local staged-version pointer；Loader 按 tensor mapping 放入目标 GPU group，运行 warmup/smoke/golden queries。Readiness Aggregator 达到 canary gate 后才由 Traffic Controller 逐步增加权重。控制面显示“下载完成”不等于“可服务”。</p>
+<h3 id="19-9-deep-dive-1-swarm-scheduling-与-rack-aware-rarest-first">19.9 Deep dive 1：Swarm scheduling 与 rack-aware rarest-first</h3>
+<p>纯二叉树让上层节点成为固定热点，父节点故障会卡住子树；纯随机 P2P 可能让某些 chunk 只有同 rack 副本。Tracker 为每 chunk 维护近似 availability、rack set 与 upload credits；Worker 选择优先级：</p>
+<ol>
+<li>rarest chunk / rack diversity deficit；</li>
+<li>peer 与 requester 不同 rack，但考虑 ToR uplink budget；</li>
+<li>peer upload slots 与 recent throughput；</li>
+<li>避免同一 peer 连续承担多个大 chunk；</li>
+<li>seed ingress 始终持续注入新 chunk，不被旧 chunk resend 占满。</li>
+</ol>
+<p>每 host 同时 4–16 个 transfers，但总带宽由 token bucket 限制；过多并发只会增加 incast、packet loss 与 disk seeks。Topology controller 给每 rack 配 cross-rack budget，先把每个 chunk 扩到至少 2–3 racks，再在 rack 内传播。</p>
+<h3 id="19-10-deep-dive-2-chunk-size-merkle-tree-与断点续传">19.10 Deep dive 2：Chunk size、Merkle tree 与断点续传</h3>
+<p>大 chunk 减少 metadata/HTTP overhead，却扩大失败重传与 straggler；小 chunk 提升并行度，却让 Tracker 和 filesystem metadata 爆炸。500 GB / 256 MiB 约 2,000 chunks 是合理起点，再依据 RTT、NIC、CPU hash benchmark 调整。</p>
+<p>Manifest 可以两层：原 10 GB SafeTensors shard → 256 MiB transport chunks → 可选 4 MiB Merkle leaves。Worker 保存 verified leaf bitmap；连接在 40% 断开，只重新拉未验证 leaves。最终只有完整 transport chunk root 匹配才成为 seed。Content-addressing 让不同模型版本的相同 chunks 自动 dedup，但只有 plaintext/ciphertext digest policy 一致时成立。</p>
+<h3 id="19-11-deep-dive-3-tracker-ha-state-size-与-failure-semantics">19.11 Deep dive 3：Tracker HA、state size 与 failure semantics</h3>
+<p>约 2,000 chunks × 1,000 workers = 2M ownership relationships；用逐行 SQL 更新并非无法承受，但传播 burst 与 10k-host 扩展会放大。设计：</p>
+<ul>
+<li>chunk_digest consistent hash 到 Tracker shard；owner 用 Roaring Bitmap + rack summary；</li>
+<li>worker 每 5 s heartbeat，chunk bitmap 用 delta/epoch；ownership TTL 15–30 s；</li>
+<li>rollout/job state 在 replicated DB；Tracker shard 崩溃可从 worker heartbeat 与 periodic snapshot 重建；</li>
+<li>API 可无 leader read，但 ReportChunkVerified 要校验 worker_epoch；重启的旧 agent 不能冒充新 owner；</li>
+<li>Tracker 全挂时，Worker 可在 signed peer cache 有效期内继续 data transfer，但新 peer discovery 与 final readiness暂停。</li>
+</ul>
+<h3 id="19-12-deep-dive-4-rollout-consistency-readiness-barrier-与-rollback">19.12 Deep dive 4：Rollout consistency、readiness barrier 与 rollback</h3>
+<p>Artifact available、host staged、HBM loaded、replica healthy、fleet serving 是五个不同状态。Traffic shift 使用 immutable target snapshot + rollout_epoch：</p>
+<ul>
+<li>canary 先覆盖多个 rack/host type，跑 golden + shadow traffic；</li>
+<li>max_unavailable / max_surge 防止候选版占用过多 serving capacity；</li>
+<li>readiness 需满足 model digest、runtime digest、tensor-parallel topology、health window 与 safety eval；</li>
+<li>TrafficRevision 以 CAS 提升 epoch，旧 controller 无法回写；</li>
+<li>rollback 优先切回仍 resident 的旧 HBM/NVMe；若已 GC，恢复时间会显著增加，因此 old version 有 rollback TTL。</li>
+<li>pause/resume/cancel/rollback command 都 CAS 推进 <code>rollout_epoch</code>。PAUSED 停止新 chunk/placement，可让已开始的 chunk 在 bounded 时间内完成；CANCEL 先停止新工作，若 canary 已有 traffic 则原子切回 baseline、drain candidate 后才标 CANCELLED，candidate bytes 仅在 rollback TTL 后 GC。Worker/Tracker 的旧 epoch report 不能让 rollout 复活。</li>
+</ul>
+<h3 id="19-13-deep-dive-5-hbm-placement-与-topology">19.13 Deep dive 5：HBM placement 与 topology</h3>
+<p>模型不是简单平均切 8 份。Planner 要考虑 tensor-parallel shard alignment、pipeline stages、expert parallel、NVLink/NVSwitch topology、NUMA 与 KV cache。500 GB 是当前 BF16/FP16 artifact bytes；在 640 GB HBM 上只剩 22% 空间，可能无法满足 long context。Placement gate 先明确目标精度，不能把 <code>8-bit</code> 当除数：</p>
+<pre><code class="language-text">weight_bytes_at_selected_precision
+  = parameter_count × target_bits_per_weight / 8 + quantization_metadata
+  = baseline_weight_bytes × target_bits / baseline_bits + metadata
+
+required_HBM = weight_bytes_at_selected_precision
+             + max_concurrent_sequences × KV_bytes_per_sequence
+             + runtime_workspace + fragmentation_reserve</code></pre>
+<p>若 required_HBM &gt; 0.85 × aggregate_HBM，拒绝该 topology，而不是上线后 OOM。多 host replica 必须 gang scheduling：所有成员同 rollout epoch、同 digest ready 才组成服务 replica；任一成员失败，整组 drain/recover。</p>
+<h3 id="19-14-reliability-backpressure-multi-region-与-dr">19.14 Reliability、backpressure、multi-region 与 DR</h3>
+<ul>
+<li>peer failure：重新选 peer，保留 verified leaves；指数退避带 jitter，按 chunk 限 retry budget；</li>
+<li>corrupt peer：digest 不匹配立即 quarantine peer + evidence，Tracker 移除其 ownership；不能只重试而不隔离投毒源；</li>
+<li>rack failure：target set 动态标记 unavailable；readiness denominator 按 policy 选择“healthy targets”或等待替换 host，不能默默降低发布门槛；</li>
+<li>object store throttle：Seed Gateways 有 bounded cache 与 egress token；P2P 优先，不能 1,000 hosts 同时 fallback S3 形成 thundering herd；</li>
+<li>disk pressure：reserve candidate bytes before download；无空间 fail fast，GC 只删未 active、未 rollback-pinned version；</li>
+<li>region：每 region 有 object mirror 和 rollout home controller；跨 region 不做 P2P，避免 WAN 成本/安全。Registry/manifest metadata同步 quorum；500 GB source chunks 的 truth 是跨区 durable Artifact Origin，PROMOTED 前必须取得完整 chunk-root durability receipt；</li>
+<li>DR：Registry/rollout 与 promoted artifact origin 均 RPO 0，RTO &lt; 30 min；regional cache RPO 可为 24 h，因为可从 Artifact Origin rebuild。若 origin 未达到 policy，rollout 必须 fail closed，不能因为某个 regional seed 暂时有 bytes 就提升 alias。定期演练 Tracker loss、seed loss、origin-region loss、rack isolation 与 rollback。</li>
+</ul>
+<h3 id="19-15-security-与-supply-chain-safety">19.15 Security 与 supply-chain safety</h3>
+<p>Manifest offline/CI 签名，Worker 只接受 trusted publisher + approved digest。mTLS、short-lived peer capability、model/rollout scope、anti-replay nonce。Chunk 即使 hash 正确也可能来自恶意但同内容 peer，因此 trust anchor 是 signed manifest；hash 只证明内容一致，不证明模型安全。</p>
+<p>Artifact 静态扫描、SafeTensors 无执行语义、禁止 arbitrary pickle、SBOM、runtime allowlist、KMS encryption、NVMe secure erase、host attestation。Tracker 不把内网拓扑暴露给无权 tenant。Rollout/rollback/alias update 需 RBAC、two-person approval 与 immutable audit。</p>
+<h3 id="19-16-完整-mle-lifecycle">19.16 完整 MLE lifecycle</h3>
+<ol>
+<li><strong>Objective</strong>：不仅“字节到齐”，还要候选模型在 quality/safety/latency/cost gate 下安全成为 serving version。</li>
+<li><strong>Labels / datasets</strong>：golden prompts、human preference、safety adjudications、slice metadata、online shadow outcomes；数据集 digest 与 model digest 一起进入 lineage。</li>
+<li><strong>Features / model metadata</strong>：architecture、precision、context、tokenizer、training data window、hardware/runtime compatibility；分发 scheduler 不读取原训练数据。</li>
+<li><strong>Offline evaluation</strong>：accuracy/task metrics、calibration、toxicity、bias slices、long-context、numerical parity、quantization delta；未通过不可 PROMOTED。</li>
+<li><strong>Systems eval</strong>：load time、HBM footprint、prefill/decode throughput、OOM frontier、NCCL stability、golden output checksum/tolerance。</li>
+<li><strong>Online evaluation</strong>：shadow → canary → staged traffic；监控 quality proxy、safety、latency、error、cost 与 hardware slices。</li>
+<li><strong>Serving / fallback</strong>：ModelPolicy alias 只指 approved digests；自动 rollback 到 previous-good，不能退回未通过当前 policy 的旧模型。</li>
+<li><strong>Drift / bias</strong>：线上 input/quality/safety slice drift 触发 re-eval 或 rollback；artifact distribution 完整不代表模型仍适用。模型、runtime、policy 三类版本分别监控。</li>
+</ol>
+<h3 id="19-17-observability-与-cost">19.17 Observability 与 cost</h3>
+<p>SLI：external ingress utilization、fabric/rack utilization、per-chunk replication、rarest chunk age、peer selection latency、hash throughput/mismatch、NVMe write/failure、hosts by state、last-host completion、HBM load、smoke failure、traffic revision、rollback readiness。</p>
+<p>Trace：rollout_id → worker_id/epoch → chunk_digest → peer_attempt；metrics 控制 cardinality，chunk-level细节进入 sampled logs / queryable store。Alert 关注 completion ETA burn、rack diversity deficit、stalled rare chunks、corruption 与 serving capacity。</p>
+<p>成本抓手：content-addressed dedup、regional mirror、P2P egress、delta distribution（仅在 tensor format 支持稳定 chunk reuse时）、old-version TTL、压缩是否值得由 CPU/GPU 解压与网络下界共同决定。不要为了省 NVMe 把每次重启都变成 500 GB WAN download。</p>
+<h3 id="19-18-trade-offs-与-evolution">19.18 Trade-offs 与 evolution</h3>
+<div class="table-wrap"><table><thead><tr><th>决策</th><th>选择</th><th>代价 / 边界</th></tr></thead><tbody><tr><td>Source</td><td>immutable object store + regional seeds</td><td>seed cache 成本；避免 S3 fan-out</td></tr>
+<tr><td>Dissemination</td><td>rack-aware P2P swarm</td><td>control plane 更复杂；显著提高 aggregate upload</td></tr>
+<tr><td>Chunk</td><td>256 MiB + optional Merkle leaves</td><td>metadata 比 1 GB 多；retry waste 小</td></tr>
+<tr><td>Tracker</td><td>durable rollout + rebuildable ownership</td><td>ownership 短暂不一致可接受</td></tr>
+<tr><td>Activation</td><td>staged pointer + readiness barrier</td><td>占用双版本空间；支持原子 rollback</td></tr>
+<tr><td>Cross-region</td><td>independent regional swarms</td><td>不共享 peer bandwidth；隔离 WAN 故障</td></tr></tbody></table></div>
+<p>MVP 可用 object mirror + rack-local caching；到 100 hosts 后引入 P2P；到 1,000 hosts 加 Tracker sharding、rarest-first、readiness barrier；到 10,000 hosts 才需要分层 Tracker、rack coordinators、compressed bitmaps 与 topology-aware bandwidth broker。</p>
+<h3 id="19-19-follow-up-q-a">19.19 Follow-up Q&amp;A</h3>
+<p><strong>Q：最快能否 48.8 秒？</strong> 不能。10 Gbps 传 500 GB 的入口下界就是 400 秒；除非题目实际给 10 GB/s 或已有多 seed 副本在数据中心内。</p>
+<p><strong>Q：为什么不让 1,000 台都直接读 S3？</strong> 总外部 pipe 仍只有 10 Gbps，还会产生 thundering herd 与 egress cost；P2P 把每台 host upload 变成分发资源。</p>
+<p><strong>Q：Tracker 挂了数据会停吗？</strong> 已缓存 peer capability 的 transfer 可继续；新发现与 final readiness暂停。Tracker ownership 可从 heartbeats 重建，rollout truth 不可丢。</p>
+<p><strong>Q：为什么需要 NVMe？</strong> restart cache、完整校验、版本共存与 rollback。GPUDirect 可优化 copy，但不能替代 durable staging 的运营价值。</p>
+<p><strong>Q：一个 host 装不下怎么办？</strong> 把 serving Worker 定义为 multi-host replica group，gang schedule tensor/pipeline parallel；所有成员 ready 才接流量。</p>
+<h3 id="19-20-60-秒总结">19.20 60 秒总结</h3>
+<blockquote>“我先用物理下界约束答案：500 GB 经 10 Gbps 至少 400 秒，所以合理 fleet SLO 是 8–12 分钟。Artifact 由 signed immutable manifest 和约 2,000 个 content-addressed chunks 组成；regional seed 持续注入，1,000 hosts 通过 rack-aware rarest-first P2P swarm 传播。Tracker 只维护可重建 ownership 与 lease，rollout truth 在 durable control plane；Worker 流式 hash、写 NVMe、原子 stage，再做 HBM load、smoke test 和 readiness barrier。失败可从 verified subchunks 续传，旧 epoch 被 fencing；canary、traffic revision 和 rollback 保证服务安全。最后用 model evaluation、supply-chain signing、drift 与 cost/last-host SLI 闭环。”</blockquote>
+<hr/>
+<hr/>
+        <nav class="pager" aria-label="Case navigation">
+    <a href="case-18-design-batch-inference-system.html">← 18. Design Batch Inference System</a>
+    <a class="next" href="case-20-design-real-time-top-k-trending-system.html">20. Design Real-time Top-K / Trending System →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

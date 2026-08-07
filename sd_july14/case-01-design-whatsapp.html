@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>1. Design WhatsApp - System Design 28</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Case 2 / 31 · Route 2 / 9</p>
+          <h1 class="route-title">1. Design WhatsApp</h1>
+          <p class="route-subtitle">WhatsApp、YouTube、Uber、Netflix：实时通信、媒体流水线、地理派单与全球播放。</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#1-1-面试题与-30-秒-framing">1.1 面试题与 30 秒 framing</a><a href="#1-2-requirements-边界与质量目标">1.2 Requirements、边界与质量目标</a><a href="#1-3-capacity-estimates-先用数量级约束设计">1.3 Capacity estimates：先用数量级约束设计</a><a href="#1-4-api-与-event-contracts">1.4 API 与 event contracts</a><a href="#1-5-data-model-partition-与状态机">1.5 Data model、partition 与状态机</a><a href="#1-6-proposed-architecture">1.6 Proposed architecture</a><a href="#1-7-核心-end-to-end-flows">1.7 核心 end-to-end flows</a><a href="#1-8-deep-dive-a-ordering-与-exactly-once-假象">1.8 Deep dive A：ordering 与 “exactly-once” 假象</a><a href="#1-9-deep-dive-b-group-fan-out-热点与成员变更">1.9 Deep dive B：group fan-out、热点与成员变更</a><a href="#1-10-deep-dive-c-multi-device-e2ee-与密钥生命周期">1.10 Deep dive C：multi-device E2EE 与密钥生命周期</a><a href="#1-11-deep-dive-d-presence-push-与-realtime-routing">1.11 Deep dive D：presence、push 与 realtime routing</a><a href="#1-12-reliability-multi-region-security-与-abuse">1.12 Reliability、multi-region、security 与 abuse</a><a href="#1-13-mle-deep-dive-spam-risk-与-push-priority">1.13 MLE deep dive：spam risk 与 push priority</a><a href="#1-14-observability-slo-capacity-与-cost">1.14 Observability、SLO、capacity 与 cost</a><a href="#1-15-trade-offs-与-v1-v2-evolution">1.15 Trade-offs 与 V1 → V2 evolution</a><a href="#1-16-高频-follow-up-q-a">1.16 高频 follow-up Q&amp;A</a><a href="#1-17-60-秒可直接说的总结">1.17 60 秒可直接说的总结</a></nav>
+        </header>
+        <h2 id="1-design-whatsapp-实时消息-群聊与多设备同步">1. Design WhatsApp：实时消息、群聊与多设备同步</h2>
+<blockquote>以下是面试中的 <strong>proposed design</strong>，用于展示设计取舍，不代表 WhatsApp 的真实内部实现。</blockquote>
+<h3 id="1-1-面试题与-30-秒-framing">1.1 面试题与 30 秒 framing</h3>
+<p><strong>面试题</strong>：设计一个全球即时通信系统，支持 1:1 message、group chat、图片/视频附件、online/offline delivery、multi-device sync、delivery/read receipt 与 End-to-End Encryption（E2EE）。</p>
+<p><strong>30 秒开场</strong>：</p>
+<blockquote>“我会把系统拆成三条路径：第一，message accept path 负责在明确的 durability 边界内接收并排序 ciphertext；第二，delivery path 负责把消息可靠地 fan-out 到每个 device inbox；第三，media path 用 object storage + CDN 传输加密附件。核心难点不是 WebSocket 本身，而是 per-conversation ordering、重试下的 effectively-once user experience、群聊热点、多设备密钥变更和跨地域故障。我会先保证文本消息，再扩展 presence、read receipt 和 ML abuse prevention。”</blockquote>
+<h3 id="1-2-requirements-边界与质量目标">1.2 Requirements、边界与质量目标</h3>
+<p><strong>Functional requirements</strong></p>
+<ol>
+<li>用户能发送文本与已加密附件；在线收件人实时收到，离线用户重连后补齐。</li>
+<li>支持 1:1、最多 1,024 人普通群；每个用户可有 5 个活跃 device。</li>
+<li>同一 conversation 内显示稳定顺序；重复发送不能产生重复气泡。</li>
+<li>支持 sent、delivered、read receipt；read receipt 可由用户关闭。</li>
+<li>支持 device add/remove、key rotation、blocked user、report spam。</li>
+<li>客户端本地保存历史；服务端只暂存尚未完成投递的 encrypted payload。</li>
+</ol>
+<p><strong>Non-functional requirements</strong></p>
+<ul>
+<li>message accept availability ≥ 99.99%，同地域 p99 &lt; 200 ms；</li>
+<li>双方在线且网络正常时，端到端 delivery p99 &lt; 500 ms；</li>
+<li>一旦 API 返回 accepted，单地域机器故障不得丢消息；消息允许短暂重复但不可静默丢失；</li>
+<li>conversation 内 causal/per-sender order 可解释，不承诺全球 total order；</li>
+<li>E2EE 下服务端看不到 message plaintext；</li>
+<li>水平扩展到数百万 write QPS、数千万 delivery QPS。</li>
+</ul>
+<p><strong>Out of scope</strong>：语音/视频通话、公开 channel、完整联系人发现、设备端数据库 UI、法律辖区的具体合规实现。搜索只做 device-local plaintext search，服务端不建立明文全文索引。</p>
+<h3 id="1-3-capacity-estimates-先用数量级约束设计">1.3 Capacity estimates：先用数量级约束设计</h3>
+<p>假设：</p>
+<ul>
+<li>1B DAU，每人每天发 80 条 logical message，即 80B message/day；</li>
+<li>70% 为 1:1，30% 为群消息；群消息平均实际投递 12 个 recipient；</li>
+<li>每个用户平均 1.3 个活跃 device；峰值系数取 4；</li>
+<li>平均 encrypted text envelope（header、ciphertext、signature、metadata）为 1 KB；</li>
+<li>每天 500M 个 media object，平均 2 MB；每个平均被下载 2 次。</li>
+</ul>
+<p>计算：</p>
+<ul>
+<li>logical write rate = 80B / 86,400 ≈ <strong>0.93M msg/s average</strong>，峰值约 <strong>3.7M msg/s</strong>；</li>
+<li>delivery copy/day = 80B × (0.7 × 1 + 0.3 × 12) × 1.3 ≈ <strong>447B device deliveries/day</strong>；</li>
+<li>delivery rate ≈ <strong>5.2M/s average，20.8M/s peak</strong>。这说明瓶颈是 device fan-out，而非 message creation；</li>
+<li>若极端情况下 ciphertext 全部离线保留 30 天：80B × 1 KB × 30 = 2.4 PB logical；home region 按 RF3 是 <strong>7.2 PB</strong>。这只是单 home-region footprint，不含 paired-region DR log；若 paired region 只保留一份再加 2.4 PB，总计约 <strong>9.6 PB</strong>，若 paired region 也 RF3 则约 <strong>14.4 PB</strong>。实际 delivered 后删除 queue payload，容量会显著低于这些上界；</li>
+<li>media ingest = 500M × 2 MB = <strong>1 PB/day</strong>；采用 erasure coding 约 1.4×，30 天热层约 <strong>42 PB</strong>，再按生命周期转冷层；</li>
+<li>media egress = 500M × 2 views × 2 MB = <strong>2 PB/day ≈ 185 Gbps average</strong>，4× 峰值约 <strong>740 Gbps</strong>；需要 CDN，不能由 message service 代理字节流；</li>
+<li>20.8M delivery/s × 约 0.5 KB delivery control frame ≈ <strong>10.4 GB/s</strong> 峰值内部流量，partition、broker 与 gateway 必须按 cell 隔离。</li>
+</ul>
+<p>估算要主动说明误差：群规模分布是 heavy-tail，平均值会掩盖明星大群，因此 capacity plan 还要按 p99 group fan-out 和单 conversation 热点单独验算。</p>
+<h3 id="1-4-api-与-event-contracts">1.4 API 与 event contracts</h3>
+<pre><code class="language-http">POST /v1/conversations/{conversation_id}/messages
+Authorization: device_token
+Idempotency-Key: {sender_device_id}:{client_message_id}
+{
+  &quot;client_message_id&quot;: &quot;uuid&quot;,
+  &quot;sender_device_id&quot;: &quot;d-17&quot;,
+  &quot;recipient_snapshot&quot;: {
+    &quot;membership_version&quot;: 88,
+    &quot;devices&quot;: [
+      {&quot;user_id&quot;:&quot;u-2&quot;,&quot;device_id&quot;:&quot;d-41&quot;,&quot;device_list_version&quot;:17,&quot;key_epoch&quot;:42}
+    ],
+    &quot;devices_hash&quot;: &quot;sha256...&quot;
+  },
+  &quot;device_envelopes&quot;: [
+    {&quot;recipient_device_id&quot;:&quot;d-41&quot;,&quot;ciphertext&quot;:&quot;base64&quot;}
+  ],
+  &quot;group_ciphertext&quot;: null,
+  &quot;media_ref&quot;: {&quot;object_id&quot;:&quot;o-9&quot;,&quot;content_hash&quot;:&quot;...&quot;} | null,
+  &quot;client_local_seq&quot;: 881,
+  &quot;reply_to_message_id&quot;: &quot;...&quot; | null
+}
+-&gt; 202 {
+  &quot;server_message_id&quot;:&quot;m-...&quot;,
+  &quot;conversation_seq&quot;:190234,
+  &quot;accepted_at&quot;:&quot;...&quot;,
+  &quot;deduplicated&quot;:false
+}
+
+GET /v1/devices/{device_id}/sync?cursor={opaque_cursor}&amp;limit=500
+-&gt; { &quot;items&quot;:[...], &quot;next_cursor&quot;:&quot;...&quot;, &quot;has_more&quot;:true }
+
+POST /v1/devices/{device_id}/acks
+{
+  &quot;conversation_id&quot;:&quot;c-...&quot;,
+  &quot;delivered_high_watermark&quot;:190230,
+  &quot;read_high_watermark&quot;:190100,
+  &quot;gap_ids&quot;:[&quot;190221&quot;]
+}</code></pre>
+<p>实时连接使用 WebSocket/QUIC stream。frame 包含 protocol_version、delivery_id、conversation_id、conversation_seq、ciphertext 和 checksum；客户端必须 ack delivery_id。服务端返回 accepted 只代表 ciphertext 已在 message log 达到 durability quorum，不代表已送达对方。</p>
+<p>关键 immutable event：</p>
+<pre><code class="language-text">MessageAccepted {
+  event_id, message_id, conversation_id, conversation_seq,
+  sender_user_id, sender_device_id,
+  recipient_snapshot_ref, recipient_devices_hash,
+  envelope_bundle_ref, membership_version, accepted_at
+}
+DeliveryStateAdvanced {
+  event_id, delivery_id, device_id, message_id,
+  from_state, to_state, occurred_at, source
+}
+DeviceMembershipChanged {
+  user_id, device_id, action, device_list_version, key_epoch, occurred_at
+}</code></pre>
+<p>Producer 使用 transactional outbox；consumer 以 event_id 去重。schema 只做 backward-compatible 演进，新字段 optional，旧字段不改变语义。</p>
+<h3 id="1-5-data-model-partition-与状态机">1.5 Data model、partition 与状态机</h3>
+<div class="table-wrap"><table><thead><tr><th>Entity</th><th>Key / index</th><th>关键字段与语义</th></tr></thead><tbody><tr><td>Conversation</td><td>PK: conversation_id</td><td>type、home_cell、next_seq、membership_version</td></tr>
+<tr><td>Membership</td><td>PK: conversation_id；SK: user_id</td><td>role、joined_seq、left_seq、device_list_version；membership_version 做授权快照</td></tr>
+<tr><td>Message</td><td>PK: hash(conversation_id)；SK: conversation_seq</td><td>message_id、sender、envelope_bundle_ref、recipient_snapshot_ref/hash、key_epoch、created_at；<code>(conversation_id, sender_device_id, client_message_id)</code> 唯一去重</td></tr>
+<tr><td>DeviceInbox</td><td>PK: device_id + inbox_shard；SK: delivery_seq</td><td>delivery_id、message_id、attempt、not_before；delivered 后短 TTL</td></tr>
+<tr><td>AckWatermark</td><td>PK: device_id；SK: conversation_id</td><td>delivered_seq、read_seq、gap bitmap、version</td></tr>
+<tr><td>DeviceSession</td><td>PK: device_id</td><td>gateway_id、connection_epoch、last_seen；TTL 90 秒</td></tr>
+<tr><td>MediaObject</td><td>PK: object_id；index: owner + created_at</td><td>encrypted_blob_uri、size、hash、scan_status、expiry_policy</td></tr></tbody></table></div>
+<p>普通 conversation 用 conversation_id 选固定 <strong>home cell / sequencer shard</strong>，从而低成本产生单调 conversation_seq。极热群不能简单把同一 log 随机打散，否则失去顺序；应保留一个轻量 sequencer，只把 payload storage 与 fan-out task 按 message_id/recipient bucket 分片。</p>
+<p>Message 状态：</p>
+<pre><code class="language-text">DURABILITY_PENDING -&gt; DURABLE_ACCEPTED -&gt; FANOUT_ENQUEUED
+FANOUT_ENQUEUED -&gt; DEVICE_DELIVERED -&gt; DEVICE_READ
+FANOUT_ENQUEUED -&gt; EXPIRED</code></pre>
+<p><code>client-created</code> 只是客户端本地状态，不进入服务端状态机。只有 ciphertext 达到 durability quorum、状态成为 <code>DURABLE_ACCEPTED</code> 后，API 才返回 <code>accepted</code>；timeout 时客户端用同一个三元幂等键查询或重试。状态只允许单调前进；read 隐含 delivered。delivery 是 per-device 状态，不是 message 的单一布尔值。离线 ciphertext 默认 30 天 TTL；delivered inbox item 保留 24 小时用于重连去重；presence 只保留 90 秒，绝不作为 durable truth。</p>
+<h3 id="1-6-proposed-architecture">1.6 Proposed architecture</h3>
+<figure class="architecture"><figcaption>Architecture Diagram</figcaption><pre class="mermaid">flowchart LR
+  C[&quot;Mobile / Web Client&quot;] --&gt; G[&quot;Edge Gateway：WebSocket / QUIC&quot;]
+  G --&gt; A[&quot;Auth + Device Registry&quot;]
+  G --&gt; I[&quot;Message Ingest&quot;]
+  I --&gt; S[&quot;Conversation Sequencer&quot;]
+  S --&gt; L[(&quot;Replicated Message Log&quot;)]
+  L --&gt; F[&quot;Fan-out Workers&quot;]
+  F --&gt; Q[(&quot;Device Inbox / Queue&quot;)]
+  Q --&gt; R[&quot;Realtime Router&quot;]
+  R --&gt; G
+  I --&gt; M[&quot;Encrypted Media Service&quot;]
+  M --&gt; O[(&quot;Object Storage&quot;)]
+  O --&gt; D[&quot;CDN&quot;]
+  L --&gt; X[&quot;Cross-region Replicator&quot;]
+  E[&quot;Receipt / Sync Service&quot;] --&gt; Q
+  G --&gt; E
+  L --&gt; B[&quot;Abuse Signals Pipeline&quot;]
+  B --&gt; ML[&quot;Risk + Push-priority Models&quot;]</pre><div class="ascii-label">ASCII Architecture · copy-friendly</div><pre class="ascii-diagram"><code>[Mobile / Web Client] --&gt; [Edge Gateway：WebSocket / QUIC]
+[Edge Gateway：WebSocket / QUIC] --&gt; [Auth + Device Registry]
+[Edge Gateway：WebSocket / QUIC] --&gt; [Message Ingest]
+[Message Ingest] --&gt; [Conversation Sequencer]
+[Conversation Sequencer] --&gt; [Replicated Message Log]
+[Replicated Message Log] --&gt; [Fan-out Workers]
+[Fan-out Workers] --&gt; [Device Inbox / Queue]
+[Device Inbox / Queue] --&gt; [Realtime Router]
+[Realtime Router] --&gt; [Edge Gateway：WebSocket / QUIC]
+[Message Ingest] --&gt; [Encrypted Media Service]
+[Encrypted Media Service] --&gt; [Object Storage]
+[Object Storage] --&gt; [CDN]
+[Replicated Message Log] --&gt; [Cross-region Replicator]
+[Receipt / Sync Service] --&gt; [Device Inbox / Queue]
+[Edge Gateway：WebSocket / QUIC] --&gt; [Receipt / Sync Service]
+[Replicated Message Log] --&gt; [Abuse Signals Pipeline]
+[Abuse Signals Pipeline] --&gt; [Risk + Push-priority Models]</code></pre></figure>
+<p>控制面是 identity、device/key metadata、membership；数据面是 ciphertext log、inbox 与 media bytes。两者分别扩容，media 不经过 realtime gateway。</p>
+<h3 id="1-7-核心-end-to-end-flows">1.7 核心 end-to-end flows</h3>
+<p><strong>发送文本</strong></p>
+<ol>
+<li>客户端读取当前 membership/device-list snapshot，用每个 recipient device 的 session key 生成 opaque envelope；群聊普通 payload 可只加密一次给当前 sender-key epoch，但 sender-key distribution / 新 epoch 仍按 device envelope。客户端提交精确 device set、各 user 的 device_list_version、snapshot hash，并生成稳定 client_message_id；网络重试必须复用整套 snapshot/envelopes。</li>
+<li>Edge 验证 device token、size 与 rate limit；conversation home shard 在 commit 前原子验证 membership_version、每个 device_list_version、devices_hash 与 envelope coverage。任何 stale/missing/extra device 都返回 <code>409 REFRESH_RECIPIENT_SNAPSHOT</code>，服务端绝不替客户端生成密文。</li>
+<li>Ingest 路由到 conversation home shard；sequencer 在同一 local transaction 中分配 conversation_seq，写 Message、不可变 recipient snapshot/envelope bundle 与 Outbox。</li>
+<li>两个以上 AZ 达到 quorum 后返回 202 accepted。Outbox 经 CDC 发 MessageAccepted。</li>
+<li>Fan-out 只按事件中冻结的精确 recipient device set 写 DeviceInbox，并把对应 opaque device envelope 或 group-ciphertext ref 送给目标；新增设备不回填这条历史密文，重复任务按 <code>(message_id, recipient_device_id)</code> 幂等。</li>
+<li>在线 device 由 connection registry 定位 gateway；离线 device 等 push notification 与后续 sync。</li>
+<li>客户端持久化后 ack；服务端推进 high watermark。重复 delivery 由 delivery_id/message_id 在客户端去重。</li>
+</ol>
+<p><strong>断线重连与 gap repair</strong></p>
+<p>客户端携带 opaque cursor 和每个活跃 conversation 的 watermark。Sync Service 先返回 inbox 增量；若发现 seq gap，则按 membership 可见区间回读 Message Log。cursor 绑定 device、shard 与 connection_epoch，过期后做 bounded full sync，不能相信客户端任意指定 offset。</p>
+<p><strong>附件</strong></p>
+<p>客户端先申请 signed multipart upload URL，在本地用随机 content key 加密 media，再上传 object storage；complete 时提交各 part checksum。消息只携带 object_id、encrypted media key envelope 与 hash。接收端从 CDN 下载 ciphertext 后本地校验/解密。消息发送失败时 orphan object 经 24 小时 TTL 回收。</p>
+<p><strong>新设备加入</strong></p>
+<p>Device Registry 通过已有可信设备确认新 device，提升 device_list_version 并触发 key epoch rotation。历史消息默认不由服务端解密/重加密；是否把本地历史安全转移给新设备，是独立 device-to-device transfer flow。</p>
+<h3 id="1-8-deep-dive-a-ordering-与-exactly-once-假象">1.8 Deep dive A：ordering 与 “exactly-once” 假象</h3>
+<p>网络中不能承诺真正 exactly-once。我们承诺的是：</p>
+<ul>
+<li><strong>at-least-once transport</strong>：超时后安全重试；</li>
+<li><strong>idempotent accept</strong>：effective key 是 URL 中的 <code>conversation_id</code> 加 header/body 中的 <code>(sender_device_id, client_message_id)</code> 三元组；重复请求返回同一 server_message_id，不能把 endpoint path 隐含后又误称为二元键；</li>
+<li><strong>stable display order</strong>：conversation_seq 是服务器接受顺序；客户端临时 bubble 用 client_local_seq，收到 ack 后 reconcile；</li>
+<li><strong>gap-aware delivery</strong>：若收到 seq 102 而 101 缺失，客户端短暂缓冲并发起 gap fetch；超过 2 秒可显示 102，但记录 gap，避免一个坏消息永久 head-of-line blocking。</li>
+</ul>
+<p>同一 sender device 可利用 client_local_seq 检测乱序重试；跨 sender 的并发消息没有客观因果关系，由 sequencer 决定稳定顺序即可。conversation_seq 分配成功但 payload transaction 失败会产生 hole，因此 seq 与 Message/Outbox 必须同事务提交，或允许显式 tombstone；不能让客户端无限等一个不存在的 seq。</p>
+<h3 id="1-9-deep-dive-b-group-fan-out-热点与成员变更">1.9 Deep dive B：group fan-out、热点与成员变更</h3>
+<p>普通群选择 <strong>fan-out on write</strong>，因为读路径需要低 latency 且群规模有限。MessageAccepted 内记录 recipient_snapshot_version，解决 “发送同时有人退群” 的歧义：只有 accepted 时快照内且 joined_seq ≤ message_seq &lt; left_seq 的成员可读取。</p>
+<p>热点有三层：</p>
+<ol>
+<li><strong>sequencer hotspot</strong>：一个超活跃群只能由一个 ordering owner 产生 seq。owner 只写小 header，不同步做 recipient fan-out；使用 lease + fencing token 防 split brain。</li>
+<li><strong>fan-out hotspot</strong>：把 recipient list 切成 256–2,048 人 bucket，task key = message_id + bucket_id，worker 幂等执行；队列积压时优先 1:1 和小群。</li>
+<li><strong>celebrity/broadcast hotspot</strong>：若产品允许十万级 channel，应切换 fan-out on read 或分层 dissemination tree；这已是不同产品语义，不应硬套普通群设计。</li>
+</ol>
+<p>Queue lag 超阈值时不丢 durable message：暂停 typing/presence 等 best-effort frame，合并 receipt，降低 push 优先级，并对新建超大群/高频发送施加 admission control。</p>
+<h3 id="1-10-deep-dive-c-multi-device-e2ee-与密钥生命周期">1.10 Deep dive C：multi-device E2EE 与密钥生命周期</h3>
+<p>可以提出类似 Double Ratchet / Sender Keys 思路，但明确它只是 proposed cryptographic design，协议需由安全专家审计：</p>
+<ul>
+<li>每个 device 有 identity key、signed pre-key 和 one-time pre-key；Device Registry 只保存 public material；</li>
+<li>1:1 首次会话为每个 recipient device 建 session，之后 ratchet 提供 forward secrecy 与 post-compromise recovery；</li>
+<li>群聊由 sender 为当前 epoch 维护 sender key，每个 sender/device 独立；成员移除、新设备加入或风险事件触发 epoch rotation；</li>
+<li>请求中的 recipient snapshot、device envelopes 和 snapshot hash 都是 ciphertext routing contract；服务端只验证 device/membership version 与 envelope coverage，不能读取 payload，也不能为漏掉的新 device 补加密；</li>
+<li>message header 带 key_epoch 与 sender_device_id；旧 epoch 只用于解密历史，不接受继续发送；</li>
+<li>服务端授权依赖 membership，不依赖“能否解密”。被移除成员可能已保存旧 plaintext，cryptography 无法撤回已读内容。</li>
+</ul>
+<p>关键失败语义：设备列表刚变化而 sender 尚未同步时，服务端拒绝 stale device_list_version 并返回 refresh-required；不要悄悄少加密给新设备。密钥备份若存在，应使用用户掌握的 recovery secret 做 client-side encryption。</p>
+<h3 id="1-11-deep-dive-d-presence-push-与-realtime-routing">1.11 Deep dive D：presence、push 与 realtime routing</h3>
+<p>gateway 每 30 秒 heartbeat，Session Registry 保存 gateway_id + connection_epoch，TTL 90 秒。路由发生竞态时，旧 gateway 发现 epoch 过期就拒绝投递，消息回到 inbox 等新连接拉取。因此 presence 丢失只影响 latency，不影响 correctness。</p>
+<p>push notification 只携带 opaque “new message” 信号，不放 plaintext；同一用户 5 秒窗口内 coalesce。移动 OS token 失效要从 Device Registry 异步清理，但不能把 push success 当 delivery ack。</p>
+<h3 id="1-12-reliability-multi-region-security-与-abuse">1.12 Reliability、multi-region、security 与 abuse</h3>
+<p><strong>Failure isolation 与 backpressure</strong></p>
+<ul>
+<li>每个 cell 包含 gateway、sequencer shard、log、fan-out 与 inbox；一个 cell 过载不能拖垮全球。</li>
+<li>gateway 有 per-user/per-IP token bucket；ingest queue 有硬上限，超过后返回 retry-after，而不是无限吃内存。</li>
+<li>fan-out consumer 用 lag-based autoscaling；poison event 进入 DLQ，但同时触发 reconciliation 扫描 Message 与 inbox 差集。</li>
+<li>broker 重复、worker crash、ack 丢失都通过幂等键消化；每日 repair job 只补缺，不回滚已前进状态。</li>
+</ul>
+<p><strong>Multi-region / DR</strong></p>
+<ul>
+<li>conversation 有一个写入 home region；用户可连接最近 edge，由 edge 转发到 home，避免跨地域 multi-master ordering conflict。</li>
+<li>home region 内跨 3 AZ quorum；异步复制 ciphertext log 到 paired region。目标 RPO &lt; 5 秒、RTO &lt; 10 分钟。</li>
+<li>若业务要求 accepted message RPO = 0，可跨地域同步复制，但 p99 latency 与可用性会受 WAN 影响；这是需要明确选择的 trade-off。</li>
+<li>failover 由 control plane 提升 region_epoch，sequencer lease 带 fencing token。旧 region 恢复后只能作为 follower，防止双写。未复制但客户端收到 accepted 的极小窗口必须由客户端 outbox 重发并去重。</li>
+</ul>
+<p><strong>Security / privacy / abuse</strong></p>
+<ul>
+<li>TLS、device-bound token、hardware-backed key（若平台支持）、least privilege、encrypted-at-rest、密钥与业务数据库分离；</li>
+<li>日志绝不记录 ciphertext body、contact graph 全量或 push token；敏感 metadata 有短 retention 和审计访问；</li>
+<li>E2EE 下 abuse detection 依赖发送频率、账号年龄、设备信誉、多人 block/report、群邀请图等 metadata。用户主动 report 时，可由客户端明确同意上传被举报的最近消息与必要 session material；</li>
+<li>分层处置：challenge → rate limit → 限制陌生人触达 → quarantine → account disable；高风险模型不能直接静默删除正常私聊；</li>
+<li>防 enumeration：联系人发现使用 privacy-preserving protocol 或至少加盐/限速的 lookup，错误响应不可泄露账号是否存在。</li>
+</ul>
+<h3 id="1-13-mle-deep-dive-spam-risk-与-push-priority">1.13 MLE deep dive：spam risk 与 push priority</h3>
+<p><strong>Objective</strong></p>
+<p>主任务最小化 harmful unsolicited delivery，同时把正常消息 false positive 控制在极低水平；辅助任务预测 “此 push 在 10 分钟内被打开且不导致 mute/block” 的 notification utility。可写成：</p>
+<p>$\(J = \lambda_1 E[\text{abuse harm}] + \lambda_2 E[\text{false positive cost}] + \lambda_3 E[\text{notification fatigue}]\)$</p>
+<p>其中 false positive 对私聊的成本远高于少发一次 push，因此 action policy 与 classifier threshold 必须分层。</p>
+<p><strong>Labels 与 bias</strong></p>
+<ul>
+<li>正标签：recipient report、block-after-first-contact、批量群移除；弱标签要去重并处理 coordinated reporting；</li>
+<li>负标签不能简单取“未举报”，因为大多数 abuse 没被报告；采用 delayed label window、positive-unlabeled learning 或人工审查样本；</li>
+<li>notification label 为 push 后 10 分钟 open/reply，但受 OS 展示、时区和历史 policy 的 selection bias 影响。</li>
+</ul>
+<p><strong>Features / model</strong></p>
+<ul>
+<li>只使用服务端可见且最小化的 metadata：sender/recipient relationship age、out-degree velocity、相同 invite template 的 hash count、device reputation、report ratio、当地时间、recent push count；</li>
+<li>禁止使用 message plaintext；敏感 demographic feature 不进模型；</li>
+<li>online baseline 可用 calibrated GBDT/linear model，图风险可离线生成 account/device embedding；push priority 用轻量 ranking model；</li>
+<li>对新账号用 cohort prior + conservative rate limit，避免 cold start 被攻击者利用。</li>
+</ul>
+<p><strong>Training 与 evaluation</strong></p>
+<ul>
+<li>feature snapshot 必须 point-in-time correct，避免把未来 report 泄漏到训练特征；</li>
+<li>offline 看 PR-AUC、precision at fixed high recall、正常熟人消息 false-positive-per-million、calibration、各国家/语言/设备 cohort slice；</li>
+<li>online A/B 看 report rate、block rate、successful conversation rate、push open/reply、mute/uninstall guardrail；abuse adversary 会适应，需 shadow test 与逐级 rollout。</li>
+</ul>
+<p><strong>Serving / fallback / drift</strong></p>
+<p>Risk Service p99 预算 20 ms，feature cache 超时即退回 deterministic limits，不能阻塞 message durability path。模型仅输出 risk tier；Policy Engine 决定 allow/challenge/throttle/quarantine。model registry 支持 canary、shadow、one-click rollback。监控 feature null rate、score PSI、calibration drift、report delay 与 cohort disparity；概念漂移时先收紧速率规则，再重训，不自动把阈值大幅改变。</p>
+<h3 id="1-14-observability-slo-capacity-与-cost">1.14 Observability、SLO、capacity 与 cost</h3>
+<div class="table-wrap"><table><thead><tr><th>SLI / SLO</th><th>定义</th><th>主要报警</th></tr></thead><tbody><tr><td>Accept availability 99.99%</td><td>合法非限流请求返回 durable accepted 的比例</td><td>5 分钟 burn rate、quorum error</td></tr>
+<tr><td>Accept p99 &lt; 200 ms</td><td>edge 收到完整请求到 durability ack</td><td>sequencer queue、cross-AZ latency</td></tr>
+<tr><td>Online delivery p99 &lt; 500 ms</td><td>accepted 到目标在线 device durable ack</td><td>fan-out lag、router miss、gateway saturation</td></tr>
+<tr><td>No silent loss</td><td>accepted message 在 TTL 内可投递或有 terminal reason</td><td>message/inbox reconciliation mismatch</td></tr>
+<tr><td>Sync correctness</td><td>cursor gap 最终在 60 秒内修复</td><td>gap rate、stuck cursor</td></tr></tbody></table></div>
+<p>按 cell 跟踪 connection count、messages/s、recipient expansion factor、top hot conversation、broker lag、inbox age、push error、dedup hit、key-version rejection。Trace 通过 message_id 关联，但严禁采集 payload。</p>
+<p>容量按峰值的 1.5× provision，并保留一个 cell 故障时 N+1 余量。成本大头是 media egress/object storage 与长连接内存；优化顺序通常是 CDN hit、media lifecycle/erasure coding、receipt coalescing，不能用降低 durable replicas 换成本。</p>
+<h3 id="1-15-trade-offs-与-v1-v2-evolution">1.15 Trade-offs 与 V1 → V2 evolution</h3>
+<div class="table-wrap"><table><thead><tr><th>选择</th><th>收益</th><th>代价 / 何时改变</th></tr></thead><tbody><tr><td>conversation 单写 region</td><td>顺序与冲突简单</td><td>跨洲发送多一次 WAN；只有明确需要低延迟双写时才引入 CRDT/冲突策略</td></tr>
+<tr><td>普通群 fan-out on write</td><td>读快、离线补齐简单</td><td>大群写放大；broadcast 产品改 fan-out on read</td></tr>
+<tr><td>at-least-once + idempotency</td><td>可恢复、工程现实</td><td>需要端到端 dedup 与 repair</td></tr>
+<tr><td>服务端暂存 ciphertext</td><td>离线投递可靠</td><td>metadata/storage 成本；delivered 后尽快删除</td></tr></tbody></table></div>
+<p><strong>V1</strong>：单 region、1:1 text、WebSocket、关系型 metadata + partitioned log、client idempotency。 <strong>V2</strong>：multi-AZ、群聊、device inbox、attachment/CDN、outbox/reconciliation。 <strong>V3</strong>：cell-based multi-region、multi-device E2EE rotation、hot-group isolation、ML abuse/push ranking。每一步都先双写/影子读、比对一致性，再迁移流量。</p>
+<h3 id="1-16-高频-follow-up-q-a">1.16 高频 follow-up Q&amp;A</h3>
+<p><strong>Q1：为什么不直接把每条消息写 Kafka 就返回？</strong> A：Kafka 可作为 durable log，但仍要原子解决 dedup、conversation_seq 与事件发布。可让 partition leader 承担 log，但必须定义 quorum、retention、索引与恢复；“用了 Kafka”本身没有消除状态语义。</p>
+<p><strong>Q2：如何做到 exactly once？</strong> A：不声称网络 exactly once；用稳定 client_message_id、服务端唯一键、at-least-once delivery、客户端去重和 reconciliation，实现 effectively-once UI。</p>
+<p><strong>Q3：两个用户跨 region 怎么排序？</strong> A：conversation 固定 home region。两个 edge 都把写转发给同一 sequencer；牺牲一次 WAN latency 换清晰顺序。只要求 per-conversation，不要求全局顺序。</p>
+<p><strong>Q4：已读回执风暴怎么办？</strong> A：high watermark 代替逐消息 ack，100–500 ms 合并，群内按用户聚合；压力大时 read receipt 是可降级数据，delivery correctness 不受影响。</p>
+<p><strong>Q5：服务端不能读内容，怎样反垃圾？</strong> A：metadata risk、rate limits、relationship graph、device reputation 与用户自愿 report；把 classifier 与 policy 分离，并对正常私聊设置极低 false positive guardrail。</p>
+<p><strong>Q6：群成员刚退出时能否收到并发消息？</strong> A：用 accepted 时的 membership_snapshot_version 定义线性化点。joined_seq/left_seq 决定可见区间，行为确定且可审计。</p>
+<h3 id="1-17-60-秒可直接说的总结">1.17 60 秒可直接说的总结</h3>
+<blockquote>“我的 proposed design 把消息接收、device fan-out 和 media 传输分开。客户端用稳定 client_message_id 重试；conversation home sequencer 在本地事务中分配 seq、写 ciphertext 与 outbox，跨 AZ quorum 后才返回 accepted。异步 worker 按 membership snapshot 把消息写入每个 DeviceInbox，在线通过 WebSocket 推送，离线通过 cursor sync 补齐；全链路是 at-least-once，但靠唯一键、watermark、客户端去重与 reconciliation 提供 effectively-once 体验。普通群 fan-out on write，热群保留轻量 sequencer、把 recipient bucket 并行化。多设备 E2EE 通过 device identity、ratchet/sender key 与 key epoch rotation，服务端只见 metadata。系统按 cell 隔离，过载时先降级 presence、typing、receipt，不丢 durable message；跨地域用单写 owner + epoch fencing 做 DR。最后用 spam-risk 与 push-priority 模型辅助 policy，但 plaintext 不进模型，模型失败时回退确定性限流。核心 SLO 是 accept 99.99%、p99 200 ms、在线 delivery p99 500 ms，以及 accepted message 不静默丢失。”</blockquote>
+        <nav class="pager" aria-label="Case navigation">
+    <a href="case-00-interview-method.html">← 0. Interview Method</a>
+    <a class="next" href="case-02-design-youtube.html">2. Design YouTube →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

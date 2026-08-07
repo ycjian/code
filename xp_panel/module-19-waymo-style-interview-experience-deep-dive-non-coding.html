@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>19. Wxxxx-style Interview Experience Deep Dive（Non-Coding） - Xpxxx Panel Interview</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/aiInfraInterview-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Module 20 / 20 · Senior Staff AI Infrastructure</p>
+          <h1 class="route-title">19. Wxxxx-style Interview Experience Deep Dive（Non-Coding）</h1>
+          <p class="route-subtitle">Xpxxx Panel Interview · Module 20 of 20</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#19-0-使用边界-哪些题本章不展开">19.0 使用边界：哪些题本章不展开</a><a href="#19-1-vague-system-design-design-a-system-to-back-up-files">19.1 Vague System Design：Design a System to Back Up Files</a><a href="#19-2-security-event-platform-rule-suppression-与-pluggable-enrichment">19.2 Security Event Platform：Rule Suppression 与 Pluggable Enrichment</a><a href="#19-3-how-to-filter-user-requests-compare-models-build-datasets">19.3 How to Filter User Requests / Compare Models / Build Datasets</a><a href="#19-4-design-a-distributed-transaction-database">19.4 Design a Distributed Transaction Database</a><a href="#19-5-design-an-ai-shopping-system">19.5 Design an AI Shopping System</a><a href="#19-6-append-only-log-instant-messaging-search-必须用-grep">19.6 Append-only Log Instant Messaging，Search 必须用 grep</a><a href="#19-7-kubernetes-docker-multi-tenancy-istio-高频">19.7 Kubernetes / Docker / Multi-tenancy / Istio 高频</a><a href="#19-8-design-an-evaluation-system-human-eval-llm-eval">19.8 Design an Evaluation System：Human Eval + LLM Eval</a><a href="#19-9-simulation-statistical-experiment-新增-路面坑洞-feature">19.9 Simulation Statistical Experiment：新增“路面坑洞”Feature</a><a href="#19-10-给一组-data-怎样证明-new-model-better">19.10 给一组 Data：怎样证明 New Model Better</a><a href="#19-11-ml-design-passenger-到达目的地下车-如何选停车点">19.11 ML Design：Passenger 到达目的地下车，如何选停车点</a><a href="#19-12-aerial-intersection-trajectory-waymo-与其它车辆如何比较">19.12 Aerial Intersection Trajectory：Wxxxx 与其它车辆如何比较</a><a href="#19-13-design-a-planning-evaluation-system">19.13 Design a Planning Evaluation System</a><a href="#19-14-100m-dau-inference-system-back-of-the-envelope-latency-oom">19.14 100M DAU Inference System：Back-of-the-envelope、Latency、OOM</a><a href="#19-15-qat-distillation-eval-contrastive-learning">19.15 QAT、Distillation、eval()、Contrastive Learning</a><a href="#19-16-kernel-optimization-memory-layout-fusion-roofline">19.16 Kernel Optimization：Memory Layout、Fusion、Roofline</a><a href="#19-17-model-monitoring-data-quality-drift-alert-time-series-backend">19.17 Model Monitoring：Data Quality、Drift、Alert、Time-series Backend</a><a href="#19-18-behavioral-policy-vs-efficiency-forest-and-trees">19.18 Behavioral：Policy vs Efficiency / Forest and Trees</a><a href="#19-19-怎样把你的背景对齐-simulation-evaluation-metrics-data-infra">19.19 怎样把你的背景对齐 Simulation / Evaluation / Metrics / Data Infra</a><a href="#19-20-面试前-3-分钟-这些句子必须能直接说">19.20 面试前 3 分钟：这些句子必须能直接说</a></nav>
+        </header>
+        <h2 id="19-waymo-style-interview-experience-deep-dive-non-coding">19. Wxxxx-style Interview Experience Deep Dive（Non-Coding）</h2>
+<p>这一章把公开面经里的随机题，压缩成一套可复用的答题系统。它们与 Xpxxx 的业务相似：都在考 <strong>real-world data、simulation/evaluation、ML platform、production inference、safety policy 和 distributed systems</strong>，不是要求背某家公司内部架构。</p>
+<h3 id="19-0-使用边界-哪些题本章不展开">19.0 使用边界：哪些题本章不展开</h3>
+<p>本章只回答 design、ML、statistics、infra、monitoring 和 behavioral：</p>
+<ul>
+<li>不展开 Max Pooling implementation；</li>
+<li>不展开 Jump Game / backtracking；</li>
+<li>不展开 graph-search coding；</li>
+<li>不展开 NumPy / tensor debugging implementation；</li>
+<li>不猜未给完整 prompt 的 coding 题。</li>
+</ul>
+<p>如果面试官从 design 继续要求 coding，再切到第 10 章的协议：先说 contract、invariant、complexity、edge case 和 test，再写实现。</p>
+<h3 id="19-1-vague-system-design-design-a-system-to-back-up-files">19.1 Vague System Design：Design a System to Back Up Files</h3>
+<h4 id="先把-vague-prompt-变成明确-contract">先把 vague prompt 变成明确 contract</h4>
+<p>开场不要直接画组件：</p>
+<blockquote>“我先确认 source/destination 是单机、NAS 还是 object storage；需要 full 还是 incremental backup；是否要求 point-in-time consistent snapshot；文件规模、总 bytes、变更率、RPO/RTO；是否保留 permission、owner、timestamp、symlink 和 empty directory；destination 是否允许 eventual convergence。下面我先假设 source 是多机文件树，destination 是 durable object storage，需要保留相同 logical directory structure，支持增量、恢复、校验和失败重试。”</blockquote>
+<p>给定的 filesystem functions 只是 data-plane primitive；系统仍要补 control plane：</p>
+<pre><code class="language-text">Backup Job API
+  -&gt; Snapshot / Scan Coordinator
+  -&gt; Manifest Builder
+  -&gt; Partitioned Task Queue
+  -&gt; Directory + File Workers
+  -&gt; Destination Blob Store
+  -&gt; Metadata / Manifest DB
+  -&gt; Verifier + Reconciler</code></pre>
+<h4 id="数据模型与-structure-preservation">数据模型与 structure preservation</h4>
+<p>每次 backup 产生 immutable <code>backup_id</code> 与 manifest：</p>
+<div class="table-wrap"><table><thead><tr><th>字段</th><th>作用</th></tr></thead><tbody><tr><td><code>backup_id</code></td><td>一次 snapshot / job 的唯一 generation</td></tr>
+<tr><td><code>source_root</code></td><td>canonical root，防止 path traversal</td></tr>
+<tr><td><code>relative_path</code></td><td>destination 重建相同树的唯一依据</td></tr>
+<tr><td><code>type</code></td><td>file / directory / symlink</td></tr>
+<tr><td><code>size</code>, <code>mtime</code>, <code>mode</code></td><td>metadata 与快速 change detection</td></tr>
+<tr><td><code>content_hash</code></td><td>完整性、dedupe、idempotency</td></tr>
+<tr><td><code>chunk_ids</code></td><td>大文件断点续传与并行 copy</td></tr>
+<tr><td><code>state</code>, <code>attempt</code>, <code>error</code></td><td>durable workflow state</td></tr></tbody></table></div>
+<p>Destination 不应依赖 worker 的执行顺序。Directory 可先显式创建，也可由 manifest 在 restore 时 materialize；关键是 <code>relative_path -&gt; object/chunks + metadata</code> 的映射必须 durable。Empty directory 也必须作为 manifest entry 保存。</p>
+<h4 id="full-incremental-consistent-snapshot">Full / incremental / consistent snapshot</h4>
+<ul>
+<li>第一次 full scan；后续基于 journal/change feed 优先，periodic full reconciliation 防漏事件。</li>
+<li>只看 <code>mtime</code> 不够可靠；可先用 size/mtime 快筛，最终以 checksum 或 content-addressed chunk 验证。</li>
+<li>正在写的文件不能边读边声称 point-in-time consistent：使用 filesystem snapshot、application quiesce，或记录 <code>changed_during_copy</code> 后重新排队。</li>
+<li>Manifest 只有在所有 required entries 校验成功后从 <code>BUILDING</code> 原子切到 <code>COMMITTED</code>；restore 只读取 committed generation。</li>
+</ul>
+<h4 id="scale">Scale</h4>
+<p>容量先算：</p>
+<p>\[ T_{backup} \ge \max\left(\frac{Bytes}{ReadBW},\frac{Bytes}{NetworkBW},\frac{Bytes}{WriteBW}\right) \]</p>
+<p>任务按 <code>(tenant, source_root, path-prefix)</code> 分片；大文件再按 chunk 分片。Metadata scan 与 byte transfer 分开扩容，避免 millions of tiny files 被少量 huge files 拖住。需要 bounded queue、per-tenant quota、bandwidth shaping 和 destination rate limit。</p>
+<h4 id="failure-与-correctness">Failure 与 correctness</h4>
+<ul>
+<li>Task ID 由 <code>backup_id + relative_path + chunk_index + source_version</code> 决定，retry 幂等。</li>
+<li>Chunk 先写 temporary key，checksum 通过后 commit/rename pointer；不能让 partial object 被 restore 看见。</li>
+<li>Worker crash：lease 超时重派；late worker 用 fencing token 不能覆盖新 attempt。</li>
+<li>Destination timeout 后结果不明：先 HEAD/checksum，不能直接重复产生另一个 logical copy。</li>
+<li>Poison file：有限重试后 quarantine，但 job 是否允许 partial success 必须由 policy 决定。</li>
+<li>Reconciler 比较 source snapshot manifest、task state 与 destination objects，修复 orphan/missing/corrupt entries。</li>
+</ul>
+<h4 id="恢复与验证">恢复与验证</h4>
+<p>Backup 没有 restore drill 就不算完成。至少验证：随机 checksum、全量 manifest consistency、permission/path/symlink、空目录、跨版本 restore、RTO、删除/损坏 destination chunk 后的恢复。</p>
+<h3 id="19-2-security-event-platform-rule-suppression-与-pluggable-enrichment">19.2 Security Event Platform：Rule Suppression 与 Pluggable Enrichment</h3>
+<h4 id="hld-先保留原始事实-再产生可解释-decision">HLD：先保留原始事实，再产生可解释 decision</h4>
+<pre><code class="language-text">Collectors -&gt; Durable Event Log -&gt; Normalize / Schema Validate
+ -&gt; Enrichment Plugins -&gt; Detection / Ranking
+ -&gt; Suppression Policy -&gt; Threat Level
+ -&gt; Alert Generation -&gt; API / DB / Audit Log</code></pre>
+<p>Raw security event 和 detector finding 永不因 suppression 被删除。Suppression 改变的是 downstream action，而不是历史事实：</p>
+<pre><code class="language-text">raw_event -&gt; finding(rule_id, evidence, score)
+          -&gt; suppression_decision(policy_id, matched, reason, version)
+          -&gt; effective_finding / alert</code></pre>
+<h4 id="rule-suppression-设计">Rule Suppression 设计</h4>
+<p>Suppression policy 至少包含：</p>
+<div class="table-wrap"><table><thead><tr><th>字段</th><th>说明</th></tr></thead><tbody><tr><td><code>policy_id</code>, <code>tenant_id</code>, <code>version</code></td><td>多租户与审计</td></tr>
+<tr><td><code>rule_selector</code></td><td>rule ID / tag / threat family</td></tr>
+<tr><td><code>predicate</code></td><td>Geo-IP、entity、CIDR、time window、history 等条件</td></tr>
+<tr><td><code>action</code></td><td>suppress alert / lower severity / route only / expire</td></tr>
+<tr><td><code>priority</code>, <code>effective_at</code>, <code>expires_at</code></td><td>deterministic evaluation</td></tr>
+<tr><td><code>creator</code>, <code>approver</code>, <code>reason</code></td><td>governance；公开版本只显示匿名 identity reference</td></tr></tbody></table></div>
+<p>关键语义：</p>
+<ul>
+<li>先做 schema/type validation，再编译 predicate；不执行任意用户代码。</li>
+<li>Match 结果必须带 <code>policy_version</code> 和 reason code，便于重放与审计。</li>
+<li>Default deny/allow 要按风险定义；安全检测 pipeline 不能因为 suppression service timeout 就静默丢 alert。高风险规则通常 fail open to alert。</li>
+<li>Policy change 对新事件立即生效；是否 retroactive re-evaluate 历史 finding 是独立 job。</li>
+<li>Suppression 需要 hit rate、top policies、unexpected drop、expiry 和 shadow mode 指标，防止一条宽规则吞掉所有 alert。</li>
+</ul>
+<h4 id="pluggable-enrichment-platform-code-不因客户逻辑频繁修改">Pluggable Enrichment：Platform Code 不因客户逻辑频繁修改</h4>
+<p>定义稳定 contract，而不是让插件直接操作内部对象：</p>
+<pre><code class="language-text">PluginManifest
+  name / version / input_schema / output_schema
+  required_capabilities / timeout / memory / network_policy
+
+EnrichmentResult
+  fields / confidence / evidence_refs / status / error_code</code></pre>
+<p>Plugin registry 保存签名 artifact、schema、owner、compatibility 和 rollout state。Execution plane 使用 sandboxed process/container/WASM；每个插件有 CPU、memory、timeout、network egress、secret scope 和 retry budget。禁止插件直接写主事件 DB；它只能返回 typed result，由平台统一 commit。</p>
+<h4 id="decorator-strategy-pipeline-怎么选">Decorator / Strategy / Pipeline 怎么选</h4>
+<ul>
+<li><code>Strategy</code>：同一个 enrichment capability 有多个实现，例如 commercial Geo-IP 与 internal Geo-IP。</li>
+<li><code>Decorator</code>：在插件调用外统一叠加 timeout、cache、metrics、circuit breaker、redaction 和 authorization。</li>
+<li><code>Pipeline / Chain of Responsibility</code>：客户配置执行顺序、条件、短路和并行 fan-out。</li>
+</ul>
+<p>客户配置的是 declarative plan：</p>
+<pre><code class="language-text">if event.ip exists:
+  geo_ip@v3 -&gt; history@v5
+if geo.country in deny_regions:
+  raise finding geo-risk
+skip expensive reputation plugin when trusted_asset == true</code></pre>
+<p>这不是把安全边界交给客户。平台仍控制允许的 plugin、schema、resource、secret、network 和 output namespace。</p>
+<h4 id="versioning-rollout-failure">Versioning / rollout / failure</h4>
+<ul>
+<li>Request pin <code>pipeline_version + plugin_versions + rule_version</code>，同一事件可复现。</li>
+<li>新插件先 offline replay，再 shadow，对 output diff、latency、error、alert delta 做 slice check，最后 canary tenant。</li>
+<li>Non-critical enrichment timeout 可返回 <code>UNKNOWN</code> 并继续；critical evidence 缺失时 policy 决定 quarantine 或保守提升风险。</li>
+<li>Plugin result cache key 必须含 input fingerprint、plugin version 和 tenant policy，不能跨 tenant 泄漏。</li>
+</ul>
+<h3 id="19-3-how-to-filter-user-requests-compare-models-build-datasets">19.3 How to Filter User Requests / Compare Models / Build Datasets</h3>
+<h4 id="user-request-filtering-先分清两种含义">User request filtering：先分清两种含义</h4>
+<p>如果问的是产品需求筛选：把需求分成 <code>hard constraint / must-have / quality preference / best-effort</code>，先定义 abuse、安全、隐私、权限和 latency/cost boundary，再排功能优先级。</p>
+<p>如果问的是 AI request filtering：</p>
+<pre><code class="language-text">Normalize -&gt; AuthN/AuthZ -&gt; Rate/Quota -&gt; Policy Rules
+ -&gt; Lightweight Safety Classifier -&gt; Contextual/Risk Classifier
+ -&gt; allow / transform / require-confirmation / block / human-review</code></pre>
+<p>必须回答：</p>
+<ul>
+<li>Filter 既看 raw request，也看 retrieved context、tool call 和 final response；只过滤 prompt 不够。</li>
+<li>Hard policy 用 deterministic rule；ambiguous semantic risk 用 model；高风险 tool action 需要 capability allowlist 与 human confirmation。</li>
+<li>保留 redacted reason code、policy/model version、decision latency；不无限保存 raw private prompt。</li>
+<li>Threshold 不按全局 accuracy 选，而按 risk tier 的 false-negative cost、false-positive friction 和 review capacity 选。</li>
+<li>Prompt injection 不能只靠 classifier：retrieved text 当 untrusted data，tool schema/permissions 在 runtime enforce。</li>
+</ul>
+<h4 id="model-comparison-用-paired-slice-aware-statistically-defensible-evaluation">Model comparison：用 paired、slice-aware、statistically defensible evaluation</h4>
+<p>先固定 dataset version、preprocessing、prompt、decoding、hardware 和 resource budget。对同一个 example 同时跑 baseline 与 candidate，计算 paired delta：</p>
+<p>\[ \Delta_i = metric(candidate_i) - metric(baseline_i) \]</p>
+<p>报告 mean/median、bootstrap confidence interval、win/tie/loss、关键 slice 和 worst-case regression。不能只比较两个 global averages。</p>
+<p>Decision gate 示例：</p>
+<ul>
+<li>Primary quality 显著提升或达到 non-inferiority margin；</li>
+<li>Safety-critical slice 无 regression；</li>
+<li>p95 latency、memory、cost 在 budget 内；</li>
+<li>Calibration、abstention、coverage 达标；</li>
+<li>Shadow/canary online guardrail 通过。</li>
+</ul>
+<h4 id="dataset-build-从-decision-与-failure-taxonomy-倒推">Dataset build：从 decision 与 failure taxonomy 倒推</h4>
+<ol>
+<li>定义 unit：request、frame、clip、episode、trip 或 scenario。</li>
+<li>定义 label/rubric、ambiguity 与 adjudication。</li>
+<li>从 production unbiased sample + risk/rare oversample + hard negatives + synthetic coverage 组合数据。</li>
+<li>以 entity/time/geography/scenario group split，避免相邻 frames、同一 trip 或模板泄漏。</li>
+<li>保存 immutable dataset version、lineage、consent/license、feature/preprocess version。</li>
+<li>自动检查 duplicate、missing、alignment、class balance、slice coverage、label disagreement。</li>
+<li>Candidate model failure 回流 hard-example pool，但保留固定 unbiased benchmark，防止 benchmark 被追着优化。</li>
+</ol>
+<h3 id="19-4-design-a-distributed-transaction-database">19.4 Design a Distributed Transaction Database</h3>
+<p>开场先问：transaction 是单 region 还是跨 region；read/write QPS、data size、key access、isolation、availability、latency 和 geo requirement。一个可防守的 baseline：sharded SQL/KV，单 shard 用 Raft，跨 shard用 MVCC + 2PC。</p>
+<pre><code class="language-text">SQL/API Gateway -&gt; Transaction Coordinator -&gt; Timestamp/Txn Status
+                -&gt; Shard Leaders (Raft groups)
+                -&gt; WAL / MVCC storage / CDC</code></pre>
+<h4 id="单-shard">单 shard</h4>
+<ul>
+<li>Leader 将 write intent / WAL replicate 到 quorum 后确认。</li>
+<li>MVCC 保存 <code>(key, commit_ts, value)</code>；reader 按 snapshot timestamp 读取。</li>
+<li>Serializable 可用 strict 2PL、SSI 或 serializable timestamp ordering；必须明确选一种及其 abort behavior。</li>
+</ul>
+<h4 id="跨-shard-transaction">跨 shard transaction</h4>
+<ol>
+<li>Coordinator 取得 transaction ID / read timestamp。</li>
+<li>Participants validate conflict 并持久化 <code>PREPARED</code> intent 到各自 Raft quorum。</li>
+<li>Coordinator durable commit/abort decision。</li>
+<li>Participants apply commit timestamp，异步清理 intent。</li>
+</ol>
+<p>2PC 会 blocking，所以 coordinator decision 不能只在内存；放 replicated transaction-status record。Participant 不确定时查询 status；lease/timeout 不能自行把已 commit transaction 当 abort。</p>
+<h4 id="scale-与-failure">Scale 与 failure</h4>
+<ul>
+<li>Partition by access pattern，避免单 hot account/order；支持 split/merge 与 routing epoch。</li>
+<li>Request 携带 routing/version；stale router 被 shard redirect。</li>
+<li>Deadlock 用 wait-die/wound-wait 或 wait-for detection；所有 lock/intent 有 observable age。</li>
+<li>Cross-region 优先 local transaction；global transaction 的 quorum/clock latency 必须作为显式 trade-off。</li>
+<li>CDC/outbox 只发布 committed version；consumer 仍幂等。</li>
+<li>Backup 使用 distributed consistent snapshot + WAL replay；定期 restore drill。</li>
+</ul>
+<p>面试官看的是：commit ambiguity、coordinator crash、participant recovery、isolation anomaly、rebalancing 中 transaction correctness，而不是只说 “用 2PC”。</p>
+<h3 id="19-5-design-an-ai-shopping-system">19.5 Design an AI Shopping System</h3>
+<p>先限定产品：用户可用自然语言表达需求，系统负责检索/比较/解释/推荐；价格、库存、配送、支付必须来自 authoritative services，LLM 不能创造事实或直接绕过确认下单。</p>
+<pre><code class="language-text">User Query -&gt; Intent / Constraint Parser -&gt; Catalog + Inventory Filters
+ -&gt; Lexical + Vector Retrieval -&gt; Feature Join -&gt; Rank / Diversify
+ -&gt; LLM Grounded Comparison -&gt; Tool Plan -&gt; User Confirmation
+ -&gt; Cart / Order APIs</code></pre>
+<h4 id="retrieval-与-ranking">Retrieval 与 ranking</h4>
+<ul>
+<li>Hard constraints：price ceiling、size、availability、delivery date、region、policy，先过滤。</li>
+<li>Elasticsearch/BM25 处理 exact product terms；vector retrieval 处理语义/风格；query rewrite 只能扩展，不能丢原始约束。</li>
+<li>Candidate ranker 使用 relevance、quality、price/value、availability、delivery、seller trust、preference；广告必须独立标识。</li>
+<li>Heavy cross-encoder/LLM 只处理 top N；response 引用 product/version/price timestamp。</li>
+</ul>
+<h4 id="agent-tool-safety">Agent / tool safety</h4>
+<ul>
+<li>Tools 最小权限：search/read 可自动；add-to-cart 可确认；purchase/refund/address change 必须强确认和 idempotency key。</li>
+<li>Prompt injection in product description 视为 untrusted data，不能改变 system/tool policy。</li>
+<li>Session memory 区分 ephemeral preference 与用户明确保存的 profile；PII 和 payment token 不进入模型日志。</li>
+</ul>
+<h4 id="evaluation">Evaluation</h4>
+<p>Offline：Recall@K、nDCG、constraint satisfaction、hallucinated attribute、diversity、price freshness。Online：conversion 不是唯一目标，还看 return/cancel、complaint、latency、cost、seller/brand fairness 和 long-term satisfaction。</p>
+<h3 id="19-6-append-only-log-instant-messaging-search-必须用-grep">19.6 Append-only Log Instant Messaging，Search 必须用 grep</h3>
+<p>要求看似极简，关键是接受 append-only 与无上限日志带来的语义：所有 edit/delete/reaction 都写新 event，不原地改旧行。</p>
+<h4 id="log-schema">Log schema</h4>
+<p>每个 conversation 一个 logical ordered stream：</p>
+<pre><code class="language-text">seq | event_id | timestamp | actor | type | target_id | payload | checksum</code></pre>
+<p><code>SEND</code> 保存 text；<code>EDIT/RECALL</code> 引用 target message；<code>REPLY</code> 保存 parent ID；<code>MENTION</code> 在 payload 中保存 normalized user IDs。Read model 按 seq fold events，得到当前可见状态。</p>
+<h4 id="ordering-与-durability">Ordering 与 durability</h4>
+<ul>
+<li>Conversation 最多 500 人，按 <code>conversation_id</code> 路由到 single logical leader/partition，分配 monotonic seq。</li>
+<li>Append 先进入 WAL/replicated log，quorum durable 后 ack；client retry 带 idempotency key。</li>
+<li>Segment file 达到 size/time 后 rollover；旧 segment immutable。单个 conversation “长度无上限”不意味着一个 OS file 永不切分，logical log 可由 ordered segments 组成。</li>
+<li>Membership change 也是 event；读每条消息必须根据 event-time membership/ACL，而非只看当前 member list。</li>
+</ul>
+<h4 id="grep-search">grep search</h4>
+<p>既然规定 grep，就明确：search worker 只对用户有权限的 conversation segments 执行 fixed-string/escaped pattern grep，不能把 raw query 拼进 shell。先用 segment time range、conversation ID、optional bloom/trigram side metadata 缩小文件，但最终 match 必须由 grep 完成。</p>
+<p>Recall/edit 后搜索不能泄漏被撤回文本：grep 找到 raw SEND 后，必须用 folded visibility/tombstone state 做 final filter。结果按 <code>(segment, byte offset/message_id)</code> 回查 context，并有限制、timeout、cancel 和 resource quota。</p>
+<h4 id="scale-failure-retention">Scale / failure / retention</h4>
+<ul>
+<li>Hot conversation 独立 partition；cold segments 压缩并进 object storage，search 时受控 fetch。</li>
+<li>Replication、checksum、segment manifest、compaction generation 都必须可恢复。</li>
+<li>Compaction 可产生新的 materialized segment，但旧 append log 按 retention/audit policy 保存；atomic pointer 决定 active search generation。</li>
+<li>Rate limit mention fan-out；notification 是 derived async effect，可重放且幂等。</li>
+</ul>
+<h3 id="19-7-kubernetes-docker-multi-tenancy-istio-高频">19.7 Kubernetes / Docker / Multi-tenancy / Istio 高频</h3>
+<h4 id="deployment-replicaset-pod-的关系">Deployment、ReplicaSet、Pod 的关系</h4>
+<p>Deployment 是 desired-state rollout controller；它创建/管理 ReplicaSet。ReplicaSet 确保 selector 匹配的 Pod 数量达到 replicas；Pod 是 scheduler 实际放到 node 的最小调度单元。更新 image/template 时 Deployment 创建新 RS，按 rolling-update 的 <code>maxSurge/maxUnavailable</code> 放大新 RS、缩小旧 RS。Controller reconciliation 不是一次命令；Pod 挂了由 RS 补，node 挂了 scheduler 为新 Pod 选 node。</p>
+<h4 id="如何减小-docker-image">如何减小 Docker image</h4>
+<ul>
+<li>Multi-stage build，只复制 runtime artifact；</li>
+<li>选择匹配风险的 minimal/distroless base；</li>
+<li><code>.dockerignore</code> 排除源码 cache、test data、git history；</li>
+<li>合并并清理 package-manager cache；</li>
+<li>固定 dependency，去除 compiler/debug symbols 和不需要的 locale；</li>
+<li>不把 secret 写进 layer；用 image scanning/SBOM 验证。</li>
+</ul>
+<p>Image size 不是唯一目标：过度精简导致无法 patch/observe 也有成本。看 cold-start、pull bandwidth、CVEs 与 operability。</p>
+<h4 id="requests-limits-qos-与-scheduler">Requests、limits、QoS 与 scheduler</h4>
+<ul>
+<li>Scheduler 主要根据 <code>requests</code> 做 fit/score，不根据实时 utilization 猜资源。</li>
+<li><code>Guaranteed</code>：每个 container CPU/memory request == limit；最不易因 memory pressure 被驱逐。</li>
+<li><code>Burstable</code>：至少有 request，但不满足 Guaranteed。</li>
+<li><code>BestEffort</code>：无 requests/limits；最先 eviction。</li>
+<li>CPU 超 limit 通常 throttling；memory 超 limit可能 OOM kill。Request 太小会 overcommit/noisy neighbor，太大浪费并阻塞调度。</li>
+</ul>
+<p>GPU 还要 device plugin、node label/taint、topology、MIG/whole-GPU policy；只写 <code>nvidia.com/gpu: 1</code> 不等于解决 memory profile 和 multi-tenant isolation。</p>
+<h4 id="multi-tenancy-与-istio-security">Multi-tenancy 与 Istio security</h4>
+<p>防护是分层的：</p>
+<ul>
+<li>Identity：独立 service account、短期 workload identity；</li>
+<li>Namespace/RBAC：tenant/operator 权限最小化；</li>
+<li>NetworkPolicy：默认拒绝 namespace east-west；</li>
+<li>Istio mTLS + AuthorizationPolicy：基于 workload identity 做 service-to-service allowlist；</li>
+<li>Ingress/Egress gateway：限制外部流量和数据外泄；</li>
+<li>Pod Security、seccomp、read-only rootfs、non-root、capability drop；</li>
+<li>ResourceQuota、LimitRange、priority/fairness 防 noisy neighbor；</li>
+<li>Secret/KMS、audit、policy-as-code 与 admission control。</li>
+</ul>
+<p>Istio 不是 NetworkPolicy/RBAC 的替代。Mesh policy 配错也会全局放行或中断；先 shadow/audit，按 namespace/service canary，并监控 denied requests、certificate rotation 和 policy drift。</p>
+<h3 id="19-8-design-an-evaluation-system-human-eval-llm-eval">19.8 Design an Evaluation System：Human Eval + LLM Eval</h3>
+<h4 id="核心对象">核心对象</h4>
+<pre><code class="language-text">EvaluationSpec
+  dataset_version / candidate_versions / rubric_version
+  evaluator_mix / sampling / slices / aggregation / gates
+
+EvaluationRecord
+  example_id / blinded_output / evaluator_id_or_model
+  rubric_scores / preference / reason / confidence
+  prompt_version / judge_version / timestamp</code></pre>
+<h4 id="hld">HLD</h4>
+<pre><code class="language-text">Eval API -&gt; Dataset/Output Snapshot -&gt; Task Generator
+ -&gt; Human Queue + LLM Judge Pool + Deterministic Checks
+ -&gt; Quality Control / Adjudication -&gt; Aggregator
+ -&gt; Slice Dashboard / Release Gate / Audit Store</code></pre>
+<p>Human eval 使用 blinded randomized A/B，gold questions、duplicate assignment、inter-rater agreement 和 adjudication。敏感数据按 reviewer clearance 路由，UI 默认 redaction。</p>
+<p>LLM judge 不是免费 ground truth：固定 prompt/model/version，position swap，定期与 expert-human gold set 校准；监控 self-preference、verbosity bias、order bias、language/slice drift。High-stakes failure 或低置信 disagreement 进入 human review。</p>
+<h4 id="scale-与统计">Scale 与统计</h4>
+<ul>
+<li>Cheap deterministic checks 全量；LLM judge 大样本；human 用 stratified/risk sampling。</li>
+<li>同一个 example paired 比较 candidate，bootstrap confidence interval。</li>
+<li>先定义 primary metric 和 release margin，避免看到结果后挑 metric。</li>
+<li>Dashboard 必须能下钻 dataset version、model/prompt/judge version、slice、error taxonomy 和 raw evidence。</li>
+</ul>
+<h4 id="release-gate">Release gate</h4>
+<p>不是 “LLM score 高就上线”：quality primary 达标、critical safety slice 零容忍/上限、human/LLM agreement 可接受、latency/cost guardrail、shadow/canary 通过，才能 promotion。Judge 升级本身也要作为 model change 回归。</p>
+<h3 id="19-9-simulation-statistical-experiment-新增-路面坑洞-feature">19.9 Simulation Statistical Experiment：新增“路面坑洞”Feature</h3>
+<h4 id="hypothesis-与-experimental-unit">Hypothesis 与 experimental unit</h4>
+<blockquote>H0：candidate 在 pothole scenarios 的 safety/comfort 不优于 baseline，或造成其它场景 regression。H1：在预先定义 margin 下改善 pothole response，且全局关键 guardrail non-inferior。</blockquote>
+<p>Unit 不应是每个 frame；通常是 scenario episode / route replay。相邻 frames 强相关，把它们当独立样本会虚增 sample size。</p>
+<h4 id="scenario-matrix">Scenario matrix</h4>
+<p>按 pothole size/depth、lane position、speed、lighting/weather、road friction、traffic density、map quality、sensor noise、vehicle load、可绕行空间分层。加入 no-pothole control、look-alike（阴影/井盖）和 rare severe cases。</p>
+<h4 id="metrics">Metrics</h4>
+<div class="table-wrap"><table><thead><tr><th>层</th><th>指标</th></tr></thead><tbody><tr><td>Safety</td><td>collision/contact、minimum TTC、lane departure、unsafe swerve、hard-brake rate</td></tr>
+<tr><td>Task</td><td>detect recall/precision、avoidance success、route progress、false intervention</td></tr>
+<tr><td>Comfort</td><td>longitudinal/lateral jerk、peak accel/decel、yaw rate</td></tr>
+<tr><td>Policy</td><td>solid-line/road-boundary violation、priority-rule violation</td></tr>
+<tr><td>System</td><td>perception/planning latency、fallback、compute/memory</td></tr></tbody></table></div>
+<h4 id="experiment">Experiment</h4>
+<p>对同一 initial state、map、traffic actors 和 random seed paired 跑 baseline/candidate，减少环境 variance。Pre-register primary metric、guardrail、slice 与 stopping rule。先 deterministic replay，再 randomized actor perturbation / Monte Carlo，最后 shadow/closed-course/on-road staged rollout。</p>
+<p>统计报告 paired delta、cluster bootstrap by scenario family、confidence interval；critical safety event 同时报 rate upper bound，不能因零 observed event 就宣称风险为零。Synthetic improvement 还要检查 sim-to-real gap 与 scenario realism。</p>
+<h3 id="19-10-给一组-data-怎样证明-new-model-better">19.10 给一组 Data：怎样证明 New Model Better</h3>
+<p>先问 data 是否 paired、unit 是什么、metric 类型、是否重复测量、selection 是否 randomized。标准流程：</p>
+<ol>
+<li>Data quality：missing、duplicate、outlier、label leakage、版本与样本选择。</li>
+<li>EDA：baseline/candidate distribution、per-slice count、paired scatter、tail。</li>
+<li>Primary metric 与 minimum practical effect 预先定义。</li>
+<li>选择 test，并报告 effect size + confidence interval，不只 p-value。</li>
+<li>Multiple slices/hypotheses 做 correction 或明确 exploratory。</li>
+<li>Safety-critical slice 做 regression gate / non-inferiority。</li>
+</ol>
+<div class="table-wrap"><table><thead><tr><th>数据</th><th>常用方法</th></tr></thead><tbody><tr><td>Paired continuous metric</td><td>paired t-test；非正态/重尾可用 bootstrap 或 Wilcoxon</td></tr>
+<tr><td>Binary paired outcome</td><td>McNemar；同时报告 rate difference CI</td></tr>
+<tr><td>Independent proportions</td><td>two-proportion test / Fisher exact</td></tr>
+<tr><td>Ranking / per-query metric</td><td>query-level paired bootstrap / permutation</td></tr>
+<tr><td>Repeated trip/intersection</td><td>cluster bootstrap 或 mixed-effects model</td></tr>
+<tr><td>Rare failure</td><td>exact/Poisson/binomial interval，关注 upper bound</td></tr></tbody></table></div>
+<p>如果数据不是 randomized，不能把 correlation 当 causal improvement。使用 matching/stratification/propensity weighting 控制 observed confounder，并明确 unobserved confounding 仍存在。最终上线仍需 randomized A/B、shadow 或 staged field experiment。</p>
+<h3 id="19-11-ml-design-passenger-到达目的地下车-如何选停车点">19.11 ML Design：Passenger 到达目的地下车，如何选停车点</h3>
+<h4 id="定义问题">定义问题</h4>
+<p>输入：destination、HD map/curb、traffic state、乘客偏好/可达性、车辆状态、法规与实时 blockage。输出不是任意坐标，而是少量 <strong>feasible pull-over candidates</strong> 的排序与 trajectory handoff。</p>
+<pre><code class="language-text">Map / Curb Rules / Real-time Occupancy
+ -&gt; Candidate Generator
+ -&gt; Hard Safety + Legal Filter
+ -&gt; Learned Ranker / Cost Model
+ -&gt; Planning Feasibility Check
+ -&gt; Selected Stop + Explanation / Fallback</code></pre>
+<h4 id="hard-constraints-先于-model-score">Hard constraints 先于 model score</h4>
+<p>不可停区域、消防栓/公交站、intersection clearance、crosswalk、自行车道、道路边界、最小 gap、乘客侧开门风险、车辆可达性必须 rule/constraint enforce。模型不能用高 convenience score 覆盖 illegal/unsafe candidate。</p>
+<h4 id="features-与-objective">Features 与 objective</h4>
+<ul>
+<li>Safety：traffic speed/gap、visibility、door-zone conflict、pedestrian/cyclist、required lane change；</li>
+<li>Legality：curb type、time restriction、temporary closure；</li>
+<li>Reachability：planning path、turn/lane constraints、reroute cost；</li>
+<li>Passenger：walking distance、wheelchair access、lighting、weather、correct side；</li>
+<li>Operations：dwell time、blocking probability、pickup/drop-off congestion。</li>
+</ul>
+<p>Multi-objective 可表示：</p>
+<p>\[ Score(c)=w_1 Safety+w_2 Legality+w_3 Reachability+w_4 Convenience-w_5 Disruption \]</p>
+<p>但 Safety/Legality 先 hard filter；权重只在 feasible set 内排序。</p>
+<h4 id="model-labels-feedback">Model / labels / feedback</h4>
+<p>Baseline 用规则 + learning-to-rank/GBDT；更复杂时用 scene encoder 预测 occupancy/risk，再由 constrained optimizer 选点。Label 来自 successful safe stops、expert review、passenger feedback 与 intervention；logged policy 有 selection bias，需保留 exploration/shadow 或 counterfactual correction。</p>
+<h4 id="evaluation-2">Evaluation</h4>
+<p>Offline：candidate recall、top-k expert preference、constraint violation、calibration。Simulation：door conflict、rear-end risk、traffic disruption、walking distance、comfort。Online staged rollout：override/fallback、complaint/cancel、dwell、near-miss proxy；关键 safety slices 必须独立 gate。</p>
+<h3 id="19-12-aerial-intersection-trajectory-waymo-与其它车辆如何比较">19.12 Aerial Intersection Trajectory：Wxxxx 与其它车辆如何比较</h3>
+<p>不能直接把不同路口的 global <code>(x,y)</code> 混在一起。先把轨迹投影到 lane/Frenet 或 intersection-relative coordinate，按 maneuver（left/right/straight）、entry/exit lane、signal phase、vehicle type、speed/traffic/weather 对齐，并重采样到统一 time/progress grid。</p>
+<h4 id="不要武断假设单一-gaussian">不要武断假设单一 Gaussian</h4>
+<p>Trajectory 是多模态 sequence；不同 maneuver/driver style 常是 mixture。先可视化与检验，再选择：</p>
+<ul>
+<li>functional summary：speed、accel、jerk、curvature、turn radius、lane offset、TTC；</li>
+<li>pointwise/sequence distance：ADE/FDE、Fréchet/DTW；</li>
+<li>distribution distance：energy distance、MMD、Wasserstein；</li>
+<li>conditional model / hierarchical model：控制 traffic 与 intersection effect。</li>
+</ul>
+<p>核心 estimand 可以是：在相同 context 下，Wxxxx trajectory 与 human/reference fleet 的 conditional mean/distribution 是否有差异：</p>
+<p>\[ y_{ij}=\beta_0+\beta_1 I(Wxxxx)+\beta_2 Traffic+\beta_3 Maneuver+u_{intersection}+\epsilon_{ij} \]</p>
+<p><code>u_intersection</code> 是 intersection random effect；同一路口/同一时间窗口的车辆需 cluster-aware uncertainty。</p>
+<h4 id="traffic-volume-不同怎么办">Traffic volume 不同怎么办</h4>
+<ul>
+<li>不比较 raw count，比较 per-vehicle/per-turn rate 或 conditional trajectory metric；</li>
+<li>对共同 covariate support 做 stratification/matching/weighting；</li>
+<li>每个 intersection 先算 effect，再用 hierarchical/meta-analysis 汇总；</li>
+<li>报告 volume-weighted 与 equal-intersection-weight 两套结果，避免大路口完全支配结论；</li>
+<li>Low-volume intersection uncertainty 更大，用 partial pooling，不做过度结论。</li>
+</ul>
+<p>还要明确 drone tracking error、occlusion、ID switch、map alignment 和 Wxxxx vehicle selection bias；先做 track-quality filter 与 sensitivity analysis。</p>
+<h3 id="19-13-design-a-planning-evaluation-system">19.13 Design a Planning Evaluation System</h3>
+<p>这类题不是套通用 URL shortener；面试官在看你能否定义 planning quality 与 release decision。</p>
+<pre><code class="language-text">Scenario Registry / Log Replay / Synthetic Generator
+ -&gt; Versioned Scenario Dataset
+ -&gt; Planner Build + Config Registry
+ -&gt; Deterministic Replay + Closed-loop Simulation
+ -&gt; Metric Engine + Event Detector
+ -&gt; Slice / Regression Analysis
+ -&gt; Triage, Human Review, Release Gate</code></pre>
+<h4 id="evaluation-ladder">Evaluation ladder</h4>
+<ol>
+<li>Unit/constraint tests：collision checker、rule、kinematics。</li>
+<li>Open-loop log replay：快，但会有 logged-policy bias，不能充分评价 interaction。</li>
+<li>Closed-loop simulation：ego action 影响 actor/world；可 Monte Carlo。</li>
+<li>Shadow mode：真实 perception/context，不控制车辆。</li>
+<li>Closed-course / staged on-road：最高成本，严格 safety process。</li>
+</ol>
+<h4 id="metrics-与-scenario-coverage">Metrics 与 scenario coverage</h4>
+<p>Safety（collision/TTC/rule violation）、progress、comfort（jerk）、human-likeness、interaction/courtesy、fallback、latency。平均值不能掩盖 rare severe regression；按 ODD、maneuver、vulnerable road user、weather、map、novelty 和 severity 切片。</p>
+<p>Scenario registry 保存 source、map/version、initial state、actors、seed、expected invariant、tags 和 provenance。Failure mining 进入 candidate pool，但 fixed benchmark、unbiased sample 与 holdout 不能被反复调参污染。</p>
+<h4 id="release-decision">Release decision</h4>
+<p>Candidate vs baseline paired replay；关键 safety event zero-tolerance/upper-bound gate，普通 metric 使用 confidence interval 与 practical margin。Regression 自动生成 replay artifact、trace、video、planner diff 和 owner；允许 rollback 到完整 <code>(planner, model, map, config, scenario)</code> generation。</p>
+<h3 id="19-14-100m-dau-inference-system-back-of-the-envelope-latency-oom">19.14 100M DAU Inference System：Back-of-the-envelope、Latency、OOM</h3>
+<p>先声明假设，不要直接报 QPS。示例：100M DAU，每用户每天 10 sessions、每 session 2 次 inference，peak/average = 10：</p>
+<p>\[ QPS_{avg}=\frac{100M\times 20}{86400}\approx 23K, \qquad QPS_{peak}\approx 230K \]</p>
+<p>如果真实 invocation/user 或 regional peak 不同，数字线性变化。再问 request modality、input/output size、model、SLO、region、cacheability 和 personalization。</p>
+<h4 id="architecture">Architecture</h4>
+<pre><code class="language-text">Global DNS/LB -&gt; Regional Gateway/Auth/Quota
+ -&gt; Request Classifier / Model Router
+ -&gt; CPU Preprocess Pool -&gt; GPU Inference Pool
+ -&gt; Postprocess / Safety -&gt; Cache / Response
+Registry + rollout + telemetry + capacity controller</code></pre>
+<p>Cell architecture 限制 blast radius；按 model/version/hardware/request shape 分 pool。Interactive 与 batch/long-context 分 queue，避免 head-of-line blocking。</p>
+<h4 id="memory-estimate">Memory estimate</h4>
+<p>\[ GPU\ Memory \approx Weights+KV/State+Activations+Workspace+Allocator\ Fragmentation+Headroom \]</p>
+<p>例如 7B 参数模型仅 weights：FP16 约 14GB，INT8 约 7GB，INT4 约 3.5GB；实际还要 KV cache、activation、CUDA graph/workspace 和 10–20% operational headroom。Vision/video 模型按 input resolution/frame count 形成不同 memory bucket。</p>
+<h4 id="bandwidth-capacity">Bandwidth / capacity</h4>
+<p>单副本 throughput 必须来自代表性 batch/shape benchmark：</p>
+<p>\[ Replicas \ge \frac{PeakQPS\times ServiceTime}{TargetConcurrency\times UtilizationTarget} \]</p>
+<p>再乘 failure/zone headroom。网络还要算 input/output bytes × peak QPS；不要忽略 image/video upload 与 cross-zone feature fetch。</p>
+<h4 id="latency-optimization">Latency optimization</h4>
+<ul>
+<li>分解 queue、preprocess、H2D、kernel、collective、postprocess；</li>
+<li>dynamic batching + bounded max wait；shape bucketing；</li>
+<li>warm replicas、local model weights、zero-copy/pinned memory；</li>
+<li>quantization/distillation、cache、early exit；</li>
+<li>route heavy request 到适合 GPU，small request 可共享/MIG；</li>
+<li>autoscale 看 queue age、batch fullness、p95、reject/OOM，不只 GPU utilization。</li>
+</ul>
+<h4 id="oom-防护">OOM 防护</h4>
+<ul>
+<li>Admission control 用 estimated memory cost，不让任意 shape 进入同一 batch；</li>
+<li>per-request max tokens/frames/resolution；</li>
+<li>KV/state paging/eviction，bounded cache；</li>
+<li>OOM 后缩小具体 bucket batch 或降级 model，不无限 retry；</li>
+<li>记录 model/version、shape、batch、free/reserved/allocated、fragmentation 和 worker generation；</li>
+<li>canary 新 model/preprocess，保留旧 pool rollback。</li>
+</ul>
+<h3 id="19-15-qat-distillation-eval-contrastive-learning">19.15 QAT、Distillation、<code>eval()</code>、Contrastive Learning</h3>
+<h4 id="qat">QAT</h4>
+<p>Quantization-Aware Training 在训练 forward 中模拟 quantize/dequantize 与 scale/zero-point，让模型适应 rounding/clipping error。适合 PTQ quality 不够时；仍需用目标硬件 kernel 验证 latency、memory、accuracy，因为 fake quant improvement 不保证实际 backend 加速。</p>
+<h4 id="distillation">Distillation</h4>
+<p>Student 学 teacher 的 soft logits、representation 或 task output。Temperature-softened distribution提供 class similarity；loss 常组合 hard label 与 distillation loss。评估必须同时看质量、tail slice、calibration、latency、memory 和 cost，防止小模型只保留平均能力。</p>
+<h4 id="model-eval"><code>model.eval()</code></h4>
+<p>PyTorch <code>eval()</code> 切换 module behavior：Dropout disabled，BatchNorm 使用 running statistics；它不等于关闭 gradient。Inference 通常同时使用 <code>torch.inference_mode()</code> / <code>no_grad()</code>。忘记 eval 会造成 nondeterministic output 或 batch-dependent BN behavior。</p>
+<h4 id="contrastive-learning">Contrastive learning</h4>
+<p>正样本对靠近、负样本分开；常用 normalized embedding 与 temperature-scaled similarity。关键生产问题是 positive definition、false negatives、hard-negative mining、batch/global-negative size、modality imbalance、embedding version 和 ANN evaluation。不能只报 training loss，要看 Recall@K、retrieval slices、hubness 与 downstream utility。</p>
+<h3 id="19-16-kernel-optimization-memory-layout-fusion-roofline">19.16 Kernel Optimization：Memory Layout、Fusion、Roofline</h3>
+<p>回答顺序：先 profile，再判断 memory-bound 还是 compute-bound，不要一上来手写 CUDA。</p>
+<ul>
+<li>Roofline：算 arithmetic intensity = FLOPs / bytes；低 intensity 优先减少 memory traffic，高 intensity 才看 tensor-core utilization。</li>
+<li>Layout：连续/coalesced access、正确 stride、减少 transpose；根据 operator chain 选 NHWC/NCHW 或 packed layout。</li>
+<li>Fusion：把 elementwise、bias、activation、normalization 等合并，减少 launch 和 global-memory round trip；但过度 fusion 会增加 register pressure、降低 occupancy、难以复用。</li>
+<li>Tiling/shared memory：提高 reuse，同时检查 bank conflict、register spill、occupancy。</li>
+<li>Vectorized load、aligned memory、pinned H2D、async copy/overlap。</li>
+<li>Mixed precision / tensor cores 需要 shape/alignment 与数值稳定；保留 accumulation precision 和 tolerance test。</li>
+<li>验证用 representative shapes、warmup、p50/p95、end-to-end latency；microbenchmark 快不代表 pipeline 快。</li>
+</ul>
+<h3 id="19-17-model-monitoring-data-quality-drift-alert-time-series-backend">19.17 Model Monitoring：Data Quality、Drift、Alert、Time-series Backend</h3>
+<p>监控分四层：</p>
+<div class="table-wrap"><table><thead><tr><th>层</th><th>指标</th></tr></thead><tbody><tr><td>Data quality</td><td>schema、missing/empty、range、duplicate、freshness、join coverage、label delay</td></tr>
+<tr><td>Drift</td><td>PSI、KS/JS、embedding centroid/MMD、category distribution、slice volume</td></tr>
+<tr><td>Model</td><td>score/confidence、calibration、abstention、quality proxy、delayed ground truth</td></tr>
+<tr><td>System/business</td><td>QPS、p95/p99、error/OOM、queue age、GPU、cost、intervention/complaint</td></tr></tbody></table></div>
+<p>PSI 示例：</p>
+<p>\[ PSI=\sum_i (p_i-q_i)\ln\frac{p_i}{q_i} \]</p>
+<p>PSI 依赖 binning 和样本量，不能把固定阈值当普适真理。Drift 不等于 performance degradation；还要与 label/outcome、slice 和 upstream change correlation。</p>
+<h4 id="backend">Backend</h4>
+<ul>
+<li>Prometheus-compatible TSDB：operational metrics、低延迟 alert；</li>
+<li>Long-term metrics store / warehouse：高 cardinality、历史分析；</li>
+<li>Object/lake：raw sampled distributions、embedding sketch、replay artifact；</li>
+<li>Trace/log：request/model/data generation 与 reason code。</li>
+</ul>
+<p>禁止把 user ID、raw prompt、raw frame 当 metric label，避免 PII 与 cardinality explosion。使用 bounded dimensions：model/version/region/slice/error code。</p>
+<h4 id="alert-design">Alert design</h4>
+<p>Alert 基于 SLO burn rate、sustained window 和 minimum traffic，结合 absolute + relative change；critical safety/data loss fast alert，slow drift走 investigation。每个 alert 必须有 owner、runbook、dashboard、recent deployment/data-version link、silence/expiry。监控 alert precision/recall，避免长期噪声被忽略。</p>
+<h3 id="19-18-behavioral-policy-vs-efficiency-forest-and-trees">19.18 Behavioral：Policy vs Efficiency / Forest and Trees</h3>
+<p>面试官在看你能否同时守住原则和交付，不是让你回答电车难题的唯一正确答案。</p>
+<p>回答框架：</p>
+<ol>
+<li>明确不可妥协 boundary：safety、privacy、legal、data integrity。</li>
+<li>说明 policy 的原始风险，不把流程当目的。</li>
+<li>用 risk tier 区分高风险严格 gate 与低风险 fast path。</li>
+<li>提出可测量的替代：automation、pre-approved template、shadow、canary、time-bounded exception。</li>
+<li>Exception 有 owner、expiry、audit、rollback；不能口头永久绕过。</li>
+<li>用 incident/latency/quality/cost 指标复盘，必要时推动 policy 本身升级。</li>
+</ol>
+<p>可直接说：</p>
+<blockquote>“我不会为了速度绕过 safety boundary，也不会把所有 workload 都放进最重流程。我先解释 policy 防的具体 failure，然后按 blast radius 分级：高风险 model/data change保留 independent review 与 staged rollout；低风险配置通过 schema validation、automated test 和 pre-approved guardrail self-service。若业务必须临时例外，必须有 owner、expiry、monitoring 和 rollback。这样 policy 保护的是 invariant，而不是制造无差别 friction。”</blockquote>
+<p><code>Forest</code> 是业务结果、风险、组织接口和长期平台方向；<code>trees</code> 是你亲自解决的 bug、contract、metric 和 rollout。Senior Staff 回答必须在两层之间来回：先给 decision，再用一个 implementation/failure example 证明不是空话。</p>
+<h3 id="19-19-怎样把你的背景对齐-simulation-evaluation-metrics-data-infra">19.19 怎样把你的背景对齐 Simulation / Evaluation / Metrics / Data Infra</h3>
+<p>如果被问 “为什么你适合 Wxxxx/Xpxxx-like team”，不要声称做过未做过的 planning algorithm。用可迁移 evidence：</p>
+<blockquote>“我的直接优势是 large-scale data + evaluation infrastructure，而不是假装自己已经是 planning researcher。我做过 50B+ multimodal data/retrieval、100B+/day real-time production system、batch + streaming pipeline、anomaly/metrics、shared CPU/GPU execution 和 versioned rollout。这些经验可以直接迁移到 scenario registry、simulation replay、evaluation slices、model comparison、failure mining 和 data flywheel。Domain-specific planning metric 我会与 domain expert共同定义，但 dataset/version/lineage、paired experiment、failure recovery、capacity 和 release gate 是我能立即负责的部分。”</blockquote>
+<p>团队优先级可以明确表达：Simulation / Evaluation / Metrics / Data Infra 最匹配；In-vehicle experience / trip platform 也可从 low-latency inference、event platform、monitoring、privacy 和 rollout 切入。</p>
+<h3 id="19-20-面试前-3-分钟-这些句子必须能直接说">19.20 面试前 3 分钟：这些句子必须能直接说</h3>
+<p><strong>Backup：</strong> “Manifest 是 source of truth；relative path 保结构；chunk checksum + idempotent task；commit generation 后才可 restore；worker crash靠 lease/fencing/reconcile。”</p>
+<p><strong>Security plugin：</strong> “客户配置 declarative pipeline，不直接改 platform code；plugin 有 typed contract、sandbox、resource/secret/network policy、version/canary；suppression保留原 finding 与审计。”</p>
+<p><strong>Evaluation：</strong> “同一 example paired；human blinded + agreement/adjudication；LLM judge 与 expert gold校准；slice CI + safety gate；judge version也是 release dependency。”</p>
+<p><strong>Statistics：</strong> “先定 unit/estimand；相邻 frame 不独立；effect size + confidence interval；paired/cluster-aware test；不同路口用 normalization、matching 和 hierarchical effect。”</p>
+<p><strong>Drop-off：</strong> “Candidate generation -&gt; hard legal/safety filter -&gt; learned rank -&gt; planning feasibility；不能让 convenience score 覆盖非法停车。”</p>
+<p><strong>Planning eval：</strong> “Open-loop快但有 logged-policy bias；closed-loop simulation看 interaction；scenario version + paired replay + rare safety slice + staged release。”</p>
+<p><strong>100M inference：</strong> “先从 DAU推 invocation/peak QPS；memory拆 weights/KV/activation/workspace/headroom；按 shape bucket admission；autoscale看 queue/p95/OOM，不只 GPU util。”</p>
+<p><strong>Monitoring：</strong> “Data quality、drift、model、system/business四层；drift不是performance；metric label不放 user ID/raw prompt；alert要有 SLO、owner、runbook 和 version link。”</p>
+        <nav class="pager" aria-label="Module navigation">
+    <a href="module-18-技术事实核对来源-面试时不需要背链接.html">← 18. 技术事实核对来源（面试时不需要背链接）</a>
+    <a class="next" href="../xp_panel.html">Back to reader →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

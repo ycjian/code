@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Foundations - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="0-面试沟通原则">0. 面试沟通原则</h2>
+<p>优秀的系统设计候选人不只是知道很多概念，而是能快速抓住问题核心，用简洁语言说明取舍。</p>
+<h3 id="不要过度解释">不要过度解释</h3>
+<p>如果是入门级概念，除非面试官主动问，否则不要花太多时间展开。例如负载均衡器是什么、HTTP 是什么、Redis 是什么，这些可以点到为止。</p>
+<h3 id="要做决定-不要只列选项">要做决定，不要只列选项</h3>
+<p>面试官想看到你如何做 trade-off，而不是只听你列出 3 个方案。</p>
+<p>好的表达：</p>
+<blockquote>我这里选择 Postgres，因为需要 transaction、durability 和跨表一致性。当前规模下它不会成为瓶颈；如果写入规模继续增长，可以再讨论 sharding 或 async pipeline。</blockquote>
+<p>坏的表达：</p>
+<blockquote>可以用 Postgres，也可以用 DynamoDB，也可以用 Cassandra，也可以用 Kafka。</blockquote>
+<h3 id="推荐回答结构">推荐回答结构</h3>
+<ol>
+<li>先明确 core requirement。</li>
+<li>给出一个默认方案。</li>
+<li>说明为什么选它。</li>
+<li>主动标记 trade-off。</li>
+<li>如果有风险，再说后续如何扩展。</li>
+</ol>
+<hr/>
+<h2 id="1-全球聊天系统-类似-whatsapp">1. 全球聊天系统：类似 WhatsApp</h2>
+<h3 id="核心问题">核心问题</h3>
+<p>全球用户分布在多个 data centers。系统既要低延迟投递消息，又要保证同一个 chat 内的 message ordering。</p>
+<h3 id="高层架构">高层架构</h3>
+<pre><code class="language-">Client
+  -&gt; Global Load Balancer
+  -&gt; nearest Data Center
+  -&gt; Message Server
+  -&gt; Message DB / Chat Primary Shard
+  -&gt; Cross-DC Forwarding / Pub-Sub
+  -&gt; recipient Message Server</code></pre>
+<h3 id="关键设计">关键设计</h3>
+<ul>
+<li>Global Load Balancer 把用户路由到最近的 DC。</li>
+<li>每个 DC 内有多个 Message Server。</li>
+<li>用 <code>user_id -&gt; message_server</code> registry 或 consistent hashing，把用户连接固定到某个 server。</li>
+<li>Message Server 维护该 user/device 的 WebSocket connection。</li>
+<li>每个 chat 按 <code>chat_id</code> sharding，落到某个 primary shard。</li>
+<li>新消息先写入 chat 的 primary shard，再推送给其他 participant 所在的 Message Server。</li>
+</ul>
+<h3 id="两条-flow-要分清楚">两条 flow 要分清楚</h3>
+<ol>
+<li>DB replication flow：message 从 primary DB 同步到 replica。</li>
+<li>Delivery flow：message 直接 forward 到 recipient 所在的 Message Server。</li>
+</ol>
+<p>这两条 flow 是独立的。为了低延迟，不能等 DB 跨 DC replication 完成后才投递。</p>
+<h3 id="为什么需要-single-writer-primary-shard">为什么需要 single writer / primary shard</h3>
+<p>如果同一个 chat 可以在多个 DC 同时写，很难保证 message ordering。更稳妥的设计是让每个 chat 有一个 primary shard，所有写入都经过它。</p>
+<h3 id="面试回答模板">面试回答模板</h3>
+<blockquote>For global chat, I would separate persistence from delivery. Each chat has a primary shard to preserve ordering. The sender's Message Server writes the message to the primary shard, then forwards it to recipients' Message Servers through a global user-location registry. DB replication is for durability and recovery, while cross-DC forwarding is for low-latency delivery.</blockquote>
+<hr/>
+<h2 id="2-job-scheduler-delayed-job">2. Job Scheduler / Delayed Job</h2>
+<h3 id="标准方案">标准方案</h3>
+<p>使用 <code>DynamoDB + SQS Delay Queue</code> 的 two-phase architecture。</p>
+<h3 id="数据模型">数据模型</h3>
+<pre><code class="language-">task_id
+execute_at
+status: PENDING / RUNNING / DONE / FAILED
+retry_count
+next_execute_at
+payload
+lease_until</code></pre>
+<h3 id="两阶段执行">两阶段执行</h3>
+<ol>
+<li>Persistent storage</li>
+</ol>
+<ul>
+<li>所有 task 先写入 DynamoDB。</li>
+<li>远期任务只存在 DynamoDB，不直接进入队列。</li>
+</ul>
+<ol>
+<li>Scheduler / Watcher</li>
+</ol>
+<ul>
+<li>Scheduler 每隔一小段时间扫描下一时间窗口，例如未来 2 分钟内到期的任务。</li>
+<li>把即将到期的任务投递到 SQS，并设置 Delivery Delay。</li>
+</ul>
+<ol>
+<li>Near-term direct enqueue</li>
+</ol>
+<ul>
+<li>如果任务本来就在未来 2 分钟内执行，可以写 DynamoDB 的同时直接放入 SQS。</li>
+</ul>
+<h3 id="为什么不用-kafka-做精确定时">为什么不用 Kafka 做精确定时</h3>
+<p>Kafka 是 append-only log，只能追加在 tail，不能高效“插队”。如果 task creation time 和 schedule time 不一致，Kafka 不适合直接按任意 execute_at 做精确定时。</p>
+<h3 id="sqs-的价值">SQS 的价值</h3>
+<ul>
+<li>SQS Delay Queue 可以让消息在指定 delay 后才可见。</li>
+<li>SQS visibility timeout 可以防止多个 worker 同时处理同一条消息。</li>
+<li>如果 worker crash，没有 delete message，visibility timeout 后消息会重新可见。</li>
+<li>SQS 通常是 at-least-once，所以 worker 必须幂等。</li>
+</ul>
+<h3 id="worker-flow">Worker flow</h3>
+<pre><code class="language-">Worker receives message
+SQS hides message for visibility timeout
+Worker processes task
+If success: DeleteMessage
+If crash: message becomes visible again
+Another worker retries</code></pre>
+<h3 id="dynamodb-conditional-write-抢任务">DynamoDB conditional write 抢任务</h3>
+<p>多个 worker 抢同一个 task 时，不需要显式 distributed lock，可以用 conditional write：</p>
+<pre><code class="language-sql">UPDATE task
+SET status = 'RUNNING', lease_until = now + 30s
+WHERE task_id = ?
+  AND status = 'PENDING'</code></pre>
+<p>只有一个 worker 能成功把 <code>PENDING -&gt; RUNNING</code>。如果 worker 超时没完成，其他 worker 可以在 <code>lease_until &lt; now</code> 后重新抢。</p>
+<h3 id="面试回答模板-2">面试回答模板</h3>
+<blockquote>I would store every scheduled job durably in DynamoDB, then use a watcher to enqueue near-term jobs into SQS Delay Queue. Workers process SQS messages with visibility timeout. To avoid duplicate execution, workers claim jobs using DynamoDB conditional writes, moving status from PENDING to RUNNING with a lease. Since SQS is at-least-once, job execution must be idempotent.</blockquote>
+<hr/>
+<h2 id="3-dynamodb-适合什么场景">3. DynamoDB 适合什么场景</h2>
+<h3 id="一句话判断">一句话判断</h3>
+<p>如果 access pattern 固定、主要按 key 查询或更新、QPS 高、不需要复杂 join，DynamoDB 是自然选择。</p>
+<h3 id="适合的场景">适合的场景</h3>
+<ul>
+<li>Scheduler / Delayed Job</li>
+<li>Notification Job Table</li>
+<li>Retry Task Table</li>
+<li>Idempotency Key Store</li>
+<li>Rate Limiter Counter</li>
+<li>Short URL Metadata</li>
+<li>User Session Store</li>
+<li>Shopping Cart</li>
+<li>Order / Payment 状态表</li>
+<li>Workflow State Table</li>
+<li>Feature Flag / Config Store</li>
+<li>IoT Device Latest State</li>
+</ul>
+<h3 id="为什么适合-scheduler">为什么适合 Scheduler</h3>
+<ul>
+<li>数据是大量小记录。</li>
+<li>查询模式固定：找出 <code>execute_at &lt;= now</code> 的任务。</li>
+<li>支持 conditional write，适合 worker 抢任务。</li>
+<li>Managed service，高可用、自动扩容，不容易打爆主业务 DB。</li>
+</ul>
+<h3 id="避免全表扫描">避免全表扫描</h3>
+<p>不要让 worker 扫全表。常见设计：</p>
+<pre><code class="language-">partition_key = shard_id or time_bucket
+sort_key = execute_at</code></pre>
+<p>worker 只扫描自己负责 shard / time bucket 中已经到期的任务。</p>
+<hr/>
+<h2 id="4-lock-mutex-conditional-write">4. Lock / Mutex / Conditional Write</h2>
+<h3 id="区别">区别</h3>
+<div class="table-wrap"><table><thead><tr><th>类型</th><th>控制范围</th><th>保护什么</th></tr></thead><tbody><tr><td>Mutex</td><td>单进程 / 单机器</td><td>内存变量</td></tr>
+<tr><td>DB Lock</td><td>多 server 共享</td><td>数据库记录</td></tr>
+<tr><td>Redis / ZooKeeper Distributed Lock</td><td>多 server 共享</td><td>跨机器资源</td></tr>
+<tr><td>Conditional Write</td><td>多 server 共享</td><td>状态转换</td></tr></tbody></table></div>
+<h3 id="mutex">Mutex</h3>
+<p>Mutex is an in-process lock. It protects shared memory within one process. 多台 server 不共享同一个 mutex，所以分布式系统里通常需要 DB lock、conditional write 或 distributed lock。</p>
+<h3 id="conditional-write-更适合任务抢占">Conditional write 更适合任务抢占</h3>
+<p>在 Scheduler 里，任务本身就有状态机：</p>
+<pre><code class="language-">PENDING -&gt; RUNNING -&gt; DONE
+PENDING -&gt; RUNNING -&gt; FAILED -&gt; PENDING</code></pre>
+<p>用 conditional update 抢任务通常比显式 distributed lock 更简单。</p>
+<h3 id="distributed-lock-的使用场景">Distributed Lock 的使用场景</h3>
+<p>适合多个服务短时间独占同一个稀缺资源：</p>
+<ul>
+<li>抢票 seat hold</li>
+<li>库存 reservation</li>
+<li>ride-sharing driver matching</li>
+<li>distributed cron</li>
+<li>auction bid</li>
+</ul>
+<h3 id="distributed-lock-注意点">Distributed Lock 注意点</h3>
+<ul>
+<li>必须有 TTL，防止 holder crash 后锁永远不释放。</li>
+<li>lock granularity 要小，能锁一张票就不要锁整个 event。</li>
+<li>要处理 retry、deadlock、lock expiry。</li>
+<li>Redis Redlock 可以提，但不要说它绝对安全。</li>
+</ul>
+<hr/>
+<h2 id="5-replica-lag-replication">5. Replica Lag / Replication</h2>
+<p>如果 replica lag 太大，副本恢复后不能立刻接读流量，也不能立刻 promoted to primary。它必须先 catch up。</p>
+<h3 id="常见做法">常见做法</h3>
+<ul>
+<li>Primary 给每次写入一个递增的 log offset 或 sequence number。</li>
+<li>Replica 记录自己同步到哪里。</li>
+<li>Replica 恢复后从 primary 或 durable replication log 拉取 missed writes。</li>
+<li>追平后才能重新加入 read traffic 或被提升为 primary。</li>
+<li>如果落后太多，replication log 已经过期，就先做 snapshot restore，再继续增量追平。</li>
+</ul>
+<h3 id="面试回答模板-3">面试回答模板</h3>
+<blockquote>We use async replication for low write latency, but replicas must track log offsets. After recovery, a replica first replays missed writes from the replication log. Only after it catches up should it serve reads or be promoted. If the lag is beyond log retention, we restore from snapshot and then apply incremental logs.</blockquote>
+<hr/>
+<h2 id="6-index-search-range-query">6. Index / Search / Range Query</h2>
+<h3 id="index-是什么">Index 是什么</h3>
+<p>Index 是存储系统里的目录。它把某个字段或 key 映射到数据位置，让查询不用 full table scan。</p>
+<h3 id="常见索引">常见索引</h3>
+<ul>
+<li>Postgres / MySQL: B+Tree index</li>
+<li>DynamoDB: primary key / GSI</li>
+<li>Elasticsearch: inverted index</li>
+<li>RocksDB / LevelDB: sparse index, Bloom filter</li>
+<li>PostGIS: geospatial index</li>
+</ul>
+<h3 id="trade-off">Trade-off</h3>
+<ul>
+<li>读更快。</li>
+<li>写更慢。</li>
+<li>占更多空间。</li>
+<li>维护更复杂。</li>
+</ul>
+<p>一句话：index 是用空间和写入成本换查询速度。</p>
+<h3 id="sql-range-query">SQL range query</h3>
+<p>例如查询 200 到 500 美元的票、某城市的演唱会、某日期范围内的酒店。Postgres 是 source of truth，可以通过 B+Tree / composite index 支持常见 range query：</p>
+<pre><code class="language-sql">CREATE INDEX idx_event_city_date_price
+ON events(city, event_date, price);</code></pre>
+<h3 id="elasticsearch-什么时候用">Elasticsearch 什么时候用</h3>
+<p>如果需要全文搜索、多字段搜索、复杂过滤、相关性排序，可以把 Postgres 的变更同步到 Elasticsearch。</p>
+<p>推荐同步方式：</p>
+<pre><code class="language-">Postgres WAL / binlog
+  -&gt; Debezium / Canal
+  -&gt; Kafka
+  -&gt; Elasticsearch</code></pre>
+<p>注意：Elasticsearch 是 derived index，允许 eventual consistency。Postgres 仍然是 source of truth。</p>
+<hr/>
+<h2 id="7-sharding-consistent-hashing">7. Sharding / Consistent Hashing</h2>
+<h3 id="sharding-key-怎么选">Sharding key 怎么选</h3>
+<p>好的 shard key 应该：</p>
+<ul>
+<li>高基数 high cardinality。</li>
+<li>分布均匀，避免 hot shard。</li>
+<li>符合主要查询路径。</li>
+<li>方便未来扩容。</li>
+</ul>
+<p>常见选择：<code>user_id</code>、<code>tenant_id</code>、<code>chat_id</code>、<code>order_id</code>。</p>
+<h3 id="hash-based-sharding">Hash-based sharding</h3>
+<pre><code class="language-">shard = hash(key) % N</code></pre>
+<p>优点是分布均匀。缺点是节点数 N 变化时，大量 key 需要重新映射。</p>
+<h3 id="range-based-sharding">Range-based sharding</h3>
+<p>适合自然按范围查询的场景，例如时间范围、tenant range。风险是热点明显，比如最新时间段可能写入特别多。</p>
+<h3 id="consistent-hashing">Consistent Hashing</h3>
+<p>Consistent Hashing 用 hash ring 把 key 分配到节点。节点增删时，只需要迁移一部分 key。</p>
+<p>关键点：</p>
+<ul>
+<li>key 和 server 都 hash 到同一个环上。</li>
+<li>key 顺时针找到第一个 server。</li>
+<li>新增节点只接管部分 key。</li>
+<li>删除节点时，它负责的 key 迁移到下一个节点。</li>
+<li>使用 virtual nodes 让分布更均匀。</li>
+</ul>
+<h3 id="面试提醒">面试提醒</h3>
+<p>不要过早 sharding。先估算容量。一个调优好的单库加 read replicas 能撑过很多场景。只有数据量或写入量证明需要分片时再引入。</p>
+<hr/>
+<h2 id="8-high-availability-scaling">8. High Availability / Scaling</h2>
+<h3 id="high-availability-的核心">High Availability 的核心</h3>
+<p>不要让 single point of failure 打挂整个系统。</p>
+<p>常见手段：</p>
+<ol>
+<li>Service / DB / cache 多副本。</li>
+<li>Multi-AZ / multi-region deployment。</li>
+<li>Load balancer + health check。</li>
+<li>Primary-replica failover。</li>
+<li>Timeout / retry with exponential backoff / circuit breaker。</li>
+<li>Queue / Kafka 做缓冲。</li>
+<li>Graceful degradation，让非核心功能失败时核心功能还能用。</li>
+</ol>
+<h3 id="read-heavy-系统怎么优化">Read-heavy 系统怎么优化</h3>
+<ol>
+<li>Cache：Redis / Memcached 缓存热点数据。</li>
+<li>Read replica：读走 replica，写走 primary。</li>
+<li>CDN：静态资源、图片、视频、公开内容走边缘节点。</li>
+<li>Index：避免 full table scan。</li>
+<li>Pre-computation：提前计算排行榜、推荐、聚合结果。</li>
+<li>Sharding：数据量太大时分散到多个节点。</li>
+<li>Pagination / cursor / throttling：避免一次读取过多数据。</li>
+<li>Batch read：业务允许时减少 I/O round trips。</li>
+</ol>
+<h3 id="write-heavy-系统怎么优化">Write-heavy 系统怎么优化</h3>
+<ol>
+<li>减少同步索引，index 太多会拖慢写入。</li>
+<li>用 Kafka / Pulsar / queue 先接住写流量。</li>
+<li>Batch insert，减少 round trip 和 I/O。</li>
+<li>顺序写 / append-only log。</li>
+<li>按 <code>user_id</code> / <code>tenant_id</code> / <code>entity_id</code> sharding。</li>
+<li>Search index、analytics、notification 异步处理。</li>
+<li>能接受 eventual consistency 的路径不要强同步。</li>
+</ol>
+<p>一句话：</p>
+<blockquote>Write-heavy 优化就是缩短 synchronous write path，把非核心工作异步化，用 log / queue / batch / sharding 分散和缓冲写压力。</blockquote>
+<h3 id="high-connection-怎么优化">High connection 怎么优化</h3>
+<p>使用 connection proxy / connection pool，把大量 client connection 聚合成较少的 DB connection。</p>
+<p>例子：</p>
+<ul>
+<li>Client 连接 proxy。</li>
+<li>Proxy 维护少量到 DB 的 connection。</li>
+<li>Non-blocking Redis commands 可以共享 connection。</li>
+<li>Blocking commands 如 <code>BLPOP</code> 单独使用 connection。</li>
+</ul>
+<h3 id="capacity-estimation-怎么做">Capacity Estimation 怎么做</h3>
+<p>系统设计面试里不要一上来画组件。先用粗略数字判断瓶颈在哪里。</p>
+<p>常见估算顺序：</p>
+<ol>
+<li>DAU / MAU。</li>
+<li>QPS：平均 QPS 和 peak QPS。</li>
+<li>Read/write ratio。</li>
+<li>Payload size。</li>
+<li>Storage growth per day。</li>
+<li>Bandwidth。</li>
+<li>Hot key / hot partition 风险。</li>
+<li>Latency SLA。</li>
+</ol>
+<p>示例：</p>
+<pre><code class="language-">10M DAU
+每人每天 20 requests
+daily requests = 200M
+avg QPS = 200M / 86400 ~= 2300 QPS
+peak QPS ~= avg * 5 to 10 = 12k ~ 23k QPS</code></pre>
+<p>面试里你不需要算得特别精确，重点是通过估算指导设计：</p>
+<ul>
+<li>如果 peak QPS 只有几千，先别急着 sharding。</li>
+<li>如果 payload 很大，bandwidth / object storage / CDN 可能更关键。</li>
+<li>如果 write QPS 很高，queue、batch、partition key 更关键。</li>
+<li>如果 read QPS 很高，cache、CDN、read replica 更关键。</li>
+</ul>
+<h3 id="api-gateway-rate-limiter">API Gateway / Rate Limiter</h3>
+<p>API Gateway 常见职责：</p>
+<ul>
+<li>Authentication / authorization。</li>
+<li>Rate limiting。</li>
+<li>Request validation。</li>
+<li>Routing。</li>
+<li>TLS termination。</li>
+<li>Logging / tracing。</li>
+<li>Canary / version routing。</li>
+</ul>
+<p>Rate limiter 常见算法：</p>
+<div class="table-wrap"><table><thead><tr><th>算法</th><th>思路</th><th>适合</th></tr></thead><tbody><tr><td>Fixed window</td><td>每个时间窗口计数</td><td>简单，但边界会突刺</td></tr>
+<tr><td>Sliding window log</td><td>记录每次请求时间</td><td>精准，但存储成本高</td></tr>
+<tr><td>Sliding window counter</td><td>当前窗口 + 上一窗口加权</td><td>准确度和成本折中</td></tr>
+<tr><td>Token bucket</td><td>按速率补 token，允许短突发</td><td>API 限流最常见</td></tr>
+<tr><td>Leaky bucket</td><td>固定速率流出</td><td>平滑流量</td></tr></tbody></table></div>
+<p>Token bucket 解释：</p>
+<pre><code class="language-">bucket capacity = burst size
+refill rate = allowed requests per second
+each request consumes 1 token
+if no token -&gt; reject or queue</code></pre>
+<p>分布式 rate limiter：</p>
+<ul>
+<li>单机 limiter 只能保护单台 server。</li>
+<li>多 API server 需要共享计数，常用 Redis。</li>
+<li>Redis key 可以是 <code>rate:{user_id}:{window}</code>。</li>
+<li>高 QPS 下可以做 local pre-limit + global Redis limit，减少 Redis 压力。</li>
+</ul>
+<p>面试回答模板：</p>
+<blockquote>I would use token bucket because it supports both steady-state rate control and limited burst. For distributed API servers, I would store counters in Redis with TTL. For very high QPS, I would add a local limiter first and use Redis only for global enforcement.</blockquote>
+<h3 id="load-shedding-backpressure">Load Shedding / Backpressure</h3>
+<p>高并发系统不能让所有请求都进入核心链路。系统快崩时，必须主动拒绝或降级。</p>
+<p>常见信号：</p>
+<ul>
+<li>Queue length 持续增长。</li>
+<li>P99 latency 超 SLA。</li>
+<li>CPU / memory / connection pool 接近上限。</li>
+<li>DB connection exhausted。</li>
+<li>Kafka consumer lag 增长。</li>
+<li>GPU KV cache / memory pool 接近上限。</li>
+</ul>
+<p>常见动作：</p>
+<ul>
+<li>Reject low-priority requests。</li>
+<li>Return <code>429 Too Many Requests</code> 或 <code>503 Retry-After</code>。</li>
+<li>限制 expensive query。</li>
+<li>降级非核心功能。</li>
+<li>暂停 batch / offline traffic。</li>
+<li>缩短 timeout，避免线程被慢依赖占满。</li>
+</ul>
+<p>面试回答模板：</p>
+<blockquote>I would rather shed load than let the whole system collapse. When queue length, latency, or resource utilization crosses thresholds, I would reject or degrade low-priority traffic and return retry-after. This protects core traffic and prevents cascading failure.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>29. Cross-Case Review - System Design 28</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Case 30 / 31 · Route 9 / 9</p>
+          <h1 class="route-title">29. Cross-Case Review</h1>
+          <p class="route-subtitle">把 28 个系统压缩成可迁移模式，并用 Senior+ checklist 完成面试收尾。</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#29-1-先按-workload-分类-不要按公司名字背题">29.1 先按 workload 分类，不要按公司名字背题</a><a href="#29-2-source-of-truth-与-derived-state-对照">29.2 Source of truth 与 derived state 对照</a><a href="#29-3-fan-out-三种模式与切换条件">29.3 Fan-out：三种模式与切换条件</a><a href="#29-4-长流程的可靠模板-local-transaction-outbox-saga">29.4 长流程的可靠模板：Local transaction + Outbox + Saga</a><a href="#29-5-大对象-large-blob-的统一做法">29.5 大对象（large blob）的统一做法</a><a href="#29-6-realtime-不是一个协议词-而是四个不同问题">29.6 Realtime 不是一个协议词，而是四个不同问题</a><a href="#29-7-consistency-选择矩阵">29.7 Consistency 选择矩阵</a><a href="#29-8-multi-region-先写清-ownership-再谈-active-active">29.8 Multi-region：先写清 ownership，再谈 active-active</a><a href="#29-9-通用-mle-架构-从产品目标到安全降级">29.9 通用 MLE 架构：从产品目标到安全降级</a><a href="#29-10-overload-control-容量不足时按价值降级">29.10 Overload control：容量不足时按价值降级</a><a href="#29-11-观测体系-从用户旅程而不是机器指标出发">29.11 观测体系：从用户旅程而不是机器指标出发</a><a href="#29-12-常见方案选择-一句话不够-要给-decision-boundary">29.12 常见方案选择：一句话不够，要给 decision boundary</a><a href="#29-13-二十八题最终迁移口诀">29.13 二十八题最终迁移口诀</a></nav>
+        </header>
+        <h2 id="29-跨题复盘-把二十八个系统压缩成可迁移的设计模式">29. 跨题复盘：把二十八个系统压缩成可迁移的设计模式</h2>
+<h3 id="29-1-先按-workload-分类-不要按公司名字背题">29.1 先按 workload 分类，不要按公司名字背题</h3>
+<div class="table-wrap"><table><thead><tr><th>Workload axis</th><th>代表案例</th><th>最关键的设计判断</th></tr></thead><tbody><tr><td>Durable realtime event delivery</td><td>WhatsApp、Zoom chat</td><td>per-stream ordering、connection ownership、offline catch-up、ack/dedup</td></tr>
+<tr><td>Materialized social feed</td><td>X、Instagram</td><td>hybrid fan-out、timeline materialization、ranking、read-time policy gate</td></tr>
+<tr><td>Large immutable blob</td><td>YouTube、Netflix、Drive、Spotify、Instagram media</td><td>metadata/blob 分离、direct upload、chunking、CDN、lifecycle</td></tr>
+<tr><td>High-rate ephemeral state</td><td>Uber location、Zoom media</td><td>丢少量旧数据可接受，freshness 比 durability 更重要</td></tr>
+<tr><td>Scarce mutable resource</td><td>Amazon inventory、Uber driver assignment</td><td>conditional write、lease/fencing、reservation、state machine</td></tr>
+<tr><td>Multi-step business transaction</td><td>Amazon checkout、YouTube processing、Drive upload/scan/index</td><td>Saga、Outbox、idempotency、reconciliation</td></tr>
+<tr><td>Personalized retrieval/ranking</td><td>Netflix、Spotify、Instagram、X、Amazon</td><td>candidate generation → ranking → re-ranking → policy</td></tr>
+<tr><td>Buffered streaming media plane</td><td>YouTube、Netflix、Spotify</td><td>CDN、ABR、buffer、origin shielding、egress cost</td></tr>
+<tr><td>Interactive realtime media plane</td><td>Zoom</td><td>jitter、packet loss、congestion control、regional routing</td></tr>
+<tr><td>Globally replicated key lookup</td><td>URL Shortener</td><td>alias entropy、cache/takedown safety、read-local/write-owned</td></tr>
+<tr><td>Outbound HTTP delivery</td><td>Webhook、Slack Apps、Stripe Webhook</td><td>signed at-least-once、retry budget、SSRF、replay</td></tr>
+<tr><td>Workflow / untrusted compute</td><td>Job Scheduler、CI/CD、Batch Inference</td><td>DAG state、lease/fencing、fairness、sandbox、checkpoint</td></tr>
+<tr><td>Storage internals / bulk distribution</td><td>S3、ML Model Distribution</td><td>placement、checksum/Merkle、repair、swarm/readiness</td></tr>
+<tr><td>High-contention mutation / ledger</td><td>Conflict Control、Stripe、Leaderboard</td><td>CAS/lock/serialization、idempotency、audit、escrow</td></tr>
+<tr><td>LLM / GPU serving</td><td>ChatGPT Playground、Batch Inference</td><td>token budget、continuous batching、model locality、backpressure</td></tr>
+<tr><td>Windowed aggregation / exact rank</td><td>Top-K、Leaderboard</td><td>sketch error、watermark、order statistics、season freeze</td></tr>
+<tr><td>Distributed combinatorial search</td><td>Crossword Solver</td><td>CSP pruning、coarse frontier、termination、compute budget</td></tr>
+<tr><td>Recurrence and device sync</td><td>Calendar、Drive</td><td>stable identity、sparse exception、cursor/snapshot、conflict</td></tr>
+<tr><td>External quote and purchase Saga</td><td>Lowest-Cost Book、Stripe</td><td>exact-vs-deadline semantics、UNKNOWN outcome、reconciliation</td></tr>
+<tr><td>Turn-based realtime state machine</td><td>Online Chess</td><td>durable Actor、server clock、epoch fencing、spectator fan-out</td></tr>
+<tr><td>Enterprise messaging and compliance</td><td>Slack</td><td>channel sequence、hybrid fan-out、ACL/search/retention</td></tr>
+<tr><td>Geospatial search</td><td>Yelp、Uber</td><td>cell routing、exact distance、hot region、stable pagination</td></tr></tbody></table></div>
+<p>遇到陌生题时先问：它在这些 workload 里属于哪几类？这样已有模式会自然迁移。</p>
+<h3 id="29-2-source-of-truth-与-derived-state-对照">29.2 Source of truth 与 derived state 对照</h3>
+<div class="table-wrap"><table><thead><tr><th>Case</th><th>Source of truth</th><th>Derived / rebuildable state</th><th>不变量（invariant）</th></tr></thead><tbody><tr><td>WhatsApp</td><td>有 TTL 的 pending-delivery ciphertext log + conversation/device metadata</td><td>device inbox、unread count；plaintext history/search 在 device-local，不能由服务端重建</td><td>同一 <code>message_id</code> 不重复展示；ack 单调推进</td></tr>
+<tr><td>YouTube</td><td>asset metadata + original object</td><td>renditions、thumbnail、search/recommend index</td><td>publish 前至少一个可播放 rendition 可用</td></tr>
+<tr><td>Uber</td><td>trip state machine + assignment record</td><td>geo index、ETA cache、heatmap</td><td>一个 driver 同时最多一个 active trip</td></tr>
+<tr><td>Netflix</td><td>title/playback entitlement metadata</td><td>CDN cache、personal rows、features</td><td>没有 entitlement 不发 playback token</td></tr>
+<tr><td>Amazon</td><td>order ledger、inventory ownership、payment ledger</td><td>cart view、search index、recommendations</td><td>不超卖；支付与退款可审计</td></tr>
+<tr><td>Instagram</td><td>post/media metadata、follow graph</td><td>home feed、story tray、counters</td><td>私有内容不得因旧 cache 越权</td></tr>
+<tr><td>X</td><td>tweet log、follow graph</td><td>home timeline、trends、search index</td><td>delete/takedown 最终覆盖所有派生副本</td></tr>
+<tr><td>Drive</td><td>file/version metadata + immutable chunks</td><td>local sync index、preview、search index</td><td>version/ACL 更新具有明确序列化点</td></tr>
+<tr><td>Spotify</td><td>track/rights metadata、playlist operation log</td><td>CDN cache、mixes、features</td><td>地区/订阅 rights 在播放授权时强制执行</td></tr>
+<tr><td>Zoom</td><td>meeting membership/control state</td><td>media routing state、quality stats</td><td>未授权 participant 不可加入/取流</td></tr>
+<tr><td>S3</td><td>bucket/object metadata + committed chunk/manifest</td><td>CDN、repair queue、inventory index</td><td>visible object 只能指向校验并达到 durability policy 的 chunks</td></tr>
+<tr><td>URL Shortener</td><td>alias mapping + policy state</td><td>cache、geo replica、analytics</td><td>alias 唯一；disabled/takedown 优先于 stale redirect cache</td></tr>
+<tr><td>Webhook</td><td>accepted event + subscription/delivery intent</td><td>retry schedule、endpoint health、dashboard aggregate</td><td>stable event ID；外部交付 at-least-once且可 replay</td></tr>
+<tr><td>CI/CD</td><td>workflow DAG/version + step attempt log</td><td>runner cache、log index、artifact cache</td><td>untrusted job 不越过 tenant/secret boundary；terminal step 不重复结算</td></tr>
+<tr><td>Job Scheduler</td><td>schedule definition + run/attempt state</td><td>timer buckets、ready queue、runtime prediction</td><td>同一 run 的 business effect 由 idempotency/fencing 保护</td></tr>
+<tr><td>Conflict Control</td><td>authoritative aggregate/ledger</td><td>cache、contention telemetry</td><td>lost update 不发生；跨账户转账守恒且可审计</td></tr>
+<tr><td>ChatGPT Playground</td><td>request/quota/usage/preset metadata</td><td>stream buffer、routing cache、analytics</td><td>usage 可 reconcile；取消后不继续无限占 GPU/额度</td></tr>
+<tr><td>Batch Inference</td><td>job/task manifest + immutable input/model refs</td><td>ready queue、worker cache、metrics</td><td>output commit 由 task/attempt fencing实现 effectively-once</td></tr>
+<tr><td>Model Distribution</td><td>signed model manifest + chunk hashes</td><td>peer availability、local cache、tracker state</td><td>worker READY 只指向完整校验且获准的 model version</td></tr>
+<tr><td>Top-K</td><td>validated event log + window/version policy</td><td>sketch、candidate set、published snapshot</td><td>结果声明 error/freshness；late data 按 watermark/version处理</td></tr>
+<tr><td>Leaderboard</td><td>authoritative score update/event log</td><td>rank index、Top N cache、friends projection</td><td>score update 去重；tie tuple 与 season settlement确定</td></tr>
+<tr><td>Crossword</td><td>job/task graph + dictionary version</td><td>checkpoint、heuristic stats、optional visited hints</td><td>winner 唯一；No Solution 需证明所有 committed work终结</td></tr>
+<tr><td>Calendar</td><td>EventSeries/Exception/RSVP + resource reservation</td><td>calendar view、sync log、free-busy</td><td>occurrence identity稳定；独占资源不 double-book</td></tr>
+<tr><td>Lowest-Cost Book</td><td>purchase request/attempt + external refs</td><td>quote cache、seller ranking、coverage aggregate</td><td>不超过 max landed cost；UNKNOWN 未解析前不重复买</td></tr>
+<tr><td>Online Chess</td><td>replicated game event log + owner epoch</td><td>in-memory Actor、snapshot、leaderboard</td><td>accepted move 不丢且 per-game 单序；server clock权威</td></tr>
+<tr><td>Slack</td><td>workspace policy/membership + channel log</td><td>delivery、unread、search、notification</td><td>channel seq 唯一；private/revoked content不因 stale index泄露</td></tr>
+<tr><td>Stripe</td><td>payment objects + balanced ledger journal</td><td>balances、risk features、webhook views</td><td>per-currency transaction平衡；capture/refund上限；UNKNOWN收敛</td></tr>
+<tr><td>Yelp</td><td>Business/Review authority + moderation state</td><td>geo/text index、rating aggregate、cache</td><td>visible review delta幂等；takedown优先于 stale search</td></tr></tbody></table></div>
+<p>一个成熟回答会明确说：<strong>cache miss 影响 latency；source-of-truth corruption 影响 correctness。两者要采用不同保护级别。</strong></p>
+<h3 id="29-3-fan-out-三种模式与切换条件">29.3 Fan-out：三种模式与切换条件</h3>
+<h4 id="fan-out-on-write">Fan-out on write</h4>
+<p>发布时将内容 ID 写入每个 follower 的 inbox/timeline。</p>
+<ul>
+<li>优点：读便宜且 latency 稳定。</li>
+<li>缺点：大 V 用户造成 write amplification；inactive user 浪费空间；删除要传播。</li>
+<li>适合：普通用户、好友量有上限、read-heavy feed。</li>
+</ul>
+<h4 id="fan-out-on-read">Fan-out on read</h4>
+<p>读取时拉取所有 followee 的近期内容，再 merge/rank。</p>
+<ul>
+<li>优点：写轻、内容变化即时可见。</li>
+<li>缺点：读放大，关注数大时 tail latency 差。</li>
+<li>适合：celebrity、低活跃读者、候选集合不大。</li>
+</ul>
+<h4 id="hybrid-fan-out">Hybrid fan-out</h4>
+<ul>
+<li>普通 producer 走 push；celebrity/high-fanout producer 走 pull。</li>
+<li>inbox 只存 <code>content_id + score_hint + timestamp</code>，正文从 object/content service 读。</li>
+<li>读时合并 precomputed inbox、celebrity pull candidates、ads 和 exploration candidates。</li>
+<li>使用 <code>author_id + follower_shard</code> 拆分 fan-out job；consumer 必须以 <code>(user_id, content_id)</code> 幂等。</li>
+</ul>
+<p><strong>切换阈值不是固定 follower 数</strong>，而应由 <code>fanout_cost = followers × active_ratio × write_rate</code>、队列 lag 和读侧预算共同决定。</p>
+<h3 id="29-4-长流程的可靠模板-local-transaction-outbox-saga">29.4 长流程的可靠模板：Local transaction + Outbox + Saga</h3>
+<pre><code class="language-text">API request
+   │
+   ├─ local DB transaction:
+   │      update aggregate/state machine
+   │      insert outbox_event(event_id, aggregate_version)
+   │
+   └─ return accepted/current state
+
+Outbox relay / CDC → durable log → idempotent consumers
+                                      ├─ side effect A
+                                      ├─ side effect B
+                                      └─ materialized view
+
+Reconciler periodically compares source-of-truth with derived systems.</code></pre>
+<p>必须逐项回答：</p>
+<ol>
+<li><strong>Lost event</strong>：业务状态与 outbox 在同一 local transaction，避免“DB 成功、publish 失败”。</li>
+<li><strong>Duplicate event</strong>：consumer 保存 <code>event_id</code> 或以业务唯一键做 conditional upsert。</li>
+<li><strong>Out-of-order event</strong>：每个 aggregate 带 <code>version</code>；旧 version 丢弃或缓冲。</li>
+<li><strong>Poison event</strong>：有限重试后进入 DLQ，不能无限阻塞 partition。</li>
+<li><strong>Stuck workflow</strong>：watchdog 扫描超时状态，重发、补偿或转人工队列。</li>
+<li><strong>Unknown outcome</strong>：向 source of truth 查询，而不是根据 timeout 猜测。</li>
+<li><strong>Silent divergence</strong>：reconciliation job 对账并发出可审计 repair event。</li>
+</ol>
+<p>Amazon checkout、Stripe/购书支付、Webhook delivery、CI/CD、Job Scheduler、Batch Inference、YouTube transcoding、Drive scanning/indexing 都能套用这套骨架，但补偿语义不同：钱不能简单“删除记录”，视频 job 可以安全重跑，文件权限传播则要 fail closed。</p>
+<h3 id="29-5-大对象-large-blob-的统一做法">29.5 大对象（large blob）的统一做法</h3>
+<p>不要让 application server 代理 TB/PB 级字节流：</p>
+<ol>
+<li>client 向 metadata service 请求 upload session；</li>
+<li>service 验证 quota/auth，返回 presigned URL / temporary credential；</li>
+<li>client 直接 multipart/chunk upload 到 object storage；</li>
+<li>每块带 checksum，支持 resumable upload；</li>
+<li>upload service 在服务端 seal bounded part pages / hierarchical manifest；complete 只提交 session、root hash 和 part count，再原子提交 metadata pointer；</li>
+<li>async pipeline 扫描、转码、预览、索引；</li>
+<li>download 走 signed URL + CDN/edge，权限在发 token 时检查。</li>
+</ol>
+<p>关键细节：</p>
+<ul>
+<li><strong>Content-addressed storage</strong> 用 chunk hash 做 dedup，但要防 hash oracle 和跨租户信息泄漏。</li>
+<li>metadata 与 blob 提交之间会产生 orphan；用 mark-and-sweep GC，保留 safety window。</li>
+<li>delete 通常先 tombstone，撤销 token 并阻止新读，再异步清 CDN、replica、index 和备份。</li>
+<li>encryption 可以是 per-object <strong>DEK</strong> 加密数据，再由 KMS-managed <strong>KEK</strong> wrap DEK；轮换 KEK 时通常只需 re-wrap DEK，不必重加密整块数据。</li>
+<li>CDN key 必须包含会影响字节内容的 rendition/codec/DRM 维度，但不能把短期用户 token 放入 cache key 导致零命中。</li>
+</ul>
+<h3 id="29-6-realtime-不是一个协议词-而是四个不同问题">29.6 Realtime 不是一个协议词，而是四个不同问题</h3>
+<div class="table-wrap"><table><thead><tr><th>问题</th><th>常见机制</th><th>主要风险</th></tr></thead><tbody><tr><td>Server → client 小事件</td><td>WebSocket、SSE、push notification</td><td>connection ownership、reconnect storm、slow consumer</td></tr>
+<tr><td>Client 高频 telemetry</td><td>streaming RPC、UDP/QUIC、batched HTTP</td><td>burst、stale update、sampling、backpressure</td></tr>
+<tr><td>双向音视频</td><td>WebRTC/SRTP over UDP、SFU</td><td>jitter、loss、NAT、congestion、regional failure</td></tr>
+<tr><td>Offline catch-up</td><td>cursor-based pull / sync log</td><td>gap、retention、pagination consistency</td></tr></tbody></table></div>
+<p>连接层与消息 durable storage 要解耦。gateway 的内存连接不是 source of truth；断线重连时客户端提交 <code>last_seen_cursor</code>，从 durable log 补洞。服务端要给连接分配 <strong>session epoch / fencing token</strong>，避免旧 gateway 在迁移后继续投递。</p>
+<h3 id="29-7-consistency-选择矩阵">29.7 Consistency 选择矩阵</h3>
+<div class="table-wrap"><table><thead><tr><th>数据</th><th>推荐保证</th><th>原因</th></tr></thead><tbody><tr><td>钱、库存、driver assignment、room reservation、score settlement、file ACL version</td><td>strong consistency / serializable point</td><td>违反不变量的代价高</td></tr>
+<tr><td>用户自己的刚写内容</td><td>read-your-writes / session consistency</td><td>用户会立刻验证自己的操作</td></tr>
+<tr><td>feed、view count、presence、location heatmap</td><td>eventual consistency</td><td>freshness/availability 优先，允许短暂偏差</td></tr>
+<tr><td>消息/playlist/文件版本</td><td>per-entity ordered log</td><td>不需要全局顺序，只需会话/对象内顺序</td></tr>
+<tr><td>推荐 features</td><td>point-in-time correct offline + bounded-stale online</td><td>防 leakage，同时控制 serving latency</td></tr></tbody></table></div>
+<p>Senior+ 不能只说“CAP 选 AP/CP”。需要说明：</p>
+<ul>
+<li>哪一个 operation 在哪一个 partition/leader 上序列化；</li>
+<li>网络分区时拒绝哪类写、允许哪类降级；</li>
+<li>用户会看到什么；</li>
+<li>恢复后如何 reconcile；</li>
+<li>stale read 的最大容忍窗口是多少。</li>
+</ul>
+<h3 id="29-8-multi-region-先写清-ownership-再谈-active-active">29.8 Multi-region：先写清 ownership，再谈 active-active</h3>
+<p>一个可操作的演进路径：</p>
+<ol>
+<li><strong>Single write region + global read/CDN</strong>：最简单，适合 V1。</li>
+<li><strong>Home-region ownership</strong>：按 user/conversation/tenant 分配 home region；同一 aggregate 单写，多地读。</li>
+<li><strong>Cell-based architecture</strong>：每个 cell 含完整服务和数据分片，blast radius 有界。</li>
+<li><strong>Selective active-active</strong>：只让可合并的数据多主写，如 counters、presence、某些 CRDT；库存/支付仍保留单一权威点。</li>
+</ol>
+<p>Region failover 必须回答：</p>
+<ul>
+<li>RPO/RTO 目标与复制 lag；</li>
+<li>DNS/GSLB、client retry、connection draining；</li>
+<li>原 leader 是否被 lease/fencing 隔离，避免 split brain；</li>
+<li>未复制成功的已确认写如何处理；</li>
+<li>failback 是重新同步还是反向复制；</li>
+<li>failover 是否定期 game day 演练。</li>
+</ul>
+<h3 id="29-9-通用-mle-架构-从产品目标到安全降级">29.9 通用 MLE 架构：从产品目标到安全降级</h3>
+<figure class="architecture"><figcaption>Architecture Diagram</figcaption><pre class="mermaid">flowchart LR
+    E[&quot;Product events&quot;] --&gt; L[&quot;Validated event log&quot;]
+    L --&gt; O[&quot;Offline feature store&quot;]
+    L --&gt; S[&quot;Streaming features&quot;]
+    O --&gt; T[&quot;Point-in-time training set&quot;]
+    T --&gt; M[&quot;Train + registry&quot;]
+    M --&gt; D[&quot;Canary / shadow deploy&quot;]
+    Q[&quot;Request context&quot;] --&gt; R[&quot;Candidate retrieval&quot;]
+    S --&gt; R
+    R --&gt; K[&quot;Ranking&quot;]
+    K --&gt; P[&quot;Re-ranking + policy&quot;]
+    P --&gt; A[&quot;Product action&quot;]
+    A --&gt; E
+    D --&gt; K
+    K --&gt; X[&quot;Quality / drift / latency monitors&quot;]</pre><div class="ascii-label">ASCII Architecture · copy-friendly</div><pre class="ascii-diagram"><code>[Product events] --&gt; [Validated event log]
+[Validated event log] --&gt; [Offline feature store]
+[Validated event log] --&gt; [Streaming features]
+[Offline feature store] --&gt; [Point-in-time training set]
+[Point-in-time training set] --&gt; [Train + registry]
+[Train + registry] --&gt; [Canary / shadow deploy]
+[Request context] --&gt; [Candidate retrieval]
+[Streaming features] --&gt; [Candidate retrieval]
+[Candidate retrieval] --&gt; [Ranking]
+[Ranking] --&gt; [Re-ranking + policy]
+[Re-ranking + policy] --&gt; [Product action]
+[Product action] --&gt; [Product events]
+[Canary / shadow deploy] --&gt; [Ranking]
+[Ranking] --&gt; [Quality / drift / latency monitors]</code></pre></figure>
+<h4 id="objective">Objective</h4>
+<p>不要直接把 CTR 当最终目标。通常需要多目标：</p>
+<pre><code class="language-text">utility = w1 * long_term_value
+        + w2 * satisfaction
+        + w3 * creator/supply health
+        - w4 * negative_feedback
+        - w5 * safety_risk
+        - w6 * latency_or_cost</code></pre>
+<p>权重由产品策略与实验确定；hard policy constraints 不应仅靠模型分数“学出来”。</p>
+<h4 id="labels-与数据正确性">Labels 与数据正确性</h4>
+<ul>
+<li>正样本和负样本都要定义 observation window；未曝光内容不能当负样本。</li>
+<li>用 impression ID 连接展示、点击、播放、购买，避免 attribution 错位。</li>
+<li>training join 必须 <strong>point-in-time correct</strong>，不能看到未来 feature。</li>
+<li>propensity logging 支撑 inverse propensity weighting / counterfactual evaluation。</li>
+<li>删除请求、隐私 consent、retention 要传播到 feature 与 training dataset。</li>
+</ul>
+<h4 id="retrieval-ranking-re-ranking">Retrieval → Ranking → Re-ranking</h4>
+<ol>
+<li>retrieval 用 ANN、graph、collaborative filtering、rules 召回几百到几千候选；优化 recall 与 latency。</li>
+<li>ranking 用 richer features / DNN / GBDT 估计多目标 utility；优化 NDCG、calibration、business metrics。</li>
+<li>re-ranking 做 diversity、freshness、dedup、fairness、inventory/rights、safety 和频控。</li>
+<li>fallback 按层级：last-known-good model → lightweight model → heuristic/popularity → safe static list。</li>
+</ol>
+<h4 id="evaluation">Evaluation</h4>
+<ul>
+<li>Offline：Recall@K、NDCG、MAP、AUC、calibration、coverage、diversity、slice fairness。</li>
+<li>Online：guardrail + primary KPI；采用 A/B、interleaving、switchback（marketplace）或 cluster randomization（network effects）。</li>
+<li>Serving：p50/p95/p99 latency、timeout、feature missing、fallback rate、model version skew。</li>
+<li>Post-deploy：input drift、prediction drift、label delay、performance decay、feedback-loop health。</li>
+</ul>
+<h3 id="29-10-overload-control-容量不足时按价值降级">29.10 Overload control：容量不足时按价值降级</h3>
+<p>请求进入系统后的顺序应是：</p>
+<ol>
+<li><strong>Admission control</strong>：基于 tenant/user/token bucket 拒绝超预算请求。</li>
+<li><strong>Deadline propagation</strong>：下游知道剩余时间，不做注定超时的工作。</li>
+<li><strong>Bounded concurrency / queue</strong>：防止 queue 无限增长和内存崩溃。</li>
+<li><strong>Priority scheduling</strong>：支付/通话控制/消息正文高于 analytics、prefetch、counter。</li>
+<li><strong>Load shedding</strong>：丢弃可重建、过期、低价值工作。</li>
+<li><strong>Graceful degradation</strong>：关闭个性化、降低清晰度、缩短候选集、延迟非关键通知。</li>
+<li><strong>Retry budget</strong>：重试流量不得放大故障；exponential backoff + jitter + circuit breaker。</li>
+</ol>
+<p>一个很好的追问回答是：“我不会把 autoscaling 当第一道防线，因为 scale-up 有延迟，而 retry storm 往往在几十秒内就能压垮依赖。”</p>
+<h3 id="29-11-观测体系-从用户旅程而不是机器指标出发">29.11 观测体系：从用户旅程而不是机器指标出发</h3>
+<p>每题至少定义：</p>
+<ul>
+<li><strong>SLI/SLO</strong>：例如 message end-to-end delivery、video time-to-first-frame、checkout success、meeting media quality。</li>
+<li><strong>Golden signals</strong>：traffic、latency、errors、saturation。</li>
+<li><strong>Correctness metrics</strong>：duplicate/missing event、inventory mismatch、ACL leak、stuck saga、sync divergence。</li>
+<li><strong>Freshness metrics</strong>：event-time lag、feature age、geo-index age、timeline lag。</li>
+<li><strong>Queue metrics</strong>：depth、oldest age、partition skew、retry/DLQ rate。</li>
+<li><strong>ML metrics</strong>：feature null、prediction distribution、fallback、slice quality、delayed labels。</li>
+<li><strong>Cost metrics</strong>：每 GB delivered、每 media minute、每 recommendation、每 order、cache egress。</li>
+</ul>
+<p>使用贯穿入口、event 和异步 job 的 <code>trace_id / request_id / event_id / aggregate_id</code>。高基数 ID 不应直接成为 metrics label，而应进入 sampled trace/log。</p>
+<h3 id="29-12-常见方案选择-一句话不够-要给-decision-boundary">29.12 常见方案选择：一句话不够，要给 decision boundary</h3>
+<div class="table-wrap"><table><thead><tr><th>决策</th><th>选择 A 的条件</th><th>选择 B 的条件</th></tr></thead><tbody><tr><td>SQL vs NoSQL</td><td>transaction、约束、复杂查询优先</td><td>单一 access pattern、超大水平扩展优先</td></tr>
+<tr><td>Queue vs log</td><td>单消费者工作分配、完成即删除</td><td>replay、多 consumer、ordered partition</td></tr>
+<tr><td>Cache-aside vs write-through</td><td>可接受首次 miss、应用控制刷新</td><td>必须在写时同步 cache，但写 latency 更高</td></tr>
+<tr><td>Push vs pull feed</td><td>活跃读多、producer fanout 可控</td><td>celebrity/high-fanout 或低活跃消费者</td></tr>
+<tr><td>WebSocket vs SSE</td><td>双向低延迟</td><td>单向 server events、实现更简单</td></tr>
+<tr><td>WebRTC P2P vs SFU</td><td>极小会议且拓扑简单</td><td>多人会议、服务端路由/录制/质量控制</td></tr>
+<tr><td>Strong vs eventual</td><td>不变量被破坏不可接受</td><td>stale 可容忍且 availability 更重要</td></tr>
+<tr><td>Batch vs stream</td><td>小时级 freshness、成本优先</td><td>秒级决策、event-time correctness 必需</td></tr>
+<tr><td>Precompute vs on-demand</td><td>热门且可复用、读延迟严格</td><td>长尾、个性化强、存储放大不可接受</td></tr>
+<tr><td>Exact vs deadline-bounded</td><td>必须证明全量 coverage / exact rank</td><td>外部依赖慢、用户 latency 优先且可报告 coverage/error</td></tr>
+<tr><td>Single-node vs distributed search</td><td>heuristic 后工作能在预算内完成</td><td>coarse subtree 足够大且并行收益高于协调成本</td></tr>
+<tr><td>Redis accelerator vs durable idempotency</td><td>cache miss 只影响 latency</td><td>重试可能产生支付、订单或唯一业务副作用</td></tr></tbody></table></div>
+<h3 id="29-13-二十八题最终迁移口诀">29.13 二十八题最终迁移口诀</h3>
+<p>面对任何新题，依次问：</p>
+<ol>
+<li><strong>Truth</strong>：权威数据在哪里，谁拥有写入？</li>
+<li><strong>Scale</strong>：峰值 QPS、bytes、fan-out 与热点是什么？</li>
+<li><strong>Contract</strong>：API/event/state machine 的重试和顺序语义是什么？</li>
+<li><strong>Path</strong>：哪条是同步 critical path，什么移到 async？</li>
+<li><strong>Invariant</strong>：哪个业务条件绝不能破坏？</li>
+<li><strong>Failure</strong>：timeout、duplicate、out-of-order、partial failure 如何恢复？</li>
+<li><strong>Region</strong>：写 ownership、RPO/RTO、fencing 和 failback 是什么？</li>
+<li><strong>ML</strong>：目标、标签、特征、训练服务一致性、fallback 怎么做？</li>
+<li><strong>Operate</strong>：SLO、alert、reconcile、capacity、cost 如何闭环？</li>
+<li><strong>Evolve</strong>：V1 最小正确设计是什么，什么指标触发下一次拆分？</li>
+</ol>
+<p>只要这十问能答完整，即使面试题从 WhatsApp 换成协作白板、从 Uber 换成即时配送，核心能力仍然成立。</p>
+        <nav class="pager" aria-label="Case navigation">
+    <a href="case-28-design-yelp.html">← 28. Design Yelp</a>
+    <a class="next" href="case-30-senior-final-checklist.html">30. Senior+ Final Checklist →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

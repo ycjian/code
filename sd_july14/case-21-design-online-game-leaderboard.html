@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>21. Design Online Game Leaderboard - System Design 28</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Case 22 / 31 · Route 7 / 9</p>
+          <h1 class="route-title">21. Design Online Game Leaderboard</h1>
+          <p class="route-subtitle">Leaderboard、Crossword、Calendar、Lowest-Cost Book：Exact Rank、分布式搜索、Recurrence 与 Saga。</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#21-1-source-digest-源文档覆盖与校正">21.1 Source digest：源文档覆盖与校正</a><a href="#21-2-题意-范围与开场">21.2 题意、范围与开场</a><a href="#21-3-fr-nfr-与-slo">21.3 FR、NFR 与 SLO</a><a href="#21-4-capacity-storage-memory-与-fan-out-估算">21.4 Capacity、storage、memory 与 fan-out 估算</a><a href="#21-5-api-与-event-contracts">21.5 API 与 event contracts</a><a href="#21-6-data-model-partition-index-ttl-与状态机">21.6 Data model、partition、index、TTL 与状态机</a><a href="#21-7-proposed-architecture">21.7 Proposed architecture</a><a href="#21-8-core-flows">21.8 Core flows</a><a href="#21-9-deep-dive-1-exact-sharded-order-statistics">21.9 Deep dive 1：Exact sharded order statistics</a><a href="#21-10-deep-dive-2-tie-breaking-更新原子性与版本">21.10 Deep dive 2：Tie-breaking、更新原子性与版本</a><a href="#21-11-deep-dive-3-exactness-freshness-与-read-your-write">21.11 Deep dive 3：Exactness、freshness 与 read-your-write</a><a href="#21-12-deep-dive-4-season-close-late-results-与-reward-settlement">21.12 Deep dive 4：Season close、late results 与 reward settlement</a><a href="#21-13-deep-dive-5-hot-top-n-celebrity-与-cache-invalidation">21.13 Deep dive 5：Hot Top N、celebrity 与 cache invalidation</a><a href="#21-14-rebuild-failure-backpressure-multi-region-与-dr">21.14 Rebuild、failure、backpressure、multi-region 与 DR</a><a href="#21-15-security-anti-cheat-与-privacy">21.15 Security、anti-cheat 与 privacy</a><a href="#21-16-完整-mle-lifecycle-anti-cheat-fraud-detection">21.16 完整 MLE lifecycle：Anti-cheat / Fraud Detection</a><a href="#21-17-observability-与-cost">21.17 Observability 与 cost</a><a href="#21-18-trade-offs-与-evolution">21.18 Trade-offs 与 evolution</a><a href="#21-19-follow-up-q-a">21.19 Follow-up Q&amp;A</a><a href="#21-20-60-秒总结">21.20 60 秒总结</a></nav>
+        </header>
+        <h2 id="21-design-online-game-leaderboard-exact-rank-neighbors-friends-seasons">21. Design Online Game Leaderboard（Exact Rank, Neighbors, Friends, Seasons）</h2>
+<h3 id="21-1-source-digest-源文档覆盖与校正">21.1 Source digest：源文档覆盖与校正</h3>
+<p>源文档《design game leaderboard.docx》实际上拼接了两版答案，覆盖 high-score mode、Global Rank、K neighbors、Friends、Top N、多维榜、SQL truth、Kafka、Redis ZSET、分片、热点 cache、snapshot + tail replay、season reset、tiered storage、tie-breaking 与 CMS 近似备选。文档有 269 个正文块，无表格、无 embedded image/Drawings；架构与 skip-list 图均为 ASCII text。重复品牌段落已删除，两版有冲突的规模与一致性口径已统一。</p>
+<p>必须修正：</p>
+<ol>
+<li><strong>规模冲突</strong>：前半是 250M writes/day、10k peak，后半突然变成 millions EPS。本文采用可推导的一致假设：250M/day、60k peak；若 interviewer 指定 millions EPS，再线性扩容。</li>
+<li><strong>客户端分数不可信</strong>：Competitive leaderboard 必须由 authoritative Match Service 签发结果；mobile client 只能请求结算状态，不能直接提交任意 score/timestamp/version。</li>
+<li><strong>DB 写后再发 Kafka 是 dual-write bug</strong>：DB commit 成功而 Kafka 失败会永久漏更新。必须 transactional outbox / CDC，或 event log 作为 source of truth。</li>
+<li><strong>异步 Redis 与“全局强一致”矛盾</strong>：Redis index 有 0.5–1 s freshness 时，它是 exact-but-stale derived view，不是 linearizable global truth。自己的刚写结果可用 read-your-write token；奖金结算必须冻结并 reconcile authoritative snapshot。</li>
+<li><strong>把 score + timestamp 拼进 floating-point 会丢精度</strong>：Redis ZSET score 是 double，整数精确范围有限；tie-break 不能依赖小数拼接。用显式 lexicographic tuple、固定宽 member encoding +原子 mapping，或支持 order-statistics 的自定义 store。</li>
+<li><strong>单 Redis key 不能透明跨节点分片</strong>：超级 global board 按 player 分片后，Top N 是 local Top N merge；exact rank 要向所有 shards 查询 countGreaterThan(tuple)，不能只 ZREVRANK 某一 shard。</li>
+<li><strong>数据库降级不应现场 COUNT 数亿行</strong>：Redis 故障时这种 fallback 会把 source DB 一起打垮。优先返回带 as_of 的 replicated snapshot / stale cache，限制 expensive exact rank；后台 rebuild。</li>
+<li><strong>CMS 不适合“精确名次”或 score quantile 的直接替代</strong>：若只展示 percentile，使用 histogram/KLL/t-digest 等分布 sketch 更合适；competitive rank 仍走 exact index。</li>
+<li><strong>Skip list 不是并发免锁的自动保证</strong>：数据结构选择与 execution model 都决定并发。面试重点应是 order-statistics、sharding、tie tuple 与 correctness，而不是背诵 Redis 内部实现。</li>
+</ol>
+<h3 id="21-2-题意-范围与开场">21.2 题意、范围与开场</h3>
+<p><strong>面试题</strong>：为 100M DAU 在线游戏设计实时排行榜，支持 authoritative score update、Global Top N、player exact rank、K neighbors、friends leaderboard、region/mode/season scopes、season close 与 rewards settlement。</p>
+<p><strong>30 秒开场</strong>：</p>
+<blockquote>“我先锁定 score semantics：本文用 highest-score-wins，排序 tuple 是 score desc、first-achieved-at asc、player-id asc。Match Service 是唯一可信 producer；Canonical Score Ledger 是 truth，排名结构只是可重建 index。普通 board 单分片有序集即可；超级 global board 按 player hash 分片，Top N 合并 local Top N，exact rank 并行求各 shard 的 countGreaterThan(tuple)。关键是先 pin 一个包含所有 shard offsets 的 MVCC <code>BoardReadCut</code>，player tuple 与所有 count 都从同一 vector cut 读取；‘每个 shard 至少追到某 watermark’并不够。Outbox 保证账本与更新事件不丢，read-your-write token处理短暂 index lag；season payout 读取 frozen reconciled snapshot。”</blockquote>
+<p><strong>In scope</strong>：highest score、exact deterministic rank、neighbors、friends、Top N、defined scopes、active season、anti-cheat gate、multi-region、rebuild。</p>
+<p><strong>Out of scope</strong>：matchmaking、game simulation、社交图谱实现、付款系统本身、任意 ad-hoc 维度组合。只物化产品定义的 boards，避免维度笛卡尔爆炸。</p>
+<h3 id="21-3-fr-nfr-与-slo">21.3 FR、NFR 与 SLO</h3>
+<p><strong>Functional requirements</strong></p>
+<ol>
+<li>接收 Match Service 的 signed result；按 match_id 幂等，highest score 单调更新。</li>
+<li>查询 player score、exact rank、前后 K neighbors；Top N；friends relative rank。</li>
+<li>支持 game/mode/region/season 等有限 board definitions；一个 event 可更新 global + country + season 等 2–5 个 boards。</li>
+<li>deterministic tie-breaking；重复、乱序、低分、已关闭赛季不会破坏排名。</li>
+<li>season OPEN → CLOSING → FROZEN → SETTLED；支持受审计的 correction。</li>
+<li>Redis/rank shard 丢失后由 snapshot + changelog offset 重建，不丢 canonical data。</li>
+</ol>
+<p><strong>NFR / SLO</strong></p>
+<ul>
+<li>authoritative score accept availability ≥ 99.99%，p99 &lt; 300 ms；</li>
+<li>index freshness p95 &lt; 500 ms、p99 &lt; 1 s；</li>
+<li>Top 100 / player rank p99 &lt; 100 ms（热榜），friends p99 &lt; 200 ms；</li>
+<li>accepted score RPO 0；derived rank index RPO 可为分钟级但必须可重建；</li>
+<li>exactness 定义为：同一 immutable <code>BoardReadCut(cut_id, shard_offset_vector)</code> 下，player tuple 与所有 shard count 的结果完全确定；live read 返回 cut/vector digest 与 as_of；</li>
+<li>99.99% read availability；rank index故障时优先 stale-with-timestamp，而不是错误 fresh；</li>
+<li>reward settlement 使用 reconciled frozen version，财务差错目标 0。</li>
+</ul>
+<h3 id="21-4-capacity-storage-memory-与-fan-out-估算">21.4 Capacity、storage、memory 与 fan-out 估算</h3>
+<p>假设 100M DAU、250M match results/day、1B leaderboard reads/day，20× average peak；每 result 更新 4 个 materialized boards。</p>
+<ul>
+<li>write average = 250M / 86,400 ≈ <strong>2,894/s</strong>；20× peak ≈ <strong>58k/s，按 60k/s</strong>；</li>
+<li>read average = 1B / 86,400 ≈ <strong>11.6k/s</strong>；20× peak ≈ <strong>232k/s</strong>；</li>
+<li>derived board update peak = 60k × 4 = <strong>240k ordered-index mutations/s</strong>；</li>
+<li>derived updates/day = <code>250M × 4 = 1B</code>，average ≈ <strong>11.6k/s</strong>。若 changelog/WAL delta 为 100–200 B，则约 <strong>100–200 GB/day logical</strong>、peak <code>240k × 100–200B ≈ 24–48 MB/s</code>；保留 24 h 且 RF3 约 300–600 GB，不应把这部分藏在 Redis 内存估算里；</li>
+<li>BoardReadCut 需要 bounded MVCC retention：<code>retained_bytes ≈ mutation_rate × bytes_per_version × cut_TTL × tree_node_amplification × replicas</code>。例如 peak 240k/s、200 B、30 s、4× persistent-tree amplification、2 replicas，约 <strong>11.5 GB</strong> pinned version bytes；真实 node copy/allocator overhead 要 benchmark，cut 过期必须 release root 防 compaction 永久阻塞；</li>
+<li>ScoreEvent 约 200 B：50 GB/day raw；Kafka RF3 broker write约 <strong>150 GB/day</strong>，30 天约 4.5 TB，不含 compression；</li>
+<li>100M-player global board 的 canonical entry按 64 B 是 6.4 GB；内存有序结构/allocator/member overhead 若按 120 B/entry，约 <strong>12 GB/board</strong>。双副本 + 30% headroom 约 31 GB；单 global board可放大内存节点，但 CPU/hot key通常先成为问题；</li>
+<li>若总活跃 materialized memberships = 2B entries，按 120 B ≈ <strong>240 GB</strong>；双副本+30% ≈ <strong>624 GB</strong>。这要求只建产品定义的 scopes，并在 season close 后下沉 cold store；</li>
+<li>Top-100 payload若 10 KB，峰值 100k identical reads/s 是 1 GB/s origin egress；1 s edge/cache snapshot可把 origin 降几个数量级。</li>
+</ul>
+<p>这些是假设，不是产品事实。真实 sizing 必须量测 ZSET/custom index 的实际 bytes/member、board cardinality distribution、friend count p99 与 hottest-board QPS。</p>
+<h3 id="21-5-api-与-event-contracts">21.5 API 与 event contracts</h3>
+<p>客户端不能直接提交可信 score。Internal API 只允许 Match Service workload identity：</p>
+<pre><code class="language-http">POST /internal/v1/matches/{match_id}/leaderboard-result
+Idempotency-Key: match:{match_id}:result-v3
+{
+  &quot;match_id&quot;:&quot;m-88&quot;,&quot;match_result_version&quot;:3,
+  &quot;player_id&quot;:&quot;p-9&quot;,&quot;score&quot;:98120,
+  &quot;achieved_at_server&quot;:&quot;2026-07-15T01:02:03.456Z&quot;,
+  &quot;board_context&quot;:{&quot;game&quot;:&quot;g1&quot;,&quot;mode&quot;:&quot;solo&quot;,&quot;region&quot;:&quot;US&quot;,&quot;season&quot;:&quot;s27&quot;,&quot;season_epoch&quot;:14},
+  &quot;match_server_signature&quot;:&quot;...&quot;
+}
+-&gt; 200 {
+  &quot;applied&quot;:true,
+  &quot;board_scores&quot;:{&quot;lb-global-s27&quot;:{&quot;score&quot;:98120,&quot;board_score_version&quot;:42}},
+  &quot;read_token&quot;:{&quot;ledger_position&quot;:{&quot;shard&quot;:&quot;ls-17&quot;,&quot;lsn&quot;:99181},
+                &quot;board_score_versions&quot;:{&quot;lb-global-s27&quot;:42}}
+}
+
+GET /v1/leaderboards/{board_id}/players/{player_id}?neighbors=20
+    &amp;min_board_score_version=42
+-&gt; {&quot;player&quot;:{&quot;score&quot;:98120,&quot;rank&quot;:1271},&quot;neighbors&quot;:[...],
+    &quot;cut_id&quot;:&quot;cut-883&quot;,&quot;cut_vector_digest&quot;:&quot;sha256:...&quot;,
+    &quot;as_of&quot;:&quot;...&quot;,&quot;is_stale&quot;:false}
+
+GET /v1/leaderboards/{board_id}/top?limit=100&amp;cursor=...
+GET /v1/leaderboards/{board_id}/players/{player_id}/friends?limit=100</code></pre>
+<p>Top N cursor 绑定 board_id、<code>cut_id/vector_digest</code> 与最后 tuple，不用 OFFSET；所有页都读该 pinned cut。Cut TTL 到期时返回 snapshot_expired 让 client 重启，不能悄悄切到 mutable latest。</p>
+<p>Canonical event：</p>
+<pre><code class="language-text">ScoreImproved {
+  event_id, match_id, match_result_version,
+  player_id,
+  board_updates[{board_id, canonical_score, first_achieved_at, board_score_version}],
+  source_ledger_shard, ledger_lsn, season_epoch, emitted_at
+}
+BoardIndexApplied {
+  event_id, board_id, player_id, board_score_version,
+  old_tuple, new_tuple, shard_id, shard_log_offset, mvcc_root_id
+}
+SeasonLedgerBarrierInstalled {board_id, season_id, freeze_epoch,
+                              ledger_shard, barrier_offset}
+SeasonFrozen {board_id, season_id, freeze_epoch, ledger_cut_vector,
+              authority_export_digest, frozen_at}
+RewardSnapshotPublished {board_id, freeze_epoch, snapshot_digest, row_count}</code></pre>
+<h3 id="21-6-data-model-partition-index-ttl-与状态机">21.6 Data model、partition、index、TTL 与状态机</h3>
+<div class="table-wrap"><table><thead><tr><th>Entity</th><th>Key / index</th><th>关键字段</th></tr></thead><tbody><tr><td>MatchResult</td><td>unique match_id + player_id + result_version</td><td>signed payload、status、received_at</td></tr>
+<tr><td>CanonicalScore</td><td>PK: board_id + player_id；physical partition by competition_scope + player_id</td><td>score、first_achieved_at、board_score_version、last_match_id</td></tr>
+<tr><td>ScoreOutbox</td><td>PK: ledger shard + LSN</td><td>ScoreImproved payload、publish status</td></tr>
+<tr><td>BoardDefinition</td><td>PK: board_id</td><td>dimensions、score_mode、tie_policy、season、shard_count、state</td></tr>
+<tr><td>SeasonControl</td><td>PK: season_id</td><td>state、season_epoch、close_at、grace_deadline、freeze_epoch、ledger_cut_vector</td></tr>
+<tr><td>SeasonLedgerFence</td><td>PK: season_id + ledger_shard</td><td>freeze_epoch、barrier_offset、state</td></tr>
+<tr><td>RankEntry</td><td>player-sharded by board_id + hash(player_id)</td><td>order_tuple、player_id、board_score_version</td></tr>
+<tr><td>ShardOrderIndex</td><td>PK: board_id + shard_id</td><td>ordered tuple tree、cardinality、applied_log_offset、retained MVCC roots</td></tr>
+<tr><td>BoardReadCut</td><td>PK: board_id + cut_id</td><td>exact shard_offset vector、MVCC root IDs、vector digest、created_at、expires_at</td></tr>
+<tr><td>TopSnapshot</td><td>PK: board_id + cut_id</td><td>Top M、cut vector digest、as_of、digest、TTL</td></tr>
+<tr><td>FriendGraphCache</td><td>PK: player_id + graph_version</td><td>friend IDs / cursor；short TTL</td></tr>
+<tr><td>SeasonSnapshot</td><td>PK: board_id + freeze_epoch</td><td>immutable authority-export sorted parts、ledger_cut_vector、live-rank reconciliation digest、digest</td></tr></tbody></table></div>
+<p>排序 tuple：(-score, first_achieved_at_server, player_id)，按 ascending lexicographic 即得到期望顺序。score、timestamp、ID 分字段比较，不做浮点拼接。</p>
+<p>一次 result 会影响 2–5 个 board，因此不能只返回一个含义不明的 scalar version。该 player/competition scope 的所有 affected CanonicalScore rows 共置；一个 conditional transaction 对每个 board 分配自己的 <code>board_score_version</code>，返回 map 并同事务写含 map 的 Outbox。新 score &gt; old score 时更新；相等时保留第一次 achieved time；低分 event 仍记录 MatchResult 审计但不发 ScoreImproved。</p>
+<p>Board/season 状态：<code>DRAFT → OPEN → CLOSING → FREEZE_BARRIER → FROZEN → SETTLED → ARCHIVED</code>；barrier 安装后普通 event不可修改，correction 走独立审批 epoch。RankEntry 是 derived，可删可重建。</p>
+<h3 id="21-7-proposed-architecture">21.7 Proposed architecture</h3>
+<figure class="architecture"><figcaption>Architecture Diagram</figcaption><pre class="mermaid">flowchart LR
+    MS[&quot;Authoritative Match Service&quot;] --&gt; SI[&quot;Score Ingest + Signature / Idempotency&quot;]
+    SI --&gt; DB[&quot;Canonical Score Ledger + Outbox&quot;]
+    DB --&gt; CDC[&quot;CDC / ScoreImproved Log&quot;]
+    CDC --&gt; FAN[&quot;Board Fan-out / Index Updaters&quot;]
+    FAN --&gt; R1[&quot;Rank Shard 1&quot;]
+    FAN --&gt; R2[&quot;Rank Shard 2&quot;]
+    FAN --&gt; RN[&quot;Rank Shard N&quot;]
+    API[&quot;Leaderboard Query API&quot;] --&gt; CUT[&quot;Cut Coordinator&quot;]
+    CUT --&gt; R1
+    CUT --&gt; R2
+    CUT --&gt; RN
+    CUT --&gt; CUTDB[(&quot;BoardReadCut Vector + MVCC Roots&quot;)]
+    API --&gt; AGG[&quot;Exact Rank Aggregator&quot;]
+    CUTDB --&gt; AGG
+    AGG --&gt; R1
+    AGG --&gt; R2
+    AGG --&gt; RN
+    FAN --&gt; TOP[&quot;Versioned Top-M Snapshot Cache&quot;]
+    API --&gt; TOP
+    API --&gt; SOCIAL[&quot;Social Graph / Friend Cache&quot;]
+    SNAP[&quot;Snapshot + Compaction + Rebuild&quot;] --&gt; R1
+    SNAP --&gt; R2
+    SNAP --&gt; RN
+    DB --&gt; SNAP
+    CDC --&gt; SNAP
+    CLOSE[&quot;Season Fence + Authority Snapshot Builder&quot;] --&gt; DB
+    DB --&gt; CLOSE
+    CLOSE --&gt; REWARD[&quot;Immutable Reward Snapshot&quot;]</pre><div class="ascii-label">ASCII Architecture · copy-friendly</div><pre class="ascii-diagram"><code>[Authoritative Match Service] --&gt; [Score Ingest + Signature / Idempotency]
+[Score Ingest + Signature / Idempotency] --&gt; [Canonical Score Ledger + Outbox]
+[Canonical Score Ledger + Outbox] --&gt; [CDC / ScoreImproved Log]
+[CDC / ScoreImproved Log] --&gt; [Board Fan-out / Index Updaters]
+[Board Fan-out / Index Updaters] --&gt; [Rank Shard 1]
+[Board Fan-out / Index Updaters] --&gt; [Rank Shard 2]
+[Board Fan-out / Index Updaters] --&gt; [Rank Shard N]
+[Leaderboard Query API] --&gt; [Cut Coordinator]
+[Cut Coordinator] --&gt; [Rank Shard 1]
+[Cut Coordinator] --&gt; [Rank Shard 2]
+[Cut Coordinator] --&gt; [Rank Shard N]
+[Cut Coordinator] --&gt; [BoardReadCut Vector + MVCC Roots]
+[Leaderboard Query API] --&gt; [Exact Rank Aggregator]
+[BoardReadCut Vector + MVCC Roots] --&gt; [Exact Rank Aggregator]
+[Exact Rank Aggregator] --&gt; [Rank Shard 1]
+[Exact Rank Aggregator] --&gt; [Rank Shard 2]
+[Exact Rank Aggregator] --&gt; [Rank Shard N]
+[Board Fan-out / Index Updaters] --&gt; [Versioned Top-M Snapshot Cache]
+[Leaderboard Query API] --&gt; [Versioned Top-M Snapshot Cache]
+[Leaderboard Query API] --&gt; [Social Graph / Friend Cache]
+[Snapshot + Compaction + Rebuild] --&gt; [Rank Shard 1]
+[Snapshot + Compaction + Rebuild] --&gt; [Rank Shard 2]
+[Snapshot + Compaction + Rebuild] --&gt; [Rank Shard N]
+[Canonical Score Ledger + Outbox] --&gt; [Snapshot + Compaction + Rebuild]
+[CDC / ScoreImproved Log] --&gt; [Snapshot + Compaction + Rebuild]
+[Season Fence + Authority Snapshot Builder] --&gt; [Canonical Score Ledger + Outbox]
+[Canonical Score Ledger + Outbox] --&gt; [Season Fence + Authority Snapshot Builder]
+[Season Fence + Authority Snapshot Builder] --&gt; [Immutable Reward Snapshot]</code></pre></figure>
+<h3 id="21-8-core-flows">21.8 Core flows</h3>
+<h4 id="7-1-score-update">7.1 Score update</h4>
+<ol>
+<li>mTLS / workload identity 验证 Match Service，校验 signature、board/season state、signed <code>season_epoch</code>、server start timestamp 与 result version；CLOSING 只接受 grace policy 内已开始的 match，FREEZE_BARRIER/FROZEN 的旧 epoch 写由 ledger shard 本地 fence 拒绝。</li>
+<li>在 ledger shard transaction 插入 MatchResult unique key；重复 payload digest 相同则返回原结果，digest 不同则 conflict + alert。</li>
+<li>Conditional update 所有 affected CanonicalScore rows；若 improved，同事务写 ScoreOutbox，分配 <code>board_score_versions{board_id: version}</code> 与 ledger_lsn。</li>
+<li>CDC 把 ScoreImproved 投到以 board_id + player_id 为 key 的 log；Board Fan-out产生明确 affected boards，避免 downstream 自己猜 region/season。</li>
+<li>每个 board 的 Rank shard 取 map 中自己的 board_score_version，以原子脚本/transaction remove old tuple + add new tuple；旧/重复 event no-op。</li>
+<li>Rank shard 原子推进自己的 <code>applied_log_offset</code> 并保留 bounded MVCC roots；这个 local offset 由异步 updater 生成，所以写 API 不伪造未来 board_version。若 query 带该 board 的 <code>min_board_score_version</code>，先等待 player home rank shard应用到该 version，再创建包含所有 shard exact offsets/root IDs 的 BoardReadCut，提供 exact read-your-write。</li>
+</ol>
+<h4 id="7-2-top-n">7.2 Top N</h4>
+<p>普通单 shard board 直接在 pinned MVCC root range first N。超级 board 先取得 BoardReadCut，再向 S shards 在 cut 指定的 root/offset 并行取 local Top N，然后 k-way merge global N；每 shard 只需 N，因为 global Top N 中来自任一 shard 的元素不可能排在该 shard local N 之后。热门 Top 100 周期性基于明确 cut 发布 snapshot 到 Redis/CDN。</p>
+<h4 id="7-3-exact-player-rank-on-sharded-board">7.3 Exact player rank on sharded board</h4>
+<ol>
+<li>Cut Coordinator 收集每个 shard 当前可保留的 exact <code>applied_log_offset + MVCC root_id</code>，发布 immutable BoardReadCut/vector digest；若要求 read-your-write，先让 player home shard应用到该 board 的 <code>min_board_score_version</code> 再 pin；</li>
+<li>在该 cut 指定的 home-shard MVCC root 点查 player order tuple t；不能先读 mutable latest tuple再配旧 counts；</li>
+<li>并行向所有 shards 调 <code>CountLessThan(t, cut.shard_offset[shard])</code>；每个 order-statistics index 在指定 MVCC root 返回严格排在 t 前的条数；</li>
+<li>rank = <code>1 + Σ counts</code>，响应绑定 cut_id/vector digest。任一 shard 缺该历史 root、超时或读到不同 offset，就不能声称 exact；返回 pinned stale snapshot 或 unavailable。</li>
+</ol>
+<p>复杂度 O(S log(N/S))，网络 fan-out O(S)。S 控制在几十，使用 parallel RPC、replicated read、deadline。若 S 数百，维护 score histogram / prefix-count directory 缩小 fan-out，但 tie bucket仍需精确 refinement。</p>
+<h4 id="7-4-k-neighbors">7.4 K neighbors</h4>
+<p>以同一 BoardReadCut 中的 player tuple t 向每 shard请求该 MVCC root 上 t 前 K 与后 K 的 local candidates，Aggregator分别做 k-way merge，得到 global 前后 K。不是先知道 global row number再跨 shard range。Cursor绑定 tuple + cut vector。</p>
+<h4 id="7-5-friends-leaderboard">7.5 Friends leaderboard</h4>
+<p>读取好友 IDs + graph_version 后，先为目标 board pin 一个 BoardReadCut；按 friend 所属 rank shard 分组，在 cut 指定的 MVCC root 批量 MultiGet tuple，过滤未上榜后本地排序，并在响应返回 cut/vector digest。这样 friend rows 是 exact-at-cut，不会混合 mutable shard 的不同时间点。朋友通常数百；p99 巨大社交图使用分页/cap，不能巨大 IN query。隐私/blocked user在 Social Graph返回时已过滤，Leaderboard再做 defense-in-depth；若产品选择不 pin cut，必须明确把 Friends 标为 eventual/mixed-as-of，而不能沿用 exact contract。</p>
+<h3 id="21-9-deep-dive-1-exact-sharded-order-statistics">21.9 Deep dive 1：Exact sharded order statistics</h3>
+<p>Redis Cluster 不能把一个 ZSET key自动拆开，因此有三档：</p>
+<ol>
+<li>小/中 board：single ordered shard + replica，操作简单；</li>
+<li>大 board：player hash shards + aggregator；Top N、rank、neighbors 按上述 scatter-gather；</li>
+<li>极热超大 board：每 shard自有内存 order-statistics tree，另有 replicated directory 保存 score-range approximate counts，常见 rank先 directory估定位、再对 tie/边界 shards refinement。</li>
+</ol>
+<p>不能按 score range静态分片而没有 rebalancing，因为热门分数段会热；按 player hash 写均匀，但读要 fan-out。Staff+ 要明确这是核心 trade-off。</p>
+<h3 id="21-10-deep-dive-2-tie-breaking-更新原子性与版本">21.10 Deep dive 2：Tie-breaking、更新原子性与版本</h3>
+<p>同分规则由 BoardDefinition versioned：earlier first-achieved time wins，最后 player_id。时间来自 Match Service/ledger server，不信 client clock。Equal score 的迟到事件不能把 first_achieved_at 改晚；如果确有更早的 authoritative match result晚到，需要明确业务是否允许 correction。Live board可 conditional min timestamp，已 FROZEN board走 correction workflow。</p>
+<p>Rank shard更新必须原子 remove old tuple + insert new tuple + update player mapping + board_score_version。Crash 中间态不能让同一 player出现两次。Redis 可用 Lua/transaction；custom store用 write batch/WAL。Consumer先比该 board 的 version，即使 Kafka partition rebalance或 replay也保持单调。</p>
+<h3 id="21-11-deep-dive-3-exactness-freshness-与-read-your-write">21.11 Deep dive 3：Exactness、freshness 与 read-your-write</h3>
+<p>三个概念分开：</p>
+<ul>
+<li>ledger correctness：accepted result不丢、highest-score语义正确；</li>
+<li>index exactness：在某个 pinned BoardReadCut 的每个指定 MVCC root 上，所有 entries 排序精确，scatter read 不受并发 mutation 污染；</li>
+<li>freshness：cut 中各 shard offset/vector 离其 log head 多远。</li>
+</ul>
+<p>写 API 只返回同步 ledger transaction 真正知道的 <code>ledger_position(shard, lsn) + board_score_versions map</code>，不返回异步 updater 未来才分配的 board_version。用户立即查询某 board 时，Query 从 map 取该 board version，等待 player home shard达到它，再 pin 一个新的 vector cut；若 50–200 ms 内未追上，返回 provisional score + previous rank / pending=true。Ledger overlay 可展示 provisional score，但在全 shard cut 未形成前不能称 global exact rank。</p>
+<h3 id="21-12-deep-dive-4-season-close-late-results-与-reward-settlement">21.12 Deep dive 4：Season close、late results 与 reward settlement</h3>
+<ol>
+<li><code>CLOSING</code>：推进 <code>season_epoch</code>，停止签发新 match；只允许携带该 epoch、且在 close 前已开始并在 grace deadline 前到达的 signed result。</li>
+<li>Grace 到期进入 <code>FREEZE_BARRIER</code>。Coordinator 在 <strong>每个 authoritative ledger shard</strong> 的本地 serial order 中 CAS 安装 <code>SeasonLedgerFence(freeze_epoch)</code>，拒绝旧 epoch 后续写，并在所有更早 transaction 之后追加 barrier row；result commit 与 barrier 必有唯一先后，不存在“切完 cut 后又漏进一笔 accepted result”的窗口。</li>
+<li>收集每 shard <code>barrier_offset</code> 形成 <code>ledger_cut_vector</code>。若任一 shard 未安装成功，season 保持 barrier 状态且不发布 snapshot；重试同 freeze_epoch 幂等。</li>
+<li>Reward Snapshot Builder <strong>直接从 Canonical Score authority</strong> 在各 barrier/MVCC cut 导出 rows，external sort + k-way merge 后生成 immutable SeasonSnapshot。CDC 已 repartition 成 board/player shards，所以 live rank watermark 只做 UI/reconciliation，不能证明 payout completeness。</li>
+<li>Reconciler 比较 authority export row count/digest、live index cardinality/duplicates 与 reward digest；全部通过才 FROZEN 并允许 SETTLED。之后 correction 生成新 freeze_epoch、差额 ledger 与审批，不覆写旧快照。</li>
+</ol>
+<p>不能只相信 client timestamp，也不能靠 Flink watermark自动发奖金。奖励 path需要 ledger-shard write fence、barrier vector、authority snapshot 与 deterministic replay。</p>
+<h3 id="21-13-deep-dive-5-hot-top-n-celebrity-与-cache-invalidation">21.13 Deep dive 5：Hot Top N、celebrity 与 cache invalidation</h3>
+<p>Top N 是高读低熵数据：Materializer 每 100 ms–1 s pin 一个 BoardReadCut，并按 cut_id 发布 Top-M snapshot到 regional cache/CDN；不要每个 score update都重新切 Top 1000。只有新 tuple可能进入 Top-M boundary时才标 dirty，materializer coalesce。</p>
+<p>Celebrity player rank请求可缓存 200–500 ms，但 key绑定 cut_id/vector digest；更高效是订阅其 RankChanged event推送直播系统。Edge rate limit、防 request collapse、singleflight。My-rank 响应个性化，不能全 CDN，但可缓存 tuple/rank short TTL。</p>
+<h3 id="21-14-rebuild-failure-backpressure-multi-region-与-dr">21.14 Rebuild、failure、backpressure、multi-region 与 DR</h3>
+<p><strong>Rebuild</strong>：周期性导出 per-shard sorted snapshot，同时记录精确 changelog offset/ledger_lsn，不用模糊 timestamp。新 shard加载 snapshot，重放 offset之后事件，追到 current watermark后校验 cardinality/digest，再原子切 routing epoch。旧 shard迟到写被 fencing。</p>
+<p><strong>Rank store failure</strong>：先读 replica / last TopSnapshot；API标 stale_as_of。限制 exact rank，绝不把 200k QPS全倒向 ledger DB。Canonical write继续，CDC lag可恢复。</p>
+<p><strong>Backpressure</strong>：Board updater lag按 board/tier隔离；热门 board有独立 partitions。若 index lag过大，写 ledger仍可接受到容量上限，但UI显示 pending；Outbox/CDC disk接近满时必须 admission或扩容，不能丢 score events。</p>
+<p><strong>Multi-region</strong>：每 match/board ledger shard有单一 write home，Match Service路由到 owner；跨 region同步安全 journal后才返回 accepted可实现 RPO 0。Rank views regional async复制；global board freshness允许跨 region秒级。Failover提升 ledger/routing epoch，旧 owner fenced。Season freeze 要求所有 authoritative ledger shard 的 fence/barrier 都在 paired journal durable 后才形成 <code>ledger_cut_vector</code>；任一 region/shard不确定就暂停，不在 partition时双重结算。</p>
+<p><strong>DR</strong>：ledger/settlement RPO 0、RTO &lt; 30 min；rank index RPO snapshot interval且可 replay、RTO &lt; 1 h；Top cache可丢。演练 shard loss、region loss、CDC corruption、season close期间故障。</p>
+<h3 id="21-15-security-anti-cheat-与-privacy">21.15 Security、anti-cheat 与 privacy</h3>
+<p>Match Service signed result、mTLS、nonce/result version、server clock、RBAC、KMS、audit。客户端无法调用 internal score endpoint。Anti-cheat 结果可：ALLOW、QUARANTINE、REJECT。高风险但未裁决的 score 不进入 public rank，放 review queue；最终解除时以 authoritative event加入。</p>
+<p>好友榜遵循 privacy/blocked关系；leaderboard display name/avatar由 Profile Service按当前可见性 hydrate，不复制 PII 到 immutable rank log。用户名更改不影响 order tuple。Admin score correction与season reopen需双人审批。</p>
+<h3 id="21-16-完整-mle-lifecycle-anti-cheat-fraud-detection">21.16 完整 MLE lifecycle：Anti-cheat / Fraud Detection</h3>
+<p>排行榜排序本身应 deterministic，不需要 ML；MLE 重点是 Anti-cheat。</p>
+<ol>
+<li><strong>Objective</strong>：降低作弊 score进入公开榜与奖励的 expected loss，同时控制正常高手 false positive 与 review成本。</li>
+<li><strong>Labels</strong>：server rule violation、replay evidence、device integrity、human review、appeal outcome、ban reversal；label delay与policy version显式。</li>
+<li><strong>Features</strong>：score delta、match duration、input cadence、physics residual、opponent graph、device attestation、IP/account cluster、historical skill；禁止把受保护属性当惩罚 proxy。</li>
+<li><strong>Training</strong>：time-based split、player/group split防同一作弊团伙泄漏；class imbalance、hard negatives、adversarial simulation；feature point-in-time正确。</li>
+<li><strong>Offline eval</strong>：PR-AUC、precision at review capacity、recall at fixed FPR、calibration、expected loss；按 region/device/new-player/high-skill slices。</li>
+<li><strong>Online eval</strong>：先 shadow，后 quarantine而非自动 ban；看 confirmed cheat capture、appeal overturn、review SLA、leaderboard integrity与latency。</li>
+<li><strong>Serving / fallback</strong>：模型超时回退 high-confidence rules；低置信度进入榜但不参与奖励，或暂时 quarantine，取决于风险等级。</li>
+<li><strong>Drift / bias</strong>：游戏版本、外挂家族、device/region、高手策略变化；监控 false positive appeal、score distribution与feature missing。模型更新不改变已冻结奖励，除非走 correction process。</li>
+</ol>
+<h3 id="21-17-observability-与-cost">21.17 Observability 与 cost</h3>
+<p>SLI：score accept/error/idempotent hit、outbox age、CDC lag、index apply latency、board watermark、TopSnapshot age、rank scatter latency/shard timeout、version skew、duplicate player invariant、rebuild ETA、season reconciliation mismatch、anti-cheat quarantine/appeal。</p>
+<p>Invariant monitors：每 board/player最多一条 active entry；<code>RankEntry.board_score_version ≤ CanonicalScore.board_score_version</code>；frozen snapshot row count/checksum；Top N与随机 ledger sample对账。Trace用 match_id → ledger_lsn → event_id → board/shard/version。</p>
+<p>成本：内存有序 index、replication、hot reads。通过 selective materialization、closed-season compaction、Top-M cache、friend on-demand、cold snapshots降低成本。不要为每个 region × mode × daily × weekly × season任意组合都预建 board。</p>
+<h3 id="21-18-trade-offs-与-evolution">21.18 Trade-offs 与 evolution</h3>
+<div class="table-wrap"><table><thead><tr><th>决策</th><th>选择</th><th>代价</th></tr></thead><tbody><tr><td>Truth</td><td>Canonical ledger + Outbox</td><td>写延迟略高；不丢更新</td></tr>
+<tr><td>Live view</td><td>exact-but-stale rank index</td><td>不承诺全局 linearizable；可高吞吐</td></tr>
+<tr><td>Huge board sharding</td><td>player hash + scatter rank</td><td>exact rank有 O(S) RPC</td></tr>
+<tr><td>Tie</td><td>explicit tuple</td><td>实现比 float composite复杂，语义正确</td></tr>
+<tr><td>Failure read</td><td>stale snapshot</td><td>freshness下降；保护 ledger DB</td></tr>
+<tr><td>Settlement</td><td>frozen reconciled snapshot</td><td>结算稍慢，公平可审计</td></tr></tbody></table></div>
+<p>MVP 用单 board SQL indexed table；规模后切 single Redis/custom order store + Outbox；global board超单机时才 player-shard；随后加 Top snapshot、read token、season finalizer、multi-region epoch；最后根据证据引入 order-statistics directory与anti-cheat ML。</p>
+<h3 id="21-19-follow-up-q-a">21.19 Follow-up Q&amp;A</h3>
+<p><strong>Q：为什么 Redis ZSET float composite 不安全？</strong> Double 精度有限，score与timestamp拼接可能碰撞/舍入。Tie tuple应显式编码和比较。</p>
+<p><strong>Q：分片后如何 exact rank？</strong> 先 pin 含每 shard exact offset/MVCC root 的 BoardReadCut；在该 cut 读取 player tuple，并行求每 shard严格优于它的数量，求和+1。“至少达到同 watermark”的 mutable reads 不够。</p>
+<p><strong>Q：Redis 挂了为何不查 DB？</strong> 高峰 exact COUNT/ORDER BY 会把 truth store击穿；返回 stale snapshot并重建更安全。</p>
+<p><strong>Q：如何保证 DB 与 Kafka 不漏？</strong> 同事务写 Outbox，CDC发布；consumer按自己的 board_score_version 幂等。</p>
+<p><strong>Q：玩家刚得高分为何排名还旧？</strong> 返回 read token；Query等待 index追上或标 pending/provisional。不要虚假声称立即全局强一致。</p>
+<h3 id="21-20-60-秒总结">21.20 60 秒总结</h3>
+<blockquote>“Leaderboard 与 approximate Top K不同：排序和结算必须 deterministic。可信 Match Service把 signed result写 Canonical Score Ledger，同事务 Outbox驱动可重建 rank index；一次 result 影响多榜，所以 write token 返回 per-board score-version map。超级 board按 player hash；exact rank 先 pin <code>BoardReadCut(shard offset vector + MVCC roots)</code>，再在同一 cut 读取 tuple与各 shard count，避免 mutable scatter 产生不存在的快照。等目标 board 的 home shard applied 后再建 cut。Top snapshot吸收热点；Season在每个 ledger shard安装 write fence/barrier，从 authority cut直接构建 reward snapshot。最后用 anti-cheat ML、multi-region epoch fencing、rebuild与 invariant monitoring闭环。”</blockquote>
+<hr/>
+<hr/>
+        <nav class="pager" aria-label="Case navigation">
+    <a href="case-20-design-real-time-top-k-trending-system.html">← 20. Design Real-time Top-K / Trending System</a>
+    <a class="next" href="case-22-design-distributed-crossword-solver.html">22. Design Distributed Crossword Solver →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

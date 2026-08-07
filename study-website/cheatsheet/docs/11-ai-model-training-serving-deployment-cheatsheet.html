@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>AI Model Training, Serving &amp; Deployment Cheat Sheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Core Cheatsheets / Core</div>
+<h1>AI Model Training, Serving &amp; Deployment Cheat Sheet</h1>
+<p>end-to-end ML/MLE interviews + daily production workflow</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>AI MODEL TRAINING, SERVING &amp; DEPLOYMENT CHEAT SHEET<br/>Purpose: end-to-end ML/MLE interviews + daily production workflow</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. End-to-end ML lifecycle</h2>
+<div class="section-body"><pre><code class="language-text">Data collection
+ -&gt; data validation
+ -&gt; feature engineering / preprocessing
+ -&gt; training
+ -&gt; evaluation
+ -&gt; model registry
+ -&gt; deployment
+ -&gt; monitoring
+ -&gt; feedback loop / retraining</code></pre>
+<p>中文: 面试里不要只讲 model。要讲 data, evaluation, deployment, monitoring, retraining.</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Training workflow</h2>
+<div class="section-body"><p class="numbered-line">1. Define problem and metric</p>
+<p class="numbered-line">2. Split train/val/test</p>
+<p class="numbered-line">3. Build baseline</p>
+<p class="numbered-line">4. Train model</p>
+<p class="numbered-line">5. Tune hyperparameters</p>
+<p class="numbered-line">6. Evaluate offline</p>
+<p class="numbered-line">7. Package model</p>
+<p class="numbered-line">8. Deploy safely</p>
+<p class="numbered-line">9. Monitor online</p>
+<h3>Metrics</h3>
+<pre><code class="language-text">Classification: accuracy, precision, recall, F1, AUC, confusion matrix, calibration
+Regression: MAE, MSE/RMSE, R2, MAPE
+Ranking/search: NDCG, MRR, Recall@k, CTR/CVR online
+LLM/RAG: faithfulness, groundedness, citation accuracy, tool success rate, latency, cost</code></pre></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Data split and leakage</h2>
+<div class="section-body"><h3>Random split</h3>
+<pre><code class="language-python">from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)</code></pre>
+<h3>Time-based split for temporal data</h3>
+<pre><code class="language-python">train = df[df.event_time &lt; "2026-01-01"]
+test = df[df.event_time &gt;= "2026-01-01"]</code></pre>
+<h3>Leakage examples</h3>
+<ul><li>feature computed using future data</li></ul>
+<ul><li>duplicate users/items across train and test</li></ul>
+<ul><li>target-derived feature</li></ul>
+<ul><li>scaler/imputer fit on full dataset instead of train only</li></ul></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. PyTorch training skeleton</h2>
+<div class="section-body"><pre><code class="language-python">def train_one_epoch(model, loader, optimizer, criterion, device):
+    model.train()
+    total_loss = 0
+
+    for xb, yb in loader:
+        xb, yb = xb.to(device), yb.to(device)
+        logits = model(xb)
+        loss = criterion(logits, yb)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item() * xb.size(0)
+
+    return total_loss / len(loader.dataset)</code></pre>
+<h3>Evaluation</h3>
+<pre><code class="language-python">import torch
+
+@torch.no_grad()
+def evaluate(model, loader, device):
+    model.eval()
+    correct = total = 0
+
+    for xb, yb in loader:
+        xb, yb = xb.to(device), yb.to(device)
+        logits = model(xb)
+        pred = logits.argmax(dim=1)
+        correct += (pred == yb).sum().item()
+        total += yb.size(0)
+
+    return correct / total</code></pre></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Hugging Face Trainer</h2>
+<div class="section-body"><pre><code class="language-python">from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import Trainer, TrainingArguments
+
+model_name = "distilbert-base-uncased"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
+
+args = TrainingArguments(
+    output_dir="./outputs",
+    eval_strategy="epoch",
+    save_strategy="epoch",
+    learning_rate=2e-5,
+    per_device_train_batch_size=16,
+    per_device_eval_batch_size=16,
+    num_train_epochs=3,
+    load_best_model_at_end=True,
+)
+
+trainer = Trainer(
+    model=model,
+    args=args,
+    train_dataset=train_ds,
+    eval_dataset=val_ds,
+    tokenizer=tokenizer,
+)
+trainer.train()</code></pre>
+<p>Use for transformer fine-tuning and quick experiments.</p></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Distributed training options</h2>
+<div class="section-body"><pre><code class="language-text">PyTorch DDP: standard distributed training
+Hugging Face Accelerate: simple interface over single/multi-GPU/TPU/DeepSpeed
+DeepSpeed: memory optimization, ZeRO, large model training
+FSDP: shard model parameters across GPUs
+Ray Train: distributed training orchestration</code></pre>
+<h3>Accelerate pattern</h3>
+<pre><code class="language-python">from accelerate import Accelerator
+
+accelerator = Accelerator()
+model, optimizer, train_loader = accelerator.prepare(model, optimizer, train_loader)
+
+for batch in train_loader:
+    optimizer.zero_grad()
+    outputs = model(**batch)
+    loss = outputs.loss
+    accelerator.backward(loss)
+    optimizer.step()</code></pre>
+<h3>Launch</h3>
+<pre><code class="language-bash">accelerate config
+accelerate launch train.py</code></pre></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. PEFT / LoRA</h2>
+<div class="section-body"><h3>LoRA idea</h3>
+<pre><code class="language-text">Freeze base model.
+Train small low-rank adapter matrices.
+Much fewer trainable parameters.
+Lower memory.</code></pre>
+<h3>Hugging Face PEFT</h3>
+<pre><code class="language-python">from peft import LoraConfig, get_peft_model, TaskType
+
+config = LoraConfig(
+    task_type=TaskType.CAUSAL_LM,
+    r=8,
+    lora_alpha=16,
+    lora_dropout=0.05,
+    target_modules=["q_proj", "v_proj"],
+)
+
+model = get_peft_model(model, config)
+model.print_trainable_parameters()</code></pre>
+<p>Use fine-tuning when you need consistent task behavior/style and have high-quality examples.<br/>Use RAG when you need fresh/private knowledge.</p></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Experiment tracking with MLflow</h2>
+<div class="section-body"><pre><code class="language-python">import mlflow
+import mlflow.pytorch
+
+with mlflow.start_run():
+    mlflow.log_param("lr", lr)
+    mlflow.log_param("batch_size", batch_size)
+
+    for epoch in range(num_epochs):
+        train_loss = train_one_epoch(...)
+        val_acc = evaluate(...)
+        mlflow.log_metric("train_loss", train_loss, step=epoch)
+        mlflow.log_metric("val_acc", val_acc, step=epoch)
+
+    mlflow.pytorch.log_model(model, "model")</code></pre>
+<h3>Track</h3>
+<ul><li>params</li></ul>
+<ul><li>metrics</li></ul>
+<ul><li>artifacts</li></ul>
+<ul><li>model files</li></ul>
+<ul><li>git commit</li></ul>
+<ul><li>dataset version</li></ul></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Model registry</h2>
+<div class="section-body"><h3>Registry stores</h3>
+<ul><li>model name</li></ul>
+<ul><li>model version</li></ul>
+<ul><li>stage/alias</li></ul>
+<ul><li>metrics</li></ul>
+<ul><li>artifact path</li></ul>
+<ul><li>owner</li></ul>
+<ul><li>description</li></ul>
+<h3>Workflow</h3>
+<pre><code class="language-text">train -&gt; log model -&gt; register -&gt; validate -&gt; promote to staging/prod -&gt; deploy</code></pre>
+<h3>MLflow</h3>
+<pre><code class="language-python">result = mlflow.register_model(
+    model_uri="runs:/RUN_ID/model",
+    name="sentiment-classifier",
+)</code></pre></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. FastAPI model server</h2>
+<div class="section-body"><pre><code class="language-python">from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class PredictRequest(BaseModel):
+    text: str
+
+class PredictResponse(BaseModel):
+    label: str
+    score: float
+
+model = load_model()
+model.eval()
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+@app.post("/predict", response_model=PredictResponse)
+def predict(req: PredictRequest):
+    label, score = run_inference(model, req.text)
+    return PredictResponse(label=label, score=score)</code></pre>
+<h3>Run</h3>
+<pre><code class="language-bash">uvicorn app:app --host 0.0.0.0 --port 8080</code></pre></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Dockerfile</h2>
+<div class="section-body"><pre><code class="language-dockerfile">FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 8080
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]</code></pre>
+<h3>GPU image example</h3>
+<pre><code class="language-dockerfile">FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime</code></pre></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Serving options</h2>
+<div class="section-body"><pre><code class="language-text">FastAPI: custom simple API
+BentoML: model packaging and serving
+MLflow Serving: serve registered MLflow models
+TorchServe: PyTorch model serving
+Triton: high-performance serving for many frameworks
+KServe/Seldon: Kubernetes-native model serving
+Ray Serve: Python-native scalable serving/composition
+vLLM/TGI: LLM-specific high-throughput serving</code></pre>
+<h3>Decision</h3>
+<pre><code class="language-text">sklearn/simple model: FastAPI/BentoML/MLflow
+PyTorch high-performance: Triton/TorchServe/FastAPI
+LLM: vLLM/TGI
+Complex Python pipeline: Ray Serve/BentoML
+K8s standardization: KServe/Seldon</code></pre></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. Batch inference</h2>
+<div class="section-body"><pre><code class="language-python">def batch_predict(model, dataloader, device):
+    model.eval()
+    results = []
+
+    with torch.no_grad():
+        for xb in dataloader:
+            xb = xb.to(device)
+            logits = model(xb)
+            pred = logits.argmax(dim=1)
+            results.extend(pred.cpu().tolist())
+
+    return results</code></pre>
+<h3>For large-scale</h3>
+<ul><li>Spark</li></ul>
+<ul><li>Ray Data</li></ul>
+<ul><li>Beam</li></ul>
+<ul><li>Airflow/Argo workflows</li></ul>
+<ul><li>Kubernetes Jobs</li></ul></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>13. Online inference concerns</h2>
+<div class="section-body"><ul><li>latency p50/p95/p99</li></ul>
+<ul><li>throughput QPS</li></ul>
+<ul><li>batching</li></ul>
+<ul><li>timeout</li></ul>
+<ul><li>retry</li></ul>
+<ul><li>model loading time</li></ul>
+<ul><li>cold start</li></ul>
+<ul><li>autoscaling</li></ul>
+<ul><li>GPU memory</li></ul>
+<ul><li>input validation</li></ul>
+<ul><li>output schema</li></ul>
+<ul><li>logging</li></ul>
+<p>Dynamic batching improves throughput but may increase latency.</p></div>
+</section>
+<section class="section-card" id="sec-15">
+<div class="section-kicker">Section 16</div>
+<h2>14. Monitoring</h2>
+<div class="section-body"><h3>System metrics</h3>
+<ul><li>CPU/GPU utilization</li></ul>
+<ul><li>memory</li></ul>
+<ul><li>latency</li></ul>
+<ul><li>QPS</li></ul>
+<ul><li>error rate</li></ul>
+<ul><li>queue length</li></ul>
+<h3>Model metrics</h3>
+<ul><li>prediction distribution</li></ul>
+<ul><li>confidence distribution</li></ul>
+<ul><li>input drift</li></ul>
+<ul><li>feature drift</li></ul>
+<ul><li>label drift</li></ul>
+<ul><li>accuracy if labels available</li></ul>
+<ul><li>calibration</li></ul>
+<h3>LLM metrics</h3>
+<ul><li>tokens/sec</li></ul>
+<ul><li>time to first token</li></ul>
+<ul><li>hallucination/faithfulness</li></ul>
+<ul><li>tool error rate</li></ul>
+<ul><li>cost per request</li></ul>
+<ul><li>context length</li></ul></div>
+</section>
+<section class="section-card" id="sec-16">
+<div class="section-kicker">Section 17</div>
+<h2>15. Data validation</h2>
+<div class="section-body"><p>Use Great Expectations / pandera / TFDV.</p>
+<h3>Checks</h3>
+<ul><li>schema</li></ul>
+<ul><li>null rate</li></ul>
+<ul><li>range</li></ul>
+<ul><li>category values</li></ul>
+<ul><li>distribution drift</li></ul>
+<ul><li>label distribution</li></ul>
+<ul><li>duplicates</li></ul>
+<ul><li>data leakage</li></ul>
+<h3>pandera example</h3>
+<pre><code class="language-python">import pandera as pa
+from pandera import Column, DataFrameSchema
+
+schema = DataFrameSchema({
+    "age": Column(int, pa.Check.ge(0)),
+    "income": Column(float, nullable=True),
+    "label": Column(int, pa.Check.isin([0, 1])),
+})
+
+schema.validate(df)</code></pre></div>
+</section>
+<section class="section-card" id="sec-17">
+<div class="section-kicker">Section 18</div>
+<h2>16. Deployment strategies</h2>
+<div class="section-body"><pre><code class="language-text">Shadow: serve new model in parallel, do not affect users
+Canary: send small % traffic to new model
+Blue/green: switch between two production environments
+A/B test: compare business/user metrics
+Rollback: quickly revert to previous model</code></pre></div>
+</section>
+<section class="section-card" id="sec-18">
+<div class="section-kicker">Section 19</div>
+<h2>17. Model versioning</h2>
+<div class="section-body"><h3>Version</h3>
+<ul><li>code version</li></ul>
+<ul><li>data version</li></ul>
+<ul><li>feature version</li></ul>
+<ul><li>model artifact version</li></ul>
+<ul><li>config version</li></ul>
+<ul><li>prompt version for LLM apps</li></ul>
+<h3>Store</h3>
+<ul><li>Git SHA</li></ul>
+<ul><li>dataset snapshot</li></ul>
+<ul><li>training config</li></ul>
+<ul><li>dependency lock file</li></ul>
+<ul><li>model artifact URI</li></ul>
+<ul><li>evaluation report</li></ul></div>
+</section>
+<section class="section-card" id="sec-19">
+<div class="section-kicker">Section 20</div>
+<h2>18. Feature store</h2>
+<div class="section-body"><h3>Feature store solves</h3>
+<ul><li>offline/online feature consistency</li></ul>
+<ul><li>feature reuse</li></ul>
+<ul><li>point-in-time correctness</li></ul>
+<ul><li>low-latency online lookup</li></ul>
+<h3>Examples</h3>
+<ul><li>Feast</li></ul>
+<ul><li>Tecton</li></ul>
+<ul><li>SageMaker Feature Store</li></ul>
+<ul><li>Databricks Feature Store</li></ul></div>
+</section>
+<section class="section-card" id="sec-20">
+<div class="section-kicker">Section 21</div>
+<h2>19. Training vs RAG vs prompt engineering</h2>
+<div class="section-body"><p>Use prompt engineering when behavior can be changed with instructions/examples.<br/>Use RAG when you need private/fresh factual knowledge.<br/>Use fine-tuning when you need consistent format/style/task behavior and have high-quality examples.<br/>Use RLHF/RLAIF when you need preference alignment at scale.</p></div>
+</section>
+<section class="section-card" id="sec-21">
+<div class="section-kicker">Section 22</div>
+<h2>20. Interview answer pattern</h2>
+<div class="section-body"><p>Question: Build and deploy an ML model.</p>
+<h3>Answer</h3>
+<p>I would start by defining the target metric and creating train/validation/test splits with data leakage checks. I would build a simple baseline first, track experiments with MLflow, and register the best model with metrics and artifacts. For serving, I would package the model behind a FastAPI or dedicated serving system, containerize it, deploy to Kubernetes with readiness/liveness probes, and use canary rollout. In production I would monitor latency, error rate, prediction distribution, data drift, and business metrics, and set up retraining based on drift or scheduled refresh.</p></div>
+</section>
+<section class="section-card" id="sec-22">
+<div class="section-kicker">Section 23</div>
+<h2>21. Common production failures</h2>
+<div class="section-body"><p class="numbered-line">1. Training-serving skew</p>
+<p class="numbered-line">2. Data leakage</p>
+<p class="numbered-line">3. No model versioning</p>
+<p class="numbered-line">4. No rollback</p>
+<p class="numbered-line">5. No input validation</p>
+<p class="numbered-line">6. Slow cold start</p>
+<p class="numbered-line">7. GPU OOM</p>
+<p class="numbered-line">8. No monitoring</p>
+<p class="numbered-line">9. Offline metric improves but online metric drops</p>
+<p class="numbered-line">10. Fine-tuning used when RAG is better</p>
+<h3>Mitigation</h3>
+<p>feature store, registry, canary deployment, observability, golden eval set, load testing, drift monitoring, human review.</p></div>
+</section>
+<section class="section-card" id="sec-23">
+<div class="section-kicker">Section 24</div>
+<h2>ADVANCED INTERVIEW DEEP DIVE - EXPANDED COVERAGE</h2>
+<div class="section-body"><p>A. End-to-end ML platform mental model<br/>------------------------------------------------------------<br/>A production AI system is data ingestion, labeling, training, evaluation, registry, deployment, monitoring, feedback, and rollback. The model is only one artifact in a larger control loop.</p>
+<p>B. Training pipeline<br/>------------------------------------------------------------</p>
+<p class="numbered-line">1. Define product objective and offline metric.</p>
+<p class="numbered-line">2. Collect/version data and labels.</p>
+<p class="numbered-line">3. Split by time/user/document to avoid leakage.</p>
+<p class="numbered-line">4. Train baseline.</p>
+<p class="numbered-line">5. Tune features/model.</p>
+<p class="numbered-line">6. Evaluate slices and hard cases.</p>
+<p class="numbered-line">7. Register model artifact and metadata.</p>
+<p class="numbered-line">8. Shadow/canary deploy.</p>
+<p class="numbered-line">9. Monitor drift and product metrics.</p>
+<p>C. Data and feature correctness<br/>------------------------------------------------------------<br/>Track dataset version, label logic, preprocessing hash, feature definitions, model config, random seed, environment, and owner. Feature skew happens when online features differ from training features; this can destroy quality even with a correct model artifact.</p>
+<p>D. Model choices<br/>------------------------------------------------------------</p>
+<ul><li>classic ML: fast, interpretable, strong for tabular.</li></ul>
+<ul><li>deep model: strong for unstructured data, more compute/data.</li></ul>
+<ul><li>foundation model: flexible, expensive, requires safety/eval.</li></ul>
+<ul><li>distilled model: lower latency/cost, good for routing/classification.</li></ul>
+<ul><li>fine-tuned model: stable repeated behavior, needs data and governance.</li></ul>
+<p>E. Serving patterns<br/>------------------------------------------------------------</p>
+<ul><li>sync online API: low-latency user path.</li></ul>
+<ul><li>async job: long video/document/batch workflows.</li></ul>
+<ul><li>streaming: token UX for LLMs.</li></ul>
+<ul><li>batch inference: scheduled large workloads.</li></ul>
+<ul><li>edge/on-device: privacy, latency, cost.</li></ul>
+<h3>Serving stack mapping</h3>
+<p>FastAPI for simple CPU service; Triton for tensor inference; vLLM for generation; Ray Serve for Python DAG composition; Kubernetes for rollout/orchestration.</p>
+<p>F. Registry and rollout<br/>------------------------------------------------------------<br/>Registry should track model URI, version, training data, metrics, tokenizer/schema compatibility, owner, approval, and deployment status. Rollout gates should include quality, latency, cost, safety, canary metrics, and rollback readiness.</p>
+<p>G. Monitoring<br/>------------------------------------------------------------<br/>System: QPS, latency, error rate, saturation, queue depth, CPU/GPU/memory, OOM, tokens/sec. Model: input drift, prediction drift, calibration, groundedness, hallucination, human feedback, business KPI.</p>
+<p>H. Cost controls<br/>------------------------------------------------------------<br/>Mixed precision, gradient checkpointing, LoRA/QLoRA, distillation, quantization, dynamic batching, model cascade/router, cache embeddings/prompts, right-size CPU/GPU, and use spot/preemptible for fault-tolerant batch jobs.</p>
+<p>I. Failure modes<br/>------------------------------------------------------------<br/>Offline metric improves but online drops; data leakage; model/tokenizer mismatch; new model slower at p95; index/model version mismatch; canary slice not representative; stale feature definitions.</p>
+<p>J. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: Fine-tune or prompt?<br/>A: Prompt first. Fine-tune when the task is repeated, data exists, output style is stable, latency/cost justify smaller model, or prompting is unreliable.</p>
+<p>Q: How deploy with rollback?<br/>A: Immutable versions, registry metadata, canary/blue-green routing, compatibility checks, dashboards, and automated rollback on latency/error/quality regression.</p>
+<p>Q: What is shadow deployment?<br/>A: Copy real traffic to new model without affecting users. Compare outputs, latency, safety, and costs before canary.</p>
+<p>Q: How reduce inference cost?<br/>A: Route by intent/complexity, cache, batch, quantize, use smaller models, reduce context, and choose CPU/GPU by workload profile.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

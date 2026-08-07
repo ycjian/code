@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Model Serving Cheatsheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Infra Deep Dives / Infra</div>
+<h1>Model Serving Cheatsheet</h1>
+<p>answer model deployment and inference platform deep-dive questions.</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>MODEL SERVING CHEATSHEET<br/>KServe + BentoML + Seldon + TorchServe + production serving patterns<br/>Purpose: answer model deployment and inference platform deep-dive questions.</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model / 中文总览</h2>
+<div class="section-body"><p>Model serving converts a trained model into a production API.</p>
+<h3>Layers</h3>
+<p class="numbered-line">1. Model artifact: weights + tokenizer + config + preprocessing code</p>
+<p class="numbered-line">2. Runtime: PyTorch/TensorFlow/ONNX/vLLM/Triton/custom Python</p>
+<p class="numbered-line">3. Server: FastAPI/BentoML/TorchServe/Triton/vLLM</p>
+<p class="numbered-line">4. Platform: KServe/Seldon/Ray Serve/Kubernetes/SageMaker/Vertex AI</p>
+<p class="numbered-line">5. Ops: autoscaling, canary, monitoring, rollback, security</p>
+<h3>Chinese</h3>
+<ul><li>serving 不只是开一个 Flask API.</li></ul>
+<ul><li>要考虑 batching、latency、versioning、canary、GPU scheduling、observability、rollback.</li></ul>
+<h3>Interview one-liner</h3>
+<p>"I would package the model with a reproducible runtime, expose a typed inference API, deploy through a serving platform with autoscaling and canary rollout, and monitor latency, error rate, model version, feature skew, and business metrics."</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Serving architecture patterns</h2>
+<div class="section-body"><h3>Simple pattern</h3>
+<p>  client -&gt; API service -&gt; model server -&gt; response</p>
+<h3>Production pattern</h3>
+<p>  client<br/>    -&gt; API gateway / auth<br/>    -&gt; request validation<br/>    -&gt; feature retrieval / preprocessing<br/>    -&gt; model server<br/>    -&gt; postprocessing / policy filter<br/>    -&gt; logging + metrics<br/>    -&gt; response</p>
+<h3>LLM serving pattern</h3>
+<p>  client -&gt; router -&gt; vLLM/TGI/Triton-LLM -&gt; tokenizer/model/KV cache -&gt; streaming response</p>
+<h3>RAG serving pattern</h3>
+<p>  client -&gt; retriever -&gt; reranker -&gt; context builder -&gt; LLM server -&gt; citation verifier</p></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. KServe</h2>
+<div class="section-body"><h3>Use when</h3>
+<ul><li>Kubernetes-native model serving.</li></ul>
+<ul><li>Need autoscaling/canary/standard inference service abstraction.</li></ul>
+<ul><li>Need multi-framework serving on K8s.</li></ul>
+<h3>KServe InferenceService YAML sketch</h3>
+<pre><code class="language-yaml">apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: sklearn-iris
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: sklearn
+      storageUri: s3://my-bucket/models/sklearn-iris
+      resources:
+        requests:
+          cpu: "1"
+          memory: "2Gi"
+        limits:
+          cpu: "2"
+          memory: "4Gi"</code></pre>
+<h3>Custom container</h3>
+<pre><code class="language-yaml">apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: custom-sentiment
+spec:
+  predictor:
+    containers:
+    - image: myrepo/sentiment-server:2026-05-14
+      ports:
+      - containerPort: 8080
+      resources:
+        limits:
+          nvidia.com/gpu: 1</code></pre>
+<h3>Canary sketch</h3>
+<pre><code class="language-yaml">spec:
+  predictor:
+    canaryTrafficPercent: 10
+    model:
+      modelFormat:
+        name: sklearn
+      storageUri: s3://bucket/model-v2</code></pre>
+<h3>KServe components</h3>
+<ul><li>predictor: model inference</li></ul>
+<ul><li>transformer: preprocessing/postprocessing</li></ul>
+<ul><li>explainer: explanations</li></ul>
+<h3>Interview point</h3>
+<p>"KServe is a platform abstraction; the actual model runtime may still be Triton, vLLM, sklearn server, or custom container."</p></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. BentoML</h2>
+<div class="section-body"><h3>Use when</h3>
+<ul><li>Python-friendly model service packaging.</li></ul>
+<ul><li>Need to serve arbitrary Python/model code.</li></ul>
+<ul><li>Need local dev -&gt; container -&gt; production path.</li></ul>
+<h3>BentoML service example</h3>
+<pre><code class="language-python"># service.py
+import bentoml
+from bentoml.io import JSON
+
+# Example: load a model saved in BentoML model store
+# model_ref = bentoml.sklearn.get("sentiment_model:latest")
+# runner = model_ref.to_runner()
+
+svc = bentoml.Service("sentiment_service")
+
+@svc.api(input=JSON(), output=JSON())
+def predict(payload):
+    text = payload["text"]
+    # pred = runner.predict.run([text])[0]
+    pred = "positive" if "love" in text.lower() else "neutral"
+    return {"sentiment": pred}</code></pre>
+<h3>Run locally</h3>
+<pre><code class="language-bash">bentoml serve service:svc --reload</code></pre>
+<h3>Containerize</h3>
+<pre><code class="language-bash">bentoml build
+bentoml containerize sentiment_service:latest</code></pre>
+<p>Modern BentoML-style example may use class-based services depending on version. Always check project version.</p>
+<h3>Production concerns</h3>
+<ul><li>batching</li></ul>
+<ul><li>concurrency</li></ul>
+<ul><li>model loading time</li></ul>
+<ul><li>dependency pinning</li></ul>
+<ul><li>GPU support</li></ul>
+<ul><li>tracing/metrics</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Seldon</h2>
+<div class="section-body"><h3>Use when</h3>
+<ul><li>Kubernetes model serving with inference graphs.</li></ul>
+<ul><li>Need predictors, transformers, routers, combiners.</li></ul>
+<ul><li>Need explainability, metrics, request logging integrations.</li></ul>
+<h3>Conceptual graph</h3>
+<p>  request -&gt; transformer -&gt; model A<br/>                         -&gt; model B<br/>                         -&gt; combiner -&gt; response</p>
+<h3>Seldon-style inference graph idea</h3>
+<pre><code class="language-yaml">apiVersion: machinelearning.seldon.io/v1
+kind: SeldonDeployment
+metadata:
+  name: sentiment-ensemble
+spec:
+  predictors:
+  - name: default
+    graph:
+      name: router
+      type: ROUTER
+      children:
+      - name: model-a
+        type: MODEL
+      - name: model-b
+        type: MODEL</code></pre>
+<h3>Interview point</h3>
+<p>"Seldon is useful when inference is not a single model call but a graph of preprocessing, routing, models, and combiners."</p></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. TorchServe</h2>
+<div class="section-body"><p>TorchServe historically serves PyTorch models, but official PyTorch docs now warn that it is in limited maintenance. For new systems, consider alternatives like KServe + custom runtime, BentoML, Triton, Ray Serve, or vLLM for LLMs.</p>
+<h3>TorchServe concepts</h3>
+<ul><li>.mar model archive</li></ul>
+<ul><li>handler.py for preprocess/inference/postprocess</li></ul>
+<ul><li>management API</li></ul>
+<ul><li>inference API</li></ul>
+<h3>Handler sketch</h3>
+<pre><code class="language-python">class ModelHandler:
+    def initialize(self, context):
+        self.model = load_model(context.system_properties["model_dir"])
+        self.model.eval()
+
+    def preprocess(self, data):
+        return tokenize(data)
+
+    def inference(self, inputs):
+        with torch.no_grad():
+            return self.model(inputs)
+
+    def postprocess(self, outputs):
+        return outputs.argmax(dim=-1).tolist()</code></pre></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Model API design</h2>
+<div class="section-body"><h3>Good request schema</h3>
+<pre><code class="language-json">{
+  "request_id": "abc",
+  "model_version": "optional-pin",
+  "instances": [
+    {"text": "I love this product"}
+  ],
+  "options": {
+    "return_probabilities": true
+  }
+}</code></pre>
+<h3>Good response schema</h3>
+<pre><code class="language-json">{
+  "request_id": "abc",
+  "model_version": "sentiment-v12",
+  "predictions": [
+    {"label": "positive", "score": 0.93}
+  ],
+  "latency_ms": 12
+}</code></pre>
+<h3>Design rules</h3>
+<ul><li>Support batch requests.</li></ul>
+<ul><li>Include request_id and model_version.</li></ul>
+<ul><li>Return structured errors.</li></ul>
+<ul><li>Validate inputs.</li></ul>
+<ul><li>Keep API backward-compatible.</li></ul></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Batching</h2>
+<div class="section-body"><h3>Why batch</h3>
+<ul><li>Better GPU utilization.</li></ul>
+<ul><li>Higher throughput.</li></ul>
+<h3>Tradeoff</h3>
+<ul><li>Bigger batch increases throughput but may increase latency.</li></ul>
+<h3>Dynamic batching pattern</h3>
+<pre><code class="language-python"># Pseudocode
+queue = []
+while True:
+    batch = collect_until(max_batch_size=32, max_wait_ms=10)
+    outputs = model(batch)
+    return_outputs_to_callers(outputs)</code></pre>
+<h3>Metrics</h3>
+<ul><li>average batch size</li></ul>
+<ul><li>queue wait time</li></ul>
+<ul><li>GPU utilization</li></ul>
+<ul><li>p95 latency</li></ul>
+<ul><li>throughput</li></ul></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. Canary and rollback</h2>
+<div class="section-body"><h3>Rollout plan</h3>
+<p class="numbered-line">1. Deploy v2 with 0% traffic.</p>
+<p class="numbered-line">2. Run shadow traffic or internal test.</p>
+<p class="numbered-line">3. Send 1% traffic.</p>
+<p class="numbered-line">4. Check guardrails.</p>
+<p class="numbered-line">5. Increase to 10%, 50%, 100%.</p>
+<p class="numbered-line">6. Roll back if metrics fail.</p>
+<h3>Guardrails</h3>
+<ul><li>error rate</li></ul>
+<ul><li>latency p95/p99</li></ul>
+<ul><li>cost/request</li></ul>
+<ul><li>prediction distribution drift</li></ul>
+<ul><li>business metric</li></ul>
+<ul><li>safety metric</li></ul>
+<h3>Prediction distribution check</h3>
+<pre><code class="language-python"># Compare class distribution old vs new
+old_dist = old_preds.value_counts(normalize=True)
+new_dist = new_preds.value_counts(normalize=True)
+print(new_dist - old_dist)</code></pre></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Autoscaling</h2>
+<div class="section-body"><h3>CPU service autoscale</h3>
+<ul><li>CPU utilization</li></ul>
+<ul><li>QPS</li></ul>
+<ul><li>request latency</li></ul>
+<h3>GPU service autoscale</h3>
+<ul><li>queue depth</li></ul>
+<ul><li>GPU utilization</li></ul>
+<ul><li>GPU memory</li></ul>
+<ul><li>tokens/sec</li></ul>
+<ul><li>p95 latency</li></ul>
+<h3>K8s HPA example</h3>
+<pre><code class="language-yaml">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: model-server-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: model-server
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70</code></pre></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Production checklist</h2>
+<div class="section-body"><h3>Before launch</h3>
+<ul><li>model artifact versioned</li></ul>
+<ul><li>code commit recorded</li></ul>
+<ul><li>dependency lockfile</li></ul>
+<ul><li>model card / owner</li></ul>
+<ul><li>eval results attached</li></ul>
+<ul><li>canary plan</li></ul>
+<ul><li>rollback plan</li></ul>
+<ul><li>metrics dashboard</li></ul>
+<ul><li>alerting</li></ul>
+<ul><li>load test</li></ul>
+<ul><li>security review</li></ul>
+<ul><li>input validation</li></ul>
+<ul><li>PII handling</li></ul>
+<ul><li>feature compatibility check</li></ul>
+<h3>Runtime</h3>
+<ul><li>health endpoint</li></ul>
+<ul><li>readiness endpoint</li></ul>
+<ul><li>graceful shutdown</li></ul>
+<ul><li>timeout and retry policy</li></ul>
+<ul><li>circuit breaker</li></ul>
+<ul><li>request logging</li></ul>
+<ul><li>trace propagation</li></ul></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. Interview quick answers</h2>
+<div class="section-body"><p>Q: How do you deploy a model safely?<br/>A: Register/version artifact, package runtime, deploy behind stable API, run shadow/canary traffic, monitor guardrails, and keep rollback path.</p>
+<p>Q: How do you reduce inference latency?<br/>A: Profile stages, optimize preprocessing, batch requests, use faster runtime/quantization, cache results, reduce model size, use GPU efficiently, and avoid network hops.</p>
+<p>Q: How to handle model cold start?<br/>A: Preload model, use readiness probes, keep warm replicas, optimize container image/model loading, and avoid scale-to-zero for latency-sensitive services.</p>
+<p>Q: KServe vs BentoML?<br/>A: KServe is K8s-native serving platform abstraction; BentoML is Python developer-friendly packaging and serving framework. They can be complementary.</p></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>12. References / official docs</h2>
+<div class="section-body"><ul><li>KServe docs: https://kserve.github.io/website/</li></ul>
+<ul><li>KServe intro: https://kserve.github.io/website/docs/intro</li></ul>
+<ul><li>BentoML docs: https://docs.bentoml.com/</li></ul>
+<ul><li>Seldon Core docs: https://docs.seldon.ai/</li></ul>
+<ul><li>Seldon inference graphs: https://docs.seldon.ai/seldon-core-1/v1.19/configuration/routing/inference-graph</li></ul>
+<ul><li>TorchServe docs and maintenance notice: https://docs.pytorch.org/serve/</li></ul></div>
+</section>
+<section class="section-card" id="sec-14">
+<div class="section-kicker">Section 15</div>
+<h2>RESUME-ALIGNED INTERVIEW DEEP DIVE</h2>
+<div class="section-body"><p>A. Serving-platform comparison<br/>------------------------------------------------------------<br/>Triton: high-throughput tensor inference for embeddings, rankers, vision/audio/classifiers.<br/>vLLM: high-throughput autoregressive LLM serving with KV-cache optimized batching.<br/>Ray Serve: Python-native distributed serving and DAG/workflow composition.<br/>KServe: Kubernetes-native model serving abstraction using InferenceService CRDs.<br/>BentoML: packaging and developer experience for model services.<br/>Seldon: Kubernetes model deployment, inference graphs, governance/enterprise serving.<br/>TorchServe: PyTorch model serving, useful but less central for modern LLM serving.</p>
+<p>B. KServe interview model<br/>------------------------------------------------------------<br/>KServe is useful when the organization wants Kubernetes-native model deployment as a platform primitive: InferenceService, autoscaling, canary rollout, predictor/transformer/explainer pattern, model versioning, and standard traffic management.</p>
+<p>C. When to choose what<br/>------------------------------------------------------------</p>
+<ul><li>Need maximum GPU throughput for embedding/ranking: Triton.</li></ul>
+<ul><li>Need LLM generation throughput: vLLM.</li></ul>
+<ul><li>Need Python DAG orchestration around models/tools: Ray Serve.</li></ul>
+<ul><li>Need Kubernetes-native platform abstraction for many teams: KServe/Seldon.</li></ul>
+<ul><li>Need simple packaging and deployment DX: BentoML.</li></ul>
+<p>D. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: What is the predictor/transformer/explainer pattern?<br/>A: Predictor runs the model, transformer handles pre/post-processing, and explainer provides model explanations. It separates concerns and lets platform teams standardize deployment.</p>
+<p>Q: Why not just use FastAPI?<br/>A: FastAPI is an HTTP framework. Model serving platforms add versioning, autoscaling, batching, canary rollout, model repository integration, GPU placement, and inference-specific observability.</p>
+<p>Q: What is hard about scale-to-zero?<br/>A: Cold start. Large models may take minutes to pull/load/warm, so user-facing models often need warm capacity.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

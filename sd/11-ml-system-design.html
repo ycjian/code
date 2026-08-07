@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ML System Design - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="29-ml-system-design-interview-bank">29. ML System Design Interview Bank</h2>
+<p>这一节面向 MLE / AI infra 面试。ML system design 和普通 backend system design 的区别是：你不仅要讲 service、DB、queue、cache，还要讲 data、label、feature、training、evaluation、online serving、feedback loop、monitoring。高分答案要能同时覆盖 model quality 和 production reliability。</p>
+<h3 id="ml-system-design-通用回答框架">ML System Design 通用回答框架</h3>
+<h4 id="白板顺序">白板顺序</h4>
+<pre><code class="language-">1. Product goal
+2. Prediction task
+3. Data and labels
+4. Feature pipeline
+5. Model choice
+6. Training pipeline
+7. Online serving path
+8. Evaluation
+9. Monitoring and feedback
+10. Failure modes</code></pre>
+<h4 id="一句话原则">一句话原则</h4>
+<blockquote>I would first define the product metric and prediction target, then design the data pipeline, feature pipeline, model training, online serving, evaluation, and monitoring around that target.</blockquote>
+<h4 id="不能漏的-tradeoff">不能漏的 tradeoff</h4>
+<ul>
+<li>Offline metric vs online business metric。</li>
+<li>Precision vs recall。</li>
+<li>Latency vs model complexity。</li>
+<li>Freshness vs stability。</li>
+<li>Personalization vs privacy。</li>
+<li>Exploration vs exploitation。</li>
+<li>Batch features vs realtime features。</li>
+<li>Model quality vs serving cost。</li>
+</ul>
+<h3 id="1-recommendation-system-design">1. Recommendation System Design</h3>
+<h4 id="question">Question</h4>
+<p>设计推荐系统，比如首页推荐商品、文章、视频或帖子。用户打开 app 后系统返回 personalized ranked items。</p>
+<h4 id="核心结构">核心结构</h4>
+<p>推荐系统通常分两阶段：</p>
+<pre><code class="language-">Candidate Generation -&gt; Ranking -&gt; Re-ranking -&gt; Response</code></pre>
+<p>Candidate generation 负责从海量 item 中快速找几百到几千个候选。Ranking 负责用更复杂模型精排。Re-ranking 处理多样性、业务规则、安全过滤。</p>
+<h4 id="architecture">Architecture</h4>
+<pre><code class="language-">User events
+  -&gt; Kafka / Event Log
+  -&gt; Feature Pipeline
+  -&gt; Offline Feature Store
+  -&gt; Training Pipeline
+  -&gt; Model Registry
+
+Online Request
+  -&gt; Candidate Service
+  -&gt; Feature Fetcher
+  -&gt; Ranking Service
+  -&gt; Re-ranker / Filters
+  -&gt; Response</code></pre>
+<h4 id="candidate-sources">Candidate sources</h4>
+<ul>
+<li>Collaborative filtering：相似用户喜欢的 item。</li>
+<li>Content-based：和用户历史内容相似。</li>
+<li>Trending：全站热门。</li>
+<li>Follow graph：关注的人发的内容。</li>
+<li>Fresh content：新内容探索。</li>
+<li>Sponsored / business candidates。</li>
+</ul>
+<h4 id="features">Features</h4>
+<p>User features:</p>
+<ul>
+<li>用户长期兴趣 embedding。</li>
+<li>最近点击/观看/购买序列。</li>
+<li>地域、设备、语言。</li>
+<li>活跃度、付费状态。</li>
+</ul>
+<p>Item features:</p>
+<ul>
+<li>item category、creator、price、freshness。</li>
+<li>text/image/video embedding。</li>
+<li>historical CTR / CVR / watch time。</li>
+</ul>
+<p>Context features:</p>
+<ul>
+<li>time of day。</li>
+<li>session intent。</li>
+<li>network type。</li>
+<li>request surface。</li>
+</ul>
+<h4 id="label">Label</h4>
+<p>推荐系统的 label 不能只看 click：</p>
+<ul>
+<li>click：容易被标题党污染。</li>
+<li>dwell time / watch time：更接近满意度。</li>
+<li>purchase / conversion：价值高但稀疏。</li>
+<li>hide / report / skip：负反馈。</li>
+</ul>
+<p>可以做 multi-task model：</p>
+<pre><code class="language-">score = w1 * P(click)
+      + w2 * E(watch_time)
+      + w3 * P(conversion)
+      - w4 * P(hide/report)</code></pre>
+<h4 id="online-serving-latency">Online serving latency</h4>
+<p>推荐服务通常有严格 latency budget：</p>
+<pre><code class="language-">candidate generation: 20-50 ms
+feature fetch: 10-30 ms
+ranking: 20-80 ms
+re-ranking/filter: 5-20 ms</code></pre>
+<p>优化：</p>
+<ul>
+<li>预计算 user embedding / item embedding。</li>
+<li>cache 热门 candidate。</li>
+<li>ranking batch inference。</li>
+<li>模型蒸馏 / quantization。</li>
+<li>fallback to trending when feature/model unavailable。</li>
+</ul>
+<h4 id="interview-answer">Interview answer</h4>
+<blockquote>I would design the recommender as a multi-stage system. Candidate generation retrieves a few thousand items from collaborative filtering, content similarity, trending, and freshness sources. Ranking uses user, item, and context features to predict business-aligned objectives such as watch time or conversion. Re-ranking applies diversity, safety, freshness, and business constraints. I would monitor both offline metrics and online A/B metrics because offline AUC alone may not predict product impact.</blockquote>
+<h3 id="2-video-recommendation-system">2. Video Recommendation System</h3>
+<h4 id="question-2">Question</h4>
+<p>设计短视频推荐系统。用户滑动视频流，系统要持续推荐可能观看、点赞、分享的视频。</p>
+<h4 id="为什么比普通推荐更难">为什么比普通推荐更难</h4>
+<p>Video recommendation 的目标不是简单 click，而是 engagement quality：</p>
+<ul>
+<li>watch time。</li>
+<li>completion rate。</li>
+<li>replay。</li>
+<li>like/share/comment。</li>
+<li>not interested / report。</li>
+<li>creator diversity。</li>
+</ul>
+<p>而且 feedback 是 sequence-based：用户连续刷视频，当前推荐会影响后续行为。</p>
+<h4 id="architecture-2">Architecture</h4>
+<pre><code class="language-">Playback Events
+  -&gt; Realtime Event Pipeline
+  -&gt; User Session Features
+  -&gt; Candidate Retrieval
+  -&gt; Ranking Model
+  -&gt; Diversity / Safety Re-ranker
+  -&gt; Feed Response</code></pre>
+<h4 id="candidate-generation">Candidate generation</h4>
+<ul>
+<li>User embedding ANN search。</li>
+<li>Item-to-item similarity from recent watches。</li>
+<li>Trending in geo/language/category。</li>
+<li>Creator follow graph。</li>
+<li>New creator exploration。</li>
+<li>Safety-approved candidate pool。</li>
+</ul>
+<h4 id="ranking-features">Ranking features</h4>
+<ul>
+<li>user long-term interests。</li>
+<li>session short-term interests。</li>
+<li>video embedding。</li>
+<li>creator quality。</li>
+<li>video freshness。</li>
+<li>predicted watch time。</li>
+<li>negative feedback probability。</li>
+</ul>
+<h4 id="re-ranking">Re-ranking</h4>
+<p>视频流不能只按分数排序，还要处理：</p>
+<ul>
+<li>diversity：避免连续同类视频。</li>
+<li>freshness：插入新内容。</li>
+<li>creator cap：避免一个 creator 占满 feed。</li>
+<li>safety：敏感内容过滤。</li>
+<li>fatigue：用户刚看过类似内容就降权。</li>
+</ul>
+<h4 id="cold-start">Cold start</h4>
+<p>New user:</p>
+<ul>
+<li>使用 geo/language/device/default trending。</li>
+<li>快速收集 onboarding signals。</li>
+<li>增加 exploration。</li>
+</ul>
+<p>New video:</p>
+<ul>
+<li>小流量 exploration bucket。</li>
+<li>根据早期 watch/completion 估计质量。</li>
+<li>表现好再扩大曝光。</li>
+</ul>
+<h4 id="interview-answer-2">Interview answer</h4>
+<blockquote>For video recommendation, I would optimize for watch quality rather than clicks only. The system uses multi-source candidate generation, then a ranking model predicts watch time, completion, engagement, and negative feedback. A re-ranker enforces diversity, safety, freshness, and creator caps. For cold start, I would use controlled exploration and gradually expand exposure based on early engagement signals.</blockquote>
+<h3 id="3-bot-detection-ml-system">3. Bot Detection ML System</h3>
+<h4 id="question-3">Question</h4>
+<p>设计 bot detection system。系统要识别虚假账号、自动化行为、刷量、垃圾注册，同时尽量不误伤正常用户。</p>
+<h4 id="prediction-task">Prediction task</h4>
+<p>这是 risk scoring 问题：</p>
+<pre><code class="language-">input: user/account/session/activity features
+output: risk score or class: human / suspicious / bot</code></pre>
+<h4 id="signals">Signals</h4>
+<p>Account features:</p>
+<ul>
+<li>account age。</li>
+<li>email/phone verification。</li>
+<li>device count。</li>
+<li>IP / ASN / geo。</li>
+</ul>
+<p>Behavior features:</p>
+<ul>
+<li>click interval。</li>
+<li>request rate。</li>
+<li>repeated action pattern。</li>
+<li>session duration。</li>
+<li>mouse/touch dynamics, if available。</li>
+</ul>
+<p>Graph features:</p>
+<ul>
+<li>shared device / IP clusters。</li>
+<li>referral graph。</li>
+<li>payment instrument reuse。</li>
+<li>follow/like network anomalies。</li>
+</ul>
+<p>Content features:</p>
+<ul>
+<li>repeated text。</li>
+<li>spam URL。</li>
+<li>template similarity。</li>
+</ul>
+<h4 id="architecture-3">Architecture</h4>
+<pre><code class="language-">Events
+  -&gt; Feature Aggregation
+  -&gt; Online Feature Store
+  -&gt; Risk Scoring Service
+  -&gt; Policy Engine
+       - allow
+       - challenge
+       - rate limit
+       - shadow ban
+       - block
+  -&gt; Analyst Review / Feedback</code></pre>
+<h4 id="precision-vs-recall">Precision vs recall</h4>
+<p>Bot detection 不能只追求 recall。误封正常用户代价很高。通常分层处理：</p>
+<div class="table-wrap"><table><thead><tr><th>Risk score</th><th>Action</th></tr></thead><tbody><tr><td>low</td><td>allow</td></tr>
+<tr><td>medium</td><td>rate limit / captcha / phone verification</td></tr>
+<tr><td>high</td><td>block / manual review</td></tr></tbody></table></div>
+<h4 id="adversarial-nature">Adversarial nature</h4>
+<p>Bot 会适应模型，所以要：</p>
+<ul>
+<li>monitor feature drift。</li>
+<li>rotate rules/features。</li>
+<li>keep some signals private。</li>
+<li>add graph-based features。</li>
+<li>use human review feedback。</li>
+</ul>
+<h4 id="interview-answer-3">Interview answer</h4>
+<blockquote>I would frame bot detection as a risk scoring system, not a binary classifier that immediately bans users. The model combines account, behavior, graph, and content signals. The policy engine maps risk score to graduated actions such as allow, challenge, rate limit, review, or block. Because attackers adapt, I would monitor drift, keep feedback loops from manual review, and avoid exposing exact thresholds.</blockquote>
+<h3 id="4-harmful-content-detection">4. Harmful Content Detection</h3>
+<h4 id="question-4">Question</h4>
+<p>设计 harmful content detection system，识别暴力、仇恨、色情、垃圾内容、诈骗或 policy violation。需要支持文字、图片、视频，多语言，低延迟和高准确率。</p>
+<h4 id="pipeline">Pipeline</h4>
+<pre><code class="language-">Content Upload
+  -&gt; Lightweight synchronous checks
+  -&gt; Async ML moderation pipeline
+       - text classifier
+       - image classifier
+       - video frame sampler
+       - audio transcription
+       - policy model
+  -&gt; Decision Service
+  -&gt; Human Review Queue
+  -&gt; Enforcement</code></pre>
+<h4 id="synchronous-vs-asynchronous">Synchronous vs asynchronous</h4>
+<p>同步检查：</p>
+<ul>
+<li>hash match known bad content。</li>
+<li>URL blocklist。</li>
+<li>lightweight text rules。</li>
+<li>small model quick score。</li>
+</ul>
+<p>异步检查：</p>
+<ul>
+<li>heavy vision/video model。</li>
+<li>multi-frame analysis。</li>
+<li>human review。</li>
+</ul>
+<h4 id="decision-design">Decision design</h4>
+<p>不要只有 delete/allow：</p>
+<ul>
+<li>allow。</li>
+<li>downrank。</li>
+<li>age gate。</li>
+<li>blur / warning。</li>
+<li>send to review。</li>
+<li>remove。</li>
+<li>account strike。</li>
+</ul>
+<h4 id="video-特殊处理">Video 特殊处理</h4>
+<p>Video 很贵，不能每帧跑大模型：</p>
+<ul>
+<li>sample key frames。</li>
+<li>scene change detection。</li>
+<li>audio ASR。</li>
+<li>OCR for embedded text。</li>
+<li>escalate only suspicious videos to heavy model。</li>
+</ul>
+<h4 id="evaluation">Evaluation</h4>
+<p>核心指标：</p>
+<ul>
+<li>precision：被拦截的是否真的违规。</li>
+<li>recall：违规内容是否漏掉。</li>
+<li>false positive rate by user/content group。</li>
+<li>review queue latency。</li>
+<li>appeal overturn rate。</li>
+</ul>
+<h4 id="interview-answer-4">Interview answer</h4>
+<blockquote>I would use a tiered moderation pipeline. Cheap synchronous checks catch known bad content and obvious violations before publication. Heavier multimodal models and human review run asynchronously. The decision service supports graduated enforcement such as allow, downrank, warning, review, remove, and account strike. I would monitor precision, recall, appeal overturn rate, and review latency because false positives can seriously harm user trust.</blockquote>
+<h3 id="5-ml-evaluation-and-experimentation">5. ML Evaluation and Experimentation</h3>
+<h4 id="offline-evaluation">Offline evaluation</h4>
+<p>Offline metrics depend on task：</p>
+<div class="table-wrap"><table><thead><tr><th>Task</th><th>Metrics</th></tr></thead><tbody><tr><td>Binary classifier</td><td>AUC, precision, recall, F1, calibration</td></tr>
+<tr><td>Ranking</td><td>NDCG, MAP, MRR, recall@K</td></tr>
+<tr><td>Recommendation</td><td>hit rate, watch time proxy, diversity</td></tr>
+<tr><td>Generation</td><td>human eval, safety, latency, quality score</td></tr>
+<tr><td>Fraud/risk</td><td>precision at high recall, false positive rate</td></tr></tbody></table></div>
+<h4 id="online-evaluation">Online evaluation</h4>
+<p>最终要看 A/B test：</p>
+<ul>
+<li>CTR。</li>
+<li>conversion。</li>
+<li>watch time。</li>
+<li>retention。</li>
+<li>revenue。</li>
+<li>complaint/report rate。</li>
+<li>latency/cost。</li>
+</ul>
+<h4 id="why-offline-can-lie">Why offline can lie</h4>
+<ul>
+<li>Training data bias。</li>
+<li>Position bias。</li>
+<li>Delayed feedback。</li>
+<li>Label leakage。</li>
+<li>Distribution shift。</li>
+<li>Metric mismatch。</li>
+</ul>
+<h4 id="experiment-guardrails">Experiment guardrails</h4>
+<p>上线新模型不能只看主指标：</p>
+<ul>
+<li>error rate。</li>
+<li>P95/P99 latency。</li>
+<li>cost per request。</li>
+<li>bad content/report rate。</li>
+<li>fairness / false positive by segment。</li>
+<li>business guardrails。</li>
+</ul>
+<h4 id="interview-answer-5">Interview answer</h4>
+<blockquote>I would use offline evaluation to filter bad models, but I would not rely on it as the final decision. Offline metrics can suffer from bias, leakage, and metric mismatch. The final validation is an online experiment with product metrics and guardrails such as latency, error rate, cost, and safety metrics. I would also slice metrics by important user segments to catch regressions hidden in averages.</blockquote>
+<h3 id="6-feature-store-training-serving-consistency">6. Feature Store / Training-Serving Consistency</h3>
+<h4 id="problem">Problem</h4>
+<p>训练时用一套 feature，线上 serving 用另一套计算逻辑，很容易产生 training-serving skew。</p>
+<h4 id="feature-store-结构">Feature store 结构</h4>
+<pre><code class="language-">Raw events
+  -&gt; Batch feature pipeline
+  -&gt; Offline feature store
+  -&gt; Training datasets
+
+Raw/realtime events
+  -&gt; Streaming feature pipeline
+  -&gt; Online feature store
+  -&gt; Model serving</code></pre>
+<h4 id="feature-types">Feature types</h4>
+<ul>
+<li>Batch features：过去 7 天点击数、历史购买次数。</li>
+<li>Realtime features：最近 5 分钟行为、当前 session。</li>
+<li>Embedding features：user/item vector。</li>
+<li>Context features：device、time、geo。</li>
+</ul>
+<h4 id="point-in-time-correctness">Point-in-time correctness</h4>
+<p>训练数据不能使用未来信息。构建 training set 时要 point-in-time join：</p>
+<pre><code class="language-">label time = T
+feature value must be computed using data &lt;= T</code></pre>
+<h4 id="consistency-strategy">Consistency strategy</h4>
+<ul>
+<li>共享 feature definition。</li>
+<li>离线和在线同源逻辑。</li>
+<li>feature versioning。</li>
+<li>backfill support。</li>
+<li>monitor missing/default feature rate。</li>
+</ul>
+<h4 id="interview-answer-6">Interview answer</h4>
+<blockquote>I would design the feature store to keep offline training features and online serving features consistent. Training data must use point-in-time joins to avoid leakage. Feature definitions should be versioned and shared across batch and realtime pipelines. Online serving monitors missing feature rate, default value rate, and feature distribution drift.</blockquote>
+<h3 id="7-model-serving-and-rollout">7. Model Serving and Rollout</h3>
+<h4 id="generic-serving-architecture">Generic serving architecture</h4>
+<pre><code class="language-">Model Registry
+  -&gt; Deployment Controller
+  -&gt; Online Inference Service
+  -&gt; Feature Fetcher
+  -&gt; Prediction Logger
+  -&gt; Monitoring</code></pre>
+<h4 id="rollout-strategy">Rollout strategy</h4>
+<ol>
+<li>Offline evaluation。</li>
+<li>Shadow traffic。</li>
+<li>Canary 1%。</li>
+<li>A/B test。</li>
+<li>Gradual ramp。</li>
+<li>Rollback if guardrails regress。</li>
+</ol>
+<h4 id="prediction-logging">Prediction logging</h4>
+<p>线上要记录：</p>
+<ul>
+<li>model version。</li>
+<li>feature snapshot or feature references。</li>
+<li>prediction score。</li>
+<li>decision。</li>
+<li>request context。</li>
+<li>later label, when available。</li>
+</ul>
+<p>这些用于 debugging、retraining、bias analysis。</p>
+<h4 id="fallback">Fallback</h4>
+<p>模型服务失败时不能让产品完全不可用：</p>
+<ul>
+<li>cached recommendations。</li>
+<li>rule-based baseline。</li>
+<li>popular/trending fallback。</li>
+<li>previous stable model。</li>
+<li>degrade heavy model to smaller model。</li>
+</ul>
+<h4 id="interview-answer-7">Interview answer</h4>
+<blockquote>I would put every model version in a registry with artifact, config, features, and evaluation results. New models first receive shadow traffic, then canary or A/B traffic. The serving path logs predictions with model version and feature references so we can join future labels. If the model or feature store fails, the product falls back to cached, rule-based, or previous-model results.</blockquote>
+<h3 id="8-drift-monitoring-and-feedback-loop">8. Drift, Monitoring, and Feedback Loop</h3>
+<h4 id="what-to-monitor">What to monitor</h4>
+<p>System metrics:</p>
+<ul>
+<li>QPS。</li>
+<li>latency。</li>
+<li>error rate。</li>
+<li>timeout。</li>
+<li>CPU/GPU utilization。</li>
+<li>cost per request。</li>
+</ul>
+<p>ML metrics:</p>
+<ul>
+<li>feature distribution drift。</li>
+<li>prediction score drift。</li>
+<li>calibration。</li>
+<li>missing feature rate。</li>
+<li>label distribution。</li>
+<li>delayed outcome metrics。</li>
+</ul>
+<p>Business metrics:</p>
+<ul>
+<li>CTR / conversion。</li>
+<li>retention。</li>
+<li>complaint/report。</li>
+<li>revenue。</li>
+<li>moderation appeals。</li>
+</ul>
+<h4 id="drift-types">Drift types</h4>
+<ul>
+<li>Data drift：input distribution changes。</li>
+<li>Concept drift：relationship between feature and label changes。</li>
+<li>Label drift：label distribution changes。</li>
+</ul>
+<h4 id="feedback-loop-risk">Feedback loop risk</h4>
+<p>推荐系统会影响自己看到的数据。例如模型推荐什么，用户就只能点击什么。这会造成 exposure bias。解决：</p>
+<ul>
+<li>exploration bucket。</li>
+<li>randomized logging for evaluation。</li>
+<li>counterfactual / debiasing methods。</li>
+<li>holdout traffic。</li>
+</ul>
+<h4 id="interview-answer-8">Interview answer</h4>
+<blockquote>I would monitor both production health and model health. Production metrics tell me whether serving is reliable; model metrics tell me whether the predictions still match reality. I would track feature drift, prediction drift, missing features, delayed labels, and business metrics. For recommenders, I would keep some exploration traffic because the model's own decisions affect future training data.</blockquote>
+<h3 id="9-generalization-and-data-quality">9. Generalization and Data Quality</h3>
+<h4 id="常见问题">常见问题</h4>
+<ul>
+<li>模型只在训练集/老用户上表现好。</li>
+<li>新用户、新地区、新设备效果差。</li>
+<li>Label noisy。</li>
+<li>Data leakage。</li>
+<li>Long-tail case 没覆盖。</li>
+</ul>
+<h4 id="data-quality-checks">Data quality checks</h4>
+<ul>
+<li>schema validation。</li>
+<li>null/default rate。</li>
+<li>duplicate events。</li>
+<li>timestamp sanity。</li>
+<li>label delay。</li>
+<li>feature range。</li>
+<li>train/serving distribution comparison。</li>
+</ul>
+<h4 id="slicing">Slicing</h4>
+<p>不要只看整体 metric。要按 segment 看：</p>
+<ul>
+<li>country / language。</li>
+<li>device type。</li>
+<li>new vs existing user。</li>
+<li>traffic source。</li>
+<li>content category。</li>
+<li>model version。</li>
+</ul>
+<h4 id="interview-answer-9">Interview answer</h4>
+<blockquote>I would not trust aggregate model metrics alone. I would slice evaluation by important user, content, and traffic segments to catch regressions. I would also build data quality checks for missing values, duplicate events, timestamp issues, and label leakage. Generalization problems are often data problems before they are model architecture problems.</blockquote>
+<h3 id="10-ml-system-design-面试高分模板">10. ML System Design 面试高分模板</h3>
+<h4 id="开场模板">开场模板</h4>
+<blockquote>I would start by clarifying the product objective and the prediction target. Then I would design the data collection, labeling strategy, feature pipeline, model training, online serving, evaluation, and monitoring around that target.</blockquote>
+<h4 id="讲-architecture-模板">讲 architecture 模板</h4>
+<blockquote>The offline path builds training data and trains models. The online path fetches features and serves predictions within the latency budget. Events from online traffic are logged back into the data lake, joined with delayed labels, and used for retraining and evaluation.</blockquote>
+<h4 id="讲-tradeoff-模板">讲 tradeoff 模板</h4>
+<blockquote>The main tradeoff is model quality versus latency and cost. A larger model may improve offline metrics, but if it increases P99 latency or reduces system reliability, it may hurt the product. I would use a multi-stage design where cheap retrieval narrows candidates and a heavier ranker only scores a small set.</blockquote>
+<h4 id="讲-monitoring-模板">讲 monitoring 模板</h4>
+<blockquote>I would monitor serving health, feature health, model score distribution, delayed labels, and business metrics. I would alert on latency, errors, missing feature rate, drift, and guardrail regressions. Every prediction should include model version and feature references for debugging and retraining.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

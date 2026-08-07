@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Vision / Video - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h3 id="vision-video-generation-inference-重点">Vision / Video Generation Inference 重点</h3>
+<p>如果岗位是基础大模型 Vision / Video generation 的 MLE，面试重点会比普通 LLM serving 更贴近底层 infra。对方想确认你不是只会调 API，而是真的理解 GPU pipeline、memory layout、multi-GPU communication 和端到端吞吐瓶颈。</p>
+<h3 id="这类岗位日常在优化什么">这类岗位日常在优化什么</h3>
+<ol>
+<li>Multi-GPU inference acceleration</li>
+</ol>
+<ul>
+<li>模型太大或视频生成计算太重，需要跨多 GPU 执行。</li>
+<li>重点是 Tensor Parallelism、Pipeline Parallelism、sequence / frame parallelism、NCCL communication。</li>
+</ul>
+<ol>
+<li>Frame loading / preprocessing</li>
+</ol>
+<ul>
+<li>视频模型经常不是 GPU compute 一项瓶颈。</li>
+<li>frame decode、resize、crop、normalize、batch packing、host-to-device copy 都可能拖慢 pipeline。</li>
+</ul>
+<ol>
+<li>GPU memory efficiency</li>
+</ol>
+<ul>
+<li>Video generation 会同时吃 activation、attention memory、latent tensors、KV cache 或 feature cache。</li>
+<li>分辨率、帧数、batch size、sampling steps 都会线性或更糟地推高 memory。</li>
+</ul>
+<ol>
+<li>End-to-end latency / throughput</li>
+</ol>
+<ul>
+<li>不是只看 model forward。</li>
+<li>要看 request queueing、CPU preprocessing、GPU compute、GPU communication、postprocessing、streaming / storage output。</li>
+</ul>
+<h3 id="video-generation-为什么更难">Video generation 为什么更难</h3>
+<p>文本 LLM 的 token sequence 已经很长，但 video generation 还有几个额外维度：</p>
+<pre><code class="language-">batch_size
+num_frames
+height
+width
+channels / latent_channels
+num_sampling_steps
+attention_heads</code></pre>
+<p>所以 memory 和 compute 通常跟这些因素一起放大。比如扩散模型或 video transformer 里，帧数翻倍不只是输出大一倍，还会增加 attention / temporal module / latent buffer 的压力。</p>
+<h3 id="frame-loading-pipeline">Frame Loading Pipeline</h3>
+<p>高吞吐视频推理常见 pipeline：</p>
+<pre><code class="language-">Storage / Object Store
+  -&gt; video read
+  -&gt; decode frames
+  -&gt; resize / crop / normalize
+  -&gt; pack tensor batch
+  -&gt; pinned CPU memory
+  -&gt; async H2D copy
+  -&gt; GPU inference
+  -&gt; postprocess / encode / upload</code></pre>
+<h3 id="frame-loading-的常见瓶颈">Frame loading 的常见瓶颈</h3>
+<ul>
+<li>Video decode 在 CPU 上太慢。</li>
+<li>小文件 / remote storage 读取 latency 高。</li>
+<li>Resize / crop / normalize 没有 batch 化。</li>
+<li>CPU memory 到 GPU memory copy 没有用 pinned memory。</li>
+<li>H2D copy 和 GPU compute 没有 overlap。</li>
+<li>Data loader worker 数不够，GPU 等数据。</li>
+<li>Batch 内视频长短不一致，padding 太多。</li>
+</ul>
+<h3 id="frame-loading-优化话术">Frame loading 优化话术</h3>
+<blockquote>I would profile the input pipeline separately from model forward. For video generation, GPU underutilization often comes from CPU decode, preprocessing, or H2D transfer. I would use parallel dataloader workers, pinned memory, async copy, prefetching, and batch-level preprocessing. If decode is the bottleneck, I would consider GPU-accelerated decode or caching decoded frames / latent features depending on storage cost and reuse pattern.</blockquote>
+<h3 id="multi-gpu-通信瓶颈怎么深挖">Multi-GPU 通信瓶颈怎么深挖</h3>
+<p>面试官问 multi-GPU bottleneck，不要只说“用 NCCL”。要讲清楚是哪种 parallelism 引入哪种通信。</p>
+<div class="table-wrap"><table><thead><tr><th>场景</th><th>通信类型</th><th>瓶颈</th></tr></thead><tbody><tr><td>Tensor Parallelism</td><td>All-Reduce / All-Gather / Reduce-Scatter</td><td>每层都通信，decode step latency 敏感</td></tr>
+<tr><td>Pipeline Parallelism</td><td>activation send/recv</td><td>micro-batch 太小时 pipeline bubble 大</td></tr>
+<tr><td>Data Parallel replicas</td><td>request routing 较简单</td><td>模型必须单卡放得下</td></tr>
+<tr><td>Frame / sequence parallel</td><td>exchange partial attention states</td><td>attention pattern 和 frame dependency 决定通信量</td></tr>
+<tr><td>Distributed output storage</td><td>upload generated frames/video</td><td>postprocess 可能拖慢 end-to-end latency</td></tr></tbody></table></div>
+<h3 id="multi-gpu-优化回答">Multi-GPU 优化回答</h3>
+<ol>
+<li>先 profile</li>
+</ol>
+<ul>
+<li>分开测 compute time、NCCL time、H2D/D2H copy、CPU preprocessing。</li>
+<li>用 Nsight Systems / PyTorch profiler / NCCL logs 看 kernel timeline。</li>
+</ul>
+<ol>
+<li>减少通信</li>
+</ol>
+<ul>
+<li>合理选择 TP degree，不是越多越好。</li>
+<li>能在单 NVLink island 内完成就不要跨慢链路。</li>
+<li>使用 fused kernels，减少中间 tensor materialization。</li>
+</ul>
+<ol>
+<li>隐藏通信</li>
+</ol>
+<ul>
+<li>async collectives。</li>
+<li>overlap computation and communication。</li>
+<li>多 CUDA streams。</li>
+</ul>
+<ol>
+<li>拓扑感知</li>
+</ol>
+<ul>
+<li>TP group 放在 NVLink / NVSwitch 连接更紧密的 GPU 上。</li>
+<li>避免跨 PCIe root complex。</li>
+<li>跨节点时考虑 InfiniBand / RDMA 成本。</li>
+</ul>
+<ol>
+<li>调 batch / micro-batch</li>
+</ol>
+<ul>
+<li>batch 太小，communication overhead 占比高。</li>
+<li>batch 太大，显存爆或 latency 太高。</li>
+<li>找 throughput 和 latency 的 sweet spot。</li>
+</ul>
+<h3 id="显存分配策略">显存分配策略</h3>
+<p>Vision / Video inference 里，显存通常被这些东西吃掉：</p>
+<ul>
+<li>Model weights。</li>
+<li>Activations / intermediate tensors。</li>
+<li>Attention workspace。</li>
+<li>KV cache / feature cache。</li>
+<li>Latent tensors。</li>
+<li>CUDA graph memory pool。</li>
+<li>Temporary buffers from cuDNN / custom kernels。</li>
+<li>Fragmentation。</li>
+</ul>
+<h3 id="oom-排查顺序">OOM 排查顺序</h3>
+<p>遇到 OOM，不要只说“减 batch size”。更 senior 的排查顺序：</p>
+<ol>
+<li>复现 OOM</li>
+</ol>
+<ul>
+<li>固定 model、resolution、num_frames、batch、sampling steps、precision。</li>
+<li>区分是 deterministic OOM 还是偶发 OOM。</li>
+</ul>
+<ol>
+<li>看 memory curve</li>
+</ol>
+<ul>
+<li>记录 peak allocated、reserved、fragmentation。</li>
+<li>看 OOM 出现在 prefill、attention、decode、postprocess 还是 copy 阶段。</li>
+</ul>
+<ol>
+<li>区分 memory 类型</li>
+</ol>
+<ul>
+<li>weights 固定占用。</li>
+<li>activations 随 batch / resolution / frames 增长。</li>
+<li>KV / feature cache 随 sequence / frames / output length 增长。</li>
+<li>temporary workspace 可能由某些 kernel 突然申请。</li>
+</ul>
+<ol>
+<li>看 fragmentation</li>
+</ol>
+<ul>
+<li>总 free memory 看似足够，但没有连续 block。</li>
+<li>需要 memory pool、block allocator、预分配、固定 shape bucket。</li>
+</ul>
+<ol>
+<li>看是否有 leak</li>
+</ol>
+<ul>
+<li>request 完成后 cache / tensor reference 没释放。</li>
+<li>Python object 持有 GPU tensor。</li>
+<li>stream / callback / logging 保存了 tensor。</li>
+</ul>
+<h3 id="oom-解决手段">OOM 解决手段</h3>
+<p>按优先级可以这样答：</p>
+<ol>
+<li>Admission control</li>
+</ol>
+<ul>
+<li>在进入 GPU 前按 resolution、frames、batch、max tokens / steps 估算 memory。</li>
+<li>超过 budget 就 reject、queue 或降级。</li>
+</ul>
+<ol>
+<li>Shape bucketing</li>
+</ol>
+<ul>
+<li>把请求按 resolution、frame count、sequence length 分 bucket。</li>
+<li>减少动态 shape 导致的 workspace 波动和 fragmentation。</li>
+</ul>
+<ol>
+<li>Mixed precision / quantization</li>
+</ol>
+<ul>
+<li>FP16 / BF16 / FP8 / INT8。</li>
+<li>注意质量回归和 kernel 支持。</li>
+</ul>
+<ol>
+<li>Memory-efficient attention</li>
+</ol>
+<ul>
+<li>FlashAttention / xFormers / tiled attention。</li>
+<li>降低 attention intermediate memory。</li>
+</ul>
+<ol>
+<li>Chunking / tiling</li>
+</ol>
+<ul>
+<li>长视频按 frame chunks 处理。</li>
+<li>高分辨率按 spatial tiles 处理。</li>
+<li>代价是边界一致性和额外 stitching。</li>
+</ul>
+<ol>
+<li>Offloading / swapping</li>
+</ol>
+<ul>
+<li>不活跃 cache offload 到 CPU memory。</li>
+<li>代价是 PCIe / NVLink copy latency。</li>
+</ul>
+<ol>
+<li>Recomputation</li>
+</ol>
+<ul>
+<li>用 compute 换 memory。</li>
+<li>适合 memory 紧但 compute 还有余量的场景。</li>
+</ul>
+<ol>
+<li>Graceful degradation</li>
+</ol>
+<ul>
+<li>降低 resolution。</li>
+<li>降低 num_frames。</li>
+<li>降低 sampling steps。</li>
+<li>降低 batch size。</li>
+<li>切小模型。</li>
+<li>返回 retry-after 或 async job id。</li>
+</ul>
+<h3 id="oom-follow-up-答案模板">OOM Follow-up 答案模板</h3>
+<blockquote>I would first prevent OOM through admission control rather than reacting after CUDA OOM. For video generation, I estimate memory from resolution, frame count, batch size, sampling steps, and model precision. If the request exceeds budget, I either queue it, route to a larger GPU, reduce generation parameters, or reject it. If OOM happens only under fragmentation, I would use shape bucketing and a preallocated memory pool. If it is true peak memory, I would use mixed precision, memory-efficient attention, chunked frame processing, offloading, or recomputation depending on the latency and quality requirements.</blockquote>
+<h3 id="性能优化要怎么讲">性能优化要怎么讲</h3>
+<p>不要只说“提高 GPU utilization”。要把端到端链路拆开：</p>
+<pre><code class="language-">T_total =
+  T_queue
+  + T_load
+  + T_decode_frames
+  + T_preprocess
+  + T_H2D
+  + T_model_compute
+  + T_NCCL_comm
+  + T_postprocess
+  + T_upload</code></pre>
+<p>然后说你会 profile 哪一段最大，再针对最大段优化。</p>
+<h3 id="好的高分表达">好的高分表达</h3>
+<blockquote>In this kind of inference pipeline, I would not assume the model forward is the only bottleneck. I would break down latency into frame loading, decode, preprocessing, H2D transfer, GPU compute, NCCL communication, and postprocessing. For Multi-GPU models, I would pay special attention to All-Reduce latency and topology placement. For memory, I would track not only allocated memory but also reserved memory, fragmentation, cache growth, and temporary workspace spikes. The goal is to maximize GPU occupancy without letting long or high-resolution requests destabilize the node.</blockquote>
+<h3 id="面试官真正想确认什么">面试官真正想确认什么</h3>
+<ul>
+<li>你是否知道 GPU memory 是硬约束，不是普通服务多加机器就能解决。</li>
+<li>你是否理解 pre-processing / loading 也可能让 GPU 空转。</li>
+<li>你是否知道 multi-GPU 通信可能吞掉模型切分带来的收益。</li>
+<li>你是否会用 profiler 定位问题，而不是凭感觉调参数。</li>
+<li>你是否能在 OOM 时做系统性排查：peak memory、fragmentation、leak、workspace、input shape。</li>
+<li>你是否能给出 engineering trade-off：latency、throughput、quality、cost、stability。</li>
+</ul></article>
+    </main>
+  </div>
+</body>
+</html>

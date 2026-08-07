@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>10. Design Zoom - System Design 28</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Case 11 / 31 · Route 4 / 9</p>
+          <h1 class="route-title">10. Design Zoom</h1>
+          <p class="route-subtitle">Spotify、Zoom、S3、URL Shortener：内容分发、实时媒体、对象存储与全球 Key Lookup。</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#10-1-面试题与-30-秒-framing">10.1 面试题与 30 秒 framing</a><a href="#10-2-requirements-边界与-slo">10.2 Requirements、边界与 SLO</a><a href="#10-3-capacity-estimates-先算-media-不先算-api">10.3 Capacity estimates：先算 media，不先算 API</a><a href="#10-4-api-signaling-与-event-contracts">10.4 API、signaling 与 event contracts</a><a href="#10-5-data-model-partition-index-ttl-与状态机">10.5 Data model、partition、index、TTL 与状态机</a><a href="#10-6-compact-architecture">10.6 Compact architecture</a><a href="#10-7-核心-end-to-end-flows">10.7 核心 end-to-end flows</a><a href="#10-8-deep-dive-1-为什么是-sfu-不默认-p2p-或-mcu">10.8 Deep dive 1：为什么是 SFU，不默认 P2P 或 MCU</a><a href="#10-9-deep-dive-2-webrtc-congestion-simulcast-svc-与-audio-first">10.9 Deep dive 2：WebRTC congestion、simulcast / SVC 与 audio-first</a><a href="#10-10-deep-dive-3-跨地域-cascading-sfu-与-meeting-ownership">10.10 Deep dive 3：跨地域 Cascading SFU 与 meeting ownership</a><a href="#10-11-deep-dive-4-e2ee-key-rotation-与-moderation-trade-off">10.11 Deep dive 4：E2EE、key rotation 与 moderation trade-off</a><a href="#10-12-deep-dive-5-chat-ordering-与-screen-share-control">10.12 Deep dive 5：Chat ordering 与 screen-share control</a><a href="#10-13-reliability-backpressure-multi-region-dr-security">10.13 Reliability、backpressure、multi-region、DR、security</a><a href="#10-14-mle-deep-dive-qoe-prediction-network-adaptation-与-audio-enhancement">10.14 MLE deep dive：QoE prediction、network adaptation 与 audio enhancement</a><a href="#10-15-observability-slo-capacity-与-cost">10.15 Observability、SLO、capacity 与 cost</a><a href="#10-16-trade-offs-与-v1-v2-evolution">10.16 Trade-offs 与 V1 → V2 evolution</a><a href="#10-17-高频-follow-up-q-a">10.17 高频 follow-up Q&amp;A</a><a href="#10-18-60-秒可直接说的总结">10.18 60 秒可直接说的总结</a></nav>
+        </header>
+        <h2 id="10-design-zoom-video-conferencing-screen-sharing-与-chat">10. Design Zoom：Video Conferencing、Screen Sharing 与 Chat</h2>
+<blockquote>本节是面试中的 <strong>proposed design</strong>，用于讨论 WebRTC、SFU、media routing、congestion control 与会议状态，不代表 Zoom 的真实内部实现。</blockquote>
+<h3 id="10-1-面试题与-30-秒-framing">10.1 面试题与 30 秒 framing</h3>
+<p><strong>题目</strong>：设计一个全球实时会议系统，支持 2–500 人入会、音视频、screen sharing、会议内 chat、主持人控制和可选 cloud recording。网络质量变化、移动切网、单机 / 单 AZ / 单 region 故障下应尽量维持会议。</p>
+<p><strong>30 秒开场</strong>：</p>
+<blockquote>“我先分 control plane 与 media plane：control plane 管 meeting、identity、authorization、participant state 和路由；media plane 用 WebRTC over UDP/TURN，将媒体送到 regional SFU，SFU 做选择性转发而非默认转码。每个 meeting 有 home coordinator 和 epoch，所有控制命令带 epoch 防 split-brain；媒体可通过 backup SFU 快速重连。我要重点深挖 SFU topology、simulcast/SVC + congestion control、跨地域级联、screen-share prioritization 和 E2EE。目标不是无故障，而是在故障时先保 audio、再保 screen share、最后牺牲非活跃 video。”</blockquote>
+<h3 id="10-2-requirements-边界与-slo">10.2 Requirements、边界与 SLO</h3>
+<p><strong>Functional requirements</strong></p>
+<ul>
+<li>创建 / 加入 / 离开会议；waiting room、host / co-host、mute、remove、lock meeting。</li>
+<li>发布 microphone、camera、screen share；active speaker / gallery view；chat、reaction、raise hand。</li>
+<li>NAT traversal、mobile network handoff、device switching；可选 recording 和 transcript。</li>
+<li>邀请链接、passcode、企业 policy；参会者列表与基本 presence。</li>
+</ul>
+<p><strong>Non-functional requirements</strong></p>
+<ul>
+<li>join success &gt; 99.9%；join-to-first-audio p95 &lt; 2 s、p99 &lt; 4 s。</li>
+<li>media one-way latency p95 &lt; 200 ms、p99 &lt; 400 ms；audio packet loss after concealment &lt; 1%；会议 control availability 99.99%。</li>
+<li>单个 SFU / AZ 故障时 audio interruption 目标 &lt; 5 s；region 灾难允许 10–30 s 重连，ephemeral presence/media-routing state 的 RPO &lt; 5 s。</li>
+<li>participant presence/media state 最终一致且 region-disaster RPO &lt; 5 秒；但已确认的 host admission、remove、meeting lock、recording consent 和 key epoch 进入跨区同步 safety/audit log，RPO=0，并由单一 authority 排序。</li>
+</ul>
+<p><strong>Out of scope</strong>：PSTN carrier、 webinar billing、完整 calendar integration、AI meeting summary 产品逻辑。Recording 可作为异步支路，不能拖慢 live media。</p>
+<h3 id="10-3-capacity-estimates-先算-media-不先算-api">10.3 Capacity estimates：先算 media，不先算 API</h3>
+<p>面试假设：</p>
+<ul>
+<li>稳态高峰同时在线为 5M concurrent participants，平均 10 人/meeting，约 500K concurrent meetings。</li>
+<li>每端上行平均 video 1.2 Mbps（含动态关摄像头 / 降档后的摊销）+ audio 64 Kbps；含 RTP / SRTP / FEC 20% overhead：</li>
+<p>\[ ingress\approx5M\times1.264Mbps\times1.2\approx7.6Tbps \]</p>
+<li>每人画面平均订阅 4 个 video layer，总 3 Mbps，加多个 audio 0.2 Mbps 和 20% overhead：</li>
+<p>\[ egress\approx5M\times3.2Mbps\times1.2\approx19.2Tbps \] SFU 的瓶颈首先是 NIC / packet processing / egress，而非数据库。</p>
+<li>在这个稳态高峰下，平均 session 45 分钟对应基线 join arrival \(5M/2700\approx1.85K/s\)；另按 region evacuation、全员重连等 <strong>6× instantaneous join-storm factor</strong> 设计约 11K joins/s，而不是再次把 concurrent peak 当普通日峰值相乘。若每 participant 每 5 秒一个 stats / presence control message，峰值约 1M messages/s；必须 aggregate，不能全部落关系库。</li>
+<li>10% participants 同时观看一个 1.0 Mbps screen share，额外约 0.5 Tbps before overhead；screen share 通常应替换部分 camera tile，而不是纯叠加。</li>
+<li>假设每天 1M recorded meeting-hours，复合 recording 1.5 Mbps：</li>
+<p>\[ 1M\times1.5Mbps\times3600/8\approx675TB/day \] 90 天热存约 61 PB，必须 lifecycle tiering；若保留 individual tracks 会更高。</p>
+<li>Chat 假设每 participant 每小时 8 条、200 B payload：5M × 8 / 3600 ≈11K msg/s，峰值 60K/s；规模远小于 media，但需要 durable ordering / retention。</li>
+</ul>
+<h3 id="10-4-api-signaling-与-event-contracts">10.4 API、signaling 与 event contracts</h3>
+<p><strong>Control API</strong></p>
+<ul>
+<li><strong>POST /v1/meetings</strong>：host_id、policy、scheduled_at、idempotency_key；返回 meeting_id、join_secret、home_region。</li>
+<li><strong>POST /v1/meetings/{id}:join</strong>：join_token、device_caps、network_hints、client_nonce。若 policy 要求 waiting room，只返回 <code>{state: WAITING, participant_id, participant_session_epoch, meeting_epoch, control_endpoint, wait_token}</code>，绝不返回 ICE/SFU capability/E2EE key；无需等待的用户也必须先 durable commit ADMITTED，才返回 media grant。</li>
+<li><strong>POST /v1/meetings/{id}/participants/{participant_id}:claim-media-grant</strong>：wait_token + participant_session_epoch；仅当权威状态为 ADMITTED 且 safety watermark 已提交时，返回短期、绑定 meeting/participant/session epoch 的 ICE servers、SFU candidates 和 key package。</li>
+<li><strong>POST /v1/meetings/{id}/commands</strong>：client 只提交 command_id、meeting_epoch、action、target_participant_id、expected_target_session_epoch；actor identity、role 与 actor_session_epoch 从已认证 connection/token context 解析，不能信任 body 中的 role。重复 command_id 返回相同 result，stale meeting/actor/target epoch 返回 409 REJOIN_REQUIRED。</li>
+<li><strong>POST /v1/meetings/{id}/chat</strong>：message_id、client_seq、body / attachment_ref；server 返回 room_seq。</li>
+</ul>
+<p><strong>Signaling</strong></p>
+<ul>
+<li>WebSocket / QUIC stream 传 SDP offer / answer、ICE candidate、publish / subscribe、active-speaker hint、layer request 和 host command。</li>
+<li>所有消息含 meeting_id、participant_id、<code>participant_session_epoch</code>、message_seq、ack_seq。服务端用认证 connection 绑定的 participant/session epoch 派生 actor，再从 authoritative ParticipantSession 读取当前 role/revocation epoch。断线重连带 last_ack_seq，服务端重放 bounded control log；过旧则发送 authoritative snapshot。</li>
+</ul>
+<pre><code class="language-json">{
+  &quot;event_type&quot;: &quot;ParticipantMediaState.v2&quot;,
+  &quot;event_id&quot;: &quot;uuid&quot;,
+  &quot;meeting_id&quot;: &quot;m1&quot;,
+  &quot;meeting_epoch&quot;: 17,
+  &quot;participant_id&quot;: &quot;p8&quot;,
+  &quot;participant_session_epoch&quot;: 3,
+  &quot;media&quot;: &quot;SCREEN_SHARE&quot;,
+  &quot;state&quot;: &quot;PUBLISHED&quot;,
+  &quot;track_id&quot;: &quot;tr4&quot;,
+  &quot;sfu_id&quot;: &quot;s22&quot;,
+  &quot;server_ts&quot;: &quot;...&quot;,
+  &quot;trace_id&quot;: &quot;...&quot;
+}</code></pre>
+<p>Event bus 至少一次；只有 matching meeting_epoch 的事件可改变当前状态。Media stats 是高频 telemetry，可 sampling / aggregation；host command、admitted join / leave、recording consent 和 chat 是 durable audit events，不可一起降采样，并在返回成功前进入跨区 audit/safety quorum。</p>
+<h3 id="10-5-data-model-partition-index-ttl-与状态机">10.5 Data model、partition、index、TTL 与状态机</h3>
+<div class="table-wrap"><table><thead><tr><th>Entity</th><th>Partition / key</th><th>Index、TTL 与 consistency</th></tr></thead><tbody><tr><td>Meeting</td><td>meeting_id</td><td>home_region、epoch、policy、host、state、coordinator lease</td></tr>
+<tr><td>ParticipantSession</td><td>meeting_id + participant_id</td><td>participant_session_epoch、revocation_epoch、role、join_seq、device、last_heartbeat、media flags；会后 TTL 24 h</td></tr>
+<tr><td>MediaTrack</td><td>meeting_id + track_id</td><td>publisher、kind、codec、layers、sfu route、track_epoch；ephemeral</td></tr>
+<tr><td>ControlLog</td><td>meeting_id + epoch</td><td>room_seq / command_id；重连窗口保留 1–24 h</td></tr>
+<tr><td>ChatMessage</td><td>meeting_id + room_seq</td><td>message_id unique、sender、body、policy version；按 tenant retention</td></tr>
+<tr><td>RecordingJob</td><td>meeting_id + recording_id</td><td>consent_version、manifest、state、storage URI</td></tr>
+<tr><td>RouteLease</td><td>meeting_id</td><td>coordinator_id、epoch、lease_expiry、fencing token</td></tr>
+<tr><td>QualitySample</td><td>region + minute bucket</td><td>aggregated loss、RTT、jitter、bitrate；raw sample 短 TTL</td></tr></tbody></table></div>
+<p>Meeting 状态：<strong>SCHEDULED → OPEN → ACTIVE → ENDING → ENDED</strong>；host lock / waiting room 是 policy state，不另造会议信息源。Participant：INVITED / WAITING → ADMITTED → CONNECTED → RECONNECTING → LEFT / REMOVED。被 REMOVED 的 participant_session_epoch 永久失效，旧 WebSocket / SRTP key 不能复用。</p>
+<p>Recording：REQUESTED → CONSENTED → CAPTURING → FINALIZING → READY，异常进入 FAILED_RETRYABLE / FAILED_FINAL；live meeting 不等待 recording commit。Chat 以 meeting home shard 的 room_seq 提供单会议顺序；客户端 message_id 去重。Presence 是 ephemeral derived state，可从 heartbeat 重建。</p>
+<h3 id="10-6-compact-architecture">10.6 Compact architecture</h3>
+<figure class="architecture"><figcaption>Architecture Diagram</figcaption><pre class="mermaid">flowchart LR
+    C[&quot;Clients: camera, mic, screen&quot;] --&gt; E[&quot;Edge: Anycast / ICE / TURN&quot;]
+    C --&gt; SG[&quot;Signaling Gateway: WebSocket / QUIC&quot;]
+    SG --&gt; MC[&quot;Meeting Coordinator: epoch + policy&quot;]
+    MC --&gt; MDB[&quot;Meeting DB + Control Log&quot;]
+    MC --&gt; RT[&quot;Route / Capacity Service&quot;]
+    E --&gt; S1[&quot;Regional SFU Pool: primary&quot;]
+    E -. &quot;fast reconnect&quot; .-&gt; S2[&quot;Regional SFU Pool: backup&quot;]
+    S1 &lt;--&gt; CS[&quot;Cascading SFU: cross-region&quot;]
+    S2 &lt;--&gt; CS
+    SG --&gt; CH[&quot;Durable Chat Service&quot;]
+    S1 --&gt; REC[&quot;Recording / Transcription Pipeline&quot;]
+    S1 --&gt; QT[&quot;QoE Telemetry Stream&quot;]
+    QT --&gt; ML[&quot;Quality Models + Network Control&quot;]
+    MC --&gt; KS[&quot;Key Service: meeting key epoch&quot;]</pre><div class="ascii-label">ASCII Architecture · copy-friendly</div><pre class="ascii-diagram"><code>[Clients: camera, mic, screen] --&gt; [Edge: Anycast / ICE / TURN]
+[Clients: camera, mic, screen] --&gt; [Signaling Gateway: WebSocket / QUIC]
+[Signaling Gateway: WebSocket / QUIC] --&gt; [Meeting Coordinator: epoch + policy]
+[Meeting Coordinator: epoch + policy] --&gt; [Meeting DB + Control Log]
+[Meeting Coordinator: epoch + policy] --&gt; [Route / Capacity Service]
+[Edge: Anycast / ICE / TURN] --&gt; [Regional SFU Pool: primary]
+[Edge: Anycast / ICE / TURN] --fast reconnect --&gt; [Regional SFU Pool: backup]
+[Regional SFU Pool: primary] &lt;--&gt; [Cascading SFU: cross-region]
+[Regional SFU Pool: backup] &lt;--&gt; [Cascading SFU: cross-region]
+[Signaling Gateway: WebSocket / QUIC] --&gt; [Durable Chat Service]
+[Regional SFU Pool: primary] --&gt; [Recording / Transcription Pipeline]
+[Regional SFU Pool: primary] --&gt; [QoE Telemetry Stream]
+[QoE Telemetry Stream] --&gt; [Quality Models + Network Control]
+[Meeting Coordinator: epoch + policy] --&gt; [Key Service: meeting key epoch]</code></pre></figure>
+<h3 id="10-7-核心-end-to-end-flows">10.7 核心 end-to-end flows</h3>
+<p><strong>Join</strong>：Global Router 依据 latency、meeting home、SFU capacity 和 data residency 选择 control region。Join Service 验 token、meeting lock / waiting room、tenant policy，分配 participant_id 与 <code>participant_session_epoch</code>，并把 WAITING/ADMITTED transition 写入同步 audit/safety log。WAITING client 只建立 control signaling 并持 wait_token；没有 ICE credential、SFU route 或 media key。host admit durable commit 后，client 才 claim 绑定 meeting_epoch + participant_session_epoch 的短期 media grant，然后与 Edge 做 ICE gathering，优先 UDP direct-to-SFU，失败走 TURN/UDP，再退 TURN/TCP/TLS。Signaling 协商 codec 与 simulcast layers；首个 audio track 一建立就可播放，不等待所有 gallery video。</p>
+<p><strong>Publish / subscribe</strong>：发送端发布 audio、camera simulcast 或 SVC layers、screen track。SFU 不解码内容，只解析必要 RTP header / extension 并为每 subscriber 选择 layer。subscriber 的 viewport、active-speaker、downlink estimate 形成 subscription plan。切 active speaker 时先请求 keyframe；若 keyframe storm 风险高，SFU 合并 PLI / FIR 请求。</p>
+<p><strong>Host command / chat</strong>：host command 到 Coordinator。Coordinator 从 auth context 得到 actor_participant_id/actor_session_epoch，线性检查该 ParticipantSession 未撤销且当前 authoritative role 有权限，再验证 meeting_epoch、command_id 与 expected_target_session_epoch；client 的任何 role 声明都不是 authority。admit/remove/lock/rekey/recording-consent 与 admitted join/leave audit 先写本地 ControlLog 并同步提交 paired-region safety quorum，才 ack 和下发；admit 才允许签 media grant，remove 以 CAS 提升目标 <code>participant_session_epoch/revocation_epoch</code>，SFU 立即停止接受旧 epoch 的 publish/subscribe。Chat 同样验证 actor session，再 durable append 到跨区 audit log、获得 room_seq 后 ack；离线重连按 last_room_seq 补拉。presence/active-speaker 等非安全状态仍可异步。</p>
+<p><strong>SFU failure</strong>：客户端保留 primary / backup candidates。primary heartbeat 消失时 Route Service fencing 掉旧实例并提升 track_epoch；客户端 ICE restart 到 backup，重新 publish SSRC / key epoch。Control plane 提供 participant / subscription snapshot；不尝试复制每个 RTP packet。短暂丢帧可接受，身份、主持人状态和 E2EE epoch 不可分叉。</p>
+<h3 id="10-8-deep-dive-1-为什么是-sfu-不默认-p2p-或-mcu">10.8 Deep dive 1：为什么是 SFU，不默认 P2P 或 MCU</h3>
+<p>Mesh P2P 对 \(N\) 人每端要上传 \(N-1\) 路，网络总边数 \(O(N^2)\)，超过 4–6 人即不现实；优点是小会低 server cost，可在 1:1 作为 V1 fallback。MCU 解码、合成、重编码为一路，客户端下行省，但计算昂贵、增加 latency、破坏端到端加密边界。SFU 每人通常上传 1 组 simulcast，服务器选择性转发，复杂度约 \(O(N\times K)\)，K 是订阅 tile 数。</p>
+<p>SFU placement 以 concurrent egress、packets/s、NIC queue、CPU encryption overhead 和 room affinity 为约束。一个 meeting 尽量集中在少数 SFU，避免 full mesh；大会议将 participants 分 subgroup，并以 tree / cascading 转发 active tracks。Placement 用 power-of-two choices，但加入 hard headroom 30%，不把平均带宽当容量。新 join 在节点超过 70% projected egress 时转移；已进行会议不因小幅负载抖动频繁迁移。</p>
+<h3 id="10-9-deep-dive-2-webrtc-congestion-simulcast-svc-与-audio-first">10.9 Deep dive 2：WebRTC congestion、simulcast / SVC 与 audio-first</h3>
+<p>发送端为 camera 产生 low / medium / high simulcast，例如 180p@150 Kbps、360p@400 Kbps、720p@1.2 Mbps；或使用 SVC 的 temporal / spatial layers。SFU 根据每 subscriber 的 estimated bandwidth、viewport 和 loss 选择层。下行目标满足：</p>
+<p>\[ \sum_i bitrate(layer_i)+audio+headroom \leq 0.8\times \widehat{downlink} \]</p>
+<p>估计基于 transport-wide congestion control feedback、RTT、packet loss 与 receive rate。降档要快，升档要慢并设 hysteresis，避免 oscillation。带宽不足时优先级：active speaker audio &gt; all audio / control &gt; screen share readable layer &gt; active speaker video &gt; gallery thumbnails &gt; background video。</p>
+<p>Audio 使用 Opus、jitter buffer、packet loss concealment、适度 FEC / DTX；严重拥塞宁可冻结 video 也不让音频排队。发送队列按 media class bounded，过期 video delta packet 直接 drop，不能排成数秒 latency。Screen share 对文字清晰度敏感，可降低 fps、保持分辨率；camera 相反可先降分辨率。PLI 请求 rate-limit，关键帧过大会形成瞬时 bandwidth spike。</p>
+<h3 id="10-10-deep-dive-3-跨地域-cascading-sfu-与-meeting-ownership">10.10 Deep dive 3：跨地域 Cascading SFU 与 meeting ownership</h3>
+<p>全球会议若所有流回单 region，远端 RTT 高；若每 participant 就近 SFU，跨区流数量爆炸。proposed design 让 meeting 有 home coordinator，但 media 可在多个 region leaf SFU。每个 region 只把本地被远端订阅的 active tracks 送到少量 bridge / cascading SFU，再复制到目标 region，而不是每 subscriber 建跨洋流。</p>
+<p>路由表 key 为 meeting_id + track_id + track_epoch，更新带 fencing token。网络 partition 时旧 route 不能重新接管；Coordinator epoch 决定 authority。若跨区链路拥塞，远端先只接 active speaker + screen share，gallery 用低帧率 thumbnail 或 placeholder。Region evacuation 预留 warm capacity，并以 cohort 分批迁移，避免 simultaneous ICE restart storm。用户可见语义是画面短暂降级 / 重连，而不是控制状态回滚。</p>
+<h3 id="10-11-deep-dive-4-e2ee-key-rotation-与-moderation-trade-off">10.11 Deep dive 4：E2EE、key rotation 与 moderation trade-off</h3>
+<p>Transport encryption 的 SRTP 在 SFU 终止，SFU 可访问 payload；真正 E2EE 可在应用层再加密 encoded frame，使 SFU 只能路由 header。每 meeting 有 key epoch，admit / remove / device join 时由被授权成员通过 Key Service / MLS-like group key protocol 轮换。<code>participant_session_epoch</code> 与 key epoch 绑定；被移除端即使保持 socket，也拿不到新 key。</p>
+<p>E2EE 代价是 server-side recording、transcription、noise processing、content moderation 受限；必须由产品明确模式：standard encrypted meeting 可使用受控 server features，E2EE meeting 禁用不兼容功能，或由客户端显式提供 recording bot key 并向所有人展示 consent。key delivery 失败应暂停 media / 显示 rekeying，不允许悄悄退回非 E2EE。</p>
+<h3 id="10-12-deep-dive-5-chat-ordering-与-screen-share-control">10.12 Deep dive 5：Chat ordering 与 screen-share control</h3>
+<p>Chat 需要 durable per-room order，不需要与 RTP frame 建 total order。home shard 分配 room_seq；重复 message_id 幂等。客户端先 optimistic 展示 pending，收到 room_seq 后固定位置；断线后从 last_room_seq 补拉。跨 region failover 由 coordinator epoch 切换 sequence block，可能出现 seq gap 但不能重复；cursor 跳过已声明 abandoned block。</p>
+<p>同一时刻多个用户发 screen share 时，Coordinator 依据 policy 决定 single-share replace、multi-share 或 host approval。ShareStart command durable 后才广播 track route；media 先到但 command 未提交时 SFU 不向他人转发。share owner 断线进入 5 秒 RECONNECTING grace，避免瞬断导致全员界面反复切换；超时后写 ShareEnded。</p>
+<h3 id="10-13-reliability-backpressure-multi-region-dr-security">10.13 Reliability、backpressure、multi-region、DR、security</h3>
+<ul>
+<li><strong>Overload / admission</strong>：SFU 以 projected egress / packets-per-second admission，不只看 participant count。容量不足时拒绝新 HD layer、限制 gallery tile、引导到邻近 region；绝不让 unbounded queue 增加 realtime latency。</li>
+<li><strong>Failure isolation</strong>：meeting-level actor / coordinator 限制 blast radius；大会议独立 pool。signaling、chat、recording、telemetry 分资源池；recording / transcript 积压不能影响 media。</li>
+<li><strong>Control recovery</strong>：Coordinator 写 lease + epoch + ControlLog snapshot；standby 只在获得更高 fencing token 后接管。客户端命令幂等重放。split-brain 时 SFU 仅接受最高 epoch route / key command。</li>
+<li><strong>Multi-region / DR</strong>：media 不做 packet-level DR；presence、subscription hint 等 ephemeral control RPO &lt; 5 秒、RTO &lt; 15 秒。已确认的 admitted join/leave audit、remove/lock/rekey/admission/recording-consent/chat event 则同步进入 paired-region safety log，RPO=0。region failover 时新 Coordinator 必须取得更高 meeting_epoch、追上 safety watermark，并强制 participant 用新 session/key epoch re-auth；旧 WebSocket、SRTP key 和旧 coordinator command 全部被 fence。若 safety watermark 不可证明，会议保持 locked/fail-closed。DNS/anycast + ICE restart 重建媒体；定期 chaos test SFU kill、AZ loss、TURN loss 和 region evacuation。</li>
+<li><strong>Backpressure</strong>：stats 端自适应 sampling；Collector 只保关键 QoE event，progress samples 可聚合。Signaling 每 participant bounded outbound buffer，慢客户端先 coalesce presence / active-speaker，再断开要求 snapshot resync。</li>
+<li><strong>Security / privacy</strong>：join secret 高熵且可撤销、waiting room、rate limit、device / IP risk、TLS / DTLS-SRTP、KMS、service identity、recording consent、audit。Meeting ID 不作为 secret；日志禁止记录 passcode / SDP 中敏感字段。</li>
+<li><strong>Abuse</strong>：credential stuffing、meeting bombing、chat spam、malicious screen share；风险评分、lock meeting、host tools、report flow。自动处罚需要可解释 reason 和 appeal；不同语言群体监控误报。</li>
+</ul>
+<h3 id="10-14-mle-deep-dive-qoe-prediction-network-adaptation-与-audio-enhancement">10.14 MLE deep dive：QoE prediction、network adaptation 与 audio enhancement</h3>
+<p><strong>Objective / labels</strong>：QoE 模型预测未来 5–10 秒 rebuffer / freeze / disconnect 风险，目标最小化 audio impairment 和 join failure，不是单纯最大码率。标签来自 RTP stats：loss burst、jitter、RTT、NACK / PLI、audio concealment、freeze duration、user reconnect；用户反馈作为稀疏长期标签。</p>
+<p><strong>Features / model</strong>：最近窗口 throughput slope、loss burstiness、RTT variance、buffer / send queue、codec / layer、device thermal / CPU、ISP / region aggregate、TURN path、meeting size。在线使用 lightweight GBDT / small temporal model，在 client 或 edge 20–100 ms 周期推理；输出 risk + recommended layer cap。没有模型时回退到 WebRTC rule-based congestion controller，模型永远不能绕过硬安全 / bandwidth limit。</p>
+<p><strong>Noise suppression / voice activity</strong>：client-side denoiser以干净 / 合成噪声 paired audio 训练，objective 兼顾 SI-SDR、speech intelligibility 和 perceptual quality；VAD 决定 DTX / active speaker，但不能因口音、声线或辅助设备偏差持续静音。低端设备或 thermal throttling 时回退轻量 DSP / 关闭模型。</p>
+<p><strong>Offline / online evaluation</strong>：offline 看 disconnect AUC、risk calibration、freeze recall at fixed false alarm、PESQ / STOI、CPU / battery、按 device / ISP / language / accent slices；用 network trace replay 比较策略。online canary 看 join success、audio gap、freeze、bitrate、latency、battery 和 manual disable，采用 meeting-level randomization 避免同会策略相互干扰。发布 shadow → 1% regions → gradual rollout，异常可远程 kill switch。</p>
+<p><strong>Drift / bias</strong>：新 OS、codec、ISP 路由和极端活动会漂移；监控 feature distribution、calibration、fallback 和各 slice false downgrade。模型训练不保留不必要 raw audio；若做 federated / on-device learning，仍需 consent、secure aggregation 和删除语义。VAD / denoiser 对口音、非母语、儿童和言语障碍用户做公平性测试。</p>
+<h3 id="10-15-observability-slo-capacity-与-cost">10.15 Observability、SLO、capacity 与 cost</h3>
+<p>端到端 SLI：join funnel 各阶段成功率、time-to-first-audio / video、one-way latency estimate、loss / jitter、audio concealment、freeze ratio、quality switch、ICE / TURN usage、SFU egress saturation、reconnect recovery、control epoch conflict、chat gap、recording finalize lag。指标按 client version、device、ISP、ASN、region、SFU、meeting size slice；全球平均会掩盖局部灾难。</p>
+<p>每个 session 使用 correlation ID 串起 join auth、coordinator、ICE、SFU 与 client QoE，但 raw media 不进 trace。实时告警看 audio SLO、SFU queue delay、route churn 和 join failure；capacity 以前瞻预订峰值活动、region headroom 和 NIC pps 测算。主要成本是 SFU egress、TURN relay、recording storage / transcoding；通过就近 SFU、layer selection、inactive tile pause、P2P 1:1、recording tiering 控制。错误预算耗尽时禁用实验 codec / ML controller，保留成熟 baseline。</p>
+<h3 id="10-16-trade-offs-与-v1-v2-evolution">10.16 Trade-offs 与 V1 → V2 evolution</h3>
+<ul>
+<li><strong>SFU vs MCU</strong>：SFU latency / compute 更优，但客户端下行更高；极弱端或超大 webinar 可选择 MCU composite。</li>
+<li><strong>Home coordinator</strong>：控制一致性简单，跨区 command 多一次 RTT；比 multi-writer split-brain 更安全。</li>
+<li><strong>Simulcast vs SVC</strong>：simulcast 兼容好但上行高；SVC 高效但 codec / device support 更复杂。</li>
+<li><strong>E2EE</strong>：隐私强，但 recording / transcription / moderation 功能受限，必须显式产品选择。</li>
+<li><strong>V1</strong>：单 region、1:1 P2P / small-room SFU、基础 signaling、无 recording。</li>
+<li><strong>V2</strong>：regional SFU、TURN、simulcast、durable chat、recording、fenced coordinator failover。</li>
+<li><strong>V3</strong>：cascading multi-region、SVC、fast backup SFU、E2EE group key、QoE model。迁移以 codec capability negotiation、dual route shadow、meeting cohort canary 进行，不能中途强切所有会话。</li>
+</ul>
+<h3 id="10-17-高频-follow-up-q-a">10.17 高频 follow-up Q&amp;A</h3>
+<p><strong>Q：为什么 SFU 挂了不能完全无感？</strong> A：RTP packet 是短命状态，跨机逐包复制成本极高。保留 control snapshot、backup candidate 和快速 ICE restart，目标是数秒恢复，而不是虚假 exactly-once media。</p>
+<p><strong>Q：网络差时先牺牲什么？</strong> A：先停背景 video / 降 gallery layers，再降低 camera 分辨率；保 active audio 与 control，screen share 优先可读分辨率、降低 fps。</p>
+<p><strong>Q：如何避免 split-brain host command？</strong> A：Meeting lease、monotonic epoch、fencing token；Coordinator、SFU 和客户端都拒绝 stale epoch。command_id 幂等重放。</p>
+<p><strong>Q：Chat 与 media 要同一条消息总线吗？</strong> A：不需要。Chat 要 durable per-room order，RTP 要低延迟且可丢过时包；混用会让 reliability 与 backpressure 目标互相伤害。</p>
+<p><strong>Q：大会议如何避免一台 SFU 爆掉？</strong> A：按 subgroup 分 leaf SFU，cascading 只传被订阅 active tracks；placement 按 projected egress / pps 留 headroom，并对大会议用隔离 pool。</p>
+<h3 id="10-18-60-秒可直接说的总结">10.18 60 秒可直接说的总结</h3>
+<blockquote>“我的 proposed design 把会议 control plane 与 realtime media plane 分开。Meeting Coordinator 以 home region、lease、monotonic epoch 和 fencing 管 admission、host command、participant 与 key state；所有命令带 idempotency 和 epoch。客户端通过 ICE 优先 UDP，必要时 TURN，媒体进入 regional SFU；SFU 用 simulcast / SVC 和 per-subscriber bandwidth / viewport 选择 layer，不默认解码转码。网络拥塞时先保 audio 和 control，再保可读 screen share，最后降 gallery video；发送队列 bounded，过时视频包直接丢。全球会议用 cascading SFU 只跨区复制 active tracks。SFU 故障不复制每个 packet，而让客户端在数秒内 ICE restart 到 backup，并从 control snapshot 恢复。E2EE 采用 meeting key epoch，移除成员即 rekey，且不悄悄降级。MLE 用 QoE risk、denoising 和 VAD，但 rule-based controller 是可靠 fallback，并对设备、ISP、口音 slice 评估。运营核心是 join-to-first-audio、audio concealment、freeze、SFU egress / pps、reconnect 和 epoch conflict。”</blockquote>
+<hr/>
+<p><strong>GDoc 增补说明：19 份 DOCX -&gt; 18 个独立案例</strong></p>
+<blockquote>已逐份读取正文与 Word 表格。两份 Webhook 文档内容互补，合并为同一题；Game Leaderboard 与 Real-time Top-K 保持独立。源文件没有 embedded media，原有 ASCII/text 架构均重画为 Mermaid。所有内容是经过校正的 proposed design，不代表任何公司的真实内部实现。</blockquote>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>新增 Case</th><th>Source DOCX</th><th>处理</th></tr></thead><tbody><tr><td>11</td><td>S3 Object Storage</td><td><code>design  S3 分布式对象存储系统设计.docx</code></td><td>独立案例</td></tr>
+<tr><td>12</td><td>URL Shortener</td><td><code>design url.docx</code></td><td>独立案例</td></tr>
+<tr><td>13</td><td>Webhook Platform</td><td><code>design woobhook.docx + 设计一个 Webhook 系统.docx</code></td><td>两份互补答案合并</td></tr>
+<tr><td>14</td><td>GitHub Actions / CI/CD</td><td><code>design cicd.docx</code></td><td>独立案例</td></tr>
+<tr><td>15</td><td>Job Scheduler</td><td><code>Design a Job Scheduler.docx</code></td><td>独立案例</td></tr>
+<tr><td>16</td><td>Conflict Control</td><td><code>Design system conflict.docx</code></td><td>并发控制专题系统化</td></tr>
+<tr><td>17</td><td>ChatGPT Playground</td><td><code>design ChatGPT Playground.docx</code></td><td>独立案例</td></tr>
+<tr><td>18</td><td>Batch Inference</td><td><code>Design Batch Inference System.docx</code></td><td>独立案例</td></tr>
+<tr><td>19</td><td>ML Model Distribution</td><td><code>Design ML distribution system.docx</code></td><td>独立案例</td></tr>
+<tr><td>20</td><td>Real-time Top-K</td><td><code>design top-k.docx</code></td><td>独立案例</td></tr>
+<tr><td>21</td><td>Game Leaderboard</td><td><code>design game leaderboard.docx</code></td><td>与 Top-K 分开</td></tr>
+<tr><td>22</td><td>Crossword Solver</td><td><code>design Crossword_.docx</code></td><td>独立案例</td></tr>
+<tr><td>23</td><td>Google Calendar</td><td><code>design google calender.docx</code></td><td>独立案例</td></tr>
+<tr><td>24</td><td>Lowest-Cost Book Purchase</td><td><code>design online book.docx</code></td><td>独立案例</td></tr>
+<tr><td>25</td><td>Online Chess</td><td><code>design Online Chess Game System Desig.docx</code></td><td>独立案例</td></tr>
+<tr><td>26</td><td>Slack</td><td><code>design slack.docx</code></td><td>独立案例</td></tr>
+<tr><td>27</td><td>Stripe / Payment</td><td><code>design strip.docx</code></td><td>源文件名有拼写误差</td></tr>
+<tr><td>28</td><td>Yelp</td><td><code>design yelp.docx</code></td><td>独立案例</td></tr></tbody></table></div>
+<hr/>
+        <nav class="pager" aria-label="Case navigation">
+    <a href="case-09-design-spotify.html">← 9. Design Spotify</a>
+    <a class="next" href="case-11-design-s3.html">11. Design S3 →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

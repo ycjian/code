@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Cloud Infra For AI Cheatsheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Infra Deep Dives / Infra</div>
+<h1>Cloud Infra For AI Cheatsheet</h1>
+<p>quickly map AI architecture to practical cloud services.</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>CLOUD INFRA FOR AI CHEATSHEET<br/>AWS + GCP service mapping for training, serving, data, streaming, and Kubernetes<br/>Purpose: quickly map AI architecture to practical cloud services.</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model / 中文总览</h2>
+<div class="section-body"><h3>AI platform cloud architecture usually needs</h3>
+<ul><li>object storage for datasets/model artifacts</li></ul>
+<ul><li>compute for training/inference</li></ul>
+<ul><li>Kubernetes for portable serving</li></ul>
+<ul><li>streaming for events</li></ul>
+<ul><li>warehouse/lakehouse for analytics/training data</li></ul>
+<ul><li>feature/vector stores</li></ul>
+<ul><li>model registry</li></ul>
+<ul><li>monitoring/IAM/security</li></ul>
+<h3>Chinese</h3>
+<ul><li>面试不要只背服务名,要能说服务在 architecture 里扮演什么角色.</li></ul>
+<h3>Interview one-liner</h3>
+<p>"I would keep raw data and model artifacts in object storage, use managed Spark/warehouse for offline processing, Kafka/PubSub for streaming, EKS/GKE for portable serving, and SageMaker/Vertex AI when managed training/model registry/endpoints reduce operational burden."</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. AWS / GCP mapping</h2>
+<div class="section-body"><h3>Object storage</h3>
+<ul><li>AWS S3</li></ul>
+<ul><li>GCP Cloud Storage (GCS)</li></ul>
+<h3>Kubernetes</h3>
+<ul><li>AWS EKS</li></ul>
+<ul><li>GCP GKE</li></ul>
+<h3>Serverless/container</h3>
+<ul><li>AWS Lambda / ECS / App Runner</li></ul>
+<ul><li>GCP Cloud Run / Cloud Functions</li></ul>
+<h3>Warehouse</h3>
+<ul><li>AWS Redshift / Athena</li></ul>
+<ul><li>GCP BigQuery</li></ul>
+<h3>Streaming</h3>
+<ul><li>AWS MSK / Kinesis</li></ul>
+<ul><li>GCP Pub/Sub</li></ul>
+<h3>Batch processing</h3>
+<ul><li>AWS EMR / Glue</li></ul>
+<ul><li>GCP Dataproc / Dataflow</li></ul>
+<h3>ML platform</h3>
+<ul><li>AWS SageMaker</li></ul>
+<ul><li>GCP Vertex AI</li></ul>
+<h3>Key-value online store</h3>
+<ul><li>AWS DynamoDB / ElastiCache</li></ul>
+<ul><li>GCP Bigtable / Memorystore / Firestore</li></ul>
+<h3>Monitoring</h3>
+<ul><li>AWS CloudWatch</li></ul>
+<ul><li>GCP Cloud Monitoring</li></ul>
+<h3>IAM/secrets</h3>
+<ul><li>AWS IAM / Secrets Manager / KMS</li></ul>
+<ul><li>GCP IAM / Secret Manager / Cloud KMS</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. AWS AI stack</h2>
+<div class="section-body"><h3>Common AWS architecture</h3>
+<p>  S3 data lake<br/>    -&gt; Glue/EMR/Spark ETL<br/>    -&gt; SageMaker training<br/>    -&gt; SageMaker Model Registry / MLflow<br/>    -&gt; SageMaker endpoint or EKS/KServe/vLLM<br/>    -&gt; CloudWatch metrics/logs</p>
+<h3>SageMaker training options</h3>
+<ul><li>built-in algorithms</li></ul>
+<ul><li>custom training containers</li></ul>
+<ul><li>distributed training</li></ul>
+<ul><li>hyperparameter tuning</li></ul>
+<ul><li>processing jobs</li></ul>
+<h3>SageMaker deployment options</h3>
+<ul><li>real-time endpoint</li></ul>
+<ul><li>serverless inference</li></ul>
+<ul><li>batch transform</li></ul>
+<ul><li>asynchronous inference</li></ul>
+<ul><li>multi-model endpoint</li></ul>
+<h3>Real-time endpoint use</h3>
+<pre><code class="language-python"># boto3 sketch
+import boto3, json
+
+runtime = boto3.client("sagemaker-runtime")
+response = runtime.invoke_endpoint(
+    EndpointName="sentiment-endpoint",
+    ContentType="application/json",
+    Body=json.dumps({"text": "I love this"}),
+)
+print(response["Body"].read())</code></pre>
+<h3>EKS use when</h3>
+<ul><li>You want Kubernetes-native platform.</li></ul>
+<ul><li>You need custom serving stack: KServe, vLLM, Triton, Ray Serve.</li></ul>
+<ul><li>You want portability.</li></ul></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. GCP AI stack</h2>
+<div class="section-body"><h3>Common GCP architecture</h3>
+<p>  GCS data lake / BigQuery warehouse<br/>    -&gt; Dataproc/Dataflow ETL<br/>    -&gt; Vertex AI training<br/>    -&gt; Vertex AI Model Registry<br/>    -&gt; Vertex AI Endpoint or GKE/KServe/vLLM<br/>    -&gt; Cloud Monitoring/Logging</p>
+<h3>Vertex AI concepts</h3>
+<ul><li>custom training jobs</li></ul>
+<ul><li>model registry</li></ul>
+<ul><li>endpoints</li></ul>
+<ul><li>batch prediction</li></ul>
+<ul><li>pipelines</li></ul>
+<ul><li>feature store options</li></ul>
+<h3>Vertex AI endpoint sketch</h3>
+<pre><code class="language-python"># google-cloud-aiplatform sketch
+from google.cloud import aiplatform
+
+aiplatform.init(project="my-project", location="us-central1")
+endpoint = aiplatform.Endpoint("projects/.../locations/.../endpoints/...")
+prediction = endpoint.predict(instances=[{"text": "I love this"}])
+print(prediction)</code></pre>
+<h3>GKE use when</h3>
+<ul><li>Need K8s-native custom GPU inference.</li></ul>
+<ul><li>Need custom autoscaling/routing/sidecars.</li></ul>
+<ul><li>Need multi-service AI platform.</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Kubernetes on cloud: EKS/GKE</h2>
+<div class="section-body"><h3>Why managed Kubernetes</h3>
+<ul><li>Managed control plane.</li></ul>
+<ul><li>Node pools.</li></ul>
+<ul><li>Autoscaling.</li></ul>
+<ul><li>IAM integration.</li></ul>
+<ul><li>GPU scheduling.</li></ul>
+<ul><li>Standard Kubernetes ecosystem.</li></ul>
+<h3>GPU node pool concepts</h3>
+<pre><code class="language-text">node pool: gpu-a100
+labels: accelerator=nvidia-a100
+ taints: nvidia.com/gpu=true:NoSchedule</code></pre>
+<h3>Pod requests GPU</h3>
+<pre><code class="language-yaml">resources:
+  limits:
+    nvidia.com/gpu: 1</code></pre>
+<h3>Node selector</h3>
+<pre><code class="language-yaml">nodeSelector:
+  accelerator: nvidia-a100</code></pre>
+<h3>Toleration</h3>
+<pre><code class="language-yaml">tolerations:
+- key: "nvidia.com/gpu"
+  operator: "Equal"
+  value: "true"
+  effect: "NoSchedule"</code></pre></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Cloud data lake / lakehouse</h2>
+<div class="section-body"><h3>Pattern</h3>
+<p>  raw events -&gt; object storage -&gt; Iceberg tables -&gt; Spark/Trino/BigQuery external -&gt; training data</p>
+<h3>AWS</h3>
+<ul><li>S3 + Glue Catalog + Athena/EMR/Spark + Iceberg</li></ul>
+<h3>GCP</h3>
+<ul><li>GCS + BigQuery/Dataproc/Spark + Iceberg/BigLake</li></ul>
+<h3>Best practices</h3>
+<ul><li>partition by event date, not ingestion date only</li></ul>
+<ul><li>compact small files</li></ul>
+<ul><li>schema evolution policy</li></ul>
+<ul><li>lifecycle retention</li></ul>
+<ul><li>data quality gates</li></ul>
+<ul><li>access control by dataset/table/prefix</li></ul></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Streaming architecture</h2>
+<div class="section-body"><h3>AWS</h3>
+<ul><li>Kinesis for managed stream</li></ul>
+<ul><li>MSK for Kafka-compatible workloads</li></ul>
+<h3>GCP</h3>
+<ul><li>Pub/Sub for managed messaging</li></ul>
+<ul><li>Dataflow for stream processing</li></ul>
+<h3>Cross-cloud portable</h3>
+<ul><li>Kafka + Flink</li></ul>
+<h3>Pattern</h3>
+<pre><code class="language-text">app events -&gt; Kafka/MSK/PubSub -&gt; Flink/Dataflow -&gt; online store/index + object storage</code></pre></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Model artifact storage</h2>
+<div class="section-body"><h3>Artifact path example</h3>
+<pre><code class="language-text">s3://ml-artifacts/models/sentiment/2026-05-14/model.pt
+s3://ml-artifacts/models/sentiment/2026-05-14/tokenizer.json
+s3://ml-artifacts/models/sentiment/2026-05-14/metadata.json</code></pre>
+<h3>metadata.json</h3>
+<pre><code class="language-json">{
+  "model_name": "sentiment",
+  "model_version": "2026-05-14",
+  "training_data_version": "iceberg_snapshot_123",
+  "code_commit": "abc123",
+  "metrics": {"f1_macro": 0.91},
+  "owner": "ml-platform"
+}</code></pre></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. IAM and security basics</h2>
+<div class="section-body"><h3>Principle</h3>
+<ul><li>least privilege</li></ul>
+<ul><li>separate training/inference roles</li></ul>
+<ul><li>no long-lived credentials in containers</li></ul>
+<ul><li>use workload identity / IRSA / service accounts</li></ul>
+<ul><li>encrypt data at rest and in transit</li></ul>
+<ul><li>log access to sensitive data</li></ul>
+<h3>AWS examples</h3>
+<ul><li>IAM role for service account in EKS (IRSA)</li></ul>
+<ul><li>S3 bucket policy</li></ul>
+<ul><li>KMS key policy</li></ul>
+<h3>GCP examples</h3>
+<ul><li>Workload Identity for GKE</li></ul>
+<ul><li>IAM service account</li></ul>
+<ul><li>Cloud KMS</li></ul></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>9. Cost controls</h2>
+<div class="section-body"><h3>AI cost drivers</h3>
+<ul><li>GPU hours</li></ul>
+<ul><li>idle endpoints</li></ul>
+<ul><li>LLM token usage</li></ul>
+<ul><li>data scans</li></ul>
+<ul><li>vector DB memory</li></ul>
+<ul><li>logging volume</li></ul>
+<ul><li>cross-zone/network egress</li></ul>
+<h3>Controls</h3>
+<ul><li>autoscale to zero only for non-latency-sensitive services</li></ul>
+<ul><li>spot/preemptible for training/backfill</li></ul>
+<ul><li>right-size GPU</li></ul>
+<ul><li>quantization</li></ul>
+<ul><li>cache embeddings and LLM responses</li></ul>
+<ul><li>partition data to reduce scans</li></ul>
+<ul><li>retention policies</li></ul></div>
+</section>
+<section class="section-card" id="sec-11">
+<div class="section-kicker">Section 12</div>
+<h2>10. Common cloud interview architecture</h2>
+<div class="section-body"><h3>Prompt</h3>
+<p>"Design an ML platform that trains nightly and serves online predictions."</p>
+<h3>Answer</h3>
+<pre><code class="language-text">1. Raw events land in S3/GCS.
+2. Spark/Dataproc/EMR builds Iceberg/warehouse feature tables.
+3. Training job runs on SageMaker/Vertex AI or K8s GPU job.
+4. Model and metrics logged to MLflow/Model Registry.
+5. CI/CD deploys model to EKS/GKE/KServe or managed endpoint.
+6. Online service reads features from Redis/DynamoDB/Bigtable.
+7. Metrics/logs/traces go to CloudWatch/Cloud Monitoring + Prometheus/Grafana.
+8. Canary rollout and rollback protect production.</code></pre></div>
+</section>
+<section class="section-card" id="sec-12">
+<div class="section-kicker">Section 13</div>
+<h2>11. References / official docs</h2>
+<div class="section-body"><ul><li>SageMaker training: https://docs.aws.amazon.com/sagemaker/latest/dg/train-model.html</li></ul>
+<ul><li>SageMaker deployment: https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-deployment.html</li></ul>
+<ul><li>Amazon EKS docs: https://docs.aws.amazon.com/eks/</li></ul>
+<ul><li>GKE docs: https://docs.cloud.google.com/kubernetes-engine/docs</li></ul>
+<ul><li>GKE overview: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/kubernetes-engine-overview</li></ul>
+<ul><li>Vertex AI docs: https://docs.cloud.google.com/vertex-ai/docs</li></ul>
+<ul><li>Vertex AI Model Registry: https://docs.cloud.google.com/vertex-ai/docs/model-registry/introduction</li></ul></div>
+</section>
+<section class="section-card" id="sec-13">
+<div class="section-kicker">Section 14</div>
+<h2>RESUME-ALIGNED INTERVIEW DEEP DIVE</h2>
+<div class="section-body"><p>A. Interview-level cloud mapping<br/>------------------------------------------------------------<br/>You do not need every service detail. Map architecture concepts to managed services.</p>
+<p>Object store: S3 / GCS.<br/>Kubernetes: EKS / GKE.<br/>Streaming: MSK or Kinesis / Pub/Sub.<br/>Batch Spark: EMR / Dataproc.<br/>Warehouse: Redshift or Athena / BigQuery.<br/>ML platform: SageMaker / Vertex AI.<br/>Cache: ElastiCache / Memorystore.<br/>NoSQL: DynamoDB / Bigtable or Firestore.<br/>Monitoring: CloudWatch / Cloud Monitoring.<br/>IAM: AWS IAM / Google IAM.</p>
+<p>B. Hybrid AI platform answer<br/>------------------------------------------------------------<br/>For a multi-cloud or hybrid AI platform, keep the abstractions stable: object storage contract, model registry, deployment spec, metrics/tracing contract, identity/tenant contract, and data-governance rules. Avoid leaking cloud-specific APIs into product teams.</p>
+<p>C. Cost and reliability topics<br/>------------------------------------------------------------</p>
+<ul><li>GPU node reservations vs on-demand.</li></ul>
+<ul><li>spot/preemptible for retryable batch jobs.</li></ul>
+<ul><li>autoscaling and warm pools.</li></ul>
+<ul><li>cross-region replication for artifacts.</li></ul>
+<ul><li>egress cost for large media.</li></ul>
+<ul><li>IAM least privilege and workload identity.</li></ul>
+<p>D. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: When use serverless vs Kubernetes?<br/>A: Serverless is good for bursty stateless functions and simple APIs. Kubernetes is better for long-running services, GPU workloads, custom networking, and consistent platform primitives.</p>
+<p>Q: How avoid cloud lock-in?<br/>A: Abstract deployment specs, use open formats like Iceberg/Parquet, containerize services, standardize observability, and isolate cloud-specific adapters.</p>
+<p>Q: What is most expensive in AI cloud systems?<br/>A: GPUs, long-running idle capacity, LLM tokens, data egress, high-cardinality logging/tracing, and repeated media/model artifact movement.</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

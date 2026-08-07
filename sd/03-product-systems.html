@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Product Systems - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="17-ticketmaster-seat-reservation">17. Ticketmaster / Seat Reservation</h2>
+<h3 id="查询-api">查询 API</h3>
+<pre><code class="language-http">GET /events/{eventId}</code></pre>
+<p>返回 event、venue、artist、seat map / ticket info。</p>
+<pre><code class="language-http">GET /events/search?keyword={keyword}&amp;start={start_date}&amp;end={end_date}&amp;pageSize={page_size}&amp;page={page}</code></pre>
+<p>返回 event list。</p>
+<h3 id="订票-api">订票 API</h3>
+<pre><code class="language-http">POST /bookings/{eventId}</code></pre>
+<p>Request:</p>
+<pre><code class="language-json">{
+  &quot;ticketIds&quot;: [&quot;seat-1&quot;, &quot;seat-2&quot;]
+}</code></pre>
+<p>Response:</p>
+<pre><code class="language-json">{
+  &quot;bookingId&quot;: &quot;booking_123&quot;,
+  &quot;paymentIntent&quot;: &quot;pi_123&quot;
+}</code></pre>
+<p>后端先创建 payment intent，前端再用 payment provider SDK / hosted fields 完成支付。不要自己保存原始卡号。</p>
+<h3 id="seat-hold">Seat hold</h3>
+<p>使用 Redis <code>SET NX EX</code> 做短时间 reservation：</p>
+<pre><code class="language-redis">SET seat:123 user_123 EX 600 NX</code></pre>
+<ul>
+<li><code>NX</code> 保证只有第一个人能 hold 成功。</li>
+<li><code>EX 600</code> 表示 10 分钟后自动释放。</li>
+<li>支付成功后，真正写入 Postgres order / booking。</li>
+</ul>
+<h3 id="多座位原子-hold">多座位原子 hold</h3>
+<p>如果用户一次买多个座位，不能用普通 for-loop，因为可能部分成功、部分失败。</p>
+<p>使用 Redis Lua script：</p>
+<ol>
+<li>预检所有 <code>seat_id</code> 是否已存在。</li>
+<li>如果任意一个已存在，返回失败。</li>
+<li>如果全部可用，一次性为所有 seat 写入 hold key。</li>
+</ol>
+<p>Redis 执行 Lua script 时是原子的，脚本执行期间不会插入其他命令。</p>
+<h3 id="搜索与座位状态">搜索与座位状态</h3>
+<ul>
+<li>Search listing 可以 eventual consistency，用 Elasticsearch / cache。</li>
+<li>Booking / reservation 必须强一致，使用 unique key、Redis atomic operation 或 DB transaction。</li>
+</ul>
+<hr/>
+<h2 id="18-airbnb-reservation">18. Airbnb Reservation</h2>
+<h3 id="最简单的数据模型">最简单的数据模型</h3>
+<p>一个 listing 的一天一行：</p>
+<pre><code class="language-">ReservationNight(listing_id, date, reservation_id, state)
+UNIQUE(listing_id, date)</code></pre>
+<p>这样同一个 listing 同一天只能被一个 reservation 占用。</p>
+<h3 id="booking-flow">Booking flow</h3>
+<ol>
+<li>Search 走 eventually consistent index。</li>
+<li>Reserve / hold 使用 transaction 或 unique constraint。</li>
+<li>Payment 使用 <code>reservation_id</code> 或 <code>idempotency_key</code> 保证幂等。</li>
+<li>Confirm reservation 后写 outbox event。</li>
+</ol>
+<h3 id="reservation-confirmed-的-outbox">Reservation confirmed 的 outbox</h3>
+<pre><code class="language-sql">BEGIN;
+
+UPDATE reservation
+SET status = 'CONFIRMED'
+WHERE reservation_id = ?;
+
+UPDATE reservation_night
+SET state = 'BOOKED'
+WHERE reservation_id = ?;
+
+INSERT INTO outbox(event_type, aggregate_id, payload, status)
+VALUES ('ReservationConfirmed', ?, ?, 'PENDING');
+
+COMMIT;</code></pre>
+<p>如果 service crash，outbox event 仍然存在，后续 worker 可以继续发布 notification、email、analytics、search index update。</p>
+<h3 id="cancellation-waitlist">Cancellation -&gt; Waitlist</h3>
+<p>不要在 Booking Service cancel 成功后直接同步 call Waitlist Service。更可靠的做法：</p>
+<pre><code class="language-">Booking Service updates booking / inventory transactionally
+Booking Service writes CancellationAvailableEvent to outbox
+Outbox publishes to Kafka
+Waitlist Matcher consumes event</code></pre>
+<p>关键点：cancellation event 不能丢。</p>
+<hr/>
+<h2 id="19-payment-system">19. Payment System</h2>
+<h3 id="non-functional-requirements">Non-functional requirements</h3>
+<ul>
+<li>Security。</li>
+<li>Transaction safety and financial integrity。</li>
+<li>Strong durability，不能丢交易。</li>
+<li>No double charge。</li>
+<li>High consistency。</li>
+<li>可扩展到高 TPS，例如 10k TPS。</li>
+<li>Auditability / reconciliation。</li>
+</ul>
+<h3 id="payment-api">Payment API</h3>
+<p>Create payment intent:</p>
+<pre><code class="language-http">POST /payment-intents</code></pre>
+<pre><code class="language-json">{
+  &quot;amountInCents&quot;: 2499,
+  &quot;currency&quot;: &quot;usd&quot;,
+  &quot;description&quot;: &quot;Order #1234&quot;
+}</code></pre>
+<p>Process payment:</p>
+<pre><code class="language-http">POST /payment-intents/{paymentIntentId}/transactions</code></pre>
+<p>实际生产中，前端通常使用 provider SDK / hosted fields 收集卡信息。Merchant backend 不保存原始卡号，只保存 token / paymentMethodId。</p>
+<p>Check status:</p>
+<pre><code class="language-http">GET /payment-intents/{paymentIntentId}</code></pre>
+<p>也可以通过 webhook 接收 provider 的异步状态更新。</p>
+<h3 id="card-security">Card security</h3>
+<p>更安全的表达：</p>
+<blockquote>The browser uses the payment provider's official SDK or hosted fields. Card details are encrypted or tokenized by the provider before reaching our backend. Our backend stores only tokenized payment method IDs, not raw card numbers. Provider-side private keys are protected by HSM.</blockquote>
+<h3 id="merchant-request-signing">Merchant request signing</h3>
+<p>为了确认是真实 merchant 在请求付款，使用 <code>API key + request signing</code>。</p>
+<p>Merchant 拿到：</p>
+<ul>
+<li>Public API key：标识 merchant。</li>
+<li>Secret key：生成 HMAC signature，不能泄露。</li>
+</ul>
+<p>每次请求签名：</p>
+<pre><code class="language-">signature = HMAC(secret, method + path + body + timestamp + nonce)</code></pre>
+<p>服务端校验：</p>
+<ol>
+<li>根据 API key 找到 merchant。</li>
+<li>用保存的 secret key 重新计算 HMAC。</li>
+<li>比较 signature。</li>
+<li>检查 timestamp 是否在允许窗口内。</li>
+<li>检查 nonce 是否用过，防 replay attack。</li>
+</ol>
+<p>不需要 unhash。HMAC 的验证方式是服务端用同样输入再算一遍，然后比较结果。</p>
+<h3 id="payment-audit">Payment audit</h3>
+<p>交易状态会不断更新，只看主 DB 可能只看到最新值。为了 audit：</p>
+<pre><code class="language-">DB transaction log / WAL
+  -&gt; Kafka
+  -&gt; S3 / data lake immutable log
+  -&gt; reconciliation with external provider</code></pre>
+<p>Kafka partition key 建议用 <code>payment_id</code>，避免用 <code>merchant_id</code> 或 <code>customer_id</code> 造成 hot partition。</p>
+<hr/>
+<h2 id="20-webhook">20. Webhook</h2>
+<h3 id="webhook-是什么">Webhook 是什么</h3>
+<p>Webhook 是事件驱动的 HTTP callback。别人系统发生事件后，主动 call 你的 API 通知你。</p>
+<p>传统 API polling：</p>
+<blockquote>你一直问：好了没？</blockquote>
+<p>Webhook：</p>
+<blockquote>你告诉对方：好了就 call 这个 URL。</blockquote>
+<h3 id="支付为什么需要-webhook">支付为什么需要 webhook</h3>
+<p>支付是异步过程。Provider 可能需要银行清算、风控、3D Secure。你的 server 不应该一直等待，也不应该每秒轮询。</p>
+<p>标准流程：</p>
+<ol>
+<li>用户在前端发起支付。</li>
+<li>Provider 处理支付。</li>
+<li>Provider 主动 POST 到你的 webhook endpoint。</li>
+<li>你的系统验证签名。</li>
+<li>幂等更新订单状态。</li>
+</ol>
+<h3 id="webhook-三个高频追问">Webhook 三个高频追问</h3>
+<h4 id="1-如何防止假通知">1. 如何防止假通知</h4>
+<p>使用 signature verification。Provider 在 header 中带签名，你用 webhook secret 重新计算并比较。</p>
+<h4 id="2-通知丢了或重复怎么办">2. 通知丢了或重复怎么办</h4>
+<ul>
+<li>Provider 没收到 <code>200 OK</code> 会 retry。</li>
+<li>你的 webhook handler 必须 idempotent。</li>
+<li>处理前检查 <code>event_id</code> 或 <code>payment_id</code> 是否处理过。</li>
+<li>如果已处理，直接返回 200。</li>
+</ul>
+<h4 id="3-乱序到达怎么办">3. 乱序到达怎么办</h4>
+<p>使用 state machine control、timestamp、version 或 conditional update，防止旧事件覆盖新状态。</p>
+<p>例如：</p>
+<pre><code class="language-sql">UPDATE payment
+SET status = 'SUCCEEDED'
+WHERE payment_id = ?
+  AND status = 'PENDING';</code></pre>
+<hr/>
+<h2 id="21-dependency-failure-provider-isolation">21. Dependency Failure / Provider Isolation</h2>
+<h3 id="下游-dependency-有问题怎么办">下游 dependency 有问题怎么办</h3>
+<ol>
+<li>Timeout。</li>
+<li>Exponential backoff retry。</li>
+<li>Failover to backup service。</li>
+<li>Circuit breaker：下游明显不健康时停止调用。</li>
+<li>Queue buffering：消息留在队列中，等下游恢复。</li>
+<li>Monitoring / alerting。</li>
+<li>DLQ：超过最大重试次数后进入 Dead Letter Queue。</li>
+</ol>
+<h3 id="provider-specific-concurrency-isolation">Provider-specific concurrency isolation</h3>
+<p>例如 notification system 同时接 Twilio、SendGrid、Firebase。Twilio 变慢时，不能耗尽所有 worker。</p>
+<p>做法：</p>
+<ul>
+<li>为每个 provider 建 dedicated worker pool / semaphore。</li>
+<li>Twilio 最多占用自己的并发额度。</li>
+<li>SendGrid / Firebase 不受影响。</li>
+<li>这个限制要应用到所有 Twilio traffic，包括 critical alerts 和 marketing messages。</li>
+<li>达到并发限制时 fail fast，放回 retry queue 或 DLQ，不要阻塞 worker。</li>
+</ul>
+<h3 id="notification-system">Notification System</h3>
+<p>高频题：设计 push / email / SMS notification system。</p>
+<p>核心 requirements：</p>
+<ul>
+<li>支持多 channel：push、email、SMS。</li>
+<li>支持 priority：critical alert、transactional、marketing。</li>
+<li>可靠投递，不能丢关键通知。</li>
+<li>幂等，不能重复发。</li>
+<li>Provider failure isolation。</li>
+<li>用户 preference / unsubscribe。</li>
+<li>Rate limit，防止 spam。</li>
+</ul>
+<p>高层架构：</p>
+<pre><code class="language-">Producer services
+  -&gt; Notification API
+  -&gt; Notification DB(status=PENDING)
+  -&gt; Outbox / Kafka
+  -&gt; Channel workers
+  -&gt; Provider adapters
+  -&gt; Delivery status table
+  -&gt; Webhook from providers</code></pre>
+<p>关键设计：</p>
+<ul>
+<li>API 层先写 notification record 和 outbox event。</li>
+<li>Kafka 按 <code>notification_id</code> 或 <code>user_id</code> partition。</li>
+<li>Worker 发送前检查 sent-state idempotency key。</li>
+<li>Provider 返回成功后写 <code>DELIVERED</code>。</li>
+<li>失败后 retry with backoff，超过次数进 DLQ。</li>
+<li>Twilio / SendGrid / Firebase 各自独立 worker pool。</li>
+<li>Provider webhook 更新最终状态。</li>
+</ul>
+<p>面试回答模板：</p>
+<blockquote>I would make notification delivery asynchronous. The request path only writes a durable notification record and an outbox event. Workers consume Kafka, send through provider-specific adapters, persist delivery status before committing offset, and use idempotency keys to avoid duplicate sends. Each provider has an isolated worker pool so a slow SMS provider cannot block email or push.</blockquote>
+<h3 id="news-feed-timeline">News Feed / Timeline</h3>
+<p>高频题：设计 Twitter / Instagram feed。</p>
+<p>核心问题：</p>
+<ul>
+<li>Fanout on write 还是 fanout on read。</li>
+<li>Celebrity user 热点。</li>
+<li>Feed freshness。</li>
+<li>Ranking。</li>
+<li>Cache。</li>
+</ul>
+<p>Fanout on write：</p>
+<pre><code class="language-">User posts
+  -&gt; write post
+  -&gt; fanout to followers' feed inbox</code></pre>
+<p>优点：</p>
+<ul>
+<li>读 feed 很快。</li>
+<li>适合普通用户。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>celebrity 有几千万 followers，写入爆炸。</li>
+</ul>
+<p>Fanout on read：</p>
+<pre><code class="language-">User opens feed
+  -&gt; fetch recent posts from followed users
+  -&gt; merge/rank</code></pre>
+<p>优点：</p>
+<ul>
+<li>发帖轻。</li>
+<li>适合 celebrity。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>读 feed 慢，merge 成本高。</li>
+</ul>
+<p>混合方案：</p>
+<ul>
+<li>普通用户 fanout on write。</li>
+<li>Celebrity 不 fanout，读 feed 时单独拉取并 merge。</li>
+<li>Feed inbox 存 post_id，不存完整 post。</li>
+<li>Ranking service 根据 recency、engagement、relationship score 排序。</li>
+</ul>
+<p>面试回答模板：</p>
+<blockquote>I would use a hybrid fanout model. For normal users, fanout-on-write gives fast feed reads. For celebrities, I would avoid pushing to every follower and instead merge their recent posts at read time. The feed inbox stores post IDs, and the read path hydrates post details from cache or post service.</blockquote>
+<h3 id="search-autocomplete">Search / Autocomplete</h3>
+<p>搜索系统常见 requirements：</p>
+<ul>
+<li>Full-text search。</li>
+<li>Prefix autocomplete。</li>
+<li>Typo tolerance。</li>
+<li>Filtering / sorting。</li>
+<li>Near real-time index update。</li>
+<li>高 QPS、低 latency。</li>
+</ul>
+<p>高层架构：</p>
+<pre><code class="language-">Write path:
+  DB source of truth
+  -&gt; CDC / outbox
+  -&gt; Kafka
+  -&gt; Indexer
+  -&gt; Elasticsearch / OpenSearch
+
+Read path:
+  API
+  -&gt; Search service
+  -&gt; Search index
+  -&gt; hydrate details from DB/cache if needed</code></pre>
+<p>Autocomplete 设计：</p>
+<ul>
+<li>Trie 适合内存小规模 prefix。</li>
+<li>Elasticsearch completion suggester / edge n-gram 适合生产搜索。</li>
+<li>热门 query 可以 cache。</li>
+<li>搜索结果允许 eventual consistency。</li>
+</ul>
+<p>注意：</p>
+<ul>
+<li>Search index 不是 source of truth。</li>
+<li>DB update 到 search index 会有 lag。</li>
+<li>删除和权限变化要小心，避免搜索泄漏。</li>
+</ul>
+<p>面试回答模板：</p>
+<blockquote>I would keep the primary database as source of truth and build Elasticsearch as a derived index through CDC or outbox. Search reads from the index for low latency, then hydrates details from cache or DB. I would accept slight index lag for search, but handle deletes and permission changes carefully.</blockquote>
+<h3 id="file-upload-media-processing">File Upload / Media Processing</h3>
+<p>高频题：设计图片 / 视频上传系统。</p>
+<p>核心要求：</p>
+<ul>
+<li>大文件上传。</li>
+<li>断点续传。</li>
+<li>病毒扫描 / 内容审核。</li>
+<li>转码 / thumbnail。</li>
+<li>CDN 分发。</li>
+<li>元数据管理。</li>
+</ul>
+<p>推荐流程：</p>
+<pre><code class="language-">Client asks API for upload URL
+API returns pre-signed URL
+Client uploads directly to object storage
+Storage event -&gt; Kafka / queue
+Media worker processes file
+  -&gt; validate
+  -&gt; transcode
+  -&gt; thumbnail
+  -&gt; metadata update
+  -&gt; CDN available</code></pre>
+<p>为什么 client 直接传 object storage：</p>
+<ul>
+<li>避免大文件经过 API server。</li>
+<li>API server 不被 bandwidth 打爆。</li>
+<li>Object storage 更适合大文件和 multipart upload。</li>
+</ul>
+<p>状态机：</p>
+<pre><code class="language-">INITIATED -&gt; UPLOADING -&gt; UPLOADED -&gt; PROCESSING -&gt; READY
+                                  -&gt; FAILED</code></pre>
+<p>面试回答模板：</p>
+<blockquote>I would not proxy large files through the application server. The API returns a pre-signed upload URL, and the client uploads directly to object storage. A storage event triggers an async media pipeline for validation, transcoding, thumbnails, and metadata update. The final artifact is served through CDN.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

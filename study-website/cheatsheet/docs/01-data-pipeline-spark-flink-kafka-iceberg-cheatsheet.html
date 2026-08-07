@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Data Pipeline Deep Dive Cheatsheet</title>
+<link href="../assets/doc.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="doc-shell">
+<header class="doc-hero">
+<div>
+<div class="kicker">Infra Deep Dives / Infra</div>
+<h1>Data Pipeline Deep Dive Cheatsheet</h1>
+<p>master offline + streaming data infrastructure for AI/search/ranking/feature/index pipelines.</p>
+</div>
+</header>
+<section class="notice">Structured reading view generated from the source text.</section>
+<div class="doc-layout">
+
+<article class="sections">
+<section class="section-card" id="sec-0">
+<div class="section-kicker">Section 01</div>
+<h2>Overview</h2>
+<div class="section-body"><p>DATA PIPELINE DEEP DIVE CHEATSHEET<br/>Spark + Flink + Kafka + Iceberg<br/>Purpose: master offline + streaming data infrastructure for AI/search/ranking/feature/index pipelines.</p></div>
+</section>
+<section class="section-card" id="sec-1">
+<div class="section-kicker">Section 02</div>
+<h2>0. Mental model / 中文总览</h2>
+<div class="section-body"><h3>A production AI/search system usually has two data paths</h3>
+<p class="numbered-line">1) Batch / offline path</p>
+<p>   Source DB / logs / S3/GCS -&gt; Spark -&gt; Iceberg tables -&gt; training data / backfill / analytics</p>
+<p class="numbered-line">2) Streaming / near-real-time path</p>
+<p>   App events / CDC -&gt; Kafka -&gt; Flink -&gt; online store / search index / vector index / features</p>
+<h3>ASCII workflow</h3>
+<p>  OLTP DB / app logs / CDC<br/>          |<br/>          v<br/>       Kafka topics  -----------------------------+<br/>          |                                        |<br/>          v                                        v<br/>  Flink streaming jobs                      Raw events in S3/GCS<br/>          |                                        |<br/>          v                                        v<br/>  online features / index updates          Iceberg tables<br/>          |                                        |<br/>          v                                        v<br/>  low-latency serving                      Spark batch jobs<br/>                                                   |<br/>                                                   v<br/>                                          training sets / backfills</p>
+<h3>中文</h3>
+<ul><li>Kafka = durable event log / buffer / replay source.</li></ul>
+<ul><li>Flink = stateful stream processing; handles event time, late data, windows, exactly-once state.</li></ul>
+<ul><li>Spark = batch ETL and large joins/backfills.</li></ul>
+<ul><li>Iceberg = table format on object storage with snapshots, schema evolution, partition evolution, time travel.</li></ul>
+<h3>Interview one-liner</h3>
+<p>"I would use Kafka for durable ingestion and replay, Flink for low-latency stateful processing, Spark for batch backfill and heavy joins, and Iceberg/S3 as the source-of-truth table layer. The key concerns are idempotency, replayability, schema evolution, data freshness, and monitoring lag."</p></div>
+</section>
+<section class="section-card" id="sec-2">
+<div class="section-kicker">Section 03</div>
+<h2>1. Kafka essentials</h2>
+<div class="section-body"><h3>Core concepts</h3>
+<ul><li>Topic: logical event stream, e.g. order_events, user_clicks, document_updates.</li></ul>
+<ul><li>Partition: ordered append-only log shard. Parallelism and ordering unit.</li></ul>
+<ul><li>Offset: position of a message in a partition.</li></ul>
+<ul><li>Producer: writes events to topic partitions.</li></ul>
+<ul><li>Consumer group: multiple consumers share partitions. Each partition is consumed by one consumer in a group.</li></ul>
+<ul><li>Retention: Kafka can keep data for a time/size window, enabling replay.</li></ul>
+<h3>Key rules</h3>
+<ul><li>Ordering is guaranteed only within a partition, not across the whole topic.</li></ul>
+<ul><li>Pick a key that matches ordering needs.</li></ul>
+<p>  Example: key=user_id if events per user must be ordered.<br/>  Example: key=doc_id if document update ordering matters.</p>
+<ul><li>Partitions decide max consumer parallelism in one consumer group.</li></ul>
+<h3>Producer example</h3>
+<pre><code class="language-python">from kafka import KafkaProducer
+import json
+
+producer = KafkaProducer(
+    bootstrap_servers=["kafka-1:9092", "kafka-2:9092"],
+    key_serializer=lambda k: k.encode("utf-8"),
+    value_serializer=lambda v: json.dumps(v).encode("utf-8"),
+    acks="all",                 # safer durability
+    retries=5,
+)
+
+event = {
+    "event_id": "evt-123",
+    "doc_id": "doc-9",
+    "event_type": "DOCUMENT_UPDATED",
+    "event_ts": "2026-05-14T12:00:00Z",
+    "payload": {"title": "new title"},
+}
+
+producer.send("document_updates", key=event["doc_id"], value=event)
+producer.flush()</code></pre>
+<h3>Consumer example</h3>
+<pre><code class="language-python">from kafka import KafkaConsumer
+import json
+
+consumer = KafkaConsumer(
+    "document_updates",
+    bootstrap_servers=["kafka-1:9092"],
+    group_id="indexer-v1",
+    enable_auto_commit=False,
+    value_deserializer=lambda b: json.loads(b.decode("utf-8")),
+)
+
+for msg in consumer:
+    event = msg.value
+    try:
+        # 1. process event idempotently
+        update_search_index(event)
+        # 2. commit offset only after successful processing
+        consumer.commit()
+    except Exception:
+        # do not commit; retry/replay later
+        raise</code></pre>
+<h3>Idempotency pattern</h3>
+<pre><code class="language-python">def update_search_index(event):
+    # Use event_id or monotonically increasing source_version.
+    # If the same event is replayed, result should be the same.
+    existing = index.get(event["doc_id"])
+    if existing and existing["source_version"] &gt;= event["source_version"]:
+        return
+    index.upsert(event["doc_id"], event["payload"], source_version=event["source_version"])</code></pre>
+<h3>Kafka interview pitfalls</h3>
+<ul><li>Do not say "exactly once" casually. In real systems, you often design for at-least-once + idempotent sinks.</li></ul>
+<ul><li>Rebalancing can cause duplicate processing unless commits are handled carefully.</li></ul>
+<ul><li>Poison messages need DLQ / quarantine, not infinite retry.</li></ul>
+<ul><li>Schema evolution should use Schema Registry or strict versioned JSON/Protobuf/Avro.</li></ul>
+<h3>Common metrics</h3>
+<ul><li>consumer lag by partition</li></ul>
+<ul><li>produce rate / consume rate</li></ul>
+<ul><li>broker disk usage</li></ul>
+<ul><li>under-replicated partitions</li></ul>
+<ul><li>rebalance count</li></ul>
+<ul><li>DLQ rate</li></ul>
+<ul><li>message age</li></ul></div>
+</section>
+<section class="section-card" id="sec-3">
+<div class="section-kicker">Section 04</div>
+<h2>2. Flink essentials</h2>
+<div class="section-body"><h3>Use Flink when</h3>
+<ul><li>You need stateful streaming.</li></ul>
+<ul><li>You need event-time windows.</li></ul>
+<ul><li>You need low-latency updates to online features/search indexes.</li></ul>
+<ul><li>You need checkpoints and replay after failure.</li></ul>
+<h3>Key concepts</h3>
+<ul><li>Event time: timestamp when event happened.</li></ul>
+<ul><li>Processing time: timestamp when system processes the event.</li></ul>
+<ul><li>Watermark: progress signal for event time; tells Flink how late events can arrive.</li></ul>
+<ul><li>Window: group events by time, e.g. 5-minute tumbling window.</li></ul>
+<ul><li>State: per-key memory persisted via checkpoints.</li></ul>
+<ul><li>Checkpoint: consistent snapshot of operator state + source position.</li></ul>
+<h3>PyFlink sketch</h3>
+<pre><code class="language-python">from pyflink.datastream import StreamExecutionEnvironment
+from pyflink.common import WatermarkStrategy, Time
+from pyflink.datastream.window import TumblingEventTimeWindows
+
+# Pseudocode-level. Actual connector setup depends on your environment.
+env = StreamExecutionEnvironment.get_execution_environment()
+env.enable_checkpointing(60_000)  # every 60s
+
+stream = env.from_source(kafka_source, WatermarkStrategy.for_bounded_out_of_orderness(Time.seconds(30)), "kafka")
+
+# event = {"user_id": "u1", "event_ts": ..., "click": 1}
+result = (
+    stream
+    .key_by(lambda e: e["user_id"])
+    .window(TumblingEventTimeWindows.of(Time.minutes(5)))
+    .reduce(lambda a, b: {"user_id": a["user_id"], "clicks": a["clicks"] + b["clicks"]})
+)
+
+result.sink_to(online_feature_sink)
+env.execute("realtime-user-click-features")</code></pre>
+<h3>Flink state interview example</h3>
+<p>"For per-user rolling counters, I would key by user_id and store per-key state. Checkpointing allows recovery without losing state. For late events, I would use event time and watermarks; late arrivals beyond allowed lateness go to a side output for correction/backfill."</p>
+<h3>Late data strategy</h3>
+<ul><li>Within watermark delay: include in window.</li></ul>
+<ul><li>Slightly late: side output + correction event.</li></ul>
+<ul><li>Very late: write to Iceberg, handle with Spark backfill.</li></ul>
+<h3>Exactly-once-ish in practice</h3>
+<ul><li>Source supports replay.</li></ul>
+<ul><li>Flink checkpoints state + offsets.</li></ul>
+<ul><li>Sink must be transactional/idempotent.</li></ul>
+<ul><li>If sink is not transactional, use idempotent upsert keys and source_version.</li></ul></div>
+</section>
+<section class="section-card" id="sec-4">
+<div class="section-kicker">Section 05</div>
+<h2>3. Spark essentials</h2>
+<div class="section-body"><h3>Use Spark when</h3>
+<ul><li>You need batch ETL.</li></ul>
+<ul><li>You need huge joins.</li></ul>
+<ul><li>You need backfills.</li></ul>
+<ul><li>You need training set generation.</li></ul>
+<ul><li>You need data quality checks across large tables.</li></ul>
+<h3>PySpark DataFrame basics</h3>
+<pre><code class="language-python">from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, count, when, to_date
+
+spark = SparkSession.builder.appName("training-data").getOrCreate()
+
+events = spark.read.parquet("s3://bucket/events/date=2026-05-14")
+users = spark.read.parquet("s3://bucket/users")
+
+features = (
+    events
+    .filter(col("event_type") == "click")
+    .groupBy("user_id")
+    .agg(count("*").alias("click_count_7d"))
+)
+
+training = (
+    users
+    .join(features, on="user_id", how="left")
+    .fillna({"click_count_7d": 0})
+)
+
+training.write.mode("overwrite").parquet("s3://bucket/training/date=2026-05-14")</code></pre>
+<h3>Common Spark performance points</h3>
+<p class="numbered-line">1. Avoid unnecessary shuffles.</p>
+<p class="numbered-line">2. Repartition by join/group key when needed.</p>
+<p class="numbered-line">3. Broadcast small dimension tables.</p>
+<p class="numbered-line">4. Handle skew.</p>
+<p class="numbered-line">5. Cache only if reused.</p>
+<p class="numbered-line">6. Watch file size; too many small files hurt performance.</p>
+<h3>Broadcast join</h3>
+<pre><code class="language-python">from pyspark.sql.functions import broadcast
+
+large_events.join(broadcast(small_country_table), on="country_code", how="left")</code></pre>
+<h3>Skew handling</h3>
+<pre><code class="language-python">from pyspark.sql.functions import rand, concat_ws
+
+# Add salt to hot key to spread load.
+skewed = events.withColumn("salt", (rand() * 10).cast("int"))
+# Join with expanded dimension table if needed.</code></pre>
+<h3>Interview answer for Spark job slow</h3>
+<ul><li>Check Spark UI: stage time, shuffle read/write, spill, skewed tasks.</li></ul>
+<ul><li>Check join strategy: broadcast vs sort-merge join.</li></ul>
+<ul><li>Check partition count and small files.</li></ul>
+<ul><li>Check data skew: one key has huge volume.</li></ul>
+<ul><li>Check UDFs: Python UDFs can be slow; prefer built-in SQL functions.</li></ul></div>
+</section>
+<section class="section-card" id="sec-5">
+<div class="section-kicker">Section 06</div>
+<h2>4. Iceberg essentials</h2>
+<div class="section-body"><h3>Why Iceberg</h3>
+<ul><li>Tables on S3/GCS/ADLS with ACID-like table semantics.</li></ul>
+<ul><li>Snapshot isolation.</li></ul>
+<ul><li>Time travel.</li></ul>
+<ul><li>Schema evolution.</li></ul>
+<ul><li>Partition evolution.</li></ul>
+<ul><li>Hidden partitioning.</li></ul>
+<ul><li>Works with Spark/Flink/Trino/etc.</li></ul>
+<h3>Iceberg SQL examples</h3>
+<pre><code class="language-sql">CREATE TABLE prod.db.document_features (
+  doc_id string,
+  embedding_version string,
+  quality_score double,
+  updated_at timestamp
+)
+USING iceberg
+PARTITIONED BY (days(updated_at));</code></pre>
+<h3>Append/upsert pattern</h3>
+<pre><code class="language-sql">MERGE INTO prod.db.document_features t
+USING staging_updates s
+ON t.doc_id = s.doc_id
+WHEN MATCHED AND s.source_version &gt; t.source_version THEN UPDATE SET *
+WHEN NOT MATCHED THEN INSERT *;</code></pre>
+<h3>Time travel</h3>
+<pre><code class="language-sql">SELECT * FROM prod.db.document_features VERSION AS OF 123456789;
+SELECT * FROM prod.db.document_features TIMESTAMP AS OF '2026-05-14 10:00:00';</code></pre>
+<h3>Schema evolution</h3>
+<pre><code class="language-sql">ALTER TABLE prod.db.document_features ADD COLUMN language string;
+ALTER TABLE prod.db.document_features RENAME COLUMN quality_score TO relevance_quality_score;</code></pre>
+<h3>Partition evolution</h3>
+<pre><code class="language-sql">ALTER TABLE prod.db.events ADD PARTITION FIELD bucket(16, user_id);</code></pre>
+<h3>Operational issues</h3>
+<ul><li>Small file compaction.</li></ul>
+<ul><li>Snapshot expiration.</li></ul>
+<ul><li>Manifest compaction.</li></ul>
+<ul><li>Concurrent writers.</li></ul>
+<ul><li>Catalog choice: Glue, Hive, REST catalog, Nessie.</li></ul></div>
+</section>
+<section class="section-card" id="sec-6">
+<div class="section-kicker">Section 07</div>
+<h2>5. Freshness + indexing design pattern</h2>
+<div class="section-body"><p>Problem: billions of docs, updates daily, search/vector index must be fresh.</p>
+<h3>Design</h3>
+<p class="numbered-line">1. Source of truth writes document change event to Kafka.</p>
+<p class="numbered-line">2. Flink consumes events and writes low-latency index update.</p>
+<p class="numbered-line">3. Raw events also land in Iceberg.</p>
+<p class="numbered-line">4. Spark nightly job recomputes canonical index snapshot for correctness/backfill.</p>
+<p class="numbered-line">5. Index update uses idempotent doc_id + source_version.</p>
+<p class="numbered-line">6. Monitoring tracks event age, consumer lag, index freshness, failure/DLQ count.</p>
+<h3>ASCII</h3>
+<p>  doc service -&gt; Kafka document_updates -&gt; Flink indexer -&gt; Elasticsearch/Milvus<br/>                     |                         |<br/>                     v                         v<br/>               Iceberg raw_events        DLQ bad_events<br/>                     |<br/>                     v<br/>              Spark backfill job -&gt; rebuild index partitions</p></div>
+</section>
+<section class="section-card" id="sec-7">
+<div class="section-kicker">Section 08</div>
+<h2>6. Data quality checks</h2>
+<div class="section-body"><p>Use Great Expectations / Deequ / custom checks.</p>
+<h3>Examples</h3>
+<ul><li>null rate under threshold</li></ul>
+<ul><li>unique primary key</li></ul>
+<ul><li>event timestamp not in future</li></ul>
+<ul><li>label distribution stable</li></ul>
+<ul><li>row count not unexpectedly dropped</li></ul>
+<ul><li>feature value range reasonable</li></ul>
+<h3>Simple PySpark checks</h3>
+<pre><code class="language-python">from pyspark.sql.functions import count, countDistinct, col
+
+row_count = df.count()
+null_rate = df.filter(col("user_id").isNull()).count() / row_count
+unique_ids = df.select(countDistinct("event_id")).collect()[0][0]
+
+assert null_rate &lt; 0.001
+assert unique_ids == row_count</code></pre></div>
+</section>
+<section class="section-card" id="sec-8">
+<div class="section-kicker">Section 09</div>
+<h2>7. Interview quick answers</h2>
+<div class="section-body"><p>Q: Kafka vs Flink?<br/>A: Kafka stores and transports events; Flink computes over event streams with state, windows, watermarks, and checkpoints.</p>
+<p>Q: Spark vs Flink?<br/>A: Spark is usually best for batch ETL/backfills/heavy joins. Flink is stronger for continuous stateful streaming with event-time semantics.</p>
+<p>Q: Why Iceberg instead of raw Parquet folders?<br/>A: Raw Parquet folders lack table-level snapshot management, schema/partition evolution, reliable time travel, and strong table metadata semantics.</p>
+<p>Q: How to handle duplicate events?<br/>A: Use event_id/source_version and make sinks idempotent. Commit offsets after successful processing. For non-transactional sinks, at-least-once + idempotency is practical.</p>
+<p>Q: How to recover from a bad deployment?<br/>A: Stop consumers, fix code, replay Kafka from a known offset or restore Flink checkpoint, quarantine bad messages, and use Iceberg/Spark backfill to correct derived data.</p>
+<p>Q: How to avoid training-serving skew?<br/>A: Use the same feature definitions for batch and online paths, version transformations, use point-in-time correct joins, and monitor online/offline feature distributions.</p></div>
+</section>
+<section class="section-card" id="sec-9">
+<div class="section-kicker">Section 10</div>
+<h2>8. References / official docs</h2>
+<div class="section-body"><ul><li>Kafka documentation: https://kafka.apache.org/documentation/</li></ul>
+<ul><li>Kafka consumer group behavior: https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html</li></ul>
+<ul><li>Flink docs: https://nightlies.apache.org/flink/flink-docs-stable/</li></ul>
+<ul><li>Flink watermarks: https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/event-time/generating_watermarks/</li></ul>
+<ul><li>Spark SQL/DataFrame guide: https://spark.apache.org/docs/latest/sql-programming-guide.html</li></ul>
+<ul><li>Spark SQL performance tuning: https://spark.apache.org/docs/latest/sql-performance-tuning.html</li></ul>
+<ul><li>Iceberg docs: https://iceberg.apache.org/docs/latest/</li></ul>
+<ul><li>Iceberg evolution: https://iceberg.apache.org/docs/latest/evolution/</li></ul></div>
+</section>
+<section class="section-card" id="sec-10">
+<div class="section-kicker">Section 11</div>
+<h2>RESUME-ALIGNED INTERVIEW DEEP DIVE</h2>
+<div class="section-body"><p>A. End-to-end freshness architecture<br/>------------------------------------------------------------<br/>Deep-dive question: How do you keep a search index, vector index, and feature store fresh when billions of documents or assets change daily?</p>
+<h3>Strong answer flow</h3>
+<p class="numbered-line">1. Use Kafka as the durable ingestion and replay log for document updates, user events, and CDC.</p>
+<p class="numbered-line">2. Use Flink for near-real-time transforms: dedup, enrichment, event-time windows, online features, and index-update events.</p>
+<p class="numbered-line">3. Use Iceberg/S3 or GCS as the source of truth for raw and curated data with snapshots, schema evolution, and time travel.</p>
+<p class="numbered-line">4. Use Spark for backfills, large joins, embedding regeneration, offline training sets, and consistency repair.</p>
+<p class="numbered-line">5. Avoid dual-write correctness bugs by writing events once to the log/source-of-truth and deriving downstream materialized views.</p>
+<p class="numbered-line">6. Make sinks idempotent using document version, event ID, or source timestamp.</p>
+<p class="numbered-line">7. Monitor Kafka lag, Flink checkpoint health, sink error rate, index freshness, and feature freshness.</p>
+<p>B. Spark/Flink/Kafka/Iceberg tradeoff table<br/>------------------------------------------------------------<br/>Kafka: durable ordered partition log, replay, ingestion buffer. Not a database for arbitrary queries.<br/>Flink: low-latency stateful stream processing with event time, watermarks, checkpoints. More operationally complex than batch.<br/>Spark: large batch ETL, joins, backfills, offline features. Higher latency than streaming.<br/>Iceberg: table format with snapshots, schema/partition evolution, and time travel. Needs compaction and metadata maintenance.</p>
+<p>C. Production failure modes<br/>------------------------------------------------------------</p>
+<ul><li>Kafka consumer lag grows after downstream index slowdown.</li></ul>
+<ul><li>Flink checkpoint duration spikes because state grows or backpressure appears.</li></ul>
+<ul><li>Spark backfill creates duplicate index writes without idempotency.</li></ul>
+<ul><li>Iceberg small files slow planning/querying.</li></ul>
+<ul><li>Schema changes break consumers without compatibility policy.</li></ul>
+<ul><li>Event-time disorder causes incorrect feature windows if watermarks are too aggressive.</li></ul>
+<p>D. Interview Q&amp;A<br/>------------------------------------------------------------<br/>Q: Why use Iceberg instead of just writing Parquet folders?<br/>A: Iceberg gives table metadata, snapshots, schema evolution, partition evolution, hidden partitioning, and time travel. Plain folders make correctness and evolution much harder at scale.</p>
+<p>Q: Kafka exactly once?<br/>A: Kafka can support transactional exactly-once semantics inside Kafka pipelines, especially Kafka Streams. Once external sinks are involved, I still design idempotent writes and replay-safe consumers.</p>
+<p>Q: Spark skew handling?<br/>A: Detect skewed keys and long tasks, use broadcast join for small dimensions, salting for hot keys, repartitioning by join keys, AQE/skew join where available, and pre-aggregate before joins.</p>
+<p>E. Orchestration and transformation layer<br/>------------------------------------------------------------</p>
+<h3>Airflow</h3>
+<ul><li>Strong for scheduled DAG orchestration, dependency management, retries, backfills, and operational visibility.</li></ul>
+<ul><li>Good for batch pipelines such as Spark backfills, Iceberg compaction, training dataset generation, and daily feature materialization.</li></ul>
+<ul><li>Weakness: not a stream processor; task granularity and scheduler load matter.</li></ul>
+<h3>Dagster</h3>
+<ul><li>Strong asset-centric orchestration, lineage, typed assets, partition-aware backfills, and local testability.</li></ul>
+<ul><li>Good when the team wants data assets as first-class objects instead of only task DAGs.</li></ul>
+<h3>dbt</h3>
+<ul><li>SQL transformation, model lineage, testing, documentation, and warehouse/lakehouse transformation discipline.</li></ul>
+<ul><li>Good for curated tables, feature aggregates, data contracts, and analytics-facing transformations.</li></ul>
+<h3>Interview phrase</h3>
+<p>"I would use Kafka/Flink/Spark/Iceberg for data movement and computation, then Airflow or Dagster for orchestration, and dbt-style transformations/tests where SQL-modeled curated datasets need lineage and quality checks."</p></div>
+</section></article>
+</div>
+</main>
+
+</body>
+</html>

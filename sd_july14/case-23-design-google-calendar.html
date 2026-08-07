@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>23. Design Google Calendar - System Design 28</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <link rel="stylesheet" href="../how_assets_small/vendor/katex/katex.min.css"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    .route-head { padding: 4px 0 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .route-title { margin: 0; color: #f8fafc; font-size: clamp(28px, 5vw, 44px); line-height: 1.08; }
+    .route-subtitle { max-width: 820px; margin: 12px 0 0; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+    .jump a { padding: 6px 10px; border: 1px solid rgba(94,234,212,.28); background: rgba(94,234,212,.07); color: #dffcf6; text-decoration: none; font-size: 12px; font-weight: 750; }
+    .jump a:hover { border-color: var(--accent); background: rgba(94,234,212,.13); }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .architecture { margin: 18px 0 26px; }
+    .architecture > figcaption, .ascii-label { color: #b8c9dc; font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    pre.mermaid { display: flex; min-height: 220px; justify-content: center; align-items: center; overflow-x: auto; background: #0a0f17; color: #dbeafe; border-color: rgba(94,234,212,.28); }
+    pre.mermaid svg { min-width: 720px; max-width: 100%; height: auto; }
+    .ascii-label { margin-top: 12px; color: var(--accent); }
+    pre.ascii-diagram { margin-top: 7px; background: #070b10; border-color: rgba(148,163,184,.28); }
+    pre.ascii-diagram code { color: #cde7df; font-size: 12px; line-height: 1.55; }
+    .katex { color: #eef6ff; font-size: 1.05em; }
+    .katex-display { margin: 16px 0 20px; padding: 12px 14px; overflow-x: auto; overflow-y: hidden; border: 1px solid rgba(94,234,212,.2); background: rgba(7,17,31,.72); }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .pager a { display: block; padding: 12px 14px; border: 1px solid rgba(148,163,184,.28); background: rgba(16,23,34,.72); color: #dce8f8; text-decoration: none; font-weight: 800; }
+    .pager a:hover { border-color: var(--accent); }
+    .pager .next { text-align: right; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content">
+        <header class="route-head">
+          <p class="eyebrow">Case 24 / 31 · Route 7 / 9</p>
+          <h1 class="route-title">23. Design Google Calendar</h1>
+          <p class="route-subtitle">Leaderboard、Crossword、Calendar、Lowest-Cost Book：Exact Rank、分布式搜索、Recurrence 与 Saga。</p>
+          <nav class="jump" aria-label="本路线快速跳转"><a href="#23-1-题意与-framing">23.1 题意与 framing</a><a href="#23-2-requirements-与-slo">23.2 Requirements 与 SLO</a><a href="#23-3-capacity-estimates">23.3 Capacity estimates</a><a href="#23-4-api-与-event-contracts">23.4 API 与 event contracts</a><a href="#23-5-data-model-partition-index-与状态机">23.5 Data model、partition、index 与状态机</a><a href="#23-6-proposed-architecture">23.6 Proposed architecture</a><a href="#23-7-核心-flows">23.7 核心 flows</a><a href="#23-8-deep-dive-a-recurrence-identity-dst-与-sparse-exceptions">23.8 Deep dive A：Recurrence identity、DST 与 sparse exceptions</a><a href="#23-9-deep-dive-b-多设备-sync-的一致性边界">23.9 Deep dive B：多设备 sync 的一致性边界</a><a href="#23-10-deep-dive-c-free-busy-快但不冒充强一致">23.10 Deep dive C：Free/Busy 快但不冒充强一致</a><a href="#23-11-deep-dive-d-大规模查询-hot-user-与-acl">23.11 Deep dive D：大规模查询、hot user 与 ACL</a><a href="#23-12-reliability-multi-region-privacy-与-abuse">23.12 Reliability、multi-region、privacy 与 abuse</a><a href="#23-13-mle-deep-dive-meeting-time-recommendation">23.13 MLE deep dive：meeting-time recommendation</a><a href="#23-14-observability-cost-与-slo">23.14 Observability、cost 与 SLO</a><a href="#23-15-trade-offs-与-evolution">23.15 Trade-offs 与 evolution</a><a href="#23-16-高频-follow-up-q-a">23.16 高频 follow-up Q&amp;A</a><a href="#23-17-60-秒总结">23.17 60 秒总结</a></nav>
+        </header>
+        <h2 id="23-design-google-calendar-recurrence-多人邀请-同步与-free-busy">23. Design Google Calendar：Recurrence、多人邀请、同步与 Free/Busy</h2>
+<blockquote><strong>Source digest — <code>design google calender.docx</code></strong>：源文档的 <code>Series + Sparse Exceptions</code>、push invalidation + delta sync、FreeBusy derived view 是正确主线。需要校正：日历不应把所有读都做成跨地域强一致；event aggregate 强一致，但 calendar view、search 和 free/busy 可带 freshness watermark 最终一致。Free/busy 是约时建议，不防止冲突；会议室等独占资源必须在最终创建时走强一致 reservation。还要补上 <code>time zone / DST</code>、series split 后 exception 迁移、邀请跨用户投影与 sync-log compaction。</blockquote>
+<h3 id="23-1-题意与-framing">23.1 题意与 framing</h3>
+<p>设计一个全球日历系统，支持单次与 recurring event、邀请/RSVP、周/月视图、跨设备离线同步、free/busy、会议室资源和提醒。</p>
+<blockquote>“我会把 <code>EventSeries</code> 作为权威 aggregate，把每次实例定义为 <code>(series_id, original_start)</code>，只为被修改/取消的 occurrence 写 sparse exception。写请求路由到 event home shard 做 OCC；每位用户的 calendar view、sync log、free/busy 是可重建 projection。最难的三点是 DST 下的 recurrence identity、离线多端冲突，以及 free/busy 的 freshness 与最终资源预订的强一致边界。”</blockquote>
+<h3 id="23-2-requirements-与-slo">23.2 Requirements 与 SLO</h3>
+<p><strong>Functional requirements</strong></p>
+<ol>
+<li>创建、读取、修改、删除单次或循环 event；修改范围支持 <code>SINGLE / THIS_AND_FUTURE / ALL</code>。</li>
+<li>添加内部/外部 attendee，处理 <code>NEEDS_ACTION / ACCEPTED / DECLINED / TENTATIVE</code> RSVP。</li>
+<li>按时间窗加载多 calendar view；多设备在线失效通知、离线 delta sync。</li>
+<li>查询多人 free/busy，建议 meeting slot；可预订 room/resource。</li>
+<li>reminder、ACL、share、external invite delivery 与审计。</li>
+</ol>
+<p><strong>SLO / correctness</strong></p>
+<ul>
+<li>周视图 P95 <code>&lt; 200ms</code>；10 人 × 14 天 free/busy P95 <code>&lt; 500ms</code>。</li>
+<li>event mutation 在 home region P99 <code>&lt; 300ms</code>，<code>read-your-writes</code> 立即成立；其他用户 projection P95 <code>&lt; 5s</code> 收敛。</li>
+<li>组织者的 event master、attendee RSVP、room reservation 不发生 lost update；提醒允许 at-least-once delivery，但用户体验去重。</li>
+<li>Region 故障下个人 view 可读；无法证明 room ownership 时新预订 fail-closed。</li>
+</ul>
+<p><strong>Out of scope</strong>：视频会议媒体、邮件服务内部实现、复杂企业 HR directory；只定义接口。</p>
+<h3 id="23-3-capacity-estimates">23.3 Capacity estimates</h3>
+<p>假设 <code>100M DAU</code>：每人每天打开/刷新视图 20 次、产生 2 次 event/RSVP mutation，峰值系数 <code>10×</code>。</p>
+<pre><code class="language-text">View reads = 100M × 20 / 86,400 ≈ 23.1k QPS average
+Peak view reads ≈ 231k QPS
+
+Mutations = 100M × 2 / 86,400 ≈ 2.3k QPS average
+Peak mutations ≈ 23k QPS</code></pre>
+<p>若一次 mutation 平均影响 organizer + 3 attendees，则约 <code>800M user-projection changes/day</code>：</p>
+<pre><code class="language-text">800M / 86,400 ≈ 9.3k change rows/s average
+Peak ≈ 93k/s</code></pre>
+<p>假设在线保留 <code>50B</code> 个 EventSeries/单次 event row，每行含索引约 <code>700B</code>：<code>35TB logical</code>，3 副本约 <code>105TB</code>。Attendee 平均 3 行、每行 <code>200B</code>：</p>
+<pre><code class="language-text">50B × 3 × 200B = 30TB logical
+3 replicas ≈ 90TB</code></pre>
+<p>FreeBusy 只物化活跃用户未来 60 天：<code>100M × 60 = 6B day blocks</code>；每个合并区间块平均 <code>250B</code>，约 <code>1.5TB logical / 4.5TB replicated</code>。不能为无限 recurrence 全量展开。</p>
+<h3 id="23-4-api-与-event-contracts">23.4 API 与 event contracts</h3>
+<pre><code class="language-http">POST /v1/events
+Idempotency-Key: &lt;uuid&gt;
+{
+  &quot;calendar_id&quot;:&quot;cal_1&quot;,
+  &quot;start&quot;:{&quot;local&quot;:&quot;2026-11-01T09:00:00&quot;,&quot;tzid&quot;:&quot;America/Los_Angeles&quot;},
+  &quot;end&quot;:{&quot;local&quot;:&quot;2026-11-01T09:30:00&quot;,&quot;tzid&quot;:&quot;America/Los_Angeles&quot;},
+  &quot;rrule&quot;:&quot;FREQ=WEEKLY;BYDAY=MO&quot;,
+  &quot;attendees&quot;:[&quot;u_2&quot;,&quot;u_3&quot;]
+}
+
+PATCH /v1/events/{series_id}?scope=SINGLE&amp;recurrence_id=&lt;original-start&gt;
+If-Match: &quot;event-version-42&quot;
+
+PATCH /v1/events/{series_id}?scope=THIS_AND_FUTURE&amp;recurrence_id=&lt;original-start&gt;
+DELETE /v1/events/{series_id}?scope=...
+PATCH /v1/events/{series_id}/attendees/me
+GET /v1/calendars/events?start=...&amp;end=...&amp;page_token=...
+POST /v1/freebusy
+POST /v1/resources/{resource_id}/holds
+Idempotency-Key: &lt;uuid&gt;
+-&gt; 201 {&quot;hold_id&quot;:&quot;h_1&quot;,&quot;hold_epoch&quot;:7,&quot;expires_at&quot;:&quot;...&quot;}
+POST /v1/resources/{resource_id}/holds/{hold_id}/confirm
+If-Match: &quot;hold-epoch-7&quot;
+DELETE /v1/resources/{resource_id}/holds/{hold_id}
+If-Match: &quot;hold-epoch-7&quot;
+GET /v1/sync?cursor=&lt;opaque&gt;&amp;limit=500</code></pre>
+<p>事件必须能幂等重放：</p>
+<pre><code class="language-text">EventAggregateChanged(event_id, series_id, family_id, event_version, organizer_id,
+                      affected_user_ids, change_kind, effective_range, occurred_at)
+RsvpChanged(event_id, series_id, calendar_id, event_version,
+            attendee_id, attendee_version, status)
+ResourceHoldChanged(event_id, resource_id, hold_id, hold_epoch, state, start, end)
+ResourceReservationCommitted(event_id, resource_id, hold_id, reservation_id,
+                             start, end, reservation_epoch)
+ReminderDue(reminder_id, user_id, occurrence_id, fire_at, reminder_version)</code></pre>
+<p><code>event_id/event_version</code> 去重并拒绝旧 projection；提醒 idempotency key 是 <code>(reminder_id, occurrence_id, reminder_version)</code>。</p>
+<h3 id="23-5-data-model-partition-index-与状态机">23.5 Data model、partition、index 与状态机</h3>
+<ul>
+<li><code>Calendar(calendar_id PK, owner_id, home_region, tzid, acl_version, version)</code></li>
+<li><code>EventSeries(series_id PK, root_series_family_id, calendar_id, organizer_id, dtstart_local, tzid, duration, rrule, split_from, split_at, status, version)</code></li>
+<li><code>EventException(series_id, recurrence_id, override_start, override_tzid, override_fields, status, version)</code></li>
+<li><code>Attendee(series_id, attendee_id/email, role, rsvp_status, attendee_version)</code></li>
+<li><code>CalendarProjection(user_id, occurrence_date_bucket, occurrence_id, start_utc, end_utc, visibility, source_version)</code></li>
+<li><code>UserChange(user_id, user_seq, entity_id, entity_version, change_kind, payload_ref)</code></li>
+<li><code>FreeBusyDay(user_id, local_date, merged_busy_intervals, source_watermark)</code></li>
+<li><code>ResourceReservation(resource_id, hold_id, start_utc, end_utc, state, hold_expires_at, hold_epoch, reservation_epoch, idempotency_key, request_hash)</code></li>
+<li><code>Reminder(reminder_id, occurrence_id, fire_at, status, delivery_attempt)</code></li>
+</ul>
+<p>Event authority 按不可变的 <code>hash(root_series_family_id)</code> 路由到 home shard；原始 series 与所有 <code>THIS_AND_FUTURE</code> split descendants 永远共置，不能用新 <code>series_id</code> 重新 hash。<code>UserChange</code> 按 <code>user_id</code> 分区并在该 user shard 内单调递增，不追求全局 sequence。CalendarProjection 索引 <code>(user_id, start_utc)</code>；Exception 主键 <code>(series_id, recurrence_id)</code>。Resource 以 <code>resource_id</code> 单写，并用 range exclusion / serial transaction 防重叠；hold 的 create/confirm/cancel 都由 <code>(resource_id, hold_id, hold_epoch)</code> fence 且持久幂等。</p>
+<p>Event state：<code>CONFIRMED -&gt; CANCELLED</code>；invitation state 独立为 <code>NEEDS_ACTION &lt;-&gt; ACCEPTED/TENTATIVE/DECLINED</code>。不要把 organizer event status 与每个 attendee RSVP 混成一个字段。</p>
+<h3 id="23-6-proposed-architecture">23.6 Proposed architecture</h3>
+<figure class="architecture"><figcaption>Architecture Diagram</figcaption><pre class="mermaid">flowchart LR
+    C[&quot;Web / Mobile Clients&quot;] --&gt; G[&quot;API Gateway&quot;]
+    G --&gt; E[&quot;Event Command Service&quot;]
+    E --&gt; S[(&quot;Event Authority Shards + Outbox&quot;)]
+    S --&gt; O[&quot;Outbox / Change Stream&quot;]
+    O --&gt; P[&quot;Per-user Projection Workers&quot;]
+    P --&gt; V[(&quot;Calendar View Store&quot;)]
+    P --&gt; D[(&quot;Delta Sync Log&quot;)]
+    P --&gt; F[(&quot;FreeBusy Materialized View&quot;)]
+    O --&gt; N[&quot;Push Invalidation / Reminder Pipeline&quot;]
+    C &lt;--&gt; N
+    G --&gt; Q[&quot;View / Sync / FreeBusy Query&quot;]
+    Q --&gt; V
+    Q --&gt; D
+    Q --&gt; F
+    G --&gt; R[&quot;Resource Reservation Service&quot;]
+    R --&gt; X[(&quot;Strong Resource Store&quot;)]</pre><div class="ascii-label">ASCII Architecture · copy-friendly</div><pre class="ascii-diagram"><code>[Web / Mobile Clients] --&gt; [API Gateway]
+[API Gateway] --&gt; [Event Command Service]
+[Event Command Service] --&gt; [Event Authority Shards + Outbox]
+[Event Authority Shards + Outbox] --&gt; [Outbox / Change Stream]
+[Outbox / Change Stream] --&gt; [Per-user Projection Workers]
+[Per-user Projection Workers] --&gt; [Calendar View Store]
+[Per-user Projection Workers] --&gt; [Delta Sync Log]
+[Per-user Projection Workers] --&gt; [FreeBusy Materialized View]
+[Outbox / Change Stream] --&gt; [Push Invalidation / Reminder Pipeline]
+[Web / Mobile Clients] &lt;--&gt; [Push Invalidation / Reminder Pipeline]
+[API Gateway] --&gt; [View / Sync / FreeBusy Query]
+[View / Sync / FreeBusy Query] --&gt; [Calendar View Store]
+[View / Sync / FreeBusy Query] --&gt; [Delta Sync Log]
+[View / Sync / FreeBusy Query] --&gt; [FreeBusy Materialized View]
+[API Gateway] --&gt; [Resource Reservation Service]
+[Resource Reservation Service] --&gt; [Strong Resource Store]</code></pre></figure>
+<h3 id="23-7-核心-flows">23.7 核心 flows</h3>
+<p><strong>创建与邀请</strong>：Event Service 在 series home shard 的一个事务写 master、attendees、idempotency row 与 outbox。Projection Worker 为 organizer/attendees 产生各自 view/sync rows；外部邮箱走异步 invitation delivery。Attendee RSVP command 仍路由回 series owner，成功后再投影，避免每个用户各有一份互相冲突的 master。</p>
+<p><strong>视图查询</strong>：先从 CalendarProjection 取已物化单次 event；对 recurring series 仅在请求窗口内展开、批量加载 exception，再合并排序。热门窗口可 cache，但返回 <code>view_watermark</code>。</p>
+<p><strong>离线同步</strong>：设备保存 opaque per-user cursor。重连先 pull server delta 并更新 local cache，再按原始 <code>base_version</code> 重放本地 mutation；冲突返回 <code>409 + current canonical entity + conflict fields</code>。若 cursor 已被 compact，返回 <code>410 SNAPSHOT_REQUIRED</code>，客户端获取新 snapshot 和 cursor。</p>
+<p><strong>提醒</strong>：Projection 生成未来 bounded horizon 的 reminder tasks；timer wheel/delayed queue 投递。发送重复可接受，客户端和 notification service 按 reminder key 去重。</p>
+<h3 id="23-8-deep-dive-a-recurrence-identity-dst-与-sparse-exceptions">23.8 Deep dive A：Recurrence identity、DST 与 sparse exceptions</h3>
+<p>Master 保存 RFC 5545 风格 <code>RRULE + DTSTART local + TZID</code>。Occurrence identity 不能用当前 <code>start_utc</code>，因为单次移动后它会改变；使用 <code>(series_id, recurrence_id)</code>，其中 recurrence_id 是该实例在原系列时区下的 <strong>original scheduled local start</strong>，并保存规则/tzdb version 以便重放。</p>
+<p>DST 必须先声明产品 policy：</p>
+<ul>
+<li>09:00 weekly meeting 通常保持当地墙钟 <code>09:00</code>，UTC 会随 DST 改变；</li>
+<li>遇到不存在的 local time（spring forward）可跳到下一合法 instant 或标记需要用户确认；</li>
+<li>ambiguous time（fall back）保存 offset/fold，禁止客户端与服务端自行猜测；</li>
+<li>tzdb 更新后后台 re-expansion，只改未来 projection，不偷偷改 historical occurrence identity。</li>
+</ul>
+<p><code>SINGLE</code> 只 upsert exception。<code>THIS_AND_FUTURE</code> 生成新 <code>series_id</code>，但继承同一个 <code>root_series_family_id</code>，因此仍路由同一 authority partition；在一个本地 transaction 中截断旧 series、创建新 series、记录 <code>split_from/split_at</code>、迁移或重解释切点之后的 exception/attendee override，并发出一个原子 aggregate event。旧邀请链接经 family alias 映射到新 series，避免 RSVP 丢失。若底层无法保证 family co-location，就必须改成带 barrier/alias 的 Saga，并在完成前冻结该 family mutation，不能仍声称 local atomic。</p>
+<h3 id="23-9-deep-dive-b-多设备-sync-的一致性边界">23.9 Deep dive B：多设备 sync 的一致性边界</h3>
+<p>WebSocket/APNs/FCM 只发送“user_seq 已推进到 N”的 invalidation，不携带权威全量状态。可靠性来自 pull-based delta log：</p>
+<ul>
+<li>Event transaction 与 outbox 原子；projection consumer 幂等。</li>
+<li>每个 user shard 分配 <code>user_seq</code>，客户端可检测 gap 并 backfill。</li>
+<li>同一设备 mutation 带 <code>client_mutation_id</code>，断线重试返回相同结果。</li>
+<li><code>If-Match/version</code> 防 lost update；字段可安全合并时（例如不同 attendee 各改自己的 RSVP）由 server aggregate command 自动合并，否则显式冲突。</li>
+<li>Sync log 按 retention 压缩；snapshot 与 cursor 来自同一 watermark，避免 snapshot 后漏事件。</li>
+</ul>
+<h3 id="23-10-deep-dive-c-free-busy-快但不冒充强一致">23.10 Deep dive C：Free/Busy 快但不冒充强一致</h3>
+<p>FreeBusyDay 是 privacy-minimized derived state，只含合并后的 busy interval 和 <code>source_watermark</code>。写 event 后异步重算受影响的用户/日期；recurring event 只展开未来 <code>30–60</code> 天，远期请求按需计算并 cache。</p>
+<p>查询 10 人 × 14 天可一次 batch/MGET 取 140 个 day block，再用 sweep-line / multiway interval intersection 计算共同空档。响应带每个用户的 freshness；若 watermark 落后超过阈值，服务可同步读取 event authority 做 targeted repair，或明确标记 <code>tentative</code>。</p>
+<p>Free/busy 永远只是 advisory：两个人可能在看到空档后同时创建会议。普通个人 calendar 接受这种产品语义；room、设备或医生号源等独占资源必须先创建短 TTL hold，拿到 <code>hold_id + hold_epoch + expires_at</code>，再用 idempotent confirm 在 resource home shard 的 serializable transaction / range exclusion constraint 中转为 <code>COMMITTED</code>。重复 confirm 返回同一 reservation；过期/已 cancel 的 epoch 不能复活，confirm 与 cancel 竞争只允许一个状态转换。Region partition 时无法取得 ownership lease就拒绝新 reservation。</p>
+<h3 id="23-11-deep-dive-d-大规模查询-hot-user-与-acl">23.11 Deep dive D：大规模查询、hot user 与 ACL</h3>
+<ul>
+<li>View 不做 <code>OFFSET</code> 深翻页；token 固定 <code>query window + last(start_utc, occurrence_id) + view_watermark</code>。</li>
+<li>超大型组织者 event 的 attendee projection 分批 fan-out；master 先成功，UI 展示 projection progress。不能在一个 SQL transaction 写 100k attendee calendars。</li>
+<li>ACL 变更推进 <code>acl_epoch</code>；query 必须校验 capability 中的 epoch。撤销共享时先让旧 freshness lease 失效，再确认完成，避免 cache 泄露。</li>
+<li>Search index、view cache、freebusy 都是 derived；event authority 是恢复锚点。</li>
+</ul>
+<h3 id="23-12-reliability-multi-region-privacy-与-abuse">23.12 Reliability、multi-region、privacy 与 abuse</h3>
+<ul>
+<li>Event home region 内多 AZ quorum；user projection 跨地域异步，但 canonical event command 默认在 ACK 前同步追加 paired safety journal，记录 family/version/idempotency mutation，resource reservation 同样如此。</li>
+<li>Failover 只有追上 <code>calendar_safety_watermark</code> 后才能提升新的 <code>owner_epoch</code> 并接受 event/resource mutation，旧 region 被 target-side fence。若产品为个人 event 明确选择 <code>RPO &gt; 0</code> 以换低延迟，则灾备期间必须进入 read-only/quarantine，等待最大复制 lag、合并旧 tail 与 client mutation IDs、修复 family version 后再开放写；不能只提升 epoch 后立刻接受可能冲突的新写。视图可继续读 stale cache并显示同步状态。</li>
+<li>Outbox lag 时保护 command path，暂停低价值 reindex/reminder pre-generation；reminder 临近 deadline 优先。</li>
+<li>最小化 free/busy disclosure；按 requester ACL、tenant policy 和时间范围 rate limit。External invite token 短寿命、single-purpose、可撤销。</li>
+<li>防 calendar spam、invite bombing 与 malicious recurrence expansion；限制 attendees、RRULE 展开数、窗口和 reminders。</li>
+</ul>
+<h3 id="23-13-mle-deep-dive-meeting-time-recommendation">23.13 MLE deep dive：meeting-time recommendation</h3>
+<p>先用 deterministic baseline：hard constraints（所有人 free、working hours、room capacity）过滤，再按 time-zone fairness、历史偏好、会议长度与 travel buffer 打分。ML ranker 只重排合法 slots：</p>
+<ul>
+<li>Label：organizer 选择、attendee decline/reschedule、meeting completion；避免把“第一个展示”当真实偏好。</li>
+<li>Features：local hour、weekday、time-zone burden、participant seniority 不应成为不透明歧视信号；个人敏感偏好需 consent。</li>
+<li>Offline：NDCG/acceptance prediction、time-zone burden distribution；Online：selection rate、decline/reschedule、time-to-schedule。</li>
+<li>Fallback：模型失败即回规则排序；不能越过 busy/ACL/resource constraints。</li>
+</ul>
+<h3 id="23-14-observability-cost-与-slo">23.14 Observability、cost 与 SLO</h3>
+<p>监控 user journey：event write success、projection lag P50/P99、sync gap/410 rate、recurrence expansion CPU、exception lookup ratio、freebusy freshness、room conflict rejection、reminder on-time rate、outbox backlog、ACL stale-deny/allow audit。</p>
+<p>成本热点不是 Event row 本身，而是 attendee fan-out、长期 sync retention、无限 recurring materialization 和 reminder task。用 bounded horizon、log compaction、large-event batch projection 与 cold history archive 控制成本。</p>
+<h3 id="23-15-trade-offs-与-evolution">23.15 Trade-offs 与 evolution</h3>
+<ul>
+<li><strong>V1</strong>：单地域 SQL、series + exception、OCC、轮询 sync。</li>
+<li><strong>V2</strong>：outbox、per-user delta log、push invalidation、FreeBusy materialization、room reservation。</li>
+<li><strong>V3</strong>：regional ownership/fencing、large-event workflow、learned slot ranking、tenant compliance/legal audit。</li>
+</ul>
+<p>不应一开始拆成 Event/Invite/RSVP 多个独立写主；先让一个 aggregate transaction 容易证明，再把派生读和异步副作用拆开。</p>
+<h3 id="23-16-高频-follow-up-q-a">23.16 高频 follow-up Q&amp;A</h3>
+<p><strong>Q：永久 recurring event 会不会无限占存储？</strong> A：master 只存一条 RRULE，exception 稀疏存储，projection/reminder 只物化 bounded horizon；远期按请求展开。</p>
+<p><strong>Q：为什么 free/busy 可以 eventual consistency？</strong> A：它用于推荐，不是最终独占承诺；响应带 freshness。真正需要防双订的 room 在权威资源 shard 提交。</p>
+<p><strong>Q：如何处理离线两端同时编辑？</strong> A：每个 mutation 带 base version 和 client mutation ID；安全的独立子资源可合并，冲突字段返回 409，不做 last-write-wins 静默覆盖。</p>
+<p><strong>Q：邀请 100k 人怎么办？</strong> A：event master 与受邀名单批次定义先提交，fan-out projection 是可重试 workflow；客户端显示 delivery/projection progress，不能同步写 100k 用户分片。</p>
+<h3 id="23-17-60-秒总结">23.17 60 秒总结</h3>
+<blockquote>“Calendar 的权威写模型是 EventSeries + sparse EventException，occurrence 由 original recurrence_id 标识，DST 按系列 TZID 和明确 policy 展开。Event/RSVP 写路由到 series home shard 做 OCC 和 outbox；每个用户的 view、delta sync 与 free/busy 都是有 watermark 的 derived projection。设备靠 push invalidation + cursor pull 收敛，过期 cursor 重取同 watermark snapshot。Free/busy 只给建议，会议室等独占资源必须经过 hold 和强一致 reservation。最后用 owner epoch、ACL epoch、bounded horizon 与 large-event workflow 解决跨地域、安全和成本问题。”</blockquote>
+<hr/>
+        <nav class="pager" aria-label="Case navigation">
+    <a href="case-22-design-distributed-crossword-solver.html">← 22. Design Distributed Crossword Solver</a>
+    <a class="next" href="case-24-design-lowest-cost-book-purchasing.html">24. Design Lowest-Cost Book Purchasing →</a>
+  </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../how_assets_small/vendor/katex/katex.min.js"></script>
+  <script src="../how_assets_small/vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector("article.content"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "warn",
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  </script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: false, curve: "linear", useMaxWidth: true },
+      themeVariables: {
+        background: "#0a0f17",
+        primaryColor: "#142235",
+        primaryTextColor: "#eef6ff",
+        primaryBorderColor: "#5eead4",
+        lineColor: "#93c5fd",
+        secondaryColor: "#172033",
+        tertiaryColor: "#111827",
+        clusterBkg: "#101827",
+        clusterBorder: "#475569"
+      }
+    });
+    const diagrams = document.querySelectorAll("pre.mermaid");
+    const renderDiagram = async (node) => {
+      if (node.dataset.rendered) return;
+      node.dataset.rendered = "true";
+      await mermaid.run({ nodes: [node] });
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          renderDiagram(entry.target);
+        }
+      }, { rootMargin: "900px 0px" });
+      diagrams.forEach((node) => observer.observe(node));
+      const warmDiagrams = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        for (const node of diagrams) {
+          if (node.dataset.rendered) continue;
+          await new Promise((resolve) => {
+            if ("requestIdleCallback" in window) requestIdleCallback(resolve, { timeout: 2500 });
+            else setTimeout(resolve, 80);
+          });
+          await renderDiagram(node);
+        }
+      };
+      warmDiagrams();
+    } else {
+      diagrams.forEach(renderDiagram);
+    }
+  </script>
+</body>
+</html>

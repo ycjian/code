@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Interview Strategy &amp; Edge Cases - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="28-interview-strategy-edge-design-cases">28. Interview Strategy &amp; Edge Design Cases</h2>
+<p>这一节覆盖剩余 <code>sd_pages</code> 里更像 interview strategy / edge design 的页面：Messaging App / WhatsApp、Pastebin、CAP Theorem framing、ML System Design Blueprint、Behavioral Interview Strategy、Manager Interview Playbook、Yelp mastery / staff-level polish。这些不是最大块的系统题，但面试里经常用来区分“会背架构图”和“会带讨论”的候选人。</p>
+<h3 id="1-messaging-app-whatsapp">1. Messaging App / WhatsApp</h3>
+<h4 id="question">Question</h4>
+<p>设计 WhatsApp / Messenger 类 messaging app。支持 1:1 chat、group chat、online/offline delivery、read receipt、push notification、multi-device、message ordering。</p>
+<h4 id="approach">Approach</h4>
+<p>Messaging 的核心不是简单 WebSocket，而是：</p>
+<ul>
+<li>connection management。</li>
+<li>durable message store。</li>
+<li>per-conversation ordering。</li>
+<li>offline delivery。</li>
+<li>multi-device sync。</li>
+</ul>
+<h4 id="architecture">Architecture</h4>
+<pre><code class="language-">Client
+  -&gt; WebSocket Gateway
+  -&gt; Message Service
+  -&gt; Conversation Service
+  -&gt; Message Store
+  -&gt; Delivery Queue
+  -&gt; Push Notification Service
+  -&gt; Presence Service</code></pre>
+<h4 id="data-model">Data model</h4>
+<pre><code class="language-">conversation(conversation_id, type, created_at)
+conversation_member(conversation_id, user_id, role, joined_at)
+message(conversation_id, message_seq, message_id, sender_id, body_ref, created_at)
+delivery_state(message_id, user_id, device_id, delivered_at, read_at)</code></pre>
+<p>Use <code>conversation_id + message_seq</code> for ordering inside a conversation. Global ordering across all chats is unnecessary.</p>
+<h4 id="send-flow">Send flow</h4>
+<ol>
+<li>Client sends message with client_msg_id。</li>
+<li>Gateway forwards to Message Service。</li>
+<li>Message Service assigns sequence number。</li>
+<li>Persist message。</li>
+<li>Enqueue delivery to recipients/devices。</li>
+<li>Online devices receive via WebSocket。</li>
+<li>Offline users receive push notification and later sync missed messages。</li>
+</ol>
+<h4 id="delivery-semantics">Delivery semantics</h4>
+<p>Exactly-once delivery is unrealistic. Aim for exactly-once effect:</p>
+<ul>
+<li>client_msg_id for dedup。</li>
+<li>server message_id。</li>
+<li>idempotent delivery ack。</li>
+<li>client can ignore duplicate message_id。</li>
+</ul>
+<h4 id="interview-answer">Interview answer</h4>
+<blockquote>I would design messaging around durable per-conversation message logs and realtime delivery gateways. WebSocket handles online delivery, but the source of truth is the message store ordered by conversation sequence. Offline users sync missed messages from the store and may receive push notifications. Duplicate sends are handled with client message ids and idempotent writes.</blockquote>
+<h3 id="2-pastebin-paste-service">2. Pastebin / Paste Service</h3>
+<h4 id="question-2">Question</h4>
+<p>设计 Pastebin。用户提交一段文本，系统返回短链接。支持 public/private paste、TTL、large paste、abuse detection、read-heavy traffic。</p>
+<h4 id="difference-from-url-shortener">Difference from URL shortener</h4>
+<p>URL shortener maps short key -&gt; long URL。Pastebin stores content itself：</p>
+<pre><code class="language-">short_key -&gt; paste metadata -&gt; blob/text content</code></pre>
+<p>核心瓶颈从 redirect latency 变成 content storage、read caching、abuse scanning。</p>
+<h4 id="architecture-2">Architecture</h4>
+<pre><code class="language-">Create Paste API
+  -&gt; Key Generator
+  -&gt; Metadata DB
+  -&gt; Text/Object Store
+  -&gt; Abuse Scanner
+  -&gt; CDN / Cache
+  -&gt; Read API</code></pre>
+<h4 id="data-model-2">Data model</h4>
+<pre><code class="language-">paste(paste_id, short_key, owner_id, visibility, expires_at, content_ref, status)
+paste_content(content_ref, storage_type, size, checksum)</code></pre>
+<p>Small paste 可以直接存在 DB text column；large paste 放 object storage。</p>
+<h4 id="read-path">Read path</h4>
+<ol>
+<li>Lookup short_key。</li>
+<li>Check status / visibility / expiration。</li>
+<li>Fetch content。</li>
+<li>Cache hot paste。</li>
+</ol>
+<h4 id="ttl-and-deletion">TTL and deletion</h4>
+<p>Expired paste：</p>
+<ul>
+<li>read path rejects after <code>expires_at</code>。</li>
+<li>background cleanup deletes metadata/content later。</li>
+<li>object storage lifecycle policy can clean large blobs。</li>
+</ul>
+<h4 id="interview-answer-2">Interview answer</h4>
+<blockquote>Pastebin is similar to URL shortener in key generation but different in storage because the system owns the content. I would store paste metadata in a database and large content in object storage. Reads are cacheable by short key, while expiration is enforced on the read path and cleaned asynchronously. Abuse scanning can run synchronously for obvious cases and asynchronously for deeper checks.</blockquote>
+<h3 id="3-cap-theorem-interview-framing">3. CAP Theorem Interview Framing</h3>
+<h4 id="question-3">Question</h4>
+<p>面试官问 CAP theorem，应该怎么回答而不是背定义？</p>
+<h4 id="correct-framing">Correct framing</h4>
+<p>CAP 不是说系统只能从 C/A/P 三选二。更准确：</p>
+<blockquote>When a network partition happens, a distributed system must choose between consistency and availability for the affected operation.</blockquote>
+<p>Partition tolerance 不是可选项。真实分布式系统必须假设网络会失败。</p>
+<h4 id="cp-vs-ap-examples">CP vs AP examples</h4>
+<p>CP：</p>
+<ul>
+<li>payment。</li>
+<li>inventory reservation。</li>
+<li>seat booking。</li>
+<li>leader election。</li>
+</ul>
+<p>Partition 时宁愿 reject / timeout，也不要产生错误状态。</p>
+<p>AP：</p>
+<ul>
+<li>likes count。</li>
+<li>feed freshness。</li>
+<li>analytics。</li>
+<li>presence。</li>
+</ul>
+<p>Partition 时可以返回 stale/partial data，之后修复。</p>
+<h4 id="pacelc-extension">PACELC extension</h4>
+<p>CAP 只看 partition。PACELC 更贴近日常：</p>
+<pre><code class="language-">if Partition: choose Availability or Consistency
+Else: choose Latency or Consistency</code></pre>
+<p>很多系统平时就在 latency vs consistency 之间 tradeoff。</p>
+<h4 id="interview-answer-3">Interview answer</h4>
+<blockquote>I would not treat CAP as a database-labeling exercise. For each operation, I identify the business invariant. If the operation protects money, inventory, or reservations, I choose consistency and may reject requests during a partition. For feeds, counters, and analytics, I can choose availability and serve stale data. The important part is explaining the tradeoff per operation, not calling the whole system CP or AP.</blockquote>
+<h3 id="4-ml-system-design-blueprint">4. ML System Design Blueprint</h3>
+<h4 id="question-4">Question</h4>
+<p>ML system design 面试的 blueprint 是什么？怎么避免一上来就讲模型？</p>
+<h4 id="blueprint">Blueprint</h4>
+<pre><code class="language-">Product objective
+  -&gt; Prediction target
+  -&gt; Data collection
+  -&gt; Label definition
+  -&gt; Feature pipeline
+  -&gt; Training
+  -&gt; Offline evaluation
+  -&gt; Online serving
+  -&gt; A/B test
+  -&gt; Monitoring
+  -&gt; Feedback loop</code></pre>
+<h4 id="key-idea">Key idea</h4>
+<p>模型不是系统的起点，目标和 label 才是。比如 recommendation：</p>
+<ul>
+<li>Product objective：increase long-term engagement。</li>
+<li>Prediction target：probability of meaningful watch / click / conversion。</li>
+<li>Label：watch time, completion, hide/report, conversion。</li>
+</ul>
+<h4 id="serving-split">Serving split</h4>
+<p>常见 two-stage：</p>
+<pre><code class="language-">candidate generation -&gt; ranking -&gt; re-ranking</code></pre>
+<p>Candidate generation 追求 recall，ranking 追求 precision，re-ranking 加 diversity/safety/business constraints。</p>
+<h4 id="interview-answer-4">Interview answer</h4>
+<blockquote>I would start ML system design from the product objective and prediction target, then work backward to labels, data, features, training, serving, evaluation, and monitoring. The online serving path must meet latency and reliability requirements, while the offline path builds datasets and retrains models. I would validate with both offline metrics and online A/B tests because model metrics alone can be misleading.</blockquote>
+<h3 id="5-behavioral-interview-strategy-for-system-design-candidates">5. Behavioral Interview Strategy for System Design Candidates</h3>
+<h4 id="question-5">Question</h4>
+<p>系统设计/infra 候选人在 behavioral 面试里怎么讲项目，才能体现 seniority？</p>
+<h4 id="story-structure">Story structure</h4>
+<p>Use STAR, but make it technical：</p>
+<pre><code class="language-">Situation: system was failing / too slow / too costly
+Task: my ownership
+Action: diagnosis, design, rollout
+Result: measurable impact</code></pre>
+<h4 id="strong-signals">Strong signals</h4>
+<ul>
+<li>You found the real bottleneck with metrics。</li>
+<li>You made tradeoffs explicit。</li>
+<li>You shipped incrementally。</li>
+<li>You protected rollback path。</li>
+<li>You aligned stakeholders。</li>
+<li>You measured impact。</li>
+</ul>
+<h4 id="example-shape">Example shape</h4>
+<pre><code class="language-">Before: P99 latency 2.5s, queue lag 20 min
+Diagnosis: fanout workers blocked on DB writes
+Change: batch writes, shard queue, idempotent retry
+Rollout: shadow, canary, dashboard, rollback
+After: P99 600ms, lag &lt; 1 min</code></pre>
+<h4 id="interview-answer-5">Interview answer</h4>
+<blockquote>I would tell project stories around diagnosis and tradeoff, not just implementation. I first show the business or reliability problem, then the metrics that proved the bottleneck, the design options I considered, how I rolled out safely, and the measurable result. Seniority comes from making the system better without creating uncontrolled risk.</blockquote>
+<h3 id="6-manager-interview-sustainable-change">6. Manager Interview / Sustainable Change</h3>
+<h4 id="question-6">Question</h4>
+<p>如果面试官问“你如何推动一个跨团队 infra 改造？”应该怎么回答？</p>
+<h4 id="approach-2">Approach</h4>
+<p>大型系统改造不只是技术方案，还包括 adoption：</p>
+<ol>
+<li>Define the pain with data。</li>
+<li>Find a small high-impact slice。</li>
+<li>Build migration path。</li>
+<li>Add observability。</li>
+<li>Create rollback plan。</li>
+<li>Document and teach。</li>
+<li>Measure adoption。</li>
+</ol>
+<h4 id="example">Example</h4>
+<p>迁移 payment webhook processing：</p>
+<ul>
+<li>Problem：duplicates and missed retries caused manual repair。</li>
+<li>First slice：one provider + one event type。</li>
+<li>Change：idempotency table + outbox + retry queue。</li>
+<li>Rollout：dual write + shadow compare。</li>
+<li>Result：reduced duplicate effects and manual tickets。</li>
+</ul>
+<h4 id="interview-answer-6">Interview answer</h4>
+<blockquote>For sustainable change, I would avoid a big-bang rewrite. I would quantify the problem, choose a narrow slice, build a migration path with observability and rollback, and prove impact before expanding. Cross-team adoption requires clear contracts, documentation, and dashboards so other teams trust the new path.</blockquote>
+<h3 id="7-engineering-mastery-yelp-follow-up">7. Engineering Mastery / Yelp Follow-up</h3>
+<h4 id="question-7">Question</h4>
+<p>Yelp/local review system 已经会设计，staff-level follow-up 会问什么？</p>
+<h4 id="deeper-angles">Deeper angles</h4>
+<ol>
+<li>Geo ranking</li>
+</ol>
+<ul>
+<li>combine distance, rating, review quality, open hours, personalization。</li>
+</ul>
+<ol>
+<li>Review trust</li>
+</ol>
+<ul>
+<li>spam detection。</li>
+<li>reviewer reputation。</li>
+<li>duplicate business detection。</li>
+</ul>
+<ol>
+<li>Search quality</li>
+</ol>
+<ul>
+<li>query understanding。</li>
+<li>category synonyms。</li>
+<li>location intent。</li>
+</ul>
+<ol>
+<li>Business owner updates</li>
+</ol>
+<ul>
+<li>hours/menu changes need freshness。</li>
+<li>moderation for malicious edits。</li>
+</ul>
+<ol>
+<li>Data correction</li>
+</ol>
+<ul>
+<li>duplicate business merge。</li>
+<li>moved/closed business。</li>
+</ul>
+<h4 id="interview-answer-7">Interview answer</h4>
+<blockquote>I would push Yelp beyond a simple geo-search problem. The source of truth includes business profiles, reviews, photos, and user actions, but ranking depends on distance, relevance, rating, freshness, trust, and personalization. Reviews need spam detection and reputation signals, while business metadata updates require moderation and freshness guarantees.</blockquote>
+<h3 id="8-how-to-use-these-strategy-pages">8. How to Use These Strategy Pages</h3>
+<h4 id="in-the-interview">In the interview</h4>
+<p>Use these pages as follow-up modules：</p>
+<ul>
+<li>Messaging when the problem has bidirectional realtime communication。</li>
+<li>Pastebin when short key maps to stored content。</li>
+<li>CAP when discussing consistency under failure。</li>
+<li>ML blueprint before diving into model choice。</li>
+<li>Behavioral strategy when asked project ownership。</li>
+<li>Manager strategy when asked cross-team change。</li>
+<li>Yelp mastery when asked how to go from mid-level to staff-level answer。</li>
+</ul>
+<h4 id="closing-template">Closing template</h4>
+<blockquote>I would first protect the core invariant, then design the source of truth around the main write path. For read performance, I would add derived views such as cache, index, timeline, or materialized table. For reliability, I would make retries idempotent, expose metrics, and design a repair/rebuild path. For interview communication, I would make tradeoffs explicit and tie them back to the product requirement.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

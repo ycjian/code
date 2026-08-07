@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Product Designs II - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="23-more-product-system-design-interview-bank">23. More Product System Design Interview Bank</h2>
+<p>这一节补充更常见的 product system design 题。面试官通常会先问功能需求，然后迅速转向：数据模型、读写路径、fanout、ranking、consistency、hot key、failure handling、cost。答题时不要只画组件，要把每个设计的核心矛盾讲出来。</p>
+<p>建议固定回答顺序：</p>
+<ol>
+<li>Clarify requirements：核心功能、规模、SLA、读写比例。</li>
+<li>Identify core entities：user、object、edge、event、state。</li>
+<li>Design APIs：写路径和读路径分开。</li>
+<li>Data model：source of truth、index、cache、derived view。</li>
+<li>Scale strategy：partition key、fanout、queue、cache、search index。</li>
+<li>Correctness：idempotency、dedup、ordering、consistency。</li>
+<li>Failure mode：重试、降级、backpressure、recovery。</li>
+<li>Metrics：latency、QPS、lag、error、cost。</li>
+</ol>
+<h3 id="1-news-feed-twitter-reddit-feed">1. News Feed / Twitter / Reddit Feed</h3>
+<h4 id="question">Question</h4>
+<p>设计一个 News Feed。用户关注其他用户，发帖后粉丝能在 home timeline 看到内容。系统要支持发帖、关注、取 feed、ranking、热门用户、删除/隐藏内容。</p>
+<h4 id="核心矛盾">核心矛盾</h4>
+<p>Feed 最大的问题不是存帖子，而是 fanout：</p>
+<ul>
+<li>Fanout on write：发帖时把 post id 推给粉丝 timeline。</li>
+<li>Fanout on read：读 feed 时动态拉取关注者最近帖子。</li>
+<li>Hybrid：普通用户 fanout on write， celebrity / 大 V fanout on read。</li>
+</ul>
+<h4 id="architecture">Architecture</h4>
+<pre><code class="language-">Post Service
+  -&gt; Post DB
+  -&gt; Kafka post_created
+  -&gt; Feed Fanout Workers
+  -&gt; Timeline Store
+  -&gt; Feed API
+  -&gt; Ranking Service
+  -&gt; Cache</code></pre>
+<h4 id="data-model">Data model</h4>
+<pre><code class="language-">post(post_id, author_id, text, media_ids, created_at, visibility, status)
+follow(follower_id, followee_id, created_at)
+timeline(user_id, score, post_id, author_id, created_at)</code></pre>
+<p>Timeline store 可以用 Redis sorted set、Cassandra、DynamoDB wide partition，核心是按 <code>user_id</code> 查询最近 N 条。</p>
+<h4 id="write-path">Write path</h4>
+<ol>
+<li>User creates post。</li>
+<li>Post Service 写 Post DB。</li>
+<li>发布 <code>post_created</code> event 到 Kafka。</li>
+<li>Fanout worker 查 follower list。</li>
+<li>把 post id 写入粉丝 timeline。</li>
+<li>对热门作者只写 celebrity source，不全量 fanout。</li>
+</ol>
+<h4 id="read-path">Read path</h4>
+<ol>
+<li>Feed API 读取用户 timeline candidate。</li>
+<li>补充 celebrity / promoted / fresh candidates。</li>
+<li>Ranking Service 打分。</li>
+<li>Hydrate post metadata。</li>
+<li>返回分页结果。</li>
+</ol>
+<h4 id="hot-celebrity">Hot celebrity</h4>
+<p>如果一个用户有 1 亿粉丝，不要同步 fanout：</p>
+<ul>
+<li>celebrity posts 进入单独表。</li>
+<li>用户读 feed 时 merge celebrity recent posts。</li>
+<li>对活跃粉丝可以异步预计算。</li>
+<li>设置 fanout upper bound。</li>
+</ul>
+<h4 id="consistency">Consistency</h4>
+<p>Feed 可以 eventual consistency。用户发帖后自己的 profile timeline 必须立即可见，但粉丝 home feed 延迟几秒可以接受。删除或屏蔽内容要优先在 read path filter，后台再清 timeline。</p>
+<h4 id="interview-answer">Interview answer</h4>
+<blockquote>I would use a hybrid fanout model. Normal users use fanout-on-write so home feed reads are fast. Celebrity users use fanout-on-read to avoid writing to millions of timelines per post. The source of truth is the post table and follow graph; timelines are derived views that can be rebuilt. Ranking happens on candidates from timeline, celebrity sources, and freshness signals.</blockquote>
+<h3 id="2-photo-sharing-instagram">2. Photo Sharing / Instagram</h3>
+<h4 id="question-2">Question</h4>
+<p>设计 Instagram。用户上传图片/视频，关注者能看到 feed，可以 like、comment、查看 profile grid。重点是 media storage、feed、image processing、CDN、privacy。</p>
+<h4 id="architecture-2">Architecture</h4>
+<pre><code class="language-">Client
+  -&gt; Upload API
+  -&gt; Object Storage
+  -&gt; Metadata DB
+  -&gt; Media Processing Queue
+  -&gt; Thumbnail / Transcode Workers
+  -&gt; CDN
+  -&gt; Feed Fanout
+  -&gt; Feed API</code></pre>
+<h4 id="upload-flow">Upload flow</h4>
+<ol>
+<li>Client 请求 upload URL。</li>
+<li>Client 直接上传到 object storage，避免 API server 扛大文件。</li>
+<li>Upload complete 后写 media metadata。</li>
+<li>异步生成 thumbnail、不同分辨率、video transcode。</li>
+<li>Post publish 后触发 feed fanout。</li>
+</ol>
+<h4 id="data-model-2">Data model</h4>
+<pre><code class="language-">media(media_id, owner_id, object_key, type, width, height, duration, status)
+post(post_id, user_id, caption, media_ids, visibility, created_at)
+like(user_id, post_id, created_at)
+comment(comment_id, post_id, user_id, text, created_at)</code></pre>
+<h4 id="cdn-strategy">CDN strategy</h4>
+<ul>
+<li>原图/视频放 object storage。</li>
+<li>常用尺寸放 CDN。</li>
+<li>Signed URL 处理 private media。</li>
+<li>对 profile grid 预生成小图，降低移动端加载成本。</li>
+</ul>
+<h4 id="feed">Feed</h4>
+<p>Instagram feed 类似 News Feed，但 media hydrate 成本更高。read path 要返回 CDN URLs、尺寸、blurhash / placeholder、like count、comment preview。不能每次都查多个服务，可以用 feed item snapshot 加缓存。</p>
+<h4 id="failure-handling">Failure handling</h4>
+<ul>
+<li>Upload complete 但 processing fail：post 标记 processing_failed 或只展示原图。</li>
+<li>CDN miss：回源 object storage。</li>
+<li>Fanout lag：profile page 仍从 post table 可见。</li>
+</ul>
+<h4 id="interview-answer-2">Interview answer</h4>
+<blockquote>I would split media bytes from metadata. Large files go directly to object storage using pre-signed URLs, while metadata is stored in a database. Processing workers generate thumbnails and optimized versions asynchronously. Feed is a derived view triggered by post events, and CDN serves media efficiently. Privacy is enforced by signed URLs and read-time authorization.</blockquote>
+<h3 id="3-coding-platform-leetcode">3. Coding Platform / LeetCode</h3>
+<h4 id="question-3">Question</h4>
+<p>设计在线刷题平台。用户提交代码，系统编译运行测试，返回结果。需要支持多语言、排队、sandbox、实时结果、比赛高峰。</p>
+<h4 id="核心矛盾-2">核心矛盾</h4>
+<p>Online judge 的难点是安全和隔离：</p>
+<ul>
+<li>用户代码不可信。</li>
+<li>需要限制 CPU、memory、network、file system。</li>
+<li>测试任务可能很慢，不能同步卡住 API。</li>
+</ul>
+<h4 id="architecture-3">Architecture</h4>
+<pre><code class="language-">Submission API
+  -&gt; Submission DB
+  -&gt; Judge Queue
+  -&gt; Judge Worker Pool
+       - language runtime
+       - sandbox/container
+       - resource limits
+  -&gt; Result Store
+  -&gt; WebSocket/SSE result stream</code></pre>
+<h4 id="data-model-3">Data model</h4>
+<pre><code class="language-">problem(problem_id, title, statement, difficulty)
+test_case(test_case_id, problem_id, input_ref, expected_ref, hidden)
+submission(submission_id, user_id, problem_id, language, code_ref, status)
+judge_result(submission_id, verdict, runtime_ms, memory_mb, failed_case)</code></pre>
+<h4 id="judge-flow">Judge flow</h4>
+<ol>
+<li>API 保存 submission，status = QUEUED。</li>
+<li>发布 job 到 queue。</li>
+<li>Worker 拉取 job，创建 sandbox。</li>
+<li>编译代码。</li>
+<li>逐个运行 sample 和 hidden tests。</li>
+<li>写 verdict：Accepted / Wrong Answer / TLE / MLE / Runtime Error / Compile Error。</li>
+<li>通知 client。</li>
+</ol>
+<h4 id="scaling">Scaling</h4>
+<ul>
+<li>按 language 分队列，因为 runtime 和资源不同。</li>
+<li>比赛期间预热 worker pool。</li>
+<li>对热门题测试数据缓存到 worker local disk。</li>
+<li>使用 priority queue：contest submission &gt; normal practice。</li>
+<li>限制每个用户 pending submissions。</li>
+</ul>
+<h4 id="security">Security</h4>
+<ul>
+<li>禁止 outbound network。</li>
+<li>Read-only root filesystem。</li>
+<li>CPU/memory/time limits。</li>
+<li>容器或 microVM 隔离。</li>
+<li>清理临时文件。</li>
+</ul>
+<h4 id="interview-answer-3">Interview answer</h4>
+<blockquote>I would make submission asynchronous. The API stores the submission and enqueues a judge job. Workers run untrusted code inside a sandbox with CPU, memory, time, filesystem, and network limits. Results are persisted and streamed back to the client. The platform scales by language-specific queues, worker pools, test-case caching, and per-user throttling.</blockquote>
+<h3 id="4-online-auction-ebay">4. Online Auction / eBay</h3>
+<h4 id="question-4">Question</h4>
+<p>设计在线拍卖。用户可以出价，最高价赢，拍卖结束后生成订单。支持实时价格更新、anti-sniping、并发出价、支付。</p>
+<h4 id="核心不变量">核心不变量</h4>
+<ul>
+<li>每个 auction 同一时刻只有一个最高有效出价。</li>
+<li>Bid amount 必须大于当前价格加 increment。</li>
+<li>Auction ended 后不能接受新 bid。</li>
+<li>生成订单必须 exactly-once effect。</li>
+</ul>
+<h4 id="data-model-4">Data model</h4>
+<pre><code class="language-">auction(auction_id, seller_id, item_id, start_at, end_at, status, current_price, highest_bid_id, version)
+bid(bid_id, auction_id, bidder_id, amount, created_at, status)
+order(order_id, auction_id, buyer_id, amount, status)</code></pre>
+<h4 id="bid-write-path">Bid write path</h4>
+<ol>
+<li>Validate auction is active。</li>
+<li>Validate bid amount。</li>
+<li>Conditional update auction row：</li>
+</ol>
+<pre><code class="language-sql">UPDATE auction
+SET current_price = ?,
+    highest_bid_id = ?,
+    version = version + 1
+WHERE auction_id = ?
+  AND status = 'ACTIVE'
+  AND current_price &lt; ?
+  AND version = ?</code></pre>
+<ol>
+<li>写 bid record。</li>
+<li>通过 WebSocket / pubsub 推送 price update。</li>
+</ol>
+<h4 id="anti-sniping">Anti-sniping</h4>
+<p>如果结束前最后 N 秒有新 bid，可以延长 end time。例如最后 2 分钟出价延长 2 分钟。这样防止最后一秒抢拍。</p>
+<h4 id="partitioning">Partitioning</h4>
+<p>用 <code>auction_id</code> 做 partition key，让同一 auction 的 bid 进入同一 shard 或单线程 actor。这样高并发 auction 可以按 auction 隔离，避免全局锁。</p>
+<h4 id="interview-answer-4">Interview answer</h4>
+<blockquote>I would treat each auction as a consistency boundary. Bids are accepted with conditional updates or a per-auction single-writer actor so only one highest bid wins. Price updates are pushed through pubsub/WebSocket, but the auction table is the source of truth. At auction close, a scheduled worker transitions the auction to ended and creates the order idempotently.</blockquote>
+<h3 id="5-price-tracking-camelcamelcamel">5. Price Tracking / CamelCamelCamel</h3>
+<h4 id="question-5">Question</h4>
+<p>设计价格追踪服务。用户关注商品，当价格低于阈值时收到通知。系统要定期抓取价格、存历史、去重、触发 alert。</p>
+<h4 id="architecture-4">Architecture</h4>
+<pre><code class="language-">Product Catalog
+  -&gt; Crawl Scheduler
+  -&gt; Fetch Workers
+  -&gt; Parser
+  -&gt; Price Time Series Store
+  -&gt; Alert Evaluator
+  -&gt; Notification Service</code></pre>
+<h4 id="data-model-5">Data model</h4>
+<pre><code class="language-">product(product_id, url, merchant, crawl_frequency, last_crawled_at)
+price_point(product_id, timestamp, price, availability)
+watch(user_id, product_id, threshold, channel, status)
+alert(alert_id, user_id, product_id, price, sent_at, dedup_key)</code></pre>
+<h4 id="scheduling">Scheduling</h4>
+<p>热门商品高频抓，冷门商品低频抓。不要所有商品固定频率：</p>
+<ul>
+<li>high-interest products：minutes。</li>
+<li>normal products：hours。</li>
+<li>inactive products：days。</li>
+</ul>
+<p>Scheduler 只产生 crawl jobs，worker 执行 fetch。失败要 exponential backoff。</p>
+<h4 id="alert-correctness">Alert correctness</h4>
+<p>通知必须幂等。使用：</p>
+<pre><code class="language-">dedup_key = user_id + product_id + threshold + price_bucket + day</code></pre>
+<p>避免同一次降价重复轰炸用户。</p>
+<h4 id="interview-answer-5">Interview answer</h4>
+<blockquote>I would separate crawling from alerting. A scheduler creates crawl jobs based on product popularity and freshness requirements. Fetch workers parse prices and append immutable price points. Alert evaluators compare new prices against active watches and send idempotent notifications with dedup keys. Historical prices are stored in a time-series optimized table.</blockquote>
+<h3 id="6-dating-app-tinder">6. Dating App / Tinder</h3>
+<h4 id="question-6">Question</h4>
+<p>设计 dating app。用户设置 profile 和偏好，系统推荐候选人，用户 swipe left/right，双方 like 后 match，可以聊天。</p>
+<h4 id="candidate-generation">Candidate generation</h4>
+<p>候选人不是全量扫描：</p>
+<ul>
+<li>Geo index：附近的人。</li>
+<li>Preference filter：年龄、距离、性别、兴趣。</li>
+<li>Exclusion set：已经 swipe 过、blocked、reported。</li>
+<li>Ranking：活跃度、quality score、mutual interests。</li>
+</ul>
+<h4 id="data-model-6">Data model</h4>
+<pre><code class="language-">profile(user_id, geo_cell, age, gender, preferences, status)
+swipe(user_id, target_user_id, direction, created_at)
+match(match_id, user_a, user_b, created_at, status)</code></pre>
+<h4 id="match-flow">Match flow</h4>
+<p>当 A right swipe B：</p>
+<ol>
+<li>写 swipe(A, B, RIGHT)，幂等。</li>
+<li>查是否存在 swipe(B, A, RIGHT)。</li>
+<li>如果存在，创建 match，使用唯一约束：</li>
+</ol>
+<pre><code class="language-sql">UNIQUE(min(user_a, user_b), max(user_a, user_b))</code></pre>
+<h4 id="privacy">Privacy</h4>
+<ul>
+<li>Block/report 后 read path 必须立即过滤。</li>
+<li>Location 只存粗粒度 geo cell。</li>
+<li>不暴露精确在线状态。</li>
+</ul>
+<h4 id="interview-answer-6">Interview answer</h4>
+<blockquote>I would split candidate generation from match creation. Candidate generation uses geo indexing, preference filters, exclusion sets, and ranking. Swipes are immutable user actions. A match is created idempotently when both users have right-swiped, protected by a unique pair constraint. Privacy filters such as block and report must be enforced at read time.</blockquote>
+<h3 id="7-local-delivery-gopuff">7. Local Delivery / GoPuff</h3>
+<h4 id="question-7">Question</h4>
+<p>设计本地即时配送服务。用户下单，系统从本地仓库扣库存，分配 picker/driver，实时跟踪配送状态。</p>
+<h4 id="core-states">Core states</h4>
+<pre><code class="language-">Order:
+CREATED -&gt; RESERVED -&gt; PAID -&gt; PICKING -&gt; READY -&gt; ASSIGNED -&gt; PICKED_UP -&gt; DELIVERED
+       -&gt; CANCELLED / FAILED
+
+Inventory:
+AVAILABLE -&gt; RESERVED -&gt; SOLD / RELEASED</code></pre>
+<h4 id="architecture-5">Architecture</h4>
+<pre><code class="language-">Order Service
+  -&gt; Inventory Reservation
+  -&gt; Payment
+  -&gt; Picking Queue
+  -&gt; Dispatch Service
+  -&gt; Driver Location Stream
+  -&gt; ETA Service
+  -&gt; Notification</code></pre>
+<h4 id="inventory-reservation">Inventory reservation</h4>
+<p>下单时不要直接扣最终库存。先 reserve：</p>
+<pre><code class="language-sql">UPDATE inventory
+SET available = available - ?,
+    reserved = reserved + ?
+WHERE warehouse_id = ?
+  AND sku_id = ?
+  AND available &gt;= ?</code></pre>
+<p>支付成功后 commit，支付失败或超时 release。</p>
+<h4 id="dispatch">Dispatch</h4>
+<p>分配 driver 时考虑：</p>
+<ul>
+<li>driver location。</li>
+<li>order ready time。</li>
+<li>capacity。</li>
+<li>route distance。</li>
+<li>promised SLA。</li>
+</ul>
+<p>可以先用 greedy nearest-driver，再升级到 batching/route optimization。</p>
+<h4 id="interview-answer-7">Interview answer</h4>
+<blockquote>I would model delivery as a workflow with explicit order and inventory states. Checkout creates inventory reservations with TTL, payment commits them, and failures release them. Picking and delivery are asynchronous steps. Driver dispatch uses location and ETA signals, while clients receive order state through realtime updates.</blockquote>
+<h3 id="8-like-button-social-reactions">8. Like Button / Social Reactions</h3>
+<h4 id="question-8">Question</h4>
+<p>设计 Like button。用户可以 like/unlike post，页面显示总数，并把行为用于推荐和通知。</p>
+<h4 id="核心矛盾-3">核心矛盾</h4>
+<p>Like 写入 QPS 很高，但 count 不一定要强一致。用户自己的 like 状态必须准确，计数可以 eventual consistency。</p>
+<h4 id="data-model-7">Data model</h4>
+<pre><code class="language-">reaction(user_id, object_id, reaction_type, created_at)
+reaction_count(object_id, reaction_type, count, updated_at)</code></pre>
+<p><code>reaction</code> 使用唯一键 <code>(user_id, object_id)</code>，保证重复点击幂等。</p>
+<h4 id="write-path-2">Write path</h4>
+<ol>
+<li>Toggle like 写 source of truth。</li>
+<li>发布 reaction event。</li>
+<li>Counter worker 异步更新 count。</li>
+<li>Notification / ranking consumer 使用同一 event。</li>
+</ol>
+<h4 id="hot-object">Hot object</h4>
+<p>热门 post 的 count 会变 hot key：</p>
+<ul>
+<li>Local aggregation 后批量 flush。</li>
+<li>Sharded counters。</li>
+<li>Approximate counter for display。</li>
+<li>Periodic reconciliation from source table。</li>
+</ul>
+<h4 id="interview-answer-8">Interview answer</h4>
+<blockquote>I would make the user-object reaction table the source of truth and keep counters as derived data. Like and unlike operations are idempotent through a unique user-object key. Counts are updated asynchronously through events, with sharded counters or local aggregation for hot posts. The UI can tolerate slightly stale counts, but the user's own like state must be correct.</blockquote>
+<h3 id="9-search-facebook-post-search">9. Search / Facebook Post Search</h3>
+<h4 id="question-9">Question</h4>
+<p>设计帖子搜索。用户搜索关键词，结果要按 relevance、recency、privacy 排序。帖子更新和删除要尽快反映。</p>
+<h4 id="architecture-6">Architecture</h4>
+<pre><code class="language-">Post DB
+  -&gt; CDC / Kafka
+  -&gt; Indexer
+  -&gt; Search Index
+  -&gt; Search API
+  -&gt; Privacy Filter
+  -&gt; Ranking</code></pre>
+<h4 id="index-document">Index document</h4>
+<pre><code class="language-">post_id
+author_id
+text
+tokens
+created_at
+engagement_signals
+visibility
+allowed_groups</code></pre>
+<h4 id="query-flow">Query flow</h4>
+<ol>
+<li>Search API 解析 query。</li>
+<li>Search index 返回 candidate post ids。</li>
+<li>Privacy filter 移除不可见内容。</li>
+<li>Ranking 结合 text relevance、recency、engagement。</li>
+<li>Hydrate metadata。</li>
+</ol>
+<h4 id="freshness-vs-consistency">Freshness vs consistency</h4>
+<p>搜索可以接受秒级延迟，但删除/隐私变更不能长期不生效。做法：</p>
+<ul>
+<li>delete event 高优先级进入 indexer。</li>
+<li>read-time privacy filter 兜底。</li>
+<li>对敏感内容使用 tombstone。</li>
+</ul>
+<h4 id="interview-answer-9">Interview answer</h4>
+<blockquote>I would not query the primary post database for search. Posts are indexed asynchronously through CDC or Kafka into a search engine. The index optimizes keyword matching and candidate generation, while privacy is enforced again at read time. Ranking combines relevance, recency, and engagement signals. Deletes and privacy updates are high-priority index events.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

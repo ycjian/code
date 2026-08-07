@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Quick Reference - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="32-quick-capacity-scaling-reference">32. Quick Capacity / Scaling Reference</h2>
+<div class="table-wrap"><table><thead><tr><th>Component</th><th>常见指标</th><th>Scale trigger</th></tr></thead><tbody><tr><td>Cache</td><td>~1 ms latency, 100k+ ops/sec, memory-bound</td><td>hit rate &lt; 80%, latency 上升, memory &gt; 80%</td></tr>
+<tr><td>Database</td><td>高 TPS, sub-ms 到数 ms read latency, 大容量存储</td><td>write throughput 太高, read latency 上升, storage/region 需求</td></tr>
+<tr><td>App Server</td><td>大量 concurrent connections, CPU/RAM bound</td><td>CPU &gt; 70%, latency 超 SLA, connection 接近上限</td></tr>
+<tr><td>Message Queue / Kafka</td><td>高吞吐, partition-based scaling</td><td>consumer lag 增长, partition/broker 接近上限</td></tr></tbody></table></div>
+<p>这些数字不要死背，重点是知道什么指标触发扩容：latency、throughput、CPU、memory、connection、consumer lag、cache hit rate。</p>
+<hr/>
+<h2 id="33-面试中最常用的句子">33. 面试中最常用的句子</h2>
+<h3 id="数据库选择">数据库选择</h3>
+<blockquote>I would choose Postgres here because the core requirement is transactional correctness. We need ACID semantics and constraints more than unbounded horizontal write scaling.</blockquote>
+<blockquote>I would choose DynamoDB here because the access pattern is key-value like, QPS is high, and we do not need joins or complex ad-hoc queries.</blockquote>
+<h3 id="一致性选择">一致性选择</h3>
+<blockquote>For money, inventory, and reservations, I would prioritize consistency. For feeds, counts, and search indexes, eventual consistency is acceptable.</blockquote>
+<h3 id="kafka">Kafka</h3>
+<blockquote>Kafka is not just a queue; it is a durable event log. I would use it to decouple services, buffer write spikes, and let multiple downstream consumers process the same event stream independently.</blockquote>
+<h3 id="outbox">Outbox</h3>
+<blockquote>To avoid the DB-write-success but Kafka-publish-fail gap, I would use the transactional outbox pattern. The business update and outbox event are committed in the same DB transaction.</blockquote>
+<h3 id="idempotency">Idempotency</h3>
+<blockquote>I would not rely on exactly-once delivery. I would design for at-least-once delivery with idempotent processing, so duplicate requests or messages do not create duplicate business effects.</blockquote>
+<h3 id="cache">Cache</h3>
+<blockquote>The DB is the source of truth; cache is derived data. For cache-aside, I would update the DB first, then delete the cache, and let the next read repopulate it.</blockquote>
+<h3 id="multi-region">Multi-region</h3>
+<blockquote>For user-owned data, I would use home region writes with async replicas. For globally shared scarce resources, I would avoid multi-writer unless using a global transaction system, because correctness matters more than local write latency.</blockquote>
+<h3 id="rate-limiter">Rate limiter</h3>
+<blockquote>I would use token bucket for API rate limiting because it supports steady rate control while allowing a bounded burst. In a distributed setup, I would store counters in Redis with TTL, and add a local limiter before Redis to reduce hot-key pressure.</blockquote>
+<h3 id="backpressure">Backpressure</h3>
+<blockquote>I would make queues bounded and use lag, latency, and resource utilization as backpressure signals. When downstream systems fall behind, producers should throttle, shed low-priority traffic, or return retry-after instead of allowing unbounded queue growth.</blockquote>
+<h3 id="saga">Saga</h3>
+<blockquote>For cross-service workflows, I would use Saga rather than a global distributed transaction. Each service commits a local transaction and emits an event; if a later step fails, we run compensating actions. For payment or booking flows, orchestration is easier to debug than pure choreography.</blockquote>
+<h3 id="notification">Notification</h3>
+<blockquote>I would make notification delivery asynchronous. The request path writes a durable notification record and outbox event; workers send through provider-specific pools, persist delivery status before committing offsets, and use idempotency keys to avoid duplicate sends.</blockquote>
+<h3 id="feed">Feed</h3>
+<blockquote>I would use hybrid fanout. Normal users use fanout-on-write for fast feed reads, while celebrities are merged at read time to avoid massive write amplification. Feed inboxes store post IDs, and the read path hydrates details from cache or post service.</blockquote>
+<h3 id="search">Search</h3>
+<blockquote>I would keep the primary database as source of truth and build Elasticsearch as a derived index through CDC or outbox. Search can tolerate slight lag, but deletes and permission changes need careful handling to avoid leaking stale results.</blockquote>
+<h3 id="file-upload">File upload</h3>
+<blockquote>I would not proxy large files through app servers. The API returns a pre-signed object-store URL; the client uploads directly; storage events trigger async validation, transcoding, thumbnail generation, metadata update, and CDN distribution.</blockquote>
+<h3 id="model-rollout">Model rollout</h3>
+<blockquote>I would treat model rollout as a production deployment. New model versions go through shadow traffic, then canary traffic, with monitoring for latency, OOM, error rate, cost, and quality. The gateway must support quick rollback to the previous stable version.</blockquote></article>
+    </main>
+  </div>
+</body>
+</html>

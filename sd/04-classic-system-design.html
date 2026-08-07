@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Classic Designs - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h2 id="22-classic-system-design-question-bank">22. Classic System Design Question Bank</h2>
+<p>这一节来自 <code>sd_pages</code> 里的 noisy system design pages。不要背原文；面试里要按固定结构讲：需求、核心难点、架构、数据模型、扩展性、failure mode、trade-off。</p>
+<p>每道题都用这个模板：</p>
+<ol>
+<li>Clarify requirements。</li>
+<li>Estimate scale。</li>
+<li>Define APIs。</li>
+<li>Pick storage / cache / queue。</li>
+<li>Explain critical path。</li>
+<li>Call out bottleneck and trade-off。</li>
+<li>Give one senior-level deep dive。</li>
+</ol>
+<h3 id="1-design-a-url-shortener-like-bit-ly">1. Design a URL Shortener Like Bit.ly</h3>
+<h4 id="question">Question</h4>
+<p>设计一个 URL shortener，用户提交 long URL，系统返回 short URL。访问 short URL 时重定向到 long URL。需要高可用、低延迟、支持 analytics。</p>
+<h4 id="approach">Approach</h4>
+<p>这题核心不是“生成一个短码”，而是：</p>
+<ul>
+<li>如何生成 unique short code。</li>
+<li>Redirect path 如何做到极低 latency。</li>
+<li>Custom alias 怎么处理冲突。</li>
+<li>Analytics 是否同步写入。</li>
+<li>Abuse / malicious URL 怎么防。</li>
+</ul>
+<h4 id="api">API</h4>
+<pre><code class="language-http">POST /urls
+{
+  &quot;longUrl&quot;: &quot;https://example.com/a/b/c&quot;,
+  &quot;customAlias&quot;: &quot;optional&quot;
+}
+-&gt; { &quot;shortUrl&quot;: &quot;https://sho.rt/abc123&quot; }
+
+GET /{code}
+-&gt; 301/302 redirect</code></pre>
+<h4 id="data-model">Data model</h4>
+<pre><code class="language-">UrlMapping(
+  code,
+  long_url,
+  user_id,
+  created_at,
+  expire_at,
+  status
+)
+
+ClickEvent(
+  code,
+  timestamp,
+  ip_hash,
+  user_agent,
+  referrer
+)</code></pre>
+<h4 id="code-generation">Code generation</h4>
+<p>常见方案：</p>
+<ol>
+<li>Auto-increment id + Base62</li>
+</ol>
+<ul>
+<li>简单、短、唯一。</li>
+<li>但容易暴露增长趋势。</li>
+</ul>
+<ol>
+<li>Random Base62</li>
+</ol>
+<ul>
+<li>不暴露顺序。</li>
+<li>需要 collision check。</li>
+</ul>
+<ol>
+<li>Snowflake id + Base62</li>
+</ol>
+<ul>
+<li>分布式生成，不依赖单 DB sequence。</li>
+</ul>
+<p>面试里推荐：</p>
+<blockquote>For simplicity and scale, I would generate a unique numeric id using a distributed ID generator, then encode it using Base62. Custom aliases go through a uniqueness check.</blockquote>
+<h4 id="read-path">Read path</h4>
+<p>Redirect 是核心高 QPS path：</p>
+<pre><code class="language-">Client -&gt; CDN/Edge optional -&gt; Redirect Service -&gt; Redis cache -&gt; DB fallback -&gt; 301/302</code></pre>
+<ul>
+<li>Hot code 放 Redis。</li>
+<li>DB 是 source of truth。</li>
+<li>Analytics event 异步写 Kafka，不阻塞 redirect。</li>
+</ul>
+<h4 id="301-vs-302">301 vs 302</h4>
+<ul>
+<li><code>301 permanent redirect</code>：浏览器/CDN 可能缓存，性能好，但后续修改 long URL 不方便。</li>
+<li><code>302 temporary redirect</code>：每次都回源，更灵活，analytics 更完整。</li>
+</ul>
+<p>面试里可以说：默认用 302 支持 analytics 和可变 mapping；对永久短链可以用 301。</p>
+<h4 id="bottlenecks">Bottlenecks</h4>
+<ul>
+<li>Hot URL 被大量访问：cache + CDN。</li>
+<li>DB read pressure：Redis read-through。</li>
+<li>Analytics 写入量大：Kafka async event pipeline。</li>
+<li>Abuse：URL scanning, domain blacklist, rate limiting。</li>
+</ul>
+<h4 id="interview-answer">Interview answer</h4>
+<blockquote>I would keep redirect latency extremely low. The redirect service first checks Redis for code-to-URL mapping and falls back to DB. Click analytics is emitted asynchronously to Kafka so it does not block redirect. For code generation, I would use a distributed id and Base62 encoding; custom aliases require uniqueness checks and abuse scanning.</blockquote>
+<h3 id="2-design-a-distributed-rate-limiter">2. Design a Distributed Rate Limiter</h3>
+<h4 id="question-2">Question</h4>
+<p>设计一个 rate limiter，限制 user / IP / API key 的请求速率，支持多 API server 分布式部署。</p>
+<h4 id="approach-2">Approach</h4>
+<p>重点不是算法名，而是限流精度、低延迟、分布式一致性、hot key 和 failure behavior。</p>
+<h4 id="requirements">Requirements</h4>
+<ul>
+<li>支持 per-user / per-IP / per-API-key。</li>
+<li>支持 burst。</li>
+<li>多 API server 共享限制。</li>
+<li>低延迟，不能每次都打慢 DB。</li>
+<li>Redis 故障时要 fail-open 还是 fail-closed。</li>
+</ul>
+<h4 id="algorithm">Algorithm</h4>
+<p>推荐 token bucket：</p>
+<pre><code class="language-">capacity = burst size
+refill_rate = tokens per second
+request consumes one token
+if token available -&gt; allow
+else -&gt; reject</code></pre>
+<h4 id="distributed-design">Distributed design</h4>
+<pre><code class="language-">API Gateway / Service
+  -&gt; local pre-limiter
+  -&gt; Redis token bucket Lua script
+  -&gt; allow / reject</code></pre>
+<p>为什么用 Lua：</p>
+<ul>
+<li>refill、check、decrement 必须原子。</li>
+<li>避免 race condition。</li>
+</ul>
+<p>Redis key：</p>
+<pre><code class="language-">rl:{tenant}:{api_key}:{route}</code></pre>
+<p>value:</p>
+<pre><code class="language-">tokens
+last_refill_timestamp</code></pre>
+<h4 id="hot-key-问题">Hot key 问题</h4>
+<p>如果一个 global API key 流量极大，单 Redis key 会热。</p>
+<p>缓解：</p>
+<ul>
+<li>Local token bucket 先挡一部分。</li>
+<li>Shard by key hash。</li>
+<li>对超大 tenant 分配 dedicated limiter。</li>
+<li>使用 approximate local counters + periodic sync。</li>
+</ul>
+<h4 id="failure-behavior">Failure behavior</h4>
+<ul>
+<li>登录、防刷、支付：Redis 故障时 fail-closed 或 strict fallback。</li>
+<li>普通 read API：Redis 故障时 fail-open，保护可用性。</li>
+</ul>
+<h4 id="interview-answer-2">Interview answer</h4>
+<blockquote>I would use token bucket implemented with Redis Lua script so refill and consume are atomic. Each API server calls the limiter using a key such as tenant plus route. To reduce Redis hot-key pressure, I would add local pre-limiting and shard large tenants. Failure mode depends on business risk: security-sensitive APIs fail closed, normal reads may fail open.</blockquote>
+<h3 id="3-design-a-web-crawler">3. Design a Web Crawler</h3>
+<h4 id="question-3">Question</h4>
+<p>设计一个 web crawler，持续抓取网页，去重，遵守 robots.txt，支持大规模并发和增量更新。</p>
+<h4 id="approach-3">Approach</h4>
+<p>核心难点：</p>
+<ul>
+<li>URL frontier 如何调度。</li>
+<li>URL dedup。</li>
+<li>Politeness：不能打爆同一个 domain。</li>
+<li>内容去重。</li>
+<li>失败重试。</li>
+<li>页面更新频率。</li>
+</ul>
+<h4 id="architecture">Architecture</h4>
+<pre><code class="language-">Seed URLs
+  -&gt; URL Frontier
+  -&gt; Per-domain scheduler
+  -&gt; Fetcher workers
+  -&gt; Parser
+  -&gt; Content store
+  -&gt; Link extractor
+  -&gt; Dedup filter
+  -&gt; URL Frontier</code></pre>
+<h4 id="url-frontier">URL Frontier</h4>
+<p>不要一个 global FIFO。应该按 domain 分 queue：</p>
+<pre><code class="language-">frontier:{domain}</code></pre>
+<p>并维护 next_allowed_fetch_time，保证同一 domain 的抓取间隔。</p>
+<h4 id="dedup">Dedup</h4>
+<p>两层去重：</p>
+<ol>
+<li>URL dedup</li>
+</ol>
+<ul>
+<li>Canonicalize URL：lowercase host、remove fragment、normalize query。</li>
+<li>Bloom filter 快速判断 seen。</li>
+<li>DB/Key-value store 做最终记录。</li>
+</ul>
+<ol>
+<li>Content dedup</li>
+</ol>
+<ul>
+<li>Hash normalized content。</li>
+<li>SimHash / MinHash 判断近似重复。</li>
+</ul>
+<h4 id="storage">Storage</h4>
+<ul>
+<li>Raw HTML：object storage。</li>
+<li>Metadata：DB / KV。</li>
+<li>Index：search index。</li>
+<li>Crawl state：URL status, last crawled, next crawl time。</li>
+</ul>
+<h4 id="retry">Retry</h4>
+<ul>
+<li>5xx retry with backoff。</li>
+<li>404 降低优先级或停止。</li>
+<li>robots.txt 禁止则不抓。</li>
+</ul>
+<h4 id="interview-answer-3">Interview answer</h4>
+<blockquote>I would design the crawler around a URL frontier, not just a worker pool. The frontier is partitioned by domain to enforce politeness. Fetchers download pages, parsers extract links, and a dedup layer canonicalizes URLs and uses Bloom filters plus persistent state. Raw pages go to object storage, metadata to DB, and searchable content to an index.</blockquote>
+<h3 id="4-design-dropbox-file-sync">4. Design Dropbox / File Sync</h3>
+<h4 id="question-4">Question</h4>
+<p>设计一个 Dropbox-like file storage and sync service，支持上传、下载、跨设备同步、大文件、版本历史。</p>
+<h4 id="approach-4">Approach</h4>
+<p>核心难点：</p>
+<ul>
+<li>大文件不能经过 app server。</li>
+<li>Chunking / dedup。</li>
+<li>Metadata 和 blob 分离。</li>
+<li>Sync conflict。</li>
+<li>多设备变更通知。</li>
+</ul>
+<h4 id="architecture-2">Architecture</h4>
+<pre><code class="language-">Client
+  -&gt; Metadata Service
+  -&gt; pre-signed upload URL
+  -&gt; Object Storage for chunks
+  -&gt; Sync Service
+  -&gt; Notification / Change Log</code></pre>
+<h4 id="data-model-2">Data model</h4>
+<pre><code class="language-">FileMetadata(
+  file_id,
+  owner_id,
+  path,
+  current_version,
+  size,
+  updated_at
+)
+
+FileVersion(
+  file_id,
+  version,
+  chunk_hashes[],
+  created_at
+)
+
+Chunk(
+  chunk_hash,
+  storage_url,
+  size,
+  ref_count
+)</code></pre>
+<h4 id="upload-flow">Upload flow</h4>
+<ol>
+<li>Client splits file into chunks。</li>
+<li>Compute content hash for each chunk。</li>
+<li>Ask server which chunks already exist。</li>
+<li>Upload missing chunks directly to object storage。</li>
+<li>Commit metadata transaction。</li>
+<li>Emit change event to sync devices。</li>
+</ol>
+<h4 id="conflict-handling">Conflict handling</h4>
+<p>如果两个设备离线编辑同一个 file：</p>
+<ul>
+<li>Server 不做 magical merge。</li>
+<li>生成 conflict copy。</li>
+<li>对支持 merge 的文档类型可用 CRDT/OT。</li>
+</ul>
+<h4 id="interview-answer-4">Interview answer</h4>
+<blockquote>I would separate metadata from blob storage. Files are split into content-addressed chunks so uploads can deduplicate unchanged chunks. Clients upload chunks directly to object storage using pre-signed URLs, then commit a metadata version. Sync is driven by a per-user change log so devices can ask for changes since last sync token.</blockquote>
+<h3 id="5-design-collaborative-document-editor-like-google-docs">5. Design Collaborative Document Editor Like Google Docs</h3>
+<h4 id="question-5">Question</h4>
+<p>设计协同文档编辑系统，多个用户同时编辑，同步看到变化，支持离线、冲突处理、历史版本。</p>
+<h4 id="approach-5">Approach</h4>
+<p>核心不是 WebSocket 本身，而是并发编辑算法：</p>
+<ul>
+<li>Operational Transform (OT)</li>
+<li>CRDT</li>
+</ul>
+<h4 id="architecture-3">Architecture</h4>
+<pre><code class="language-">Client editor
+  -&gt; WebSocket gateway
+  -&gt; Collaboration session service
+  -&gt; OT/CRDT engine
+  -&gt; Document store
+  -&gt; Snapshot + operation log</code></pre>
+<h4 id="operation-log">Operation log</h4>
+<p>不要每次保存整个 document。保存 operations：</p>
+<pre><code class="language-">op_id
+doc_id
+base_version
+user_id
+operation: insert/delete/format
+timestamp</code></pre>
+<p>定期 compact 成 snapshot：</p>
+<pre><code class="language-">snapshot_version
+document_content</code></pre>
+<h4 id="ot-vs-crdt">OT vs CRDT</h4>
+<ul>
+<li>OT：server 协调 transform，Google Docs 经典路线。中心化更强，理解和控制容易。</li>
+<li>CRDT：每个 client 可独立合并，离线更强，但 metadata 更复杂。</li>
+</ul>
+<p>面试里可选 OT：</p>
+<blockquote>For interview simplicity, I would use OT with a central collaboration service. Clients send operations with base version; server transforms against concurrent operations, appends to log, then broadcasts canonical operations.</blockquote>
+<h4 id="failure-handling">Failure handling</h4>
+<ul>
+<li>WebSocket 断开后 client reconnect。</li>
+<li>Client 带 last_seen_version。</li>
+<li>Server replay missing ops。</li>
+<li>定期 snapshot 减少 replay 成本。</li>
+</ul>
+<h4 id="interview-answer-5">Interview answer</h4>
+<blockquote>I would model edits as operations rather than full document writes. A collaboration service maintains document version, transforms concurrent operations using OT, appends them to an operation log, and broadcasts canonical operations over WebSocket. Periodic snapshots make recovery and loading efficient.</blockquote>
+<h3 id="6-design-yelp-local-business-review-search">6. Design Yelp / Local Business Review Search</h3>
+<h4 id="question-6">Question</h4>
+<p>设计 Yelp-like local business review site，支持附近商家搜索、评分、评论、排序。</p>
+<h4 id="approach-6">Approach</h4>
+<p>核心难点：</p>
+<ul>
+<li>Geo search。</li>
+<li>Review write/read model。</li>
+<li>Ranking。</li>
+<li>Search index consistency。</li>
+<li>Abuse / fake reviews。</li>
+</ul>
+<h4 id="architecture-4">Architecture</h4>
+<pre><code class="language-">Business Service
+Review Service
+Search / Geo Index
+Ranking Service
+Photo / Media Service
+Moderation Pipeline</code></pre>
+<h4 id="geo-index">Geo index</h4>
+<p>常见选择：</p>
+<ul>
+<li>Geohash：把经纬度编码成 prefix，适合 nearby search。</li>
+<li>S2 / H3：更均匀的地理网格。</li>
+<li>Elasticsearch geo index / PostGIS。</li>
+</ul>
+<p>Read path：</p>
+<pre><code class="language-">query location + radius + filters
+  -&gt; geo index returns candidate business ids
+  -&gt; ranking service scores
+  -&gt; hydrate business details and reviews</code></pre>
+<p>Ranking signals：</p>
+<ul>
+<li>distance。</li>
+<li>rating。</li>
+<li>review count。</li>
+<li>freshness。</li>
+<li>open now。</li>
+<li>personalization。</li>
+<li>sponsored / ads policy。</li>
+</ul>
+<h4 id="review-consistency">Review consistency</h4>
+<ul>
+<li>Review 写入 DB。</li>
+<li>Outbox/CDC 更新 search index 和 aggregate rating。</li>
+<li>Rating aggregate 可以 async，但用户自己的 review 要 read-your-write。</li>
+</ul>
+<h4 id="interview-answer-6">Interview answer</h4>
+<blockquote>I would keep business and review data in the primary DB, then build a derived geo/search index for low-latency nearby queries. The search path finds candidates by geohash or geo index, then ranks by distance, rating, freshness, and business signals. Review writes update the primary DB first and asynchronously update aggregates and search index.</blockquote>
+<h3 id="7-design-uber-ride-sharing">7. Design Uber / Ride Sharing</h3>
+<h4 id="question-7">Question</h4>
+<p>设计 ride-sharing 系统，乘客请求附近司机，司机实时上报位置，系统匹配、派单、计费。</p>
+<h4 id="approach-7">Approach</h4>
+<p>核心难点：</p>
+<ul>
+<li>实时位置更新。</li>
+<li>Nearby driver search。</li>
+<li>Matching。</li>
+<li>Driver state consistency。</li>
+<li>Surge pricing。</li>
+<li>Trip lifecycle。</li>
+</ul>
+<h4 id="architecture-5">Architecture</h4>
+<pre><code class="language-">Rider App / Driver App
+  -&gt; Location Ingestion
+  -&gt; Geo Index
+  -&gt; Matching Service
+  -&gt; Trip Service
+  -&gt; Pricing Service
+  -&gt; Notification Service</code></pre>
+<h4 id="driver-location">Driver location</h4>
+<p>司机每几秒上报 location：</p>
+<pre><code class="language-">driver_id
+lat/lng
+heading
+timestamp
+availability</code></pre>
+<p>存储：</p>
+<ul>
+<li>Redis / in-memory geo index for active drivers。</li>
+<li>Kafka for location stream。</li>
+<li>Long-term storage for analytics。</li>
+</ul>
+<h4 id="matching-flow">Matching flow</h4>
+<ol>
+<li>Rider requests trip。</li>
+<li>Find nearby available drivers by geo cell。</li>
+<li>Score by ETA、distance、driver status、acceptance rate。</li>
+<li>Offer to best driver。</li>
+<li>Use state transition to reserve driver。</li>
+</ol>
+<p>Driver 状态机：</p>
+<pre><code class="language-">AVAILABLE -&gt; OFFERED -&gt; ACCEPTED -&gt; ON_TRIP -&gt; AVAILABLE</code></pre>
+<p>状态更新必须 conditional，避免一个 driver 被派给两个 riders。</p>
+<h4 id="interview-answer-7">Interview answer</h4>
+<blockquote>I would keep active driver locations in a low-latency geo index partitioned by geohash/S2 cells. The matching service queries nearby cells, ranks drivers by ETA and status, then uses a conditional state transition to reserve a driver. Location events also go to Kafka for analytics and pricing, but matching reads from the hot geo index.</blockquote>
+<h3 id="8-design-live-comments-system">8. Design Live Comments System</h3>
+<h4 id="question-8">Question</h4>
+<p>设计直播评论系统，用户发评论，其他观看者实时看到。需要低延迟、高 fanout、防 spam。</p>
+<h4 id="approach-8">Approach</h4>
+<p>核心难点：</p>
+<ul>
+<li>Fanout to many viewers。</li>
+<li>Ordering。</li>
+<li>Moderation。</li>
+<li>Hot live room。</li>
+<li>Slow consumers。</li>
+</ul>
+<h4 id="architecture-6">Architecture</h4>
+<pre><code class="language-">Client
+  -&gt; WebSocket Gateway
+  -&gt; Comment Service
+  -&gt; Moderation / Spam filter
+  -&gt; Kafka topic per stream or partition
+  -&gt; Fanout workers
+  -&gt; WebSocket rooms</code></pre>
+<h4 id="write-path">Write path</h4>
+<ol>
+<li>Client sends comment over WebSocket/HTTP。</li>
+<li>Comment service validates and assigns sequence id。</li>
+<li>Moderation fast path。</li>
+<li>Persist comment。</li>
+<li>Publish to Kafka。</li>
+<li>Fanout to connected viewers。</li>
+</ol>
+<h4 id="ordering">Ordering</h4>
+<p>对于一个 live stream，使用 <code>stream_id</code> as partition key，保证同一 stream 内顺序。超大直播可以分 shard，但需要接受局部顺序或在 client 端按 sequence merge。</p>
+<h4 id="slow-consumers">Slow consumers</h4>
+<ul>
+<li>每个 connection 有 bounded send buffer。</li>
+<li>慢 client 丢弃旧评论或降级为 sampled comments。</li>
+<li>不能让一个慢连接阻塞整个 room。</li>
+</ul>
+<h4 id="interview-answer-8">Interview answer</h4>
+<blockquote>I would use WebSocket for realtime delivery, but the core is fanout control. Comments are validated, assigned sequence numbers, persisted, and published to Kafka by stream_id. Fanout workers broadcast to WebSocket gateways. Each client connection has a bounded buffer so slow consumers do not block the room.</blockquote>
+<h3 id="9-design-a-stock-trading-platform">9. Design a Stock Trading Platform</h3>
+<h4 id="question-9">Question</h4>
+<p>设计 Robinhood-like trading platform，支持下单、订单状态、账户余额、行情展示。</p>
+<h4 id="approach-9">Approach</h4>
+<p>这题金融属性强，必须优先 correctness、audit、idempotency。</p>
+<p>核心组件：</p>
+<pre><code class="language-">API Gateway
+Account Service
+Order Service
+Risk / Buying Power Service
+Execution Gateway
+Ledger Service
+Market Data Service
+Notification Service
+Audit Log</code></pre>
+<h4 id="order-flow">Order flow</h4>
+<pre><code class="language-">Client places order
+  -&gt; idempotency check
+  -&gt; validate account / buying power
+  -&gt; create order PENDING
+  -&gt; send to broker/exchange
+  -&gt; receive execution report
+  -&gt; update order status
+  -&gt; update ledger
+  -&gt; notify user</code></pre>
+<h4 id="data-correctness">Data correctness</h4>
+<ul>
+<li>Order state machine must be explicit。</li>
+<li>Ledger 用 append-only entries，不只存 balance。</li>
+<li>外部 execution reports 要幂等处理。</li>
+<li>所有状态变化写 audit log。</li>
+<li>Reconciliation with broker/exchange。</li>
+</ul>
+<p>Order states:</p>
+<pre><code class="language-">NEW -&gt; ACCEPTED -&gt; PARTIALLY_FILLED -&gt; FILLED
+NEW -&gt; CANCELLED
+NEW -&gt; REJECTED</code></pre>
+<h4 id="market-data">Market data</h4>
+<p>Market data 是 read-heavy stream：</p>
+<ul>
+<li>WebSocket/SSE 推送报价。</li>
+<li>Cache latest quote。</li>
+<li>不要把 market data 和 order transaction 混在一个服务里。</li>
+</ul>
+<h4 id="interview-answer-9">Interview answer</h4>
+<blockquote>I would separate trading correctness from market-data display. Orders go through an idempotent order service, risk check, execution gateway, and append-only ledger. Execution reports from broker/exchange are processed idempotently and reconciled later. Market data is a separate streaming path optimized for fanout and low latency.</blockquote>
+<h3 id="10-design-an-ad-click-aggregator">10. Design an Ad Click Aggregator</h3>
+<h4 id="question-10">Question</h4>
+<p>设计广告点击聚合系统，收集 click/impression events，实时统计，支持报表和 billing。</p>
+<h4 id="approach-10">Approach</h4>
+<p>核心难点：</p>
+<ul>
+<li>Very high write volume。</li>
+<li>Dedup。</li>
+<li>Late / out-of-order events。</li>
+<li>Realtime vs accurate reporting。</li>
+<li>Billing correctness。</li>
+</ul>
+<h4 id="architecture-7">Architecture</h4>
+<pre><code class="language-">Click endpoint
+  -&gt; edge collector
+  -&gt; Kafka
+  -&gt; realtime stream processor
+  -&gt; Redis / OLAP realtime counters
+  -&gt; raw event lake
+  -&gt; batch validation
+  -&gt; final reporting warehouse</code></pre>
+<h4 id="event-schema">Event schema</h4>
+<pre><code class="language-">event_id
+ad_id
+campaign_id
+user_id_hash
+timestamp
+event_type: impression/click/conversion
+request_id
+device/context</code></pre>
+<h4 id="dedup-2">Dedup</h4>
+<p>event_id 可以由：</p>
+<pre><code class="language-">request_id + ad_id + event_type</code></pre>
+<p>Consumer 侧用 state store / Redis / warehouse merge 去重。</p>
+<h4 id="realtime-vs-final-truth">Realtime vs final truth</h4>
+<ul>
+<li>Realtime dashboard 可以 approximate。</li>
+<li>Billing/reporting 必须走 validated batch / warehouse。</li>
+<li>Late events 使用 watermark 处理。</li>
+</ul>
+<h4 id="interview-answer-10">Interview answer</h4>
+<blockquote>I would split the pipeline into realtime feedback and financial truth. Edge collectors write events to Kafka. Stream processors produce fast approximate counters for dashboards and pacing. Raw events are also stored immutably, then batch jobs deduplicate, validate, handle late events, and produce final billing/reporting tables.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>

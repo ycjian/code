@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Video Serving Deep Dive - SD</title>
+  <link rel="icon" type="image/svg+xml" href="../how_assets_small/logos/system-logo.svg"/>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b10;
+      --panel: #101722;
+      --ink: #edf5ff;
+      --muted: #9fb0c5;
+      --line: #263347;
+      --accent: #5eead4;
+      --accent-2: #fde68a;
+      --code: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(94,234,212,.08), transparent 360px), var(--bg);
+      color: var(--ink);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Arial, sans-serif;
+    }
+    a { color: inherit; }
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+    main {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 23, .76);
+    }
+    .content { padding: 22px 40px 46px; }
+    h2 {
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      color: var(--accent);
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+    h4, h5, h6 { margin: 20px 0 8px; color: #dbeafe; letter-spacing: 0; }
+    p, li { color: #d6e0ee; }
+    p { margin: 11px 0; }
+    ul, ol { margin: 10px 0 16px 24px; padding: 0; }
+    li { margin: 6px 0; }
+    hr { height: 1px; margin: 30px 0; border: 0; background: var(--line); }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--accent);
+      background: rgba(94, 234, 212, .08);
+      color: #eef9ff;
+      font-weight: 650;
+    }
+    code {
+      padding: 2px 5px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(7, 17, 31, .9);
+      color: #fde68a;
+      font: 13px/1.5 "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+    }
+    pre {
+      overflow: auto;
+      margin: 16px 0 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: var(--code);
+    }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #dbeafe; white-space: pre; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; background: rgba(16, 23, 34, .7); }
+    th, td { padding: 11px 12px; border: 1px solid rgba(148, 163, 184, .24); text-align: left; vertical-align: top; }
+    th { color: #f8fafc; background: rgba(94, 234, 212, .12); font-size: 13px; text-transform: uppercase; }
+    strong { color: #fff; }
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 20px, 760px); padding-top: 12px; }
+      .content { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main>
+      <article class="content"><h3 id="更完整的白板架构-video-generation-serving">更完整的白板架构：Video Generation Serving</h3>
+<p>如果题目偏 Vision / Video generation，可以把架构画得比普通文本 LLM 更具体：</p>
+<pre><code class="language-">Client
+  -&gt; API Gateway
+  -&gt; Request Validator
+       - resolution / frames / steps / model / LoRA / seed
+  -&gt; Cost Estimator
+       - memory estimate
+       - runtime estimate
+       - quota check
+  -&gt; Router
+       - choose model replica / GPU pool / priority queue
+  -&gt; Scheduler
+       - shape bucket
+       - micro-batch builder
+       - prefetch planner
+  -&gt; Worker Node
+       - Input Loader
+       - Text/Image/Video Encoder
+       - Denoising / Transformer Core
+       - VAE Decoder / Postprocess
+       - Output Encoder / Upload
+  -&gt; Stream progress / return artifact URL</code></pre>
+<h3 id="为什么要有-cost-estimator">为什么要有 Cost Estimator</h3>
+<p>Video generation 的成本差异太大。同一个模型下，下面这些参数都会显著改变 memory 和 latency：</p>
+<ul>
+<li><code>num_frames</code></li>
+<li><code>height / width</code></li>
+<li><code>num_sampling_steps</code></li>
+<li><code>guidance_scale</code> / classifier-free guidance</li>
+<li>batch size</li>
+<li>reference image / control video / mask</li>
+<li>LoRA adapter 数量</li>
+<li>output format and encoding</li>
+</ul>
+<p>Cost Estimator 要在 request 进入 GPU 前给出估算：</p>
+<pre><code class="language-">estimated_gpu_memory
+estimated_runtime_ms
+estimated_output_size
+priority_class
+can_run_now / queue / degrade / reject</code></pre>
+<p>这一步是防止 OOM、控制多租户公平性、保证 SLA 的核心。</p>
+<h3 id="video-generation-memory-粗略模型">Video generation memory 粗略模型</h3>
+<p>不要只说“显存不够就减 batch size”。可以这样拆：</p>
+<pre><code class="language-">GPU memory =
+  model_weights
+  + text_encoder / image_encoder weights
+  + activations
+  + attention workspace
+  + latent video tensor
+  + KV / feature cache
+  + communication buffers
+  + CUDA graph / allocator reserved memory
+  + temporary postprocess buffers</code></pre>
+<p>其中 latent video tensor 大概跟下面因素成正比：</p>
+<pre><code class="language-">batch_size
+* latent_channels
+* num_frames
+* latent_height
+* latent_width
+* bytes_per_element</code></pre>
+<p>如果 attention 在时空维度上做全局 attention，attention cost 可能接近：</p>
+<pre><code class="language-">O((frames * height * width)^2)</code></pre>
+<p>实际模型通常会用 window attention、factorized temporal/spatial attention、sparse attention 或 latent-space attention 来控制成本。</p>
+<h3 id="diffusion-dit-推理链路">Diffusion / DiT 推理链路</h3>
+<p>很多 image/video generation 模型不是一次 forward 就结束，而是多步 denoising：</p>
+<pre><code class="language-">prompt / condition
+  -&gt; text encoder
+  -&gt; initial noise / latent
+  -&gt; for timestep in sampling_steps:
+       denoiser / DiT / U-Net forward
+       scheduler update latent
+  -&gt; VAE decode
+  -&gt; video encode / upload</code></pre>
+<p>所以 latency 大概是：</p>
+<pre><code class="language-">T_total ~= T_condition_encoder
+          + sampling_steps * T_denoiser_step
+          + T_vae_decode
+          + T_encode_upload</code></pre>
+<p>这就是为什么 <code>sampling_steps</code> 是非常关键的 admission control 参数。</p>
+<h3 id="classifier-free-guidance-的隐藏成本">Classifier-Free Guidance 的隐藏成本</h3>
+<p>如果使用 classifier-free guidance，常见做法是同时跑 conditional 和 unconditional 分支：</p>
+<pre><code class="language-">pred = uncond + guidance_scale * (cond - uncond)</code></pre>
+<p>这可能让 denoiser forward 的 effective batch 近似翻倍。面试里可以主动提：</p>
+<blockquote>Guidance quality is not free. It can double the denoising compute or memory depending on implementation, so I would include guidance mode in the cost estimator and batching policy.</blockquote>
+<h3 id="shape-bucketing-为什么重要">Shape Bucketing 为什么重要</h3>
+<p>Video requests 的 shape 很多：</p>
+<pre><code class="language-">480p / 720p / 1080p
+16 / 32 / 64 frames
+20 / 30 / 50 sampling steps
+different aspect ratios</code></pre>
+<p>如果每个 request 都是动态 shape，会导致：</p>
+<ul>
+<li>kernel selection 不稳定。</li>
+<li>CUDA Graph 难复用。</li>
+<li>memory workspace 波动。</li>
+<li>batch packing 困难。</li>
+<li>fragmentation 更严重。</li>
+</ul>
+<p>解决：</p>
+<ul>
+<li>把请求归到固定 buckets，比如 <code>(resolution, frames, steps, model_variant)</code>。</li>
+<li>对接近的 shape 做 padding 到 bucket。</li>
+<li>每个 bucket 预热 engine / CUDA graph / memory pool。</li>
+<li>Queue 可以按 bucket 组织，提升 batch efficiency。</li>
+</ul>
+<p>Trade-off：</p>
+<ul>
+<li>bucket 太少：padding 浪费多。</li>
+<li>bucket 太多：每个 bucket 流量不足，batch 很难凑满。</li>
+</ul>
+<h3 id="scheduler-policy-不要只按-fifo">Scheduler Policy：不要只按 FIFO</h3>
+<p>高分回答可以说 scheduler 有多个队列：</p>
+<pre><code class="language-">interactive_queue
+batch_queue
+premium_tenant_queue
+long_video_queue
+retry_queue</code></pre>
+<p>每轮调度考虑：</p>
+<ul>
+<li>GPU memory budget。</li>
+<li>当前 bucket 是否能凑 batch。</li>
+<li>请求 deadline / SLA。</li>
+<li>tenant quota。</li>
+<li>estimated runtime。</li>
+<li>是否会造成 head-of-line blocking。</li>
+<li>是否需要 prefetch input frames。</li>
+</ul>
+<h3 id="head-of-line-blocking">Head-of-line blocking</h3>
+<p>如果 FIFO 里第一个请求是 1080p 128 frames，后面很多 480p 16 frames 都会被堵住。解决：</p>
+<ul>
+<li>按 shape bucket 分队列。</li>
+<li>长任务进入 async / batch queue。</li>
+<li>interactive 小任务优先。</li>
+<li>对长任务做 chunking。</li>
+<li>设置 max queue wait time，超过就降级或转异步。</li>
+</ul>
+<h3 id="micro-batching">Micro-batching</h3>
+<p>Video generation 的 micro-batching 要比文本更小心：</p>
+<ul>
+<li>batch 大：吞吐好，但 peak memory 高，单请求 latency 变差。</li>
+<li>batch 小：latency 好，但 GPU utilization 差。</li>
+<li>不同 frame count / resolution 混 batch，会造成 padding waste。</li>
+</ul>
+<p>好的说法：</p>
+<blockquote>I would use shape-aware micro-batching. Requests with the same model, resolution bucket, frame bucket, and step count are batched together. For interactive traffic, I cap max batch wait time. For offline traffic, I allow longer wait to improve throughput.</blockquote>
+<h3 id="preprocessing-和-gpu-compute-的流水线">Preprocessing 和 GPU Compute 的流水线</h3>
+<p>不要让 GPU 等 CPU。Worker 内可以分 stage：</p>
+<pre><code class="language-">Stage 1: async read / download
+Stage 2: decode / resize / normalize
+Stage 3: H2D copy into staging buffer
+Stage 4: GPU inference
+Stage 5: D2H / encode / upload</code></pre>
+<p>使用 double buffering：</p>
+<pre><code class="language-">GPU runs batch N
+CPU prepares batch N+1
+H2D copies batch N+1 on another stream</code></pre>
+<p>目标是 overlap：</p>
+<ul>
+<li>CPU decode with GPU compute。</li>
+<li>H2D copy with previous GPU compute。</li>
+<li>output upload with next request compute。</li>
+</ul>
+<h3 id="cpu-gpu-分工">CPU/GPU 分工</h3>
+<p>可以按成本选择：</p>
+<div class="table-wrap"><table><thead><tr><th>工作</th><th>CPU 做</th><th>GPU 做</th></tr></thead><tbody><tr><td>Video decode</td><td>简单部署，便宜</td><td>高吞吐，减少 CPU bottleneck</td></tr>
+<tr><td>Resize / crop</td><td>灵活</td><td>大 batch 时更快</td></tr>
+<tr><td>Normalize / layout transform</td><td>CPU 可做</td><td>GPU 上可 fuse 到 input kernel</td></tr>
+<tr><td>VAE decode</td><td>通常 GPU</td><td>CPU 太慢</td></tr>
+<tr><td>Video encode</td><td>CPU 常见</td><td>GPU encode 可降低 latency</td></tr></tbody></table></div>
+<p>面试里不要绝对化。更好的回答是 profile 后决定，把最慢 stage 移到更合适的硬件。</p>
+<h3 id="memory-pool-allocator-设计">Memory Pool / Allocator 设计</h3>
+<p>Video inference 中 frequent alloc/free 会导致 fragmentation 和 allocator overhead。可以设计：</p>
+<ul>
+<li>per-bucket preallocated memory pool。</li>
+<li>fixed-size block allocator。</li>
+<li>separate pools for activations / KV cache / temporary workspace。</li>
+<li>warmup 后稳定最大 workspace。</li>
+<li>request finish 后明确 release references。</li>
+</ul>
+<p>为什么 separate pools：</p>
+<ul>
+<li>KV cache 生命周期长。</li>
+<li>activation / workspace 生命周期短。</li>
+<li>output buffer 可能很大但只在尾部使用。</li>
+<li>混在一起更容易碎片化。</li>
+</ul>
+<h3 id="cuda-graph-什么时候有用">CUDA Graph 什么时候有用</h3>
+<p>CUDA Graph 可以减少 kernel launch overhead，但它偏好固定 shape。</p>
+<p>适合：</p>
+<ul>
+<li>固定 bucket shape。</li>
+<li>稳定 batch size 或有限 batch size set。</li>
+<li>decode / repeated denoising step。</li>
+</ul>
+<p>不适合：</p>
+<ul>
+<li>request shape 完全动态。</li>
+<li>control flow 很复杂。</li>
+<li>每轮 tensor shape 都变化。</li>
+</ul>
+<p>所以 CUDA Graph 和 shape bucketing 是一对组合拳。</p>
+<h3 id="quantization-怎么讲">Quantization 怎么讲</h3>
+<p>Quantization 可以减少 weight memory 和提高吞吐，但要分清对象：</p>
+<ul>
+<li>Weight-only INT8 / INT4：主要减少 weights memory。</li>
+<li>FP8：可能提高 GEMM throughput 并减少 activation / weight memory。</li>
+<li>KV cache quantization：减少 cache memory，但要关注质量和 kernel support。</li>
+<li>VAE / decoder 量化：可能影响视觉质量，需要 A/B eval。</li>
+</ul>
+<p>回答不要只说“用 INT8”。要说：</p>
+<blockquote>I would quantize the parts that are memory or compute bottlenecks, then validate visual quality metrics and human evaluation. For generation models, small numerical changes can create visible artifacts, so quantization needs per-module validation.</blockquote>
+<h3 id="lora-多模型-serving">LoRA / 多模型 Serving</h3>
+<p>如果线上有多个 LoRA adapter 或 model variants：</p>
+<ul>
+<li>base model weights 常驻 GPU。</li>
+<li>adapter weights 可按热度缓存。</li>
+<li>request 带 adapter_id。</li>
+<li>scheduler 尽量把同 adapter 的请求 batch 在一起。</li>
+<li>冷 adapter 需要 load，会增加 latency。</li>
+</ul>
+<p>风险：</p>
+<ul>
+<li>adapter 频繁切换导致 cache miss。</li>
+<li>多租户 adapter 占显存。</li>
+<li>不同 adapter 可能不能高效 batch。</li>
+</ul>
+<h3 id="multi-gpu-切分策略怎么选">Multi-GPU 切分策略怎么选</h3>
+<p>可以这样说：</p>
+<ol>
+<li>模型单卡放得下，优先 data parallel replicas。</li>
+</ol>
+<ul>
+<li>简单，通信少，吞吐随 replicas 扩展。</li>
+</ul>
+<ol>
+<li>模型单卡放不下，用 tensor parallel / pipeline parallel。</li>
+</ol>
+<ul>
+<li>TP 降低单卡 weight memory，但每层引入 collective communication。</li>
+<li>PP 降低每卡层数，但 batch 小时有 pipeline bubble。</li>
+</ul>
+<ol>
+<li>Video 很长或 attention 很重时，考虑 sequence / frame parallel。</li>
+</ol>
+<ul>
+<li>但要看 attention dependency，可能需要跨卡 exchange states。</li>
+</ul>
+<ol>
+<li>结合硬件拓扑。</li>
+</ol>
+<ul>
+<li>单节点 NVLink / NVSwitch 内做 TP。</li>
+<li>跨节点尽量减少 latency-sensitive collective。</li>
+</ul>
+<h3 id="8-gpu-node-白板例子">8-GPU Node 白板例子</h3>
+<pre><code class="language-">Node: 8 x H100
+
+Option A: 8 data-parallel replicas
+  - each GPU has full model
+  - best if model fits one GPU
+  - minimal communication
+
+Option B: 2 replicas x 4-way TP
+  - each request uses 4 GPUs
+  - model weights sharded
+  - good for larger model
+  - NCCL All-Reduce per layer
+
+Option C: 1 replica x 8-way TP
+  - largest model / highest per-request throughput
+  - strongest communication pressure
+  - lower concurrency
+
+Option D: PP + TP hybrid
+  - layers split into pipeline stages
+  - each stage internally tensor-parallel
+  - useful for very large models</code></pre>
+<p>面试里可以说你会 benchmark A/B/C/D，而不是凭感觉选。</p>
+<h3 id="profiling-playbook">Profiling Playbook</h3>
+<p>第一步不要改代码，先把时间分解出来：</p>
+<pre><code class="language-">nsight / profiler timeline:
+  CPU data loading
+  CPU preprocessing
+  H2D copy
+  GPU kernels
+  NCCL collectives
+  D2H copy
+  video encode / upload</code></pre>
+<p>看几个问题：</p>
+<ul>
+<li>GPU 有没有空洞？如果有，谁让它等？</li>
+<li>NCCL kernel 是否和 compute overlap？</li>
+<li>All-Reduce 占每步多少比例？</li>
+<li>H2D copy 是否阻塞 default stream？</li>
+<li>是否有大量小 kernel launch？</li>
+<li>是否有某个 dynamic shape 触发超大 workspace？</li>
+<li>batch 内 padding waste 多不多？</li>
+</ul>
+<h3 id="nsight-pytorch-profiler-里重点看什么">Nsight / PyTorch Profiler 里重点看什么</h3>
+<ul>
+<li>SM utilization。</li>
+<li>Memory bandwidth utilization。</li>
+<li>Tensor Core utilization。</li>
+<li>Kernel launch gaps。</li>
+<li>CUDA memcpy H2D / D2H。</li>
+<li>NCCL AllReduce / AllGather 时间。</li>
+<li>CPU thread 是否在 data loader / decode 上打满。</li>
+<li>GPU memory allocated vs reserved。</li>
+<li>Peak memory by stage。</li>
+</ul>
+<h3 id="oom-case-studies">OOM Case Studies</h3>
+<h4 id="case-1-偶发-oom-只在某些请求出现">Case 1: 偶发 OOM，只在某些请求出现</h4>
+<p>可能原因：</p>
+<ul>
+<li>某些 request resolution / frames 特别大。</li>
+<li>dynamic shape 触发更大的 cuDNN / attention workspace。</li>
+<li>某个 bucket 没有被 warmup。</li>
+</ul>
+<p>解决：</p>
+<ul>
+<li>admission control 加 shape limit。</li>
+<li>shape bucketing。</li>
+<li>warmup 每个 bucket。</li>
+<li>记录 OOM request 的 shape 和 stage。</li>
+</ul>
+<h4 id="case-2-跑一段时间后-oom">Case 2: 跑一段时间后 OOM</h4>
+<p>可能原因：</p>
+<ul>
+<li>tensor reference leak。</li>
+<li>cache 没释放。</li>
+<li>output buffer / logging 保存了 GPU tensor。</li>
+<li>allocator reserved memory 持续增长。</li>
+</ul>
+<p>解决：</p>
+<ul>
+<li>request 完成后检查 live tensor。</li>
+<li>监控 per-request allocated delta。</li>
+<li>确保 cache ref_count 归零。</li>
+<li>避免把 GPU tensor 放入 Python list / closure / metrics。</li>
+</ul>
+<h4 id="case-3-总显存够-但仍然-oom">Case 3: 总显存够，但仍然 OOM</h4>
+<p>可能原因：</p>
+<ul>
+<li>fragmentation。</li>
+<li>需要连续大 block。</li>
+<li>temporary workspace 瞬时过大。</li>
+</ul>
+<p>解决：</p>
+<ul>
+<li>memory pool。</li>
+<li>block allocator。</li>
+<li>shape bucket。</li>
+<li>降低最大 workspace。</li>
+<li>使用 memory-efficient attention。</li>
+</ul>
+<h4 id="case-4-multi-gpu-后-latency-反而变差">Case 4: Multi-GPU 后 latency 反而变差</h4>
+<p>可能原因：</p>
+<ul>
+<li>TP degree 太高。</li>
+<li>All-Reduce 通信超过节省的 compute。</li>
+<li>GPU 拓扑不合理。</li>
+<li>batch 太小，通信无法摊薄。</li>
+</ul>
+<p>解决：</p>
+<ul>
+<li>降低 TP degree。</li>
+<li>同 TP group 放 NVLink 内。</li>
+<li>overlap comm/compute。</li>
+<li>增大 micro-batch 或改为 data parallel replicas。</li>
+</ul>
+<h3 id="graceful-degradation-policy">Graceful Degradation Policy</h3>
+<p>可以把降级策略按用户体验分层：</p>
+<div class="table-wrap"><table><thead><tr><th>压力等级</th><th>系统动作</th></tr></thead><tbody><tr><td>轻微压力</td><td>增加 queue wait，优先 batch 同 bucket 请求</td></tr>
+<tr><td>中等压力</td><td>降低 offline traffic batch priority，限制 max frames / steps</td></tr>
+<tr><td>高压力</td><td>preempt low-priority jobs，切小模型或低分辨率</td></tr>
+<tr><td>极端压力</td><td>reject 新长任务，返回 retry-after，保护 GPU node 不 OOM</td></tr></tbody></table></div>
+<p>关键原则：</p>
+<blockquote>Protect the node first. A failed request is better than crashing the entire GPU worker and losing all in-flight requests.</blockquote>
+<h3 id="面试中可以主动说的-production-guardrails">面试中可以主动说的 Production Guardrails</h3>
+<ul>
+<li>Per-request max resolution / frames / steps。</li>
+<li>Per-tenant GPU memory quota。</li>
+<li>Queue timeout。</li>
+<li>OOM circuit breaker。</li>
+<li>GPU worker health check。</li>
+<li>Automatic draining of unhealthy worker。</li>
+<li>Canary new model / new kernel。</li>
+<li>Rollback path。</li>
+<li>Load shedding。</li>
+<li>Artifact cleanup job。</li>
+</ul>
+<h3 id="model-serving-reliability">Model Serving Reliability</h3>
+<p>AI inference 面试里，面试官经常会问：模型服务怎么上线、回滚、监控？</p>
+<p>核心设计：</p>
+<pre><code class="language-">Model Registry
+  -&gt; model artifact + version + config + eval metrics
+Deployment Controller
+  -&gt; canary / blue-green / shadow
+Inference Gateway
+  -&gt; route by model version / tenant / experiment
+Metrics
+  -&gt; latency / error / quality / cost
+Rollback
+  -&gt; fast switch to previous stable version</code></pre>
+<p>上线策略：</p>
+<ol>
+<li>Shadow traffic</li>
+</ol>
+<ul>
+<li>新模型接收复制流量，但不影响用户结果。</li>
+<li>比较 latency、error rate、output quality。</li>
+</ul>
+<ol>
+<li>Canary</li>
+</ol>
+<ul>
+<li>先放 1% 流量。</li>
+<li>监控 P50/P95/P99 latency、OOM、error、quality metrics。</li>
+<li>逐步扩大到 5%、25%、50%、100%。</li>
+</ul>
+<ol>
+<li>Blue-green</li>
+</ol>
+<ul>
+<li>新旧环境并存。</li>
+<li>通过 routing switch 切换。</li>
+<li>回滚快，但成本更高。</li>
+</ul>
+<p>必须监控：</p>
+<ul>
+<li>Request QPS。</li>
+<li>TTFT / inter-token latency / end-to-end latency。</li>
+<li>GPU utilization。</li>
+<li>GPU memory / KV cache free blocks。</li>
+<li>OOM / preemption / swap count。</li>
+<li>Error rate。</li>
+<li>Output quality proxy metrics。</li>
+<li>Cost per request。</li>
+</ul>
+<p>面试回答模板：</p>
+<blockquote>I would treat model rollout like a production deployment, not a notebook update. Every model version is registered with artifact, config, and evaluation metrics. New versions first receive shadow traffic, then canary traffic. The gateway can route by model version, tenant, or experiment. If latency, OOM, error rate, or quality metrics regress, we roll back quickly to the previous stable version.</blockquote>
+<h3 id="model-cache-cold-start">Model Cache / Cold Start</h3>
+<p>大模型 serving 的 cold start 很贵：</p>
+<ul>
+<li>Load weights from storage。</li>
+<li>Initialize CUDA kernels。</li>
+<li>Warm up memory pool。</li>
+<li>Build CUDA Graph。</li>
+<li>Load LoRA adapters。</li>
+</ul>
+<p>优化：</p>
+<ul>
+<li>Hot models 常驻 GPU。</li>
+<li>Warm pool：提前启动 workers。</li>
+<li>Lazy load 冷门 model，但返回 async job 或较长 SLA。</li>
+<li>Adapter cache 按 LRU / LFU 管理。</li>
+<li>预热常见 input shape buckets。</li>
+</ul>
+<p>面试回答模板：</p>
+<blockquote>I would keep hot models resident on GPU and maintain a warm worker pool. For cold models or rare LoRA adapters, I would either lazy-load with a longer SLA or route to an async queue. I would also warm up common shape buckets so the first real user request does not pay kernel and memory initialization cost.</blockquote>
+<h3 id="一段强回答">一段强回答</h3>
+<blockquote>For a video generation inference pipeline, I would treat performance as an end-to-end systems problem, not only a model-forward problem. I would first build a cost estimator based on resolution, frame count, sampling steps, precision, and guidance mode. Then I would route requests into shape-aware queues and use micro-batching per bucket. On the worker, I would pipeline frame loading, preprocessing, H2D copy, GPU inference, and output encoding so the GPU is not waiting for CPU or storage. For multi-GPU execution, I would profile NCCL collectives and choose data parallel, tensor parallel, or pipeline parallel based on model size and hardware topology. For memory, I would use admission control, memory pools, bucketed shapes, and graceful degradation so a single long or high-resolution request cannot OOM the node.</blockquote>
+<h3 id="面试回答模板">面试回答模板</h3>
+<blockquote>I would design the service around two scarce resources: GPU compute and KV cache memory. Continuous batching keeps GPU compute busy, but the real memory challenge is KV cache fragmentation. So I would use a paged KV cache manager: split KV cache into fixed-size blocks, maintain a per-sequence block table, and allow physical blocks to be non-contiguous, similar to virtual memory. This lets us admit dynamic-length requests without requiring large contiguous memory.</blockquote>
+<blockquote>For multi-GPU execution, if the model is tensor-parallel, each layer requires collective communication such as All-Reduce or All-Gather. Decode is especially sensitive because this happens every generated token. I would optimize by keeping TP groups within fast interconnect topology, overlapping communication with computation using async streams, using fused kernels, and tuning TP degree based on profiling.</blockquote>
+<blockquote>For a sudden long prompt, I would handle it before OOM through admission control. If accepted, I would use chunked prefill. Under memory pressure, I would preempt lower-priority sequences and choose between CPU swap and recomputation based on latency tolerance. For interactive requests I prefer rejecting or reducing max tokens over swapping; for batch jobs swapping may be acceptable.</blockquote>
+<hr/></article>
+    </main>
+  </div>
+</body>
+</html>
