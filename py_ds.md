@@ -28876,4 +28876,2628 @@ $$
 
 #### Speech Translation
 
+---
 
+## 63. PyTorch 面试问答 Top 50：从张量、训练到分布式系统
+
+> 本节基于附件中的完整 Q1–Q50 进行结构化整理与技术校正。保留全部题目、解释、代码和速查表，并补充面试检查点、核心公式与当前 PyTorch 2.x API 变化。
+
+### 63.0 两分钟回答框架与核心公式
+
+回答每一道 PyTorch 问题时，优先使用同一条主线：**先给结论 → 说明 tensor shape / dtype / device → 解释 autograd 或内存机制 → 给最小代码 → 补充性能、分布式与失败模式**。这样比罗列 API 更像真实工程经验。
+
+核心公式锚点：
+
+$$
+\frac{\partial L}{\partial x}=\frac{\partial L}{\partial y}\frac{\partial y}{\partial x},\qquad
+g_{\text{effective}}=\frac{1}{K}\sum_{k=1}^{K}g_k
+$$
+
+$$
+\operatorname{Attention}(Q,K,V)=\operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}+M\right)V
+$$
+
+$$
+\theta_{t+1}=(1-\eta\lambda)\theta_t-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\epsilon}
+$$
+
+> **当前 API 提醒（2026）：** 新部署图优先回答 `torch.export`；TorchScript 已被官方标记为 deprecated。ONNX 新 exporter 也基于 `torch.export`，实际面试中应把 TorchScript 作为遗留兼容路径，而不是新项目默认方案。
+
+官方参考：[TorchScript deprecation notice](https://docs.pytorch.org/docs/stable/notes/cpu_threading_torchscript_inference.html)、[`torch.export` guide](https://docs.pytorch.org/docs/stable/user_guide/torch_compiler/export.html)、[torch.export-based ONNX exporter](https://docs.pytorch.org/docs/stable/onnx.html)。
+
+### 63.1 第 1 章：PyTorch 基础与张量
+
+
+本章从张量开始，因为几乎所有 PyTorch 面试都会从这里开始。如果你对 shape、dtype 或 device placement 不稳定，这个弱点会继续暴露在训练代码、调试和部署中。本章目标不是孤立地背 API，而是建立足够的直觉：看到一个张量操作时，能立刻说明它做了什么、返回什么 shape，以及可能在哪里失败。
+
+- **核心概念：**张量创建、dtype 处理、设备放置、reshape、broadcasting 和 einsum。这些是几乎所有训练或推理流水线背后的基础构件。
+
+- **面试官真正想检查的是：**你是否能从 shape 和数据移动的角度推理，而不是背函数名。强回答会解释一个张量操作返回什么、在哪里运行，以及哪里可能悄悄出错。
+
+- **常见薄弱点：**广播导致结果改变却不报错；意外使用整数运算；CPU/GPU 不匹配，直到工作流后面才暴露问题。
+
+- **学习建议：**对每个例子，大声说出输入 shape、输出 shape、dtype 和 device。如果你能很快做到，后面内容会容易很多。
+#### Q1：什么是 PyTorch Tensor？它和 NumPy 数组有什么区别？
+
+
+**核心回答：**
+
+Tensor 是 PyTorch 的基础数据结构，是一个可以位于 CPU 或 GPU 上的多维数组，并且可以选择性地记录操作以支持自动求导。它和 NumPy 的关键区别包括：
+
+- Device：Tensor 可以通过 .to("cuda") 或 .cuda() 移动到 GPU。
+- Autograd：requires_grad=True 的 Tensor 会构建计算图，并能够计算梯度。
+- 零拷贝桥接：torch.from_numpy() 与 NumPy 共享内存，不会复制数据。
+- Dtype 系统：PyTorch 支持 float16、bfloat16、float32、int8 等类型。
+
+**代码与实现：**
+
+```python
+
+import torch
+import numpy as np
+
+t = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+n = np.array([[1.0, 2.0], [3.0, 4.0]])
+
+# 零拷贝桥接：共享内存
+t_from_np = torch.from_numpy(n)
+np_from_t = t.numpy()  # 仅 CPU tensor 可用，不带梯度
+
+# 移动到 GPU
+device = "cuda" if torch.cuda.is_available() else "cpu"
+t_gpu = t.to(device)
+print(t_gpu.device)  # cuda:0 或 cpu
+
+# Autograd
+x = torch.tensor([2.0], requires_grad=True)
+y = x ** 3
+y.backward()
+print(x.grad)  # 3 * x^2 = 12.0
+
+```
+
+> **追问与陷阱：** 追问通常落在共享内存、.numpy() 的 CPU/梯度限制，以及跨设备复制是否同步。
+
+#### Q2：解释张量创建方法：zeros、ones、rand、randn、arange、linspace
+
+
+**核心回答：**
+
+每个 factory function 都服务于不同的初始化需求。zeros 和 ones 生成常量张量；rand 从均匀分布 Uniform[0, 1) 采样；randn 从标准正态分布 N(0, 1) 采样；arange 和 linspace 生成序列。*_like 变体会自动保留已有张量的 device 和 dtype。
+
+**代码与实现：**
+
+```python
+
+import torch
+
+z = torch.zeros(3, 4)          # 全 0，shape 为 (3, 4)
+o = torch.ones(2, 3)           # 全 1
+f = torch.full((2, 3), 7.5)    # 填充为 7.5
+
+r = torch.rand(3, 3)           # 均匀分布 [0, 1)
+rn = torch.randn(3, 3)         # 标准正态分布 N(0, 1)
+ri = torch.randint(0, 10, (2, 4))  # [0, 10) 内的整数
+
+a = torch.arange(0, 10, 2)     # [0, 2, 4, 6, 8]
+l = torch.linspace(0, 1, 5)    # [0.0, 0.25, 0.5, 0.75, 1.0]
+
+# Like-shape：保留 device 和 dtype
+x = torch.randn(3, 3).cuda()
+z_like = torch.zeros_like(x)
+
+torch.manual_seed(42)          # 可复现
+print(torch.randn(2, 2))
+
+```
+
+> **追问与陷阱：** 不要只背 factory API；要主动说出默认 dtype/device、随机种子和 *_like 的工程价值。
+
+#### Q3：张量 reshape 操作如何工作？对比 view、reshape、squeeze、unsqueeze
+
+
+**核心回答：**
+
+view 是零拷贝 reshape，但要求张量在内存中连续。reshape 更安全：当必要时会复制数据。squeeze 删除 size 为 1 的维度；unsqueeze 插入新的 size 为 1 的维度。由这些操作引发的 shape bug，是模型代码中最常见的隐蔽错误来源之一。
+
+**代码与实现：**
+
+```python
+
+import torch
+
+t = torch.arange(24)  # shape: (24,)
+
+# view：零拷贝，要求 contiguous
+t_v = t.view(4, 6)
+t_v = t.view(2, 3, 4)
+
+# reshape：非 contiguous 时会复制，更安全
+t_r = t.reshape(3, 8)
+
+# 连续性问题
+x = torch.randn(3, 4).T       # 转置后变成 non-contiguous
+x_cont = x.contiguous()       # 显式变成 contiguous
+x_view = x_cont.view(12)      # 现在安全
+
+# squeeze / unsqueeze
+a = torch.randn(1, 3, 1, 5)   # (1, 3, 1, 5)
+b = a.squeeze()               # (3, 5)
+c = a.squeeze(0)              # (3, 1, 5)
+d = b.unsqueeze(0)            # (1, 3, 5)
+d = b.unsqueeze(-1)           # (3, 5, 1)
+
+f = a.flatten()               # (15,)
+f2 = a.flatten(1)             # (1, 15)
+
+```
+
+> **追问与陷阱：** 必须解释 stride、contiguous 与是否复制；`reshape` 不是永远零拷贝。
+
+#### Q4：PyTorch 的广播规则是什么？为什么它可能造成隐蔽错误？
+
+
+**核心回答：**
+
+Broadcasting 让 PyTorch 可以在不复制数据的情况下，对不同 shape 的张量执行操作。它从右侧对齐 shape，并扩展任何 size 为 1 的维度。当两个 shape 恰好“意外兼容”时，PyTorch 会静默广播，而不是抛错，从而生成错误结果，而且非常难追踪。
+
+**代码与实现：**
+
+```python
+
+import torch
+
+# 合法广播：(3,) + (2, 3) -> (2, 3)
+a = torch.tensor([1.0, 2.0, 3.0])  # (3,)
+b = torch.ones(2, 3)               # (2, 3)
+print((a + b).shape)               # (2, 3)
+
+# 隐蔽错误：labels (3,) 与 outputs (3, 1) 广播成 (3, 3)
+labels = torch.tensor([1, 0, 1])              # (3,)
+outputs = torch.tensor([[0.9], [0.1], [0.8]]) # (3, 1)
+loss = (outputs - labels) ** 2
+print(loss.shape)  # (3, 3)，错误：本应是 (3,)
+
+# 修复：显式匹配 shape
+labels_col = labels.float().unsqueeze(1)  # (3, 1)
+loss_fixed = (outputs - labels_col) ** 2
+print(loss_fixed.shape)  # (3, 1)，正确
+
+```
+
+> **专业提示：**算术运算后始终检查 .shape。在训练代码中加入 assert 捕捉广播意外；这些检查在正常执行时几乎没有成本。
+
+> **追问与陷阱：** 先从右对齐维度，再说明 size 为 1 才能扩展；loss shape 异常是高频线上 bug。
+
+#### Q5：什么是 torch.einsum？什么时候应该使用它？
+
+
+**核心回答：**
+
+einsum 使用爱因斯坦求和记号表达张量 contraction。它可以用一行可读代码处理矩阵乘法、点积、外积、批量运算和 attention score 计算，让代码意图更清晰。
+
+**代码与实现：**
+
+```python
+
+import torch
+
+a = torch.randn(3, 4)
+b = torch.randn(4, 5)
+
+# 矩阵乘法：'ij,jk->ik'
+c = torch.einsum("ij,jk->ik", a, b)  # (3, 5)
+
+# 点积：'i,i->'
+x = torch.randn(5)
+y = torch.randn(5)
+dot = torch.einsum("i,i->", x, y)  # scalar
+
+# 外积：'i,j->ij'
+outer = torch.einsum("i,j->ij", x, y)  # (5, 5)
+
+# 批量矩阵乘：'bij,bjk->bik'
+A = torch.randn(8, 3, 4)
+B = torch.randn(8, 4, 5)
+C = torch.einsum("bij,bjk->bik", A, B)  # (8, 3, 5)
+
+# Transformer attention scores：'bqd,bkd->bqk'
+Q = torch.randn(2, 10, 64)
+K = torch.randn(2, 10, 64)
+scores = torch.einsum("bqd,bkd->bqk", Q, K)  # (2, 10, 10)
+
+# 矩阵 trace：'ii->'
+M = torch.randn(4, 4)
+trace = torch.einsum("ii->", M)
+
+```
+
+> **追问与陷阱：** 能写出 attention 的 einsum 还不够，也要比较 matmul 的可读性、性能和编译器优化。
+
+### 63.2 第 2 章：Autograd 与计算图
+
+
+Autograd 是 PyTorch 从“张量库”变成“深度学习框架”的关键。本章关注 forward 和 backward 期间引擎实际做了什么，以及当梯度异常或内存持续上涨时，这些机制为什么重要。这些问题能区分“会用 PyTorch 的人”和“能在压力下调试 PyTorch 的人”。
+
+- **核心概念：**动态计算图、梯度流、requires_grad、no_grad、detach、自定义 autograd 逻辑和梯度累积。
+
+- **面试官真正想检查的是：**你是否理解梯度为什么出现、消失或累积。好的回答会描述计算图机制，而不是把 autograd 当成黑盒。
+
+- **常见薄弱点：**忘记清空梯度；in-place 更新破坏计算图；把推理阶段的 shortcut 混进训练代码。
+
+- **学习建议：**手动跟踪一个简单例子，从 forward pass 到 backward pass。只要你能解释每个梯度来自哪里，更难的问题就不再抽象。
+#### Q6：PyTorch 的自动求导 autograd 底层如何工作？
+
+
+**核心回答：**
+
+PyTorch 使用 define-by-run，也就是动态自动微分。对 requires_grad=True 的张量执行每个操作时，输出张量都会记录一个 grad_fn，并构建一个无环计算图。调用 .backward() 时，PyTorch 会反向遍历这个图，并在每个节点应用链式法则，也就是 reverse-mode automatic differentiation。
+
+**代码与实现：**
+
+```python
+
+import torch
+
+x = torch.tensor(3.0, requires_grad=True)
+y = torch.tensor(4.0, requires_grad=True)
+
+# z = (x + y)^2 = x^2 + 2xy + y^2
+z = x**2 + 2 * x * y + y**2
+
+print(z.grad_fn)  # <AddBackward0>
+z.backward()
+print(x.grad)     # dz/dx = 2x + 2y = 14.0
+print(y.grad)     # dz/dy = 2x + 2y = 14.0
+
+# 非标量 backward 需要显式传入 gradient 参数
+z2 = torch.randn(3, requires_grad=True) ** 2
+z2.backward(torch.ones_like(z2))
+
+print(x.is_leaf)  # True，用户创建的张量
+print(z.is_leaf)  # False，计算得到的张量
+
+```
+
+> **追问与陷阱：** 要能沿拓扑逆序、局部 Jacobian-vector product 和链式法则解释 reverse-mode AD。
+
+#### Q7：torch.no_grad() 和 tensor.detach() 有什么区别？分别什么时候用？
+
+
+**核心回答：**
+
+二者都会停止梯度追踪，但作用层级不同。torch.no_grad() 是一个上下文管理器，会全局禁用梯度引擎，通常用于推理以节省内存和计算。.detach() 返回一个与原张量共享数据的新张量，但该张量从计算图中分离；当你需要某个张量的数值、但不希望反向传播穿过它时使用，例如强化学习中的 target network 或指标计算。
+
+**代码与实现：**
+
+```python
+
+import torch
+
+model_param = torch.randn(3, 3, requires_grad=True)
+
+# torch.no_grad()：全局禁用梯度引擎
+with torch.no_grad():
+    out = model_param @ model_param.T
+print(out.requires_grad)  # False
+
+# .detach()：从图上切断，共享底层数据
+x = torch.randn(3, requires_grad=True)
+y = x ** 2
+y_val = y.detach()        # 同数据，无 grad_fn
+print(y_val.requires_grad)  # False
+
+# DQN target network 示例
+target = model_param.detach()  # 阻止梯度流到这里
+
+# torch.inference_mode() 更强：其中创建的 tensor 不能重新进入计算图。
+# 对纯推理最快。
+with torch.inference_mode():
+    result = model_param.sum()
+print(result.requires_grad)  # False
+
+```
+
+> **追问与陷阱：** `no_grad` 是作用域级开关，`detach` 是张量级断图；二者都不等同于 `eval()`。
+
+#### Q8：什么会导致 “in-place operation on a tensor required for gradient computation” 错误？
+
+
+**核心回答：**
+
+PyTorch 在反向传播时需要保留张量的原始值来计算梯度。In-place 操作会覆盖这些值，破坏计算图的 version counter，使梯度计算变得错误或不可能。因此 PyTorch 会抛出 RuntimeError 来保护你。
+
+**代码与实现：**
+
+```python
+
+import torch
+
+# 错误：对 leaf tensor 做 in-place
+x = torch.tensor([1.0, 2.0], requires_grad=True)
+# x += 1  # RuntimeError: in-place on leaf!
+
+# 错误：在 grad_fn 被记录之后做 in-place
+a = torch.randn(3, requires_grad=True)
+b = a * 2       # grad_fn = MulBackward0
+b += 1          # 破坏 b 的 version
+# b.sum().backward()  # RuntimeError
+
+# 正确：out-of-place 总是创建新张量
+b = b + 1       # 安全：新张量，图保持完整
+b.sum().backward()
+
+# 非梯度张量上的 in-place 是允许的，例如 buffer
+buf = torch.zeros(3)
+buf += 1.0      # 没问题：requires_grad=False
+
+```
+
+> **追问与陷阱：** 核心是 autograd version counter；不要把所有 in-place 都说成非法。
+
+#### Q9：如何实现带 forward 和 backward 的自定义 autograd Function？
+
+
+**核心回答：**
+
+继承 torch.autograd.Function，并把 forward 和 backward 实现为静态方法。典型用途是为离散或不可导操作构造 Straight-Through Estimator，简称 STE，例如量化或二值激活。
+
+**代码与实现：**
+
+```python
+
+import torch
+from torch.autograd import Function
+
+class StraightThroughEstimator(Function):
+    """
+    Forward: sign(x)，量化到 {-1, +1}
+    Backward: 直接把梯度传过去，也就是 identity
+    """
+
+    @staticmethod
+    def forward(ctx, x):
+        ctx.save_for_backward(x)
+        return x.sign()
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        (x,) = ctx.saved_tensors
+        grad = grad_output.clone()
+        grad[x.abs() > 1] = 0  # 在 [-1, 1] 之外裁剪
+        return grad
+
+ste = StraightThroughEstimator.apply
+x = torch.tensor([-1.5, -0.5, 0.3, 0.9, 1.2], requires_grad=True)
+y = ste(x)
+y.sum().backward()
+print(x.grad)  # [0, 1, 1, 1, 0]
+
+# 数值检查梯度
+from torch.autograd import gradcheck
+
+x64 = torch.randn(4, dtype=torch.float64, requires_grad=True)
+print(gradcheck(ste, (x64,), eps=1e-6))  # True
+
+```
+
+> **追问与陷阱：** 说明 ctx.save_for_backward、反向梯度签名，并用 gradcheck 验证数值正确性。
+
+#### Q10：什么是梯度累积？为什么它对大 batch 训练重要？
+
+
+**核心回答：**
+
+当 GPU 显存无法容纳大 batch 时，可以通过多个小 batch 的 forward/backward 累积梯度，再调用一次 optimizer.step() 来模拟大 batch。需要把 loss 除以累积步数，让有效梯度幅值与真正的大 batch 一致。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+model = nn.Linear(512, 10)
+optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
+criterion = nn.CrossEntropyLoss()
+ACCUM = 4  # 模拟 batch_size * 4
+
+optimizer.zero_grad()
+for step, (x, y) in enumerate(dataloader):
+    out = model(x)
+    loss = criterion(out, y) / ACCUM  # 归一化
+    loss.backward()                   # 梯度累积
+
+    if (step + 1) % ACCUM == 0:
+        nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        optimizer.step()
+        optimizer.zero_grad()
+
+# 搭配 AMP，也就是混合精度
+scaler = torch.cuda.amp.GradScaler()
+for step, (x, y) in enumerate(dataloader):
+    with torch.autocast(device_type="cuda", dtype=torch.float16):
+        loss = criterion(model(x), y) / ACCUM
+    scaler.scale(loss).backward()
+
+    if (step + 1) % ACCUM == 0:
+        scaler.unscale_(optimizer)
+        nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        scaler.step(optimizer)
+        scaler.update()
+        optimizer.zero_grad()
+
+```
+
+> **追问与陷阱：** loss 必须除以 accumulation steps；DDP 下还可用 `no_sync()` 避免每个 micro-batch all-reduce。
+
+### 63.3 第 3 章：神经网络模块 nn.Module
+
+
+本章关注 PyTorch 模型如何组织。好的回答听起来不只是文档复述，而是工程判断：什么时候注册参数，什么时候保存 buffer，什么时候冻结层，以及 hooks 如何帮助你在不重写模型的情况下检查行为。到了高级工程师层面，面试官希望听到你知道模型代码如何在规模变大时保持可维护。
+
+- **核心概念：**参数、buffer、hooks、权重共享、冻结，以及 Sequential、ModuleList、ModuleDict 等容器类。
+
+- **面试官真正想检查的是：**你是否理解 nn.Module 如何处理注册、设备移动、序列化，以及哪些内容会进入 state_dict。
+
+- **常见薄弱点：**把可学习张量存成普通属性而没有注册；混淆 buffer 和 parameter；需要 module container 时却使用普通 Python list。
+
+- **学习建议：**把每个概念和你实际构建过的模型联系起来。这通常能区分可信解释和死记硬背。
+#### Q11：nn.Parameter、register_buffer() 和普通张量有什么区别？
+
+| 项目 | nn.Parameter | Buffer | 普通张量 |
+| --- | --- | --- | --- |
+| 是否可学习 | 是 | 否 | 否 |
+| 是否进入 state_dict | 是 | 是 | 否 |
+| 是否随 .to() 移动 | 是 | 是 | 否 |
+| 是否进入 optimizer | 是 | 否 | 否 |
+
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+class DemoModule(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        # 可学习，进入 optimizer 和 state_dict
+        self.weight = nn.Parameter(torch.randn(4, 4))
+
+        # 不可学习，进入 state_dict，并跟随 device 移动
+        self.register_buffer("running_mean", torch.zeros(4))
+
+        # 完全不被跟踪：.to() 不会移动它，也没有梯度
+        self.plain = torch.randn(4)
+
+    def forward(self, x):
+        return x @ self.weight + self.running_mean
+
+m = DemoModule()
+print(m.state_dict().keys())  # weight, running_mean，不包含 plain
+m.cuda()
+print(m.weight.device)        # cuda:0
+print(m.running_mean.device)  # cuda:0
+print(m.plain.device)         # cpu，容易踩坑
+
+```
+
+> **追问与陷阱：** Parameter 与 buffer 都进入模块注册体系，但只有 Parameter 默认交给 optimizer。
+
+#### Q12：nn.Module 中 forward hook 和 backward hook 如何工作？
+
+
+**核心回答：**
+
+Hook 允许你在不修改模块源码的情况下，检查或修改流经模块的张量。Forward hook 在 forward() 之后触发；backward hook 在 backward() 期间触发。它们对调试、特征提取、梯度手术和可视化都很重要。使用完成后一定要移除 handle，避免内存泄漏。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+model = nn.Sequential(nn.Linear(8, 4), nn.ReLU(), nn.Linear(4, 2))
+
+# Forward hook：捕获 activation
+activations = {}
+
+def save_activation(name):
+    def hook(module, inp, output):
+        activations[name] = output.detach()
+    return hook
+
+handle = model[0].register_forward_hook(save_activation("l1"))
+_ = model(torch.randn(2, 8))
+print(activations["l1"].shape)  # (2, 4)
+handle.remove()                 # 一定清理
+
+# Backward hook：捕获或修改梯度
+grads = {}
+
+def save_grad(name):
+    def hook(grad):
+        grads[name] = grad.detach()
+    return hook
+
+x = torch.randn(2, 8, requires_grad=True)
+x.register_hook(save_grad("input"))
+model(x).sum().backward()
+print(grads["input"].shape)  # (2, 8)
+
+```
+
+> **追问与陷阱：** hook 适合观测和调试，不宜承载核心业务逻辑；注意句柄释放和分布式下的多副本行为。
+
+#### Q13：迁移学习时如何冻结模型参数？
+
+
+**核心回答：**
+
+把要冻结的参数设置为 requires_grad = False，然后用新的 nn.Linear 替换分类头。新层默认 requires_grad=True。构造 optimizer 时只传入可训练参数。需要注意：model.eval() 是另一件事，它控制 BatchNorm 和 Dropout 行为，与梯度冻结相互独立。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+from torchvision.models import resnet50, ResNet50_Weights
+
+model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
+
+# 冻结整个 backbone
+for param in model.parameters():
+    param.requires_grad = False
+
+# 替换 head，新层默认 requires_grad=True
+model.fc = nn.Linear(2048, 10)
+
+# optimizer 只看到可训练参数
+optimizer = torch.optim.Adam(
+    filter(lambda p: p.requires_grad, model.parameters()),
+    lr=1e-3,
+)
+
+# 分层学习率
+optimizer_lwlr = torch.optim.AdamW(
+    [
+        {"params": model.layer4.parameters(), "lr": 1e-4},
+        {"params": model.fc.parameters(), "lr": 1e-3},
+    ],
+    weight_decay=1e-2,
+)
+
+# 检查可训练比例
+trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+total = sum(p.numel() for p in model.parameters())
+print(f"Trainable: {trainable:,} / {total:,} ({100 * trainable / total:.1f}%)")
+
+```
+
+> **追问与陷阱：** 冻结梯度不等于冻结 BatchNorm running stats；是否 eval() 取决于 fine-tuning 策略。
+
+#### Q14：PyTorch 中什么是权重共享？如何实现？
+
+
+**核心回答：**
+
+权重共享指模型的多个部分引用同一个 nn.Parameter 对象。来自所有使用点的梯度会累积到同一个参数上。经典例子包括 tied encoder-decoder autoencoder，以及语言模型中的 input-output embedding weight tying。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+class TiedAutoencoder(nn.Module):
+    def __init__(self, input_dim, latent_dim):
+        super().__init__()
+        self.W = nn.Parameter(torch.randn(latent_dim, input_dim))
+        self.enc_bias = nn.Parameter(torch.zeros(latent_dim))
+        self.dec_bias = nn.Parameter(torch.zeros(input_dim))
+
+    def encode(self, x):
+        return torch.relu(x @ self.W.T + self.enc_bias)
+
+    def decode(self, z):
+        return z @ self.W + self.dec_bias  # tied：使用同一个 W
+
+    def forward(self, x):
+        return self.decode(self.encode(x))
+
+model = TiedAutoencoder(784, 64)
+params = sum(p.numel() for p in model.parameters())
+print(f"Parameters: {params:,}")  # 784*64 + 64 + 784 = 51040
+
+```
+
+> **追问与陷阱：** 真正的共享必须复用同一个 Parameter 对象；复制数值并不等于 tied weights。
+
+#### Q15：nn.ModuleList、nn.ModuleDict 和 nn.Sequential 有什么区别？
+
+
+**核心回答：**
+
+三者都会注册子模块，使其出现在 parameters() 和 state_dict() 中。Sequential 会在 forward() 中自动串联层；ModuleList 提供索引访问，适合自定义 forward 逻辑；ModuleDict 提供命名访问，适合条件路由。不要使用普通 Python list 或 dict 保存子模块，否则 PyTorch 看不到这些模块。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+# Sequential：按顺序自动 forward
+seq = nn.Sequential(
+    nn.Linear(64, 128),
+    nn.ReLU(),
+    nn.Dropout(0.2),
+    nn.Linear(128, 10),
+)
+out = seq(torch.randn(8, 64))  # 完全自动
+
+# ModuleList：手动 forward，可索引
+class ResStack(nn.Module):
+    def __init__(self, n):
+        super().__init__()
+        self.layers = nn.ModuleList([nn.Linear(64, 64) for _ in range(n)])
+
+    def forward(self, x):
+        for layer in self.layers:
+            x = torch.relu(layer(x)) + x  # residual
+        return x
+
+# ModuleDict：命名访问，条件路由
+class MultiHead(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.heads = nn.ModuleDict(
+            {
+                "cls": nn.Linear(64, 10),
+                "reg": nn.Linear(64, 1),
+            }
+        )
+
+    def forward(self, x, task: str):
+        return self.heads[task](x)
+
+```
+
+> **追问与陷阱：** 普通 Python list 不会注册子模块；这是 ModuleList 最关键的面试点。
+
+### 63.4 第 4 章：训练循环与优化
+
+
+这一章会非常直接地暴露一个人的 PyTorch 实战能力。训练循环表面上可能很干净，但仍然隐藏 stale gradients、错误的 scheduler 时机或不稳定的 loss scaling。本节按真实工作中的出现顺序梳理这些移动部件，让你既能解释正常路径，也能解释失败案例。
+
+- **核心概念：**训练循环顺序、optimizer 更新、scheduler、loss function、gradient clipping、checkpoint 逻辑和混合精度训练。
+
+- **面试官真正想检查的是：**你是否知道操作的准确顺序，并且能解释正确性、数值稳定性和训练速度如何配合。
+
+- **常见薄弱点：**在错误时刻 step scheduler；在 optimizer step 之后才做 gradient clipping；使用自动混合精度但不理解 gradient scaling。
+
+- **学习建议：**不看代码，从 batch load 到 optimizer update 讲完整循环。如果你能把顺序讲清楚，就已经处在不错的位置。
+#### Q16：写一个完整、生产质量的 PyTorch 训练循环，包含验证
+
+
+**核心回答：**
+
+生产质量训练循环会把逻辑拆成每个 epoch 的函数；使用 set_to_none=True 更快地清空梯度；应用 gradient clipping；通过 GradScaler 集成混合精度；并基于验证损失保存最佳 checkpoint。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+def train_epoch(model, loader, optimizer, criterion, device, scaler):
+    model.train()
+    total_loss, correct, total = 0.0, 0, 0
+
+    for x, y in loader:
+        x = x.to(device, non_blocking=True)
+        y = y.to(device, non_blocking=True)
+
+        optimizer.zero_grad(set_to_none=True)
+
+        with torch.autocast(device_type="cuda", dtype=torch.float16):
+            out = model(x)
+            loss = criterion(out, y)
+
+        scaler.scale(loss).backward()
+        scaler.unscale_(optimizer)
+        nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        scaler.step(optimizer)
+        scaler.update()
+
+        total_loss += loss.item() * x.size(0)
+        correct += (out.argmax(1) == y).sum().item()
+        total += x.size(0)
+
+    return total_loss / total, correct / total
+
+@torch.no_grad()
+def evaluate(model, loader, criterion, device):
+    model.eval()
+    total_loss, correct, total = 0.0, 0, 0
+
+    for x, y in loader:
+        x, y = x.to(device), y.to(device)
+        out = model(x)
+        loss = criterion(out, y)
+
+        total_loss += loss.item() * x.size(0)
+        correct += (out.argmax(1) == y).sum().item()
+        total += x.size(0)
+
+    return total_loss / total, correct / total
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = MyModel().to(device)
+optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4, weight_decay=1e-2)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=50)
+criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
+scaler = torch.cuda.amp.GradScaler()
+best_val = float("inf")
+
+for epoch in range(1, 51):
+    tr_loss, tr_acc = train_epoch(model, train_loader, optimizer, criterion, device, scaler)
+    vl_loss, vl_acc = evaluate(model, val_loader, criterion, device)
+    scheduler.step()
+
+    if vl_loss < best_val:
+        best_val = vl_loss
+        torch.save(model.state_dict(), "best.pt")
+
+    print(
+        f"Ep {epoch:03d} | Train {tr_loss:.4f}/{tr_acc:.3f} | "
+        f"Val {vl_loss:.4f}/{vl_acc:.3f}"
+    )
+
+```
+
+> **追问与陷阱：** 顺序必须是 zero grad → forward → scaled backward → unscale → clip → step → update。
+
+#### Q17：对比 PyTorch 优化器：SGD、Adam、AdamW、RMSProp
+
+
+**核心回答：**
+
+关键区别是 Adam 和 AdamW：在 Adam 中，weight decay 会被 adaptive step size 缩放，这不是正确的正则化；AdamW 将 weight decay 与 adaptive update 解耦，从而得到正确的 L2 正则化。现代深度网络通常优先使用 AdamW。
+| Optimizer | Adaptive | Momentum | 最适合 |
+| --- | --- | --- | --- |
+| SGD | 否 | 是 | 视觉任务、fine-tuning、SGD + momentum |
+| Adam | 是 | 是 | 通用场景 |
+| AdamW | 是 | 是 | Transformer、大模型 |
+| RMSProp | 是 | 可选 | RNN、强化学习 |
+
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+model = nn.Linear(128, 10)
+
+sgd = torch.optim.SGD(
+    model.parameters(),
+    lr=0.01,
+    momentum=0.9,
+    weight_decay=1e-4,
+    nesterov=True,
+)
+
+adam = torch.optim.Adam(
+    model.parameters(),
+    lr=1e-3,
+    betas=(0.9, 0.999),
+    eps=1e-8,
+)
+
+# AdamW：weight decay 与 adaptive step 解耦
+adamw = torch.optim.AdamW(
+    model.parameters(),
+    lr=3e-4,
+    betas=(0.9, 0.999),
+    weight_decay=1e-2,
+)
+
+rms = torch.optim.RMSprop(
+    model.parameters(),
+    lr=1e-3,
+    alpha=0.99,
+    eps=1e-8,
+)
+
+# AdamW 正确公式：
+# theta -= lr * m / (sqrt(v) + eps)
+# theta -= lr * wd * theta  # 单独的、未被 adaptive step 缩放的 decay
+
+```
+
+> **追问与陷阱：** 不要笼统说 AdamW 总优；应结合泛化、batch size、训练预算和 weight-decay 排除项回答。
+
+#### Q18：学习率调度器如何工作？对比 StepLR、CosineAnnealingLR、OneCycleLR
+
+
+**核心回答：**
+
+StepLR 每隔 step_size 个 epoch 将学习率乘以 gamma；它简单，但会产生突变。CosineAnnealingLR 从最大值平滑退火到 eta_min，是现代训练中的常用选择。OneCycleLR 按 batch 调度，实现 Leslie Smith 的 super-convergence：先线性 warmup 到 max_lr，再 cosine decay。可以用 SequentialLR 把 warmup 与任意后续 scheduler 组合起来。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+optimizer = torch.optim.SGD(nn.Linear(10, 1).parameters(), lr=0.1)
+
+step_sched = torch.optim.lr_scheduler.StepLR(
+    optimizer,
+    step_size=10,
+    gamma=0.1,
+)
+
+cos_sched = torch.optim.lr_scheduler.CosineAnnealingLR(
+    optimizer,
+    T_max=50,
+    eta_min=1e-6,
+)
+
+one_sched = torch.optim.lr_scheduler.OneCycleLR(
+    optimizer,
+    max_lr=0.1,
+    steps_per_epoch=len(train_loader),
+    epochs=30,
+    pct_start=0.3,
+    anneal_strategy="cos",
+)
+
+# warmup + cosine，用 SequentialLR
+warmup = torch.optim.lr_scheduler.LinearLR(
+    optimizer,
+    start_factor=0.1,
+    total_iters=5,
+)
+main = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=45)
+sched = torch.optim.lr_scheduler.SequentialLR(
+    optimizer,
+    schedulers=[warmup, main],
+    milestones=[5],
+)
+
+# per-epoch scheduler：在 optimizer.step() 之后调用
+for epoch in range(50):
+    train_one_epoch(...)
+    cos_sched.step()
+
+# OneCycleLR：每个 batch 调用
+for x, y in train_loader:
+    optimizer.step()
+    one_sched.step()
+
+```
+
+> **追问与陷阱：** 先确认 scheduler 是 per-step 还是 per-epoch，并说明恢复 checkpoint 时也要保存 scheduler state。
+
+#### Q19：PyTorch 提供哪些损失函数？分别什么时候使用？
+
+| Loss | 任务 | 说明 |
+| --- | --- | --- |
+| CrossEntropyLoss | 多分类 | 接收 raw logits |
+| BCEWithLogitsLoss | 二分类 | 数值稳定 |
+| MSELoss | 回归 | 对 outlier 敏感 |
+| L1Loss | 回归 | 对 outlier 更鲁棒 |
+| HuberLoss | 回归 | L1/L2 混合 |
+| NLLLoss | 多分类 | 需要先做 log-softmax |
+
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+ce = nn.CrossEntropyLoss(label_smoothing=0.1)
+bce = nn.BCEWithLogitsLoss()
+mse = nn.MSELoss()
+huber = nn.HuberLoss(delta=1.0)
+
+# 类别不均衡：给稀有类别更高权重
+w = torch.tensor([1.0, 5.0, 3.0]).cuda()
+ce_w = nn.CrossEntropyLoss(weight=w)
+
+# 自定义 Focal Loss：降低 easy example 的权重
+class FocalLoss(nn.Module):
+    def __init__(self, alpha=1.0, gamma=2.0):
+        super().__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+
+    def forward(self, inputs, targets):
+        bce = nn.functional.binary_cross_entropy_with_logits(
+            inputs,
+            targets.float(),
+            reduction="none",
+        )
+        p_t = torch.exp(-bce)
+        return (self.alpha * (1 - p_t) ** self.gamma * bce).mean()
+
+```
+
+> **追问与陷阱：** CrossEntropy 接收 logits 与 class index；BCEWithLogits 已内置 sigmoid，不能重复激活。
+
+#### Q20：什么是混合精度训练？如何在 PyTorch 中启用？
+
+
+**核心回答：**
+
+混合精度使用 float16 或 bfloat16 进行计算，并用 float32 更新权重。这能把内存减半，并加速 Tensor Core 操作。使用 float16 时，GradScaler 可以防止梯度下溢。在 Ampere 及更新 GPU 上，例如 A100、H100，优先考虑 bfloat16，它拥有与 float32 相同的指数范围，通常不需要 scaler。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+model = nn.Linear(1024, 1024).cuda()
+optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
+scaler = torch.cuda.amp.GradScaler()
+
+for x, y in dataloader:
+    x, y = x.cuda(), y.cuda()
+    optimizer.zero_grad(set_to_none=True)
+
+    # autocast：内部 op 自动以 fp16 运行
+    with torch.autocast(device_type="cuda", dtype=torch.float16):
+        out = model(x)
+        loss = criterion(out, y)
+
+    scaler.scale(loss).backward()
+    scaler.unscale_(optimizer)
+    nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+    scaler.step(optimizer)
+    scaler.update()
+
+    # Ampere+ 上的 bfloat16：不需要 scaler
+    with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+        out = model(x)  # 无需 GradScaler 也更稳定
+
+```
+
+> **追问与陷阱：** FP16 需要关注 underflow 与 scaler；BF16 指数范围更大，但尾数精度更低。
+
+### 63.5 第 5 章：数据加载与预处理
+
+
+模型训练速度取决于数据到达的速度。本章关注 PyTorch 中悄悄控制吞吐的一侧：dataset 设计、worker 配置、batching 策略和 collation。面试官喜欢这些问题，因为它们能看出你是否做过真实流水线，而不只是玩过小 notebook 数据集。
+
+- **核心概念：**Dataset、IterableDataset、DataLoader、sampling strategies、自定义 collate_fn，以及面向更大工作负载的预处理设计。
+
+- **面试官真正想检查的是：**你是否能把优雅的 dataset 代码与真实吞吐限制联系起来，例如 I/O、CPU transform、batching cost 和 host-to-device transfer time。
+
+- **常见薄弱点：**把 dataloader 当作细节；忽略模型之外的瓶颈；低估 sampling 或 padding 对训练行为的影响。
+
+- **学习建议：**看每个例子时，问自己生产中这条 pipeline 最先在哪里变慢。这个问题通常比背 API 更能带出好回答。
+#### Q21：如何在 PyTorch 中实现自定义 Dataset？
+
+
+**核心回答：**
+
+Map-style Dataset 需要实现 __len__ 和 __getitem__。DataLoader 会包装它，并处理 batching、shuffling 和多进程加载。关键性能参数包括 num_workers、pin_memory、persistent_workers 和 prefetch_factor。
+
+**代码与实现：**
+
+```python
+
+import torch
+from torch.utils.data import Dataset, DataLoader
+from pathlib import Path
+from PIL import Image
+import torchvision.transforms as T
+
+class ImageDataset(Dataset):
+    def __init__(self, root, split="train", transform=None):
+        self.root = Path(root) / split
+        self.classes = sorted(d.name for d in self.root.iterdir() if d.is_dir())
+        self.class_to_idx = {c: i for i, c in enumerate(self.classes)}
+        self.samples = [
+            (p, self.class_to_idx[p.parent.name])
+            for cls_dir in self.root.iterdir()
+            for p in cls_dir.glob("*.jpg")
+        ]
+        self.transform = transform or T.ToTensor()
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        path, label = self.samples[idx]
+        img = Image.open(path).convert("RGB")
+        return self.transform(img), label
+
+loader = DataLoader(
+    ImageDataset(
+        "data",
+        "train",
+        transform=T.Compose(
+            [
+                T.RandomResizedCrop(224),
+                T.RandomHorizontalFlip(),
+                T.ToTensor(),
+                T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            ]
+        ),
+    ),
+    batch_size=64,
+    shuffle=True,
+    num_workers=8,          # 并行 worker
+    pin_memory=True,        # 更快的 CPU -> GPU 传输
+    persistent_workers=True,# 保持 worker 存活
+    prefetch_factor=2,      # 预取 batch 数
+    drop_last=True,
+)
+
+```
+
+> **追问与陷阱：** __getitem__ 里避免昂贵的全局初始化；worker-safe 资源通常要延迟创建。
+
+#### Q22：什么是 IterableDataset？什么时候应该用它而不是 Dataset？
+
+
+**核心回答：**
+
+当数据太大无法放进内存、以流式方式到达，或者随机访问成本很高时，例如从 S3 或数据库 streaming，应该使用 IterableDataset。它按顺序 yield 样本，而不是按索引取样。务必在 __iter__ 中使用 get_worker_info() 实现 worker sharding，否则每个 worker 都会产生完整数据集。
+
+**代码与实现：**
+
+```python
+
+import torch
+from torch.utils.data import IterableDataset, DataLoader
+
+class StreamingDataset(IterableDataset):
+    def __init__(self, file_paths, seq_len=512):
+        self.files = file_paths
+        self.seq_len = seq_len
+
+    def __iter__(self):
+        info = torch.utils.data.get_worker_info()
+        files = self.files[info.id::info.num_workers] if info else self.files
+
+        for path in files:
+            tokens = tokenize(open(path).read())
+            for i in range(0, len(tokens) - self.seq_len, self.seq_len):
+                chunk = tokens[i : i + self.seq_len]
+                yield torch.tensor(chunk), torch.tensor(chunk[1:] + [0])
+
+loader = DataLoader(
+    StreamingDataset(["shard_0.txt", "shard_1.txt"]),
+    batch_size=32,
+    num_workers=4,
+    # shuffle=False：顺序由 iterable 自己控制
+)
+
+```
+
+> **追问与陷阱：** 每个 worker 必须显式分片，否则 iterable stream 会被重复消费。
+
+#### Q23：如何为变长序列编写自定义 collate_fn？
+
+
+**核心回答：**
+
+默认 collate 函数要求 batch 内所有张量 shape 相同。对于变长序列，需要提供自定义 collate_fn：用 pad_sequence 把较短序列 pad 到当前 batch 中最长序列的长度，并可选地按长度排序，以便高效使用 RNN packing。
+
+**代码与实现：**
+
+```python
+
+import torch
+from torch.nn.utils.rnn import pad_sequence
+
+def collate_variable_length(batch):
+    sequences, labels = zip(*batch)
+
+    # 按长度降序排序，pack_padded_sequence 需要
+    idx = sorted(range(len(sequences)), key=lambda i: len(sequences[i]), reverse=True)
+    sequences = [sequences[i] for i in idx]
+    labels = [labels[i] for i in idx]
+
+    padded = pad_sequence(sequences, batch_first=True, padding_value=0)
+    lengths = torch.tensor([len(s) for s in sequences])
+    return padded, lengths, torch.tensor(labels)
+
+# 多标签 collate：ragged label lists
+def collate_multi_label(batch):
+    images, label_lists = zip(*batch)
+    images = torch.stack(images)
+    max_len = max(len(l) for l in label_lists)
+    labels = torch.full((len(batch), max_len), -1)
+
+    for i, l in enumerate(label_lists):
+        labels[i, : len(l)] = torch.tensor(l)
+
+    return images, labels
+
+loader = DataLoader(dataset, batch_size=32, collate_fn=collate_variable_length)
+
+```
+
+> **追问与陷阱：** 变长 batch 的关键不是 padding API，而是 mask、length、排序和 padding waste。
+
+#### Q24：如何分析 DataLoader 瓶颈并优化吞吐？
+
+
+**核心回答：**
+
+显式计时 batch，并配合 CUDA synchronization，把加载开销和计算开销隔离。如果 loader 是瓶颈，可以增加 num_workers，启用 pin_memory 和 persistent_workers，并考虑使用 torchvision.transforms.v2 把较重的数据增强迁移到 GPU。
+
+**代码与实现：**
+
+```python
+
+import torch
+import time
+
+def benchmark_loader(loader, n=50):
+    it = iter(loader)
+    next(it)  # warm up
+    torch.cuda.synchronize()
+    t0 = time.perf_counter()
+
+    for i, batch in enumerate(it):
+        if i >= n:
+            break
+        _ = batch[0].cuda(non_blocking=True)
+        torch.cuda.synchronize()
+
+    elapsed = time.perf_counter() - t0
+    print(f"{n} batches: {elapsed:.2f}s ({n / elapsed:.1f}/s)")
+
+# GPU 侧增强：通常比 CPU transforms 快 3-5 倍
+import torchvision.transforms.v2 as Tv2
+
+gpu_aug = Tv2.Compose(
+    [
+        Tv2.RandomHorizontalFlip(),
+        Tv2.ColorJitter(0.4, 0.4, 0.4),
+        Tv2.RandomErasing(p=0.5),
+    ]
+)
+
+for x, y in loader:
+    x = x.cuda()
+    x = gpu_aug(x)  # 所有操作都在 GPU 上
+
+```
+
+> **追问与陷阱：** 用 GPU idle gap、data time 与 compute time 分离定位，不要一上来盲目增加 workers。
+
+#### Q25：如何处理 PyTorch 数据集中的类别不均衡？
+
+
+**核心回答：**
+
+有三类互补方法：
+
+- 使用 WeightedRandomSampler 在 batch 级别对稀有类别过采样。
+- 使用 weighted loss，让错分稀有类别的代价更高。
+- 使用 Focal Loss，在训练中降低 easy majority-class examples 的权重。
+
+**代码与实现：**
+
+```python
+
+import torch
+import numpy as np
+from torch.utils.data import WeightedRandomSampler, DataLoader
+
+labels = [0] * 900 + [1] * 90 + [2] * 10  # 9:1:0.1 imbalance
+counts = np.bincount(labels)
+weights = 1.0 / counts                     # inverse frequency
+sample_weights = torch.tensor([weights[l] for l in labels])
+
+sampler = WeightedRandomSampler(
+    weights=sample_weights,
+    num_samples=len(labels),
+    replacement=True,
+)
+
+loader = DataLoader(dataset, batch_size=32, sampler=sampler)
+
+# Weighted cross-entropy loss
+class_w = torch.tensor([1.0, 10.0, 100.0]).cuda()
+ce_w = torch.nn.CrossEntropyLoss(weight=class_w)
+
+# Focal loss：gamma 降低 easy-example 贡献
+class FocalLoss(torch.nn.Module):
+    def __init__(self, gamma=2):
+        super().__init__()
+        self.gamma = gamma
+
+    def forward(self, logits, targets):
+        log_p = torch.nn.functional.log_softmax(logits, -1)
+        log_pt = log_p.gather(1, targets.view(-1, 1)).squeeze()
+        return (-(1 - log_pt.exp()) ** self.gamma * log_pt).mean()
+
+```
+
+> **追问与陷阱：** 采样改变数据分布，loss weighting 改变优化目标；二者同时使用可能过度校正。
+
+### 63.6 第 6 章：GPU 加速与 CUDA
+
+
+把模型移到 CUDA 很容易。获得稳定加速，同时不遇到 stall、sync point 或 OOM 崩溃，则更难。本章把 GPU 工作视为系统问题：数据如何移动，开销在哪里出现，以及模型比预期慢时应先 profile 什么。
+
+- **核心概念：**device placement、pinned memory、异步传输、CUDA streams、compilation、profiling 和 memory debugging。
+
+- **面试官真正想检查的是：**你是否知道 GPU 上什么可以真正重叠，什么会强制同步，以及为什么 utilization 数字有时会误导。
+
+- **常见薄弱点：**计时 CUDA 代码时不做同步；把数据 pipeline 瓶颈归咎于模型；混淆 allocated memory 和 reserved memory。
+
+- **学习建议：**用系统视角阅读这一章。每个加速结论都应该包含原因、测量方法，以及它引入了什么 tradeoff。
+#### Q26：PyTorch 如何管理 GPU 显存？如何调试 OOM？
+
+
+**核心回答：**
+
+PyTorch 使用 caching allocator：释放的显存会返回到缓存池，而不是还给操作系统，因此 memory_reserved >= memory_allocated。OOM 通常来自：把计算图保存在 list 里；忘记 .item()；评估阶段没有使用 no_grad()；或者 batch size 确实太大。
+
+**代码与实现：**
+
+```python
+
+import torch
+
+print(torch.cuda.memory_allocated() / 1e9, "GB")
+print(torch.cuda.memory_reserved() / 1e9, "GB")
+print(torch.cuda.max_memory_allocated() / 1e9, "GB peak")
+
+# 内存快照，PyTorch >= 2.0
+torch.cuda.memory._record_memory_history(max_entries=100_000)
+# ... training steps ...
+torch.cuda.memory._dump_snapshot("mem.pickle")
+
+# 错误：累积计算图引用
+losses = []
+for x, y in loader:
+    loss = model(x).sum()
+    losses.append(loss)  # 持有 live graph
+
+# 正确：提取 Python scalar
+losses.append(loss.item())  # 不持有 graph
+
+# 释放碎片化缓存
+torch.cuda.empty_cache()
+
+# Flash Attention：O(n) memory，不物化 n^2 attention matrix
+out = torch.nn.functional.scaled_dot_product_attention(
+    Q,
+    K,
+    V,
+    is_causal=True,
+)
+
+```
+
+> **追问与陷阱：** 区分 allocated、reserved、峰值与真正泄漏；empty_cache() 不会释放仍被 tensor 引用的内存。
+
+#### Q27：什么是 pin_memory？为什么它能加快主机到设备的数据传输？
+
+
+**核心回答：**
+
+Pinned memory，也就是 page-locked memory，不能被换出到磁盘，因此 GPU DMA engine 可以直接从 CPU RAM 传输数据，而不需要中间拷贝。配合 .to() 中的 non_blocking=True，CPU-GPU 传输可以与 Python 执行重叠，对大 batch 通常能带来 2-3 倍吞吐提升。
+
+**代码与实现：**
+
+```python
+
+import torch
+from torch.utils.data import DataLoader
+
+loader = DataLoader(
+    dataset,
+    batch_size=128,
+    pin_memory=True,
+    num_workers=4,
+)
+
+for x, y in loader:
+    # non_blocking：传输发起后 CPU 立即继续
+    x = x.to("cuda", non_blocking=True)
+    y = y.to("cuda", non_blocking=True)
+
+    # GPU kernel 会自动等待传输完成
+    loss = criterion(model(x), y)
+
+# 手动 pinned tensor
+t = torch.randn(1024, 1024).pin_memory()
+print(t.is_pinned())  # True
+t_gpu = t.to("cuda", non_blocking=True)
+
+# 注意：只在 GPU workload 中启用。
+# 纯 CPU 训练会支付额外分配成本，却没有收益。
+
+```
+
+> **追问与陷阱：** pinned memory 只有配合 CUDA 和 non-blocking copy 才可能受益，并非免费优化。
+
+#### Q28：CUDA streams 在 PyTorch 中如何工作？什么时候有用？
+
+
+**核心回答：**
+
+CUDA stream 是一条 GPU 操作队列，同一个 stream 中操作按顺序执行；不同 stream 中的操作在硬件资源允许时可以并发。主要用途是重叠数据传输和计算：当 GPU 计算 batch N 时，DMA engine 预加载 batch N+1。
+
+**代码与实现：**
+
+```python
+
+import torch
+
+compute_stream = torch.cuda.Stream()
+transfer_stream = torch.cuda.Stream()
+
+x_cpu = torch.randn(1024, 1024).pin_memory()
+model = torch.nn.Linear(1024, 512).cuda()
+
+with torch.cuda.stream(transfer_stream):
+    x_gpu = x_cpu.to("cuda", non_blocking=True)
+
+# 记录 event：compute stream 等待传输完成
+event = torch.cuda.Event()
+transfer_stream.record_event(event)
+
+with torch.cuda.stream(compute_stream):
+    compute_stream.wait_event(event)
+    out = model(x_gpu)
+
+torch.cuda.synchronize()  # 等待所有 stream
+
+# double-buffering 模式：GPU 计算 N，CPU/GPU 侧加载 N+1
+prev_x = None
+for x_cpu, y in loader:
+    if prev_x is not None:
+        with torch.cuda.stream(compute_stream):
+            out = model(prev_x)
+
+    with torch.cuda.stream(transfer_stream):
+        x_gpu = x_cpu.to("cuda", non_blocking=True)
+
+    torch.cuda.synchronize()
+    prev_x = x_gpu
+
+```
+
+> **追问与陷阱：** 跨 stream 数据依赖必须用 event/wait 明确同步；错误并发会产生竞态而非单纯变慢。
+
+#### Q29：什么是 torch.compile()？它如何加速训练？
+
+
+**核心回答：**
+
+torch.compile() 是 PyTorch 2.0+ 的特性，它通过 TorchDynamo 捕获 Python 层计算图，并通过 TorchInductor 生成优化后的 Triton kernel。它能够融合操作、消除 Python overhead，并开启硬件特定优化。在现代 GPU 上，通常不用修改模型代码就能获得 1.5-3 倍加速。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+import time
+
+model = nn.Transformer(d_model=512, nhead=8).cuda()
+
+# 默认 backend：inductor，会生成 Triton kernels
+compiled = torch.compile(model)
+
+# modes: "default" | "reduce-overhead" | "max-autotune"
+fast_model = torch.compile(model, mode="max-autotune", fullgraph=True)
+
+# 第一次 forward 会触发编译，存在 cold start
+x = torch.randn(8, 32, 512).cuda()
+out = compiled(x, x)  # 在这里编译
+
+# 测量加速
+N = 100
+start = time.perf_counter()
+for _ in range(N):
+    model(x, x)
+torch.cuda.synchronize()
+t_eager = time.perf_counter() - start
+
+start = time.perf_counter()
+for _ in range(N):
+    compiled(x, x)
+torch.cuda.synchronize()
+t_compiled = time.perf_counter() - start
+
+print(f"Speedup: {t_eager / t_compiled:.2f}x")
+
+```
+
+> **追问与陷阱：** 解释 Dynamo graph capture、AOTAutograd、Inductor，以及 graph break、重编译和 cold start。
+
+#### Q30：如何分析 PyTorch 模型的 GPU 性能？
+
+
+**核心回答：**
+
+使用 PyTorch Profiler 获取每个 operator 的 CPU 和 CUDA 时间，并通过 TensorBoard 做可视化检查。对于具体操作的轻量级 micro-benchmark，可以使用 torch.cuda.Event。
+
+**代码与实现：**
+
+```python
+
+import torch
+from torch.profiler import profile, record_function, ProfilerActivity
+
+model = MyModel().cuda()
+
+with profile(
+    activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+    record_shapes=True,
+    profile_memory=True,
+    on_trace_ready=torch.profiler.tensorboard_trace_handler("./log"),
+    schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=1),
+) as prof:
+    for step, (x, y) in enumerate(loader):
+        with record_function("forward"):
+            out = model(x)
+        with record_function("backward"):
+            out.sum().backward()
+        prof.step()
+
+print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=15))
+
+# 轻量方式：用 CUDA events 做 micro-benchmark
+start = torch.cuda.Event(enable_timing=True)
+end = torch.cuda.Event(enable_timing=True)
+start.record()
+out = model(x)
+end.record()
+torch.cuda.synchronize()
+print(f"Forward: {start.elapsed_time(end):.2f} ms")
+
+```
+
+> **追问与陷阱：** profile 要先 warm-up，再用 CUDA event 或 profiler；普通 wall-clock 容易漏掉异步执行。
+
+### 63.7 第 7 章：模型保存、加载与部署
+
+
+训练不是终点。某个时候，模型需要被保存、在别处加载，并在原始 notebook 或训练任务之外稳定运行。本章围绕这个交接点展开，关注会影响可移植性、可复现性、延迟，以及后续加载模型的人会遭遇多少痛苦的选择。
+
+- **核心概念：**state_dict 使用、checkpoint 设计、resume 逻辑、TorchScript、ONNX 导出、量化，以及面向部署的模型打包。
+
+- **面试官真正想检查的是：**你是否能把 export path 和目标环境匹配起来，并解释为了可靠恢复或 serving 必须保存哪些内容。
+
+- **常见薄弱点：**为了恢复训练保存得太少；没有结构地保存太多；把所有部署格式当成可互换。
+
+- **学习建议：**从部署场景回答：mobile、server inference、research handoff 或 training recovery。上下文通常会让 tradeoff 更容易解释。
+#### Q31：保存 state_dict 和保存整个模型有什么区别？
+
+
+**核心回答：**
+
+始终优先保存 state_dict。它只把参数和 buffer 序列化为普通 tensor。保存完整模型会使用 Python pickle，并包含类定义路径；如果类被重命名或移动，就会失效。对于训练 checkpoint，需要在权重之外同时保存 optimizer、scheduler 和 epoch。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+model = nn.Linear(64, 10)
+
+# 推荐：只保存 state_dict
+torch.save(model.state_dict(), "weights.pt")
+model2 = nn.Linear(64, 10)
+model2.load_state_dict(torch.load("weights.pt", map_location="cpu"))
+
+# 用于恢复训练的完整 checkpoint
+def save_ckpt(model, optimizer, scheduler, epoch, loss, path):
+    torch.save(
+        {
+            "epoch": epoch,
+            "loss": loss,
+            "model": model.state_dict(),
+            "optim": optimizer.state_dict(),
+            "sched": scheduler.state_dict(),
+        },
+        path,
+    )
+
+def load_ckpt(model, optimizer, scheduler, path, device="cpu"):
+    ck = torch.load(path, map_location=device)
+    model.load_state_dict(ck["model"])
+    optimizer.load_state_dict(ck["optim"])
+    scheduler.load_state_dict(ck["sched"])
+    return ck["epoch"], ck["loss"]
+
+# 处理 partial load，例如 fine-tuning 时 head 不同
+msg = model2.load_state_dict(pretrained_weights, strict=False)
+print(msg.missing_keys)     # 模型中有、文件中没有
+print(msg.unexpected_keys)  # 文件中有、模型中没有
+
+```
+
+> **追问与陷阱：** 生产 checkpoint 通常保存模型、optimizer、scheduler、scaler、epoch、RNG state 与配置版本。
+
+#### Q32：现代 PyTorch 如何导出模型？`torch.export` 与 TorchScript 如何选择？
+
+
+**核心回答：**
+
+新项目优先使用 `torch.export`：它通过 TorchDynamo 以 Ahead-of-Time 方式捕获纯 Tensor 计算图，生成规范化的 ATen IR，同时记录输入 shape constraints。导出的 `ExportedProgram` 可以序列化，也可继续交给 AOTInductor、ONNX 等后端。
+
+TorchScript 会把模型编译成可脱离 Python interpreter 运行的图，但目前已被 PyTorch 官方标记为 deprecated。遗留部署仍要理解两条路径：`torch.jit.trace` 针对样例输入记录算子，会漏掉数据依赖控制流；`torch.jit.script` 编译可支持的 Python 子集，能表达部分 `if` / `for`。面试时应明确：**新系统选 `torch.export`，旧系统维护才继续讨论 TorchScript**。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+class Net(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc = nn.Linear(64, 10)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return torch.relu(self.fc(x))
+
+model = Net()
+example = (torch.randn(4, 64),)
+
+# 现代首选：捕获带 shape guards 的 ExportedProgram
+ep = torch.export.export(model, example)
+torch.export.save(ep, "model.pt2")
+
+loaded_ep = torch.export.load("model.pt2")
+out = loaded_ep.module()(*example)
+print(out.shape)  # (4, 10)
+
+# 以下是遗留 TorchScript 兼容路径
+
+# 方法 1：trace，适合没有控制流的简单模型
+traced = torch.jit.trace(model, example[0])
+traced.save("model_traced.pt")
+
+# 方法 2：script，能处理 if/while 分支
+scripted = torch.jit.script(model)
+scripted.save("model_scripted.pt")
+
+# 不依赖 Python 加载
+loaded = torch.jit.load("model_scripted.pt")
+loaded.eval()
+print(loaded(torch.randn(4, 64)).shape)  # (4, 10)
+
+# 动态控制流：必须用 script，不能用 trace
+class DynNet(nn.Module):
+    def forward(self, x: torch.Tensor, use_relu: bool = True) -> torch.Tensor:
+        return torch.relu(x) if use_relu else torch.sigmoid(x)
+
+scripted_dyn = torch.jit.script(DynNet())
+
+```
+
+> **追问与陷阱：** `torch.export` 对 graph break 比 `torch.compile` 更严格；还要说明 dynamic shapes、custom ops、shape guards、序列化兼容性和目标后端。TorchScript 只作为遗留兼容路径。
+
+#### Q33：如何把模型导出为 ONNX 并用 ONNX Runtime 运行？
+
+
+**核心回答：**
+
+ONNX，即 Open Neural Network Exchange，是一种跨框架 IR，可通过 ONNX Runtime 部署到 CPU、CUDA、TensorRT 等 backend。现代 PyTorch 的 ONNX exporter 基于 `torch.export`；应优先使用 `dynamo=True`，并通过 `dynamic_shapes` 声明动态 batch，而不是把旧的 `dynamic_axes` 当成唯一方案。导出完成后必须做 schema checker、目标 runtime 加载和数值一致性验证。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+import onnx
+import onnxruntime as ort
+import numpy as np
+
+model = nn.Linear(64, 10).eval()
+dummy = torch.randn(1, 64)
+batch = torch.export.Dim("batch", min=1)
+
+torch.onnx.export(
+    model,
+    (dummy,),
+    "model.onnx",
+    dynamo=True,
+    input_names=["input"],
+    output_names=["output"],
+    dynamic_shapes=({0: batch},),
+)
+
+onnx.checker.check_model(onnx.load("model.onnx"))
+print("ONNX model valid")
+
+# 用 ONNX Runtime 运行
+sess = ort.InferenceSession(
+    "model.onnx",
+    providers=["CUDAExecutionProvider", "CPUExecutionProvider"],
+)
+
+x_np = np.random.randn(4, 64).astype(np.float32)
+out = sess.run(None, {"input": x_np})[0]
+print(out.shape)  # (4, 10)
+
+# 验证输出与 PyTorch 一致
+with torch.no_grad():
+    pt_out = model(torch.tensor(x_np)).numpy()
+np.testing.assert_allclose(pt_out, out, atol=1e-5)
+print("Outputs match!")
+
+```
+
+> **追问与陷阱：** 现代 ONNX exporter 基于 `torch.export`；要验证 dynamic shapes、opset/算子覆盖、custom ops、数值容差和目标 runtime，不能以“文件成功生成”作为上线标准。
+
+#### Q34：什么是 PyTorch 量化？有哪些不同方式？
+
+
+**核心回答：**
+
+量化把模型精度从 float32 降到 int8 或更低，可以把模型大小降低约 4 倍，并加速 CPU 推理。Dynamic quantization 最容易：权重在加载时量化，activation 在运行时量化。Post-training static quantization，简称 PTQ，会使用代表性数据校准 activation range。Quantization-aware training，简称 QAT，会在训练中插入 fake-quantization 节点，通常质量最好。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+import torch.ao.quantization as Q
+
+model = nn.Sequential(
+    nn.Linear(64, 32),
+    nn.ReLU(),
+    nn.Linear(32, 10),
+).eval()
+
+# 1. Dynamic quantization：最简单，仅 CPU
+dyn = torch.quantization.quantize_dynamic(
+    model,
+    {nn.Linear},
+    dtype=torch.qint8,
+)
+
+# 2. Post-training static quantization，PTQ
+model.qconfig = Q.get_default_qconfig("x86")
+Q.prepare(model, inplace=True)  # 插入 observer
+with torch.no_grad():
+    for x, _ in calibration_loader:
+        model(x)                # 校准
+Q.convert(model, inplace=True)  # 替换为 int8
+
+# 3. Quantization-aware training，QAT，质量最好
+model.train()
+model.qconfig = Q.get_default_qat_qconfig("x86")
+Q.prepare_qat(model, inplace=True)  # fake-quant nodes
+
+for x, y in train_loader:
+    loss = criterion(model(x), y)
+    loss.backward()
+    optimizer.step()
+
+model.eval()
+Q.convert(model, inplace=True)      # 最终转成 int8
+
+```
+
+> **追问与陷阱：** 量化答案必须说 calibration 数据、per-channel/per-tensor、symmetric/asymmetric 与精度回归。
+
+#### Q35：如何实现 early stopping 和模型 checkpoint？
+
+
+**核心回答：**
+
+Early stopping 会监控一个验证指标。当该指标连续 patience 个 epoch 不再改善时，就停止训练，并自动保存最佳 checkpoint。这可以防止过拟合和不必要的计算。
+
+**代码与实现：**
+
+```python
+
+import torch
+import numpy as np
+
+class EarlyStopping:
+    def __init__(self, patience=7, min_delta=1e-4, mode="min", path="best.pt"):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.mode = mode
+        self.path = path
+        self.counter = 0
+        self.best = np.inf if mode == "min" else -np.inf
+        self.stop = False
+
+    def __call__(self, metric, model):
+        improved = (
+            (self.mode == "min" and metric < self.best - self.min_delta)
+            or (self.mode == "max" and metric > self.best + self.min_delta)
+        )
+
+        if improved:
+            self.best = metric
+            self.counter = 0
+            torch.save(model.state_dict(), self.path)
+        else:
+            self.counter += 1
+            if self.counter >= self.patience:
+                self.stop = True
+
+es = EarlyStopping(patience=7, mode="min")
+for epoch in range(100):
+    _, val_loss = evaluate(model, val_loader, criterion, device)
+    es(val_loss, model)
+
+    if es.stop:
+        print("Early stopping triggered.")
+        break
+
+model.load_state_dict(torch.load("best.pt"))
+
+```
+
+> **追问与陷阱：** early stopping 的 monitor、mode、min_delta 和 patience 必须与业务指标及噪声水平匹配。
+
+### 63.8 第 8 章：高级架构：CNN、RNN、Transformer
+
+
+架构问题通常是在测试深度。会用内置层是一回事，能解释它为什么有效、张量 shape 如何流动，以及如何从零重建核心思想，是另一回事。本章聚焦第二层理解。
+
+- **核心概念：**残差连接、卷积块、循环层、attention、normalization 选择和位置编码。
+
+- **面试官真正想检查的是：**你是否能把模型想法转化为清晰的 PyTorch 代码，并解释为什么层要这样排列。
+
+- **常见薄弱点：**在 block 中丢失张量 shape；把正确 layer 用在错误目标上；只有论文层面的解释，没有代码层面的细节。
+
+- **学习建议：**手动画出每个 block 的 tensor shapes。实践中，这比记住每个构造参数更重要。
+#### Q36：从零实现 ResNet 残差块
+
+
+**核心回答：**
+
+He 等人在 2016 年提出 identity shortcut：y = F(x, {W_i}) + x，其中 F 是两层卷积堆叠。当维度发生变化，例如 stride 或 channel 不匹配时，用 1x1 projection shortcut 对齐 shape。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+class ResidualBlock(nn.Module):
+    def __init__(self, in_ch, out_ch, stride=1):
+        super().__init__()
+        self.conv1 = nn.Conv2d(in_ch, out_ch, 3, stride=stride, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(out_ch)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = nn.Conv2d(out_ch, out_ch, 3, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(out_ch)
+
+        self.shortcut = nn.Identity()
+        if stride != 1 or in_ch != out_ch:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_ch, out_ch, 1, stride=stride, bias=False),
+                nn.BatchNorm2d(out_ch),
+            )
+
+    def forward(self, x):
+        identity = self.shortcut(x)
+        out = self.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        return self.relu(out + identity)  # residual addition
+
+block = ResidualBlock(64, 128, stride=2)
+x = torch.randn(4, 64, 32, 32)
+print(block(x).shape)  # (4, 128, 16, 16)
+
+```
+
+> **追问与陷阱：** 残差相加前 shape 必须一致；stride 或 channel 改变时 projection shortcut 不能漏。
+
+#### Q37：从零实现多头自注意力层
+
+
+**核心回答：**
+
+根据 Vaswani 等人 2017 年的 Transformer 思路：把输入投影到 Q、K、V，拆成 h 个 head，每个 head 计算 scaled dot-product attention：
+
+Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V
+
+然后拼接所有 head，并投影回原维度。
+
+**代码与实现：**
+
+```python
+
+import math
+import torch
+import torch.nn as nn
+
+class MultiHeadSelfAttention(nn.Module):
+    def __init__(self, d_model, n_heads, dropout=0.1):
+        super().__init__()
+        assert d_model % n_heads == 0
+        self.h = n_heads
+        self.dk = d_model // n_heads
+        self.q_proj = nn.Linear(d_model, d_model, bias=False)
+        self.k_proj = nn.Linear(d_model, d_model, bias=False)
+        self.v_proj = nn.Linear(d_model, d_model, bias=False)
+        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.drop = nn.Dropout(dropout)
+
+    def forward(self, x, mask=None):
+        B, T, D = x.shape
+
+        def split(proj, t):
+            return proj(t).view(B, T, self.h, self.dk).transpose(1, 2)
+
+        Q = split(self.q_proj, x)
+        K = split(self.k_proj, x)
+        V = split(self.v_proj, x)
+
+        scores = (Q @ K.transpose(-2, -1)) / math.sqrt(self.dk)
+        if mask is not None:
+            scores = scores.masked_fill(mask == 0, float("-inf"))
+
+        attn = self.drop(torch.softmax(scores, dim=-1))
+        out = (attn @ V).transpose(1, 2).contiguous().view(B, T, D)
+        return self.o_proj(out)
+
+mhsa = MultiHeadSelfAttention(512, 8)
+x = torch.randn(2, 32, 512)
+print(mhsa(x).shape)  # (2, 32, 512)
+
+```
+
+> **追问与陷阱：** 要说清 /\sqrt{d_k}$ 的原因、mask 语义、head reshape，以及 Flash/SDPA 的内存优势。
+
+#### Q38：如何实现 LSTM？什么时候用 LSTM 而不是 Transformer？
+
+| 维度 | LSTM | Transformer |
+| --- | --- | --- |
+| 长距离依赖 | 弱 | 强 |
+| 并行性 | 无，顺序执行 | 完全并行 |
+| 内存 | O(n) | O(n^2) |
+| Streaming/causal | 天然适合 | 需要 causal mask |
+| 短序列 | 可以 | 可能过重 |
+
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
+
+class LSTMClassifier(nn.Module):
+    def __init__(self, vocab, emb, hid, layers, n_cls, drop=0.3):
+        super().__init__()
+        self.embed = nn.Embedding(vocab, emb, padding_idx=0)
+        self.lstm = nn.LSTM(
+            emb,
+            hid,
+            layers,
+            batch_first=True,
+            dropout=drop if layers > 1 else 0,
+            bidirectional=True,
+        )
+        self.fc = nn.Linear(hid * 2, n_cls)
+        self.drop = nn.Dropout(drop)
+
+    def forward(self, tokens, lengths):
+        x = self.drop(self.embed(tokens))
+        pkg = pack_padded_sequence(
+            x,
+            lengths.cpu(),
+            batch_first=True,
+            enforce_sorted=False,
+        )
+        _, (h_n, _) = self.lstm(pkg)
+        h = torch.cat([h_n[-2], h_n[-1]], dim=-1)  # 双向最后一层
+        return self.fc(self.drop(h))
+
+```
+
+> **追问与陷阱：** LSTM 的 sequential inductive bias 适合流式与短状态任务；不是简单地被 Transformer 淘汰。
+
+#### Q39：Batch Normalization 和 Layer Normalization 有什么区别？
+
+
+**核心回答：**
+
+BatchNorm 在 batch 和 spatial dimensions 上归一化；训练时需要 batch size 大于 1，并在 eval 时使用 running statistics。LayerNorm 在每个 sample 内部的 feature dimension 上归一化；它适用于任意 batch size，因此是 Transformer 和序列模型的标准选择。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+bn = nn.BatchNorm2d(64)  # (N, C, H, W)，在 N,H,W 上归一化
+ln = nn.LayerNorm(512)   # (N, T, D)，在 D 上归一化
+gn = nn.GroupNorm(8, 64) # 介于 BN 和 LN 之间
+
+# RMSNorm，LLaMA、Mistral 使用：不减均值，更快
+class RMSNorm(nn.Module):
+    def __init__(self, dim, eps=1e-8):
+        super().__init__()
+        self.scale = nn.Parameter(torch.ones(dim))
+        self.eps = eps
+
+    def forward(self, x):
+        rms = x.pow(2).mean(-1, keepdim=True).add(self.eps).sqrt()
+        return (x / rms) * self.scale
+
+# 使用
+x = torch.randn(2, 10, 512)  # (batch, seq, d_model)
+print(ln(x).shape)           # (2, 10, 512)，shape 不变
+rms = RMSNorm(512)
+print(rms(x).shape)          # (2, 10, 512)
+
+```
+
+> **追问与陷阱：** BN 依赖 batch 统计且 train/eval 不同；LN 按特征归一化，更适合序列和小 batch。
+
+#### Q40：实现 Transformer 的位置编码
+
+
+**核心回答：**
+
+主要有三种方式：
+
+- Sinusoidal，Vaswani 2017：固定编码，可泛化到更长序列。
+- Learned，GPT 风格：简单使用 Embedding。
+- RoPE，Su 2021：把位置编码为复平面上的旋转，用于 LLaMA 和 Mistral。
+
+**代码与实现：**
+
+```python
+
+import math
+import torch
+import torch.nn as nn
+
+class SinusoidalPE(nn.Module):
+    def __init__(self, d_model, max_len=5000, dropout=0.1):
+        super().__init__()
+        self.drop = nn.Dropout(dropout)
+
+        pe = torch.zeros(max_len, d_model)
+        pos = torch.arange(0, max_len).unsqueeze(1).float()
+        div = torch.exp(torch.arange(0, d_model, 2).float() * -(math.log(10000.0) / d_model))
+
+        pe[:, 0::2] = torch.sin(pos * div)
+        pe[:, 1::2] = torch.cos(pos * div)
+        self.register_buffer("pe", pe.unsqueeze(0))  # (1, L, D)
+
+    def forward(self, x):
+        return self.drop(x + self.pe[:, : x.size(1)])
+
+# Learned PE，GPT 风格
+class LearnedPE(nn.Module):
+    def __init__(self, d_model, max_len=2048):
+        super().__init__()
+        self.embed = nn.Embedding(max_len, d_model)
+
+    def forward(self, x):
+        B, T, _ = x.shape
+        pos = torch.arange(T, device=x.device).unsqueeze(0)
+        return x + self.embed(pos)
+
+# RoPE，LLaMA 风格：在频率空间旋转 Q 和 K
+def apply_rope(q, k, seq_len, head_dim, base=10000):
+    theta = 1.0 / (
+        base ** (torch.arange(0, head_dim, 2, device=q.device).float() / head_dim)
+    )
+    pos = torch.arange(seq_len, device=q.device).float()
+    freqs = torch.outer(pos, theta)
+    cos, sin = freqs.cos()[None, None], freqs.sin()[None, None]
+
+    q_rot = torch.cat([-q[..., 1::2], q[..., 0::2]], dim=-1)
+    k_rot = torch.cat([-k[..., 1::2], k[..., 0::2]], dim=-1)
+    return q * cos + q_rot * sin, k * cos + k_rot * sin
+
+```
+
+> **追问与陷阱：** 区分 absolute learned、sinusoidal、RoPE 与 ALiBi，并讨论长度外推。
+
+### 63.9 第 9 章：分布式训练与性能
+
+
+分布式训练在你真正需要让它跨多 GPU 或多节点工作之前，都可能听起来很抽象。本章保持讨论实用：对比主要并行训练模式，解释通信成本在哪里出现，并强调那些经常破坏正确代码的配置细节。
+
+- **核心概念：**数据并行、DistributedDataParallel、FullyShardedDataParallel、sharding、tensor parallel 和 pipeline parallel 思路，以及多进程任务启动模式。
+
+- **面试官真正想检查的是：**你是否知道某种 scaling strategy 什么时候有帮助、引入什么成本，以及为什么新的分布式模式通常会替代旧 wrapper。
+
+- **常见薄弱点：**忽略 sampler 协调；误解梯度何时同步；把所有 multi-GPU 方法都看成差不多。
+
+- **学习建议：**从内存、通信开销和运维复杂度三个角度比较每种方法。面试官通常想听的就是这种对比。
+#### Q41：nn.DataParallel 和 DistributedDataParallel 有什么区别？
+
+| 维度 | DataParallel | DDP |
+| --- | --- | --- |
+| 进程 | 1 个 | 每 GPU 1 个 |
+| 梯度同步 | 参数服务器模式，集中到 GPU 0 | NCCL all-reduce |
+| 多节点 | 不支持 | 支持 |
+| GIL 瓶颈 | 有 | 无 |
+| 是否推荐 | 否 | 是 |
+
+
+**代码与实现：**
+
+```python
+
+import os
+import torch
+import torch.nn as nn
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+def setup(rank, world_size):
+    dist.init_process_group(
+        backend="nccl",
+        init_method="env://",
+        rank=rank,
+        world_size=world_size,
+    )
+    torch.cuda.set_device(rank)
+
+def train(rank, world_size):
+    setup(rank, world_size)
+
+    model = nn.Linear(1024, 10).to(rank)
+    ddp_model = DDP(model, device_ids=[rank])
+    optimizer = torch.optim.Adam(ddp_model.parameters())
+
+    for x, y in distributed_loader:
+        x, y = x.to(rank), y.to(rank)
+        loss = criterion(ddp_model(x), y)
+        loss.backward()  # all-reduce 发生在这里
+        optimizer.step()
+        optimizer.zero_grad()
+
+    dist.destroy_process_group()
+
+# 启动：torchrun --nproc_per_node=4 train.py
+
+```
+
+> **追问与陷阱：** DP 单进程集中聚合是瓶颈；DDP 每卡一进程、梯度 bucket all-reduce，通常是默认选择。
+
+#### Q42：FSDP 如何支持训练超大模型？
+
+
+**核心回答：**
+
+FSDP 会在所有 GPU 之间分片参数、梯度和 optimizer states，因此每张 GPU 只持有总内存的 1/N。每个 forward/backward layer 前会 all-gather 参数，用完后立即丢弃，从而支持超过单卡显存的大模型。
+
+**代码与实现：**
+
+```python
+
+import functools
+import torch
+import torch.nn as nn
+from torch.distributed.fsdp import (
+    FullyShardedDataParallel as FSDP,
+    MixedPrecision,
+    BackwardPrefetch,
+    ShardingStrategy,
+)
+from torch.distributed.fsdp.wrap import transformer_auto_wrap_policy
+from transformers.models.llama.modeling_llama import LlamaDecoderLayer
+
+mp = MixedPrecision(
+    param_dtype=torch.bfloat16,
+    reduce_dtype=torch.float32,
+)
+wrap = functools.partial(
+    transformer_auto_wrap_policy,
+    transformer_layer_cls={LlamaDecoderLayer},
+)
+
+model = FSDP(
+    model,
+    sharding_strategy=ShardingStrategy.FULL_SHARD,
+    mixed_precision=mp,
+    auto_wrap_policy=wrap,
+    backward_prefetch=BackwardPrefetch.BACKWARD_PRE,
+    device_id=torch.cuda.current_device(),
+)
+
+# FSDP 保存：在 rank 0 合并 shards
+from torch.distributed.fsdp import StateDictType, FullStateDictConfig
+
+cfg = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
+with FSDP.state_dict_type(model, StateDictType.FULL_STATE_DICT, cfg):
+    state = model.state_dict()
+    if dist.get_rank() == 0:
+        torch.save(state, "model.pt")
+
+```
+
+> **追问与陷阱：** FSDP 的关键是参数、梯度、optimizer state 分片及 all-gather/reduce-scatter 的通信时机。
+
+#### Q43：如何为 DDP 训练实现 DistributedSampler？
+
+
+**核心回答：**
+
+DistributedSampler 会按 rank 切分数据集，使每张 GPU 看到互不重叠的样本子集。每个 epoch 开始时都要调用 sampler.set_epoch(epoch)，用不同随机种子重新 shuffle；如果跳过这一步，每个 epoch 都会看到相同顺序。
+
+**代码与实现：**
+
+```python
+
+from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
+
+sampler = DistributedSampler(
+    dataset,
+    num_replicas=world_size,
+    rank=rank,
+    shuffle=True,
+    drop_last=True,
+)
+
+loader = DataLoader(
+    dataset,
+    batch_size=64,
+    sampler=sampler,
+    num_workers=4,
+    pin_memory=True,
+    persistent_workers=True,
+)
+
+# 关键：每个 epoch 都设置 epoch，确保正确 shuffle
+for epoch in range(num_epochs):
+    sampler.set_epoch(epoch)  # 每个 epoch 改变随机种子
+    for x, y in loader:
+        ...
+
+# 没有 set_epoch：每个 epoch 使用相同 shuffle
+# -> 所有 rank 看到同样顺序 -> 错误
+
+```
+
+> **追问与陷阱：** set_epoch() 不是装饰；它改变每轮的确定性 shuffle，同时保持各 rank 不重叠。
+
+#### Q44：流水线并行和张量并行有什么区别？
+
+
+**核心回答：**
+
+流水线并行把模型层切到不同 GPU 上，数据像流水线一样流过各个 stage，并通过 micro-batching 隐藏 pipeline bubble。张量并行，例如 Megatron-LM，会把单个权重矩阵切到多张 GPU 上，并在每层做 all-reduce。大规模 LLM 训练通常把二者和 DDP 结合起来，即 3D parallelism。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+# Pipeline parallelism：每张 GPU 持有一部分层
+stage0 = nn.Sequential(embedding, layer0, layer1).to("cuda:0")
+stage1 = nn.Sequential(layer2, layer3, head).to("cuda:1")
+
+def forward_pipeline(x):
+    x = stage0(x)          # 在 GPU 0
+    x = x.to("cuda:1")     # 显式传输
+    return stage1(x)       # 在 GPU 1
+
+# Tensor parallelism：按列切分权重矩阵
+class ColParallelLinear(nn.Module):
+    def __init__(self, in_f, out_f, world_size):
+        super().__init__()
+        self.linear = nn.Linear(in_f, out_f // world_size)
+
+    def forward(self, x):
+        local = self.linear(x)
+        out = [torch.zeros_like(local) for _ in range(dist.get_world_size())]
+        dist.all_gather(out, local)
+        return torch.cat(out, dim=-1)  # 重建输出
+
+```
+
+> **追问与陷阱：** pipeline 切层、tensor parallel 切算子、data parallel 切 batch；大模型常组合成 3D parallelism。
+
+#### Q45：如何使用 torchrun 配置分布式训练任务？
+
+
+**核心回答：**
+
+torchrun 替代旧的 torch.distributed.launch，会自动设置环境变量 RANK、LOCAL_RANK 和 WORLD_SIZE，并管理 worker fault tolerance。脚本读取这些变量来初始化 process group。
+
+**代码与实现：**
+
+```python
+
+# train_ddp.py
+import os
+import torch
+import torch.distributed as dist
+import torch.nn as nn
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+def main():
+    rank = int(os.environ["RANK"])
+    local_rank = int(os.environ["LOCAL_RANK"])
+    world_size = int(os.environ["WORLD_SIZE"])
+
+    dist.init_process_group(backend="nccl")
+    torch.cuda.set_device(local_rank)
+
+    model = nn.Linear(512, 10).to(local_rank)
+    model = DDP(model, device_ids=[local_rank])
+    # ... training loop ...
+
+    dist.destroy_process_group()
+
+if __name__ == "__main__":
+    main()
+
+```
+
+**代码与实现：**
+
+```bash
+
+# 单节点，4 GPUs
+torchrun --nproc_per_node=4 train_ddp.py
+
+# 多节点，2 个节点，每个节点 8 GPUs
+# 节点 0，也就是 master:
+torchrun --nproc_per_node=8 --nnodes=2 --node_rank=0 \
+  --master_addr="192.168.1.10" --master_port=29500 train_ddp.py
+
+# 节点 1:
+torchrun --nproc_per_node=8 --nnodes=2 --node_rank=1 \
+  --master_addr="192.168.1.10" --master_port=29500 train_ddp.py
+
+```
+
+> **追问与陷阱：** 除了启动命令，还要说明 rendezvous、rank/world size、容错、网络接口与 NCCL 排障。
+
+### 63.10 第 10 章：调试、性能分析与最佳实践
+
+
+最后一章关注工程判断。大多数真实 PyTorch 痛点来自调试，而不是写出模型第一版。当训练发散、梯度爆炸或内存每个 epoch 都增长时，你需要方法，而不是猜测。这些问题让你有机会清楚展示自己的方法。
+
+- **核心概念：**梯度路径调试、NaN tracing、可复现性设置、针对性单元测试、profiler 使用和内存泄漏诊断。
+
+- **面试官真正想检查的是：**你是否能按纪律化顺序排查问题，并在不猜测的情况下区分症状和根因。
+
+- **常见薄弱点：**一次改太多变量；总是假设 optimizer 有问题；跳过输入统计、shape 或 deterministic settings 等基础检查。
+
+- **学习建议：**把本章当作 incident-response playbook。最好的回答是冷静、分步骤，并以可观测信号为依据。
+#### Q46：如何诊断并修复梯度消失和梯度爆炸？
+
+
+**核心回答：**
+
+定期记录每层的 gradient norm。低于 1e-5 通常提示梯度消失；高于 1e3 通常提示梯度爆炸。修复手段包括 gradient clipping、合适的权重初始化，例如 He/Xavier、残差连接和归一化层。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+def log_grad_norms(model):
+    for name, p in model.named_parameters():
+        if p.grad is not None:
+            print(f"{name}: {p.grad.norm().item():.4e}")
+
+for step, (x, y) in enumerate(loader):
+    loss = criterion(model(x), y)
+    loss.backward()
+
+    if step % 100 == 0:
+        log_grad_norms(model)
+
+    nn.utils.clip_grad_norm_(model.parameters(), 1.0)  # 修复 exploding
+    optimizer.step()
+    optimizer.zero_grad()
+
+# 修复：合适初始化
+def init_weights(m):
+    if isinstance(m, nn.Linear):
+        nn.init.kaiming_normal_(m.weight, nonlinearity="relu")
+        if m.bias is not None:
+            nn.init.zeros_(m.bias)
+    elif isinstance(m, nn.Conv2d):
+        nn.init.kaiming_normal_(m.weight, mode="fan_out")
+
+model.apply(init_weights)
+
+# 修复：Transformer 中用 LayerNorm，CNN 中用 BatchNorm
+# 修复：使用 ReLU/GELU activation，深层网络避免 Sigmoid/Tanh
+
+```
+
+> **追问与陷阱：** 先记录逐层 grad norm 再修复；clipping 只缓解 exploding，不能解释或修复所有根因。
+
+#### Q47：训练中如何追踪 NaN 并定位来源？
+
+
+**核心回答：**
+
+使用 torch.autograd.set_detect_anomaly(True)，当产生 NaN gradient 时可以得到完整 stack trace。注册 forward hook 可以定位具体出问题的层。常见原因包括 log(0)、0/0、未缩放的 fp16 loss，以及过大的 learning rate。
+
+**代码与实现：**
+
+```python
+
+import torch
+import torch.nn as nn
+
+# 立即检测 loss 中的 NaN
+for step, (x, y) in enumerate(loader):
+    out = model(x)
+    loss = criterion(out, y)
+
+    if torch.isnan(loss) or torch.isinf(loss):
+        print(f"NaN at step {step}:")
+        print(
+            f" out: min={out.min():.4f} max={out.max():.4f} "
+            f"nan={out.isnan().any()}"
+        )
+        raise ValueError("NaN in loss")
+
+    loss.backward()
+
+# anomaly detection：会抛出精确 stack trace，但很慢
+with torch.autograd.set_detect_anomaly(True):
+    model(x).sum().backward()
+
+# forward hook：找到出问题的层
+def nan_hook(module, inp, out):
+    if isinstance(out, torch.Tensor) and out.isnan().any():
+        print(f"NaN in: {module.__class__.__name__}")
+
+for mod in model.modules():
+    mod.register_forward_hook(nan_hook)
+
+# 常见修复：
+# log(0) -> 加 eps: torch.log(x.clamp(min=1e-8))
+# 0/0 -> 在自定义 op 中加保护
+# fp16 -> 使用 GradScaler，或切换到 bfloat16
+
+```
+
+> **追问与陷阱：** 定位顺序应是输入 → forward activation → loss → backward gradient → optimizer state。
+
+#### Q48：如何让 PyTorch 训练完全可复现？
+
+
+**核心回答：**
+
+可复现性需要同时设置 Python、NumPy、PyTorch CPU 和所有 GPU 的随机种子；禁用非确定性 cuDNN 算法；并为每个 DataLoader worker 独立设种子。注意：deterministic=True 可能让训练慢 10%-30%。
+
+**代码与实现：**
+
+```python
+
+import os
+import random
+import torch
+import numpy as np
+
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+    torch.use_deterministic_algorithms(True)
+
+set_seed(42)
+
+# DataLoader worker seeding
+def worker_init_fn(worker_id):
+    base = torch.initial_seed() % 2**32
+    np.random.seed(base + worker_id)
+    random.seed(base + worker_id)
+
+loader = DataLoader(
+    dataset,
+    num_workers=4,
+    worker_init_fn=worker_init_fn,
+    generator=torch.Generator().manual_seed(42),
+)
+
+```
+
+> **追问与陷阱：** 可复现不等于跨硬件逐 bit 相同；应明确 determinism、性能代价和环境版本锁定。
+
+#### Q49：如何为 PyTorch 神经网络组件写单元测试？
+
+
+**核心回答：**
+
+好的神经网络测试会检查：
+
+- 输出 shape。
+- 梯度是否流动。
+- 输出是否没有 NaN。
+- 通过 gradcheck 检查数值梯度正确性。
+
+应在每次模型变更时在 CI 中运行这些测试，它们能立刻捕获自定义层中的回归。
+
+**代码与实现：**
+
+```python
+
+import torch
+import unittest
+
+class TestMHSA(unittest.TestCase):
+    def setUp(self):
+        torch.manual_seed(0)
+        self.model = MultiHeadSelfAttention(d_model=64, n_heads=4)
+        self.B, self.T, self.D = 2, 10, 64
+
+    def test_output_shape(self):
+        x = torch.randn(self.B, self.T, self.D)
+        out = self.model(x)
+        self.assertEqual(out.shape, (self.B, self.T, self.D))
+
+    def test_gradients_flow(self):
+        x = torch.randn(self.B, self.T, self.D, requires_grad=True)
+        out = self.model(x)
+        out.sum().backward()
+        self.assertIsNotNone(x.grad)
+        self.assertFalse(x.grad.isnan().any())
+
+    def test_no_nan_output(self):
+        x = torch.randn(self.B, self.T, self.D)
+        out = self.model(x)
+        self.assertFalse(out.isnan().any())
+        self.assertFalse(out.isinf().any())
+
+    def test_gradcheck(self):
+        m = MultiHeadSelfAttention(64, 4).double()
+        x = torch.randn(1, 4, 64, dtype=torch.float64, requires_grad=True)
+        self.assertTrue(torch.autograd.gradcheck(m, (x,), atol=1e-3))
+
+if __name__ == "__main__":
+    unittest.main()
+
+```
+
+> **追问与陷阱：** 至少覆盖 shape/dtype/device、forward 数值、backward、serialization，以及 CPU/GPU parity。
+
+#### Q50：PyTorch 训练循环中常见的内存泄漏有哪些？如何发现？
+
+
+**核心回答：**
+
+最常见的泄漏是把 live tensor 对象追加到 Python list 中；这些 tensor 会持有计算图。使用 .item() 可以得到没有 graph 关联的 scalar。跨 epoch 监控 memory_allocated()：如果模型大小没有变化，但 allocated memory 持续上涨，通常说明存在引用泄漏。
+
+**代码与实现：**
+
+```python
+
+import gc
+import torch
+
+# 错误：计算图在整个 loop 中留在 list 里
+losses = []
+for x, y in loader:
+    loss = model(x).sum()
+    losses.append(loss)  # 持有 graph
+
+# 正确：提取 scalar，不保留 graph 引用
+losses = []
+for x, y in loader:
+    loss = model(x).sum()
+    losses.append(loss.item())  # Python float，无 graph
+
+# 跨 epoch 监控显存
+def check_mem(tag=""):
+    alloc = torch.cuda.memory_allocated() / 1e9
+    res = torch.cuda.memory_reserved() / 1e9
+    print(f"[{tag}] Allocated={alloc:.3f}GB Reserved={res:.3f}GB")
+
+for epoch in range(10):
+    check_mem(f"Epoch {epoch} start")
+
+    for x, y in loader:
+        loss = criterion(model(x), y)
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad(set_to_none=True)  # 释放 grad memory
+
+    check_mem(f"Epoch {epoch} end")
+    gc.collect()
+    torch.cuda.empty_cache()
+
+```
+
+> **追问与陷阱：** 最常见泄漏是 Python 容器保留带 grad_fn 的 tensor；先检查引用链，再谈清缓存。
+
+### 63.11 Top 50 快速复习速查表
+
+
+用这一节做最后快速复习。每一行都是一个你应该能用一到两分钟讲清楚的提示，关键概念是记忆锚点。
+| Q | 问题 | 类别 | 关键概念 |
+| --- | --- | --- | --- |
+| 1 | Tensor vs NumPy | Fundamentals | GPU、autograd、zero-copy |
+| 2 | Tensor 创建 | Fundamentals | zeros、rand、arange |
+| 3 | Reshaping | Fundamentals | view、reshape、squeeze |
+| 4 | Broadcasting | Fundamentals | Shape 对齐、隐蔽 bug |
+| 5 | einsum | Fundamentals | Tensor contractions |
+| 6 | Autograd internals | Autograd | grad_fn、reverse-mode AD |
+| 7 | no_grad / detach | Autograd | Inference、target networks |
+| 8 | In-place ops | Autograd | Version counter、graph corruption |
+| 9 | Custom Function | Autograd | STE、forward/backward |
+| 10 | Gradient accumulation | Autograd | 大 batch 模拟 |
+| 11 | Parameter vs Buffer | nn.Module | state_dict、device movement |
+| 12 | Hooks | nn.Module | Feature extraction、gradient surgery |
+| 13 | Freezing params | nn.Module | Transfer learning |
+| 14 | Weight sharing | nn.Module | Tied autoencoders |
+| 15 | ModuleList / Dict / Seq | nn.Module | Container differences |
+| 16 | Training loop | Training | 生产循环、AMP |
+| 17 | Optimizers | Training | SGD、Adam、AdamW |
+| 18 | LR schedulers | Training | Step、Cosine、OneCycle |
+| 19 | Loss functions | Training | CE、BCE、Huber、Focal |
+| 20 | Mixed precision | Training | AMP、fp16、bf16 |
+| 21 | Custom Dataset | DataLoader | __getitem__、__len__ |
+| 22 | IterableDataset | DataLoader | Streaming、worker sharding |
+| 23 | collate_fn | DataLoader | 变长序列 |
+| 24 | Loader profiling | DataLoader | Throughput、GPU augmentation |
+| 25 | Class imbalance | DataLoader | WeightedSampler、Focal |
+| 26 | GPU memory / OOM | CUDA | Caching allocator、debugging |
+| 27 | pin_memory | CUDA | DMA、non-blocking transfer |
+| 28 | CUDA streams | CUDA | 计算和 I/O 重叠 |
+| 29 | torch.compile | CUDA | TorchDynamo、Inductor |
+| 30 | Profiling | CUDA | Profiler、CUDA events |
+| 31 | state_dict 保存 | Deployment | 可移植 checkpoint |
+| 32 | TorchScript | Deployment | trace vs script |
+| 33 | ONNX export | Deployment | Dynamic axes、ORT |
+| 34 | Quantization | Deployment | Dynamic、PTQ、QAT |
+| 35 | Early stopping | Deployment | Patience、best checkpoint |
+| 36 | ResNet block | Architectures | Residual connections |
+| 37 | Multi-head attention | Architectures | QKV、scaled dot-product |
+| 38 | LSTM | Architectures | pack/pad、bidirectional |
+| 39 | BatchNorm vs LayerNorm | Architectures | Normalization axis |
+| 40 | Positional encoding | Architectures | Sinusoidal、learned、RoPE |
+| 41 | DP vs DDP | Distributed | All-reduce、one process/GPU |
+| 42 | FSDP | Distributed | Sharding、大模型 |
+| 43 | DistributedSampler | Distributed | set_epoch、无重复 |
+| 44 | Pipeline / tensor parallel | Distributed | 3D parallelism |
+| 45 | torchrun | Distributed | 多节点启动 |
+| 46 | Vanishing / exploding | Debugging | Grad norms、clipping |
+| 47 | NaN detection | Debugging | Anomaly detection、hooks |
+| 48 | Reproducibility | Debugging | Seeds、deterministic CUDA |
+| 49 | Unit testing | Debugging | Shape、grad、gradcheck |
+| 50 | Memory leaks | Debugging | .item()、zero_grad、gc |

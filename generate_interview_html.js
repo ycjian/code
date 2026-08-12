@@ -148,6 +148,7 @@ const pages = [
       { title: "2026 Data Engineering", from: "60. 2026 Data Engineering 高频新题：Serving、Commit 与数据产品" },
       { title: "当前 Onsite 高频题", from: "61. 当前 Onsite 高频统计与 SQL 追问题" },
       { title: "Bagu 完整八股", from: "62. Bagu：机器学习八股文完整合并" },
+      { title: "PyTorch Top 50", from: "63. PyTorch 面试问答 Top 50：从张量、训练到分布式系统" },
     ],
   },
   {
